@@ -12,7 +12,7 @@ Run the Windows pass after the MediaPipe worker changes are available on the rem
 
 - Windows 11 x86-64 with current system and GPU updates.
 - At least 16 GB RAM and 20 GB free working space preferred.
-- Chrome, Git, and Node.js 22 or newer.
+- Chrome, Git, Node.js 22 or newer, and either Corepack or pnpm. The bootstrap always uses the pnpm version pinned in `package.json`.
 - One real UVC camera; record exact vendor/product ID, firmware, cable, port, modes, and driver.
 - One Xbox-style standards-conformant controller over every available transport: USB first, then Bluetooth or receiver.
 - A second SSD is preferred for the later native Linux installation. A partition is acceptable only with verified backups and recovery media.
@@ -31,7 +31,7 @@ The bootstrap script changes only the repository dependency/build state. It does
 
 ## First hands-on matrix
 
-1. Start `corepack pnpm dev`, open the local URL in Chrome, and approve only camera access.
+1. Start `.\scripts\windows\pnpm.ps1 dev`, open the local URL in Chrome, and approve only camera access. The wrapper uses the pinned pnpm version without requiring permanent Corepack shims.
 2. Verify the tracker reports `WORKER / ...`, not the main-thread fallback.
 3. Stand at center, near/far bounds, and left/right edges. Verify the entire body remains visible without displaying raw camera video.
 4. Exercise join, jump, duck, both dodges, menu swipes, hands-together select, crossed-arm Back, manual pause, brief tracking loss, two-second recovery, Resume, and Exit.

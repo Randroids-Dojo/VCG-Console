@@ -9,10 +9,16 @@ if (-not (Test-Path "package.json")) {
   throw "Run this script from the VCG-Console repository root."
 }
 
-foreach ($commandName in @("git", "node", "corepack")) {
+foreach ($commandName in @("git", "node")) {
   if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
     throw "Missing prerequisite: $commandName. Install Git and Node.js 22 or newer, then rerun."
   }
+}
+
+function Invoke-PinnedPnpm {
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$PnpmArguments)
+
+  & "$PSScriptRoot\pnpm.ps1" @PnpmArguments
 }
 
 $nodeMajor = [int]((& node -p "process.versions.node.split('.')[0]").Trim())
@@ -29,15 +35,15 @@ if (-not ($chromeCandidates | Where-Object { Test-Path $_ } | Select-Object -Fir
   throw "Google Chrome is required for the current end-to-end camera test."
 }
 
-& corepack pnpm --version
-& corepack pnpm install --frozen-lockfile
-& corepack pnpm prepare:assets
-& corepack pnpm prepare:schemas
-& corepack pnpm typecheck
-& corepack pnpm test
-& corepack pnpm build
-& corepack pnpm validate:manifests
-& corepack pnpm test:e2e
+Invoke-PinnedPnpm --version
+Invoke-PinnedPnpm install --frozen-lockfile
+Invoke-PinnedPnpm prepare:assets
+Invoke-PinnedPnpm prepare:schemas
+Invoke-PinnedPnpm typecheck
+Invoke-PinnedPnpm test
+Invoke-PinnedPnpm build
+Invoke-PinnedPnpm validate:manifests
+Invoke-PinnedPnpm test:e2e
 
 Write-Host "Windows repository bootstrap and automated checks passed."
 Write-Host "Run scripts\windows\inventory.ps1, then follow docs\WINDOWS_QUALIFICATION.md for real camera and controller checks."

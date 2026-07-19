@@ -8,7 +8,7 @@ This repository now contains the first reversible desk prototype alongside the r
 
 ## Run the desk prototype
 
-Prerequisites: Node.js 22 or newer, pnpm 10.30.3, and Chrome for the end-to-end camera test.
+Prerequisites: Node.js 22 or newer, pnpm 10.30.3 (directly or through Corepack), and Chrome for the end-to-end camera test.
 
 ```sh
 pnpm install

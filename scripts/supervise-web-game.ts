@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { homedir, platform } from "node:os";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { parseGameManifest } from "@vcg/game-manifest";
 
 function parseArguments() {
@@ -14,7 +15,25 @@ function parseArguments() {
 function chromePath(): string {
   if (process.env.VCG_CHROME_PATH) return process.env.VCG_CHROME_PATH;
   if (platform() === "darwin") return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  if (platform() === "win32") {
+    const candidates = [
+      process.env.ProgramFiles && join(process.env.ProgramFiles, "Google", "Chrome", "Application", "chrome.exe"),
+      process.env["ProgramFiles(x86)"] &&
+        join(process.env["ProgramFiles(x86)"], "Google", "Chrome", "Application", "chrome.exe"),
+      process.env.LOCALAPPDATA && join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application", "chrome.exe"),
+    ].filter((candidate): candidate is string => Boolean(candidate));
+    return candidates.find(existsSync) ?? "chrome.exe";
+  }
   return "chromium";
+}
+
+function dataPath(): string {
+  if (process.env.VCG_DATA_PATH) return resolve(process.env.VCG_DATA_PATH);
+  if (platform() === "win32" && process.env.LOCALAPPDATA) return join(process.env.LOCALAPPDATA, "VCG Console");
+  if (platform() === "darwin") return join(homedir(), "Library", "Application Support", "VCG Console");
+  return process.env.XDG_DATA_HOME
+    ? join(process.env.XDG_DATA_HOME, "vcg-console")
+    : join(homedir(), ".local", "share", "vcg-console");
 }
 
 async function main() {
@@ -22,7 +41,7 @@ async function main() {
   const manifest = parseGameManifest(JSON.parse(await readFile(manifestPath, "utf8")));
   if (manifest.runtime !== "remote-web") throw new Error(`Prototype supervisor supports remote-web only, received ${manifest.runtime}`);
 
-  const profilePath = resolve(homedir(), ".local/share/vcg-console/dev/browser-profiles", manifest.id);
+  const profilePath = join(dataPath(), "dev", "browser-profiles", manifest.id);
   const browserArgs = [
     `--app=${manifest.entrypoint}`,
     `--user-data-dir=${profilePath}`,
