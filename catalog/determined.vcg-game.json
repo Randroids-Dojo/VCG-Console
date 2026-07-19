@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "determined",
+  "version": "hosted-7d9a38dc-2026-07-19",
+  "title": "Determined",
+  "publisher": "Randroid's Dojo",
+  "runtime": "remote-web",
+  "entrypoint": "https://determined-khaki.vercel.app",
+  "architectures": ["web"],
+  "permissions": ["keyboard", "pointer", "network", "persistent-storage"],
+  "inputProfiles": ["keyboard", "pointer"],
+  "minimumConsoleVersion": "0.0.1",
+  "network": "required",
+  "allowedOrigins": ["https://determined-khaki.vercel.app"],
+  "compatibilityStatus": "partial",
+  "launch": { "timeoutMs": 30000, "healthCheck": { "type": "http", "path": "/" } },
+  "rights": { "distribution": "remote-only", "codeLicense": "NOASSERTION", "contentLicense": "NOASSERTION", "reviewStatus": "unreviewed" },
+  "notes": [
+    "Static frontend and fallback behavior require a separate local-package test.",
+    "Groq generation, random words, KV cache, and leaderboard services remain hosted.",
+    "Controller-only play is unverified."
+  ]
+}

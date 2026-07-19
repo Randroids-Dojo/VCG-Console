@@ -1,0 +1,17 @@
+{
+  "package": "@mediapipe/tasks-vision@0.10.35",
+  "assets": [
+    {
+      "name": "MediaPipe Pose Landmarker Lite float16 model",
+      "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+      "bytes": 5777746,
+      "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+    },
+    {
+      "name": "OCR-A 1.0 TrueType font",
+      "url": "https://downloads.sourceforge.net/project/ocr-a-font/OCR-A/1.0/OCRA.ttf?download=1",
+      "bytes": 24316,
+      "sha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e"
+    }
+  ]
+}

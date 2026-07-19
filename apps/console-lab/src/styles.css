@@ -1,0 +1,642 @@
+@font-face {
+  font-family: "OCRA";
+  src: url("/fonts/OCRA.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: "OCRA", ui-monospace, "SFMono-Regular", monospace;
+  --ink: #090b0c;
+  --panel: #101315;
+  --rail: #171b1d;
+  --line: #303638;
+  --paper: #efeee6;
+  --muted: #778084;
+  --accent: #53dac3;
+  --fault: #ff765f;
+  background: var(--ink);
+  color: var(--paper);
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    var(--ink);
+  background-size: 32px 32px;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.console-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.topbar {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(9, 11, 12, 0.92);
+}
+
+.wordmark {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+}
+
+.wordmark span {
+  color: var(--accent);
+  padding: 0 0.2em;
+}
+
+.system-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
+.state-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent), transparent 40%);
+}
+
+.topbar time {
+  justify-self: end;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.lab-grid {
+  width: min(1600px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 380px);
+  gap: clamp(24px, 4vw, 64px);
+  padding: clamp(28px, 4vw, 64px) clamp(24px, 4vw, 64px);
+}
+
+.stage-panel {
+  min-width: 0;
+}
+
+.stage-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: clamp(0.62rem, 0.8vw, 0.76rem);
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  max-width: 850px;
+  margin: 0;
+  font-size: clamp(2rem, 5.4vw, 5.4rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.privacy-copy {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.55;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+.skeleton-stage {
+  position: relative;
+  min-height: 52vh;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(83, 218, 195, 0.07), transparent 46%),
+    var(--panel);
+}
+
+.stage-view[hidden] {
+  display: none;
+}
+
+.obstacle-stage,
+.shell-lab-stage {
+  position: relative;
+  min-height: 52vh;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+#obstacle-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 52vh;
+}
+
+.game-score {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.game-score strong {
+  margin-left: 8px;
+  color: var(--paper);
+  font-weight: 400;
+}
+
+.shell-lab-stage {
+  display: grid;
+  align-content: center;
+  gap: clamp(28px, 5vw, 54px);
+  padding: clamp(28px, 5vw, 72px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(83, 218, 195, 0.055), transparent 44%),
+    var(--panel);
+}
+
+.shell-instruction {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  line-height: 1.6;
+}
+
+.shell-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.shell-cards button {
+  min-height: 180px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+}
+
+.shell-cards button span,
+.shell-cards button small {
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.65rem;
+  font-weight: 400;
+}
+
+.shell-cards button strong {
+  align-self: center;
+  color: var(--paper);
+  font-size: clamp(0.86rem, 1.4vw, 1.15rem);
+  font-weight: 400;
+}
+
+.shell-cards button.focused,
+.shell-cards button:focus-visible {
+  border-color: var(--accent);
+  box-shadow: inset 0 4px 0 var(--accent);
+}
+
+.shell-test-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.shell-test-controls button {
+  min-height: 44px;
+  padding: 10px 16px 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.64rem;
+}
+
+#skeleton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 52vh;
+}
+
+.stage-corners {
+  position: absolute;
+  inset: 14px;
+  pointer-events: none;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--accent), var(--accent)) left top / 30px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) left top / 1px 30px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right top / 30px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right top / 1px 30px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) left bottom / 30px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) left bottom / 1px 30px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right bottom / 30px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right bottom / 1px 30px no-repeat;
+  opacity: 0.65;
+}
+
+.source-badge {
+  position: absolute;
+  left: 26px;
+  bottom: 24px;
+  padding: 10px 12px 8px;
+  border: 1px solid var(--line);
+  background: rgba(9, 11, 12, 0.86);
+  color: var(--accent);
+  font-size: 0.64rem;
+  letter-spacing: 0.09em;
+}
+
+.telemetry-panel {
+  align-self: end;
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel), transparent 12%);
+}
+
+.telemetry-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: start;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.health-badge {
+  padding: 7px 9px 5px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.health-badge[data-state="fault"] {
+  border-color: var(--fault);
+  color: var(--fault);
+}
+
+.metrics {
+  margin: 0;
+}
+
+.metrics div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 0 11px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line), transparent 42%);
+}
+
+.metrics dt,
+.metrics dd {
+  margin: 0;
+  font-size: 0.66rem;
+  line-height: 1.3;
+}
+
+.metrics dt {
+  color: var(--muted);
+}
+
+.metrics dd {
+  color: var(--paper);
+  text-align: right;
+}
+
+.measurement-note {
+  margin: 16px 0 20px;
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.controls {
+  display: grid;
+  gap: 10px;
+}
+
+.controls button {
+  min-height: 46px;
+  padding: 12px 16px 10px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.67rem;
+  text-align: left;
+  letter-spacing: 0.05em;
+}
+
+.controls button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.controls button.primary-control {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.controls button:disabled {
+  cursor: not-allowed;
+  color: color-mix(in srgb, var(--muted), transparent 45%);
+}
+
+.status-detail {
+  min-height: 3.2em;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.command-rail {
+  min-height: 86px;
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--line);
+  background: var(--rail);
+}
+
+.command {
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 28px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
+.command span {
+  color: color-mix(in srgb, var(--muted), transparent 35%);
+  font-size: 0.58rem;
+}
+
+.command.active {
+  box-shadow: inset 0 3px 0 var(--accent);
+  color: var(--paper);
+}
+
+.command:disabled {
+  color: color-mix(in srgb, var(--muted), transparent 50%);
+}
+
+.escape-hint {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 32px;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.console-overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 4, 5, 0.88);
+  backdrop-filter: blur(12px);
+}
+
+.console-overlay[hidden] {
+  display: none;
+}
+
+.overlay-card {
+  width: min(680px, 100%);
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+}
+
+.overlay-card h2 {
+  margin: 0 0 18px;
+  font-size: clamp(2rem, 6vw, 4.6rem);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.overlay-card > p:not(.eyebrow):not(.overlay-help) {
+  margin: 0 0 30px;
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  line-height: 1.6;
+}
+
+.overlay-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.overlay-options button {
+  min-height: 76px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.overlay-options button.focused {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--ink);
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.overlay-help {
+  margin: 24px 0 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+kbd {
+  min-width: 42px;
+  padding: 8px 8px 6px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .system-state {
+    display: none;
+  }
+
+  .lab-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .telemetry-panel {
+    width: 100%;
+  }
+
+  .command {
+    min-width: 0;
+    flex: 1;
+    justify-content: center;
+    padding: 0 12px;
+  }
+
+  .command span,
+  .escape-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    min-height: 60px;
+    padding: 14px 18px;
+  }
+
+  .lab-grid {
+    padding: 24px 16px;
+  }
+
+  .stage-heading {
+    align-items: start;
+  }
+
+  .privacy-copy {
+    display: none;
+  }
+
+  .skeleton-stage,
+  .obstacle-stage,
+  .shell-lab-stage,
+  #skeleton {
+    min-height: 48vh;
+  }
+
+  #obstacle-canvas {
+    min-height: 48vh;
+  }
+
+  .shell-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-cards button {
+    min-height: 120px;
+  }
+
+  .shell-test-controls,
+  .overlay-options {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .command-rail {
+    min-height: 70px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

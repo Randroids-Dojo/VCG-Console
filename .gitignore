@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+coverage/
+test-results/
+playwright-report/
+apps/console-lab/public/models/
+apps/console-lab/public/wasm/
+apps/console-lab/public/fonts/
