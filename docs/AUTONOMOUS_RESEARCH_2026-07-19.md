@@ -1,6 +1,6 @@
 # Autonomous research tranche: 2026-07-19
 
-This tranche begins after completion of the project-owner intake. All 119 owner decisions remain in force. Implementation added five reversible working decisions and opened two engineering questions, bringing the current register to 124 decisions and 67 open questions. No additional owner answer is required before prototype work continues.
+This tranche begins after completion of the project-owner intake. All 119 owner decisions remain in force. Implementation added seven reversible working decisions and opened two engineering questions, bringing the current register to 126 decisions and 67 open questions. No additional owner answer is required before prototype work continues.
 
 ## Outcome
 

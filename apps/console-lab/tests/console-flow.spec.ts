@@ -42,5 +42,16 @@ test("loads the pinned local model and starts a camera pipeline", async ({ page 
   await page.getByRole("button", { name: "START CAMERA" }).click();
   await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
   await expect(page.locator("#source-badge")).toHaveText("MEDIAPIPE / LOCAL");
-  await expect(page.locator("#metric-tracker")).not.toHaveText("SYNTHETIC", { timeout: 15_000 });
+  await expect
+    .poll(async () => `${await page.locator("#metric-tracker").textContent()} / ${await page.locator("#status-detail").textContent()}`, { timeout: 15_000 })
+    .toContain("WORKER");
+});
+
+test("reports and survives an unavailable worker with the explicit fallback", async ({ page }) => {
+  await page.route("**/tracker-worker-*.js", (route) => route.abort());
+  await page.goto("/");
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#metric-tracker")).toContainText("MAIN", { timeout: 15_000 });
+  await expect(page.locator("#status-detail")).toContainText("Worker initialization failed");
 });

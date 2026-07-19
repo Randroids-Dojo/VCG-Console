@@ -30,6 +30,8 @@ pnpm validate:manifests
 pnpm supervise:game catalog/determined.vcg-game.json --dry-run
 ```
 
+For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
+
 The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the native SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior.
 
 ## Research workspace
@@ -43,6 +45,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)
+- [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
 - [Source ledger](docs/SOURCES.md)
 
 ## Experience principles

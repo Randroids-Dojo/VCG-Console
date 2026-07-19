@@ -52,10 +52,34 @@ The fake-camera test proves the prepared model and browser capture pipeline init
 
 ### Active limits and next evidence
 
-1. MediaPipe `detectForVideo` is synchronous in the browser API. I-208 compares worker and native-process boundaries before the shell can claim load isolation.
+1. MediaPipe `detectForVideo` is synchronous in the browser API. It now runs in a dedicated browser worker, but I-208 still compares this boundary with a native process under real load.
 2. Browser capture records capture-arrival time, not camera exposure time. No current latency number can pass D-110's 120 ms p95 gate.
 3. Action thresholds have unit and synthetic tests but no consented real-room precision/recall score. I-210 is the next motion evidence task.
 4. Browser Gamepad input is not SDL3, and page code cannot reserve Home/Back. I-209 owns the native Linux boundary.
 5. Chrome app mode does not yet enforce allowed origins, report game readiness, render all branded launch phases, or survive hostile full-screen/pointer-lock/hang cases.
 6. No current result qualifies ordinary x86-64 Linux, Raspberry Pi, Hailo, or Steam Machine hardware.
 7. Model and font artifact provenance is pinned, but full redistribution/SBOM/notice review remains required before a public release bundle.
+
+## 2026-07-19: worker isolation and Windows handoff
+
+### Delivered
+
+- MediaPipe model initialization and `detectForVideo` now run in a dedicated Vite module worker rather than the console UI thread.
+- Camera frames cross the boundary as transferable `ImageBitmap` objects. Only one frame may be in flight; additional capture frames are counted and dropped instead of becoming latency-producing backlog.
+- Capture-arrival timing is taken before bitmap creation, and publication timing is taken after the skeletal result returns to the UI, so the prototype pipeline measurement includes both transfers. It is still not a camera exposure timestamp.
+- The worker selects MediaPipe's module WASM loader explicitly. Without that flag, version 0.10.35 loads the classic script into module scope and fails with `ModuleFactory not set`.
+- Worker initialization failure is visible and falls back to the prior main-thread backend. End-to-end tests cover both isolated operation and the explicit fallback.
+- A Windows x86-64 bootstrap, inventory script, and qualification checklist are ready for the secondary workstation handoff.
+
+### Verification evidence
+
+| Check | Result |
+|---|---|
+| Worker production bundle | Vite emits a separate `tracker-worker` asset. |
+| Backpressure unit tests | One in-flight frame enforced; drops counted; session reset verified. |
+| Worker camera test | Pinned model initializes in Chrome's worker and publishes local pose frames. |
+| Fallback camera test | Aborted worker bundle produces visible fallback state while camera inference remains live. |
+
+### Remaining boundary
+
+I-208 remains active rather than closed. Real-camera responsiveness, dropped-frame distribution, actual exposure timestamps, native-process comparison, and ARM64/x86-64 target measurements are still missing.

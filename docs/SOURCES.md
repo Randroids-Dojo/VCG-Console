@@ -24,6 +24,7 @@ Prefer primary project repositories, official documentation, standards, and offi
 | [MediaPipe Pose Landmarker](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker) | Official tasks API documentation for 33 landmarks, world coordinates, multiple poses, segmentation, and live-stream operation. |
 | [MediaPipe Pose Landmarker for web](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker/web_js) | Official `@mediapipe/tasks-vision` setup and video API guidance; documents that `detect()` and `detectForVideo()` run synchronously and can block the UI thread, motivating I-208. |
 | [Official MediaPipe web samples](https://github.com/google-ai-edge/mediapipe-samples-web) | Apache-2.0 reference implementations for MediaPipe Tasks in browser applications. |
+| [MediaPipe module-worker issue 5257](https://github.com/google-ai-edge/mediapipe/issues/5257) | Upstream record of the Tasks Vision classic-loader failure inside module workers and the patch history. The VCG test reproduces the failure when the module WASM loader is not selected. |
 | [MMPose](https://github.com/open-mmlab/mmpose) | Apache-2.0 pose toolbox with model zoo and deployment ecosystem. |
 | [rtmlib](https://github.com/Tau-J/rtmlib) | Apache-2.0 lightweight RTMPose/RTMO deployment across ONNX Runtime, TensorRT, OpenVINO, and ncnn. |
 | [MMPose inference guide](https://github.com/open-mmlab/mmpose/blob/main/docs/en/user_guides/inference.md) | Documents multi-frame pose tracking and OKS-based tracking options. |

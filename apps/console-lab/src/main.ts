@@ -87,6 +87,7 @@ app.innerHTML = `
           <div><dt>INFERENCE P50</dt><dd id="metric-inference-p50">-- MS</dd></div>
           <div><dt>INFERENCE P95</dt><dd id="metric-inference-p95">-- MS</dd></div>
           <div><dt>PIPELINE P95</dt><dd id="metric-pipeline-p95">-- MS*</dd></div>
+          <div><dt>DROPPED FRAMES</dt><dd id="metric-dropped">0</dd></div>
           <div><dt>TRACE FRAMES</dt><dd id="metric-trace">0</dd></div>
         </dl>
         <p class="measurement-note">* Browser prototype uses capture-arrival time, not a camera exposure timestamp. It cannot qualify the 120 ms product gate.</p>
@@ -268,6 +269,7 @@ function paintMetrics(frame: MotionFrame): void {
   required<HTMLElement>("#metric-inference-p50").textContent = `${snapshot.inferenceP50.toFixed(1)} MS`;
   required<HTMLElement>("#metric-inference-p95").textContent = `${snapshot.inferenceP95.toFixed(1)} MS`;
   required<HTMLElement>("#metric-pipeline-p95").textContent = `${snapshot.pipelineP95.toFixed(1)} MS*`;
+  required<HTMLElement>("#metric-dropped").textContent = String(tracker.droppedFrames);
   required<HTMLElement>("#metric-trace").textContent = String(trace.size);
 }
 
