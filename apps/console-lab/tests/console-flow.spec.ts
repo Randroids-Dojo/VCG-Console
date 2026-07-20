@@ -55,3 +55,18 @@ test("reports and survives an unavailable worker with the explicit fallback", as
   await expect(page.locator("#metric-tracker")).toContainText("MAIN", { timeout: 15_000 });
   await expect(page.locator("#status-detail")).toContainText("Worker initialization failed");
 });
+
+test("cooperative web game negotiates, receives a frame, and reconnects after reload", async ({ page }) => {
+  await page.goto("/bridge-host.html");
+  const game = page.frameLocator("#game");
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await expect(page.locator("#host-status")).toHaveText("CONNECTED");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#frame-sequence")).toHaveText("FRAME 0");
+
+  await page.locator("#game").evaluate((element: HTMLIFrameElement) => element.contentWindow?.location.reload());
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await page.waitForTimeout(20);
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#frame-sequence")).toHaveText("FRAME 1");
+});

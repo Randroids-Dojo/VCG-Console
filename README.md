@@ -45,7 +45,9 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)
+- [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
+- [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)
 - [Source ledger](docs/SOURCES.md)
 
 ## Experience principles

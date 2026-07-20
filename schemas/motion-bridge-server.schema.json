@@ -1,0 +1,710 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vcg.motion.welcome"
+        },
+        "protocolVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "body.core17",
+                  "body.mediapipe33",
+                  "body.world3d",
+                  "actions.obstacle.v1",
+                  "actions.shell.v1"
+                ]
+              }
+            },
+            "maxPlayers": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "coordinateSystem": {
+              "type": "string",
+              "const": "image.normalized.top-left"
+            },
+            "timestampQuality": {
+              "type": "string",
+              "enum": [
+                "camera-exposure",
+                "capture-arrival",
+                "replay"
+              ]
+            }
+          },
+          "required": [
+            "profiles",
+            "maxPlayers",
+            "coordinateSystem",
+            "timestampQuality"
+          ],
+          "additionalProperties": false
+        },
+        "negotiation": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "accepted": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "activeProfiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                },
+                "unavailableOptionalProfiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "accepted",
+                "activeProfiles",
+                "unavailableOptionalProfiles"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accepted": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "missingRequiredProfiles": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "accepted",
+                "missingRequiredProfiles"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "protocolVersion",
+        "sessionId",
+        "capabilities",
+        "negotiation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vcg.motion.rejected"
+        },
+        "protocolVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "capability-mismatch",
+            "protocol-error"
+          ]
+        },
+        "negotiation": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "accepted": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "activeProfiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                },
+                "unavailableOptionalProfiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "accepted",
+                "activeProfiles",
+                "unavailableOptionalProfiles"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accepted": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "missingRequiredProfiles": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "accepted",
+                "missingRequiredProfiles"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "protocolVersion",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vcg.motion.frame"
+        },
+        "protocolVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "0.1.0"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "mediapipe-web",
+                "replay",
+                "synthetic"
+              ]
+            },
+            "sourceTimestampMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "inferenceStartedAtMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "inferenceCompletedAtMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "publishedAtMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "health": {
+              "type": "string",
+              "enum": [
+                "starting",
+                "ready",
+                "degraded",
+                "fault"
+              ]
+            },
+            "capabilities": {
+              "type": "object",
+              "properties": {
+                "profiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "body.core17",
+                      "body.mediapipe33",
+                      "body.world3d",
+                      "actions.obstacle.v1",
+                      "actions.shell.v1"
+                    ]
+                  }
+                },
+                "maxPlayers": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "coordinateSystem": {
+                  "type": "string",
+                  "const": "image.normalized.top-left"
+                },
+                "timestampQuality": {
+                  "type": "string",
+                  "enum": [
+                    "camera-exposure",
+                    "capture-arrival",
+                    "replay"
+                  ]
+                }
+              },
+              "required": [
+                "profiles",
+                "maxPlayers",
+                "coordinateSystem",
+                "timestampQuality"
+              ],
+              "additionalProperties": false
+            },
+            "players": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sessionSlot": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "candidate",
+                      "joined",
+                      "lost"
+                    ]
+                  },
+                  "coreLandmarks": {
+                    "minItems": 17,
+                    "maxItems": 17,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "nose",
+                            "left_eye",
+                            "right_eye",
+                            "left_ear",
+                            "right_ear",
+                            "left_shoulder",
+                            "right_shoulder",
+                            "left_elbow",
+                            "right_elbow",
+                            "left_wrist",
+                            "right_wrist",
+                            "left_hip",
+                            "right_hip",
+                            "left_knee",
+                            "right_knee",
+                            "left_ankle",
+                            "right_ankle"
+                          ]
+                        },
+                        "position": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "z": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "worldPosition": {
+                          "type": "object",
+                          "properties": {
+                            "xMeters": {
+                              "type": "number"
+                            },
+                            "yMeters": {
+                              "type": "number"
+                            },
+                            "zMeters": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "xMeters",
+                            "yMeters",
+                            "zMeters"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "visibility": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "presence": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "observed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "position",
+                        "visibility",
+                        "observed"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "richLandmarks": {
+                    "minItems": 33,
+                    "maxItems": 33,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "nose",
+                            "left_eye_inner",
+                            "left_eye",
+                            "left_eye_outer",
+                            "right_eye_inner",
+                            "right_eye",
+                            "right_eye_outer",
+                            "left_ear",
+                            "right_ear",
+                            "mouth_left",
+                            "mouth_right",
+                            "left_shoulder",
+                            "right_shoulder",
+                            "left_elbow",
+                            "right_elbow",
+                            "left_wrist",
+                            "right_wrist",
+                            "left_pinky",
+                            "right_pinky",
+                            "left_index",
+                            "right_index",
+                            "left_thumb",
+                            "right_thumb",
+                            "left_hip",
+                            "right_hip",
+                            "left_knee",
+                            "right_knee",
+                            "left_ankle",
+                            "right_ankle",
+                            "left_heel",
+                            "right_heel",
+                            "left_foot_index",
+                            "right_foot_index"
+                          ]
+                        },
+                        "position": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "z": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "worldPosition": {
+                          "type": "object",
+                          "properties": {
+                            "xMeters": {
+                              "type": "number"
+                            },
+                            "yMeters": {
+                              "type": "number"
+                            },
+                            "zMeters": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "xMeters",
+                            "yMeters",
+                            "zMeters"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "visibility": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "presence": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "observed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "position",
+                        "visibility",
+                        "observed"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "bounds": {
+                    "type": "object",
+                    "properties": {
+                      "left": {
+                        "type": "number"
+                      },
+                      "top": {
+                        "type": "number"
+                      },
+                      "right": {
+                        "type": "number"
+                      },
+                      "bottom": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "left",
+                      "top",
+                      "right",
+                      "bottom"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "player_join",
+                            "jump",
+                            "duck",
+                            "dodge_left",
+                            "dodge_right",
+                            "menu_swipe_left",
+                            "menu_swipe_right",
+                            "menu_select",
+                            "menu_back",
+                            "pause"
+                          ]
+                        },
+                        "phase": {
+                          "type": "string",
+                          "enum": [
+                            "started",
+                            "held",
+                            "ended",
+                            "triggered"
+                          ]
+                        },
+                        "confidence": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "occurredAtMs": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "durationMs": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "phase",
+                        "confidence",
+                        "occurredAtMs"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "sessionSlot",
+                  "confidence",
+                  "state",
+                  "coreLandmarks",
+                  "bounds",
+                  "actions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "sequence",
+            "source",
+            "sourceTimestampMs",
+            "inferenceStartedAtMs",
+            "inferenceCompletedAtMs",
+            "publishedAtMs",
+            "health",
+            "capabilities",
+            "players"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "protocolVersion",
+        "sessionId",
+        "frame"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vcg.motion.error"
+        },
+        "protocolVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "invalid-message",
+            "handshake-required"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "protocolVersion",
+        "code"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

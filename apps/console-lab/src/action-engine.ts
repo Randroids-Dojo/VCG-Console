@@ -18,6 +18,8 @@ const HOLD_BACK_MS = 650;
 const HOLD_PAUSE_MS = 1_100;
 const ACTION_COOLDOWN_MS = 650;
 
+export type ActionContext = "shell" | "game";
+
 function point(player: PlayerMotion, name: CoreLandmarkName): Point | undefined {
   const landmark = player.coreLandmarks.find((candidate) => candidate.name === name);
   return landmark?.observed ? landmark.position : undefined;
@@ -38,11 +40,11 @@ export class ActionEngine {
   #previousLeftWrist: Point | undefined;
   #previousRightWrist: Point | undefined;
   #previousAtMs = 0;
-  #handsTogetherStartedAt = 0;
-  #armsCrossedStartedAt = 0;
+  #handsTogetherStartedAt: number | undefined;
+  #armsCrossedStartedAt: number | undefined;
   #joined = false;
 
-  enrich(frame: MotionFrame): MotionFrame {
+  enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
     const player = frame.players[0];
     if (!player) {
       this.#previousLeftWrist = undefined;
@@ -54,7 +56,7 @@ export class ActionEngine {
     const measurements = this.#measure(player);
     if (!measurements) return frame;
     this.#captureBaseline(measurements);
-    const actions = this.#recognize(player, measurements, now);
+    const actions = this.#recognize(player, measurements, now, context);
     const enrichedPlayer: PlayerMotion = {
       ...player,
       state: this.#joined ? "joined" : "candidate",
@@ -74,8 +76,8 @@ export class ActionEngine {
     this.#baselineSamples.length = 0;
     this.#baseline = undefined;
     this.#lastTriggeredAt.clear();
-    this.#handsTogetherStartedAt = 0;
-    this.#armsCrossedStartedAt = 0;
+    this.#handsTogetherStartedAt = undefined;
+    this.#armsCrossedStartedAt = undefined;
     this.#joined = false;
   }
 
@@ -113,7 +115,7 @@ export class ActionEngine {
     };
   }
 
-  #recognize(player: PlayerMotion, current: Baseline, now: number): MotionAction[] {
+  #recognize(player: PlayerMotion, current: Baseline, now: number, context: ActionContext): MotionAction[] {
     const actions: MotionAction[] = [];
     const leftWrist = point(player, "left_wrist");
     const rightWrist = point(player, "right_wrist");
@@ -123,8 +125,9 @@ export class ActionEngine {
 
     if (leftWrist && rightWrist) {
       const together = distance(leftWrist, rightWrist) < current.shoulderWidth * 0.52;
-      this.#handsTogetherStartedAt = together ? this.#handsTogetherStartedAt || now : 0;
-      if (together && now - this.#handsTogetherStartedAt >= HOLD_SELECT_MS) {
+      if (together && this.#handsTogetherStartedAt === undefined) this.#handsTogetherStartedAt = now;
+      if (!together) this.#handsTogetherStartedAt = undefined;
+      if (together && this.#handsTogetherStartedAt !== undefined && now - this.#handsTogetherStartedAt >= HOLD_SELECT_MS) {
         const name = this.#joined ? "menu_select" : "player_join";
         if (this.#trigger(name, now)) {
           actions.push(this.#action(name, now, Math.min(1, 1 - distance(leftWrist, rightWrist) / current.shoulderWidth)));
@@ -135,10 +138,14 @@ export class ActionEngine {
 
     if (leftWrist && rightWrist && leftElbow && rightElbow) {
       const crossed = leftWrist.x > rightElbow.x && rightWrist.x < leftElbow.x && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
-      this.#armsCrossedStartedAt = crossed ? this.#armsCrossedStartedAt || now : 0;
-      const heldMs = crossed ? now - this.#armsCrossedStartedAt : 0;
-      if (heldMs >= HOLD_PAUSE_MS && this.#trigger("pause", now)) actions.push(this.#action("pause", now, 0.9, heldMs));
-      else if (heldMs >= HOLD_BACK_MS && this.#trigger("menu_back", now)) actions.push(this.#action("menu_back", now, 0.8, heldMs));
+      if (crossed && this.#armsCrossedStartedAt === undefined) this.#armsCrossedStartedAt = now;
+      if (!crossed) this.#armsCrossedStartedAt = undefined;
+      const heldMs = crossed && this.#armsCrossedStartedAt !== undefined ? now - this.#armsCrossedStartedAt : 0;
+      if (context === "game" && heldMs >= HOLD_PAUSE_MS && this.#trigger("pause", now)) {
+        actions.push(this.#action("pause", now, 0.9, heldMs));
+      } else if (context === "shell" && heldMs >= HOLD_BACK_MS && this.#trigger("menu_back", now)) {
+        actions.push(this.#action("menu_back", now, 0.8, heldMs));
+      }
     }
 
     if (this.#joined && baseline) {

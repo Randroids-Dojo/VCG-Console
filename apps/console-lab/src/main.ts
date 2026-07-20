@@ -183,7 +183,7 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
-  const frame = actionEngine.enrich(rawFrame);
+  const frame = actionEngine.enrich(rawFrame, currentMode === "obstacle" ? "game" : "shell");
   latestFrame = frame;
   trace.push(frame);
   metrics.push(frame);

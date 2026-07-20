@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@vcg/game-manifest": "workspace:*",
+    "@vcg/motion-web-bridge": "workspace:*",
     "tsx": "4.21.0",
     "typescript": "5.9.3"
   }
