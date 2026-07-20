@@ -109,3 +109,25 @@ I-208 remains active rather than closed. Real-camera responsiveness, dropped-fra
 ### Remaining boundary
 
 The bridge is for cooperative web integration only. A separately supervised top-level hosted game has no messaging relationship with the shell today. Cross-origin CSP/sandbox and hostile-navigation cases, native process transport, SDL3/global Home and Back, Linux qualification, and measured delivery latency remain open. Replay proves deterministic contract consumption, not tracker accuracy.
+
+## 2026-07-19: boot-to-launcher experience
+
+### Delivered
+
+- A restrained local boot sequence uses one signal line as its only motion; the same line becomes the active launcher navigation indicator.
+- The primary launcher provides Home, Motion, VibeCoded Museum, RetroArch, Profiles, and Settings destinations without making the diagnostic lab the default experience.
+- The Motion hub opens Obstacle, Motion Lab, and Shell Lab while preserving the existing tracker, controller, overlay, and camera-fallback tests.
+- The museum has an explicit `https://vibecoded.games` entry boundary and states that it is a live web experience.
+- Local profile selection, creation, and update flows work in the prototype and clearly state that profile data remains device-local.
+- Settings expose prototype/version data, honest estimated storage capacity, Wi-Fi setup state, update status, developer toggles, and direct Motion Lab access.
+- The Retro hub describes the native RetroArch boundary and refuses to imply that browser-only import or launch is complete.
+- Universal search spans motion experiences, the museum and current compatibility games, RetroArch, profiles, Wi-Fi, storage, and developer options.
+- Launcher Back/Home behavior, keyboard search, controller focus routing, reduced motion, and narrow-display layouts are included.
+
+### Verification evidence
+
+Chrome tests cover the timed boot, every launcher destination, the exact museum URL, profile select/create/update, cross-hub game search, RetroArch search, storage and Wi-Fi surfaces, Motion Lab entry, and the existing camera/worker/overlay contracts. Reviewed 1440 x 1000 boot and home screenshots are stored in `test-results/console-lab`.
+
+### Remaining boundary
+
+Profile and settings changes are prototype session state, not durable encrypted console storage. Wi-Fi, storage, updates, RetroArch, and hosted-game launch still require the native Linux host. Search currently indexes the prototype catalog snapshot rather than consuming the final canonical catalog service.

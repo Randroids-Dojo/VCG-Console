@@ -1,6 +1,7 @@
 import type { MotionAction, MotionFrame } from "@vcg/motion-contract";
 import { ActionEngine } from "./action-engine";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
+import { LauncherController, launcherMarkup } from "./launcher";
 import { Metrics } from "./metrics";
 import { ObstacleGame } from "./obstacle-game";
 import { SkeletonRenderer } from "./renderer";
@@ -23,7 +24,8 @@ const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Application root is missing");
 
 app.innerHTML = `
-  <main class="console-shell">
+  ${launcherMarkup}
+  <main class="console-shell" id="motion-lab" hidden>
     <header class="topbar">
       <button class="wordmark" id="home-button" type="button" aria-label="VCG Console home">VCG<span>/</span>CONSOLE</button>
       <div class="system-state"><span class="state-dot" aria-hidden="true"></span><span id="system-state">REPLAY READY</span></div>
@@ -130,6 +132,7 @@ function required<T extends Element>(selector: string): T {
 }
 
 const renderer = new SkeletonRenderer(required<HTMLCanvasElement>("#skeleton"));
+const motionLab = required<HTMLElement>("#motion-lab");
 const trace = new TraceBuffer();
 const metrics = new Metrics();
 const actionEngine = new ActionEngine();
@@ -156,6 +159,22 @@ let focusedModeIndex = 0;
 let sessionActive = false;
 let overlayKind: OverlayKind | undefined;
 let overlayFocus: "resume" | "exit" = "resume";
+
+const launcher = new LauncherController({
+  openMotionLab(mode = "tracker") {
+    launcher.hide();
+    motionLab.hidden = false;
+    setMode(mode);
+    modeButtons[focusedModeIndex]?.focus();
+  },
+});
+
+function showLauncher(): void {
+  if (overlayKind) closeOverlay(false);
+  motionLab.hidden = true;
+  obstacle.setPaused(true);
+  launcher.show();
+}
 
 const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"), (score, lives, status) => {
   required<HTMLElement>("#game-score").textContent = String(score).padStart(6, "0");
@@ -215,6 +234,7 @@ function handleAction(action: MotionAction): void {
   if (action.name === "menu_back") {
     if (overlayKind) closeOverlay(false);
     else if (currentMode !== "tracker") setMode("tracker");
+    else showLauncher();
   }
   if (action.name === "menu_swipe_left") moveFocus(-1);
   if (action.name === "menu_swipe_right") moveFocus(1);
@@ -222,9 +242,12 @@ function handleAction(action: MotionAction): void {
 }
 
 function handleConsoleInput(action: ConsoleInputAction): void {
+  if (launcher.visible) {
+    launcher.handleInput(action);
+    return;
+  }
   if (action === "home") {
-    if (overlayKind) closeOverlay(false);
-    setMode("tracker");
+    showLauncher();
     return;
   }
   if (action === "back") {
@@ -357,6 +380,7 @@ function goBack(): void {
   if (overlayKind) closeOverlay(false);
   else if (currentMode !== "tracker") setMode("tracker");
   else if (!replayRunning) startReplay();
+  else showLauncher();
 }
 
 function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input is running. Camera access is off."): void {
@@ -394,7 +418,7 @@ cameraButton.addEventListener("click", async () => {
 
 joinButton.addEventListener("click", joinPlayer);
 replayButton.addEventListener("click", () => startReplay());
-required<HTMLButtonElement>("#home-button").addEventListener("click", () => setMode("tracker"));
+required<HTMLButtonElement>("#home-button").addEventListener("click", showLauncher);
 for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode));
 for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode));
 for (const button of overlayButtons) button.addEventListener("click", () => chooseOverlayAction(button.dataset.overlayAction as "resume" | "exit"));
@@ -424,14 +448,20 @@ window.addEventListener("beforeunload", () => {
   void tracker.close();
 });
 document.addEventListener("keydown", (event) => {
+  if (event.key === "/" && launcher.visible && !event.metaKey && !event.ctrlKey && !(event.target instanceof HTMLInputElement)) {
+    event.preventDefault();
+    launcher.openSearch();
+    return;
+  }
   if (event.key === "Escape") {
     event.preventDefault();
-    goBack();
+    if (launcher.visible) launcher.back();
+    else goBack();
   }
-  if (event.key === "ArrowLeft") obstacle.handleAction("dodge_left");
-  if (event.key === "ArrowRight") obstacle.handleAction("dodge_right");
-  if (event.key === "ArrowDown") obstacle.handleAction("duck");
-  if (event.key === " " && currentMode === "obstacle") {
+  if (!launcher.visible && event.key === "ArrowLeft") obstacle.handleAction("dodge_left");
+  if (!launcher.visible && event.key === "ArrowRight") obstacle.handleAction("dodge_right");
+  if (!launcher.visible && event.key === "ArrowDown") obstacle.handleAction("duck");
+  if (!launcher.visible && event.key === " " && currentMode === "obstacle") {
     event.preventDefault();
     obstacle.handleAction("jump");
   }
