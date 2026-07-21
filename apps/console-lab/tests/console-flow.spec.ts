@@ -49,6 +49,11 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.getByRole("button", { name: "Wi-Fi", exact: true }).click();
   await page.getByRole("button", { name: "Scan for networks" }).click();
   await expect(page.getByRole("button", { name: /No networks found/ })).toBeVisible({ timeout: 1_500 });
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  const diagnosticSwitch = page.getByRole("switch").first();
+  await diagnosticSwitch.click();
+  await expect(diagnosticSwitch).toHaveAttribute("aria-checked", "true");
+  await expect(diagnosticSwitch).toHaveText("On");
 });
 
 test("launcher remains usable on a narrow setup display", async ({ page }) => {

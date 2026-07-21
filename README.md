@@ -4,7 +4,7 @@ An open home game console for the games at [VibeCoded.Games](https://vibecoded.g
 
 The target experience is a living-room appliance: turn it on, stand in front of a wide-angle camera, select a game with a controller or remote, and play through body movement. Camera processing is intended to stay on the console by default.
 
-This repository now contains the first reversible desk prototype alongside the research workspace: a minimal boot-to-launcher experience, Motion hub, cooperative web bridge, skeletal replay, and body-control lab. Raspberry Pi 5 8GB plus AI HAT+ 26 TOPS is the selected lower-cost reference candidate, while ordinary x86-64 Linux/PC hardware is the premium reference class. Both remain subject to reproducible room, latency, thermal, storage, and multi-player qualification. The preordered 2026 Steam Machine is an optional compatibility target, not a requirement of the core console.
+This repository now contains the first reversible desk prototype alongside the research workspace: a Svelte 5 boot-to-launcher experience, Motion hub, cooperative web bridge, skeletal replay, body-control lab, and initial Rust native host. Raspberry Pi 5 8GB plus AI HAT+ 26 TOPS is the selected lower-cost reference candidate, while ordinary x86-64 Linux/PC hardware is the premium reference class. Both remain subject to reproducible room, latency, thermal, storage, and multi-player qualification. The preordered 2026 Steam Machine is an optional compatibility target, not a requirement of the core console.
 
 ## Run the desk prototype
 

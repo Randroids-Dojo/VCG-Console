@@ -3,5 +3,5 @@
   "compilerOptions": {
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src", "tests", "playwright.config.ts", "vite.config.ts"]
+  "include": ["src", "src/**/*.svelte", "tests", "playwright.config.ts", "vite.config.ts"]
 }
