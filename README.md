@@ -8,7 +8,7 @@ This repository now contains the first reversible desk prototype alongside the r
 
 ## Run the desk prototype
 
-Prerequisites: Node.js 22 or newer, pnpm 10.30.3 (directly or through Corepack), and Chrome for the end-to-end camera test.
+Prerequisites: Node.js 22 or newer, pnpm 10.30.3 (directly or through Corepack), and Chrome for the end-to-end camera test. Native-host development also uses the exact Rust toolchain declared in `rust-toolchain.toml`.
 
 ```sh
 pnpm install
@@ -28,11 +28,13 @@ pnpm build
 pnpm test:e2e
 pnpm validate:manifests
 pnpm supervise:game catalog/determined.vcg-game.json --dry-run
+pnpm native:verify
+cargo run -p vcg-host -- doctor
 ```
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the native SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior.
+The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The initial Rust host owns direct child-process lifecycle and defines the canonical input adapter boundary; it does not yet claim those remaining qualifications.
 
 ## Research workspace
 

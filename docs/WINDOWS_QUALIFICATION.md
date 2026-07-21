@@ -1,18 +1,18 @@
 # Windows compatibility workstation
 
-Last updated: 2026-07-19
+Last updated: 2026-07-21
 
 Windows is the first secondary x86-64 compatibility lane. It is useful for architecture portability, UVC camera and controller drivers, Chrome behavior, and games that may eventually need a Windows fallback. It is not the premium reference environment: I-207 and I-209 still require native x86-64 Linux. WSL cannot qualify physical camera, controller, compositor, kiosk, suspend, or reserved Home/Back behavior.
 
 ## When to run this
 
-Run the Windows pass after the MediaPipe worker changes are available on the remote branch and before building the Linux SDL3 host. This catches shared-stack portability defects before they become native-host noise.
+Run the Windows pass after the MediaPipe worker and Rust host scaffold are available on the remote branch and before Linux SDL3/compositor integration. This catches shared-stack and Rust process-boundary portability defects before they become Linux-host noise.
 
 ## Machine requirements
 
 - Windows 11 x86-64 with current system and GPU updates.
 - At least 16 GB RAM and 20 GB free working space preferred.
-- Chrome, Git, Node.js 22 or newer, and either Corepack or pnpm. The bootstrap always uses the pnpm version pinned in `package.json`.
+- Chrome, Git, Node.js 22 or newer, either Corepack or pnpm, and rustup. The bootstrap uses the pnpm version pinned in `package.json` and the Rust toolchain pinned in `rust-toolchain.toml`.
 - One real UVC camera; record exact vendor/product ID, firmware, cable, port, modes, and driver.
 - One Xbox-style standards-conformant controller over every available transport: USB first, then Bluetooth or receiver.
 - A second SSD is preferred for the later native Linux installation. A partition is acceptable only with verified backups and recovery media.
@@ -43,6 +43,7 @@ The bootstrap script changes only the repository dependency/build state. It does
 
 - The JSON file written under `artifacts/windows-qualification/`.
 - `pnpm test:e2e` output.
+- `pnpm native:verify` output and `cargo run -p vcg-host -- doctor` output.
 - A skeleton-only trace from the real camera; do not send raw room video by default.
 - Exact camera and controller identifiers plus connection method.
 - Any visible errors, fallback messages, missing body regions, false gestures, or controller mapping defects.
@@ -50,4 +51,4 @@ The bootstrap script changes only the repository dependency/build state. It does
 
 ## Pass boundary
 
-Passing Windows means the shared TypeScript contracts, local assets, browser worker, camera capture, controller prototype, and catalog tooling reproduce on an x86-64 machine. It does not pass the 120 ms exposure-to-action gate, native SDL3 input, system-owned Home/Back, Linux packaging, appliance boot, suspend, or Raspberry Pi comparison.
+Passing Windows means the shared TypeScript contracts, local assets, browser worker, camera capture, controller prototype, catalog tooling, and Rust process-supervision scaffold reproduce on an x86-64 machine. It does not pass the 120 ms exposure-to-action gate, SDL3 input, system-owned Home/Back, Linux packaging, appliance boot, suspend, or Raspberry Pi comparison.

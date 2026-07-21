@@ -9,9 +9,9 @@ if (-not (Test-Path "package.json")) {
   throw "Run this script from the VCG-Console repository root."
 }
 
-foreach ($commandName in @("git", "node")) {
+foreach ($commandName in @("git", "node", "cargo", "rustc")) {
   if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
-    throw "Missing prerequisite: $commandName. Install Git and Node.js 22 or newer, then rerun."
+    throw "Missing prerequisite: $commandName. Install Git, Node.js 22 or newer, and the rustup-managed toolchain declared by rust-toolchain.toml, then rerun."
   }
 }
 
@@ -43,6 +43,7 @@ Invoke-PinnedPnpm typecheck
 Invoke-PinnedPnpm test
 Invoke-PinnedPnpm build
 Invoke-PinnedPnpm validate:manifests
+Invoke-PinnedPnpm native:verify
 Invoke-PinnedPnpm test:e2e
 
 Write-Host "Windows repository bootstrap and automated checks passed."

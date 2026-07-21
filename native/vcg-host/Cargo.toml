@@ -1,0 +1,9 @@
+[package]
+name = "vcg-host"
+description = "Native appliance host for VCG Console"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true

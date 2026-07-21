@@ -131,3 +131,18 @@ Chrome tests cover the timed boot, every launcher destination, the exact museum 
 ### Remaining boundary
 
 Profile and settings changes are prototype session state, not durable encrypted console storage. Wi-Fi, storage, updates, RetroArch, and hosted-game launch still require the native Linux host. Search currently indexes the prototype catalog snapshot rather than consuming the final canonical catalog service.
+
+## 2026-07-21: Rust native-host boundary
+
+### Delivered
+
+- The owner selected Rust for the privileged appliance layer and Svelte 5 on the existing Vite build for the launcher.
+- A pinned Cargo workspace now contains `vcg-host`, with unsafe Rust forbidden at the workspace level.
+- The first host slice launches child programs directly without shell interpolation, observes and reaps normal exits, reports start failures with executable context, and kills and reaps a managed child if its supervisor is dropped.
+- A dry-run CLI exposes the exact executable and argument boundary without mutation.
+- Canonical Home, Back, navigation, selection, and pause actions live outside SDL-specific types behind an input-source trait.
+- The SDL3 Rust adapter remains deliberately separate because the current bindings still document incomplete SDL3 migration and missing features. Target-Linux qualification will pin the adapter rather than allowing it to define host contracts.
+
+### Remaining boundary
+
+This scaffold does not qualify SDL3 devices, background input, compositor-reserved controls, browser origin containment, readiness, timeouts, crash presentation, system settings, RetroArch, IPC, camera capture, or native inference. I-209 remains active until those behaviors pass on ordinary x86-64 Linux.
