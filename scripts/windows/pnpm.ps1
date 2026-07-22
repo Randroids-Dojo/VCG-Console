@@ -18,6 +18,11 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
   throw "Missing prerequisite: node. Install Node.js 22 or newer, open a new terminal, then rerun."
 }
 
+$nodeMajor = [int]((& node -p "process.versions.node.split('.')[0]").Trim())
+if ($nodeMajor -lt 22) {
+  throw "Node.js 22 or newer is required; found $(& node --version)."
+}
+
 $packageManager = (Get-Content "package.json" -Raw | ConvertFrom-Json).packageManager
 if ($packageManager -notmatch '^pnpm@(.+)$') {
   throw "package.json must pin pnpm with a packageManager value such as pnpm@10.30.3."

@@ -142,7 +142,20 @@ export type CapabilityNegotiation = z.infer<typeof CapabilityNegotiationSchema>;
 
 export const motionFrameJsonSchema = z.toJSONSchema(MotionFrameSchema, {
   target: "draft-2020-12",
-});
+}) as Record<string, unknown>;
+
+function exactNameConstraints(names: readonly string[]): Record<string, unknown>[] {
+  return names.map((name) => ({
+    contains: { type: "object", properties: { name: { const: name } }, required: ["name"] },
+    minContains: 1,
+    maxContains: 1,
+  }));
+}
+
+const frameProperties = motionFrameJsonSchema.properties as Record<string, Record<string, unknown>>;
+const playerProperties = (frameProperties.players!.items as Record<string, unknown>).properties as Record<string, Record<string, unknown>>;
+playerProperties.coreLandmarks!.allOf = exactNameConstraints(CORE_LANDMARK_NAMES);
+playerProperties.richLandmarks!.allOf = exactNameConstraints(MEDIAPIPE_LANDMARK_NAMES);
 
 export function parseMotionFrame(value: unknown): MotionFrame {
   return MotionFrameSchema.parse(value);

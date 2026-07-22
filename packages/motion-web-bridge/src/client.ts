@@ -25,6 +25,7 @@ export class MotionBridgeClient {
   #state: MotionBridgeClientState = "idle";
   #sessionId: string | undefined;
   #retryHandle: unknown;
+  #listening = false;
 
   readonly #listener: BridgeMessageListener = (event) => this.#receive(event);
 
@@ -48,7 +49,7 @@ export class MotionBridgeClient {
 
   start(): void {
     if (this.#state !== "idle") return;
-    this.#options.receiver.addEventListener("message", this.#listener);
+    this.#attachListener();
     this.reconnect();
   }
 
@@ -61,15 +62,23 @@ export class MotionBridgeClient {
       );
     }
     this.#options.receiver.removeEventListener("message", this.#listener);
+    this.#listening = false;
     this.#sessionId = undefined;
     this.#setState("idle");
   }
 
   reconnect(): void {
+    this.#attachListener();
     this.#cancelRetry();
     this.#sessionId = undefined;
     this.#setState("connecting");
     this.#sendHello();
+  }
+
+  #attachListener(): void {
+    if (this.#listening) return;
+    this.#options.receiver.addEventListener("message", this.#listener);
+    this.#listening = true;
   }
 
   #sendHello(): void {
@@ -108,7 +117,18 @@ export class MotionBridgeClient {
       this.#options.onStateChange?.(this.#state, message.code);
       return;
     }
-    if (this.#state === "connected" && message.sessionId === this.#sessionId) this.#options.onFrame(message.frame);
+    if (this.#state === "connected" && message.sessionId === this.#sessionId) {
+      this.#options.onFrame(message.frame);
+      this.#options.target.postMessage(
+        {
+          type: "vcg.motion.ack",
+          protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+          sessionId: message.sessionId,
+          sequence: message.frame.sequence,
+        },
+        this.#options.targetOrigin,
+      );
+    }
   }
 
   #setState(state: MotionBridgeClientState, detail?: string): void {

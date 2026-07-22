@@ -82,4 +82,14 @@ describe("MotionTracePlayer", () => {
     invalid.frames[1]!.sourceTimestampMs = 999;
     expect(() => new MotionTracePlayer(invalid, { onFrame: () => undefined })).toThrow("ordered");
   });
+
+  it.each([-1, Number.NaN, Number.POSITIVE_INFINITY])("rejects invalid expectation tolerance %s", (toleranceMs) => {
+    expect(
+      () =>
+        new MotionTracePlayer(trace(), {
+          expectations: [{ atMs: 100, toleranceMs, action: "jump" }],
+          onFrame: () => undefined,
+        }),
+    ).toThrow("toleranceMs");
+  });
 });

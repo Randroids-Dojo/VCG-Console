@@ -8,15 +8,15 @@
   }
 
   let {
-    activeProfile,
     onselect,
     ontoast,
-  }: { activeProfile: string; onselect: (name: string) => void; ontoast: (message: string) => void } = $props();
+  }: { onselect: (name: string) => void; ontoast: (message: string) => void } = $props();
 
   let profiles = $state<Profile[]>([
     { id: 1, name: "Randy", detail: "Local player" },
     { id: 2, name: "Guest", detail: "Local guest" },
   ]);
+  let activeId = $state(1);
   let nextId = 3;
   let editingId = $state<number | null>(null);
   let editorOpen = $state(false);
@@ -37,6 +37,7 @@
   }
 
   function select(profile: Profile): void {
+    activeId = profile.id;
     onselect(profile.name);
   }
 
@@ -53,6 +54,7 @@
       if (!profile) return;
       profile.name = name;
       profiles = [...profiles];
+      activeId = profile.id;
       closeEditor();
       onselect(name);
       ontoast(`Profile updated: ${name}`);
@@ -61,13 +63,20 @@
 
     const profile = { id: nextId++, name, detail: "Local player" };
     profiles = [...profiles, profile];
+    activeId = profile.id;
     closeEditor();
     onselect(name);
     ontoast(`Profile created: ${name}`);
   }
 
   function selectedProfile(): Profile | undefined {
-    return profiles.find((profile) => profile.name === activeProfile);
+    return profiles.find((profile) => profile.id === activeId);
+  }
+
+  function openSelectedEditor(): void {
+    const profile = selectedProfile();
+    if (!profile) return;
+    void openEditor(profile);
   }
 </script>
 
@@ -80,19 +89,19 @@
     <div class="profile-list" id="profile-list">
       {#each profiles as profile (profile.id)}
         <button
-          class:selected={profile.name === activeProfile}
+          class:selected={profile.id === activeId}
           type="button"
           data-profile={profile.name}
           onclick={() => select(profile)}
         >
-          <span>{profile.name.slice(0, 1).toUpperCase()}</span><strong>{profile.name}</strong><small>{profile.name === activeProfile ? "Selected" : profile.detail}</small>
+          <span>{profile.name.slice(0, 1).toUpperCase()}</span><strong>{profile.name}</strong><small>{profile.id === activeId ? "Selected" : profile.detail}</small>
         </button>
       {/each}
       <button class="create-profile" type="button" id="create-profile" onclick={() => openEditor()}>
         <span>+</span><strong>Create profile</strong><small>New local player</small>
       </button>
     </div>
-    <button class="update-profile" type="button" id="edit-profile" onclick={() => openEditor(selectedProfile())}>Update selected profile</button>
+    <button class="update-profile" type="button" id="edit-profile" onclick={openSelectedEditor}>Update selected profile</button>
   </div>
   <form class="profile-editor" id="profile-editor" hidden={!editorOpen} onsubmit={save}>
     <p class="view-kicker">PROFILE DETAILS</p>

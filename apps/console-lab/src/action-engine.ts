@@ -47,14 +47,16 @@ export class ActionEngine {
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
     const player = frame.players[0];
     if (!player) {
-      this.#previousLeftWrist = undefined;
-      this.#previousRightWrist = undefined;
+      this.#resetGestureContinuity();
       return frame;
     }
 
     const now = frame.publishedAtMs;
     const measurements = this.#measure(player);
-    if (!measurements) return frame;
+    if (!measurements) {
+      this.#resetGestureContinuity();
+      return frame;
+    }
     this.#captureBaseline(measurements);
     const actions = this.#recognize(player, measurements, now, context);
     const enrichedPlayer: PlayerMotion = {
@@ -76,9 +78,16 @@ export class ActionEngine {
     this.#baselineSamples.length = 0;
     this.#baseline = undefined;
     this.#lastTriggeredAt.clear();
+    this.#resetGestureContinuity();
+    this.#joined = false;
+  }
+
+  #resetGestureContinuity(): void {
+    this.#previousLeftWrist = undefined;
+    this.#previousRightWrist = undefined;
+    this.#previousAtMs = 0;
     this.#handsTogetherStartedAt = undefined;
     this.#armsCrossedStartedAt = undefined;
-    this.#joined = false;
   }
 
   #measure(player: PlayerMotion): Baseline | undefined {

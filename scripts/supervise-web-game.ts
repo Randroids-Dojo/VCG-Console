@@ -36,6 +36,29 @@ function dataPath(): string {
     : join(homedir(), ".local", "share", "vcg-console");
 }
 
+async function requireHealthyEndpoint(
+  entrypoint: string,
+  path: string | undefined,
+  allowedOrigins: readonly string[],
+  timeoutMs: number,
+): Promise<void> {
+  const url = new URL(path ?? "/", entrypoint);
+  const normalizedOrigins = new Set(allowedOrigins.map((origin) => new URL(origin).origin));
+  if (!normalizedOrigins.has(url.origin)) throw new Error(`Health check origin is not allowed: ${url.origin}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { method: "GET", redirect: "follow", signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!normalizedOrigins.has(new URL(response.url).origin)) throw new Error(`redirected to disallowed origin ${new URL(response.url).origin}`);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Health check failed for ${url.href}: ${detail}`);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function main() {
   const { manifestPath, dryRun } = parseArguments();
   const manifest = parseGameManifest(JSON.parse(await readFile(manifestPath, "utf8")));
@@ -63,7 +86,7 @@ async function main() {
     limitations: [
       "This process prototype cannot enforce origin containment after navigation.",
       "Back and Home are not yet global OS-level controls.",
-      "Readiness is not yet reported by the hosted game.",
+      "HTTP readiness is checked before launch; explicit in-game readiness is not yet reported.",
     ],
   };
 
@@ -71,6 +94,21 @@ async function main() {
     console.log(JSON.stringify(launchPlan, null, 2));
     return;
   }
+
+  if (process.env.VCG_ALLOW_UNCONTAINED_BROWSER !== "1") {
+    throw new Error(
+      "Refusing an uncontained browser launch. A managed navigation policy is not implemented; set VCG_ALLOW_UNCONTAINED_BROWSER=1 only for an explicit development test.",
+    );
+  }
+  if (manifest.launch.healthCheck.type !== "http") {
+    throw new Error(`Remote browser prototype requires an HTTP health check, received ${manifest.launch.healthCheck.type}`);
+  }
+  await requireHealthyEndpoint(
+    manifest.entrypoint,
+    manifest.launch.healthCheck.path,
+    manifest.allowedOrigins,
+    manifest.launch.timeoutMs,
+  );
 
   console.log(`Launching ${manifest.title}`);
   const child = spawn(chromePath(), browserArgs, { stdio: "inherit" });

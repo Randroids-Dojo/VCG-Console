@@ -74,7 +74,7 @@ The appliance image must pin every layer, retain an offline recovery cache, and 
 
 ### Storage and enclosure
 
-AI HAT occupies the only exposed Pi 5 PCIe connector. The selected baseline uses a qualified high-endurance microSD card for the system and all writable content, avoiding an external bridge, cable, enclosure volume, and power load. That simplicity must earn acceptance through measured write volume, wear controls, full-disk handling, sudden-power-loss and interrupted-update tests, backups, and blank-card recovery. USB 3 SSD is the first fallback if any durability gate fails.
+AI HAT occupies the only exposed Pi 5 PCIe connector. The selected baseline uses a qualified high-endurance microSD card for the system and all writable content, avoiding an external bridge, cable, enclosure volume, and power load. That simplicity must earn acceptance through measured write volume, wear controls, full-disk handling, sudden-power-loss and interrupted-update tests, system-image recovery artifacts, and blank-card recovery. These recovery artifacts explicitly exclude console user saves, profiles, export, or migration; D-089's device-local no-recovery policy remains intact. USB 3 SSD is the first fallback if any durability gate fails.
 
 AI HAT fits above the official Active Cooler. AI HAT+ 2 adds its own recommended heatsink. The final enclosure must be tested for sustained temperature, throttling, acoustics, camera cable routing, Bluetooth/Wi-Fi reception, and service access.
 

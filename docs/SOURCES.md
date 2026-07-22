@@ -1,6 +1,6 @@
 # Research source ledger
 
-Last verified: 2026-07-19
+Last verified: 2026-07-21
 
 Prefer primary project repositories, official documentation, standards, and official lifecycle notices. Product claims are candidates for local measurement, not substitutes for it.
 
@@ -53,6 +53,14 @@ Prefer primary project repositories, official documentation, standards, and offi
 | [Luxonis open hardware](https://github.com/luxonis/oak-hardware) | Open design resources for OAK hardware. Individual product completeness must be checked. |
 | [Orbbec SDK v2](https://github.com/orbbec/OrbbecSDK_v2) | MIT-licensed current SDK; exact device/architecture support still requires validation. |
 | [RealSense librealsense](https://github.com/realsenseai/librealsense) | Apache-2.0 SDK for RealSense depth cameras; exact device lifecycle and target support still require validation. |
+
+### Hailo tested runtime tuple
+
+No Hailo hardware or runtime has been tested by this repository yet, so there is no reproducible tuple to report without fabricating evidence. I-157 and I-158 may advance only when their proof bundle records every field below together; documentation and product-page versions are candidates, not tested values.
+
+| Snapshot date | Pi OS release | Kernel | HailoRT | TAPPAS | Hailo Apps commit | HEF/model SHA-256 | Result |
+|---|---|---|---|---|---|---|---|
+| Not yet tested | Unqualified | Unqualified | Unqualified | Unqualified | Unqualified | Unqualified | Blocked on exact Pi/AI HAT hardware and image qualification |
 
 ## Console platform, browser, and game packaging
 

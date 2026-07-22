@@ -31,6 +31,26 @@ function confidence(point: NormalizedLandmark): number {
   return Math.min(point.visibility ?? 1, presence(point) ?? 1);
 }
 
+function mappedLandmark<Name extends string>(
+  name: Name,
+  index: number,
+  points: NormalizedLandmark[],
+  world: NormalizedLandmark[],
+) {
+  const point = points[index];
+  if (!point) throw new Error(`MediaPipe result is missing ${name}`);
+  const pointPresence = presence(point);
+  const position3d = worldPoint(world[index]);
+  return {
+    name,
+    position: { x: point.x, y: point.y, z: point.z },
+    ...(position3d ? { worldPosition: position3d } : {}),
+    visibility: point.visibility ?? 1,
+    ...(pointPresence === undefined ? {} : { presence: pointPresence }),
+    observed: confidence(point) >= 0.25,
+  };
+}
+
 function bounds(points: NormalizedLandmark[]) {
   return points.reduce(
     (current, point) => ({
@@ -48,36 +68,11 @@ function playerFromResult(result: PoseLandmarkerResult): PlayerMotion | undefine
   if (!points || points.length !== MEDIAPIPE_LANDMARK_NAMES.length) return undefined;
   const world = result.worldLandmarks[0] ?? [];
 
-  const coreLandmarks = CORE_LANDMARK_NAMES.map((name) => {
-    const index = CORE_TO_MEDIAPIPE_INDEX[name];
-    const point = points[index];
-    if (!point) throw new Error(`MediaPipe result is missing ${name}`);
-    const score = confidence(point);
-    return {
-      name,
-      position: { x: point.x, y: point.y, z: point.z },
-      ...(worldPoint(world[index]) ? { worldPosition: worldPoint(world[index]) } : {}),
-      visibility: point.visibility ?? 1,
-      ...(presence(point) === undefined ? {} : { presence: presence(point) }),
-      observed: score >= 0.25,
-    };
-  });
+  const coreLandmarks = CORE_LANDMARK_NAMES.map((name) => mappedLandmark(name, CORE_TO_MEDIAPIPE_INDEX[name], points, world));
+  const richLandmarks = MEDIAPIPE_LANDMARK_NAMES.map((name, index) => mappedLandmark(name, index, points, world));
 
-  const richLandmarks = MEDIAPIPE_LANDMARK_NAMES.map((name, index) => {
-    const point = points[index];
-    if (!point) throw new Error(`MediaPipe result is missing ${name}`);
-    const score = confidence(point);
-    return {
-      name,
-      position: { x: point.x, y: point.y, z: point.z },
-      ...(worldPoint(world[index]) ? { worldPosition: worldPoint(world[index]) } : {}),
-      visibility: point.visibility ?? 1,
-      ...(presence(point) === undefined ? {} : { presence: presence(point) }),
-      observed: score >= 0.25,
-    };
-  });
-
-  const playerConfidence = coreLandmarks.reduce((total, landmark) => total + landmark.visibility, 0) / coreLandmarks.length;
+  const playerConfidence =
+    coreLandmarks.reduce((total, landmark) => total + Math.min(landmark.visibility, landmark.presence ?? 1), 0) / coreLandmarks.length;
   return {
     id: "candidate-1",
     sessionSlot: 1,

@@ -458,10 +458,17 @@ document.addEventListener("keydown", (event) => {
     if (launcher.visible) launcher.back();
     else goBack();
   }
-  if (!launcher.visible && event.key === "ArrowLeft") obstacle.handleAction("dodge_left");
-  if (!launcher.visible && event.key === "ArrowRight") obstacle.handleAction("dodge_right");
-  if (!launcher.visible && event.key === "ArrowDown") obstacle.handleAction("duck");
-  if (!launcher.visible && event.key === " " && currentMode === "obstacle") {
+  if (!launcher.visible && overlayKind && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)) {
+    event.preventDefault();
+    moveFocus(event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1);
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowLeft") {
+    obstacle.handleAction("dodge_left");
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowRight") {
+    obstacle.handleAction("dodge_right");
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowDown") {
+    obstacle.handleAction("duck");
+  }
+  if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === " ") {
     event.preventDefault();
     obstacle.handleAction("jump");
   }

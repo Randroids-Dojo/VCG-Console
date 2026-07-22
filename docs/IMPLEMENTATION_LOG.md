@@ -167,3 +167,27 @@ This scaffold does not qualify SDL3 devices, background input, compositor-reserv
 ### Remaining boundary
 
 The migration changes launcher presentation and state ownership only. Profiles and settings remain prototype session state; canonical catalog consumption, Rust host IPC, SDL3/global controls, native Wi-Fi/storage/update services, supervised Museum/RetroArch launch, and target-hardware boot measurements remain open under their existing investigations.
+
+## 2026-07-21: prototype PR review closeout
+
+### Correctness and recovery fixes
+
+- Tracking gaps now reset gesture-hold and wrist-continuity state, preventing an interrupted join, select, Back, or Pause hold from completing instantly after reacquisition.
+- Profile selection now uses stable local IDs through selection and rename; duplicate or changed display names no longer determine the active record.
+- Universal search traps Tab focus while modal and restores its opener on Escape. Keyboard obstacle controls now obey the same mode and overlay gates as controller input.
+- Worker runtime errors remain observed after initialization and release frame backpressure before surfacing a tracker fault.
+- MediaPipe player confidence now combines visibility and presence consistently with each landmark's observed state.
+
+### Contract and host fixes
+
+- Game manifests compare normalized origins, preserve extension fields, and export the representable HTTPS/offline cross-field rules. Normalized entrypoint-origin membership remains enforced by `parseGameManifest` because standard JSON Schema cannot compare the origins of two property values.
+- Exported Motion JSON Schema now encodes one-and-only-one occurrence of all 17 core and 33 MediaPipe landmark names.
+- Bridge wire schemas permit forward-compatible extension fields. Clients safely reconnect after stop, acknowledge delivered frames, and the host keeps one unacknowledged frame in flight before expiring a silent session.
+- The Rust CLI's privileged supervise argument boundary now has direct parsing tests. Windows bootstrap requires an active rustup-managed toolchain, and its pnpm wrapper independently enforces Node.js 22.
+- Asset and hosted-game health requests have bounded abort timeouts. The browser spike checks HTTP readiness and fails closed unless an explicit development-only override acknowledges that runtime navigation containment is still absent.
+
+### Evidence boundaries retained
+
+- No Hailo runtime tuple is claimed without the target hardware; the source ledger now exposes every required qualification field as unqualified.
+- The Steam Machine specification paragraph now cites Valve's official product page and remains labeled as reported until delivery-time inventory.
+- The profile-vault research boundary now assigns decryption to a deny-by-default broker with caller- and operation-scoped ACLs and no game-visible access to portraits, calibration records, or body-matching measurements.

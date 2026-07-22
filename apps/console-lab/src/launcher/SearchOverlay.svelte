@@ -6,12 +6,15 @@
   let visible = $state(false);
   let query = $state("");
   let input: HTMLInputElement;
+  let panel: HTMLDivElement;
   let results: HTMLDivElement;
+  let openedBy: HTMLElement | null = null;
   let matches = $derived(
     items.filter((item) => `${item.title} ${item.detail} ${item.group} ${item.terms}`.toLowerCase().includes(query.trim().toLowerCase())),
   );
 
   export async function open(): Promise<void> {
+    openedBy = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     visible = true;
     query = "";
     await tick();
@@ -19,7 +22,12 @@
   }
 
   export function close(): void {
+    const restoreTarget = openedBy;
+    openedBy = null;
     visible = false;
+    void tick().then(() => {
+      if (restoreTarget?.isConnected) restoreTarget.focus({ preventScroll: true });
+    });
   }
 
   export function isOpen(): boolean {
@@ -36,6 +44,32 @@
     event.preventDefault();
     results.querySelector<HTMLButtonElement>("button")?.focus();
   }
+
+  function handleDialogKeydown(event: KeyboardEvent): void {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = [...panel.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex='-1'])")].filter(
+      (element) => element.offsetParent !== null,
+    );
+    if (focusable.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    const first = focusable[0]!;
+    const last = focusable.at(-1)!;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 </script>
 
 <div
@@ -46,14 +80,12 @@
   tabindex="-1"
   aria-modal="true"
   aria-labelledby="search-title"
-  onkeydown={(event) => {
-    if (event.key === "Escape") close();
-  }}
+  onkeydown={handleDialogKeydown}
   onclick={(event) => {
     if (event.currentTarget === event.target) close();
   }}
 >
-  <div class="search-panel">
+  <div bind:this={panel} class="search-panel">
     <label id="search-title" for="universal-search">Search everything</label>
     <div class="search-input-row">
       <span>⌕</span>

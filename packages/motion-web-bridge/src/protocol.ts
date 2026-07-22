@@ -22,6 +22,12 @@ export const BridgeClientMessageSchema = z.discriminatedUnion("type", [
     protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
     sessionId: z.string().min(1),
   }),
+  z.object({
+    type: z.literal("vcg.motion.ack"),
+    protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+    sessionId: z.string().min(1),
+    sequence: z.number().int().nonnegative(),
+  }),
 ]);
 
 export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
@@ -54,8 +60,15 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
 export type BridgeClientHello = z.infer<typeof BridgeClientHelloSchema>;
 export type BridgeClientMessage = z.infer<typeof BridgeClientMessageSchema>;
 export type BridgeServerMessage = z.infer<typeof BridgeServerMessageSchema>;
-export const bridgeClientMessageJsonSchema = z.toJSONSchema(BridgeClientMessageSchema, { target: "draft-2020-12" });
-export const bridgeServerMessageJsonSchema = z.toJSONSchema(BridgeServerMessageSchema, { target: "draft-2020-12" });
+const wireJsonSchemaOptions = {
+  target: "draft-2020-12" as const,
+  override: ({ jsonSchema }: { jsonSchema: Record<string, unknown> }) => {
+    if (jsonSchema.additionalProperties === false) delete jsonSchema.additionalProperties;
+  },
+};
+
+export const bridgeClientMessageJsonSchema = z.toJSONSchema(BridgeClientMessageSchema, wireJsonSchemaOptions);
+export const bridgeServerMessageJsonSchema = z.toJSONSchema(BridgeServerMessageSchema, wireJsonSchemaOptions);
 
 // Wire objects intentionally use Zod's default strip behavior. Unknown fields
 // are ignored for forward compatibility; known fields and versions remain strict.

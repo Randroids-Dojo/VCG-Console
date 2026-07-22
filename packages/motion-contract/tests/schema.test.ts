@@ -65,6 +65,18 @@ describe("MotionFrameSchema", () => {
     expect(motionFrameJsonSchema.$schema).toBe("https://json-schema.org/draft/2020-12/schema");
   });
 
+  it("exports exact-once constraints for every landmark name", () => {
+    const properties = motionFrameJsonSchema.properties as Record<string, Record<string, unknown>>;
+    const playerProperties = (properties.players!.items as Record<string, unknown>).properties as Record<string, Record<string, unknown>>;
+    expect(playerProperties.coreLandmarks!.allOf).toHaveLength(CORE_LANDMARK_NAMES.length);
+    expect(playerProperties.richLandmarks!.allOf).toHaveLength(33);
+    expect(playerProperties.coreLandmarks!.allOf).toContainEqual({
+      contains: { type: "object", properties: { name: { const: "nose" } }, required: ["name"] },
+      minContains: 1,
+      maxContains: 1,
+    });
+  });
+
   it("degrades optional profiles without fabricating required capabilities", () => {
     expect(
       negotiateCapabilities(availableCapabilities, {

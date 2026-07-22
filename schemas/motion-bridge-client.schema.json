@@ -50,8 +50,7 @@
           "required": [
             "requiredProfiles",
             "optionalProfiles"
-          ],
-          "additionalProperties": false
+          ]
         }
       },
       "required": [
@@ -59,8 +58,7 @@
         "protocolVersion",
         "clientId",
         "request"
-      ],
-      "additionalProperties": false
+      ]
     },
     {
       "type": "object",
@@ -82,8 +80,35 @@
         "type",
         "protocolVersion",
         "sessionId"
-      ],
-      "additionalProperties": false
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vcg.motion.ack"
+        },
+        "protocolVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "type",
+        "protocolVersion",
+        "sessionId",
+        "sequence"
+      ]
     }
   ]
 }

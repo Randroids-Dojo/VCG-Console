@@ -1,6 +1,6 @@
 # Open-question register
 
-Last updated: 2026-07-19
+Last updated: 2026-07-21
 
 Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible alpha, P2 informs later quality or distribution. `Owner` is the role needed, not an assigned person.
 
@@ -13,7 +13,7 @@ Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible a
 
 | ID | P | Open question | Why it matters | How to close | Owner |
 |---|---:|---|---|---|---|
-| Q-011 | P0 | What compute hardware is already available for the first prototype? | Reusing it is faster than ordering before benchmarks exist. | Inventory exact CPU, GPU, RAM, storage, ports, OS, and power supply. | Hardware |
+| Q-011 | P0 | What ordinary x86-64 Linux reference, TV, UVC camera, controllers, cables, storage, and power equipment are available beyond the inventoried M4 Max development host? | Those exact parts determine whether the first target-platform and living-room gates can run without purchasing hardware. | Inventory exact models/revisions, CPU/GPU/RAM/storage, ports, OS, TV geometry, camera modes, controller connection modes, cables, and power supplies. | Hardware |
 | Q-012 | P0 | Can Pi 5 sustain the selected pose model plus a real game at the latency target? | It is the central low-cost embedded feasibility question. | Run the same recorded and live benchmark on 2 GB/4 GB as available, with thermal logging. | Tracking/performance |
 | Q-013 | P2 | Could Camera Module 3 Wide serve as a Pi-only fallback if the shared UVC baseline fails? | Advertised field of view is not equivalent to useful pose area, and a second capture path adds product and test complexity. | Test it only after a specific UVC failure; calibrate in-room and measure whether CSI closes that failure materially. | Vision |
 | Q-015 | P1 | Is a Hailo AI HAT worth its cost and toolchain constraint? | It may make Pi viable, but advertised TOPS do not guarantee model support. | Convert the chosen detector/pose pipeline and measure end-to-end latency, accuracy, thermals, and update effort. | ML/platform |

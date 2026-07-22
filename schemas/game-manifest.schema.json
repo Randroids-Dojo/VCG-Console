@@ -130,14 +130,14 @@
           "required": [
             "type"
           ],
-          "additionalProperties": false
+          "additionalProperties": {}
         }
       },
       "required": [
         "timeoutMs",
         "healthCheck"
       ],
-      "additionalProperties": false
+      "additionalProperties": {}
     },
     "rights": {
       "type": "object",
@@ -173,7 +173,7 @@
         "contentLicense",
         "reviewStatus"
       ],
-      "additionalProperties": false
+      "additionalProperties": {}
     },
     "notes": {
       "type": "array",
@@ -201,5 +201,50 @@
     "rights",
     "notes"
   ],
-  "additionalProperties": false
+  "additionalProperties": {},
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime": {
+            "const": "remote-web"
+          }
+        },
+        "required": [
+          "runtime"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entrypoint": {
+            "pattern": "^https://"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "network": {
+            "const": "offline"
+          }
+        },
+        "required": [
+          "network"
+        ]
+      },
+      "then": {
+        "properties": {
+          "permissions": {
+            "not": {
+              "contains": {
+                "const": "network"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "parseGameManifest additionally compares normalized entrypoint and allowedOrigins values; standard JSON Schema cannot express cross-property URL-origin equality."
 }

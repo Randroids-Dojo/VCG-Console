@@ -1,14 +1,15 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
   plugins: [svelte()],
   build: {
     rollupOptions: {
       input: {
-        main: new URL("./index.html", import.meta.url).pathname,
-        bridgeHost: new URL("./bridge-host.html", import.meta.url).pathname,
-        bridgeClient: new URL("./bridge-client.html", import.meta.url).pathname,
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        bridgeHost: fileURLToPath(new URL("./bridge-host.html", import.meta.url)),
+        bridgeClient: fileURLToPath(new URL("./bridge-client.html", import.meta.url)),
       },
     },
   },

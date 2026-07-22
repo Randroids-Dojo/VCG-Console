@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GameManifestSchema } from "../src";
+import { gameManifestJsonSchema, GameManifestSchema } from "../src";
 
 const valid = {
   schemaVersion: 1,
@@ -30,7 +30,26 @@ describe("GameManifestSchema", () => {
     expect(GameManifestSchema.safeParse({ ...valid, allowedOrigins: ["https://other.example"] }).success).toBe(false);
   });
 
+  it("compares normalized origins", () => {
+    expect(GameManifestSchema.safeParse({ ...valid, allowedOrigins: ["https://example.com:443/"] }).success).toBe(true);
+  });
+
   it("rejects an offline package that requests network access", () => {
     expect(GameManifestSchema.safeParse({ ...valid, runtime: "local-web", network: "offline" }).success).toBe(false);
+  });
+
+  it("preserves extension fields in runtime parsing and exported schema", () => {
+    const parsed = GameManifestSchema.parse({ ...valid, futureField: { enabled: true } });
+    expect(parsed.futureField).toEqual({ enabled: true });
+    expect(gameManifestJsonSchema.additionalProperties).not.toBe(false);
+  });
+
+  it("exports representable cross-field constraints", () => {
+    expect(gameManifestJsonSchema.allOf).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ if: { properties: { runtime: { const: "remote-web" } }, required: ["runtime"] } }),
+        expect.objectContaining({ if: { properties: { network: { const: "offline" } }, required: ["network"] } }),
+      ]),
+    );
   });
 });

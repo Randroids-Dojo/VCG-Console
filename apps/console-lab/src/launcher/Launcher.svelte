@@ -205,7 +205,7 @@
       </div>
 
       <div class="launcher-view profiles-view" data-launcher-view="profiles" hidden={view !== "profiles"}>
-        <ProfilesView {activeProfile} onselect={(name) => (activeProfile = name)} ontoast={toast} />
+        <ProfilesView onselect={(name) => (activeProfile = name)} ontoast={toast} />
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>

@@ -73,4 +73,29 @@ describe("ActionEngine", () => {
       "menu_back",
     ]);
   });
+
+  it("restarts hold timing after the player disappears", () => {
+    const engine = new ActionEngine();
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    engine.enrich(alter(syntheticFrame(1, 0), hands));
+    engine.enrich({ ...syntheticFrame(2, 500), players: [] });
+    const returned = engine.enrich(alter(syntheticFrame(3, 1_000), hands));
+    const heldAgain = engine.enrich(alter(syntheticFrame(4, 1_451), hands));
+
+    expect(returned.players[0]?.actions).toEqual([]);
+    expect(heldAgain.players[0]?.actions.map((action) => action.name)).toContain("player_join");
+  });
+
+  it("restarts hold timing when required body measurements disappear", () => {
+    const engine = new ActionEngine();
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    engine.enrich(alter(syntheticFrame(1, 0), hands));
+    const incomplete = alter(syntheticFrame(2, 500), hands);
+    const leftAnkle = incomplete.players[0]?.coreLandmarks.find((landmark) => landmark.name === "left_ankle");
+    if (leftAnkle) leftAnkle.observed = false;
+    engine.enrich(incomplete);
+    const returned = engine.enrich(alter(syntheticFrame(3, 1_000), hands));
+
+    expect(returned.players[0]?.actions).toEqual([]);
+  });
 });

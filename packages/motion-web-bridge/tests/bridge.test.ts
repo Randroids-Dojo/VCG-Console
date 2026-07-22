@@ -7,6 +7,8 @@ import {
 } from "@vcg/motion-contract";
 import { describe, expect, it } from "vitest";
 import {
+  bridgeClientMessageJsonSchema,
+  bridgeServerMessageJsonSchema,
   MotionBridgeClient,
   MotionBridgeHost,
   type BridgeMessageEvent,
@@ -90,13 +92,14 @@ function frame(sequence = 1) {
   });
 }
 
-function connectedPair(options: { maximumFramesPerSecond?: number; now?: () => number } = {}) {
+function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?: number; now?: () => number } = {}) {
   const link = fakeLink();
   const host = new MotionBridgeHost({
     receiver: link.hostReceiver,
     allowedOrigins: [link.gameOrigin],
     capabilities,
     ...(options.maximumFramesPerSecond === undefined ? {} : { maximumFramesPerSecond: options.maximumFramesPerSecond }),
+    ...(options.sessionTtlMs === undefined ? {} : { sessionTtlMs: options.sessionTtlMs }),
     ...(options.now === undefined ? {} : { now: options.now }),
   });
   const received: ReturnType<typeof frame>[] = [];
@@ -204,6 +207,47 @@ describe("Motion web bridge", () => {
     expect(host.publish(frame())).toBe(0);
   });
 
+  it("reattaches its listener when reconnecting after stop", () => {
+    const { client, host, gameReceiver } = connectedPair();
+    client.stop();
+    expect(gameReceiver.listeners.size).toBe(0);
+    client.reconnect();
+    expect(gameReceiver.listeners.size).toBe(1);
+    expect(client.state).toBe("connected");
+    expect(host.publish(frame())).toBe(1);
+  });
+
+  it("evicts sessions that stop acknowledging frames", () => {
+    let now = 1_000;
+    const link = fakeLink();
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+      now: () => now,
+      sessionTtlMs: 1_000,
+    });
+    const deadTarget: BridgePostTarget = { postMessage: () => undefined };
+    host.start();
+    link.hostReceiver.dispatch({
+      origin: link.gameOrigin,
+      source: deadTarget,
+      data: {
+        type: "vcg.motion.hello",
+        protocolVersion: 1,
+        clientId: "dead-client",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+    });
+    expect(host.publish(frame())).toBe(1);
+    now = 1_500;
+    expect(host.publish(frame(2))).toBe(0);
+    now = 2_001;
+    expect(host.publish(frame(3))).toBe(0);
+    expect(host.stats().expiredSessions).toBe(1);
+    expect(host.stats().rateLimitedFrames).toBe(1);
+  });
+
   it("retries the handshake until the console host becomes available", () => {
     const link = fakeLink();
     const scheduled = new Set<() => void>();
@@ -255,5 +299,15 @@ describe("Motion web bridge", () => {
       },
     });
     expect(client.sessionId).toBe("future-session");
+  });
+
+  it("exports forward-compatible wire schemas", () => {
+    const containsClosedObject = (value: unknown): boolean => {
+      if (!value || typeof value !== "object") return false;
+      if ((value as Record<string, unknown>).additionalProperties === false) return true;
+      return Object.values(value).some(containsClosedObject);
+    };
+    expect(containsClosedObject(bridgeClientMessageJsonSchema)).toBe(false);
+    expect(containsClosedObject(bridgeServerMessageJsonSchema)).toBe(false);
   });
 });

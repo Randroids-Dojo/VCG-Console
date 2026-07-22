@@ -16,6 +16,7 @@ interface Session {
   target: BridgePostTarget;
   profiles: MotionProfile[];
   lastFrameAtMs: number;
+  unacknowledgedSinceMs?: number;
 }
 
 export interface MotionBridgeHostStats {
@@ -25,6 +26,7 @@ export interface MotionBridgeHostStats {
   invalidMessages: number;
   publishedFrames: number;
   rateLimitedFrames: number;
+  expiredSessions: number;
 }
 
 export interface MotionBridgeHostOptions {
@@ -32,6 +34,7 @@ export interface MotionBridgeHostOptions {
   allowedOrigins: readonly string[];
   capabilities: MotionCapabilities;
   maximumFramesPerSecond?: number;
+  sessionTtlMs?: number;
   now?: () => number;
 }
 
@@ -49,6 +52,7 @@ export class MotionBridgeHost {
   readonly #allowedOrigins: Set<string>;
   readonly #capabilities: MotionCapabilities;
   readonly #minimumFrameIntervalMs: number;
+  readonly #sessionTtlMs: number;
   readonly #now: () => number;
   readonly #sessions = new Map<BridgePostTarget, Session>();
   readonly #stats: MotionBridgeHostStats = {
@@ -58,6 +62,7 @@ export class MotionBridgeHost {
     invalidMessages: 0,
     publishedFrames: 0,
     rateLimitedFrames: 0,
+    expiredSessions: 0,
   };
   #started = false;
   #nextSession = 1;
@@ -74,6 +79,10 @@ export class MotionBridgeHost {
       throw new Error("maximumFramesPerSecond must be between 0 and 240");
     }
     this.#minimumFrameIntervalMs = 1_000 / maximumFramesPerSecond;
+    this.#sessionTtlMs = options.sessionTtlMs ?? 30_000;
+    if (!Number.isFinite(this.#sessionTtlMs) || this.#sessionTtlMs < 1_000) {
+      throw new Error("sessionTtlMs must be at least 1000");
+    }
     this.#now = options.now ?? (() => performance.now());
   }
 
@@ -98,12 +107,22 @@ export class MotionBridgeHost {
     const frame = MotionFrameSchema.parse(value);
     const now = this.#now();
     let recipients = 0;
-    for (const session of this.#sessions.values()) {
+    for (const [target, session] of this.#sessions) {
+      if (session.unacknowledgedSinceMs !== undefined) {
+        if (now - session.unacknowledgedSinceMs > this.#sessionTtlMs) {
+          this.#sessions.delete(target);
+          this.#stats.expiredSessions += 1;
+        } else {
+          this.#stats.rateLimitedFrames += 1;
+        }
+        continue;
+      }
       if (now - session.lastFrameAtMs < this.#minimumFrameIntervalMs) {
         this.#stats.rateLimitedFrames += 1;
         continue;
       }
       session.lastFrameAtMs = now;
+      session.unacknowledgedSinceMs ??= now;
       this.#send(session.target, session.origin, {
         type: "vcg.motion.frame",
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
@@ -135,6 +154,11 @@ export class MotionBridgeHost {
     if (parsed.data.type === "vcg.motion.goodbye") {
       const session = this.#sessions.get(event.source);
       if (session?.id === parsed.data.sessionId && session.origin === event.origin) this.#sessions.delete(event.source);
+      return;
+    }
+    if (parsed.data.type === "vcg.motion.ack") {
+      const session = this.#sessions.get(event.source);
+      if (session?.id === parsed.data.sessionId && session.origin === event.origin) delete session.unacknowledgedSinceMs;
       return;
     }
 
@@ -181,20 +205,26 @@ export function projectFrame(frame: MotionFrame, profiles: readonly MotionProfil
   const includeRich = active.has("body.mediapipe33");
   const includeObstacle = active.has("actions.obstacle.v1");
   const includeShell = active.has("actions.shell.v1");
-  return MotionFrameSchema.parse({
+  const withoutWorldPosition = <T extends { worldPosition?: unknown }>(landmark: T): T => {
+    const projected = { ...landmark };
+    delete projected.worldPosition;
+    return projected;
+  };
+  return {
     ...frame,
     capabilities: { ...frame.capabilities, profiles: frame.capabilities.profiles.filter((profile) => active.has(profile)) },
-    players: frame.players.map((player) => ({
-      ...player,
-      coreLandmarks: player.coreLandmarks.map((landmark) =>
-        includeWorld ? landmark : { ...landmark, worldPosition: undefined },
-      ),
-      richLandmarks: includeRich
-        ? player.richLandmarks?.map((landmark) => (includeWorld ? landmark : { ...landmark, worldPosition: undefined }))
-        : undefined,
-      actions: player.actions.filter(
-        (action) => (includeObstacle && OBSTACLE_ACTIONS.has(action.name)) || (includeShell && SHELL_ACTIONS.has(action.name)),
-      ),
-    })),
-  });
+    players: frame.players.map((player) => {
+      const { richLandmarks, ...portablePlayer } = player;
+      return {
+        ...portablePlayer,
+        coreLandmarks: player.coreLandmarks.map((landmark) => (includeWorld ? landmark : withoutWorldPosition(landmark))),
+        ...(includeRich && richLandmarks
+          ? { richLandmarks: richLandmarks.map((landmark) => (includeWorld ? landmark : withoutWorldPosition(landmark))) }
+          : {}),
+        actions: player.actions.filter(
+          (action) => (includeObstacle && OBSTACLE_ACTIONS.has(action.name)) || (includeShell && SHELL_ACTIONS.has(action.name)),
+        ),
+      };
+    }),
+  };
 }

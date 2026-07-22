@@ -52,6 +52,9 @@ export class MotionTracePlayer {
     this.#expectations = options.expectations ?? [];
     for (const expectation of this.#expectations) {
       if (!Number.isFinite(expectation.atMs) || expectation.atMs < 0) throw new Error("Replay expectation atMs must be non-negative");
+      if (expectation.toleranceMs !== undefined && (!Number.isFinite(expectation.toleranceMs) || expectation.toleranceMs < 0)) {
+        throw new Error("Replay expectation toleranceMs must be finite and non-negative");
+      }
     }
   }
 

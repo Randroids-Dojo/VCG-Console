@@ -1,8 +1,10 @@
 # Decision log
 
-Last updated: 2026-07-19
+Last updated: 2026-07-21
 
 This is the authoritative decision register. Requirements describe the intended product. Working decisions guide current experiments but are reversible. Proposed decisions need evidence before implementation depends on them. Rejected and deferred options remain recorded so the same debate is not repeated without new information.
+
+The register contains 128 decisions through D-128. The July 19 autonomous-research snapshot closed at D-126; D-127 and D-128 record the owner's July 21 Rust-host and Svelte-launcher selections.
 
 | ID | Status | Decision | Evidence and reason | Revisit when |
 |---|---|---|---|---|

@@ -39,7 +39,14 @@ async function download(asset) {
     // Missing files are downloaded below.
   }
 
-  const response = await fetch(asset.url, { redirect: "follow" });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+  let response;
+  try {
+    response = await fetch(asset.url, { redirect: "follow", signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!response.ok) throw new Error(`${asset.name}: HTTP ${response.status}`);
   const bytes = new Uint8Array(await response.arrayBuffer());
   const digest = createHash("sha256").update(bytes).digest("hex");

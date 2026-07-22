@@ -55,8 +55,7 @@
             "maxPlayers",
             "coordinateSystem",
             "timestampQuality"
-          ],
-          "additionalProperties": false
+          ]
         },
         "negotiation": {
           "oneOf": [
@@ -98,8 +97,7 @@
                 "accepted",
                 "activeProfiles",
                 "unavailableOptionalProfiles"
-              ],
-              "additionalProperties": false
+              ]
             },
             {
               "type": "object",
@@ -126,8 +124,7 @@
               "required": [
                 "accepted",
                 "missingRequiredProfiles"
-              ],
-              "additionalProperties": false
+              ]
             }
           ]
         }
@@ -138,8 +135,7 @@
         "sessionId",
         "capabilities",
         "negotiation"
-      ],
-      "additionalProperties": false
+      ]
     },
     {
       "type": "object",
@@ -199,8 +195,7 @@
                 "accepted",
                 "activeProfiles",
                 "unavailableOptionalProfiles"
-              ],
-              "additionalProperties": false
+              ]
             },
             {
               "type": "object",
@@ -227,8 +222,7 @@
               "required": [
                 "accepted",
                 "missingRequiredProfiles"
-              ],
-              "additionalProperties": false
+              ]
             }
           ]
         }
@@ -237,8 +231,7 @@
         "type",
         "protocolVersion",
         "reason"
-      ],
-      "additionalProperties": false
+      ]
     },
     {
       "type": "object",
@@ -339,8 +332,7 @@
                 "maxPlayers",
                 "coordinateSystem",
                 "timestampQuality"
-              ],
-              "additionalProperties": false
+              ]
             },
             "players": {
               "type": "array",
@@ -414,8 +406,7 @@
                           "required": [
                             "x",
                             "y"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         "worldPosition": {
                           "type": "object",
@@ -434,8 +425,7 @@
                             "xMeters",
                             "yMeters",
                             "zMeters"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         "visibility": {
                           "type": "number",
@@ -456,8 +446,7 @@
                         "position",
                         "visibility",
                         "observed"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "richLandmarks": {
@@ -521,8 +510,7 @@
                           "required": [
                             "x",
                             "y"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         "worldPosition": {
                           "type": "object",
@@ -541,8 +529,7 @@
                             "xMeters",
                             "yMeters",
                             "zMeters"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         "visibility": {
                           "type": "number",
@@ -563,8 +550,7 @@
                         "position",
                         "visibility",
                         "observed"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "bounds": {
@@ -588,8 +574,7 @@
                       "top",
                       "right",
                       "bottom"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   "actions": {
                     "type": "array",
@@ -639,8 +624,7 @@
                         "phase",
                         "confidence",
                         "occurredAtMs"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   }
                 },
@@ -652,8 +636,7 @@
                   "coreLandmarks",
                   "bounds",
                   "actions"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           },
@@ -668,8 +651,7 @@
             "health",
             "capabilities",
             "players"
-          ],
-          "additionalProperties": false
+          ]
         }
       },
       "required": [
@@ -677,8 +659,7 @@
         "protocolVersion",
         "sessionId",
         "frame"
-      ],
-      "additionalProperties": false
+      ]
     },
     {
       "type": "object",
@@ -703,8 +684,7 @@
         "type",
         "protocolVersion",
         "code"
-      ],
-      "additionalProperties": false
+      ]
     }
   ]
 }

@@ -56,6 +56,26 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(diagnosticSwitch).toHaveText("On");
 });
 
+test("universal search traps focus and restores its opener", async ({ page }) => {
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  const trigger = page.getByRole("button", { name: /Search games/ });
+  await trigger.focus();
+  await trigger.click();
+  const input = page.locator("#universal-search");
+  await expect(input).toBeFocused();
+  await input.fill("retro");
+  const result = page.getByRole("button", { name: /RetroArch Retro library/ });
+  await result.focus();
+  await page.keyboard.press("Tab");
+  await expect(input).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(result).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+});
+
 test("launcher remains usable on a narrow setup display", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?skipBoot=1");

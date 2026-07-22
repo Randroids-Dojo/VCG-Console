@@ -23,21 +23,22 @@ export const GameManifestSchema = z
       healthCheck: z.object({
         type: z.enum(["http", "process", "explicit-ready"]),
         path: z.string().optional(),
-      }),
-    }),
+      }).passthrough(),
+    }).passthrough(),
     rights: z.object({
       distribution: z.enum(["remote-only", "owner-authorized-local", "redistributable"]),
       codeLicense: z.string().min(1),
       contentLicense: z.string().min(1),
       reviewStatus: z.enum(["unreviewed", "owner-confirmed", "audited"]),
-    }),
+    }).passthrough(),
     notes: z.array(z.string()),
   })
+  .passthrough()
   .superRefine((manifest, context) => {
     if (manifest.runtime === "remote-web") {
       const parsed = HttpsUrlSchema.safeParse(manifest.entrypoint);
       if (!parsed.success) context.addIssue({ code: "custom", path: ["entrypoint"], message: "remote-web entrypoint must use HTTPS" });
-      else if (!manifest.allowedOrigins.includes(new URL(manifest.entrypoint).origin)) {
+      else if (!manifest.allowedOrigins.some((origin) => new URL(origin).origin === new URL(manifest.entrypoint).origin)) {
         context.addIssue({ code: "custom", path: ["allowedOrigins"], message: "allowedOrigins must include the entrypoint origin" });
       }
     }
@@ -47,7 +48,19 @@ export const GameManifestSchema = z
   });
 
 export type GameManifest = z.infer<typeof GameManifestSchema>;
-export const gameManifestJsonSchema = z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" });
+export const gameManifestJsonSchema = z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>;
+gameManifestJsonSchema.allOf = [
+  {
+    if: { properties: { runtime: { const: "remote-web" } }, required: ["runtime"] },
+    then: { properties: { entrypoint: { pattern: "^https://" } } },
+  },
+  {
+    if: { properties: { network: { const: "offline" } }, required: ["network"] },
+    then: { properties: { permissions: { not: { contains: { const: "network" } } } } },
+  },
+];
+gameManifestJsonSchema.$comment =
+  "parseGameManifest additionally compares normalized entrypoint and allowedOrigins values; standard JSON Schema cannot express cross-property URL-origin equality.";
 
 export function parseGameManifest(value: unknown): GameManifest {
   return GameManifestSchema.parse(value);

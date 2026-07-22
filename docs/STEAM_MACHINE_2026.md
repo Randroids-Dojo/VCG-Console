@@ -27,7 +27,7 @@ The practical recommendation is to keep the x86-first development baseline, make
 - Valve publishes Steam Machine Windows graphics, Wi-Fi, Bluetooth, and card-reader drivers.
 - Valve says Steam Machine and Steam Deck are capable of dual boot, but the SteamOS installer with a supported dual-boot wizard is not ready yet. Installing Windows currently requires wiping SteamOS.
 
-Reported retail specifications should be rechecked against the live Steam store before purchase. Current reporting consistently lists a six-core/twelve-thread Zen 4 CPU, 28-CU RDNA 3 GPU with 8GB GDDR6 VRAM, 16GB DDR5 system RAM, 512GB or 2TB NVMe storage, Wi-Fi 6E, Bluetooth, Ethernet, HDMI, DisplayPort, USB-A/USB-C, and integrated Steam Controller wireless support.
+Reported retail specifications should be rechecked against the live Steam store before purchase. Valve's official [Steam Machine product page](https://store.steampowered.com/hardware/steammachine) was captured on 2026-07-21 and lists a semi-custom six-core/twelve-thread Zen 4 CPU, semi-custom 28-CU RDNA 3 GPU, 8GB GDDR6 VRAM, 16GB DDR5 system RAM, 512GB or 2TB NVMe storage, Wi-Fi 6E, Bluetooth 5.3, Gigabit Ethernet, HDMI 2.0, DisplayPort 1.4, USB-A/USB-C, and integrated 2.4GHz Steam Controller wireless support. These remain reported specifications until the delivered unit is inventoried and benchmarked.
 
 ## Dual boot status
 

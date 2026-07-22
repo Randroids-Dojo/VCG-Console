@@ -112,6 +112,7 @@ export class MediaPipeTracker {
     const worker = new Worker(new URL("./tracker-worker.ts", import.meta.url), { type: "module", name: "vcg-pose-tracker" });
     this.#worker = worker;
     worker.addEventListener("message", this.#handleWorkerMessage);
+    worker.addEventListener("error", this.#handleWorkerRuntimeError);
 
     return new Promise((resolve, reject) => {
       const timeout = window.setTimeout(() => reject(new Error("worker initialization timed out after 20 seconds")), 20_000);
@@ -150,6 +151,12 @@ export class MediaPipeTracker {
       this.#frameGate.release();
       this.#failRunningTracker(`Worker inference failed: ${event.data.message}`);
     }
+  };
+
+  readonly #handleWorkerRuntimeError = (event: ErrorEvent): void => {
+    if (!this.#running) return;
+    this.#frameGate.release();
+    this.#failRunningTracker(`Worker runtime failed: ${event.message || "unknown worker error"}`);
   };
 
   async #createMainThreadLandmarker(): Promise<PoseLandmarker> {

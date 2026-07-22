@@ -9,9 +9,19 @@ if (-not (Test-Path "package.json")) {
   throw "Run this script from the VCG-Console repository root."
 }
 
-foreach ($commandName in @("git", "node", "cargo", "rustc")) {
+foreach ($commandName in @("git", "node", "rustup")) {
   if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
     throw "Missing prerequisite: $commandName. Install Git, Node.js 22 or newer, and the rustup-managed toolchain declared by rust-toolchain.toml, then rerun."
+  }
+}
+
+$activeRustToolchain = (& rustup show active-toolchain 2>$null)
+if ($LASTEXITCODE -ne 0 -or -not $activeRustToolchain) {
+  throw "No active rustup-managed toolchain is available. Install the toolchain declared by rust-toolchain.toml, then rerun."
+}
+foreach ($commandName in @("cargo", "rustc")) {
+  if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
+    throw "The active rustup toolchain does not provide $commandName. Reinstall the toolchain declared by rust-toolchain.toml, then rerun."
   }
 }
 

@@ -45,4 +45,19 @@ describe("mediapipeResultToMotionFrame", () => {
     });
     expect(frame.players).toEqual([]);
   });
+
+  it("includes landmark presence in player confidence", () => {
+    const lowPresence = result();
+    for (const landmark of lowPresence.landmarks[0] ?? []) landmark.presence = 0.1;
+    const frame = mediapipeResultToMotionFrame(lowPresence, {
+      sequence: 9,
+      sourceTimestampMs: 10,
+      inferenceStartedAtMs: 11,
+      inferenceCompletedAtMs: 14,
+      publishedAtMs: 15,
+    });
+
+    expect(frame.players[0]?.confidence).toBeCloseTo(0.1);
+    expect(frame.players[0]?.coreLandmarks.every((landmark) => !landmark.observed)).toBe(true);
+  });
 });
