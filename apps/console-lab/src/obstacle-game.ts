@@ -62,6 +62,9 @@ export class ObstacleGame {
     this.#obstacles.length = 0;
     this.#lane = 1;
     this.#stance = "standing";
+    this.#stanceUntil = 0;
+    this.#paused = false;
+    this.#lastAt = performance.now();
     this.#score = 0;
     this.#lives = 3;
     this.#spawnSequence = 0;

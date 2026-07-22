@@ -2,6 +2,11 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
 
+const isolationHeaders = {
+  "Cross-Origin-Embedder-Policy": "require-corp",
+  "Cross-Origin-Opener-Policy": "same-origin",
+};
+
 export default defineConfig({
   plugins: [svelte()],
   build: {
@@ -14,9 +19,9 @@ export default defineConfig({
     },
   },
   server: {
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin",
-    },
+    headers: isolationHeaders,
+  },
+  preview: {
+    headers: isolationHeaders,
   },
 });
