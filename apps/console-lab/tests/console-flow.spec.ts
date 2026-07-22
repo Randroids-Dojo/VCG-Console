@@ -21,7 +21,10 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.screenshot({ path: "../../test-results/console-lab/launcher-home.png" });
 
   await page.getByRole("button", { name: "Museum", exact: true }).click();
-  await expect(page.getByRole("link", { name: /Enter the museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await page.getByRole("button", { name: /Enter the museum/ }).click();
+  await expect(page.getByRole("dialog", { name: "VibeCoded Museum" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await page.getByRole("button", { name: /Exit/ }).click();
   await page.getByRole("button", { name: "Profiles", exact: true }).click();
   await page.getByRole("button", { name: /Guest Local guest/ }).click();
   await expect(page.locator("#active-profile-name")).toHaveText("Guest");
@@ -56,6 +59,44 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(diagnosticSwitch).toHaveText("On");
 });
 
+test("one launch screen represents every adapter without inventing progress", async ({ page }) => {
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  const previews = page.locator(".launch-preview");
+
+  const localPreview = previews.getByRole("button", { name: "Local web", exact: true });
+  await localPreview.click();
+  const localLaunch = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(localLaunch).toHaveAttribute("data-launch-adapter", "local-web");
+  await expect(localLaunch.getByRole("progressbar", { name: "Launch progress" })).toHaveAttribute("aria-valuenow", "67");
+  await expect(localLaunch.getByText("Console controls reserved")).toBeVisible();
+  await page.waitForTimeout(220);
+  await page.screenshot({ path: "../../test-results/console-lab/launch-state-local.png" });
+  await page.keyboard.press("Escape");
+  await expect(localPreview).toBeFocused();
+
+  await previews.getByRole("button", { name: "Remote web", exact: true }).click();
+  const remoteLaunch = page.getByRole("dialog", { name: "VibeCoded Museum" });
+  await expect(remoteLaunch).toHaveAttribute("data-launch-adapter", "remote-web");
+  await expect(remoteLaunch.getByRole("progressbar")).toHaveCount(0);
+  await expect(remoteLaunch.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await remoteLaunch.getByRole("button", { name: /Exit/ }).click();
+
+  await previews.getByRole("button", { name: "Native", exact: true }).click();
+  const nativeLaunch = page.getByRole("dialog", { name: "Native game" });
+  await expect(nativeLaunch).toHaveAttribute("data-launch-adapter", "native");
+  await expect(nativeLaunch.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(nativeLaunch.getByText(/Rust console host is not connected/)).toBeVisible();
+  await nativeLaunch.getByRole("button", { name: /Exit/ }).click();
+
+  await previews.getByRole("button", { name: "Retro", exact: true }).click();
+  const retroLaunch = page.getByRole("dialog", { name: "RetroArch" });
+  await expect(retroLaunch).toHaveAttribute("data-launch-adapter", "retro");
+  await expect(retroLaunch.getByText("NOT AVAILABLE")).toBeVisible();
+  await retroLaunch.getByRole("button", { name: /Exit/ }).click();
+});
+
 test("universal search traps focus and restores its opener", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
@@ -85,6 +126,18 @@ test("launcher remains usable on a narrow setup display", async ({ page }) => {
   await page.keyboard.press("/");
   await expect(page.locator("#universal-search")).toBeFocused();
   await page.screenshot({ path: "../../test-results/console-lab/launcher-mobile-search.png" });
+});
+
+test("launch screen remains purposeful on a narrow display", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  await page.getByRole("button", { name: "Local web", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Obstacle" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Back/ })).toBeVisible();
+  await page.waitForTimeout(220);
+  await page.screenshot({ path: "../../test-results/console-lab/launch-state-mobile.png", fullPage: true });
 });
 
 test("console lab preserves navigation and overlay focus contracts", async ({ page }) => {

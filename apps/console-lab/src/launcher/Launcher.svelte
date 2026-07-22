@@ -2,10 +2,11 @@
   import { onDestroy, onMount, tick } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
   import BootScreen from "./BootScreen.svelte";
+  import LaunchScreen from "./LaunchScreen.svelte";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
   import SettingsView from "./SettingsView.svelte";
-  import type { LabMode, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
+  import type { LabMode, LaunchAdapter, LaunchSession, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
 
   let { openMotionLab }: LauncherOptions = $props();
   let launcher: HTMLElement;
@@ -17,14 +18,17 @@
   let clock = $state("");
   let toastMessage = $state("");
   let toastVisible = $state(false);
+  let launchSession = $state<LaunchSession | undefined>();
   let navSignalOffset = $state(0);
   let clockTimer: number | undefined;
   let toastTimer: number | undefined;
+  let launchRun = 0;
+  let launchReturnFocus: HTMLElement | null = null;
 
   const searchItems: SearchItem[] = [
-    { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => openLab("obstacle") },
-    { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => openLab("tracker") },
-    { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => openLab("shell") },
+    { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
+    { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") },
+    { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") },
     { title: "VibeCoded Museum", detail: "vibecoded.games", group: "Online", terms: "museum collection web games", action: () => showView("museum") },
     { title: "VibeBots", detail: "Museum catalog", group: "Game", terms: "vibecoded online robots", action: () => showView("museum") },
     { title: "Mi Casa Es Su Casa", detail: "Museum catalog", group: "Game", terms: "vibecoded online casa", action: () => showView("museum") },
@@ -53,11 +57,13 @@
 
   export function show(): void {
     visible = true;
+    closeLaunch(false);
     showView("home");
   }
 
   export function hide(): void {
     search.close();
+    closeLaunch(false);
     visible = false;
   }
 
@@ -75,12 +81,14 @@
   }
 
   export function back(): void {
-    if (search.isOpen()) search.close();
+    if (launchSession) closeLaunch();
+    else if (search.isOpen()) search.close();
     else if (view !== "home") showView("home");
   }
 
   export function handleInput(action: ConsoleInputAction): void {
     if (action === "home") {
+      closeLaunch();
       showView("home");
       return;
     }
@@ -89,7 +97,8 @@
       return;
     }
 
-    const controls = [...launcher.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input")].filter(
+    const controlRoot = launchSession ? launcher.querySelector<HTMLElement>(".launch-screen") ?? launcher : launcher;
+    const controls = [...controlRoot.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input")].filter(
       (element) => element.offsetParent !== null,
     );
     const current = Math.max(0, controls.indexOf(document.activeElement as HTMLElement));
@@ -102,11 +111,143 @@
   }
 
   export function openSearch(): void {
+    if (launchSession) return;
     void search.open();
   }
 
   function openLab(mode: LabMode): void {
     openMotionLab(mode);
+  }
+
+  function baseLaunch(adapter: LaunchAdapter, title: string, context: string): LaunchSession {
+    const definitions: Record<LaunchAdapter, Pick<LaunchSession, "adapterLabel" | "phases">> = {
+      "remote-web": {
+        adapterLabel: "REMOTE WEB",
+        phases: [
+          { label: "Check connection", detail: "Read the console network state" },
+          { label: "Confirm destination", detail: "Keep the remote origin visible" },
+          { label: "Hand off", detail: "Open the supervised browser session" },
+        ],
+      },
+      "local-web": {
+        adapterLabel: "LOCAL WEB",
+        phases: [
+          { label: "Verify package", detail: "Use the already loaded local build" },
+          { label: "Prepare controls", detail: "Reserve console Back and Home" },
+          { label: "Start session", detail: "Transfer focus to the game" },
+        ],
+      },
+      native: {
+        adapterLabel: "NATIVE / GODOT",
+        phases: [
+          { label: "Check package", detail: "Read the native game manifest" },
+          { label: "Request host", detail: "Ask the Rust appliance service to launch" },
+          { label: "Wait for ready", detail: "Hold until the game reports healthy" },
+        ],
+      },
+      retro: {
+        adapterLabel: "RETRO / LIBRETRO",
+        phases: [
+          { label: "Check library", detail: "Resolve the game, core, and controller profile" },
+          { label: "Request host", detail: "Ask the Rust appliance service to launch" },
+          { label: "Wait for ready", detail: "Hold until RetroArch reports healthy" },
+        ],
+      },
+    };
+    return {
+      adapter,
+      title,
+      context,
+      ...definitions[adapter],
+      activePhase: 0,
+      status: "loading",
+      startedAt: Date.now(),
+      detail: definitions[adapter].phases[0]?.label ?? "Preparing",
+    };
+  }
+
+  function beginLaunch(session: LaunchSession): number {
+    launchRun += 1;
+    launchReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    launchSession = session;
+    return launchRun;
+  }
+
+  async function launchLocalWeb(mode: LabMode, title: string): Promise<void> {
+    const run = beginLaunch({
+      ...baseLaunch("local-web", title, "MOTION HUB / INSTALLED"),
+      progress: 0,
+    });
+    await tick();
+    if (run !== launchRun) return;
+    launchSession = { ...launchSession!, activePhase: 1, progress: 1 / 3, detail: "Local package verified" };
+    await nextLaunchFrame();
+    if (run !== launchRun) return;
+    launchSession = { ...launchSession!, activePhase: 2, progress: 2 / 3, detail: "Console controls reserved" };
+    await nextLaunchFrame();
+    if (run !== launchRun) return;
+    launchSession = { ...launchSession!, progress: 1, status: "ready", detail: "Session ready" };
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
+    if (run !== launchRun) return;
+    launchSession = undefined;
+    openLab(mode);
+  }
+
+  function launchMuseum(): void {
+    const session = baseLaunch("remote-web", "VibeCoded Museum", "VIBECODED.GAMES / ONLINE");
+    if (!navigator.onLine) {
+      beginLaunch({ ...session, status: "unavailable", detail: "No network connection", activePhase: 0 });
+      return;
+    }
+    beginLaunch({
+      ...session,
+      status: "ready",
+      detail: "Browser handoff ready · vibecoded.games",
+      activePhase: 2,
+      action: { label: "Open museum", href: "https://vibecoded.games" },
+    });
+  }
+
+  function launchHostedAdapter(adapter: "native" | "retro"): void {
+    const title = adapter === "retro" ? "RetroArch" : "Native game";
+    const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
+    beginLaunch({
+      ...baseLaunch(adapter, title, context),
+      activePhase: 1,
+      status: "unavailable",
+      detail: "Rust console host is not connected in this browser prototype",
+    });
+  }
+
+  function previewLaunch(adapter: LaunchAdapter): void {
+    if (adapter === "native" || adapter === "retro") {
+      launchHostedAdapter(adapter);
+      return;
+    }
+    if (adapter === "remote-web") {
+      const session = baseLaunch(adapter, "VibeCoded Museum", "DEVELOPER PREVIEW / ONLINE");
+      beginLaunch({ ...session, activePhase: 2, status: "ready", detail: "Remote destination is ready", action: { label: "Open museum", href: "https://vibecoded.games" } });
+      return;
+    }
+    const session = baseLaunch(adapter, "Obstacle", "DEVELOPER PREVIEW / INSTALLED");
+    beginLaunch({ ...session, activePhase: 2, progress: 2 / 3, detail: "Console controls reserved" });
+  }
+
+  function closeLaunch(restoreFocus = true): void {
+    if (!launchSession) return;
+    launchRun += 1;
+    launchSession = undefined;
+    const target = launchReturnFocus;
+    launchReturnFocus = null;
+    if (restoreFocus) void tick().then(() => target?.isConnected && target.focus({ preventScroll: true }));
+  }
+
+  function completeLaunchAction(): void {
+    closeLaunch(false);
+  }
+
+  function nextLaunchFrame(): Promise<void> {
+    return new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
   }
 
   async function positionSignal(): Promise<void> {
@@ -161,7 +302,7 @@
           <p>Choose where to play.</p>
         </div>
         <div class="home-destinations" aria-label="Game destinations">
-          <button class="destination featured" type="button" onclick={() => openLab("obstacle")}>
+          <button class="destination featured" type="button" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}>
             <span class="destination-index">MOTION / 01</span><strong>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action">Continue <b>→</b></span>
           </button>
           <button class="destination" type="button" onclick={() => showView("museum")}>
@@ -177,17 +318,17 @@
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
         <header class="view-header"><div><p class="view-kicker">MOTION HUB</p><h1>Move to play.</h1></div><p>Camera stays local. Every experience keeps a controller exit.</p></header>
         <div class="library-list">
-          <button type="button" onclick={() => openLab("obstacle")}><span>01</span><strong>Obstacle</strong><small>Dodge · Duck · Jump</small><b>Ready</b></button>
-          <button type="button" onclick={() => openLab("tracker")}><span>02</span><strong>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b>Ready</b></button>
-          <button type="button" onclick={() => openLab("shell")}><span>03</span><strong>Shell Lab</strong><small>Gesture navigation and recovery</small><b>Ready</b></button>
+          <button type="button" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span>01</span><strong>Obstacle</strong><small>Dodge · Duck · Jump</small><b>Ready</b></button>
+          <button type="button" onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span>02</span><strong>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b>Ready</b></button>
+          <button type="button" onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span>03</span><strong>Shell Lab</strong><small>Gesture navigation and recovery</small><b>Ready</b></button>
         </div>
       </div>
 
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>
         <p class="view-kicker">VIBECODED.GAMES</p>
         <div class="museum-title"><h1>The museum is<br />a world of its own.</h1><span>LIVE / WEB</span></div>
-        <p class="museum-copy">Walk through the full VibeCoded collection. The museum opens as a supervised web experience and returns here when you leave.</p>
-        <a class="primary-action" href="https://vibecoded.games" target="_blank" rel="noopener noreferrer">Enter the museum <span>↗</span></a>
+        <p class="museum-copy">Walk through the full VibeCoded collection. The console host will supervise this web experience; this browser prototype opens a new tab.</p>
+        <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span>↗</span></button>
         <p class="boundary-note">Internet required · Opens vibecoded.games</p>
       </div>
 
@@ -199,7 +340,7 @@
           <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
         </div>
         <div class="retro-actions">
-          <button type="button" onclick={() => toast("RetroArch requires the native console host in this browser prototype.")}>Open RetroArch</button>
+          <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>
           <button type="button" onclick={openSearch}>Search library</button>
         </div>
       </div>
@@ -209,11 +350,14 @@
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
-        <SettingsView bind:this={settings} {openMotionLab} ontoast={toast} />
+        <SettingsView bind:this={settings} {openMotionLab} onpreviewlaunch={previewLaunch} ontoast={toast} />
       </div>
     </section>
   </div>
 
   <div class="launcher-toast" id="launcher-toast" hidden={!toastVisible} role="status">{toastMessage}</div>
   <SearchOverlay bind:this={search} items={searchItems} />
+  {#if launchSession}
+    <LaunchScreen session={launchSession} onexit={closeLaunch} onaction={completeLaunchAction} />
+  {/if}
 </main>
