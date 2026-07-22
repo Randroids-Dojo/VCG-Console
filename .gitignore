@@ -1,0 +1,11 @@
+node_modules/
+dist/
+target/
+.DS_Store
+coverage/
+test-results/
+playwright-report/
+artifacts/
+apps/console-lab/public/models/
+apps/console-lab/public/wasm/
+apps/console-lab/public/fonts/

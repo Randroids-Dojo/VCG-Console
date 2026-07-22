@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "mi-casa-es-su-casa",
+  "version": "hosted-0c868be6-2026-07-19",
+  "title": "Mi Casa Es Su Casa",
+  "publisher": "Randroid's Dojo",
+  "runtime": "remote-web",
+  "entrypoint": "https://mi-casa-es-su-casa.vercel.app",
+  "architectures": ["web"],
+  "permissions": ["keyboard", "pointer", "network", "persistent-storage"],
+  "inputProfiles": ["keyboard", "pointer"],
+  "minimumConsoleVersion": "0.0.1",
+  "network": "required",
+  "allowedOrigins": ["https://mi-casa-es-su-casa.vercel.app"],
+  "compatibilityStatus": "unverified",
+  "launch": { "timeoutMs": 30000, "healthCheck": { "type": "http", "path": "/" } },
+  "rights": { "distribution": "remote-only", "codeLicense": "NOASSERTION", "contentLicense": "NOASSERTION", "reviewStatus": "unreviewed" },
+  "notes": [
+    "Character, layout, visitor messages, name validation, and feedback use hosted routes.",
+    "An offline package requires deliberate local replacements rather than a static mirror.",
+    "Controller-only play is unverified."
+  ]
+}

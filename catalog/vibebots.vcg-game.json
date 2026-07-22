@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "vibebots",
+  "version": "hosted-5b5d17ef-2026-07-19",
+  "title": "VibeBots",
+  "publisher": "Randroid's Dojo",
+  "runtime": "remote-web",
+  "entrypoint": "https://vibebots.randroid.dev/mine",
+  "architectures": ["web"],
+  "permissions": ["gamepad", "keyboard", "pointer", "network", "persistent-storage"],
+  "inputProfiles": ["gamepad", "keyboard", "pointer"],
+  "minimumConsoleVersion": "0.0.1",
+  "network": "required",
+  "allowedOrigins": ["https://vibebots.randroid.dev"],
+  "compatibilityStatus": "partial",
+  "launch": { "timeoutMs": 30000, "healthCheck": { "type": "http", "path": "/mine" } },
+  "rights": { "distribution": "remote-only", "codeLicense": "NOASSERTION", "contentLicense": "NOASSERTION", "reviewStatus": "unreviewed" },
+  "notes": [
+    "Guest-first and local play exist, with hosted server authority and persistence still requiring classification.",
+    "Optional Clerk identity and notification behavior remain hosted features.",
+    "Gamepad behavior is known in some surfaces but full console-only play remains unqualified."
+  ]
+}

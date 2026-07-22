@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publisher": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime": {
+      "type": "string",
+      "enum": [
+        "remote-web",
+        "local-web",
+        "native",
+        "libretro"
+      ]
+    },
+    "entrypoint": {
+      "type": "string",
+      "minLength": 1
+    },
+    "architectures": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "aarch64",
+          "x86_64",
+          "web"
+        ]
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gamepad",
+          "pointer",
+          "keyboard",
+          "touch",
+          "motion.core17",
+          "motion.actions.obstacle",
+          "network",
+          "persistent-storage"
+        ]
+      }
+    },
+    "inputProfiles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gamepad",
+          "pointer",
+          "keyboard",
+          "touch",
+          "motion.obstacle.v1"
+        ]
+      }
+    },
+    "minimumConsoleVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "network": {
+      "type": "string",
+      "enum": [
+        "required",
+        "optional",
+        "offline"
+      ]
+    },
+    "allowedOrigins": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "compatibilityStatus": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "partial",
+        "qualified",
+        "blocked"
+      ]
+    },
+    "launch": {
+      "type": "object",
+      "properties": {
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 120000
+        },
+        "healthCheck": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "http",
+                "process",
+                "explicit-ready"
+              ]
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "timeoutMs",
+        "healthCheck"
+      ],
+      "additionalProperties": {}
+    },
+    "rights": {
+      "type": "object",
+      "properties": {
+        "distribution": {
+          "type": "string",
+          "enum": [
+            "remote-only",
+            "owner-authorized-local",
+            "redistributable"
+          ]
+        },
+        "codeLicense": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentLicense": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewStatus": {
+          "type": "string",
+          "enum": [
+            "unreviewed",
+            "owner-confirmed",
+            "audited"
+          ]
+        }
+      },
+      "required": [
+        "distribution",
+        "codeLicense",
+        "contentLicense",
+        "reviewStatus"
+      ],
+      "additionalProperties": {}
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "publisher",
+    "runtime",
+    "entrypoint",
+    "architectures",
+    "permissions",
+    "inputProfiles",
+    "minimumConsoleVersion",
+    "network",
+    "allowedOrigins",
+    "compatibilityStatus",
+    "launch",
+    "rights",
+    "notes"
+  ],
+  "additionalProperties": {},
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime": {
+            "const": "remote-web"
+          }
+        },
+        "required": [
+          "runtime"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entrypoint": {
+            "pattern": "^https://"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "network": {
+            "const": "offline"
+          }
+        },
+        "required": [
+          "network"
+        ]
+      },
+      "then": {
+        "properties": {
+          "permissions": {
+            "not": {
+              "contains": {
+                "const": "network"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "parseGameManifest additionally compares normalized entrypoint and allowedOrigins values; standard JSON Schema cannot express cross-property URL-origin equality."
+}
