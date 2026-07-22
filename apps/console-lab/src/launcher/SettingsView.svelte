@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import type { LabMode, SettingsPanel } from "./types";
+  import type { LabMode, LaunchAdapter, SettingsPanel } from "./types";
 
   let {
     openMotionLab,
+    onpreviewlaunch,
     ontoast,
-  }: { openMotionLab: (mode?: LabMode) => void; ontoast: (message: string) => void } = $props();
+  }: { openMotionLab: (mode?: LabMode) => void; onpreviewlaunch: (adapter: LaunchAdapter) => void; ontoast: (message: string) => void } = $props();
   let panel = $state<SettingsPanel>("system");
   let scanning = $state(false);
   let scanComplete = $state(false);
@@ -63,6 +64,15 @@
       <div class="toggle-row"><div><strong>Diagnostic overlay</strong><small>Show performance and tracker health</small></div><button type="button" role="switch" aria-checked={diagnostics} onclick={() => (diagnostics = !diagnostics)}>{diagnostics ? "On" : "Off"}</button></div>
       <div class="toggle-row"><div><strong>Developer mode</strong><small>Allow paired workstation sessions</small></div><button type="button" role="switch" aria-checked={developerMode} onclick={() => (developerMode = !developerMode)}>{developerMode ? "On" : "Off"}</button></div>
       <button type="button" onclick={() => openMotionLab("tracker")}>Open Motion Lab</button>
+      <div class="launch-preview">
+        <div><strong>Launch-state preview</strong><small>Inspect each adapter without starting a game</small></div>
+        <div>
+          <button type="button" onclick={() => onpreviewlaunch("remote-web")}>Remote web</button>
+          <button type="button" onclick={() => onpreviewlaunch("local-web")}>Local web</button>
+          <button type="button" onclick={() => onpreviewlaunch("native")}>Native</button>
+          <button type="button" onclick={() => onpreviewlaunch("retro")}>Retro</button>
+        </div>
+      </div>
     </section>
   </div>
 </div>

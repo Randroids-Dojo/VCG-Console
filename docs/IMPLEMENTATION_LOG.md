@@ -191,3 +191,24 @@ The migration changes launcher presentation and state ownership only. Profiles a
 - No Hailo runtime tuple is claimed without the target hardware; the source ledger now exposes every required qualification field as unqualified.
 - The Steam Machine specification paragraph now cites Valve's official product page and remains labeled as reported until delivery-time inventory.
 - The profile-vault research boundary now assigns decryption to a deny-by-default broker with caller- and operation-scoped ACLs and no game-visible access to portraits, calibration records, or body-matching measurements.
+
+## 2026-07-21: shared branded launch states
+
+### Delivered
+
+- One Svelte launch screen now represents remote web, local web, native/Godot, and RetroArch adapters without duplicating visual or navigation behavior.
+- A vertical signal trace names the adapter's actual phases. Live elapsed time is always visible; numeric progress appears only when the local launcher has completed known milestones.
+- Local Motion launches verify the loaded package, reserve console controls, and transfer focus through the shared screen before opening the selected lab.
+- Museum entry checks the browser's network state, keeps `vibecoded.games` visible, and requires a deliberate handoff. Native and Retro previews report that the Rust console host is unavailable instead of implying a working integration.
+- Escape, controller Back, controller Home, visible Back/Exit, modal focus containment, and opener-focus restoration share the launcher's existing navigation contract.
+- Developer settings can hold each adapter state for review without starting a game or requiring camera hardware.
+
+### Verification evidence
+
+- `svelte-check` reports zero errors and zero warnings.
+- Playwright covers all four adapters, exact remote URL, honest progress omission, unavailable-host copy, Escape focus restoration, and narrow-display layout.
+- Reviewed 1440 x 1000 and 390 x 844 captures are stored as `test-results/console-lab/launch-state-local.png` and `launch-state-mobile.png`.
+
+### Remaining boundary
+
+I-154 remains open. Native host IPC, real download bytes, readiness heartbeat, watchdog, bounded timeout, retry, crash recovery, diagnostic detail, and forced process termination are not connected to this presentation component yet. Camera and target-hardware tests remain deferred.
