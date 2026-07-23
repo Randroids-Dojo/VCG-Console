@@ -1,6 +1,6 @@
 # Open-question register
 
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible alpha, P2 informs later quality or distribution. `Owner` is the role needed, not an assigned person.
 
@@ -87,7 +87,6 @@ Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible a
 |---|---:|---|---|---|---|
 | Q-077 | P1 | Which OCR-A font files, weights, sizes, and fallback stack give adequate TV legibility and glyph coverage? | The main font is decided, but OCR-A may not cover every symbol, language, small label, or accessibility need. | Package the verified public-domain files, inventory glyphs, and test from target seating distances with fallback samples. | Design/accessibility/release |
 | Q-079 | P0 | What exact Back, Home, and forced-exit controls remain available inside every hosted and local game? | Web games can capture focus, pointer lock, full-screen, or ordinary buttons. The invariant must be enforced outside game code. | Choose reserved remote/controller actions, implement them at the shell/compositor layer, and run hostile capture tests. | Platform/UX |
-| Q-080 | P0 | Which launch phases can report real progress, and what timeout distinguishes slow loading from a hang or crash? | A branded spinner alone still leaves users guessing. Status must reflect observable work and lead to recovery. | Define launch-state transitions, heartbeat/health signals, time budgets, copy, retry, details, and exit behavior for each runtime. | Platform/UX/operations |
 | Q-101 | P0 | How does the native Linux host own SDL3 input and unstealable Home/Back while launcher and child-game processes change focus? | The browser prototype routes ordinary mapped input but cannot qualify the controllers-just-work or always-escape requirements. | Build the smallest native host and test reserved controls during browser full-screen, pointer lock, native games, process hangs, reconnect, and compositor focus changes. | Platform/input/UX |
 
 ## Raspberry Pi AI HAT feasibility
@@ -122,6 +121,7 @@ These answers are evidence snapshots, not permanent assumptions.
 | Can every current game be freely mirrored offline? | No known basis yet. Only VibeGear2 exposes a recognized SPDX license in the current GitHub metadata snapshot; the rest need explicit review/authorization. | GitHub repository metadata snapshot |
 | Is old Kinect hardware a maintained foundation? | No. Capture libraries remain useful, but Azure Kinect support is retired and the open drivers do not provide the desired complete modern tracker. | OpenKinect and Microsoft lifecycle sources |
 | Can emulator code be bundled with arcade ROMs? | These are separate rights questions. MAME is open source but does not include ROMs, and libretro cores have individual licenses. | MAME and libretro documentation |
+| Which launch phases report progress, and when is a launch slow or failed? | Only adapter-supplied milestones report a percentage. Local launches become slow at 5 seconds, fail after 8 seconds without a signal, and time out at 15 seconds; hosted launches use 10, 15, and 30 seconds. Offline, heartbeat timeout, process exit, recovering, and recovered are separate states with Retry, Details, and Exit. | I-154 supervisor, deterministic unit tests, and browser fault-injection flows |
 | How many players does the first working prototype support? | One simultaneous player. Multi-player identity and overlap follow after the one-player tracking gates pass. | Project-owner selection recorded as D-031 |
 | Which body-controlled game proves the platform first? | A one-player obstacle-survival game using dodge, duck, and jump actions. | Project-owner selection recorded as D-032 |
 | Which VibeCoded games form the first compatibility set? | VibeBots, Mi Casa Es Su Casa, and Determined, intentionally emphasizing hosted-service complexity. | Project-owner selection recorded as D-033 |

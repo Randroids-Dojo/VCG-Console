@@ -6,17 +6,32 @@
     session,
     onexit,
     onaction,
+    onretry,
   }: {
     session: LaunchSession;
     onexit: () => void;
     onaction: () => void;
+    onretry: () => void;
   } = $props();
   let panel: HTMLElement;
   let exitButton: HTMLButtonElement;
   let elapsedMs = $state(0);
+  let detailsVisible = $state(false);
   let timer: number | undefined;
-  let statusLabel = $derived(session.status === "loading" ? "IN PROGRESS" : session.status === "ready" ? "READY" : "NOT AVAILABLE");
+  const STATUS_LABELS = {
+    loading: "IN PROGRESS",
+    slow: "TAKING LONGER",
+    ready: "READY",
+    offline: "OFFLINE",
+    hung: "NOT RESPONDING",
+    crashed: "STOPPED",
+    recovering: "RECOVERING",
+    recovered: "RECOVERED",
+    unavailable: "NOT AVAILABLE",
+  } as const;
+  let statusLabel = $derived(STATUS_LABELS[session.status]);
   let elapsed = $derived(`${(elapsedMs / 1_000).toFixed(1)} S`);
+  let fault = $derived(["offline", "hung", "crashed", "unavailable"].includes(session.status));
 
   onMount(() => {
     elapsedMs = Math.max(0, Date.now() - session.startedAt);
@@ -57,8 +72,10 @@
 <div
   bind:this={panel}
   class="launch-screen"
-  class:launch-ready={session.status === "ready"}
-  class:launch-unavailable={session.status === "unavailable"}
+  class:launch-ready={["ready", "recovered"].includes(session.status)}
+  class:launch-recovering={session.status === "recovering"}
+  class:launch-slow={session.status === "slow"}
+  class:launch-unavailable={fault}
   data-launch-adapter={session.adapter}
   role="dialog"
   tabindex="-1"
@@ -108,14 +125,29 @@
         aria-valuemax="100"
         aria-valuenow={Math.round(session.progress * 100)}
       ><span style:width={`${session.progress * 100}%`}></span></div>
-    {:else if session.status === "loading"}
+    {:else if ["loading", "slow", "recovering"].includes(session.status)}
       <div class="launch-progress indeterminate" aria-label="Waiting for an external launch phase"><span></span></div>
+    {/if}
+    {#if detailsVisible && session.diagnostics}
+      <dl class="launch-diagnostics" aria-label="Launch diagnostics">
+        <div><dt>CODE</dt><dd>{session.diagnostics.code}</dd></div>
+        <div><dt>ATTEMPT</dt><dd>{session.diagnostics.attempt}</dd></div>
+        <div><dt>LAST SIGNAL</dt><dd>{session.diagnostics.lastSignal}</dd></div>
+        <div><dt>AT</dt><dd>+{Math.max(0, (session.diagnostics.lastSignalAt - session.startedAt) / 1_000).toFixed(1)} S</dd></div>
+        <div><dt>TIMEOUT</dt><dd>{(session.diagnostics.timeoutMs / 1_000).toFixed(1)} S</dd></div>
+      </dl>
     {/if}
     <div class="launch-actions">
       {#if session.action?.href}
         <a class="launch-primary" href={session.action.href} target="_blank" rel="noopener noreferrer">{session.action.label}<span>↗</span></a>
       {:else if session.action}
         <button class="launch-primary" type="button" onclick={onaction}>{session.action.label}<span>→</span></button>
+      {/if}
+      {#if session.canRetry}
+        <button class="launch-primary" type="button" onclick={onretry}>Retry<span>↻</span></button>
+      {/if}
+      {#if session.diagnostics}
+        <button type="button" aria-expanded={detailsVisible} onclick={() => (detailsVisible = !detailsVisible)}>{detailsVisible ? "Hide details" : "Details"}<span>+</span></button>
       {/if}
       <button bind:this={exitButton} type="button" onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}<kbd>ESC</kbd></button>
     </div>

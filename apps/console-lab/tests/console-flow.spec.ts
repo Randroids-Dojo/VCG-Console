@@ -97,6 +97,65 @@ test("one launch screen represents every adapter without inventing progress", as
   await retroLaunch.getByRole("button", { name: /Exit/ }).click();
 });
 
+test("launch supervision distinguishes faults and recovers through retry", async ({ page }) => {
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  const recovery = page.locator(".launch-preview").nth(1);
+
+  await recovery.getByRole("button", { name: "Slow", exact: true }).click();
+  const slow = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(slow.getByText("TAKING LONGER")).toBeVisible();
+  await expect(slow.getByText(/keep waiting or go back/)).toBeVisible();
+  await slow.getByRole("button", { name: /Details/ }).click();
+  await expect(slow.getByText("LAUNCH_SLOW")).toBeVisible();
+  await slow.getByRole("button", { name: /Exit/ }).click();
+
+  await recovery.getByRole("button", { name: "Offline", exact: true }).click();
+  const offline = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(offline.getByText("OFFLINE")).toBeVisible();
+  await expect(offline.getByText("Network disconnected before handoff")).toBeVisible();
+  await offline.getByRole("button", { name: /Retry/ }).click();
+  await expect(offline.getByText("RECOVERED", { exact: true })).toBeVisible();
+  await expect(offline.getByText("Launch recovered and is ready")).toBeVisible();
+  await offline.getByRole("button", { name: /Exit/ }).click();
+
+  await recovery.getByRole("button", { name: "Hung", exact: true }).click();
+  const hung = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(hung.getByText("NOT RESPONDING")).toBeVisible();
+  await hung.getByRole("button", { name: /Details/ }).click();
+  await expect(hung.getByText("HEARTBEAT_TIMEOUT")).toBeVisible();
+  await hung.getByRole("button", { name: /Exit/ }).click();
+
+  await recovery.getByRole("button", { name: "Crashed", exact: true }).click();
+  const crashed = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(crashed.getByText("STOPPED")).toBeVisible();
+  await expect(crashed.getByText("Game process exited with code 137")).toBeVisible();
+  await crashed.getByRole("button", { name: /Details/ }).click();
+  await expect(crashed.getByText("PROCESS_EXIT_137")).toBeVisible();
+  await page.waitForTimeout(220);
+  await page.screenshot({ path: "../../test-results/console-lab/launch-state-crashed.png" });
+  await crashed.getByRole("button", { name: /Exit/ }).click();
+
+  await recovery.getByRole("button", { name: "Recovered", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Obstacle" }).getByText("RECOVERED", { exact: true })).toBeVisible();
+});
+
+test("museum launch uses the real browser network state and retries", async ({ page, context }) => {
+  await page.goto("/?skipBoot=1");
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Museum", exact: true }).click();
+  await page.getByRole("button", { name: /Enter the museum/ }).click();
+  const launch = page.getByRole("dialog", { name: "VibeCoded Museum" });
+  await expect(launch.getByText("OFFLINE", { exact: true })).toBeVisible();
+  await expect(launch.getByText("No network connection")).toBeVisible();
+
+  await context.setOffline(false);
+  await launch.getByRole("button", { name: /Retry/ }).click();
+  await expect(launch.getByText("RECOVERED", { exact: true })).toBeVisible();
+  await expect(launch.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+});
+
 test("universal search traps focus and restores its opener", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
