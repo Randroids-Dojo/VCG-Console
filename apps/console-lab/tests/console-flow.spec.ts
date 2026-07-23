@@ -246,6 +246,43 @@ test("loads the pinned local model and starts a camera pipeline", async ({ page 
     .toContain("WORKER");
 });
 
+test("normal camera mode stores and transmits no raw frames", async ({ page }) => {
+  const requests: Array<{ method: string; url: string; postData: string | null }> = [];
+  page.on("request", (request) => {
+    requests.push({ method: request.method(), url: request.url(), postData: request.postData() });
+  });
+
+  await openMotionLab(page);
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#metric-trace")).not.toHaveText("0", { timeout: 15_000 });
+  await page.getByRole("button", { name: "STOP CAMERA" }).click();
+
+  const persistence = await page.evaluate(async () => ({
+    localStorageKeys: Object.keys(localStorage),
+    sessionStorageKeys: Object.keys(sessionStorage),
+    indexedDatabases: typeof indexedDB.databases === "function" ? (await indexedDB.databases()).map((database) => database.name ?? "unnamed") : [],
+    cacheNames: await caches.keys(),
+    serviceWorkers: (await navigator.serviceWorker.getRegistrations()).length,
+  }));
+  const applicationOrigin = new URL(page.url()).origin;
+  const externalRequests = requests.filter((request) => new URL(request.url).origin !== applicationOrigin);
+  const mutatingRequests = requests.filter((request) => !["GET", "HEAD", "OPTIONS"].includes(request.method));
+  const suspiciousQueryRequests = requests.filter((request) => /[?&](frame|image|video|pixels|blob)=/i.test(new URL(request.url).search));
+
+  expect(externalRequests).toEqual([]);
+  expect(mutatingRequests).toEqual([]);
+  expect(suspiciousQueryRequests).toEqual([]);
+  expect(requests.some((request) => request.postData !== null)).toBe(false);
+  expect(persistence).toEqual({
+    localStorageKeys: [],
+    sessionStorageKeys: [],
+    indexedDatabases: [],
+    cacheNames: [],
+    serviceWorkers: 0,
+  });
+});
+
 test("reports and survives an unavailable worker with the explicit fallback", async ({ page }) => {
   await page.route("**/tracker-worker-*.js", (route) => route.abort());
   await openMotionLab(page);
