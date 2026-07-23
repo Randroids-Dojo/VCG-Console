@@ -254,3 +254,25 @@ I-154 closes the launcher-layer state and recovery contract. I-109 remains open 
 ### Remaining boundary
 
 I-134 requires repetition with a real camera and target browser, plus native tracker IPC, OS/GPU/crash-dump/swap observation, Hailo or other inference backends, and target-Linux filesystem/network monitoring. Portrait capture, encrypted profile storage, save isolation, and bounded native logs remain unimplemented and retain their existing privacy, consent, security, and legal gates.
+
+## 2026-07-22: versioned coordinate-frame contract
+
+### Delivered
+
+- Motion capabilities now declare coordinate specification `0.1.0`, the image coordinate identifier, and an explicit world coordinate identifier exactly when `body.world3d` is advertised.
+- The image frame is unmirrored, top-left-origin, normalized by image width/height, and permits inferred points outside the nominal rectangle.
+- A normative player-relative transform uses hip midpoint origin, anatomical left-to-right +x, hip-to-shoulder +y, torso-length scale, and roll-orthogonalized axes.
+- A calibrated floor transform applies a versioned 3×3 image-to-floor homography into camera-right/away meters and rejects points at infinity rather than fabricating a location.
+- The current optional world frame is deliberately named `player.metric.hip-origin.provider-axes`: meter units and hip origin are known, but axis parity across MediaPipe, Hailo, RTMO, and future backends is not claimed.
+- Cooperative bridge projection now removes the world coordinate identifier whenever it removes the world profile and landmark values.
+
+### Verification evidence
+
+- Transform tests cover translation/scale invariance, body roll, image/player round trips, degenerate anchors, metric floor projection, perspective division, and points at infinity.
+- Runtime validation rejects a world profile without world semantics and world semantics without the profile.
+- Exported Motion and bridge JSON Schemas encode the same representable cross rule.
+- Existing MediaPipe, replay, synthetic, bridge, schema, and browser fixtures declare the versioned coordinate contract explicitly.
+
+### Remaining boundary
+
+I-058 is closed as a specification/transform task. Floor calibration confidence, room-change invalidation, real jump/floor evidence, Hailo mapping, and cross-backend provider-world axis conversion remain under I-059, I-073, and I-161.

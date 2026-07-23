@@ -3,6 +3,7 @@ import {
   CapabilityRequestSchema,
   MotionCapabilitiesSchema,
   MotionFrameSchema,
+  addCoordinateCapabilityJsonConstraints,
 } from "@vcg/motion-contract";
 import { z } from "zod";
 
@@ -68,7 +69,7 @@ const wireJsonSchemaOptions = {
 };
 
 export const bridgeClientMessageJsonSchema = z.toJSONSchema(BridgeClientMessageSchema, wireJsonSchemaOptions);
-export const bridgeServerMessageJsonSchema = z.toJSONSchema(BridgeServerMessageSchema, wireJsonSchemaOptions);
+export const bridgeServerMessageJsonSchema = addCoordinateCapabilityJsonConstraints(z.toJSONSchema(BridgeServerMessageSchema, wireJsonSchemaOptions));
 
 // Wire objects intentionally use Zod's default strip behavior. Unknown fields
 // are ignored for forward compatibility; known fields and versions remain strict.

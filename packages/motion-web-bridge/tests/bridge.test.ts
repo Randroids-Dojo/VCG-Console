@@ -1,4 +1,5 @@
 import {
+  COORDINATE_SPEC_VERSION,
   CORE_LANDMARK_NAMES,
   MEDIAPIPE_LANDMARK_NAMES,
   MOTION_API_SCHEMA_VERSION,
@@ -11,6 +12,7 @@ import {
   bridgeServerMessageJsonSchema,
   MotionBridgeClient,
   MotionBridgeHost,
+  projectFrame,
   type BridgeMessageEvent,
   type BridgeMessageListener,
   type BridgeMessageReceiver,
@@ -52,7 +54,9 @@ function fakeLink(gameOrigin = "https://game.example", consoleOrigin = "https://
 const capabilities: MotionCapabilities = {
   profiles: ["body.core17", "body.mediapipe33", "body.world3d", "actions.obstacle.v1", "actions.shell.v1"],
   maxPlayers: 1,
+  coordinateSpecVersion: COORDINATE_SPEC_VERSION,
   coordinateSystem: "image.normalized.top-left",
+  worldCoordinateSystem: "player.metric.hip-origin.provider-axes",
   timestampQuality: "capture-arrival",
 };
 
@@ -134,6 +138,20 @@ describe("Motion web bridge", () => {
     expect(received[0]?.players[0]?.actions.map((action) => action.name)).toEqual(["jump"]);
   });
 
+  it("removes world data when only the request advertises the world profile", () => {
+    const source = frame();
+    const { worldCoordinateSystem: _worldCoordinateSystem, ...nonWorldCapabilities } = source.capabilities;
+    source.capabilities = {
+      ...nonWorldCapabilities,
+      profiles: source.capabilities.profiles.filter((profile) => profile !== "body.world3d"),
+    };
+    const projected = projectFrame(source, ["body.core17", "body.world3d"]);
+    expect(projected.capabilities.profiles).toEqual(["body.core17"]);
+    expect(projected.capabilities.worldCoordinateSystem).toBeUndefined();
+    expect(projected.players[0]?.coreLandmarks[0]?.worldPosition).toBeUndefined();
+    expect(projected.players[0]?.richLandmarks).toBeUndefined();
+  });
+
   it("silently ignores hostile origins and rejects missing capabilities", () => {
     const link = fakeLink();
     const host = new MotionBridgeHost({ receiver: link.hostReceiver, allowedOrigins: [link.gameOrigin], capabilities });
@@ -168,7 +186,13 @@ describe("Motion web bridge", () => {
     const limitedHost = new MotionBridgeHost({
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
-      capabilities: { ...capabilities, profiles: ["body.core17"] },
+      capabilities: {
+        profiles: ["body.core17"],
+        maxPlayers: capabilities.maxPlayers,
+        coordinateSpecVersion: capabilities.coordinateSpecVersion,
+        coordinateSystem: capabilities.coordinateSystem,
+        timestampQuality: capabilities.timestampQuality,
+      },
     });
     host.stop();
     limitedHost.start();
@@ -309,5 +333,31 @@ describe("Motion web bridge", () => {
     };
     expect(containsClosedObject(bridgeClientMessageJsonSchema)).toBe(false);
     expect(containsClosedObject(bridgeServerMessageJsonSchema)).toBe(false);
+  });
+
+  it("exports the world-profile cross rule for every server capability object", () => {
+    const capabilityRules: unknown[] = [];
+    const visit = (value: unknown): void => {
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+      if (!value || typeof value !== "object") return;
+      const node = value as Record<string, unknown>;
+      const properties = node.properties as Record<string, unknown> | undefined;
+      if (properties?.profiles && properties.coordinateSpecVersion && properties.worldCoordinateSystem) {
+        capabilityRules.push(node.allOf);
+      }
+      Object.values(node).forEach(visit);
+    };
+    visit(bridgeServerMessageJsonSchema);
+    expect(capabilityRules).toHaveLength(2);
+    for (const rule of capabilityRules) expect(rule).toEqual([
+      {
+        if: { properties: { profiles: { contains: { const: "body.world3d" } } }, required: ["profiles"] },
+        then: { required: ["worldCoordinateSystem"] },
+        else: { not: { required: ["worldCoordinateSystem"] } },
+      },
+    ]);
   });
 });

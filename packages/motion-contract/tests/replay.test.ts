@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { CORE_LANDMARK_NAMES, MOTION_API_SCHEMA_VERSION, MotionTracePlayer, MotionTraceSchema, type MotionFrame } from "../src";
+import {
+  COORDINATE_SPEC_VERSION,
+  CORE_LANDMARK_NAMES,
+  MOTION_API_SCHEMA_VERSION,
+  MotionTracePlayer,
+  MotionTraceSchema,
+  type MotionFrame,
+} from "../src";
 
 function frame(sequence: number, sourceTimestampMs: number, action?: "jump"): MotionFrame {
   return {
@@ -14,6 +21,7 @@ function frame(sequence: number, sourceTimestampMs: number, action?: "jump"): Mo
     capabilities: {
       profiles: ["body.core17", "actions.obstacle.v1"],
       maxPlayers: 1,
+      coordinateSpecVersion: COORDINATE_SPEC_VERSION,
       coordinateSystem: "image.normalized.top-left",
       timestampQuality: "replay",
     },

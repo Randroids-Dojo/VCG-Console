@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COORDINATE_SPEC_VERSION, IMAGE_COORDINATE_SYSTEM, PROVIDER_WORLD_COORDINATE_SYSTEM } from "./coordinates";
 import { CORE_LANDMARK_NAMES, MEDIAPIPE_LANDMARK_NAMES } from "./landmarks";
 
 export const MOTION_API_SCHEMA_VERSION = "0.1.0" as const;
@@ -54,12 +55,23 @@ export const MotionActionSchema = z.object({
   durationMs: z.number().nonnegative().optional(),
 });
 
-export const MotionCapabilitiesSchema = z.object({
-  profiles: z.array(z.enum(["body.core17", "body.mediapipe33", "body.world3d", "actions.obstacle.v1", "actions.shell.v1"])),
-  maxPlayers: z.number().int().positive(),
-  coordinateSystem: z.literal("image.normalized.top-left"),
-  timestampQuality: z.enum(["camera-exposure", "capture-arrival", "replay"]),
-});
+export const MotionCapabilitiesSchema = z
+  .object({
+    profiles: z.array(z.enum(["body.core17", "body.mediapipe33", "body.world3d", "actions.obstacle.v1", "actions.shell.v1"])),
+    maxPlayers: z.number().int().positive(),
+    coordinateSpecVersion: z.literal(COORDINATE_SPEC_VERSION),
+    coordinateSystem: z.literal(IMAGE_COORDINATE_SYSTEM),
+    worldCoordinateSystem: z.literal(PROVIDER_WORLD_COORDINATE_SYSTEM).optional(),
+    timestampQuality: z.enum(["camera-exposure", "capture-arrival", "replay"]),
+  })
+  .superRefine((capabilities, context) => {
+    const hasWorldProfile = capabilities.profiles.includes("body.world3d");
+    if (hasWorldProfile && !capabilities.worldCoordinateSystem) {
+      context.addIssue({ code: "custom", path: ["worldCoordinateSystem"], message: "body.world3d requires an explicit worldCoordinateSystem" });
+    } else if (!hasWorldProfile && capabilities.worldCoordinateSystem) {
+      context.addIssue({ code: "custom", path: ["worldCoordinateSystem"], message: "worldCoordinateSystem requires the body.world3d profile" });
+    }
+  });
 
 export const MotionProfileSchema = MotionCapabilitiesSchema.shape.profiles.element;
 
@@ -143,6 +155,35 @@ export type CapabilityNegotiation = z.infer<typeof CapabilityNegotiationSchema>;
 export const motionFrameJsonSchema = z.toJSONSchema(MotionFrameSchema, {
   target: "draft-2020-12",
 }) as Record<string, unknown>;
+
+export function addCoordinateCapabilityJsonConstraints<T extends Record<string, unknown>>(schema: T): T {
+  const visit = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      for (const child of value) visit(child);
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    const node = value as Record<string, unknown>;
+    const properties = node.properties;
+    if (properties && typeof properties === "object" && !Array.isArray(properties)) {
+      const fields = properties as Record<string, unknown>;
+      if (fields.profiles && fields.coordinateSpecVersion && fields.coordinateSystem && fields.worldCoordinateSystem) {
+        node.allOf = [
+          {
+            if: { properties: { profiles: { contains: { const: "body.world3d" } } }, required: ["profiles"] },
+            then: { required: ["worldCoordinateSystem"] },
+            else: { not: { required: ["worldCoordinateSystem"] } },
+          },
+        ];
+      }
+    }
+    for (const child of Object.values(node)) visit(child);
+  };
+  visit(schema);
+  return schema;
+}
+
+addCoordinateCapabilityJsonConstraints(motionFrameJsonSchema);
 
 function exactNameConstraints(names: readonly string[]): Record<string, unknown>[] {
   return names.map((name) => ({

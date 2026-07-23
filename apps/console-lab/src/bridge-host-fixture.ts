@@ -1,3 +1,4 @@
+import { COORDINATE_SPEC_VERSION } from "@vcg/motion-contract";
 import { MotionBridgeHost, type BridgeMessageReceiver } from "@vcg/motion-web-bridge";
 import { syntheticFrame } from "./synthetic";
 
@@ -11,6 +12,7 @@ const host = new MotionBridgeHost({
   capabilities: {
     profiles: ["body.core17"],
     maxPlayers: 1,
+    coordinateSpecVersion: COORDINATE_SPEC_VERSION,
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
   },
