@@ -28,7 +28,7 @@ The heartbeat file is required. The fault file is optional. They must be distinc
 
 The child receives `VCG_HEARTBEAT_FILE`. It does not receive the resource-fault path.
 
-A qualified wrapper atomically replaces the heartbeat file with changing content. A monotonic sequence number is sufficient. A newly observed value marks the process ready on its first occurrence and refreshes health thereafter. Rewriting the same value or only touching metadata is not a heartbeat.
+A qualified wrapper atomically replaces the heartbeat file with changing, non-empty UTF-8 content. A monotonic sequence number is sufficient. A newly observed value marks the process ready on its first occurrence and refreshes health thereafter. Rewriting the same value or only touching metadata is not a heartbeat.
 
 Probe contents are limited to 4 KiB. The host removes stale heartbeat and fault files before each attempt. A wrapper must tolerate the file being absent during startup and must not store unrelated data at either path.
 
@@ -58,7 +58,9 @@ The default local-game policy is:
 - Missing first heartbeat is `startup-timeout`.
 - Silence after the first heartbeat is `heartbeat-timeout`.
 - A recognized resource token is `gpu-reset` or `out-of-memory`.
+- Empty, non-UTF-8, oversized, or unknown probe content is `invalid-probe-data`.
 - Timeout and resource-fault paths force-kill and reap the child before restart.
+- Invalid probe content also consumes bounded recovery; genuine file-access errors remain direct host I/O failures.
 - Recovery exhaustion returns failure to the launcher; it does not leave the child running.
 
 The restart budget counts restarts after the initial attempt. `--max-restarts 0` disables automatic retry. A zero duration is invalid.

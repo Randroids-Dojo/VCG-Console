@@ -291,7 +291,7 @@ I-058 is closed as a specification/transform task. Floor calibration confidence,
 ### Verification evidence
 
 - Native subprocess tests cover normal exit, cleanup-on-drop, crash-then-success recovery, repeated startup hang with bounded exhaustion, post-ready heartbeat loss, and recovery after injected GPU-reset and out-of-memory signals.
-- File-probe tests cover stale-state removal, new versus unchanged heartbeats, and exact resource-fault parsing.
+- File-probe tests cover stale-state removal, new versus unchanged heartbeats, exact resource-fault parsing, and rejection of empty, non-UTF-8, oversized, and unknown content through bounded recovery.
 - CLI tests cover required heartbeat/program arguments, all timeout/restart options, dry-run behavior, and preservation of child options.
 - `cargo fmt`, strict workspace Clippy, and the complete native test suite pass.
 

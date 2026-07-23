@@ -109,6 +109,12 @@ impl std::error::Error for LaunchError {
 #[derive(Debug, Default)]
 pub struct ProcessSupervisor;
 
+#[derive(Debug)]
+enum AttemptResult {
+    Completed(ExitStatus),
+    Recover(WatchdogReason),
+}
+
 impl ProcessSupervisor {
     /// Starts a child and transfers its lifecycle ownership to a managed handle.
     ///
@@ -164,82 +170,107 @@ impl ProcessSupervisor {
                 attempt,
                 process_id: child.id(),
             });
-            let started_at = Instant::now();
-            let mut last_heartbeat_at = started_at;
-            let mut ready = false;
-
-            loop {
-                let status = child.try_wait().map_err(|source| WatchdogError::Io {
-                    operation: "inspect child status",
-                    source,
-                })?;
-                if let Some(status) = status {
-                    if status.success() {
-                        emit(&WatchdogEvent::Completed {
-                            attempt,
-                            exit_code: status.code(),
-                            recovered: attempt > 1,
-                        });
-                        return Ok(WatchdogOutcome {
-                            status,
-                            attempts: attempt,
-                            recovered: attempt > 1,
-                        });
-                    }
-                    let reason = WatchdogReason::ProcessExit {
+            match Self::monitor_attempt(&mut child, policy, &mut probe, &mut emit, attempt)? {
+                AttemptResult::Completed(status) => {
+                    emit(&WatchdogEvent::Completed {
+                        attempt,
                         exit_code: status.code(),
-                    };
-                    if Self::recover_or_fail(&mut emit, policy, attempt, reason)? {
-                        break;
-                    }
+                        recovered: attempt > 1,
+                    });
+                    return Ok(WatchdogOutcome {
+                        status,
+                        attempts: attempt,
+                        recovered: attempt > 1,
+                    });
                 }
+                AttemptResult::Recover(reason) => {
+                    Self::recover_or_fail(&mut emit, policy, attempt, reason)?;
+                }
+            }
+        }
+    }
 
-                let now = Instant::now();
-                let signal = probe.poll().map_err(|source| WatchdogError::Io {
-                    operation: "poll health probe",
-                    source,
-                })?;
-                let reason = match signal {
-                    HealthSignal::Quiet => {
-                        if ready
-                            && now.duration_since(last_heartbeat_at) >= policy.heartbeat_timeout
-                        {
-                            Some(WatchdogReason::HeartbeatTimeout)
-                        } else if !ready && now.duration_since(started_at) >= policy.startup_timeout
-                        {
-                            Some(WatchdogReason::StartupTimeout)
-                        } else {
-                            None
-                        }
-                    }
-                    HealthSignal::Heartbeat => {
-                        last_heartbeat_at = now;
-                        if !ready {
-                            ready = true;
-                            emit(&WatchdogEvent::Ready {
-                                attempt,
-                                recovered: attempt > 1,
-                            });
-                        }
-                        None
-                    }
-                    HealthSignal::ResourceFault(fault) => {
-                        Some(WatchdogReason::ResourceFault(fault))
-                    }
-                };
+    fn monitor_attempt<P, F>(
+        child: &mut ManagedChild,
+        policy: &WatchdogPolicy,
+        probe: &mut P,
+        emit: &mut F,
+        attempt: u32,
+    ) -> Result<AttemptResult, WatchdogError>
+    where
+        P: HealthProbe,
+        F: FnMut(&WatchdogEvent),
+    {
+        let started_at = Instant::now();
+        let mut last_heartbeat_at = started_at;
+        let mut ready = false;
 
-                if let Some(reason) = reason {
+        loop {
+            if let Some(status) = child.try_wait().map_err(|source| WatchdogError::Io {
+                operation: "inspect child status",
+                source,
+            })? {
+                return Ok(if status.success() {
+                    AttemptResult::Completed(status)
+                } else {
+                    AttemptResult::Recover(WatchdogReason::ProcessExit {
+                        exit_code: status.code(),
+                    })
+                });
+            }
+
+            let now = Instant::now();
+            let signal = match probe.poll() {
+                Ok(signal) => signal,
+                Err(source) if source.kind() == io::ErrorKind::InvalidData => {
                     child.terminate().map_err(|source| WatchdogError::Io {
-                        operation: "terminate unhealthy child",
+                        operation: "terminate child with invalid probe data",
                         source,
                     })?;
-                    if Self::recover_or_fail(&mut emit, policy, attempt, reason)? {
-                        break;
-                    }
+                    return Ok(AttemptResult::Recover(WatchdogReason::InvalidProbeData));
                 }
+                Err(source) => {
+                    return Err(WatchdogError::Io {
+                        operation: "poll health probe",
+                        source,
+                    });
+                }
+            };
+            let reason = match signal {
+                HealthSignal::Quiet
+                    if ready
+                        && now.duration_since(last_heartbeat_at) >= policy.heartbeat_timeout =>
+                {
+                    Some(WatchdogReason::HeartbeatTimeout)
+                }
+                HealthSignal::Quiet
+                    if !ready && now.duration_since(started_at) >= policy.startup_timeout =>
+                {
+                    Some(WatchdogReason::StartupTimeout)
+                }
+                HealthSignal::Quiet => None,
+                HealthSignal::Heartbeat => {
+                    last_heartbeat_at = now;
+                    if !ready {
+                        ready = true;
+                        emit(&WatchdogEvent::Ready {
+                            attempt,
+                            recovered: attempt > 1,
+                        });
+                    }
+                    None
+                }
+                HealthSignal::ResourceFault(fault) => Some(WatchdogReason::ResourceFault(fault)),
+            };
 
-                thread::sleep(policy.poll_interval);
+            if let Some(reason) = reason {
+                child.terminate().map_err(|source| WatchdogError::Io {
+                    operation: "terminate unhealthy child",
+                    source,
+                })?;
+                return Ok(AttemptResult::Recover(reason));
             }
+            thread::sleep(policy.poll_interval);
         }
     }
 
@@ -248,7 +279,7 @@ impl ProcessSupervisor {
         policy: &WatchdogPolicy,
         attempt: u32,
         reason: WatchdogReason,
-    ) -> Result<bool, WatchdogError>
+    ) -> Result<(), WatchdogError>
     where
         F: FnMut(&WatchdogEvent),
     {
@@ -259,7 +290,7 @@ impl ProcessSupervisor {
                 reason,
             });
             thread::sleep(policy.restart_backoff);
-            Ok(true)
+            Ok(())
         } else {
             emit(&WatchdogEvent::Failed {
                 attempts: attempt,
@@ -472,6 +503,14 @@ impl HealthProbe for FileHealthProbe {
 
         match Self::read_bounded(&self.heartbeat_path) {
             Ok(bytes) if self.last_heartbeat.as_ref() != Some(&bytes) => {
+                let value = std::str::from_utf8(&bytes)
+                    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+                if value.trim().is_empty() {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "heartbeat must contain a non-empty UTF-8 value",
+                    ));
+                }
                 self.last_heartbeat = Some(bytes);
                 Ok(HealthSignal::Heartbeat)
             }
@@ -487,6 +526,7 @@ impl HealthProbe for FileHealthProbe {
 pub enum WatchdogReason {
     StartupTimeout,
     HeartbeatTimeout,
+    InvalidProbeData,
     ProcessExit { exit_code: Option<i32> },
     ResourceFault(ResourceFault),
 }
@@ -496,6 +536,7 @@ impl fmt::Display for WatchdogReason {
         match self {
             Self::StartupTimeout => formatter.write_str("startup-timeout"),
             Self::HeartbeatTimeout => formatter.write_str("heartbeat-timeout"),
+            Self::InvalidProbeData => formatter.write_str("invalid-probe-data"),
             Self::ProcessExit {
                 exit_code: Some(code),
             } => write!(formatter, "process-exit-{code}"),
@@ -735,6 +776,22 @@ mod tests {
         }
     }
 
+    #[derive(Debug)]
+    struct InvalidDataProbe;
+
+    impl HealthProbe for InvalidDataProbe {
+        fn reset(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+
+        fn poll(&mut self) -> io::Result<HealthSignal> {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "malformed test signal",
+            ))
+        }
+    }
+
     impl HealthProbe for HeartbeatOnceProbe {
         fn reset(&mut self) -> io::Result<()> {
             Ok(())
@@ -882,6 +939,23 @@ mod tests {
             probe.poll().expect("resource fault is read"),
             HealthSignal::ResourceFault(ResourceFault::OutOfMemory)
         );
+        fs::remove_file(&fault).expect("fault is cleared");
+
+        for invalid_heartbeat in [Vec::new(), vec![0xff], vec![b'x'; 4_097]] {
+            fs::write(&heartbeat, invalid_heartbeat).expect("invalid heartbeat is written");
+            assert_eq!(
+                probe
+                    .poll()
+                    .expect_err("invalid heartbeat is rejected")
+                    .kind(),
+                io::ErrorKind::InvalidData
+            );
+        }
+        fs::write(&fault, "unknown-fault").expect("unknown fault is written");
+        assert_eq!(
+            probe.poll().expect_err("unknown fault is rejected").kind(),
+            io::ErrorKind::InvalidData
+        );
 
         fs::remove_dir_all(directory).expect("test directory is removed");
     }
@@ -1024,6 +1098,46 @@ mod tests {
         assert!(matches!(events[0], WatchdogEvent::Started { .. }));
         assert!(matches!(events[1], WatchdogEvent::Ready { .. }));
         assert!(matches!(events[2], WatchdogEvent::Completed { .. }));
+    }
+
+    #[test]
+    fn watchdog_restarts_then_reports_invalid_probe_data() {
+        let executable = env::current_exe().expect("current test executable");
+        let spec = LaunchSpec::new(executable)
+            .expect("valid executable")
+            .args([
+                "--exact",
+                "process::tests::managed_child_drop_helper",
+                "--ignored",
+            ]);
+        let mut events = Vec::new();
+        let error = ProcessSupervisor
+            .watch(&spec, &fast_policy(1), InvalidDataProbe, |event| {
+                events.push(event.clone());
+            })
+            .expect_err("invalid probe data must exhaust bounded recovery");
+
+        assert!(matches!(
+            error,
+            WatchdogError::RecoveryExhausted {
+                reason: WatchdogReason::InvalidProbeData,
+                attempts: 2
+            }
+        ));
+        assert!(events.iter().any(|event| matches!(
+            event,
+            WatchdogEvent::Restarting {
+                reason: WatchdogReason::InvalidProbeData,
+                ..
+            }
+        )));
+        assert!(events.iter().any(|event| matches!(
+            event,
+            WatchdogEvent::Failed {
+                reason: WatchdogReason::InvalidProbeData,
+                ..
+            }
+        )));
     }
 
     #[test]
