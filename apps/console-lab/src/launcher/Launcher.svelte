@@ -3,10 +3,11 @@
   import type { ConsoleInputAction } from "../gamepad-router";
   import BootScreen from "./BootScreen.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
+  import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
   import SettingsView from "./SettingsView.svelte";
-  import type { LabMode, LaunchAdapter, LaunchSession, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
+  import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
 
   let { openMotionLab }: LauncherOptions = $props();
   let launcher: HTMLElement;
@@ -23,7 +24,14 @@
   let clockTimer: number | undefined;
   let toastTimer: number | undefined;
   let launchRun = 0;
+  let launchAttempt = 0;
   let launchReturnFocus: HTMLElement | null = null;
+  let launchSupervisor: LaunchSupervisor | undefined;
+  let launchUnsubscribe: (() => void) | undefined;
+  let launchRetryOperation: ((attempt: number) => void) | undefined;
+
+  const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 5_000, timeoutMs: 15_000, heartbeatTimeoutMs: 8_000 };
+  const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 10_000, timeoutMs: 30_000, heartbeatTimeoutMs: 15_000 };
 
   const searchItems: SearchItem[] = [
     { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
@@ -49,6 +57,7 @@
   onDestroy(() => {
     if (clockTimer !== undefined) window.clearInterval(clockTimer);
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
+    disposeLaunchSupervisor();
   });
 
   export function isVisible(): boolean {
@@ -167,56 +176,82 @@
   }
 
   function beginLaunch(session: LaunchSession): number {
+    disposeLaunchSupervisor();
     launchRun += 1;
+    launchAttempt += 1;
     launchReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     launchSession = session;
     return launchRun;
   }
 
+  function beginSupervisedLaunch(session: LaunchSession, options: LaunchSupervisorOptions): { run: number; attempt: number; supervisor: LaunchSupervisor } {
+    const run = beginLaunch(session);
+    const supervisor = new LaunchSupervisor(session, options);
+    launchSupervisor = supervisor;
+    launchUnsubscribe = supervisor.subscribe((next) => {
+      if (launchSupervisor === supervisor) launchSession = next;
+    });
+    supervisor.start();
+    return { run, attempt: launchAttempt, supervisor };
+  }
+
   async function launchLocalWeb(mode: LabMode, title: string): Promise<void> {
-    const run = beginLaunch({
+    const { run, attempt, supervisor } = beginSupervisedLaunch({
       ...baseLaunch("local-web", title, "MOTION HUB / INSTALLED"),
       progress: 0,
-    });
+    }, LOCAL_LAUNCH_BUDGET);
+    launchRetryOperation = (nextAttempt) => void runLocalAttempt(supervisor, run, nextAttempt, mode);
+    await runLocalAttempt(supervisor, run, attempt, mode);
+  }
+
+  async function runLocalAttempt(supervisor: LaunchSupervisor, run: number, attempt: number, mode: LabMode): Promise<void> {
     await tick();
-    if (run !== launchRun) return;
-    launchSession = { ...launchSession!, activePhase: 1, progress: 1 / 3, detail: "Local package verified" };
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.advance(1, "Local package verified", 1 / 3);
     await nextLaunchFrame();
-    if (run !== launchRun) return;
-    launchSession = { ...launchSession!, activePhase: 2, progress: 2 / 3, detail: "Console controls reserved" };
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.advance(2, "Console controls reserved", 2 / 3);
     await nextLaunchFrame();
-    if (run !== launchRun) return;
-    launchSession = { ...launchSession!, progress: 1, status: "ready", detail: "Session ready" };
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.heartbeat("Local session accepted focus");
+    supervisor.ready(attempt > 1 ? "Session recovered and is ready" : "Session ready");
     await new Promise((resolve) => window.setTimeout(resolve, 180));
-    if (run !== launchRun) return;
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
     launchSession = undefined;
+    disposeLaunchSupervisor();
     openLab(mode);
   }
 
   function launchMuseum(): void {
-    const session = baseLaunch("remote-web", "VibeCoded Museum", "VIBECODED.GAMES / ONLINE");
+    const { supervisor } = beginSupervisedLaunch({
+      ...baseLaunch("remote-web", "VibeCoded Museum", "VIBECODED.GAMES / ONLINE"),
+      action: { label: "Open museum", href: "https://vibecoded.games" },
+    }, REMOTE_LAUNCH_BUDGET);
+    launchRetryOperation = () => runMuseumAttempt(supervisor);
+    runMuseumAttempt(supervisor);
+  }
+
+  function runMuseumAttempt(supervisor: LaunchSupervisor): void {
     if (!navigator.onLine) {
-      beginLaunch({ ...session, status: "unavailable", detail: "No network connection", activePhase: 0 });
+      supervisor.offline();
       return;
     }
-    beginLaunch({
-      ...session,
-      status: "ready",
-      detail: "Browser handoff ready · vibecoded.games",
-      activePhase: 2,
-      action: { label: "Open museum", href: "https://vibecoded.games" },
-    });
+    supervisor.advance(1, "Network interface is online");
+    supervisor.advance(2, "Remote origin fixed to vibecoded.games");
+    supervisor.ready("Browser handoff ready · reachability is checked by the native host");
   }
 
   function launchHostedAdapter(adapter: "native" | "retro"): void {
     const title = adapter === "retro" ? "RetroArch" : "Native game";
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
-    beginLaunch({
-      ...baseLaunch(adapter, title, context),
-      activePhase: 1,
-      status: "unavailable",
-      detail: "Rust console host is not connected in this browser prototype",
-    });
+    const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
+    launchRetryOperation = () => runHostedAttempt(supervisor);
+    runHostedAttempt(supervisor);
+  }
+
+  function runHostedAttempt(supervisor: LaunchSupervisor): void {
+    supervisor.advance(1, "Requesting the Rust console host");
+    supervisor.unavailable("Rust console host is not connected in this browser prototype");
   }
 
   function previewLaunch(adapter: LaunchAdapter): void {
@@ -225,18 +260,52 @@
       return;
     }
     if (adapter === "remote-web") {
-      const session = baseLaunch(adapter, "VibeCoded Museum", "DEVELOPER PREVIEW / ONLINE");
-      beginLaunch({ ...session, activePhase: 2, status: "ready", detail: "Remote destination is ready", action: { label: "Open museum", href: "https://vibecoded.games" } });
+      const { supervisor } = beginSupervisedLaunch({
+        ...baseLaunch(adapter, "VibeCoded Museum", "DEVELOPER PREVIEW / ONLINE"),
+        action: { label: "Open museum", href: "https://vibecoded.games" },
+      }, REMOTE_LAUNCH_BUDGET);
+      supervisor.advance(1, "Network interface is online");
+      supervisor.advance(2, "Remote origin fixed to vibecoded.games");
+      supervisor.ready("Remote browser handoff is ready");
       return;
     }
     const session = baseLaunch(adapter, "Obstacle", "DEVELOPER PREVIEW / INSTALLED");
-    beginLaunch({ ...session, activePhase: 2, progress: 2 / 3, detail: "Console controls reserved" });
+    const { supervisor } = beginSupervisedLaunch({ ...session, progress: 0 }, LOCAL_LAUNCH_BUDGET);
+    supervisor.advance(1, "Local package verified", 1 / 3);
+    supervisor.advance(2, "Console controls reserved", 2 / 3);
+  }
+
+  function previewFault(fault: LaunchFaultPreview): void {
+    const heartbeatTimeoutMs = fault === "hung" ? 120 : 5_000;
+    const slowAfterMs = fault === "slow" || fault === "hung" ? 60 : 2_000;
+    const { run, supervisor } = beginSupervisedLaunch(
+      { ...baseLaunch("local-web", "Obstacle", "FAULT INJECTION / LOCAL"), progress: 0 },
+      { slowAfterMs, timeoutMs: 5_000, heartbeatTimeoutMs },
+    );
+    launchRetryOperation = (attempt) => {
+      window.setTimeout(() => {
+        if (!isCurrentLaunch(supervisor, run, attempt)) return;
+        supervisor.advance(1, "Package rechecked", 1 / 3);
+        supervisor.heartbeat("Replacement session responded");
+        supervisor.advance(2, "Console controls restored", 2 / 3);
+        supervisor.ready("Launch recovered and is ready");
+      }, 120);
+    };
+
+    if (fault === "offline") supervisor.offline("Network disconnected before handoff");
+    else if (fault === "crashed") supervisor.crash("Game process exited with code 137", "PROCESS_EXIT_137");
+    else if (fault === "recovered") {
+      supervisor.crash("Injected process exit", "INJECTED_CRASH");
+      retryActiveLaunch();
+    }
   }
 
   function closeLaunch(restoreFocus = true): void {
     if (!launchSession) return;
     launchRun += 1;
+    launchAttempt += 1;
     launchSession = undefined;
+    disposeLaunchSupervisor();
     const target = launchReturnFocus;
     launchReturnFocus = null;
     if (restoreFocus) void tick().then(() => target?.isConnected && target.focus({ preventScroll: true }));
@@ -244,6 +313,25 @@
 
   function completeLaunchAction(): void {
     closeLaunch(false);
+  }
+
+  function retryActiveLaunch(): void {
+    if (!launchSupervisor || !launchSession?.canRetry) return;
+    launchAttempt += 1;
+    launchSupervisor.retry();
+    launchRetryOperation?.(launchAttempt);
+  }
+
+  function isCurrentLaunch(supervisor: LaunchSupervisor, run: number, attempt: number): boolean {
+    return launchSupervisor === supervisor && launchRun === run && launchAttempt === attempt;
+  }
+
+  function disposeLaunchSupervisor(): void {
+    launchUnsubscribe?.();
+    launchUnsubscribe = undefined;
+    launchSupervisor?.dispose();
+    launchSupervisor = undefined;
+    launchRetryOperation = undefined;
   }
 
   function nextLaunchFrame(): Promise<void> {
@@ -350,7 +438,7 @@
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
-        <SettingsView bind:this={settings} {openMotionLab} onpreviewlaunch={previewLaunch} ontoast={toast} />
+        <SettingsView bind:this={settings} {openMotionLab} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
       </div>
     </section>
   </div>
@@ -358,6 +446,6 @@
   <div class="launcher-toast" id="launcher-toast" hidden={!toastVisible} role="status">{toastMessage}</div>
   <SearchOverlay bind:this={search} items={searchItems} />
   {#if launchSession}
-    <LaunchScreen session={launchSession} onexit={closeLaunch} onaction={completeLaunchAction} />
+    <LaunchScreen session={launchSession} onexit={closeLaunch} onaction={completeLaunchAction} onretry={retryActiveLaunch} />
   {/if}
 </main>

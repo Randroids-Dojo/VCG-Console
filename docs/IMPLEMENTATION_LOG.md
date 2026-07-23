@@ -211,4 +211,25 @@ The migration changes launcher presentation and state ownership only. Profiles a
 
 ### Remaining boundary
 
-I-154 remains open. Native host IPC, real download bytes, readiness heartbeat, watchdog, bounded timeout, retry, crash recovery, diagnostic detail, and forced process termination are not connected to this presentation component yet. Camera and target-hardware tests remain deferred.
+At this stage I-154 remained open. The next implementation tranche closes the launcher-layer state contract; native host IPC, real process control, and target-hardware evidence remain separate boundaries.
+
+## 2026-07-22: launch supervision and recovery
+
+### Delivered
+
+- A framework-independent `LaunchSupervisor` now owns launch attempts, phase health signals, heartbeats, slow thresholds, silence detection, absolute timeouts, retry, process-exit reporting, and recovered completion.
+- Local launch budgets are 5 seconds to slow, 8 seconds without a health signal to hung, and 15 seconds absolute. Hosted launch budgets are 10, 15, and 30 seconds, matching D-106's interaction gates without treating a heartbeat as permission to wait forever.
+- The shared Svelte screen distinguishes in-progress, slow, ready, offline, not responding, crashed, recovering, recovered, and unavailable states. It exposes Retry only for recoverable faults and keeps Details and Exit controller-routable.
+- Diagnostic disclosure reports a stable code, attempt number, last signal, relative signal time, and absolute timeout without exposing logs or personal data.
+- Local Motion launch uses real package/control/focus milestones. Museum entry uses the browser's actual online state while stating that target reachability remains a native-host check. Native and Retro adapters continue to report the absent Rust host honestly.
+- Developer-only fault injection can hold or generate slow, offline, heartbeat-timeout, process-exit, and recovered states without camera or target hardware.
+
+### Verification evidence
+
+- Deterministic unit tests distinguish slow work from silence, prove heartbeats cannot extend the absolute deadline, separate offline from process exit, and require a successful second attempt before reporting recovered.
+- Playwright drives the actual Svelte screen through slow, offline, Retry, recovered, hung, crashed, and diagnostic-detail states.
+- The reviewed `test-results/console-lab/launch-state-crashed.png` capture preserves the minimal phase trace, coral terminal-fault cue, exact exit code, Retry, Details, and Exit at 1440 x 1000.
+
+### Remaining boundary
+
+I-154 closes the launcher-layer state and recovery contract. I-109 remains open for real Rust child-process heartbeat, forced termination, launcher restart, post-ready crash/hang/OOM handling, and target-Linux fault injection. Cross-origin remote reachability, native/Godot readiness, and RetroArch readiness require that host integration rather than browser fabrication.

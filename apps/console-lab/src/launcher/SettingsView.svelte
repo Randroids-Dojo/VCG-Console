@@ -1,12 +1,18 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import type { LabMode, LaunchAdapter, SettingsPanel } from "./types";
+  import type { LabMode, LaunchAdapter, LaunchFaultPreview, SettingsPanel } from "./types";
 
   let {
     openMotionLab,
     onpreviewlaunch,
+    onpreviewfault,
     ontoast,
-  }: { openMotionLab: (mode?: LabMode) => void; onpreviewlaunch: (adapter: LaunchAdapter) => void; ontoast: (message: string) => void } = $props();
+  }: {
+    openMotionLab: (mode?: LabMode) => void;
+    onpreviewlaunch: (adapter: LaunchAdapter) => void;
+    onpreviewfault: (fault: LaunchFaultPreview) => void;
+    ontoast: (message: string) => void;
+  } = $props();
   let panel = $state<SettingsPanel>("system");
   let scanning = $state(false);
   let scanComplete = $state(false);
@@ -71,6 +77,16 @@
           <button type="button" onclick={() => onpreviewlaunch("local-web")}>Local web</button>
           <button type="button" onclick={() => onpreviewlaunch("native")}>Native</button>
           <button type="button" onclick={() => onpreviewlaunch("retro")}>Retro</button>
+        </div>
+      </div>
+      <div class="launch-preview">
+        <div><strong>Launch recovery preview</strong><small>Inject a state without starting a game</small></div>
+        <div>
+          <button type="button" onclick={() => onpreviewfault("slow")}>Slow</button>
+          <button type="button" onclick={() => onpreviewfault("offline")}>Offline</button>
+          <button type="button" onclick={() => onpreviewfault("hung")}>Hung</button>
+          <button type="button" onclick={() => onpreviewfault("crashed")}>Crashed</button>
+          <button type="button" onclick={() => onpreviewfault("recovered")}>Recovered</button>
         </div>
       </div>
     </section>

@@ -2,7 +2,8 @@ export type LauncherView = "home" | "motion" | "museum" | "retro" | "profiles" |
 export type LabMode = "tracker" | "obstacle" | "shell";
 export type SettingsPanel = "system" | "network" | "storage" | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
-export type LaunchStatus = "loading" | "ready" | "unavailable";
+export type LaunchFaultPreview = "slow" | "offline" | "hung" | "crashed" | "recovered";
+export type LaunchStatus = "loading" | "slow" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";
 
 export interface LaunchPhase {
   label: string;
@@ -20,6 +21,15 @@ export interface LaunchSession {
   startedAt: number;
   progress?: number;
   detail: string;
+  canRetry?: boolean;
+  diagnostics?: {
+    code: string;
+    attempt: number;
+    lastSignal: string;
+    lastSignalAt: number;
+    timeoutMs: number;
+    heartbeatTimeoutMs: number;
+  };
   action?: {
     label: string;
     href?: string;
