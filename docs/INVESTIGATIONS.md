@@ -180,8 +180,8 @@ Statuses are `evidence`, `open`, `active`, `blocked`, and `closed`. Priority P0 
 
 | ID | P | Status | Investigation | Required proof artifact | Links |
 |---|---:|---|---|---|---|
-| I-133 | P0 | open | Draw complete data flows for frames, skeletons, profiles, saves, logs, and network calls. | Data-flow diagram with storage, retention, recipients, and consent. | D-002, Q-075 |
-| I-134 | P0 | open | Verify no raw frames are stored or transmitted in normal mode. | Network/filesystem observation test and failure audit. | D-002 |
+| I-133 | P0 | closed | Draw complete data flows for frames, skeletons, profiles, saves, logs, and network calls. | `DATA_FLOWS.md` maps implemented and planned trust boundaries, storage, retention, recipients, user control/consent, invariants, failure behavior, and requalification triggers without presenting planned vault/save/log services as implemented. | D-002, Q-075 |
+| I-134 | P0 | active | Verify no raw frames are stored or transmitted in normal mode. | Synthetic-camera Chrome observation now proves an active browser pipeline makes no external or mutating requests, sends no request body, and leaves Local/Session Storage, IndexedDB, Cache Storage, and service workers empty. Source/failure audit covers bitmap closure, one-frame backpressure, run isolation, skeleton-only export, and cooperative bridge projection. Real camera, OS/GPU/browser internals, native capture, crash dumps, swap, and target-Linux observation remain. | D-002 |
 | I-135 | P1 | open | Threat-model camera service, launcher, web content, package installer, updates, and retro importer. | Ranked threats, controls, residual risk, and test mapping. | Q-055, Q-068, Q-069 |
 | I-136 | P1 | open | Enforce browser origin, navigation, Permissions Policy, and content trust boundaries. | Hostile test pages demonstrating blocked access and escape. | D-014, D-018 |
 | I-137 | P1 | open | Generate a complete software bill of materials and notices bundle. | Machine-readable SBOM, human notices, source-offer plan, and missing-license failures. | Q-074 |

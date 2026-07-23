@@ -233,3 +233,24 @@ At this stage I-154 remained open. The next implementation tranche closes the la
 ### Remaining boundary
 
 I-154 closes the launcher-layer state and recovery contract. I-109 remains open for real Rust child-process heartbeat, forced termination, launcher restart, post-ready crash/hang/OOM handling, and target-Linux fault injection. Cross-origin remote reachability, native/Godot readiness, and RetroArch readiness require that host integration rather than browser fabrication.
+
+## 2026-07-22: data-flow map and raw-frame egress audit
+
+### Delivered
+
+- `DATA_FLOWS.md` maps current and planned flows for raw frames, portable/rich skeletons, actions, profiles, portraits, calibration, saves, diagnostics, hosted traffic, local assets, and the cooperative Motion bridge.
+- Each data class records source/path, storage and retention, recipients, user control or consent, implementation status, invariants, failure behavior, and the events that require requalification.
+- The map separates application guarantees from browser, GPU driver, operating-system, firmware, swap, crash-dump, developer-tool, and compromised-origin behavior that the web prototype cannot prove.
+- A Chrome observation test now starts the actual pinned local tracker with a synthetic camera, waits for derived skeleton traces, stops capture, and audits requests and browser persistence.
+- The test fails on external-origin traffic, mutating methods, request bodies, suspicious raw-media query parameters, Local/Session Storage keys, IndexedDB databases, Cache Storage entries, or service-worker registrations.
+- The accompanying source/failure audit traces the only raw-pixel protocol field through one-frame transfer and guaranteed bitmap closure, and confirms the sole Blob download path validates a trace with `containsRawFrames: false`.
+
+### Verification evidence
+
+- Active camera inference produced derived trace frames while the network/persistence observation remained empty.
+- Worker fallback, frame-gate, late-run rejection, schema, bridge projection, acknowledgement, expiry, and skeleton-only export evidence remain linked from the data-flow audit.
+- I-133 is closed because every requested data class now has a durable flow artifact. I-134 advances to active browser evidence rather than claiming the unbuilt native/target path is qualified.
+
+### Remaining boundary
+
+I-134 requires repetition with a real camera and target browser, plus native tracker IPC, OS/GPU/crash-dump/swap observation, Hailo or other inference backends, and target-Linux filesystem/network monitoring. Portrait capture, encrypted profile storage, save isolation, and bounded native logs remain unimplemented and retain their existing privacy, consent, security, and legal gates.
