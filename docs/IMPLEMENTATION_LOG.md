@@ -276,3 +276,25 @@ I-134 requires repetition with a real camera and target browser, plus native tra
 ### Remaining boundary
 
 I-058 is closed as a specification/transform task. Floor calibration confidence, room-change invalidation, real jump/floor evidence, Hailo mapping, and cross-backend provider-world axis conversion remain under I-059, I-073, and I-161.
+
+## 2026-07-22: native game watchdog and bounded recovery
+
+### Delivered
+
+- The Rust host now offers a `watchdog` command beside direct `supervise`, without shell interpretation.
+- A host-owned heartbeat file distinguishes startup silence from post-ready heartbeat loss. Each changed value is one signal; stale files are removed before every attempt and probe reads are capped at 4 KiB.
+- A separate host-owned fault file accepts only `gpu-reset` or `out-of-memory`, providing a narrow boundary for later cgroup/driver adapters without claiming those detectors exist.
+- Startup timeout, heartbeat timeout, non-zero process exit, and explicit resource faults all force termination and reaping before a bounded restart.
+- Default local budgets match the launcher contract: 15-second startup, 8-second heartbeat silence, 100 ms polling, 250 ms backoff, and one restart.
+- Stable line events report started, ready, restarting, completed, and failed states with attempts and reasons. Healthy heartbeats update the internal deadline without generating an unbounded event stream. The launcher remains the parent and therefore regains control when the child completes or recovery is exhausted.
+
+### Verification evidence
+
+- Native subprocess tests cover normal exit, cleanup-on-drop, crash-then-success recovery, repeated startup hang with bounded exhaustion, post-ready heartbeat loss, and recovery after injected GPU-reset and out-of-memory signals.
+- File-probe tests cover stale-state removal, new versus unchanged heartbeats, exact resource-fault parsing, and rejection of empty, non-UTF-8, oversized, and unknown content through bounded recovery.
+- CLI tests cover required heartbeat/program arguments, all timeout/restart options, dry-run behavior, and preservation of child options.
+- `cargo fmt`, strict workspace Clippy, and the complete native test suite pass.
+
+### Remaining boundary
+
+I-109 advances to active but is not closed. Real Linux cgroup OOM classification, GPU-reset detection, descendant process-group containment, compositor/browser hangs, launcher IPC/re-entry, service-manager restart of the launcher itself, and ARM64/x86-64 target fault injection remain required. A game or wrapper must atomically replace the changing heartbeat content; merely touching a file is not the contract.

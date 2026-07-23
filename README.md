@@ -30,11 +30,12 @@ pnpm validate:manifests
 pnpm supervise:game catalog/determined.vcg-game.json --dry-run
 pnpm native:verify
 cargo run -p vcg-host -- doctor
+cargo run -p vcg-host -- watchdog --dry-run --heartbeat-file /tmp/vcg-game.heartbeat -- /path/to/game
 ```
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The initial Rust host owns direct child-process lifecycle and defines the canonical input adapter boundary; it does not yet claim those remaining qualifications.
+The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, and an explicit resource-fault signal boundary. Actual Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
 
 ## Research workspace
 
@@ -48,6 +49,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
+- [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
 - [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)
 - [Source ledger](docs/SOURCES.md)
