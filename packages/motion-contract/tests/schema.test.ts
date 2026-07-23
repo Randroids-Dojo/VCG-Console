@@ -20,6 +20,7 @@ const validFrame = {
   capabilities: {
     profiles: ["body.core17", "actions.obstacle.v1"],
     maxPlayers: 1,
+    coordinateSpecVersion: "0.1.0",
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
   },
@@ -75,6 +76,29 @@ describe("MotionFrameSchema", () => {
       minContains: 1,
       maxContains: 1,
     });
+  });
+
+  it("requires explicit world-frame semantics exactly when world data is advertised", () => {
+    const withWorld = structuredClone(validFrame);
+    withWorld.capabilities.profiles.push("body.world3d");
+    expect(MotionFrameSchema.safeParse(withWorld).success).toBe(false);
+    Object.assign(withWorld.capabilities, { worldCoordinateSystem: "player.metric.hip-origin.provider-axes" });
+    expect(MotionFrameSchema.safeParse(withWorld).success).toBe(true);
+
+    const withoutWorld = structuredClone(validFrame) as typeof validFrame & { capabilities: { worldCoordinateSystem?: string } };
+    withoutWorld.capabilities.worldCoordinateSystem = "player.metric.hip-origin.provider-axes";
+    expect(MotionFrameSchema.safeParse(withoutWorld).success).toBe(false);
+  });
+
+  it("exports the representable world-profile cross rule", () => {
+    const properties = motionFrameJsonSchema.properties as Record<string, Record<string, unknown>>;
+    expect(properties.capabilities?.allOf).toEqual([
+      {
+        if: { properties: { profiles: { contains: { const: "body.world3d" } } }, required: ["profiles"] },
+        then: { required: ["worldCoordinateSystem"] },
+        else: { not: { required: ["worldCoordinateSystem"] } },
+      },
+    ]);
   });
 
   it("degrades optional profiles without fabricating required capabilities", () => {

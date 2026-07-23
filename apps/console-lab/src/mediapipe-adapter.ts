@@ -99,7 +99,9 @@ export function mediapipeResultToMotionFrame(result: PoseLandmarkerResult, timin
     capabilities: {
       profiles: ["body.core17", "body.mediapipe33", "body.world3d"],
       maxPlayers: 1,
+      coordinateSpecVersion: "0.1.0",
       coordinateSystem: "image.normalized.top-left",
+      worldCoordinateSystem: "player.metric.hip-origin.provider-axes",
       timestampQuality: "capture-arrival",
     },
     players: player ? [player] : [],

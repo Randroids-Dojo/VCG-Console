@@ -52,7 +52,9 @@ function fakeLink(gameOrigin = "https://game.example", consoleOrigin = "https://
 const capabilities: MotionCapabilities = {
   profiles: ["body.core17", "body.mediapipe33", "body.world3d", "actions.obstacle.v1", "actions.shell.v1"],
   maxPlayers: 1,
+  coordinateSpecVersion: "0.1.0",
   coordinateSystem: "image.normalized.top-left",
+  worldCoordinateSystem: "player.metric.hip-origin.provider-axes",
   timestampQuality: "capture-arrival",
 };
 
@@ -168,7 +170,13 @@ describe("Motion web bridge", () => {
     const limitedHost = new MotionBridgeHost({
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
-      capabilities: { ...capabilities, profiles: ["body.core17"] },
+      capabilities: {
+        profiles: ["body.core17"],
+        maxPlayers: capabilities.maxPlayers,
+        coordinateSpecVersion: capabilities.coordinateSpecVersion,
+        coordinateSystem: capabilities.coordinateSystem,
+        timestampQuality: capabilities.timestampQuality,
+      },
     });
     host.stop();
     limitedHost.start();
@@ -309,5 +317,31 @@ describe("Motion web bridge", () => {
     };
     expect(containsClosedObject(bridgeClientMessageJsonSchema)).toBe(false);
     expect(containsClosedObject(bridgeServerMessageJsonSchema)).toBe(false);
+  });
+
+  it("exports the world-profile cross rule for every server capability object", () => {
+    const capabilityRules: unknown[] = [];
+    const visit = (value: unknown): void => {
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+      if (!value || typeof value !== "object") return;
+      const node = value as Record<string, unknown>;
+      const properties = node.properties as Record<string, unknown> | undefined;
+      if (properties?.profiles && properties.coordinateSpecVersion && properties.worldCoordinateSystem) {
+        capabilityRules.push(node.allOf);
+      }
+      Object.values(node).forEach(visit);
+    };
+    visit(bridgeServerMessageJsonSchema);
+    expect(capabilityRules).toHaveLength(2);
+    for (const rule of capabilityRules) expect(rule).toEqual([
+      {
+        if: { properties: { profiles: { contains: { const: "body.world3d" } } }, required: ["profiles"] },
+        then: { required: ["worldCoordinateSystem"] },
+        else: { not: { required: ["worldCoordinateSystem"] } },
+      },
+    ]);
   });
 });

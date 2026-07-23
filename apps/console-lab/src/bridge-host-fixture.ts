@@ -11,6 +11,7 @@ const host = new MotionBridgeHost({
   capabilities: {
     profiles: ["body.core17"],
     maxPlayers: 1,
+    coordinateSpecVersion: "0.1.0",
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
   },

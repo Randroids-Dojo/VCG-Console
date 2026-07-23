@@ -37,9 +37,17 @@
               "exclusiveMinimum": 0,
               "maximum": 9007199254740991
             },
+            "coordinateSpecVersion": {
+              "type": "string",
+              "const": "0.1.0"
+            },
             "coordinateSystem": {
               "type": "string",
               "const": "image.normalized.top-left"
+            },
+            "worldCoordinateSystem": {
+              "type": "string",
+              "const": "player.metric.hip-origin.provider-axes"
             },
             "timestampQuality": {
               "type": "string",
@@ -53,8 +61,37 @@
           "required": [
             "profiles",
             "maxPlayers",
+            "coordinateSpecVersion",
             "coordinateSystem",
             "timestampQuality"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "profiles": {
+                    "contains": {
+                      "const": "body.world3d"
+                    }
+                  }
+                },
+                "required": [
+                  "profiles"
+                ]
+              },
+              "then": {
+                "required": [
+                  "worldCoordinateSystem"
+                ]
+              },
+              "else": {
+                "not": {
+                  "required": [
+                    "worldCoordinateSystem"
+                  ]
+                }
+              }
+            }
           ]
         },
         "negotiation": {
@@ -314,9 +351,17 @@
                   "exclusiveMinimum": 0,
                   "maximum": 9007199254740991
                 },
+                "coordinateSpecVersion": {
+                  "type": "string",
+                  "const": "0.1.0"
+                },
                 "coordinateSystem": {
                   "type": "string",
                   "const": "image.normalized.top-left"
+                },
+                "worldCoordinateSystem": {
+                  "type": "string",
+                  "const": "player.metric.hip-origin.provider-axes"
                 },
                 "timestampQuality": {
                   "type": "string",
@@ -330,8 +375,37 @@
               "required": [
                 "profiles",
                 "maxPlayers",
+                "coordinateSpecVersion",
                 "coordinateSystem",
                 "timestampQuality"
+              ],
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "profiles": {
+                        "contains": {
+                          "const": "body.world3d"
+                        }
+                      }
+                    },
+                    "required": [
+                      "profiles"
+                    ]
+                  },
+                  "then": {
+                    "required": [
+                      "worldCoordinateSystem"
+                    ]
+                  },
+                  "else": {
+                    "not": {
+                      "required": [
+                        "worldCoordinateSystem"
+                      ]
+                    }
+                  }
+                }
               ]
             },
             "players": {

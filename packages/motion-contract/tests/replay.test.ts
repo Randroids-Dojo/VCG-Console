@@ -14,6 +14,7 @@ function frame(sequence: number, sourceTimestampMs: number, action?: "jump"): Mo
     capabilities: {
       profiles: ["body.core17", "actions.obstacle.v1"],
       maxPlayers: 1,
+      coordinateSpecVersion: "0.1.0",
       coordinateSystem: "image.normalized.top-left",
       timestampQuality: "replay",
     },

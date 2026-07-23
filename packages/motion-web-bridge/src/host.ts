@@ -205,6 +205,7 @@ export function projectFrame(frame: MotionFrame, profiles: readonly MotionProfil
   const includeRich = active.has("body.mediapipe33");
   const includeObstacle = active.has("actions.obstacle.v1");
   const includeShell = active.has("actions.shell.v1");
+  const { worldCoordinateSystem, ...portableCapabilities } = frame.capabilities;
   const withoutWorldPosition = <T extends { worldPosition?: unknown }>(landmark: T): T => {
     const projected = { ...landmark };
     delete projected.worldPosition;
@@ -212,7 +213,11 @@ export function projectFrame(frame: MotionFrame, profiles: readonly MotionProfil
   };
   return {
     ...frame,
-    capabilities: { ...frame.capabilities, profiles: frame.capabilities.profiles.filter((profile) => active.has(profile)) },
+    capabilities: {
+      ...portableCapabilities,
+      profiles: frame.capabilities.profiles.filter((profile) => active.has(profile)),
+      ...(includeWorld && worldCoordinateSystem ? { worldCoordinateSystem } : {}),
+    },
     players: frame.players.map((player) => {
       const { richLandmarks, ...portablePlayer } = player;
       return {
