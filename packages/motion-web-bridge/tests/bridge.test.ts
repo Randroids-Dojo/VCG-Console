@@ -1,4 +1,5 @@
 import {
+  COORDINATE_SPEC_VERSION,
   CORE_LANDMARK_NAMES,
   MEDIAPIPE_LANDMARK_NAMES,
   MOTION_API_SCHEMA_VERSION,
@@ -11,6 +12,7 @@ import {
   bridgeServerMessageJsonSchema,
   MotionBridgeClient,
   MotionBridgeHost,
+  projectFrame,
   type BridgeMessageEvent,
   type BridgeMessageListener,
   type BridgeMessageReceiver,
@@ -52,7 +54,7 @@ function fakeLink(gameOrigin = "https://game.example", consoleOrigin = "https://
 const capabilities: MotionCapabilities = {
   profiles: ["body.core17", "body.mediapipe33", "body.world3d", "actions.obstacle.v1", "actions.shell.v1"],
   maxPlayers: 1,
-  coordinateSpecVersion: "0.1.0",
+  coordinateSpecVersion: COORDINATE_SPEC_VERSION,
   coordinateSystem: "image.normalized.top-left",
   worldCoordinateSystem: "player.metric.hip-origin.provider-axes",
   timestampQuality: "capture-arrival",
@@ -134,6 +136,20 @@ describe("Motion web bridge", () => {
     expect(received[0]?.players[0]?.richLandmarks).toBeUndefined();
     expect(received[0]?.players[0]?.coreLandmarks[0]?.worldPosition).toBeUndefined();
     expect(received[0]?.players[0]?.actions.map((action) => action.name)).toEqual(["jump"]);
+  });
+
+  it("removes world data when only the request advertises the world profile", () => {
+    const source = frame();
+    const { worldCoordinateSystem: _worldCoordinateSystem, ...nonWorldCapabilities } = source.capabilities;
+    source.capabilities = {
+      ...nonWorldCapabilities,
+      profiles: source.capabilities.profiles.filter((profile) => profile !== "body.world3d"),
+    };
+    const projected = projectFrame(source, ["body.core17", "body.world3d"]);
+    expect(projected.capabilities.profiles).toEqual(["body.core17"]);
+    expect(projected.capabilities.worldCoordinateSystem).toBeUndefined();
+    expect(projected.players[0]?.coreLandmarks[0]?.worldPosition).toBeUndefined();
+    expect(projected.players[0]?.richLandmarks).toBeUndefined();
   });
 
   it("silently ignores hostile origins and rejects missing capabilities", () => {

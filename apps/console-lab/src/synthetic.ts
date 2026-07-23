@@ -1,4 +1,5 @@
 import {
+  COORDINATE_SPEC_VERSION,
   CORE_LANDMARK_NAMES,
   MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
@@ -56,7 +57,7 @@ export function syntheticFrame(sequence: number, nowMs: number): MotionFrame {
     capabilities: {
       profiles: ["body.core17"],
       maxPlayers: 1,
-      coordinateSpecVersion: "0.1.0",
+      coordinateSpecVersion: COORDINATE_SPEC_VERSION,
       coordinateSystem: "image.normalized.top-left",
       timestampQuality: "replay",
     },

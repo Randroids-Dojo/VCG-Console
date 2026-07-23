@@ -65,4 +65,31 @@ describe("coordinate transforms", () => {
       /positive finite/,
     );
   });
+
+  it("rejects non-finite results caused by finite arithmetic overflow", () => {
+    const identityBasis = {
+      origin: { x: 0, y: 0 },
+      xAxis: { x: 1, y: 0 },
+      yAxis: { x: 0, y: 1 },
+      scale: 1,
+    };
+    expect(() =>
+      imageToPlayerRelative(
+        { x: Number.MAX_VALUE, y: 0 },
+        { ...identityBasis, origin: { x: -Number.MAX_VALUE, y: 0 } },
+      ),
+    ).toThrow(/finite coordinates/);
+    expect(() =>
+      playerRelativeToImage(
+        { x: Number.MAX_VALUE, y: 0 },
+        { ...identityBasis, scale: Number.MAX_VALUE },
+      ),
+    ).toThrow(/finite coordinates/);
+    expect(() =>
+      imageToFloor(
+        { x: 2, y: 0 },
+        [Number.MAX_VALUE, 0, 0, 0, 1, 0, 0, 0, 1],
+      ),
+    ).toThrow(/finite coordinates/);
+  });
 });

@@ -1,4 +1,5 @@
 import {
+  COORDINATE_SPEC_VERSION,
   CORE_LANDMARK_NAMES,
   CORE_TO_MEDIAPIPE_INDEX,
   MEDIAPIPE_LANDMARK_NAMES,
@@ -99,7 +100,7 @@ export function mediapipeResultToMotionFrame(result: PoseLandmarkerResult, timin
     capabilities: {
       profiles: ["body.core17", "body.mediapipe33", "body.world3d"],
       maxPlayers: 1,
-      coordinateSpecVersion: "0.1.0",
+      coordinateSpecVersion: COORDINATE_SPEC_VERSION,
       coordinateSystem: "image.normalized.top-left",
       worldCoordinateSystem: "player.metric.hip-origin.provider-axes",
       timestampQuality: "capture-arrival",

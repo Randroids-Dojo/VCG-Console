@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { CORE_LANDMARK_NAMES, MOTION_API_SCHEMA_VERSION, MotionCapabilitiesSchema, MotionFrameSchema, motionFrameJsonSchema, negotiateCapabilities } from "../src";
+import {
+  COORDINATE_SPEC_VERSION,
+  CORE_LANDMARK_NAMES,
+  MOTION_API_SCHEMA_VERSION,
+  MotionCapabilitiesSchema,
+  MotionFrameSchema,
+  motionFrameJsonSchema,
+  negotiateCapabilities,
+} from "../src";
 
 const coreLandmarks = CORE_LANDMARK_NAMES.map((name) => ({
   name,
@@ -20,7 +28,7 @@ const validFrame = {
   capabilities: {
     profiles: ["body.core17", "actions.obstacle.v1"],
     maxPlayers: 1,
-    coordinateSpecVersion: "0.1.0",
+    coordinateSpecVersion: COORDINATE_SPEC_VERSION,
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
   },

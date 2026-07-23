@@ -52,6 +52,9 @@ function normalized(vector: Point2D, epsilon: number, name: string): Point2D {
   return { x: vector.x / length, y: vector.y / length };
 }
 
+/**
+ * Builds a torso-scaled, roll-independent basis from hip and shoulder anchors.
+ */
 export function createPlayerRelativeBasis(anchors: PlayerAnchorSet, epsilon = DEFAULT_EPSILON): PlayerRelativeBasis {
   if (!Number.isFinite(epsilon) || epsilon <= 0) throw new Error("epsilon must be a positive finite number");
   for (const [name, point] of Object.entries(anchors)) requirePoint(point, name);
@@ -69,6 +72,9 @@ export function createPlayerRelativeBasis(anchors: PlayerAnchorSet, epsilon = DE
   return { origin, xAxis, yAxis, scale };
 }
 
+/**
+ * Projects an image-frame point into torso-scaled player-relative coordinates.
+ */
 export function imageToPlayerRelative(point: Point2D, basis: PlayerRelativeBasis): Point2D {
   requirePoint(point, "point");
   requirePoint(basis.origin, "basis origin");
@@ -76,29 +82,43 @@ export function imageToPlayerRelative(point: Point2D, basis: PlayerRelativeBasis
   requirePoint(basis.yAxis, "basis y axis");
   if (!Number.isFinite(basis.scale) || basis.scale <= 0) throw new Error("basis scale must be a positive finite number");
   const delta = { x: point.x - basis.origin.x, y: point.y - basis.origin.y };
-  return { x: dot(delta, basis.xAxis) / basis.scale, y: dot(delta, basis.yAxis) / basis.scale };
+  const projected = { x: dot(delta, basis.xAxis) / basis.scale, y: dot(delta, basis.yAxis) / basis.scale };
+  requirePoint(projected, "player-relative point");
+  return projected;
 }
 
+/**
+ * Converts a torso-scaled player-relative point back into image coordinates.
+ */
 export function playerRelativeToImage(point: Point2D, basis: PlayerRelativeBasis): Point2D {
   requirePoint(point, "point");
   requirePoint(basis.origin, "basis origin");
   requirePoint(basis.xAxis, "basis x axis");
   requirePoint(basis.yAxis, "basis y axis");
   if (!Number.isFinite(basis.scale) || basis.scale <= 0) throw new Error("basis scale must be a positive finite number");
-  return {
+  const projected = {
     x: basis.origin.x + basis.scale * (point.x * basis.xAxis.x + point.y * basis.yAxis.x),
     y: basis.origin.y + basis.scale * (point.x * basis.xAxis.y + point.y * basis.yAxis.y),
   };
+  requirePoint(projected, "image point");
+  return projected;
 }
 
+/**
+ * Projects an image-frame point into a calibrated metric floor plane.
+ */
 export function imageToFloor(point: Point2D, homography: Homography3x3, epsilon = DEFAULT_EPSILON): FloorPoint {
   requirePoint(point, "point");
   if (!Number.isFinite(epsilon) || epsilon <= 0) throw new Error("epsilon must be a positive finite number");
   if (homography.some((value) => !Number.isFinite(value))) throw new Error("floor homography must contain finite values");
   const denominator = homography[6] * point.x + homography[7] * point.y + homography[8];
   if (Math.abs(denominator) <= epsilon) throw new Error("floor homography projects the point to infinity");
-  return {
+  const projected = {
     xMeters: (homography[0] * point.x + homography[1] * point.y + homography[2]) / denominator,
     zMeters: (homography[3] * point.x + homography[4] * point.y + homography[5]) / denominator,
   };
+  if (!Number.isFinite(projected.xMeters) || !Number.isFinite(projected.zMeters)) {
+    throw new Error("floor point must contain finite coordinates");
+  }
+  return projected;
 }
