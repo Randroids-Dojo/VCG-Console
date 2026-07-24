@@ -1,6 +1,7 @@
 use std::env;
 use std::ffi::OsString;
 use std::fs;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::Duration;
@@ -14,6 +15,10 @@ use vcg_host::package_generation::{
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
+use vcg_host::update_trust::{
+    DetachedUpdateSignatures, MAX_UPDATE_ROOT_ANCHOR_BYTES, MAX_UPDATE_ROOT_METADATA_BYTES,
+    MAX_UPDATE_SIGNATURE_BUNDLE_BYTES, RootTrustAnchorSet, TrustedUpdatePolicy, TrustedUpdateRoot,
+};
 
 fn main() -> ExitCode {
     let arguments = env::args_os().skip(1).collect::<Vec<_>>();
@@ -72,7 +77,6 @@ struct LauncherOptions {
     url: Option<String>,
     catalog: Option<PathBuf>,
     catalog_signature: Option<PathBuf>,
-    catalog_public_key: Option<PathBuf>,
     package_store_root: Option<PathBuf>,
     install_root: Option<PathBuf>,
     content_root: Option<PathBuf>,
@@ -81,10 +85,17 @@ struct LauncherOptions {
     launch_replay_root: Option<PathBuf>,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
+    update_root: Option<PathBuf>,
+    update_root_signatures: Option<PathBuf>,
+    update_root_anchors: Option<PathBuf>,
+    update_root_min_generation: Option<u64>,
+    update_channel: Option<String>,
+    trusted_unix_seconds: Option<u64>,
 }
 
 struct LauncherCatalogOptions {
     source: LauncherCatalogSourceOptions,
+    update_trust: LauncherUpdateTrustOptions,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
     launch_replay_root: Option<PathBuf>,
@@ -94,10 +105,23 @@ enum LauncherCatalogSourceOptions {
     Loose {
         catalog: PathBuf,
         signature: PathBuf,
-        public_key: PathBuf,
         roots: CatalogRoots,
     },
-    GenerationStore(PackageGenerationConfig),
+    GenerationStore {
+        store_root: PathBuf,
+        content_root: Option<PathBuf>,
+        runtime_root: PathBuf,
+        data_root: PathBuf,
+    },
+}
+
+struct LauncherUpdateTrustOptions {
+    root: PathBuf,
+    root_signatures: PathBuf,
+    root_anchors: PathBuf,
+    minimum_generation: u64,
+    channel: String,
+    trusted_unix_seconds: u64,
 }
 
 struct LauncherCatalogConfiguration {
@@ -242,21 +266,38 @@ fn report_package_recovery(recovery: Option<RecoveryOutcome>) {
 
 impl LauncherCatalogOptions {
     fn load(self, recover: bool) -> Result<LauncherCatalogConfiguration, String> {
+        let update_policy = self.update_trust.load()?;
         let (catalog, source, recovery) = match self.source {
             LauncherCatalogSourceOptions::Loose {
                 catalog,
                 signature,
-                public_key,
                 roots,
             } => (
-                TrustedPackageCatalog::load(&catalog, &signature, &public_key, roots)
-                    .map_err(|error| error.to_string())?,
+                TrustedPackageCatalog::load_with_update_role(
+                    &catalog,
+                    &load_update_signatures(&signature)?,
+                    &update_policy,
+                    &current_target(),
+                    roots,
+                )
+                .map_err(|error| error.to_string())?,
                 "loose-catalog",
                 None,
             ),
-            LauncherCatalogSourceOptions::GenerationStore(config) => {
-                let store =
-                    PackageGenerationStore::open(config).map_err(|error| error.to_string())?;
+            LauncherCatalogSourceOptions::GenerationStore {
+                store_root,
+                content_root,
+                runtime_root,
+                data_root,
+            } => {
+                let store = PackageGenerationStore::open(PackageGenerationConfig {
+                    store_root,
+                    update_policy,
+                    content_root,
+                    runtime_root,
+                    data_root,
+                })
+                .map_err(|error| error.to_string())?;
                 let recovery = if recover {
                     Some(store.recover().map_err(|error| error.to_string())?)
                 } else {
@@ -291,6 +332,38 @@ impl LauncherCatalogOptions {
     }
 }
 
+impl LauncherUpdateTrustOptions {
+    fn load(self) -> Result<TrustedUpdatePolicy, String> {
+        let root_bytes = read_bounded_host_file(
+            &self.root,
+            MAX_UPDATE_ROOT_METADATA_BYTES,
+            "update root metadata",
+        )?;
+        let root_signatures = DetachedUpdateSignatures::from_json_bytes(&read_bounded_host_file(
+            &self.root_signatures,
+            MAX_UPDATE_SIGNATURE_BUNDLE_BYTES,
+            "update root signature bundle",
+        )?)
+        .map_err(|error| error.to_string())?;
+        let anchors = RootTrustAnchorSet::from_json_bytes(&read_bounded_host_file(
+            &self.root_anchors,
+            MAX_UPDATE_ROOT_ANCHOR_BYTES,
+            "update root anchors",
+        )?)
+        .map_err(|error| error.to_string())?;
+        let root = TrustedUpdateRoot::bootstrap(
+            &root_bytes,
+            &root_signatures,
+            &anchors,
+            self.minimum_generation,
+            self.trusted_unix_seconds,
+        )
+        .map_err(|error| error.to_string())?;
+        TrustedUpdatePolicy::new(root, self.channel, self.trusted_unix_seconds)
+            .map_err(|error| error.to_string())
+    }
+}
+
 fn launcher_request(
     arguments: &[OsString],
 ) -> Result<(bool, LauncherRequest, Option<LauncherCatalogOptions>), String> {
@@ -307,17 +380,28 @@ fn launcher_request(
     let mut request = LauncherRequest::new(
         options
             .browser
+            .take()
             .ok_or_else(|| "launcher requires --browser".to_owned())?,
         options
             .profile_dir
+            .take()
             .ok_or_else(|| "launcher requires --profile-dir".to_owned())?,
         options
             .url
+            .take()
             .ok_or_else(|| "launcher requires --url".to_owned())?,
     );
     if options.windowed {
         request = request.windowed();
     }
+    let dry_run = options.dry_run;
+    let catalog = launcher_catalog_options(options)?;
+    Ok((dry_run, request, catalog))
+}
+
+fn launcher_catalog_options(
+    options: LauncherOptions,
+) -> Result<Option<LauncherCatalogOptions>, String> {
     let loose_requested = options.catalog.is_some()
         || options.catalog_signature.is_some()
         || options.install_root.is_some();
@@ -330,13 +414,18 @@ fn launcher_request(
     }
     let catalog_requested = loose_requested
         || store_requested
-        || options.catalog_public_key.is_some()
         || options.content_root.is_some()
         || options.runtime_root.is_some()
         || options.data_root.is_some()
         || options.launch_replay_root.is_some()
         || !options.profile_ids.is_empty()
-        || !options.watchdog_game_ids.is_empty();
+        || !options.watchdog_game_ids.is_empty()
+        || options.update_root.is_some()
+        || options.update_root_signatures.is_some()
+        || options.update_root_anchors.is_some()
+        || options.update_root_min_generation.is_some()
+        || options.update_channel.is_some()
+        || options.trusted_unix_seconds.is_some();
     if !options.watchdog_game_ids.is_empty() && options.profile_ids.is_empty() {
         return Err("--watchdog-game-id requires at least one --profile-id".to_owned());
     }
@@ -347,23 +436,39 @@ fn launcher_request(
         return Err("--profile-id requires --launch-replay-root".to_owned());
     }
     let catalog = if catalog_requested {
-        let public_key = options
-            .catalog_public_key
-            .ok_or_else(|| "launcher catalog requires --catalog-public-key".to_owned())?;
         let runtime_root = options
             .runtime_root
             .ok_or_else(|| "launcher catalog requires --runtime-root".to_owned())?;
         let data_root = options
             .data_root
             .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?;
+        let update_trust = LauncherUpdateTrustOptions {
+            root: options
+                .update_root
+                .ok_or_else(|| "launcher catalog requires --update-root".to_owned())?,
+            root_signatures: options
+                .update_root_signatures
+                .ok_or_else(|| "launcher catalog requires --update-root-signatures".to_owned())?,
+            root_anchors: options
+                .update_root_anchors
+                .ok_or_else(|| "launcher catalog requires --update-root-anchors".to_owned())?,
+            minimum_generation: options.update_root_min_generation.ok_or_else(|| {
+                "launcher catalog requires --update-root-min-generation".to_owned()
+            })?,
+            channel: options
+                .update_channel
+                .ok_or_else(|| "launcher catalog requires --update-channel".to_owned())?,
+            trusted_unix_seconds: options
+                .trusted_unix_seconds
+                .ok_or_else(|| "launcher catalog requires --trusted-unix-seconds".to_owned())?,
+        };
         let source = if let Some(store_root) = options.package_store_root {
-            LauncherCatalogSourceOptions::GenerationStore(PackageGenerationConfig {
+            LauncherCatalogSourceOptions::GenerationStore {
                 store_root,
-                public_key_path: public_key,
                 content_root: options.content_root,
                 runtime_root,
                 data_root,
-            })
+            }
         } else {
             LauncherCatalogSourceOptions::Loose {
                 catalog: options
@@ -372,7 +477,6 @@ fn launcher_request(
                 signature: options
                     .catalog_signature
                     .ok_or_else(|| "launcher catalog requires --catalog-signature".to_owned())?,
-                public_key,
                 roots: CatalogRoots {
                     install_root: options
                         .install_root
@@ -385,6 +489,7 @@ fn launcher_request(
         };
         Some(LauncherCatalogOptions {
             source,
+            update_trust,
             profile_ids: options.profile_ids,
             watchdog_game_ids: options.watchdog_game_ids,
             launch_replay_root: options.launch_replay_root,
@@ -392,7 +497,7 @@ fn launcher_request(
     } else {
         None
     };
-    Ok((options.dry_run, request, catalog))
+    Ok(catalog)
 }
 
 fn parse_launcher_option(
@@ -459,16 +564,39 @@ fn parse_launcher_catalog_option(
         output.watchdog_game_ids.push(game_id);
         return Ok(());
     }
+    if option == "--update-channel" {
+        return set_text_option(
+            &mut output.update_channel,
+            required_next_text(arguments, cursor, option)?,
+            option,
+        );
+    }
+    if option == "--update-root-min-generation" {
+        return set_number_option(
+            &mut output.update_root_min_generation,
+            required_next_number(arguments, cursor, option)?,
+            option,
+        );
+    }
+    if option == "--trusted-unix-seconds" {
+        return set_number_option(
+            &mut output.trusted_unix_seconds,
+            required_next_number(arguments, cursor, option)?,
+            option,
+        );
+    }
     let slot = match option {
         "--catalog" => &mut output.catalog,
         "--catalog-signature" => &mut output.catalog_signature,
-        "--catalog-public-key" => &mut output.catalog_public_key,
         "--package-store-root" => &mut output.package_store_root,
         "--install-root" => &mut output.install_root,
         "--content-root" => &mut output.content_root,
         "--runtime-root" => &mut output.runtime_root,
         "--data-root" => &mut output.data_root,
         "--launch-replay-root" => &mut output.launch_replay_root,
+        "--update-root" => &mut output.update_root,
+        "--update-root-signatures" => &mut output.update_root_signatures,
+        "--update-root-anchors" => &mut output.update_root_anchors,
         value => return Err(format!("unknown launcher option: {value}")),
     };
     set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
@@ -490,6 +618,15 @@ fn required_next_text(
 ) -> Result<String, String> {
     *cursor += 1;
     required_text(arguments, *cursor, option)
+}
+
+fn required_next_number(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+) -> Result<u64, String> {
+    *cursor += 1;
+    required_number(arguments, *cursor, option)
 }
 
 fn retroarch(arguments: &[OsString]) -> Result<ExitCode, String> {
@@ -710,6 +847,14 @@ fn set_text_option(slot: &mut Option<String>, value: String, option: &str) -> Re
     }
 }
 
+fn set_number_option(slot: &mut Option<u64>, value: u64, option: &str) -> Result<(), String> {
+    if slot.replace(value).is_some() {
+        Err(format!("{option} may only be supplied once"))
+    } else {
+        Ok(())
+    }
+}
+
 fn set_hash_option(
     slot: &mut Option<ExpectedSha256>,
     value: &str,
@@ -723,6 +868,55 @@ fn set_hash_option(
     } else {
         Ok(())
     }
+}
+
+fn current_target() -> String {
+    format!("{}-{}", env::consts::ARCH, env::consts::OS)
+}
+
+fn load_update_signatures(path: &Path) -> Result<DetachedUpdateSignatures, String> {
+    DetachedUpdateSignatures::from_json_bytes(&read_bounded_host_file(
+        path,
+        MAX_UPDATE_SIGNATURE_BUNDLE_BYTES,
+        "installed catalog signature bundle",
+    )?)
+    .map_err(|error| error.to_string())
+}
+
+fn read_bounded_host_file(
+    path: &Path,
+    maximum_bytes: usize,
+    kind: &'static str,
+) -> Result<Vec<u8>, String> {
+    if !path.is_absolute()
+        || path.components().any(|component| {
+            matches!(
+                component,
+                std::path::Component::CurDir | std::path::Component::ParentDir
+            )
+        })
+    {
+        return Err(format!("{kind} path must be absolute and normalized"));
+    }
+    let metadata = fs::symlink_metadata(path)
+        .map_err(|error| format!("failed to inspect {kind} {}: {error}", path.display()))?;
+    if !metadata.is_file() || metadata.file_type().is_symlink() {
+        return Err(format!("{kind} must be a regular non-symlink file"));
+    }
+    let limit = u64::try_from(maximum_bytes).map_err(|_| format!("{kind} limit is invalid"))?;
+    if metadata.len() == 0 || metadata.len() > limit {
+        return Err(format!("{kind} must be 1..={maximum_bytes} bytes"));
+    }
+    let mut bytes = Vec::with_capacity(
+        usize::try_from(metadata.len()).map_err(|_| format!("{kind} is too large"))?,
+    );
+    fs::File::open(path)
+        .and_then(|file| file.take(limit + 1).read_to_end(&mut bytes))
+        .map_err(|error| format!("failed to read {kind} {}: {error}", path.display()))?;
+    if bytes.is_empty() || bytes.len() > maximum_bytes {
+        return Err(format!("{kind} must be 1..={maximum_bytes} bytes"));
+    }
+    Ok(bytes)
 }
 
 fn required_text(arguments: &[OsString], cursor: usize, option: &str) -> Result<String, String> {
@@ -923,7 +1117,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --catalog-public-key <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root <path> --update-root-signatures <path> --update-root-anchors <path> --update-root-min-generation <generation> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -937,6 +1131,23 @@ mod tests {
 
     fn args(values: &[&str]) -> Vec<OsString> {
         values.iter().map(OsString::from).collect()
+    }
+
+    fn extend_update_trust(values: &mut Vec<&'static str>) {
+        values.extend([
+            "--update-root",
+            "/metadata/update-root.json",
+            "--update-root-signatures",
+            "/metadata/update-root.signatures.json",
+            "--update-root-anchors",
+            "/metadata/update-root-anchors.json",
+            "--update-root-min-generation",
+            "1",
+            "--update-channel",
+            "stable",
+            "--trusted-unix-seconds",
+            "2000000000",
+        ]);
     }
 
     #[test]
@@ -1005,8 +1216,6 @@ mod tests {
             "/metadata/catalog.json",
             "--catalog-signature",
             "/metadata/catalog.sig",
-            "--catalog-public-key",
-            "/metadata/catalog.pub",
             "--install-root",
             "/installed",
             "--runtime-root",
@@ -1022,6 +1231,7 @@ mod tests {
             "--watchdog-game-id",
             "retro-2048",
         ]);
+        extend_update_trust(&mut complete);
         let (_, _, catalog) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
         let catalog = catalog.expect("catalog options exist");
@@ -1050,8 +1260,6 @@ mod tests {
             "/metadata/catalog.json",
             "--catalog-signature",
             "/metadata/catalog.sig",
-            "--catalog-public-key",
-            "/metadata/catalog.pub",
             "--install-root",
             "/installed",
             "--runtime-root",
@@ -1061,6 +1269,7 @@ mod tests {
             "--watchdog-game-id",
             "retro-2048",
         ]);
+        extend_update_trust(&mut watchdog_without_profile);
         assert!(launcher_request(&args(&watchdog_without_profile)).is_err());
         let mut duplicate_watchdog_game = base.to_vec();
         duplicate_watchdog_game.extend([
@@ -1068,8 +1277,6 @@ mod tests {
             "/metadata/catalog.json",
             "--catalog-signature",
             "/metadata/catalog.sig",
-            "--catalog-public-key",
-            "/metadata/catalog.pub",
             "--install-root",
             "/installed",
             "--runtime-root",
@@ -1085,12 +1292,13 @@ mod tests {
             "--watchdog-game-id",
             "retro-2048",
         ]);
+        extend_update_trust(&mut duplicate_watchdog_game);
         assert!(launcher_request(&args(&duplicate_watchdog_game)).is_err());
     }
 
     #[test]
     fn launcher_profiles_require_exactly_one_replay_root() {
-        let configured = [
+        let mut configured = vec![
             "--browser",
             "/browser",
             "--profile-dir",
@@ -1101,8 +1309,6 @@ mod tests {
             "/metadata/catalog.json",
             "--catalog-signature",
             "/metadata/catalog.sig",
-            "--catalog-public-key",
-            "/metadata/catalog.pub",
             "--install-root",
             "/installed",
             "--runtime-root",
@@ -1110,15 +1316,16 @@ mod tests {
             "--data-root",
             "/data",
         ];
-        let mut profile_without_replay = configured.to_vec();
+        extend_update_trust(&mut configured);
+        let mut profile_without_replay = configured.clone();
         profile_without_replay.extend(["--profile-id", "profile-randy"]);
         assert!(launcher_request(&args(&profile_without_replay)).is_err());
 
-        let mut replay_without_profile = configured.to_vec();
+        let mut replay_without_profile = configured.clone();
         replay_without_profile.extend(["--launch-replay-root", "/launch-replay"]);
         assert!(launcher_request(&args(&replay_without_profile)).is_err());
 
-        let mut duplicate_replay_root = configured.to_vec();
+        let mut duplicate_replay_root = configured;
         duplicate_replay_root.extend([
             "--launch-replay-root",
             "/launch-replay",
@@ -1144,8 +1351,6 @@ mod tests {
         complete.extend([
             "--package-store-root",
             "/package-store",
-            "--catalog-public-key",
-            "/metadata/catalog.pub",
             "--content-root",
             "/content",
             "--runtime-root",
@@ -1157,15 +1362,21 @@ mod tests {
             "--profile-id",
             "profile-randy",
         ]);
+        extend_update_trust(&mut complete);
         let (_, _, catalog) =
             launcher_request(&args(&complete)).expect("generation store configuration parses");
         let catalog = catalog.expect("catalog options exist");
-        let LauncherCatalogSourceOptions::GenerationStore(config) = catalog.source else {
+        let LauncherCatalogSourceOptions::GenerationStore {
+            store_root,
+            content_root,
+            ..
+        } = catalog.source
+        else {
             panic!("generation store source expected");
         };
-        assert_eq!(config.store_root, std::path::Path::new("/package-store"));
+        assert_eq!(store_root, std::path::Path::new("/package-store"));
         assert_eq!(
-            config.content_root.as_deref(),
+            content_root.as_deref(),
             Some(std::path::Path::new("/content"))
         );
 

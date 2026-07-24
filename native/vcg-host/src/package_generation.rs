@@ -22,6 +22,9 @@ use crate::package_transfer::{
     PackageArchiveTransfer, PackageReleaseIdentity, PackageTransferCleanup, PackageTransferError,
 };
 use crate::retroarch::plan as plan_retroarch;
+use crate::update_trust::{
+    DetachedUpdateSignatures, MAX_UPDATE_SIGNATURE_BUNDLE_BYTES, TrustedUpdatePolicy,
+};
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
 const CLEANUP_INTENT_SCHEMA_VERSION: u32 = 1;
@@ -44,7 +47,7 @@ const MIN_RETAINED_GENERATIONS: usize = 2;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PackageGenerationConfig {
     pub store_root: PathBuf,
-    pub public_key_path: PathBuf,
+    pub update_policy: TrustedUpdatePolicy,
     pub content_root: Option<PathBuf>,
     pub runtime_root: PathBuf,
     pub data_root: PathBuf,
@@ -114,7 +117,7 @@ pub struct PackageGenerationStore {
     staging: PathBuf,
     generations: PathBuf,
     activations: PathBuf,
-    public_key_path: PathBuf,
+    update_policy: TrustedUpdatePolicy,
     content_root: Option<PathBuf>,
     runtime_root: PathBuf,
     data_root: PathBuf,
@@ -132,7 +135,6 @@ impl PackageGenerationStore {
     /// Rejects relative, missing, non-directory, or root-escaping paths.
     pub fn open(config: PackageGenerationConfig) -> Result<Self, GenerationError> {
         validate_absolute("store root", &config.store_root)?;
-        validate_absolute("catalog public key", &config.public_key_path)?;
         if let Some(content_root) = &config.content_root {
             validate_absolute("managed content root", content_root)?;
         }
@@ -148,7 +150,6 @@ impl PackageGenerationStore {
         let staging = canonical_child_directory(&root, "staging")?;
         let generations = canonical_child_directory(&root, "generations")?;
         let activations = canonical_child_directory(&root, "activations")?;
-        let public_key_path = canonical_file("catalog public key", &config.public_key_path)?;
         let content_root = config
             .content_root
             .as_deref()
@@ -161,7 +162,7 @@ impl PackageGenerationStore {
             staging,
             generations,
             activations,
-            public_key_path,
+            update_policy: config.update_policy,
             content_root,
             runtime_root: config.runtime_root,
             data_root: config.data_root,
@@ -688,10 +689,15 @@ impl PackageGenerationStore {
         let _operation = self.acquire_operation_lock()?;
         validate_transaction_id(transaction_id)?;
         self.ensure_no_recovery_required()?;
-        let release = VerifiedPackageRelease::load(
-            descriptor_path,
+        let signatures = read_update_signatures(
             descriptor_signature_path,
-            &self.public_key_path,
+            "release descriptor signature bundle",
+        )?;
+        let release = VerifiedPackageRelease::load_with_update_role(
+            descriptor_path,
+            &signatures,
+            &self.update_policy,
+            &current_target(),
         )?;
         self.stage_verified_package_tar(transaction_id, archive_path, reserve_bytes, &release)
     }
@@ -700,8 +706,8 @@ impl PackageGenerationStore {
     /// transfer into one inert staging transaction.
     ///
     /// The descriptor is independently verified with the generation store's
-    /// configured key. The transfer binding must match that exact release, and
-    /// the ready archive is re-hashed before extraction. Successful staging
+    /// delegated update policy. The transfer binding must match that exact
+    /// release, and the ready archive is re-hashed before extraction. Successful staging
     /// deliberately retains the ready archive and immutable binding as a
     /// durable receipt; cleanup policy is separate.
     ///
@@ -721,10 +727,15 @@ impl PackageGenerationStore {
         let transaction_id = transfer.transaction_id();
         validate_transaction_id(transaction_id)?;
         self.ensure_no_recovery_required()?;
-        let release = VerifiedPackageRelease::load(
-            descriptor_path,
+        let signatures = read_update_signatures(
             descriptor_signature_path,
-            &self.public_key_path,
+            "release descriptor signature bundle",
+        )?;
+        let release = VerifiedPackageRelease::load_with_update_role(
+            descriptor_path,
+            &signatures,
+            &self.update_policy,
+            &current_target(),
         )?;
         let archive_path = transfer.ready_archive_for(&release)?;
         self.stage_verified_package_tar(transaction_id, &archive_path, reserve_bytes, &release)
@@ -1355,11 +1366,14 @@ impl PackageGenerationStore {
             release,
             &release.join(CATALOG_SIGNATURE_FILE),
         )?;
+        let signatures =
+            read_update_signatures(&signature_path, "installed catalog signature bundle")?;
         let catalog_sha256 = sha256_file(&catalog_path)?;
-        let catalog = TrustedPackageCatalog::load(
+        let catalog = TrustedPackageCatalog::load_with_update_role(
             &catalog_path,
-            &signature_path,
-            &self.public_key_path,
+            &signatures,
+            &self.update_policy,
+            &current_target(),
             CatalogRoots {
                 install_root,
                 content_root: self.content_root.clone(),
@@ -1767,6 +1781,47 @@ fn generation_from_directory_name(name: &std::ffi::OsStr) -> Result<u64, Generat
     })
 }
 
+fn current_target() -> String {
+    format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS)
+}
+
+fn read_update_signatures(
+    path: &Path,
+    kind: &'static str,
+) -> Result<DetachedUpdateSignatures, GenerationError> {
+    validate_absolute(kind, path)?;
+    require_regular_file(path, kind)?;
+    let path = canonical_file(kind, path)?;
+    let metadata = fs::metadata(&path).map_err(|source| GenerationError::Io {
+        operation: "inspect update signature bundle",
+        path: path.clone(),
+        source,
+    })?;
+    let maximum_bytes =
+        u64::try_from(MAX_UPDATE_SIGNATURE_BUNDLE_BYTES).expect("signature bound fits u64");
+    if metadata.len() == 0 || metadata.len() > maximum_bytes {
+        return Err(GenerationError::UpdateTrust(format!(
+            "{kind} must be 1..={MAX_UPDATE_SIGNATURE_BUNDLE_BYTES} bytes"
+        )));
+    }
+    let mut bytes =
+        Vec::with_capacity(usize::try_from(metadata.len()).expect("bounded length fits usize"));
+    File::open(&path)
+        .and_then(|file| file.take(maximum_bytes + 1).read_to_end(&mut bytes))
+        .map_err(|source| GenerationError::Io {
+            operation: "read update signature bundle",
+            path: path.clone(),
+            source,
+        })?;
+    if bytes.len() > MAX_UPDATE_SIGNATURE_BUNDLE_BYTES {
+        return Err(GenerationError::UpdateTrust(format!(
+            "{kind} must be 1..={MAX_UPDATE_SIGNATURE_BUNDLE_BYTES} bytes"
+        )));
+    }
+    DetachedUpdateSignatures::from_json_bytes(&bytes)
+        .map_err(|error| GenerationError::UpdateTrust(error.to_string()))
+}
+
 fn validate_transaction_id(value: &str) -> Result<(), GenerationError> {
     let valid = !value.is_empty()
         && value.len() <= 80
@@ -1958,6 +2013,7 @@ pub enum GenerationError {
     Health(CandidateHealthError),
     Intake(PackageIntakeError),
     Transfer(PackageTransferError),
+    UpdateTrust(String),
     UnsafePath {
         kind: &'static str,
         path: PathBuf,
@@ -2012,6 +2068,7 @@ impl fmt::Display for GenerationError {
             Self::Health(error) => write!(formatter, "{error}"),
             Self::Intake(error) => write!(formatter, "{error}"),
             Self::Transfer(error) => write!(formatter, "{error}"),
+            Self::UpdateTrust(error) => write!(formatter, "package update trust rejected: {error}"),
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
@@ -2161,7 +2218,7 @@ mod tests {
         STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker, publish_intent,
         read_marker,
     };
-    use crate::installed_catalog::PackageHealthCheck;
+    use crate::installed_catalog::{CatalogError, PackageHealthCheck};
     use crate::native_launch::NativeLaunchService;
     use crate::package_health::CandidateHealthChecker;
     use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
@@ -2169,18 +2226,25 @@ mod tests {
         PackageArchiveTransfer, PackageTransferCleanup, PackageTransferCleanupKind,
         PackageTransferError,
     };
+    use crate::update_trust::{
+        DetachedUpdateSignature, DetachedUpdateSignatures, RootTrustAnchor, RootTrustAnchorSet,
+        TrustedUpdatePolicy, TrustedUpdateRoot,
+    };
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
     const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
     const RELEASE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
+    const ROOT_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-UPDATE-TRUST-ROOT-V1\0";
+    const TRUSTED_TIME: u64 = 2_000_000_000;
 
     struct Fixture {
         root: PathBuf,
         content: PathBuf,
         runtime: PathBuf,
         data: PathBuf,
-        public_key: PathBuf,
-        signing_key: SigningKey,
+        catalog_signing_key: SigningKey,
+        release_signing_key: SigningKey,
+        update_policy: TrustedUpdatePolicy,
     }
 
     impl Fixture {
@@ -2205,24 +2269,82 @@ mod tests {
             }
             File::create(root.join(OPERATION_LOCK_FILE))
                 .expect("package store operation lock creates");
-            let signing_key = SigningKey::from_bytes(&[23_u8; 32]);
-            let public_key = root.join("catalog-public-key.hex");
-            fs::write(&public_key, hex(signing_key.verifying_key().as_bytes()))
-                .expect("public key writes");
+            let root_signing_key = SigningKey::from_bytes(&[22_u8; 32]);
+            let catalog_signing_key = SigningKey::from_bytes(&[23_u8; 32]);
+            let release_signing_key = SigningKey::from_bytes(&[24_u8; 32]);
+            let target = format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS);
+            let root_document = serde_json::to_vec(&json!({
+                "schemaVersion": 1,
+                "generation": 1,
+                "expiresUnixSeconds": TRUSTED_TIME + 10_000,
+                "rootThreshold": 1,
+                "rootKeys": [{
+                    "keyId": "root-one",
+                    "publicKey": hex(root_signing_key.verifying_key().as_bytes()),
+                }],
+                "roles": [{
+                    "channel": "stable",
+                    "artifact": "installed-catalog",
+                    "target": target,
+                    "threshold": 1,
+                    "keys": [{
+                        "keyId": "catalog-one",
+                        "publicKey": hex(catalog_signing_key.verifying_key().as_bytes()),
+                    }],
+                }, {
+                    "channel": "stable",
+                    "artifact": "package-release",
+                    "target": target,
+                    "threshold": 1,
+                    "keys": [{
+                        "keyId": "release-one",
+                        "publicKey": hex(release_signing_key.verifying_key().as_bytes()),
+                    }],
+                }],
+            }))
+            .expect("root document serializes");
+            let mut root_message = Vec::from(ROOT_SIGNED_MESSAGE_PREFIX);
+            root_message.extend_from_slice(&root_document);
+            let root_signatures =
+                DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+                    "root-one",
+                    &hex(&root_signing_key.sign(&root_message).to_bytes()),
+                )
+                .expect("root signature decodes")])
+                .expect("root signature set creates");
+            let anchors = RootTrustAnchorSet::new(
+                1,
+                [
+                    RootTrustAnchor::new("root-one", root_signing_key.verifying_key().to_bytes())
+                        .expect("root anchor creates"),
+                ],
+            )
+            .expect("root anchor set creates");
+            let trusted_root = TrustedUpdateRoot::bootstrap(
+                &root_document,
+                &root_signatures,
+                &anchors,
+                1,
+                TRUSTED_TIME,
+            )
+            .expect("root bootstraps");
+            let update_policy = TrustedUpdatePolicy::new(trusted_root, "stable", TRUSTED_TIME)
+                .expect("update policy creates");
             Self {
                 root,
                 content,
                 runtime,
                 data,
-                public_key,
-                signing_key,
+                catalog_signing_key,
+                release_signing_key,
+                update_policy,
             }
         }
 
         fn store(&self) -> PackageGenerationStore {
             PackageGenerationStore::open(PackageGenerationConfig {
                 store_root: self.root.clone(),
-                public_key_path: self.public_key.clone(),
+                update_policy: self.update_policy.clone(),
                 content_root: Some(self.content.clone()),
                 runtime_root: self.runtime.clone(),
                 data_root: self.data.clone(),
@@ -2293,10 +2415,10 @@ mod tests {
             fs::write(&catalog_path, &catalog).expect("catalog writes");
             let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
             message.extend_from_slice(&catalog);
-            let signature = self.signing_key.sign(&message);
+            let signature = self.catalog_signing_key.sign(&message);
             fs::write(
                 release.join("installed-catalog.sig"),
-                hex(&signature.to_bytes()),
+                signature_bundle("catalog-one", &signature.to_bytes()),
             )
             .expect("catalog signature writes");
             release
@@ -2371,8 +2493,32 @@ mod tests {
             let descriptor_bytes = fs::read(descriptor).expect("release descriptor reads");
             let mut message = Vec::from(RELEASE_SIGNED_MESSAGE_PREFIX);
             message.extend_from_slice(&descriptor_bytes);
-            fs::write(signature, hex(&self.signing_key.sign(&message).to_bytes()))
-                .expect("release descriptor signature writes");
+            fs::write(
+                signature,
+                signature_bundle(
+                    "release-one",
+                    &self.release_signing_key.sign(&message).to_bytes(),
+                ),
+            )
+            .expect("release descriptor signature writes");
+        }
+
+        fn load_release_descriptor(
+            &self,
+            descriptor: &Path,
+            signature: &Path,
+        ) -> VerifiedPackageRelease {
+            let signatures = DetachedUpdateSignatures::from_json_bytes(
+                &fs::read(signature).expect("signature bundle reads"),
+            )
+            .expect("signature bundle parses");
+            VerifiedPackageRelease::load_with_update_role(
+                descriptor,
+                &signatures,
+                &self.update_policy,
+                &format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS),
+            )
+            .expect("release verifies")
         }
 
         fn publish_intent(
@@ -2435,12 +2581,51 @@ mod tests {
     }
 
     #[test]
+    fn delegated_generation_roles_reject_changed_bytes_and_cross_role_signers() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, _, _) = fixture.package_tar(7, "1.0.0");
+        let mut changed_descriptor =
+            fs::read(&descriptor).expect("release descriptor reads before change");
+        changed_descriptor.push(b' ');
+        fs::write(&descriptor, changed_descriptor).expect("changed descriptor writes");
+        let store = fixture.store();
+        assert!(matches!(
+            store.stage_package_tar("changed-release", &descriptor, &signature, &archive, 1),
+            Err(GenerationError::Intake(
+                PackageIntakeError::UpdateAuthority(_)
+            ))
+        ));
+
+        fixture.stage("cross-role-catalog", 8, "2.0.0");
+        let staged_release = store
+            .canonical_stage("cross-role-catalog")
+            .expect("stage canonicalizes");
+        let catalog_path = staged_release.join(CATALOG_FILE);
+        let catalog = fs::read(&catalog_path).expect("catalog reads");
+        let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+        message.extend_from_slice(&catalog);
+        let cross_role_signature = fixture.release_signing_key.sign(&message);
+        fs::write(
+            staged_release.join("installed-catalog.sig"),
+            signature_bundle("release-one", &cross_role_signature.to_bytes()),
+        )
+        .expect("cross-role catalog signature writes");
+        let staged_release = store
+            .canonical_stage("cross-role-catalog")
+            .expect("cross-role stage canonicalizes");
+        match store.load_release(&staged_release) {
+            Err(GenerationError::Catalog(CatalogError::UpdateAuthority(_))) => {}
+            Err(error) => panic!("unexpected cross-role result: {error:?}"),
+            Ok(_) => panic!("cross-role catalog unexpectedly verified"),
+        }
+    }
+
+    #[test]
     fn stages_then_explicitly_cleans_only_the_matching_durable_transfer_receipt() {
         let fixture = Fixture::new();
         let (descriptor, signature, archive, expanded_bytes, file_count) =
             fixture.package_tar(7, "1.0.0");
-        let release = VerifiedPackageRelease::load(&descriptor, &signature, &fixture.public_key)
-            .expect("release verifies");
+        let release = fixture.load_release_descriptor(&descriptor, &signature);
         let transfer_root = fixture.root.join("transfers");
         fs::create_dir(&transfer_root).expect("transfer root creates");
         let transfer =
@@ -2519,8 +2704,7 @@ mod tests {
     fn ready_transfer_handoff_rejects_another_signed_release_binding() {
         let fixture = Fixture::new();
         let (descriptor, signature, archive, _, _) = fixture.package_tar(7, "1.0.0");
-        let release = VerifiedPackageRelease::load(&descriptor, &signature, &fixture.public_key)
-            .expect("release verifies");
+        let release = fixture.load_release_descriptor(&descriptor, &signature);
         let transfer_root = fixture.root.join("transfers");
         fs::create_dir(&transfer_root).expect("transfer root creates");
         let transfer =
@@ -2554,9 +2738,7 @@ mod tests {
 
         let (other_descriptor, other_signature, other_archive, _, _) =
             fixture.package_tar(8, "2.0.0");
-        let other_release =
-            VerifiedPackageRelease::load(&other_descriptor, &other_signature, &fixture.public_key)
-                .expect("other release verifies");
+        let other_release = fixture.load_release_descriptor(&other_descriptor, &other_signature);
         let transfer_root = fixture.root.join("other-transfers");
         fs::create_dir(&transfer_root).expect("other transfer root creates");
         let transfer = PackageArchiveTransfer::open_or_begin(
@@ -2762,10 +2944,10 @@ mod tests {
                 fs::write(&catalog_path, &catalog).expect("changed candidate catalog writes");
                 let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
                 message.extend_from_slice(&catalog);
-                let signature = fixture.signing_key.sign(&message);
+                let signature = fixture.catalog_signing_key.sign(&message);
                 fs::write(
                     stage.join("installed-catalog.sig"),
-                    hex(&signature.to_bytes()),
+                    signature_bundle("catalog-one", &signature.to_bytes()),
                 )
                 .expect("changed candidate signature writes");
                 Ok(())
@@ -3450,7 +3632,7 @@ mod tests {
         assert!(matches!(
             PackageGenerationStore::open(PackageGenerationConfig {
                 store_root: fixture.root.clone(),
-                public_key_path: fixture.public_key.clone(),
+                update_policy: fixture.update_policy.clone(),
                 content_root: Some(fixture.content.clone()),
                 runtime_root: fixture.runtime.clone(),
                 data_root: fixture.data.clone(),
@@ -3542,5 +3724,16 @@ mod tests {
             write!(output, "{byte:02x}").expect("writing to a String cannot fail");
         }
         output
+    }
+
+    fn signature_bundle(key_id: &str, signature: &[u8; 64]) -> Vec<u8> {
+        serde_json::to_vec(&json!({
+            "schemaVersion": 1,
+            "signatures": [{
+                "keyId": key_id,
+                "signature": hex(signature),
+            }],
+        }))
+        .expect("signature bundle serializes")
     }
 }

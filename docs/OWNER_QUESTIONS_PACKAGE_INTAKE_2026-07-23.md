@@ -20,4 +20,4 @@ Safe default: require a nonzero host-supplied reserve and expose no production d
 
 May the signed release descriptor use the installed-catalog signing key, or should it have a separately delegated online role?
 
-Safe default: keep the current domain-separated shared prototype key only for local implementation evidence. Before distribution, define offline-root delegation, online release/catalog roles, rotation, revocation, expiry/freeze behavior, and protected per-channel monotonic state.
+Implemented safe default: require separately delegated package-release and installed-catalog roles with distinct key IDs and public keys, in addition to their domain-separated messages. Production still needs exact thresholds, custody, cadence, protected root/time/per-channel monotonic state, and witnessed rotation/revocation recovery.

@@ -1,6 +1,6 @@
 # Update Trust Root and Delegated Roles
 
-Status: bounded root/role verification and system-image integration implemented; protected persistence, secure time, package-role integration, repository metadata, operator ceremony, and recovery drills remain open.
+Status: bounded root/role verification and system-image/package integration implemented; protected persistence, secure time, repository metadata, operator ceremony, and recovery drills remain open.
 
 ## Purpose
 
@@ -18,7 +18,7 @@ The primitive provides:
 - threshold authorization of exact bounded artifact bytes before their semantic parser runs; and
 - immediate role-key revocation by omission from the next authenticated root generation.
 
-The public system-image loader now requires this delegated role authority. Its previous direct single-key loader exists only in test builds.
+The public system-image, installed-catalog, and package-release loaders now require this delegated role authority. Their previous direct single-key loaders exist only in test builds.
 
 ## Root document v1
 
@@ -58,6 +58,45 @@ Root metadata is limited to 64 KiB and uses closed JSON. Example:
 ```
 
 All key IDs, channels, and targets are bounded safe ASCII identifiers. Public keys and signatures are canonical lowercase hexadecimal. The policy allows at most 16 root keys, 32 roles, 16 keys per role, and 32 detached signatures for one document.
+
+## Serialized bootstrap and signature inputs
+
+The launcher accepts root policy only through three bounded, absolute, normalized, non-symlink regular files:
+
+- root metadata, limited to 64 KiB;
+- a closed detached-signature bundle, limited to 32 KiB; and
+- a closed out-of-band anchor document, limited to 16 KiB.
+
+Signature bundles use:
+
+```json
+{
+  "schemaVersion": 1,
+  "signatures": [
+    {
+      "keyId": "catalog-stable-2026",
+      "signature": "128-lowercase-hex-characters"
+    }
+  ]
+}
+```
+
+Anchor documents use:
+
+```json
+{
+  "schemaVersion": 1,
+  "threshold": 2,
+  "anchors": [
+    {
+      "keyId": "root-a",
+      "publicKey": "64-lowercase-hex-characters"
+    }
+  ]
+}
+```
+
+The anchor file is not self-authenticating. It must come from verified read-only image or hardware provisioning. The CLI representation makes the boundary deterministic for integration tests; it does not make caller-selected paths, generation floors, channels, or time trustworthy.
 
 Root signatures cover:
 
@@ -107,7 +146,7 @@ The primitive does not establish trustworthy time. A writable wall clock control
 
 No network is required to verify already-present root metadata, signatures, or artifacts. However, this primitive has no timestamp or snapshot role, so it cannot detect every repository freeze, fast-forward, mix-and-match, or malicious-mirror behavior. Root expiration only bounds indefinite reuse of the current delegated policy.
 
-## System-image integration
+## Artifact integration
 
 `VerifiedSystemImageRelease::load_with_update_role`:
 
@@ -119,7 +158,9 @@ No network is required to verify already-present root metadata, signatures, or a
 
 The manifest parser still independently checks its internal target, generation, hash, length, and format. Role authority does not select an A/B slot or prove a partition write.
 
-Installed-catalog and package-release code still use their provisioned single-key paths. The generic role verifier uses their existing signature domains, but those public loaders are not yet wired to it.
+`VerifiedPackageRelease::load_with_update_role` and `TrustedPackageCatalog::load_with_update_role` apply the same signature-before-parse rule for exact package-release and installed-catalog roles. Both retain `VerifiedUpdateRole` evidence. `PackageGenerationStore` carries one `TrustedUpdatePolicy` snapshot through descriptor intake, catalog verification before inert publication, health/promotion, recovery, and active-generation reload. Catalog and release signature files are bounded key-ID-labeled bundles, so thresholds larger than one remain representable.
+
+The launcher no longer accepts `--catalog-public-key`. Catalog-backed startup requires `--update-root`, `--update-root-signatures`, `--update-root-anchors`, `--update-root-min-generation`, `--update-channel`, and `--trusted-unix-seconds`. These values are host integration inputs. The current binary does not establish their protected provenance, and a long-running host must not reuse a stale trusted-time snapshot for later update admission.
 
 ## Offline recovery drill design
 
@@ -143,7 +184,7 @@ not physical recovery proof.
 
 ## Automated evidence
 
-Fourteen focused root-policy tests cover:
+Seventeen focused root-policy tests cover:
 
 - anchor-threshold verification before root JSON parsing;
 - separate bootstrap-anchor and candidate-root thresholds;
@@ -156,11 +197,14 @@ Fourteen focused root-policy tests cover:
 - cross-protocol signature denial;
 - independent recovery-channel authority;
 - revocation by authenticated key omission;
+- one exact artifact bundle remaining valid across a dual-signed old/new role-key cutover;
 - denial when a bootstrap or immediately current root key is reassigned to an artifact role during acceptance;
 - duplicate role, key ID, and public-key reuse denial;
-- unknown fields, unsafe identifiers, noncanonical encoding, invalid thresholds, and bounded payloads.
+- unknown fields, unsafe identifiers, noncanonical encoding, invalid thresholds, and bounded payloads;
+- strict bounded serialized anchor/signature documents; and
+- policy rejection for unsafe channels and roots expired at the supplied time.
 
-An additional system-image test proves delegated role verification occurs before manifest parsing and records the accepted authority.
+Three artifact integration tests prove delegated role verification occurs before system-image, catalog, and release parsing and records accepted authority. A generation-store adversarial test proves changed descriptor bytes and a package-release signer presented as a catalog signer fail closed.
 
 ## Explicitly unproven
 
@@ -169,7 +213,7 @@ An additional system-image test proves delegated role verification occurs before
 - Trusted time, clock rollback resistance, long-offline UX, and expiry policy are undefined.
 - Root/signature acquisition, consistent filenames, timestamp/snapshot metadata, mirrors, download-rate checks, and repository recovery are absent.
 - Threshold counts, signer custody, rotation cadence, emergency revocation, quorum loss, and offline ceremony are owner/security decisions.
-- Package catalog and release-descriptor loaders do not yet consume delegated roles.
+- Atomic root/package cutover is absent; routine catalog-key rotation must prove a newer dual-authorized active generation across both roots, while emergency revocation needs explicit unavailable-package and recovery behavior.
 - The artifact generation floors remain in their existing package/system state and are not authenticated by protected monotonic hardware.
 - No compromised-key, expired-device, lost-quorum, factory-recovery, or removable-media drill has run.
 

@@ -6,7 +6,14 @@ This document defines the implemented host-owned admission and extraction bounda
 
 ## Signed release descriptor
 
-The host first verifies a bounded detached Ed25519 descriptor with the domain-separated message prefix `VCG-PACKAGE-RELEASE-V1\0`. Signature verification occurs before JSON parsing. Descriptor, signature, archive, public key, and staging paths are absolute host inputs; browser or package content cannot choose them.
+The host first requires the exact descriptor bytes to meet the selected
+channel/package-release/compiled-target threshold in a bootstrapped update
+root. The strict detached-signature bundle is at most 32 KiB and contains
+1–32 unique `{keyId, signature}` records under schema version 1. Ed25519
+verification uses the domain-separated message prefix
+`VCG-PACKAGE-RELEASE-V1\0` and occurs before descriptor JSON parsing.
+Descriptor, signature-bundle, archive, and staging paths plus the update policy
+are absolute host inputs; browser or package content cannot choose them.
 
 Schema v1 binds:
 
@@ -15,9 +22,17 @@ Schema v1 binds:
 - exact expanded regular-file payload bytes and file count; and
 - exact installed-catalog SHA-256 and byte length.
 
-Unknown fields, noncanonical lowercase hashes/keys/signatures, wrong target, unsupported schema, zero or excessive bounds, arithmetic overflow, and inconsistent uncompressed-TAR sizes fail closed. `tar` is implemented. `tar-zstd` is reserved in the descriptor vocabulary but has no extractor and is rejected before staging.
+Unknown fields, noncanonical lowercase hashes/signatures, wrong target,
+unsupported schema, absent/cross-role/expired authority, zero or excessive
+bounds, arithmetic overflow, and inconsistent uncompressed-TAR sizes fail
+closed. `tar` is implemented. `tar-zstd` is reserved in the descriptor
+vocabulary but has no extractor and is rejected before staging.
 
-The release descriptor and installed catalog use the same configured prototype public key with different signed-message domains. A delegated release role remains an owner/security choice.
+The package-release and installed-catalog roles must use distinct key IDs and
+public keys in one accepted root. Their fixed signed-message domains remain
+separate as defense in depth. The production release loader has no direct
+single-key alternative; that former path exists only inside isolated unit
+fixtures.
 
 ## Capacity admission
 
@@ -58,12 +73,12 @@ Extraction must occur in a new private empty directory. Concurrent mutation of t
 `PackageGenerationStore::stage_package_tar` performs:
 
 1. transaction and pending-recovery validation;
-2. signature-first descriptor load;
+2. delegated-role, signature-first descriptor load;
 3. exact archive length/hash verification;
 4. post-download staging-filesystem capacity admission;
 5. bounded extraction into `.incoming-<transaction-id>`;
 6. exact expanded byte/file and extracted-catalog evidence checks;
-7. installed-catalog signature plus every referenced artifact verification;
+7. separately delegated installed-catalog threshold plus every referenced artifact verification;
 8. descriptor/catalog generation agreement and monotonic-generation check;
 9. synchronized host receipt of the exact signed descriptor identity; and
 10. atomic rename to inert `staging/<transaction-id>`.
@@ -74,4 +89,10 @@ The staged descriptor receipt lets the transfer coordinator later prove that the
 
 ## Remaining boundary
 
-Network discovery/client behavior, HTTP range/TLS/mirror policy, real disk reservation, cross-writer low-space coordination and cleanup, `tar-zstd` decompression, hostile concurrent destination mutation, target-Linux permission/mount qualification, and sudden-power campaigns remain open. See [the owner intake questions](OWNER_QUESTIONS_PACKAGE_INTAKE_2026-07-23.md) and [transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).
+Network discovery/client behavior, HTTP range/TLS/mirror policy, protected
+accepted-root/generation-floor persistence, secure continuously refreshed time,
+real disk reservation, cross-writer low-space coordination and cleanup,
+`tar-zstd` decompression, hostile concurrent destination mutation, target-Linux
+permission/mount qualification, and sudden-power campaigns remain open. See
+[the owner intake questions](OWNER_QUESTIONS_PACKAGE_INTAKE_2026-07-23.md) and
+[transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).

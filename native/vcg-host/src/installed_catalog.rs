@@ -8,15 +8,20 @@ use std::path::{Component, Path, PathBuf};
 use std::str::FromStr;
 use std::time::Duration;
 
+#[cfg(test)]
 use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
 use crate::retroarch::{ExpectedSha256, RetroArchRequest};
+use crate::update_trust::{
+    DetachedUpdateSignatures, TrustedUpdatePolicy, UpdateArtifactKind, VerifiedUpdateRole,
+};
 
 const CATALOG_SCHEMA_VERSION: u32 = 1;
 const MAX_CATALOG_BYTES: u64 = 1_048_576;
 const MAX_PACKAGES: usize = 1_024;
+#[cfg(test)]
 const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
 
 /// Host-owned roots used to resolve signed relative package paths.
@@ -36,9 +41,45 @@ pub struct TrustedPackageCatalog {
     target: String,
     roots: CatalogRoots,
     packages: Vec<InstalledPackage>,
+    update_authority: Option<VerifiedUpdateRole>,
 }
 
 impl TrustedPackageCatalog {
+    /// Loads one installed catalog through current delegated update authority.
+    ///
+    /// Exact channel/catalog/target threshold verification precedes JSON
+    /// parsing.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unsafe paths, oversized input, missing/expired authority,
+    /// insufficient signatures, unsupported schemas/targets, and invalid
+    /// package records.
+    pub fn load_with_update_role(
+        catalog_path: &Path,
+        signatures: &DetachedUpdateSignatures,
+        update_policy: &TrustedUpdatePolicy,
+        expected_target: &str,
+        roots: CatalogRoots,
+    ) -> Result<Self, CatalogError> {
+        require_absolute_regular_file("catalog", catalog_path)?;
+        let roots = validate_catalog_roots(roots)?;
+        let catalog_bytes = read_bounded(catalog_path, MAX_CATALOG_BYTES, "catalog")?;
+        let update_authority = update_policy
+            .verify(
+                UpdateArtifactKind::InstalledCatalog,
+                expected_target,
+                &catalog_bytes,
+                signatures,
+            )
+            .map_err(|error| CatalogError::UpdateAuthority(error.to_string()))?;
+        let document: CatalogDocument = serde_json::from_slice(&catalog_bytes)
+            .map_err(|error| CatalogError::InvalidDocument(error.to_string()))?;
+        let mut catalog = Self::from_document(document, roots, expected_target)?;
+        catalog.update_authority = Some(update_authority);
+        Ok(catalog)
+    }
+
     /// Loads and verifies one installed-package catalog.
     ///
     /// Signature verification happens before JSON parsing. The trusted public
@@ -49,7 +90,8 @@ impl TrustedPackageCatalog {
     /// Rejects unsafe paths, oversized input, malformed keys/signatures,
     /// invalid signatures, unsupported schemas/targets, and invalid package
     /// records.
-    pub fn load(
+    #[cfg(test)]
+    fn load(
         catalog_path: &Path,
         signature_path: &Path,
         public_key_path: &Path,
@@ -62,14 +104,7 @@ impl TrustedPackageCatalog {
         ] {
             require_absolute_path(kind, path)?;
         }
-        validate_owned_root("runtime root", &roots.runtime_root)?;
-        validate_owned_root("data root", &roots.data_root)?;
-        let install_root = canonical_directory("install root", &roots.install_root)?;
-        let content_root = roots
-            .content_root
-            .as_deref()
-            .map(|path| canonical_directory("content root", path))
-            .transpose()?;
+        let roots = validate_catalog_roots(roots)?;
 
         let catalog_bytes = read_bounded(catalog_path, MAX_CATALOG_BYTES, "catalog")?;
         let signature_text = read_bounded(signature_path, 256, "catalog signature")?;
@@ -95,16 +130,14 @@ impl TrustedPackageCatalog {
 
         let document: CatalogDocument = serde_json::from_slice(&catalog_bytes)
             .map_err(|error| CatalogError::InvalidDocument(error.to_string()))?;
-        let roots = CatalogRoots {
-            install_root,
-            content_root,
-            runtime_root: roots.runtime_root,
-            data_root: roots.data_root,
-        };
-        Self::from_document(document, roots)
+        Self::from_document(document, roots, &current_target())
     }
 
-    fn from_document(document: CatalogDocument, roots: CatalogRoots) -> Result<Self, CatalogError> {
+    fn from_document(
+        document: CatalogDocument,
+        roots: CatalogRoots,
+        expected_target: &str,
+    ) -> Result<Self, CatalogError> {
         if document.schema_version != CATALOG_SCHEMA_VERSION {
             return Err(CatalogError::UnsupportedSchema(document.schema_version));
         }
@@ -113,10 +146,9 @@ impl TrustedPackageCatalog {
                 "catalog generation must be greater than zero".to_owned(),
             ));
         }
-        let expected_target = current_target();
         if document.target != expected_target {
             return Err(CatalogError::WrongTarget {
-                expected: expected_target,
+                expected: expected_target.to_owned(),
                 actual: document.target,
             });
         }
@@ -202,9 +234,10 @@ impl TrustedPackageCatalog {
 
         Ok(Self {
             generation: document.generation,
-            target: expected_target,
+            target: expected_target.to_owned(),
             roots,
             packages,
+            update_authority: None,
         })
     }
 
@@ -216,6 +249,12 @@ impl TrustedPackageCatalog {
     #[must_use]
     pub fn target(&self) -> &str {
         &self.target
+    }
+
+    /// Returns the delegated update role that authorized this catalog.
+    #[must_use]
+    pub const fn update_authority(&self) -> Option<&VerifiedUpdateRole> {
+        self.update_authority.as_ref()
     }
 
     /// Verifies every artifact referenced by this signed catalog without
@@ -626,12 +665,47 @@ fn verify_bound_manifest(
     })
 }
 
+#[cfg(test)]
 fn current_target() -> String {
     format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS)
 }
 
+fn validate_catalog_roots(roots: CatalogRoots) -> Result<CatalogRoots, CatalogError> {
+    validate_owned_root("runtime root", &roots.runtime_root)?;
+    validate_owned_root("data root", &roots.data_root)?;
+    let install_root = canonical_directory("install root", &roots.install_root)?;
+    let content_root = roots
+        .content_root
+        .as_deref()
+        .map(|path| canonical_directory("content root", path))
+        .transpose()?;
+    Ok(CatalogRoots {
+        install_root,
+        content_root,
+        runtime_root: roots.runtime_root,
+        data_root: roots.data_root,
+    })
+}
+
 fn require_absolute_path(kind: &'static str, path: &Path) -> Result<(), CatalogError> {
     if path.is_absolute() {
+        Ok(())
+    } else {
+        Err(CatalogError::UnsafePath {
+            kind,
+            path: path.to_owned(),
+        })
+    }
+}
+
+fn require_absolute_regular_file(kind: &'static str, path: &Path) -> Result<(), CatalogError> {
+    require_absolute_path(kind, path)?;
+    let metadata = fs::symlink_metadata(path).map_err(|source| CatalogError::Io {
+        operation: "inspect regular file",
+        path: path.to_owned(),
+        source,
+    })?;
+    if metadata.file_type().is_file() {
         Ok(())
     } else {
         Err(CatalogError::UnsafePath {
@@ -803,6 +877,7 @@ fn read_bounded(path: &Path, limit: u64, kind: &'static str) -> Result<Vec<u8>, 
     }
 }
 
+#[cfg(test)]
 fn trim_single_line<'a>(bytes: &'a [u8], kind: &'static str) -> Result<&'a str, CatalogError> {
     let text = std::str::from_utf8(bytes).map_err(|_| CatalogError::InvalidEncoding(kind))?;
     let text = text
@@ -815,6 +890,7 @@ fn trim_single_line<'a>(bytes: &'a [u8], kind: &'static str) -> Result<&'a str, 
     Ok(text)
 }
 
+#[cfg(test)]
 fn decode_canonical_hex<const N: usize>(
     value: &str,
     kind: &'static str,
@@ -831,6 +907,7 @@ fn decode_canonical_hex<const N: usize>(
     Ok(output)
 }
 
+#[cfg(test)]
 fn decode_hex(byte: u8) -> Option<u8> {
     match byte {
         b'0'..=b'9' => Some(byte - b'0'),
@@ -857,6 +934,7 @@ pub enum CatalogError {
     },
     InvalidEncoding(&'static str),
     SignatureRejected,
+    UpdateAuthority(String),
     InvalidDocument(String),
     UnsupportedSchema(u32),
     WrongTarget {
@@ -898,6 +976,12 @@ impl fmt::Display for CatalogError {
             }
             Self::SignatureRejected => {
                 formatter.write_str("installed catalog signature verification failed")
+            }
+            Self::UpdateAuthority(error) => {
+                write!(
+                    formatter,
+                    "installed catalog update authority rejected: {error}"
+                )
             }
             Self::InvalidDocument(error) => {
                 write!(formatter, "installed catalog is invalid: {error}")
@@ -948,6 +1032,7 @@ pub(crate) mod tests {
     use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     use ed25519_dalek::{Signer, SigningKey};
+    use serde_json::json;
     use sha2::{Digest, Sha256};
 
     use super::{
@@ -956,6 +1041,13 @@ pub(crate) mod tests {
         current_target,
     };
     use crate::retroarch::{RetroArchError, plan as plan_retroarch};
+    use crate::update_trust::{
+        DetachedUpdateSignature, DetachedUpdateSignatures, RootTrustAnchor, RootTrustAnchorSet,
+        TrustedUpdatePolicy, TrustedUpdateRoot, UpdateArtifactKind,
+    };
+
+    const TRUSTED_TIME: u64 = 2_000_000_000;
+    const ROOT_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-UPDATE-TRUST-ROOT-V1\0";
 
     pub(crate) struct Fixture {
         root: PathBuf,
@@ -1144,6 +1236,94 @@ pub(crate) mod tests {
             write!(output, "{byte:02x}").expect("write hex");
         }
         output
+    }
+
+    fn delegated_policy(role_key: &SigningKey) -> TrustedUpdatePolicy {
+        let root_key = SigningKey::from_bytes(&[41_u8; 32]);
+        let root_bytes = serde_json::to_vec(&json!({
+            "schemaVersion": 1,
+            "generation": 3,
+            "expiresUnixSeconds": TRUSTED_TIME + 10_000,
+            "rootThreshold": 1,
+            "rootKeys": [{
+                "keyId": "root-catalog",
+                "publicKey": encode_hex(root_key.verifying_key().as_bytes()),
+            }],
+            "roles": [{
+                "channel": "stable",
+                "artifact": "installed-catalog",
+                "target": current_target(),
+                "threshold": 1,
+                "keys": [{
+                    "keyId": "catalog-role",
+                    "publicKey": encode_hex(role_key.verifying_key().as_bytes()),
+                }],
+            }],
+        }))
+        .expect("root serializes");
+        let mut message = Vec::from(ROOT_SIGNED_MESSAGE_PREFIX);
+        message.extend_from_slice(&root_bytes);
+        let signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "root-catalog",
+            &encode_hex(&root_key.sign(&message).to_bytes()),
+        )
+        .expect("root signature decodes")])
+        .expect("root signatures create");
+        let anchors = RootTrustAnchorSet::new(
+            1,
+            [
+                RootTrustAnchor::new("root-catalog", root_key.verifying_key().to_bytes())
+                    .expect("root anchor creates"),
+            ],
+        )
+        .expect("root anchors create");
+        let root =
+            TrustedUpdateRoot::bootstrap(&root_bytes, &signatures, &anchors, 3, TRUSTED_TIME)
+                .expect("root bootstraps");
+        TrustedUpdatePolicy::new(root, "stable", TRUSTED_TIME).expect("policy creates")
+    }
+
+    #[test]
+    fn delegated_catalog_authority_precedes_parsing_and_is_retained() {
+        let fixture = Fixture::new();
+        let catalog_bytes = fs::read(&fixture.catalog).expect("catalog reads");
+        let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+        message.extend_from_slice(&catalog_bytes);
+        let signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "catalog-role",
+            &encode_hex(&fixture.signing_key.sign(&message).to_bytes()),
+        )
+        .expect("catalog signature decodes")])
+        .expect("catalog signatures create");
+        let policy = delegated_policy(&fixture.signing_key);
+
+        let catalog = TrustedPackageCatalog::load_with_update_role(
+            &fixture.catalog,
+            &signatures,
+            &policy,
+            &current_target(),
+            fixture.roots(),
+        )
+        .expect("delegated catalog loads");
+        let authority = catalog
+            .update_authority()
+            .expect("delegated authority retained");
+        assert_eq!(authority.root_generation(), 3);
+        assert_eq!(authority.channel(), "stable");
+        assert_eq!(authority.artifact(), UpdateArtifactKind::InstalledCatalog);
+        assert_eq!(authority.signing_key_ids(), ["catalog-role"]);
+
+        fs::write(&fixture.catalog, b"{").expect("catalog becomes malformed");
+        assert!(matches!(
+            TrustedPackageCatalog::load_with_update_role(
+                &fixture.catalog,
+                &signatures,
+                &policy,
+                &current_target(),
+                fixture.roots(),
+            ),
+            Err(CatalogError::UpdateAuthority(_))
+        ));
     }
 
     #[test]

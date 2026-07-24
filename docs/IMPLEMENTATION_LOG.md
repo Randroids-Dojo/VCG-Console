@@ -1443,3 +1443,59 @@ The design is informed by TUF 1.0.35 root/role/rotation rules, Uptane 2.0.0 secu
 ### Remaining boundary
 
 This is an in-memory verification primitive. It does not choose production thresholds, provision anchors, establish trusted time, persist accepted roots/high-water state, acquire signatures or repository metadata, implement timestamp/snapshot/mirror/freeze defenses, wire installed-catalog/package-release loaders, protect artifact generation floors, or execute rotation/revocation/lost-quorum/recovery drills. An expired root blocks new artifact authority but does not define target long-offline UX. A maintained conformant update client should replace this subset if the complete repository workflow is required.
+
+## 2026-07-24: delegated package trust across restart boundaries
+
+### Delivered
+
+- Added strict bounded JSON representations for out-of-band root anchors and
+  key-ID-labeled detached signature sets so multi-signature thresholds remain
+  representable through host integration.
+- Added `TrustedUpdatePolicy` to bind one accepted root to an exact channel and
+  caller-supplied trusted-time snapshot.
+- Made delegated authority the only production entry point for installed
+  catalogs and package-release descriptors. The former direct-key loaders now
+  compile only for isolated tests.
+- Retained accepted root generation, channel, target, artifact family, and
+  signer IDs on typed catalog and release results.
+- Carried the same update policy through archive intake, inert staging,
+  catalog/artifact verification, candidate health and promotion, interruption
+  recovery, active-generation reload, and launcher startup.
+- Replaced `--catalog-public-key` with bounded root metadata, root signatures,
+  out-of-band anchors, minimum root generation, channel, and trusted-time
+  inputs. Loose catalog signatures and generation-store catalog/release
+  signatures are now closed signature bundles.
+- Added D-155 and updated the installed-catalog, package-intake,
+  generation-store, update-root, offline, system-update, threat-model, native
+  host, and investigation records.
+
+### Verification evidence
+
+Seventeen focused root-policy tests now include strict serialized anchor/signature
+input, policy expiry/channel validation, and a dual-signed old/new role-key
+cutover. Three artifact integrations prove
+delegated authority precedes system-image, installed-catalog, and
+package-release parsing and is retained. A generation-store adversarial test
+proves changed release bytes and a package-release signer presented for the
+installed-catalog role fail closed.
+
+Final native verification passes 217 library tests with five intentional
+subprocess helpers ignored and all fourteen CLI tests. Rust formatting, strict
+all-target Clippy, and warning-denied Rustdoc pass. The shared stack also passes
+215 TypeScript tests, typecheck, production build, schema/manifest/benchmark
+validation, Godot 4.7.1 sample/contract/import/boot checks, all 23 Playwright
+tests, the 133-component compliance freshness check, and a high-severity
+dependency audit with no known vulnerabilities. Release blockers remain the
+previous project-license (7) and pose-model-license (1) items.
+
+### Remaining boundary
+
+The CLI files and numbers are integration inputs, not evidence that anchors,
+accepted-root history, generation floors, or time are protected. A long-running
+host must obtain a fresh trustworthy time snapshot before later update
+admission. Repository acquisition, timestamp/snapshot/mirror/freeze defenses,
+production signer thresholds and custody, crash-recoverable protected root
+rotation, physical recovery drills, automated bad-package rollback, uninstall,
+and target power-loss qualification remain open. D-155 closes the production
+single-key bypass; it does not claim TUF/Uptane conformance or protected
+anti-rollback.

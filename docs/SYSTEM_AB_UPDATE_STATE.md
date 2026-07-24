@@ -120,7 +120,7 @@ cargo clippy -p vcg-host --all-targets -- -D warnings
 
 This primitive advances I-110 but does not close it. The following still require target implementation or evidence:
 
-- protected root/history/time provisioning, production threshold custody, repository metadata, package-role integration, physical rotation/revocation drills, and a protected anti-rollback anchor (the threshold root/delegated system-image primitives now exist);
+- protected root/history/time provisioning, production threshold custody, repository metadata, physical rotation/revocation drills, and a protected anti-rollback anchor (threshold root and delegated system/package primitives now exist);
 - resumable download, capacity reservation, inactive-partition writer, complete read-back verification, and update/write-volume measurement;
 - exact Raspberry Pi bootloader adapter and atomic selection semantics;
 - watchdog timing, service identity, and trustworthy health producers;

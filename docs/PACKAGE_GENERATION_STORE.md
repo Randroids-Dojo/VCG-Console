@@ -29,7 +29,15 @@ An already provisioned store has this shape:
 <managed-content-root>/  # optional, configured separately
 ```
 
-`.vcg-package-store.lock` is a provisioned inert persistent regular file. It contains no authority or progress. Every cooperating staging, staged-receipt cleanup, health/promotion, recovery, and cleanup-planning operation takes it nonblockingly; contention fails closed instead of running two mutations concurrently. `promotion.intent` exists only while one durable promotion is incomplete. The store root, public key, optional managed-content root, ephemeral runtime root, and persistent data/save root are host configuration. A browser, game, public manifest, hosted origin, or package payload cannot choose them.
+`.vcg-package-store.lock` is a provisioned inert persistent regular file. It
+contains no authority or progress. Every cooperating staging, staged-receipt
+cleanup, health/promotion, recovery, and cleanup-planning operation takes it
+nonblockingly; contention fails closed instead of running two mutations
+concurrently. `promotion.intent` exists only while one durable promotion is
+incomplete. The store root, bootstrapped update policy, optional
+managed-content root, ephemeral runtime root, and persistent data/save root are
+host configuration. A browser, game, public manifest, hosted origin, or package
+payload cannot choose them.
 
 The store opener requires absolute paths, the existing direct-child regular lock file, and existing real `staging`, `generations`, and `activations` directories. A staged transaction ID uses the same bounded lowercase identifier grammar as other host intent. Canonical candidate and generation directories must be direct children of their expected host-owned parent; an escaping symlink or reparse point is rejected.
 
@@ -37,7 +45,8 @@ The store opener requires absolute paths, the existing direct-child regular lock
 
 One staging directory is a complete candidate snapshot. Before publishing any durable promotion intent, the Rust host:
 
-1. verifies the detached Ed25519 catalog signature before parsing JSON;
+1. verifies the exact catalog bytes under the selected delegated
+   channel/installed-catalog/target threshold before parsing JSON;
 2. requires the exact compiled target, a positive generation, qualified entries, safe paths, and bound manifest identities;
 3. verifies SHA-256 for every manifest, frontend, core, base configuration, and managed-content artifact;
 4. requires the candidate generation to be greater than the highest committed generation;
@@ -53,7 +62,7 @@ This is crash-monotonic selection, not tamper-resistant anti-rollback. The curre
 
 ## Signed archive intake
 
-`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. `stage_ready_transfer` keeps the receiver's exclusive lock, re-verifies the descriptor with the generation store key, requires the exact transfer/release binding, and re-hashes the ready archive before using the same intake path. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, requires descriptor/catalog generation agreement, and synchronizes a strict host receipt for the complete signed descriptor identity.
+`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. `stage_ready_transfer` keeps the receiver's exclusive lock, independently re-verifies the descriptor under the store's delegated package-release role, requires the exact transfer/release binding, and re-hashes the ready archive before using the same intake path. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the separately delegated installed catalog and every artifact, requires descriptor/catalog generation agreement, and synchronizes a strict host receipt for the complete signed descriptor identity.
 
 Only then is the private directory atomically renamed to `staging/<transaction-id>`. This creates an inert promotion candidate; it does not publish `promotion.intent`, run candidate health, or change active state. Failure validates and removes only the private incoming direct child.
 
@@ -85,13 +94,26 @@ The native launcher accepts the generation store as an alternative to loose cata
 
 ```text
 --package-store-root <absolute-store-root>
---catalog-public-key <absolute-public-key-path>
+--update-root <absolute-root-metadata-path>
+--update-root-signatures <absolute-root-signature-bundle-path>
+--update-root-anchors <absolute-out-of-band-anchor-set-path>
+--update-root-min-generation <protected-generation-floor>
+--update-channel <host-selected-channel>
+--trusted-unix-seconds <trusted-time-snapshot>
 --runtime-root <absolute-runtime-root>
 --data-root <absolute-data-root>
 [--content-root <absolute-managed-content-root>]
 ```
 
 Loose catalog options and `--package-store-root` are mutually exclusive. Profile and watchdog-game allowlists retain the same host-owned semantics in either mode.
+
+The launcher bounds and parses the closed anchor and signature documents,
+bootstraps the root under the supplied generation floor and time, and creates
+one `TrustedUpdatePolicy` snapshot used by every store revalidation in that
+startup transaction. This CLI form is an integration boundary, not proof that
+anchors, the floor, or time came from protected storage. A host must obtain a
+fresh trustworthy time snapshot for later update admission rather than treat
+an old process value as a permanent clock.
 
 Normal launcher startup opens the store, recovers a valid durable intent, loads and re-verifies the greatest active generation, then creates the authenticated API and browser process. An empty store or invalid recovery/activation state prevents launcher startup. A recovery result is written only to the host log as `clean` or `activated` plus generation; it is not browser authority.
 
@@ -123,6 +145,8 @@ This is necessary but not sufficient for uninstall. Package/runtime garbage coll
 Rust tests cover:
 
 - signature-first capacity-admitted archive intake and failed partial-work cleanup;
+- distinct delegated package-release and installed-catalog admission, retained
+  authority evidence, changed-byte denial, and cross-role signer denial;
 - portable bounded TAR paths/types/sizes plus exact expanded/catalog evidence;
 - first install and higher-generation update;
 - signature/catalog verification plus every referenced artifact, including managed content;
@@ -139,6 +163,7 @@ Rust tests cover:
 - explicit bounded cleanup of orphan and oldest-retired generations while preserving the rollback floor, active generation, live/restart-ambiguous launch generations, staging, managed content, and data/save roots;
 - recovery after synchronized cleanup intent, activation-marker removal, generation-directory removal, or already-absent target bytes;
 - refusal of malformed intent, changed target identity, newly protected targets, invalid bounds, promotion overlap, and all unrelated mutation until cleanup recovery completes;
+- changed release bytes and a package-release signer presented as catalog authority fail before parsing or publication;
 - fail-closed malformed newest activation state;
 - preservation of data-root save bytes.
 
@@ -170,6 +195,6 @@ Still required:
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - automatic retention scheduling/byte policy, uninstall, managed-content garbage collection, and controller-confirmed save disposition;
-- offline-root delegation, key rotation/revocation, and per-channel monotonic state;
+- protected root history, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel monotonic state;
 - immutable/read-only artifact handoff and target-Linux crash/power-loss/directory-synchronization qualification;
 - developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.

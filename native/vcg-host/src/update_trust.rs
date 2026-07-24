@@ -18,6 +18,10 @@ const INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V
 const PACKAGE_RELEASE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
 /// Maximum accepted root-metadata payload before signature verification.
 pub const MAX_UPDATE_ROOT_METADATA_BYTES: usize = 64 * 1_024;
+/// Maximum accepted serialized detached-signature bundle.
+pub const MAX_UPDATE_SIGNATURE_BUNDLE_BYTES: usize = 32 * 1_024;
+/// Maximum accepted serialized out-of-band root-anchor set.
+pub const MAX_UPDATE_ROOT_ANCHOR_BYTES: usize = 16 * 1_024;
 const MAX_ROOT_KEYS: usize = 16;
 const MAX_ROLES: usize = 32;
 const MAX_ROLE_KEYS: usize = 16;
@@ -113,6 +117,42 @@ impl RootTrustAnchorSet {
         Ok(Self { threshold, anchors })
     }
 
+    /// Decodes one bounded, strict JSON root-anchor set.
+    ///
+    /// Root anchors remain out-of-band host configuration. This parser only
+    /// gives that configuration a deterministic on-disk representation; it
+    /// does not make the file self-authenticating.
+    ///
+    /// # Errors
+    ///
+    /// Rejects empty/oversized or malformed input, unknown fields, an
+    /// unsupported schema, invalid keys, duplicate keys, or an impossible
+    /// threshold.
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, UpdateTrustError> {
+        if bytes.is_empty() || bytes.len() > MAX_UPDATE_ROOT_ANCHOR_BYTES {
+            return Err(UpdateTrustError::RootAnchorMetadataSize {
+                maximum_bytes: MAX_UPDATE_ROOT_ANCHOR_BYTES,
+            });
+        }
+        let document: RootAnchorSetDocument = serde_json::from_slice(bytes)
+            .map_err(|error| UpdateTrustError::InvalidDocument(error.to_string()))?;
+        if document.schema_version != ROOT_SCHEMA_VERSION {
+            return Err(UpdateTrustError::UnsupportedSchema(document.schema_version));
+        }
+        let anchors = document
+            .anchors
+            .into_iter()
+            .map(|anchor| {
+                let public_key = decode_canonical_hex::<32>(
+                    anchor.public_key.as_bytes(),
+                    "root anchor public key",
+                )?;
+                RootTrustAnchor::new(anchor.key_id, public_key)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Self::new(document.threshold, anchors)
+    }
+
     #[must_use]
     pub const fn threshold(&self) -> u8 {
         self.threshold
@@ -188,6 +228,34 @@ impl DetachedUpdateSignatures {
         Ok(Self { signatures })
     }
 
+    /// Decodes one bounded, strict JSON detached-signature bundle.
+    ///
+    /// # Errors
+    ///
+    /// Rejects empty/oversized or malformed input, unknown fields, an
+    /// unsupported schema, invalid signature encodings, duplicate key IDs, or
+    /// an empty/excessive set.
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, UpdateTrustError> {
+        if bytes.is_empty() || bytes.len() > MAX_UPDATE_SIGNATURE_BUNDLE_BYTES {
+            return Err(UpdateTrustError::SignatureMetadataSize {
+                maximum_bytes: MAX_UPDATE_SIGNATURE_BUNDLE_BYTES,
+            });
+        }
+        let document: SignatureSetDocument = serde_json::from_slice(bytes)
+            .map_err(|error| UpdateTrustError::InvalidDocument(error.to_string()))?;
+        if document.schema_version != ROOT_SCHEMA_VERSION {
+            return Err(UpdateTrustError::UnsupportedSchema(document.schema_version));
+        }
+        let signatures = document
+            .signatures
+            .into_iter()
+            .map(|signature| {
+                DetachedUpdateSignature::from_hex(signature.key_id, &signature.signature)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Self::new(signatures)
+    }
+
     #[must_use]
     pub fn signatures(&self) -> &[DetachedUpdateSignature] {
         &self.signatures
@@ -239,6 +307,79 @@ pub struct TrustedUpdateRoot {
     root_threshold: u8,
     root_keys: Vec<UpdateKey>,
     roles: Vec<UpdateRole>,
+}
+
+/// Current delegated update policy carried by host-owned package workflows.
+///
+/// Trusted time and the accepted root generation still have to come from a
+/// protected platform adapter. Keeping them with the root prevents downstream
+/// catalog and package code from silently selecting a different channel or
+/// time basis.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TrustedUpdatePolicy {
+    root: TrustedUpdateRoot,
+    channel: String,
+    trusted_unix_seconds: u64,
+}
+
+impl TrustedUpdatePolicy {
+    /// Binds one accepted root to an exact update channel and trusted time.
+    ///
+    /// # Errors
+    ///
+    /// Rejects an unsafe channel or a root already expired at the supplied
+    /// trusted time.
+    pub fn new(
+        root: TrustedUpdateRoot,
+        channel: impl Into<String>,
+        trusted_unix_seconds: u64,
+    ) -> Result<Self, UpdateTrustError> {
+        let channel = channel.into();
+        validate_identifier("update channel", &channel, 64)?;
+        root.ensure_current(trusted_unix_seconds)?;
+        Ok(Self {
+            root,
+            channel,
+            trusted_unix_seconds,
+        })
+    }
+
+    /// Verifies exact bytes under the policy's channel and trusted-time basis.
+    ///
+    /// # Errors
+    ///
+    /// Returns the underlying root or role-verification failure.
+    pub fn verify(
+        &self,
+        artifact: UpdateArtifactKind,
+        target: &str,
+        artifact_bytes: &[u8],
+        signatures: &DetachedUpdateSignatures,
+    ) -> Result<VerifiedUpdateRole, UpdateTrustError> {
+        self.root.verify_role(
+            &self.channel,
+            artifact,
+            target,
+            artifact_bytes,
+            signatures,
+            self.trusted_unix_seconds,
+        )
+    }
+
+    #[must_use]
+    pub const fn root(&self) -> &TrustedUpdateRoot {
+        &self.root
+    }
+
+    #[must_use]
+    pub fn channel(&self) -> &str {
+        &self.channel
+    }
+
+    #[must_use]
+    pub const fn trusted_unix_seconds(&self) -> u64 {
+        self.trusted_unix_seconds
+    }
 }
 
 impl TrustedUpdateRoot {
@@ -554,6 +695,28 @@ struct RootDocument {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct RootAnchorSetDocument {
+    schema_version: u32,
+    threshold: u8,
+    anchors: Vec<KeyDocument>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct SignatureSetDocument {
+    schema_version: u32,
+    signatures: Vec<SignatureDocument>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct SignatureDocument {
+    key_id: String,
+    signature: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct KeyDocument {
     key_id: String,
     public_key: String,
@@ -764,6 +927,12 @@ pub enum UpdateTrustError {
     RootMetadataSize {
         maximum_bytes: usize,
     },
+    RootAnchorMetadataSize {
+        maximum_bytes: usize,
+    },
+    SignatureMetadataSize {
+        maximum_bytes: usize,
+    },
     InvalidSignatureSet,
     DuplicateSignatureKey(String),
     InvalidIdentifier {
@@ -823,10 +992,26 @@ pub enum UpdateTrustError {
 }
 
 impl fmt::Display for UpdateTrustError {
+    #[allow(
+        clippy::too_many_lines,
+        reason = "each bounded trust failure has one explicit operator-facing message"
+    )]
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::RootMetadataSize { maximum_bytes } => {
                 write!(formatter, "root metadata must be 1..={maximum_bytes} bytes")
+            }
+            Self::RootAnchorMetadataSize { maximum_bytes } => {
+                write!(
+                    formatter,
+                    "root-anchor metadata must be 1..={maximum_bytes} bytes"
+                )
+            }
+            Self::SignatureMetadataSize { maximum_bytes } => {
+                write!(
+                    formatter,
+                    "detached-signature metadata must be 1..={maximum_bytes} bytes"
+                )
             }
             Self::InvalidSignatureSet => formatter.write_str("signature set size is invalid"),
             Self::DuplicateSignatureKey(key_id) => {
@@ -841,10 +1026,10 @@ impl fmt::Display for UpdateTrustError {
             ),
             Self::InvalidEncoding(kind) => write!(formatter, "{kind} encoding is invalid"),
             Self::InvalidDocument(error) => {
-                write!(formatter, "update root document is invalid: {error}")
+                write!(formatter, "update trust document is invalid: {error}")
             }
             Self::UnsupportedSchema(version) => {
-                write!(formatter, "update root schema {version} is unsupported")
+                write!(formatter, "update trust schema {version} is unsupported")
             }
             Self::InvalidRootRecord(error) => {
                 write!(formatter, "update root record is invalid: {error}")
@@ -1468,6 +1653,79 @@ mod tests {
     }
 
     #[test]
+    fn dual_signed_artifact_survives_an_exact_role_key_cutover() {
+        let (current, root_a, root_b, old_system, _) = bootstrap_fixture();
+        let new_system = signing_key(7);
+        let next = root_document(
+            8,
+            NOW + 20_000,
+            2,
+            &[("root-a", &root_a), ("root-b", &root_b)],
+            &[role_document(
+                "stable",
+                "system-image",
+                TARGET,
+                1,
+                &[("system-new", &new_system)],
+            )],
+        );
+        let rotated = current
+            .rotate(
+                &next,
+                &signatures(vec![
+                    sign("root-a", &root_a, ROOT_SIGNED_MESSAGE_PREFIX, &next),
+                    sign("root-b", &root_b, ROOT_SIGNED_MESSAGE_PREFIX, &next),
+                ]),
+                NOW,
+            )
+            .expect("root rotates");
+        let artifact = b"dual-authorized manifest";
+        let dual_signatures = signatures(vec![
+            sign(
+                "system-stable",
+                &old_system,
+                SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX,
+                artifact,
+            ),
+            sign(
+                "system-new",
+                &new_system,
+                SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX,
+                artifact,
+            ),
+        ]);
+
+        assert_eq!(
+            current
+                .verify_role(
+                    "stable",
+                    UpdateArtifactKind::SystemImage,
+                    TARGET,
+                    artifact,
+                    &dual_signatures,
+                    NOW,
+                )
+                .expect("current role verifies")
+                .signing_key_ids(),
+            ["system-stable"]
+        );
+        assert_eq!(
+            rotated
+                .verify_role(
+                    "stable",
+                    UpdateArtifactKind::SystemImage,
+                    TARGET,
+                    artifact,
+                    &dual_signatures,
+                    NOW,
+                )
+                .expect("candidate role verifies")
+                .signing_key_ids(),
+            ["system-new"]
+        );
+    }
+
+    #[test]
     fn duplicate_role_key_or_public_key_is_rejected() {
         let root_a = signing_key(1);
         let role = signing_key(3);
@@ -1670,6 +1928,68 @@ mod tests {
         assert!(matches!(
             DetachedUpdateSignatures::new(Vec::new()),
             Err(UpdateTrustError::InvalidSignatureSet)
+        ));
+    }
+
+    #[test]
+    fn serialized_trust_inputs_are_strict_bounded_and_equivalent() {
+        let root = signing_key(1);
+        let detached = sign("root-one", &root, ROOT_SIGNED_MESSAGE_PREFIX, b"bytes");
+        let signature_json = format!(
+            r#"{{"schemaVersion":1,"signatures":[{{"keyId":"root-one","signature":"{}"}}]}}"#,
+            hex(&detached.signature())
+        );
+        let parsed_signatures =
+            DetachedUpdateSignatures::from_json_bytes(signature_json.as_bytes())
+                .expect("signature bundle parses");
+        assert_eq!(parsed_signatures.signatures(), [detached]);
+
+        let anchors_json = format!(
+            r#"{{"schemaVersion":1,"threshold":1,"anchors":[{{"keyId":"root-one","publicKey":"{}"}}]}}"#,
+            hex(root.verifying_key().as_bytes())
+        );
+        let parsed_anchors = RootTrustAnchorSet::from_json_bytes(anchors_json.as_bytes())
+            .expect("anchor set parses");
+        assert_eq!(parsed_anchors.threshold(), 1);
+        assert_eq!(parsed_anchors.anchors()[0].key_id(), "root-one");
+
+        assert!(matches!(
+            DetachedUpdateSignatures::from_json_bytes(
+                signature_json
+                    .replace(
+                        "\"schemaVersion\":1",
+                        "\"schemaVersion\":1,\"unknown\":true"
+                    )
+                    .as_bytes()
+            ),
+            Err(UpdateTrustError::InvalidDocument(_))
+        ));
+        assert!(matches!(
+            RootTrustAnchorSet::from_json_bytes(&vec![b' '; MAX_UPDATE_ROOT_ANCHOR_BYTES + 1]),
+            Err(UpdateTrustError::RootAnchorMetadataSize { .. })
+        ));
+        assert!(matches!(
+            DetachedUpdateSignatures::from_json_bytes(&vec![
+                b' ';
+                MAX_UPDATE_SIGNATURE_BUNDLE_BYTES + 1
+            ]),
+            Err(UpdateTrustError::SignatureMetadataSize { .. })
+        ));
+    }
+
+    #[test]
+    fn update_policy_rejects_unsafe_channels_and_expired_roots() {
+        let (root, _root_a, _root_b, _system, _) = bootstrap_fixture();
+        assert!(matches!(
+            TrustedUpdatePolicy::new(root.clone(), "../stable", NOW),
+            Err(UpdateTrustError::InvalidIdentifier {
+                kind: "update channel",
+                ..
+            })
+        ));
+        assert!(matches!(
+            TrustedUpdatePolicy::new(root, "stable", NOW + 10_000),
+            Err(UpdateTrustError::RootExpired { .. })
         ));
     }
 

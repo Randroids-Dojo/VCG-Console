@@ -8,7 +8,7 @@ No answer here blocks the current software-only desk proof. The implementation u
 
 Should production use an offline root that authorizes rotating release/catalog keys, or provision one long-lived catalog key directly into each image?
 
-Safe default: keep an offline root outside build and runtime systems, authorize short-lived or release-scoped catalog verification keys, and provision only public trust material through the immutable OS image. Keep every private key out of this repository, the browser, package payloads, command lines, logs, and target devices. This requires a signed key-delegation and revocation format before production.
+Implemented software boundary: a bounded offline-root threshold authorizes distinct channel/catalog/target keys, exact next-generation dual-threshold rotation, expiry, and revocation by omission. Production must still select thresholds/custody and provision anchors, accepted-root history, generation floors, and trusted time through protected platform mechanisms. Keep every private key out of this repository, the browser, package payloads, command lines, logs, and target devices.
 
 ## Q-106: rollback scope
 

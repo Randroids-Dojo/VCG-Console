@@ -96,7 +96,7 @@ Eleven focused Rust tests cover:
 
 This is a signed-file verifier, not a production update service.
 
-- The root primitive now models threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, and revocation by omission. Its anchors, trusted time, accepted-root persistence, threshold selection, operator ceremony, package-role integration, and recovery are still Q-069/I-112/I-141.
+- The root primitive now models threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, revocation by omission, and delegated package/catalog admission. Its anchor provenance, trusted-time producer, accepted-root persistence, threshold selection, operator ceremony, and recovery are still Q-069/I-112/I-141.
 - The writable journal remains an unprotected high-water mark. A TPM/secure element/verified boot or another qualified monotonic anchor is still required.
 - No downloader, TLS metadata policy, resumable transfer, capacity reservation, or partial cleanup exists.
 - The verified source is a regular file. No raw block device is opened, erased, partitioned, written, or synchronized by this module.

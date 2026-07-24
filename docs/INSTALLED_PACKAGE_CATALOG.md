@@ -6,7 +6,8 @@ This document defines the host-owned trust bridge from an approved installed pac
 
 The implemented slice can:
 
-- load one bounded Ed25519-signed catalog from explicit host configuration;
+- load one bounded catalog only after its exact bytes meet the delegated
+  channel/installed-catalog/target threshold in a bootstrapped update root;
 - reject the document before JSON parsing when its signature fails;
 - validate target, generation, qualification, identifiers, hashes, and relative paths;
 - bind one installed game manifest to the signed package identity, version, runtime, and qualification;
@@ -22,9 +23,14 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 
 ```text
 --catalog <absolute-catalog-path>
---catalog-signature <absolute-signature-path>
---catalog-public-key <absolute-public-key-path>
+--catalog-signature <absolute-signature-bundle-path>
 --install-root <absolute-installed-package-root>
+--update-root <absolute-root-metadata-path>
+--update-root-signatures <absolute-root-signature-bundle-path>
+--update-root-anchors <absolute-out-of-band-anchor-set-path>
+--update-root-min-generation <protected-generation-floor>
+--update-channel <host-selected-channel>
+--trusted-unix-seconds <trusted-time-snapshot>
 --runtime-root <absolute-ephemeral-runtime-root>
 --data-root <absolute-persistent-data-root>
 [--content-root <absolute-managed-retro-content-root>]
@@ -32,7 +38,13 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 [--watchdog-game-id <installed-game-id>]...
 ```
 
-As an alternative to `--catalog`, `--catalog-signature`, and `--install-root`, the launcher accepts `--package-store-root <absolute-root>` with the same public-key, runtime, data, optional content, profile, and watchdog options. The two source modes cannot be mixed. Normal store-backed startup completes valid interrupted promotion before loading the active signed catalog; dry-run never performs recovery and fails if recovery is pending. See [the generation-store contract](PACKAGE_GENERATION_STORE.md).
+As an alternative to `--catalog`, `--catalog-signature`, and `--install-root`,
+the launcher accepts `--package-store-root <absolute-root>` with the same update
+trust, runtime, data, optional content, profile, and watchdog options. The two
+source modes cannot be mixed. Normal store-backed startup completes valid
+interrupted promotion before loading the active delegated catalog; dry-run
+never performs recovery and fails if recovery is pending. See [the
+generation-store contract](PACKAGE_GENERATION_STORE.md).
 
 The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
 
@@ -40,13 +52,23 @@ Without `--profile-id`, the API exposes metadata only. With one or more unique b
 
 An optional watchdog game must name a package in the verified installed catalog. It is privileged host configuration, not browser or public-manifest metadata, and means that game's exact qualified runtime producer must satisfy the bounded heartbeat contract for every player profile.
 
-The public-key file is currently a host-configured path. `UPDATE_TRUST_ROOT.md` now defines bounded delegated catalog roles and root rotation, but this catalog loader is not wired to them. Target images still need verified anchor/root-history/time provisioning and protected per-channel anti-rollback state under I-112/I-141. A writable key path beside a writable catalog is not a production trust root.
+The production loader has no single-public-key entry point. It retains the
+accepted root generation, channel, target, artifact family, and signer IDs with
+the parsed catalog. The CLI representation does not itself prove that the
+anchor file, generation floor, or time snapshot came from protected storage.
+Target images still need verified provisioning plus crash-recoverable protected
+root-history/time adapters under I-112/I-141. A writable anchor file and
+operator-supplied floor beside a writable catalog are not a production trust
+root.
 
 ## Signature envelope
 
 - Algorithm: Ed25519.
-- Public key file: exactly 32 bytes encoded as 64 lowercase hexadecimal characters, with at most one trailing newline.
-- Signature file: exactly 64 bytes encoded as 128 lowercase hexadecimal characters, with at most one trailing newline.
+- Authority: the exact `channel`/`installed-catalog`/compiled-target role in the
+  accepted update root.
+- Signature bundle: strict JSON
+  `{"schemaVersion":1,"signatures":[{"keyId":"...","signature":"<128 lowercase hex>"}]}`
+  with unique key IDs, 1–32 entries, no unknown fields, and at most 32 KiB.
 - Signed message: the ASCII/domain-separation prefix `VCG-INSTALLED-CATALOG-V1` followed by one NUL byte and then the exact catalog file bytes.
 - Catalog limit: 1 MiB.
 - Package limit: 1,024.
@@ -157,12 +179,12 @@ These metadata lookups prove only that a valid signed catalog contains each entr
 
 ## Evidence and remaining boundary
 
-Native tests cover valid signed resolution, signature-before-parse failure, wrong target, unknown fields, duplicates, unsafe paths, malformed key material, oversized catalogs, invalid launcher IDs, missing packages, canonical summaries, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only inventory disclosure. TypeScript tests reject duplicate, unsorted, excessive, version-mismatched, unknown-field, and otherwise malformed inventories. Playwright tests verify signed availability labeling and fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
+Native tests cover delegated authority before parsing and retained role evidence, valid signed resolution, changed/cross-role signature denial, wrong target, unknown fields, duplicates, unsafe paths, malformed trust material, oversized catalogs, invalid launcher IDs, missing packages, canonical summaries, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only inventory disclosure. TypeScript tests reject duplicate, unsorted, excessive, version-mismatched, unknown-field, and otherwise malformed inventories. Playwright tests verify signed availability labeling and fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
 
 Still required:
 
-- verified read-only public-key provisioning, rotation, and revocation;
-- per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
+- protected anchor/root-history provisioning, secure refreshed time, and witnessed rotation/revocation recovery;
+- protected per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
 - immutable or descriptor-bound artifact use;
 - production service-manager cleanup acknowledgement, boot-scoped replay retention, and target-filesystem durability qualification;
 - qualified heartbeat producers, window readiness events, compositor containment, reserved Home/Back, and target-Linux sandboxing;

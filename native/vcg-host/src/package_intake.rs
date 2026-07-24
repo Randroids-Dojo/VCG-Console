@@ -11,18 +11,26 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 
+#[cfg(test)]
 use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
+use crate::update_trust::{
+    DetachedUpdateSignatures, TrustedUpdatePolicy, UpdateArtifactKind, VerifiedUpdateRole,
+};
+
 const DESCRIPTOR_SCHEMA_VERSION: u32 = 1;
 const MAX_DESCRIPTOR_BYTES: u64 = 65_536;
+#[cfg(test)]
 const MAX_SIGNATURE_TEXT_BYTES: u64 = 256;
+#[cfg(test)]
 const MAX_PUBLIC_KEY_TEXT_BYTES: u64 = 128;
 const MAX_CATALOG_BYTES: u64 = 1_048_576;
 const MAX_ARCHIVE_BYTES: u64 = 137_438_953_472;
 const MAX_EXPANDED_BYTES: u64 = 206_158_430_208;
 const MAX_EXPANDED_FILES: u64 = 262_144;
+#[cfg(test)]
 const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
 
 /// Archive encoding accepted by the release descriptor.
@@ -47,6 +55,7 @@ pub struct VerifiedPackageRelease {
     expanded_file_count: u64,
     catalog_sha256: [u8; 32],
     catalog_size_bytes: u64,
+    update_authority: Option<VerifiedUpdateRole>,
 }
 
 /// Capacity result safe to expose to a host-owned update coordinator.
@@ -474,6 +483,41 @@ fn sync_directory_tree(_path: &Path) -> Result<(), PackageIntakeError> {
 }
 
 impl VerifiedPackageRelease {
+    /// Loads one package-release descriptor through current delegated update
+    /// authority.
+    ///
+    /// Exact channel/package-release/target threshold verification precedes
+    /// JSON parsing.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unsafe/oversized input, missing or expired authority,
+    /// insufficient signatures, malformed or unknown JSON, wrong
+    /// schema/target/format, and invalid size or file-count bounds.
+    pub fn load_with_update_role(
+        descriptor_path: &Path,
+        signatures: &DetachedUpdateSignatures,
+        update_policy: &TrustedUpdatePolicy,
+        expected_target: &str,
+    ) -> Result<Self, PackageIntakeError> {
+        require_absolute_regular_file("release descriptor", descriptor_path)?;
+        let descriptor_bytes =
+            read_bounded(descriptor_path, MAX_DESCRIPTOR_BYTES, "release descriptor")?;
+        let update_authority = update_policy
+            .verify(
+                UpdateArtifactKind::PackageRelease,
+                expected_target,
+                &descriptor_bytes,
+                signatures,
+            )
+            .map_err(|error| PackageIntakeError::UpdateAuthority(error.to_string()))?;
+        let document: ReleaseDescriptorDocument = serde_json::from_slice(&descriptor_bytes)
+            .map_err(|error| PackageIntakeError::InvalidDocument(error.to_string()))?;
+        let mut release = Self::from_document(document, expected_target)?;
+        release.update_authority = Some(update_authority);
+        Ok(release)
+    }
+
     /// Loads and verifies one bounded signed release descriptor.
     ///
     /// Signature verification precedes JSON parsing. The descriptor and key
@@ -484,7 +528,8 @@ impl VerifiedPackageRelease {
     /// Rejects relative or non-regular inputs, oversized files, noncanonical
     /// key/signature encodings, invalid signatures, unknown fields, wrong
     /// target/schema/format, and unsafe size or file-count bounds.
-    pub fn load(
+    #[cfg(test)]
+    pub(crate) fn load(
         descriptor_path: &Path,
         signature_path: &Path,
         public_key_path: &Path,
@@ -530,10 +575,13 @@ impl VerifiedPackageRelease {
 
         let document: ReleaseDescriptorDocument = serde_json::from_slice(&descriptor_bytes)
             .map_err(|error| PackageIntakeError::InvalidDocument(error.to_string()))?;
-        Self::from_document(document)
+        Self::from_document(document, &current_target())
     }
 
-    fn from_document(document: ReleaseDescriptorDocument) -> Result<Self, PackageIntakeError> {
+    fn from_document(
+        document: ReleaseDescriptorDocument,
+        expected_target: &str,
+    ) -> Result<Self, PackageIntakeError> {
         if document.schema_version != DESCRIPTOR_SCHEMA_VERSION {
             return Err(PackageIntakeError::UnsupportedSchema(
                 document.schema_version,
@@ -544,10 +592,9 @@ impl VerifiedPackageRelease {
                 "generation must be greater than zero".to_owned(),
             ));
         }
-        let expected_target = current_target();
         if document.target != expected_target {
             return Err(PackageIntakeError::WrongTarget {
-                expected: expected_target,
+                expected: expected_target.to_owned(),
                 actual: document.target,
             });
         }
@@ -612,6 +659,7 @@ impl VerifiedPackageRelease {
                 "catalog sha256",
             )?,
             catalog_size_bytes: document.catalog.size_bytes,
+            update_authority: None,
         })
     }
 
@@ -623,6 +671,12 @@ impl VerifiedPackageRelease {
     #[must_use]
     pub fn target(&self) -> &str {
         &self.target
+    }
+
+    /// Returns the delegated role that authorized this release descriptor.
+    #[must_use]
+    pub const fn update_authority(&self) -> Option<&VerifiedUpdateRole> {
+        self.update_authority.as_ref()
     }
 
     #[must_use]
@@ -1006,6 +1060,7 @@ struct CatalogDocument {
     size_bytes: u64,
 }
 
+#[cfg(test)]
 fn current_target() -> String {
     format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS)
 }
@@ -1098,6 +1153,7 @@ fn read_bounded(
     Ok(bytes)
 }
 
+#[cfg(test)]
 fn trim_single_line<'a>(
     bytes: &'a [u8],
     kind: &'static str,
@@ -1173,6 +1229,7 @@ pub enum PackageIntakeError {
     },
     InvalidEncoding(&'static str),
     SignatureRejected,
+    UpdateAuthority(String),
     InvalidDocument(String),
     UnsupportedSchema(u32),
     WrongTarget {
@@ -1266,6 +1323,12 @@ impl fmt::Display for PackageIntakeError {
             } => write!(formatter, "{kind} exceeds {maximum_bytes} bytes"),
             Self::InvalidEncoding(kind) => write!(formatter, "{kind} encoding is invalid"),
             Self::SignatureRejected => formatter.write_str("release descriptor signature rejected"),
+            Self::UpdateAuthority(error) => {
+                write!(
+                    formatter,
+                    "package release update authority rejected: {error}"
+                )
+            }
             Self::InvalidDocument(error) => {
                 write!(formatter, "release descriptor is invalid: {error}")
             }
@@ -1701,6 +1764,7 @@ mod descriptor_tests {
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use ed25519_dalek::{Signer, SigningKey};
+    use serde_json::json;
     use sha2::{Digest, Sha256};
     use tar::{Builder, EntryType, Header};
 
@@ -1708,8 +1772,14 @@ mod descriptor_tests {
         CapacityAdmission, PackageArchiveFormat, PackageIntakeError, PackageIntakeLimits,
         SIGNED_MESSAGE_PREFIX, VerifiedPackageRelease, current_target,
     };
+    use crate::update_trust::{
+        DetachedUpdateSignature, DetachedUpdateSignatures, RootTrustAnchor, RootTrustAnchorSet,
+        TrustedUpdatePolicy, TrustedUpdateRoot, UpdateArtifactKind,
+    };
 
     static NEXT_TEMP: AtomicU64 = AtomicU64::new(1);
+    const TRUSTED_TIME: u64 = 2_000_000_000;
+    const ROOT_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-UPDATE-TRUST-ROOT-V1\0";
 
     struct Fixture {
         root: PathBuf,
@@ -1833,6 +1903,93 @@ mod descriptor_tests {
         builder
             .append_data(&mut header, path, Cursor::new(bytes))
             .expect("fixture TAR file appends");
+    }
+
+    fn delegated_policy(role_key: &SigningKey) -> TrustedUpdatePolicy {
+        let root_key = SigningKey::from_bytes(&[42_u8; 32]);
+        let root_bytes = serde_json::to_vec(&json!({
+            "schemaVersion": 1,
+            "generation": 4,
+            "expiresUnixSeconds": TRUSTED_TIME + 10_000,
+            "rootThreshold": 1,
+            "rootKeys": [{
+                "keyId": "root-release",
+                "publicKey": encode_hex(root_key.verifying_key().as_bytes()),
+            }],
+            "roles": [{
+                "channel": "stable",
+                "artifact": "package-release",
+                "target": current_target(),
+                "threshold": 1,
+                "keys": [{
+                    "keyId": "release-role",
+                    "publicKey": encode_hex(role_key.verifying_key().as_bytes()),
+                }],
+            }],
+        }))
+        .expect("root serializes");
+        let mut root_message = Vec::from(ROOT_SIGNED_MESSAGE_PREFIX);
+        root_message.extend_from_slice(&root_bytes);
+        let signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "root-release",
+            &encode_hex(&root_key.sign(&root_message).to_bytes()),
+        )
+        .expect("root signature decodes")])
+        .expect("root signatures create");
+        let anchors = RootTrustAnchorSet::new(
+            1,
+            [
+                RootTrustAnchor::new("root-release", root_key.verifying_key().to_bytes())
+                    .expect("root anchor creates"),
+            ],
+        )
+        .expect("root anchors create");
+        let root =
+            TrustedUpdateRoot::bootstrap(&root_bytes, &signatures, &anchors, 4, TRUSTED_TIME)
+                .expect("root bootstraps");
+        TrustedUpdatePolicy::new(root, "stable", TRUSTED_TIME).expect("policy creates")
+    }
+
+    #[test]
+    fn delegated_release_authority_precedes_parsing_and_is_retained() {
+        let fixture = Fixture::new();
+        fixture.write_valid(b"archive", 1_024, 1);
+        let descriptor_bytes = fs::read(&fixture.descriptor).expect("descriptor reads");
+        let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+        message.extend_from_slice(&descriptor_bytes);
+        let signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "release-role",
+            &encode_hex(&fixture.signing_key.sign(&message).to_bytes()),
+        )
+        .expect("release signature decodes")])
+        .expect("release signatures create");
+        let policy = delegated_policy(&fixture.signing_key);
+
+        let release = VerifiedPackageRelease::load_with_update_role(
+            &fixture.descriptor,
+            &signatures,
+            &policy,
+            &current_target(),
+        )
+        .expect("delegated release loads");
+        let authority = release
+            .update_authority()
+            .expect("delegated authority retained");
+        assert_eq!(authority.root_generation(), 4);
+        assert_eq!(authority.channel(), "stable");
+        assert_eq!(authority.artifact(), UpdateArtifactKind::PackageRelease);
+        assert_eq!(authority.signing_key_ids(), ["release-role"]);
+
+        fs::write(&fixture.descriptor, b"{").expect("descriptor becomes malformed");
+        assert!(matches!(
+            VerifiedPackageRelease::load_with_update_role(
+                &fixture.descriptor,
+                &signatures,
+                &policy,
+                &current_target(),
+            ),
+            Err(PackageIntakeError::UpdateAuthority(_))
+        ));
     }
 
     #[test]
