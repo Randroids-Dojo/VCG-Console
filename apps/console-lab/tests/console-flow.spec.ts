@@ -254,10 +254,10 @@ test("retro launch submits only signed package and profile intent to the host", 
   installedVersion = "qualification-candidate-2026-07-23";
   observed.length = 0;
   await page.getByRole("button", { name: "Home", exact: true }).click();
-  await expect(page.getByText("1 signed package installed")).toBeVisible();
-  await expect(page.getByText("secret-diagnostic")).toHaveCount(0);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Installed/ })).toBeVisible();
+  await expect(page.locator(".home-status")).toContainText("1 signed package installed");
+  await expect(page.getByText("secret-diagnostic")).toHaveCount(0);
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
 
   const launch = page.getByRole("dialog", { name: "2048" });
