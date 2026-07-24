@@ -2,6 +2,7 @@ export {
   RETRO_INSTALLED_LIBRARY_SCHEMA_ID,
   retroInstalledLibraryJsonSchema,
 } from "./installed-library-schema";
+export * from "./arcade-sets";
 
 export const RETRO_IMPORT_SCHEMA_VERSION = 1 as const;
 export const RETRO_IMPORT_ENTITLEMENT_STATEMENT =
