@@ -1,6 +1,6 @@
 # VCG Console security threat model
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Overview
 

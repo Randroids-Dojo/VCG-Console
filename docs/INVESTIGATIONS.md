@@ -1,6 +1,6 @@
 # Investigation backlog
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 Statuses are `evidence`, `open`, `active`, `blocked`, and `closed`. Priority P0 is required for the first living-room proof, P1 for a credible appliance alpha, and P2 for later quality, distribution, or expansion. Each investigation closes only when its proof artifact is committed or linked.
 
