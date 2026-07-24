@@ -1,4 +1,7 @@
 //! Crash-recoverable activation of fully verified signed package generations.
+//!
+//! Launchable history is additionally bound to exact generation and catalog
+//! digest state supplied by a platform-protected monotonic-storage adapter.
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -27,6 +30,7 @@ use crate::update_trust::{
 };
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
+const PROTECTED_GENERATION_SCHEMA_VERSION: u32 = 1;
 const CLEANUP_INTENT_SCHEMA_VERSION: u32 = 1;
 const CLEANUP_INTENT_FILE: &str = "generation-cleanup.intent";
 const CLEANUP_INTENT_TEMP_FILE: &str = "generation-cleanup.intent.tmp";
@@ -42,15 +46,160 @@ const CATALOG_SIGNATURE_FILE: &str = "installed-catalog.sig";
 const INSTALL_DIRECTORY: &str = "install";
 const MAX_GENERATION_ENTRIES: usize = 4_096;
 const MIN_RETAINED_GENERATIONS: usize = 2;
+/// Maximum serialized package-generation protected state accepted from the
+/// platform adapter.
+pub const MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES: usize = 1_024;
 
 /// Host-owned paths for a package generation store.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PackageGenerationConfig {
     pub store_root: PathBuf,
     pub update_policy: TrustedUpdatePolicy,
+    pub protected_state: ProtectedPackageGenerationState,
     pub content_root: Option<PathBuf>,
     pub runtime_root: PathBuf,
     pub data_root: PathBuf,
+}
+
+/// Exact package activation state held outside the writable generation store.
+///
+/// The JSON form is an adapter boundary: production deployments must persist
+/// these bytes in platform-protected monotonic storage. Keeping the document
+/// in the package store does not provide rollback protection.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ProtectedPackageGenerationState {
+    schema_version: u32,
+    channel: String,
+    target: String,
+    generation: u64,
+    catalog_sha256: Option<String>,
+}
+
+impl ProtectedPackageGenerationState {
+    /// Parses and validates one strict bounded protected-state document.
+    ///
+    /// # Errors
+    ///
+    /// Rejects oversized or malformed JSON, unsupported schemas, unsafe scope
+    /// identifiers, and inconsistent generation/digest pairs.
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, GenerationError> {
+        if bytes.is_empty() || bytes.len() > MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES {
+            return Err(GenerationError::ProtectedState(format!(
+                "document must be 1..={MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES} bytes"
+            )));
+        }
+        let state: Self = serde_json::from_slice(bytes)
+            .map_err(|error| GenerationError::ProtectedState(error.to_string()))?;
+        state.validate()?;
+        Ok(state)
+    }
+
+    /// Creates the initial state for one exact update channel and target.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unsafe channel or target identifiers.
+    pub fn initial(
+        channel: impl Into<String>,
+        target: impl Into<String>,
+    ) -> Result<Self, GenerationError> {
+        let state = Self {
+            schema_version: PROTECTED_GENERATION_SCHEMA_VERSION,
+            channel: channel.into(),
+            target: target.into(),
+            generation: 0,
+            catalog_sha256: None,
+        };
+        state.validate()?;
+        Ok(state)
+    }
+
+    /// Serializes the canonical adapter document to commit after promotion.
+    ///
+    /// # Errors
+    ///
+    /// Returns a protected-state validation or serialization failure.
+    pub fn to_json_bytes(&self) -> Result<Vec<u8>, GenerationError> {
+        self.validate()?;
+        serde_json::to_vec(self).map_err(|error| GenerationError::ProtectedState(error.to_string()))
+    }
+
+    #[must_use]
+    pub const fn generation(&self) -> u64 {
+        self.generation
+    }
+
+    #[must_use]
+    pub fn catalog_sha256(&self) -> Option<&str> {
+        self.catalog_sha256.as_deref()
+    }
+
+    #[must_use]
+    pub fn channel(&self) -> &str {
+        &self.channel
+    }
+
+    #[must_use]
+    pub fn target(&self) -> &str {
+        &self.target
+    }
+
+    /// Requires this document to belong to one exact update scope.
+    ///
+    /// # Errors
+    ///
+    /// Rejects a channel or target mismatch.
+    pub fn validate_scope(
+        &self,
+        expected_channel: &str,
+        expected_target: &str,
+    ) -> Result<(), GenerationError> {
+        if self.channel == expected_channel && self.target == expected_target {
+            Ok(())
+        } else {
+            Err(GenerationError::ProtectedStateScope {
+                expected_channel: expected_channel.to_owned(),
+                actual_channel: self.channel.clone(),
+                expected_target: expected_target.to_owned(),
+                actual_target: self.target.clone(),
+            })
+        }
+    }
+
+    fn for_marker(channel: &str, target: &str, marker: &ActivationMarker) -> Self {
+        Self {
+            schema_version: PROTECTED_GENERATION_SCHEMA_VERSION,
+            channel: channel.to_owned(),
+            target: target.to_owned(),
+            generation: marker.generation,
+            catalog_sha256: Some(marker.catalog_sha256.clone()),
+        }
+    }
+
+    fn validate(&self) -> Result<(), GenerationError> {
+        if self.schema_version != PROTECTED_GENERATION_SCHEMA_VERSION {
+            return Err(GenerationError::ProtectedState(format!(
+                "schema {} is unsupported",
+                self.schema_version
+            )));
+        }
+        validate_protected_scope("channel", &self.channel, 64)?;
+        validate_protected_scope("target", &self.target, 128)?;
+        match (self.generation, self.catalog_sha256.as_deref()) {
+            (0, None) => Ok(()),
+            (0, Some(_)) => Err(GenerationError::ProtectedState(
+                "generation zero must not contain a catalog digest".to_owned(),
+            )),
+            (_, None) => Err(GenerationError::ProtectedState(
+                "a nonzero generation requires a catalog digest".to_owned(),
+            )),
+            (_, Some(digest)) if is_canonical_sha256(digest) => Ok(()),
+            (_, Some(_)) => Err(GenerationError::ProtectedState(
+                "catalog digest is not canonical lowercase SHA-256".to_owned(),
+            )),
+        }
+    }
 }
 
 /// One active, signature-verified package snapshot.
@@ -62,17 +211,22 @@ pub struct ActiveGeneration {
 }
 
 /// Result of resuming a previously durable promotion intent.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RecoveryOutcome {
     Clean,
-    Activated { generation: u64 },
+    ProtectionCommitRequired {
+        state: ProtectedPackageGenerationState,
+    },
 }
 
 /// Result of atomically making a staged generation active.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PromotionOutcome {
     pub previous_generation: Option<u64>,
     pub active_generation: u64,
+    /// Exact state the platform adapter must commit before this generation may
+    /// be loaded or another promotion may begin.
+    pub protected_state: ProtectedPackageGenerationState,
 }
 
 /// Result of signature-first extraction into one inert staging transaction.
@@ -118,9 +272,16 @@ pub struct PackageGenerationStore {
     generations: PathBuf,
     activations: PathBuf,
     update_policy: TrustedUpdatePolicy,
+    protected_state: ProtectedPackageGenerationState,
+    target: String,
     content_root: Option<PathBuf>,
     runtime_root: PathBuf,
     data_root: PathBuf,
+}
+
+enum ProtectionStatus {
+    Exact(Option<ActivationMarker>),
+    CommitRequired(ProtectedPackageGenerationState),
 }
 
 impl PackageGenerationStore {
@@ -156,6 +317,13 @@ impl PackageGenerationStore {
             .map(|path| canonical_directory("managed content root", path))
             .transpose()?;
 
+        config.protected_state.validate()?;
+        let target = current_target();
+        config
+            .protected_state
+            .validate_scope(config.update_policy.channel(), &target)?;
+        let target = config.protected_state.target().to_owned();
+
         Ok(Self {
             root,
             operation_lock,
@@ -163,26 +331,91 @@ impl PackageGenerationStore {
             generations,
             activations,
             update_policy: config.update_policy,
+            protected_state: config.protected_state,
+            target,
             content_root,
             runtime_root: config.runtime_root,
             data_root: config.data_root,
         })
     }
 
-    /// Loads and re-verifies the highest committed generation.
+    /// Loads and re-verifies the exactly protected committed generation.
     ///
     /// A malformed activation marker fails closed rather than silently falling
     /// back to an older generation.
     ///
     /// # Errors
     ///
-    /// Rejects malformed markers and any changed signed catalog or artifact.
+    /// Rejects malformed markers, writable history that differs from protected
+    /// state, and any changed signed catalog or artifact.
     pub fn load_active(&self) -> Result<Option<ActiveGeneration>, GenerationError> {
-        self.activation_generations()?
+        match self.protection_status()? {
+            ProtectionStatus::Exact(marker) => marker
+                .map(|marker| self.load_committed_generation(marker.generation))
+                .transpose(),
+            ProtectionStatus::CommitRequired(state) => {
+                Err(GenerationError::ProtectionCommitRequired(state))
+            }
+        }
+    }
+
+    fn protection_status(&self) -> Result<ProtectionStatus, GenerationError> {
+        let marker = self
+            .activation_generations()?
             .last()
             .copied()
-            .map(|generation| self.load_committed_generation(generation))
-            .transpose()
+            .map(|generation| {
+                let marker = read_marker(&self.activation_path(generation))?;
+                validate_marker(&marker, generation)?;
+                Ok::<ActivationMarker, GenerationError>(marker)
+            })
+            .transpose()?;
+
+        match (self.protected_state.generation, marker) {
+            (0, None) => Ok(ProtectionStatus::Exact(None)),
+            (0, Some(marker)) => Ok(ProtectionStatus::CommitRequired(
+                self.protected_state_for_verified_marker(&marker)?,
+            )),
+            (protected_generation, None) => Err(GenerationError::ProtectedHistoryRollback {
+                protected_generation,
+                active_generation: None,
+            }),
+            (protected_generation, Some(marker)) if marker.generation < protected_generation => {
+                Err(GenerationError::ProtectedHistoryRollback {
+                    protected_generation,
+                    active_generation: Some(marker.generation),
+                })
+            }
+            (protected_generation, Some(marker)) if marker.generation > protected_generation => {
+                Ok(ProtectionStatus::CommitRequired(
+                    self.protected_state_for_verified_marker(&marker)?,
+                ))
+            }
+            (_, Some(marker))
+                if self.protected_state.catalog_sha256.as_deref()
+                    != Some(marker.catalog_sha256.as_str()) =>
+            {
+                Err(GenerationError::ProtectedCatalogSubstitution {
+                    generation: marker.generation,
+                })
+            }
+            (_, Some(marker)) => Ok(ProtectionStatus::Exact(Some(marker))),
+        }
+    }
+
+    fn protected_state_for_verified_marker(
+        &self,
+        marker: &ActivationMarker,
+    ) -> Result<ProtectedPackageGenerationState, GenerationError> {
+        let release_path = self.generation_path(marker.generation);
+        let release =
+            canonical_direct_child("package generation", &self.generations, &release_path)?;
+        self.verify_marker_release(&release, marker)?;
+        Ok(ProtectedPackageGenerationState::for_marker(
+            self.update_policy.channel(),
+            &self.target,
+            marker,
+        ))
     }
 
     /// Classifies retained, retired, and unreferenced package generations
@@ -195,8 +428,8 @@ impl PackageGenerationStore {
     ///
     /// # Errors
     ///
-    /// Rejects retention counts outside `2..=4096`, recovery-required state,
-    /// malformed history, and unsafe generation directories.
+    /// Rejects retention counts outside `2..=4096`, recovery-required or
+    /// protected-state-mismatched history, and unsafe generation directories.
     pub fn plan_cleanup(
         &self,
         retain_count: usize,
@@ -237,8 +470,8 @@ impl PackageGenerationStore {
     /// # Errors
     ///
     /// Rejects unavailable launch protection, package-store lock contention,
-    /// invalid retention/protection, recovery-required state, or malformed
-    /// package history.
+    /// invalid retention/protection, recovery-required or protected-state-
+    /// mismatched history, or malformed package history.
     pub fn plan_cleanup_for_launch_service(
         &self,
         retain_count: usize,
@@ -404,10 +637,7 @@ impl PackageGenerationStore {
             }
         }
 
-        let active_generation = activated.last().copied();
-        if let Some(active) = active_generation {
-            self.load_committed_generation(active)?;
-        }
+        let active_generation = self.load_active()?.map(|active| active.generation);
         let retained_start = activated.len().saturating_sub(retain_count);
         let mut retained: BTreeSet<_> = activated[retained_start..].iter().copied().collect();
         retained.extend(protected.iter().copied());
@@ -1080,6 +1310,10 @@ impl PackageGenerationStore {
     {
         validate_transaction_id(transaction_id)?;
         self.ensure_no_recovery_required()?;
+        // Candidate execution must not begin while writable activation
+        // history is ahead of, behind, or substituted against protected
+        // state.
+        self.load_active()?;
         let stage = self.canonical_stage(transaction_id)?;
         let candidate = self.load_release(&stage)?;
         let expected_catalog_sha256 = candidate.catalog_sha256.clone();
@@ -1117,15 +1351,18 @@ impl PackageGenerationStore {
     ///
     /// The candidate catalog signature and every referenced artifact are
     /// verified before a durable intent is published. The candidate then moves
-    /// into a versioned generation directory and becomes active through one
-    /// no-replace activation entry. Read-only mount enforcement remains an
-    /// operating system integration requirement. A crash after intent
-    /// publication is resumed by [`Self::recover`].
+    /// into a versioned generation directory and becomes pending through one
+    /// no-replace activation entry. The returned protected state must be
+    /// atomically committed by the platform adapter before the generation is
+    /// launchable. Read-only mount enforcement remains an operating system
+    /// integration requirement. A crash after intent publication is resumed
+    /// by [`Self::recover`].
     ///
     /// # Errors
     ///
-    /// Rejects invalid transaction IDs, pending recovery, downgrade/equal
-    /// generations, signature or artifact failures, and unsafe layouts.
+    /// Rejects invalid transaction IDs, pending recovery or protected-state
+    /// commit, downgrade/equal generations, signature or artifact failures,
+    /// and unsafe layouts.
     fn activate_verified(
         &self,
         transaction_id: &str,
@@ -1133,6 +1370,9 @@ impl PackageGenerationStore {
     ) -> Result<PromotionOutcome, GenerationError> {
         validate_transaction_id(transaction_id)?;
         self.ensure_no_recovery_required()?;
+        // Fail before publishing an intent when a prior generation is still
+        // waiting for its external protected-state commit.
+        self.load_active()?;
         let global_intent = self.root.join(INTENT_FILE);
 
         let stage = self.canonical_stage(transaction_id)?;
@@ -1191,9 +1431,15 @@ impl PackageGenerationStore {
             canonical_direct_child("package generation", &self.generations, &destination)?;
         self.verify_marker_release(&release, &marker)?;
         self.commit_intent(&marker)?;
+        let protected_state = ProtectedPackageGenerationState::for_marker(
+            self.update_policy.channel(),
+            &self.target,
+            &marker,
+        );
         Ok(PromotionOutcome {
             previous_generation,
             active_generation: generation,
+            protected_state,
         })
     }
 
@@ -1212,6 +1458,10 @@ impl PackageGenerationStore {
     /// active. They remain available for an explicit retry or later bounded
     /// garbage collection.
     ///
+    /// Returns the exact state a trusted coordinator must commit when writable
+    /// activation is ahead of protected state. This method never advances
+    /// protected state itself.
+    ///
     /// # Errors
     ///
     /// Rejects inconsistent or changed candidate state and downgrades.
@@ -1222,11 +1472,35 @@ impl PackageGenerationStore {
         }
         let intent_path = self.root.join(INTENT_FILE);
         if !intent_path.exists() {
-            return Ok(RecoveryOutcome::Clean);
+            return match self.protection_status()? {
+                ProtectionStatus::Exact(_) => Ok(RecoveryOutcome::Clean),
+                ProtectionStatus::CommitRequired(state) => {
+                    Ok(RecoveryOutcome::ProtectionCommitRequired { state })
+                }
+            };
         }
         let marker = read_marker(&intent_path)?;
         validate_marker(&marker, marker.generation)?;
-        let current = self.load_active()?.map(|active| active.generation);
+        let current = match self.protection_status()? {
+            ProtectionStatus::Exact(marker) => marker.map(|marker| marker.generation),
+            ProtectionStatus::CommitRequired(state) => {
+                if state.generation != marker.generation
+                    || state.catalog_sha256.as_deref() != Some(marker.catalog_sha256.as_str())
+                {
+                    return Err(GenerationError::MarkerMismatch(
+                        "unprotected activation differs from the remaining intent".to_owned(),
+                    ));
+                }
+                let activation = read_marker(&self.activation_path(marker.generation))?;
+                if activation != marker {
+                    return Err(GenerationError::MarkerMismatch(
+                        "committed activation differs from the remaining intent".to_owned(),
+                    ));
+                }
+                self.remove_completed_promotion_intent(&intent_path)?;
+                return Ok(RecoveryOutcome::ProtectionCommitRequired { state });
+            }
+        };
         if let Some(current) = current {
             if marker.generation == current {
                 let activation = read_marker(&self.activation_path(current))?;
@@ -1235,15 +1509,8 @@ impl PackageGenerationStore {
                         "committed activation differs from the remaining intent".to_owned(),
                     ));
                 }
-                fs::remove_file(&intent_path).map_err(|source| GenerationError::Io {
-                    operation: "remove completed package promotion intent",
-                    path: intent_path,
-                    source,
-                })?;
-                sync_directory(&self.root)?;
-                return Ok(RecoveryOutcome::Activated {
-                    generation: current,
-                });
+                self.remove_completed_promotion_intent(&intent_path)?;
+                return Ok(RecoveryOutcome::Clean);
             }
             if marker.generation < current {
                 return Err(GenerationError::RollbackRejected {
@@ -1290,9 +1557,22 @@ impl PackageGenerationStore {
         }
 
         self.commit_intent(&marker)?;
-        Ok(RecoveryOutcome::Activated {
-            generation: marker.generation,
+        Ok(RecoveryOutcome::ProtectionCommitRequired {
+            state: ProtectedPackageGenerationState::for_marker(
+                self.update_policy.channel(),
+                &self.target,
+                &marker,
+            ),
         })
+    }
+
+    fn remove_completed_promotion_intent(&self, intent_path: &Path) -> Result<(), GenerationError> {
+        fs::remove_file(intent_path).map_err(|source| GenerationError::Io {
+            operation: "remove completed package promotion intent",
+            path: intent_path.to_owned(),
+            source,
+        })?;
+        sync_directory(&self.root)
     }
 
     fn commit_intent(&self, marker: &ActivationMarker) -> Result<(), GenerationError> {
@@ -1381,7 +1661,7 @@ impl PackageGenerationStore {
             &catalog_path,
             &signatures,
             &self.update_policy,
-            &current_target(),
+            &self.target,
             CatalogRoots {
                 install_root,
                 content_root: self.content_root.clone(),
@@ -1563,12 +1843,7 @@ fn validate_marker(
         )));
     }
     validate_transaction_id(&marker.transaction_id)?;
-    if marker.catalog_sha256.len() != 64
-        || !marker
-            .catalog_sha256
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-    {
+    if !is_canonical_sha256(&marker.catalog_sha256) {
         return Err(GenerationError::MarkerMismatch(
             "activation catalog digest is not canonical lowercase SHA-256".to_owned(),
         ));
@@ -1845,6 +2120,32 @@ fn validate_transaction_id(value: &str) -> Result<(), GenerationError> {
     }
 }
 
+fn validate_protected_scope(
+    kind: &'static str,
+    value: &str,
+    maximum: usize,
+) -> Result<(), GenerationError> {
+    let valid = !value.is_empty()
+        && value.len() <= maximum
+        && value.bytes().all(|byte| {
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'-' | b'_' | b'.')
+        });
+    if valid {
+        Ok(())
+    } else {
+        Err(GenerationError::ProtectedState(format!(
+            "{kind} is not a safe lowercase identifier"
+        )))
+    }
+}
+
+fn is_canonical_sha256(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
 fn validate_absolute(kind: &'static str, path: &Path) -> Result<(), GenerationError> {
     if path.is_absolute()
         && !path
@@ -2022,6 +2323,21 @@ pub enum GenerationError {
     Intake(PackageIntakeError),
     Transfer(PackageTransferError),
     UpdateTrust(String),
+    ProtectedState(String),
+    ProtectedStateScope {
+        expected_channel: String,
+        actual_channel: String,
+        expected_target: String,
+        actual_target: String,
+    },
+    ProtectionCommitRequired(ProtectedPackageGenerationState),
+    ProtectedHistoryRollback {
+        protected_generation: u64,
+        active_generation: Option<u64>,
+    },
+    ProtectedCatalogSubstitution {
+        generation: u64,
+    },
     UnsafePath {
         kind: &'static str,
         path: PathBuf,
@@ -2059,6 +2375,80 @@ pub enum GenerationError {
     },
 }
 
+impl GenerationError {
+    fn fmt_protection(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ProtectedState(error) => {
+                write!(formatter, "package protected state is invalid: {error}")
+            }
+            Self::ProtectedStateScope {
+                expected_channel,
+                actual_channel,
+                expected_target,
+                actual_target,
+            } => write!(
+                formatter,
+                "package protected state scope is {actual_channel}/{actual_target}, expected {expected_channel}/{expected_target}"
+            ),
+            Self::ProtectionCommitRequired(state) => write!(
+                formatter,
+                "package generation {} is published but requires an exact protected-state commit",
+                state.generation()
+            ),
+            Self::ProtectedHistoryRollback {
+                protected_generation,
+                active_generation,
+            } => match active_generation {
+                Some(active_generation) => write!(
+                    formatter,
+                    "package activation history ends at generation {active_generation}, below protected generation {protected_generation}"
+                ),
+                None => write!(
+                    formatter,
+                    "package activation history is empty, below protected generation {protected_generation}"
+                ),
+            },
+            Self::ProtectedCatalogSubstitution { generation } => write!(
+                formatter,
+                "package activation generation {generation} does not match its protected catalog digest"
+            ),
+            _ => unreachable!("only package protection errors use this formatter"),
+        }
+    }
+
+    fn fmt_cleanup(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidRetentionCount(count) => write!(
+                formatter,
+                "package retention count {count} is outside {MIN_RETAINED_GENERATIONS}..={MAX_GENERATION_ENTRIES}"
+            ),
+            Self::InvalidCleanupLimit(limit) => write!(
+                formatter,
+                "package cleanup limit {limit} is outside 1..={MAX_GENERATION_ENTRIES}"
+            ),
+            Self::InvalidCleanupProtection(error) => {
+                write!(formatter, "package cleanup protection is invalid: {error}")
+            }
+            Self::CleanupRecoveryRequired => {
+                formatter.write_str("package generation cleanup recovery is required")
+            }
+            Self::CleanupIntentInvalid(error) => write!(
+                formatter,
+                "package generation cleanup intent is invalid: {error}"
+            ),
+            Self::CleanupTargetProtected(generation) => write!(
+                formatter,
+                "package cleanup generation {generation} is now retained or launch-protected"
+            ),
+            Self::CleanupTargetChanged(generation) => write!(
+                formatter,
+                "package cleanup generation {generation} changed after intent publication"
+            ),
+            _ => unreachable!("only package cleanup errors use this formatter"),
+        }
+    }
+}
+
 impl fmt::Display for GenerationError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -2077,38 +2467,22 @@ impl fmt::Display for GenerationError {
             Self::Intake(error) => write!(formatter, "{error}"),
             Self::Transfer(error) => write!(formatter, "{error}"),
             Self::UpdateTrust(error) => write!(formatter, "package update trust rejected: {error}"),
+            Self::ProtectedState(_)
+            | Self::ProtectedStateScope { .. }
+            | Self::ProtectionCommitRequired(_)
+            | Self::ProtectedHistoryRollback { .. }
+            | Self::ProtectedCatalogSubstitution { .. } => self.fmt_protection(formatter),
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
             Self::InvalidLayout(error) => write!(formatter, "package store is invalid: {error}"),
-            Self::InvalidRetentionCount(count) => write!(
-                formatter,
-                "package retention count {count} is outside {MIN_RETAINED_GENERATIONS}..={MAX_GENERATION_ENTRIES}"
-            ),
-            Self::InvalidCleanupLimit(limit) => write!(
-                formatter,
-                "package cleanup limit {limit} is outside 1..={MAX_GENERATION_ENTRIES}"
-            ),
-            Self::InvalidCleanupProtection(error) => {
-                write!(formatter, "package cleanup protection is invalid: {error}")
-            }
-            Self::CleanupRecoveryRequired => {
-                formatter.write_str("package generation cleanup recovery is required")
-            }
-            Self::CleanupIntentInvalid(error) => {
-                write!(
-                    formatter,
-                    "package generation cleanup intent is invalid: {error}"
-                )
-            }
-            Self::CleanupTargetProtected(generation) => write!(
-                formatter,
-                "package cleanup generation {generation} is now retained or launch-protected"
-            ),
-            Self::CleanupTargetChanged(generation) => write!(
-                formatter,
-                "package cleanup generation {generation} changed after intent publication"
-            ),
+            Self::InvalidRetentionCount(_)
+            | Self::InvalidCleanupLimit(_)
+            | Self::InvalidCleanupProtection(_)
+            | Self::CleanupRecoveryRequired
+            | Self::CleanupIntentInvalid(_)
+            | Self::CleanupTargetProtected(_)
+            | Self::CleanupTargetChanged(_) => self.fmt_cleanup(formatter),
             Self::InvalidTransactionId(value) => {
                 write!(formatter, "package transaction id is invalid: {value}")
             }
@@ -2221,10 +2595,11 @@ mod tests {
 
     use super::{
         ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, CLEANUP_INTENT_FILE,
-        CLEANUP_INTENT_TEMP_FILE, GenerationError, INTENT_FILE, OPERATION_LOCK_FILE,
-        PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
-        STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker, publish_intent,
-        read_marker,
+        CLEANUP_INTENT_TEMP_FILE, GenerationError, INTENT_FILE,
+        MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES, OPERATION_LOCK_FILE, PackageGenerationConfig,
+        PackageGenerationStore, ProtectedPackageGenerationState, RecoveryOutcome,
+        STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, current_target, prepare_staged_marker,
+        publish_intent, read_marker,
     };
     use crate::installed_catalog::{CatalogError, PackageHealthCheck};
     use crate::native_launch::NativeLaunchService;
@@ -2350,14 +2725,37 @@ mod tests {
         }
 
         fn store(&self) -> PackageGenerationStore {
+            self.store_with_protected_state(
+                ProtectedPackageGenerationState::initial("stable", current_target())
+                    .expect("initial protected state creates"),
+            )
+        }
+
+        fn store_with_protected_state(
+            &self,
+            protected_state: ProtectedPackageGenerationState,
+        ) -> PackageGenerationStore {
             PackageGenerationStore::open(PackageGenerationConfig {
                 store_root: self.root.clone(),
                 update_policy: self.update_policy.clone(),
+                protected_state,
                 content_root: Some(self.content.clone()),
                 runtime_root: self.runtime.clone(),
                 data_root: self.data.clone(),
             })
             .expect("package generation store opens")
+        }
+
+        fn promote_generations(&self, generations: &[(&str, u64, &str)]) -> PackageGenerationStore {
+            let mut store = self.store();
+            for &(transaction, generation, version) in generations {
+                self.stage(transaction, generation, version);
+                let outcome = store
+                    .promote_without_health(transaction)
+                    .expect("generation publishes");
+                store = self.store_with_protected_state(outcome.protected_state);
+            }
+            store
         }
 
         fn stage(&self, transaction: &str, generation: u64, version: &str) -> PathBuf {
@@ -2876,15 +3274,18 @@ mod tests {
         fixture.stage("install-seven", 7, "1.0.0");
         let store = fixture.store();
 
-        assert_eq!(
-            store
-                .promote_without_health("install-seven")
-                .expect("generation promotes"),
-            PromotionOutcome {
-                previous_generation: None,
-                active_generation: 7,
-            }
-        );
+        let first = store
+            .promote_without_health("install-seven")
+            .expect("generation publishes");
+        assert_eq!(first.previous_generation, None);
+        assert_eq!(first.active_generation, 7);
+        assert_eq!(first.protected_state.generation(), 7);
+        assert!(matches!(
+            store.load_active(),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        let store = fixture.store_with_protected_state(first.protected_state);
         let active = store
             .load_active()
             .expect("active generation loads")
@@ -2904,15 +3305,13 @@ mod tests {
         );
 
         fixture.stage("update-eight", 8, "1.1.0");
-        assert_eq!(
-            store
-                .promote_without_health("update-eight")
-                .expect("update promotes"),
-            PromotionOutcome {
-                previous_generation: Some(7),
-                active_generation: 8,
-            }
-        );
+        let second = store
+            .promote_without_health("update-eight")
+            .expect("update publishes");
+        assert_eq!(second.previous_generation, Some(7));
+        assert_eq!(second.active_generation, 8);
+        assert_eq!(second.protected_state.generation(), 8);
+        let store = fixture.store_with_protected_state(second.protected_state);
         assert!(
             fixture
                 .root
@@ -2933,6 +3332,202 @@ mod tests {
                 current: 8,
                 candidate: 8
             })
+        ));
+    }
+
+    #[test]
+    fn protected_state_is_strict_bounded_and_scope_bound() {
+        let target = current_target();
+        let initial = ProtectedPackageGenerationState::initial("stable", &target)
+            .expect("initial state creates");
+        assert_eq!(
+            ProtectedPackageGenerationState::from_json_bytes(
+                &initial.to_json_bytes().expect("initial state serializes")
+            )
+            .expect("initial state parses"),
+            initial
+        );
+
+        for invalid in [
+            format!(
+                r#"{{"schemaVersion":2,"channel":"stable","target":"{target}","generation":0,"catalogSha256":null}}"#
+            ),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"{target}","generation":0,"catalogSha256":"{}"}}"#,
+                "00".repeat(32)
+            ),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"{target}","generation":7,"catalogSha256":null}}"#
+            ),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"{target}","generation":7,"catalogSha256":"{}"}}"#,
+                "AA".repeat(32)
+            ),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"{target}","generation":0,"catalogSha256":null,"path":"writable.json"}}"#
+            ),
+        ] {
+            assert!(
+                ProtectedPackageGenerationState::from_json_bytes(invalid.as_bytes()).is_err(),
+                "invalid protected state unexpectedly parsed: {invalid}"
+            );
+        }
+        assert!(ProtectedPackageGenerationState::from_json_bytes(&[]).is_err());
+        assert!(
+            ProtectedPackageGenerationState::from_json_bytes(&vec![
+                b' ';
+                MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES
+                    + 1
+            ])
+            .is_err()
+        );
+
+        let fixture = Fixture::new();
+        for wrong_scope in [
+            ProtectedPackageGenerationState::initial("recovery", &target)
+                .expect("alternate channel creates"),
+            ProtectedPackageGenerationState::initial("stable", "aarch64-linux")
+                .expect("alternate target creates"),
+        ] {
+            assert!(matches!(
+                PackageGenerationStore::open(PackageGenerationConfig {
+                    store_root: fixture.root.clone(),
+                    update_policy: fixture.update_policy.clone(),
+                    protected_state: wrong_scope,
+                    content_root: Some(fixture.content.clone()),
+                    runtime_root: fixture.runtime.clone(),
+                    data_root: fixture.data.clone(),
+                }),
+                Err(GenerationError::ProtectedStateScope { .. })
+            ));
+        }
+    }
+
+    #[test]
+    fn pending_protection_blocks_launch_health_and_further_promotion() {
+        let fixture = Fixture::new();
+        fixture.stage("install-seven", 7, "1.0.0");
+        let store = fixture.store();
+        let first = store
+            .promote_without_health("install-seven")
+            .expect("first generation publishes");
+        fixture.stage("update-eight", 8, "1.1.0");
+
+        assert!(matches!(
+            store.load_active(),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        assert!(matches!(
+            store.promote_without_health("install-seven"),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        assert!(matches!(
+            store.promote_without_health("update-eight"),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        assert!(matches!(
+            store.plan_cleanup(2),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        let mut health_ran = false;
+        assert!(matches!(
+            store.promote_health_checked_with("update-eight", |_| {
+                health_ran = true;
+                Ok(())
+            }),
+            Err(GenerationError::ProtectionCommitRequired(state))
+                if state == first.protected_state
+        ));
+        assert!(
+            !health_ran,
+            "pending protection must block candidate execution"
+        );
+        assert!(!fixture.root.join(INTENT_FILE).exists());
+        assert!(fixture.root.join("staging/update-eight").is_dir());
+        assert!(
+            !fixture
+                .root
+                .join("activations/00000000000000000008.json")
+                .exists()
+        );
+
+        let committed = fixture.store_with_protected_state(first.protected_state);
+        assert_eq!(
+            committed
+                .load_active()
+                .expect("committed generation loads")
+                .expect("generation exists")
+                .generation,
+            7
+        );
+        assert_eq!(
+            committed
+                .promote_without_health("update-eight")
+                .expect("next generation publishes")
+                .active_generation,
+            8
+        );
+    }
+
+    #[test]
+    fn pending_protected_state_is_derived_only_from_a_reverified_release() {
+        let fixture = Fixture::new();
+        fixture.stage("install-seven", 7, "1.0.0");
+        let store = fixture.store();
+        store
+            .promote_without_health("install-seven")
+            .expect("generation publishes");
+        fs::write(
+            fixture
+                .root
+                .join("generations/00000000000000000007/install/cores/2048_libretro.so"),
+            b"changed after activation",
+        )
+        .expect("active artifact changes");
+
+        assert!(matches!(
+            store.load_active(),
+            Err(GenerationError::Catalog(_))
+        ));
+        assert!(matches!(store.recover(), Err(GenerationError::Catalog(_))));
+    }
+
+    #[test]
+    fn protected_history_rejects_deletion_and_same_generation_substitution() {
+        let fixture = Fixture::new();
+        let store = fixture
+            .promote_generations(&[("install-seven", 7, "1.0.0"), ("update-eight", 8, "1.1.0")]);
+        let protected = store.protected_state.clone();
+        let marker_path = fixture.root.join("activations/00000000000000000008.json");
+        let original = fs::read(&marker_path).expect("activation marker reads");
+
+        fs::remove_file(&marker_path).expect("activation marker removes");
+        assert!(matches!(
+            fixture
+                .store_with_protected_state(protected.clone())
+                .load_active(),
+            Err(GenerationError::ProtectedHistoryRollback {
+                protected_generation: 8,
+                active_generation: Some(7),
+            })
+        ));
+
+        fs::write(&marker_path, &original).expect("activation marker restores");
+        let mut substituted: serde_json::Value =
+            serde_json::from_slice(&original).expect("activation marker parses");
+        substituted["catalogSha256"] = json!("00".repeat(32));
+        fs::write(
+            &marker_path,
+            serde_json::to_vec(&substituted).expect("substituted marker serializes"),
+        )
+        .expect("activation marker substitutes");
+        assert!(matches!(
+            fixture.store_with_protected_state(protected).load_active(),
+            Err(GenerationError::ProtectedCatalogSubstitution { generation: 8 })
         ));
     }
 
@@ -3138,10 +3733,17 @@ mod tests {
                 .expect("simulate completed generation move");
             }
 
-            assert_eq!(
-                store.recover().expect("promotion recovers"),
-                RecoveryOutcome::Activated { generation: 7 }
-            );
+            let recovery = store.recover().expect("promotion recovers");
+            let RecoveryOutcome::ProtectionCommitRequired { state } = recovery else {
+                panic!("recovered activation must require protected-state commit");
+            };
+            assert_eq!(state.generation(), 7);
+            assert!(matches!(
+                store.load_active(),
+                Err(GenerationError::ProtectionCommitRequired(pending))
+                    if pending == state
+            ));
+            let store = fixture.store_with_protected_state(state);
             assert_eq!(
                 store
                     .load_active()
@@ -3210,11 +3812,13 @@ mod tests {
         )
         .expect("simulate committed activation before intent unlink");
 
-        assert_eq!(
-            store.recover().expect("completed activation recovers"),
-            RecoveryOutcome::Activated { generation: 7 }
-        );
+        let recovery = store.recover().expect("completed activation recovers");
+        let RecoveryOutcome::ProtectionCommitRequired { state } = recovery else {
+            panic!("completed activation must require protected-state commit");
+        };
+        assert_eq!(state.generation(), 7);
         assert!(!fixture.root.join(INTENT_FILE).exists());
+        let store = fixture.store_with_protected_state(state);
         assert_eq!(
             store
                 .load_active()
@@ -3252,17 +3856,11 @@ mod tests {
     #[test]
     fn cleanup_plan_retains_two_newest_and_classifies_only_inert_history() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
         fs::create_dir(fixture.root.join("generations/00000000000000000010"))
             .expect("orphan generation directory creates");
 
@@ -3295,17 +3893,11 @@ mod tests {
     #[test]
     fn cleanup_plan_unions_trusted_launch_protection_with_rollback_retention() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
 
         assert_eq!(
             store
@@ -3324,18 +3916,12 @@ mod tests {
     #[test]
     fn explicit_cleanup_is_bounded_preserves_rollback_and_never_touches_saves() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
             ("update-ten", 10, "1.3.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
         fs::create_dir(fixture.root.join("generations/00000000000000000011"))
             .expect("orphan generation directory creates");
         let save = fixture.data.join("local-player/retro-2048/save.srm");
@@ -3399,17 +3985,11 @@ mod tests {
     #[test]
     fn cleanup_recovery_resumes_after_marker_removal_and_blocks_other_mutations() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
         let plan = store.plan_cleanup(2).expect("cleanup plan derives");
         let intent = store
             .create_cleanup_intent(&plan, 2, 1)
@@ -3474,17 +4054,11 @@ mod tests {
     #[test]
     fn cleanup_recovery_is_idempotent_after_target_bytes_are_already_absent() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
         let plan = store.plan_cleanup(2).expect("cleanup plan derives");
         let intent = store
             .create_cleanup_intent(&plan, 2, 1)
@@ -3523,11 +4097,7 @@ mod tests {
     #[test]
     fn cleanup_noop_and_interrupted_orphan_removal_are_deterministic() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        fixture.stage("install-seven", 7, "1.0.0");
-        store
-            .promote_without_health("install-seven")
-            .expect("generation promotes");
+        let store = fixture.promote_generations(&[("install-seven", 7, "1.0.0")]);
         let active = store
             .load_active()
             .expect("active generation loads")
@@ -3566,17 +4136,11 @@ mod tests {
     #[test]
     fn cleanup_recovery_refuses_new_protection_or_changed_target_identity() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        for (transaction, generation, version) in [
+        let store = fixture.promote_generations(&[
             ("install-seven", 7, "1.0.0"),
             ("update-eight", 8, "1.1.0"),
             ("update-nine", 9, "1.2.0"),
-        ] {
-            fixture.stage(transaction, generation, version);
-            store
-                .promote_without_health(transaction)
-                .expect("generation promotes");
-        }
+        ]);
         let plan = store.plan_cleanup(2).expect("cleanup plan derives");
         let intent = store
             .create_cleanup_intent(&plan, 2, 1)
@@ -3615,11 +4179,7 @@ mod tests {
     #[test]
     fn cleanup_rejects_invalid_bounds_and_malformed_intent() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        fixture.stage("install-seven", 7, "1.0.0");
-        store
-            .promote_without_health("install-seven")
-            .expect("generation promotes");
+        let store = fixture.promote_generations(&[("install-seven", 7, "1.0.0")]);
         let active = store
             .load_active()
             .expect("active generation loads")
@@ -3649,11 +4209,7 @@ mod tests {
     #[test]
     fn cleanup_planning_composes_launch_maintenance_with_store_serialization() {
         let fixture = Fixture::new();
-        let store = fixture.store();
-        fixture.stage("install-seven", 7, "1.0.0");
-        store
-            .promote_without_health("install-seven")
-            .expect("generation promotes");
+        let store = fixture.promote_generations(&[("install-seven", 7, "1.0.0")]);
         let active = store
             .load_active()
             .expect("active generation loads")
@@ -3735,6 +4291,11 @@ mod tests {
             PackageGenerationStore::open(PackageGenerationConfig {
                 store_root: fixture.root.clone(),
                 update_policy: fixture.update_policy.clone(),
+                protected_state: ProtectedPackageGenerationState::initial(
+                    "stable",
+                    current_target(),
+                )
+                .expect("initial protected state creates"),
                 content_root: Some(fixture.content.clone()),
                 runtime_root: fixture.runtime.clone(),
                 data_root: fixture.data.clone(),

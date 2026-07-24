@@ -2,7 +2,16 @@
 
 Last updated: 2026-07-24
 
-This document defines the implemented host-owned signed-archive intake, staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, explicit crash-recoverable generation cleanup, and launcher-startup boundary for production game packages. It composes with the [signed release intake](PACKAGE_INTAKE.md) and [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not a network downloader, automatic retention policy, uninstall UI, live-runtime qualification, or target-hardware result.
+This document defines the implemented host-owned signed-archive intake,
+staging, signed-policy candidate health, exact protected-state activation,
+interruption recovery, retention planning, explicit crash-recoverable
+generation cleanup, and launcher-startup boundary for production game
+packages. It composes with the [signed release intake](PACKAGE_INTAKE.md), the
+[signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md), and the
+[platform protected-state adapter contract](PACKAGE_GENERATION_PROTECTED_STATE.md);
+it is not a network downloader, automatic retention policy, uninstall UI,
+live-runtime qualification, platform protected-storage implementation, or
+target-hardware result.
 
 ## Store layout
 
@@ -34,16 +43,19 @@ contains no authority or progress. Every cooperating staging, staged-receipt
 cleanup, health/promotion, recovery, and cleanup-planning operation takes it
 nonblockingly; contention fails closed instead of running two mutations
 concurrently. `promotion.intent` exists only while one durable promotion is
-incomplete. The store root, bootstrapped update policy, optional
-managed-content root, ephemeral runtime root, and persistent data/save root are
-host configuration. A browser, game, public manifest, hosted origin, or package
-payload cannot choose them.
+incomplete. The store root, bootstrapped update policy, exact package protected
+state, optional managed-content root, ephemeral runtime root, and persistent
+data/save root are host configuration. A browser, game, public manifest,
+hosted origin, or package payload cannot choose them.
 
 The store opener requires absolute paths, the existing direct-child regular lock file, and existing real `staging`, `generations`, and `activations` directories. A staged transaction ID uses the same bounded lowercase identifier grammar as other host intent. Canonical candidate and generation directories must be direct children of their expected host-owned parent; an escaping symlink or reparse point is rejected.
 
 ## Verification and promotion
 
-One staging directory is a complete candidate snapshot. Before publishing any durable promotion intent, the Rust host:
+One staging directory is a complete candidate snapshot. Before candidate
+execution or durable promotion intent, the Rust host first requires the
+highest writable activation marker to equal the supplied protected channel,
+target, generation, and catalog digest. It then:
 
 1. verifies the exact catalog bytes under the selected delegated
    channel/installed-catalog/target threshold before parsing JSON;
@@ -52,13 +64,28 @@ One staging directory is a complete candidate snapshot. Before publishing any du
 4. requires the candidate generation to be greater than the highest committed generation;
 5. binds the intended catalog bytes into a durable marker with their SHA-256.
 
-Only then does it atomically publish `promotion.intent` as a no-replace hard-link entry, move the candidate directory within the same store filesystem to its zero-padded generation path, re-verify the catalog and every path from the moved location, and publish a second no-replace hard link as the append-only activation marker. After the activation directory is synchronized, the intent name is removed. The old activation markers and generation directories remain available; this slice performs no garbage collection or operating-system immutability enforcement.
+Only then does it atomically publish `promotion.intent` as a no-replace
+hard-link entry, move the candidate directory within the same store filesystem
+to its zero-padded generation path, re-verify the catalog and every path from
+the moved location, and publish a second no-replace hard link as the
+append-only activation marker. After the activation directory is synchronized,
+the intent name is removed. Promotion returns the exact next protected-state
+document. Until a privileged platform adapter atomically commits that document,
+the new activation cannot launch, health-check another candidate, run
+generation cleanup, or promote another generation.
 
-The active generation is the numerically greatest valid activation marker. Every load re-verifies that marker, the signed catalog, and every artifact. A malformed greatest marker fails closed instead of silently selecting an older valid release.
+The active generation is the numerically greatest valid activation marker only
+when that marker exactly matches protected state. Every load re-verifies the
+marker, signed catalog, and every artifact. A malformed greatest marker,
+history below protected generation, same-generation digest mismatch, or
+uncommitted higher marker fails closed instead of selecting older history.
 
 An equal or lower signed generation is rejected while the activation history remains intact. A deliberate bad-release rollback therefore requires a newly signed, higher generation whose catalog selects the prior package versions.
 
-This is crash-monotonic selection, not tamper-resistant anti-rollback. The current history lives in the writable store; protected per-channel state, deletion resistance, and authenticated recovery remain open under I-141.
+The closed bounded JSON is not self-protecting. Production anti-rollback
+depends on the platform adapter providing integrity, monotonicity, exclusive
+slot identity, and exact compare-and-swap. Q-136 through Q-139 retain the
+unselected mechanism, scope-migration, reset, and product-response decisions.
 
 ## Signed archive intake
 
@@ -99,6 +126,7 @@ The native launcher accepts the generation store as an alternative to loose cata
 
 ```text
 --package-store-root <absolute-store-root>
+--package-protected-state <absolute-platform-state-path>
 --update-root-store <absolute-accepted-root-store-path>
 --update-root-anchors <absolute-out-of-band-anchor-set-path>
 --update-root-protected-state <absolute-protected-state-path>
@@ -109,9 +137,14 @@ The native launcher accepts the generation store as an alternative to loose cata
 [--content-root <absolute-managed-content-root>]
 ```
 
-Loose catalog options and `--package-store-root` are mutually exclusive. Profile and watchdog-game allowlists retain the same host-owned semantics in either mode.
+Loose catalog options and `--package-store-root` are mutually exclusive.
+`--package-protected-state` is mandatory for generation-store mode and rejected
+for loose-catalog mode. Profile and watchdog-game allowlists retain the same
+host-owned semantics in either mode.
 
-The launcher bounds and parses the closed anchor document, explicitly recovers
+After profile-registry validation, the launcher bounds and validates package
+protected state before any root or package recovery mutation. It then bounds
+and parses the closed anchor document, explicitly recovers
 only unpublished accepted-root directories during normal startup, replays the
 complete root chain under the supplied exact protected state and time, and creates
 one `TrustedUpdatePolicy` snapshot used by every store revalidation in that
@@ -121,7 +154,11 @@ from protected storage. A host must obtain a fresh trustworthy time snapshot for
 later update admission rather than treat an old process value as a permanent
 clock.
 
-Normal launcher startup opens the store, recovers a valid durable intent, loads and re-verifies the greatest active generation, then creates the authenticated API and browser process. An empty store or invalid recovery/activation state prevents launcher startup. A recovery result is written only to the host log as `clean` or `activated` plus generation; it is not browser authority.
+Normal launcher startup opens the store, recovers a valid durable intent, and
+loads the exactly protected active generation before creating the authenticated
+API or browser process. Empty, rolled-back, substituted, scope-mismatched, or
+pending-commit state prevents startup. Recovery can identify an exact pending
+commit, but launcher startup never commits or auto-acknowledges it.
 
 `--dry-run` remains read-only. It validates whether a durable intent exists and fails with recovery-required state rather than moving a generation or committing an activation. With no pending recovery it re-verifies the active generation and prints only source, generation, target, and configured allowlist counts.
 
@@ -131,12 +168,16 @@ The durable intent is published before the staged directory moves. Recovery has 
 
 | Observed state | Recovery behavior |
 |---|---|
-| No `promotion.intent` | Keep the existing active generation; incomplete staging is inert. |
+| No `promotion.intent` and history equals protected state | Keep the existing active generation; incomplete staging is inert. |
+| No intent and a verified activation is ahead of protected state | Return its exact pending document to the privileged coordinator; do not launch it. |
 | Intent plus matching staging directory | Re-verify the marker, signature, catalog digest, and all artifacts; move the generation and commit the activation marker. |
 | Intent plus matching generation directory | Re-verify the moved generation and commit the activation marker. |
 | Matching activation marker plus remaining intent | Verify the two marker records are identical, remove the completed intent name, and retain the committed generation. |
 
-Both candidate locations, neither candidate location, a changed catalog/artifact, a stale generation, or a malformed marker fail closed. Recovery does not guess, fall back, or delete evidence.
+Both candidate locations, neither candidate location, a changed
+catalog/artifact, a stale generation, a malformed marker, protected-history
+deletion, or same-generation substitution fail closed. Recovery does not
+guess, fall back, lower protected state, or commit platform state.
 
 The marker file is synchronized before intent publication. On Unix, the store and rename-parent directories are also synchronized. Windows tests prove state-machine behavior but do not claim durable directory-flush semantics. Candidate ingestion must finish and synchronize its own files before invoking promotion. Sudden-power, filesystem, low-space, and removable-media tests on the selected Linux storage remain mandatory under I-114, I-200, and I-202.
 
@@ -159,6 +200,10 @@ Rust tests cover:
 - signed process/explicit-ready policy parsing with timeout bounds;
 - process survival, early-exit failure, explicit-ready success, invalid token failure, and child reaping;
 - health failure before durable intent, exact catalog-digest binding, and save preservation;
+- strict bounded/scope-bound protected-state parsing, two-phase pending-commit
+  denial, rollback/deletion and same-generation substitution refusal, signed
+  release re-verification before pending-state reporting, and recovery on both
+  sides of activation publication;
 - tamper rejection before durable intent publication;
 - tamper rejection after the generation move but before activation;
 - equal-generation rollback rejection;
@@ -201,6 +246,8 @@ Still required:
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - automatic retention scheduling/byte policy, uninstall, managed-content garbage collection, and controller-confirmed save disposition;
-- qualified provenance for exact accepted-root state, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel artifact monotonic state;
+- qualified provenance and compare-and-swap for accepted-root and package
+  protected state, secure refreshed time, physical key-rotation/revocation
+  drills, authorized channel/target migration, and disaster-reset policy;
 - immutable/read-only artifact handoff and target-Linux crash/power-loss/directory-synchronization qualification;
 - developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.

@@ -1106,6 +1106,7 @@ impl std::error::Error for CatalogError {
 pub(crate) mod tests {
     use std::fs;
     use std::path::{Path, PathBuf};
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     use ed25519_dalek::{Signer, SigningKey};
@@ -1127,6 +1128,7 @@ pub(crate) mod tests {
 
     const TRUSTED_TIME: u64 = 2_000_000_000;
     const ROOT_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-UPDATE-TRUST-ROOT-V1\0";
+    static CATALOG_FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
     pub(crate) struct Fixture {
         root: PathBuf,
@@ -1145,12 +1147,13 @@ pub(crate) mod tests {
 
     impl Fixture {
         pub(crate) fn new() -> Self {
+            let sequence = CATALOG_FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
             let unique = SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .expect("clock after epoch")
                 .as_nanos();
             let root = std::env::temp_dir().join(format!(
-                "vcg-installed-catalog-test-{}-{unique}",
+                "vcg-installed-catalog-test-{}-{unique}-{sequence}",
                 std::process::id()
             ));
             let install = root.join("installed");

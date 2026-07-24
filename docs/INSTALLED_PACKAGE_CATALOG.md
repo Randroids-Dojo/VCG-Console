@@ -14,7 +14,9 @@ The implemented slice can:
 - resolve a fixed `{gameId, profileId}` intent into a trusted Libretro or
   native runtime request;
 - disclose only bounded id, version, runtime, and catalog-generation inventory to the authenticated trusted launcher;
-- start the resolved child only when the profile ID is in the host-owned allowlist.
+- start the resolved child only when the profile ID is in the host-owned
+  allowlist and store-backed activation exactly matches externally protected
+  channel/target/generation/catalog-digest state.
 
 The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; it also cannot prove window readiness, clean escaped descendants after restart, or provide target-Linux containment. Package installation currently exists as a separate signature-first inert staging and generation-promotion boundary. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs plus a durable replay root enables the separate launch lifecycle.
 
@@ -40,12 +42,15 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 ```
 
 As an alternative to `--catalog`, `--catalog-signature`, and `--install-root`,
-the launcher accepts `--package-store-root <absolute-root>` with the same update
-trust, runtime, data, optional content, profile, and watchdog options. The two
-source modes cannot be mixed. Normal store-backed startup completes valid
-interrupted promotion before loading the active delegated catalog; dry-run
-never performs recovery and fails if recovery is pending. See [the
-generation-store contract](PACKAGE_GENERATION_STORE.md).
+the launcher accepts `--package-store-root <absolute-root>` together with
+mandatory `--package-protected-state <absolute-platform-state-path>` and the
+same update trust, runtime, data, optional content, profile, and watchdog
+options. The two source modes cannot be mixed, and loose-catalog mode rejects
+package protected state. Normal store-backed startup completes valid
+interrupted promotion only when writable history exactly matches protected
+state; pending commit, rollback/deletion, substitution, or scope mismatch
+prevents browser startup. See the
+[generation-store contract](PACKAGE_GENERATION_STORE.md).
 
 The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
 
@@ -66,8 +71,9 @@ creating this policy. Normal startup recovers only unpublished root directories
 first; dry-run refuses pending root recovery. The CLI representation does not
 itself prove that the anchor file, exact root-state document, or time snapshot
 came from protected storage. Target images still need verified provisioning
-plus protected state/time adapters under I-112/I-141. A writable anchor or
-protected-state file beside writable history is not a production trust root.
+plus protected state/time adapters under I-112/I-141. The same caveat applies
+to package-generation protected state under D-161: a writable JSON file beside
+writable history is not a production anti-rollback boundary.
 
 ## Signature envelope
 
@@ -137,7 +143,10 @@ Managed content uses:
 Rules:
 
 - `schemaVersion` is exactly `1`.
-- `generation` is greater than zero. It is exposed for a future monotonic anti-rollback store; this slice does not persist or enforce the highest accepted generation.
+- `generation` is greater than zero. Generation-store mode binds the highest
+  accepted generation and exact catalog digest to externally protected state;
+  loose-catalog development mode has no persistent package anti-rollback
+  history.
 - `target` exactly matches the compiled Rust `<architecture>-<operating-system>` pair.
 - Package IDs are unique bounded lowercase package IDs. One catalog contains at most one active version of an ID.
 - Version text is 1–128 visible ASCII characters.

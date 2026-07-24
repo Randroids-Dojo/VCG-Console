@@ -12,7 +12,11 @@ It never accepts a browser-provided manifest, executable, path, hash, command, e
 
 ## Launch and authority flow
 
-1. `vcg-host launcher` validates an explicit loopback HTTP launcher URL and absolute browser/profile paths.
+1. `vcg-host launcher` validates an explicit loopback HTTP launcher URL,
+   absolute browser/profile paths, the persistent profile registry, and—when
+   using the package generation store—exact externally protected
+   channel/target/generation/catalog-digest state before any recovery can
+   create the API.
 2. For a non-dry run, the host binds an operating-system-selected port on `127.0.0.1` only.
 3. The host obtains 32 random bytes from the operating-system random source and encodes the per-launch capability as 64 lowercase hexadecimal characters.
 4. The host starts Chromium directly, without a shell, and appends `vcg-host-port` and `vcg-host-token` to the launcher URL fragment.
@@ -93,6 +97,28 @@ Process start is not window readiness. Svelte polls while the launch screen rema
 
 ## Evidence and remaining boundary
 
-Rust tests cover authenticated status, route-specific exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security and framing headers, transfer/body rejection, per-launch token uniqueness, signed-catalog discovery and path-free inventory, strict persistent profile-registry intake, development-source mutual exclusion, fixed-intent launch, durable at-most-once replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement, journal corruption and contention, bounded lifecycle, direct process start/observation, and idempotent cancellation. TypeScript tests cover strict bridge parsing, bounded bodies, canonical bounded package inventory, fixed package/profile/request IDs, lifecycle identity and sequence validation, bounded recovery failures, failure records, polling, and cancellation. Playwright proves the Svelte flow derives installed labeling from signed inventory, sends only versioned package/profile intent, and reports process failure without inventing readiness.
+Rust tests cover authenticated status, route-specific exact-origin preflight,
+wrong tokens/origins, unsafe configured origins, ambiguous security and framing
+headers, transfer/body rejection, per-launch token uniqueness, signed-catalog
+discovery and path-free inventory, strict persistent profile-registry intake,
+package protected-state ordering and rollback/substitution refusal,
+development-source mutual exclusion, fixed-intent launch, durable at-most-once
+replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement,
+journal corruption and contention, bounded lifecycle, direct process
+start/observation, and idempotent cancellation. TypeScript tests cover strict
+bridge parsing, bounded bodies, canonical bounded package inventory, fixed
+package/profile/request IDs, lifecycle identity and sequence validation,
+bounded recovery failures, failure records, polling, and cancellation.
+Playwright proves the Svelte flow derives installed labeling from signed
+inventory, sends only versioned package/profile intent, and reports process
+failure without inventing readiness.
 
-Still required are hostile-navigation and process-inspection tests, service-manager descendant cleanup acknowledgement, boot-scoped replay retention, target-filesystem power-loss qualification, push/event delivery or a measured polling decision, immutable key/artifact provisioning, anti-rollback state, compositor window identity/readiness, watchdog and descendant-process integration, reserved global controls, target-Linux sandboxing, and service-manager restart evidence. D-129, D-132, and D-141 remain working decisions until those tests justify retaining them.
+Still required are hostile-navigation and process-inspection tests,
+service-manager descendant cleanup acknowledgement, boot-scoped replay
+retention, target-filesystem power-loss qualification, push/event delivery or a
+measured polling decision, immutable key/artifact provisioning, qualified
+platform provenance and compare-and-swap for protected state, compositor window
+identity/readiness, watchdog and descendant-process integration, reserved
+global controls, target-Linux sandboxing, and service-manager restart evidence.
+D-129, D-132, D-141, and D-161 remain working decisions until those tests
+justify retaining them.

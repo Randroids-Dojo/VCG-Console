@@ -11,7 +11,8 @@ use vcg_host::installed_catalog::{CatalogRoots, TrustedPackageCatalog};
 use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
 use vcg_host::native_launch::NativeLaunchService;
 use vcg_host::package_generation::{
-    PackageGenerationConfig, PackageGenerationStore, RecoveryOutcome,
+    MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES, PackageGenerationConfig, PackageGenerationStore,
+    ProtectedPackageGenerationState, RecoveryOutcome,
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::profile_registry::{HostProfileRegistry, MAX_PROFILE_REGISTRY_BYTES};
@@ -51,7 +52,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("retroarch-adapter: plan-and-direct-launch");
             println!("retroarch-integrity: sha256-required");
             println!("installed-catalog: ed25519-signed-target-qualified");
-            println!("package-generations: crash-recoverable-active-store");
+            println!("package-generations: protected-crash-recoverable-active-store");
             println!("native-launch: fixed-intent-process-lifecycle");
             println!("native-launch-watchdog: host-game-opt-in");
             println!("native-launch-replay: durable-bounded-fail-closed");
@@ -84,6 +85,7 @@ struct LauncherOptions {
     catalog: Option<PathBuf>,
     catalog_signature: Option<PathBuf>,
     package_store_root: Option<PathBuf>,
+    package_protected_state: Option<PathBuf>,
     install_root: Option<PathBuf>,
     content_root: Option<PathBuf>,
     runtime_root: Option<PathBuf>,
@@ -120,6 +122,7 @@ enum LauncherCatalogSourceOptions {
     },
     GenerationStore {
         store_root: PathBuf,
+        protected_state: PathBuf,
         content_root: Option<PathBuf>,
         runtime_root: PathBuf,
         data_root: PathBuf,
@@ -275,8 +278,11 @@ fn report_package_recovery(recovery: Option<RecoveryOutcome>) {
     if let Some(recovery) = recovery {
         match recovery {
             RecoveryOutcome::Clean => println!("launcher:package-recovery state=clean"),
-            RecoveryOutcome::Activated { generation } => {
-                println!("launcher:package-recovery state=activated generation={generation}");
+            RecoveryOutcome::ProtectionCommitRequired { state } => {
+                println!(
+                    "launcher:package-recovery state=protection-commit-required generation={}",
+                    state.generation()
+                );
             }
         }
     }
@@ -291,6 +297,24 @@ impl LauncherCatalogOptions {
         if !profile_ids.is_empty() && self.launch_replay_root.is_none() {
             return Err("nonempty profile registry requires --launch-replay-root".to_owned());
         }
+        let package_protected_state = match &self.source {
+            LauncherCatalogSourceOptions::Loose { .. } => None,
+            LauncherCatalogSourceOptions::GenerationStore {
+                protected_state, ..
+            } => {
+                let state =
+                    ProtectedPackageGenerationState::from_json_bytes(&read_bounded_host_file(
+                        protected_state,
+                        MAX_PROTECTED_PACKAGE_GENERATION_STATE_BYTES,
+                        "package protected state",
+                    )?)
+                    .map_err(|error| error.to_string())?;
+                state
+                    .validate_scope(&self.update_trust.channel, &current_target())
+                    .map_err(|error| error.to_string())?;
+                Some(state)
+            }
+        };
         let (update_policy, root_recovery) = self.update_trust.load(recover)?;
         let (catalog, source, recovery) = match self.source {
             LauncherCatalogSourceOptions::Loose {
@@ -311,6 +335,7 @@ impl LauncherCatalogOptions {
             ),
             LauncherCatalogSourceOptions::GenerationStore {
                 store_root,
+                protected_state: _,
                 content_root,
                 runtime_root,
                 data_root,
@@ -318,6 +343,8 @@ impl LauncherCatalogOptions {
                 let store = PackageGenerationStore::open(PackageGenerationConfig {
                     store_root,
                     update_policy,
+                    protected_state: package_protected_state
+                        .expect("generation-store state was parsed before recovery"),
                     content_root,
                     runtime_root,
                     data_root,
@@ -602,8 +629,14 @@ fn launcher_catalog_options(
                 .to_owned(),
         );
     }
+    if options.package_protected_state.is_some() && !store_requested {
+        return Err(
+            "--package-protected-state is accepted only with --package-store-root".to_owned(),
+        );
+    }
     let catalog_requested = loose_requested
         || store_requested
+        || options.package_protected_state.is_some()
         || options.content_root.is_some()
         || options.runtime_root.is_some()
         || options.data_root.is_some()
@@ -644,6 +677,9 @@ fn launcher_catalog_options(
         let source = if let Some(store_root) = options.package_store_root {
             LauncherCatalogSourceOptions::GenerationStore {
                 store_root,
+                protected_state: options.package_protected_state.ok_or_else(|| {
+                    "launcher generation store requires --package-protected-state".to_owned()
+                })?,
                 content_root: options.content_root,
                 runtime_root,
                 data_root,
@@ -782,6 +818,7 @@ fn parse_launcher_catalog_option(
         "--catalog" => &mut output.catalog,
         "--catalog-signature" => &mut output.catalog_signature,
         "--package-store-root" => &mut output.package_store_root,
+        "--package-protected-state" => &mut output.package_protected_state,
         "--install-root" => &mut output.install_root,
         "--content-root" => &mut output.content_root,
         "--runtime-root" => &mut output.runtime_root,
@@ -1311,7 +1348,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -1319,9 +1356,9 @@ fn usage() -> String {
 mod tests {
     use super::{
         LauncherCatalogOptions, LauncherCatalogSourceOptions, LauncherProfileSource,
-        LauncherUpdateTrustOptions, ProtectedUpdateRootState, UpdateRootOptions, launcher_request,
-        parse_update_root_option, plan_launcher, retroarch_request, supervise, supervise_plan,
-        watchdog_plan,
+        LauncherUpdateTrustOptions, ProtectedUpdateRootState, UpdateRootOptions, current_target,
+        launcher_request, parse_update_root_option, plan_launcher, retroarch_request, supervise,
+        supervise_plan, watchdog_plan,
     };
     use ed25519_dalek::{Signer, SigningKey};
     use std::ffi::OsString;
@@ -1793,6 +1830,54 @@ mod tests {
     }
 
     #[test]
+    fn invalid_package_protected_state_precedes_update_root_recovery() {
+        let target = current_target();
+        for document in [
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"{target}","generation":7,"catalogSha256":null}}"#
+            ),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"recovery","target":"{target}","generation":0,"catalogSha256":null}}"#
+            ),
+        ] {
+            let unique = NEXT_ROOT_FIXTURE.fetch_add(1, Ordering::Relaxed);
+            let fixture = std::env::temp_dir().join(format!(
+                "vcg-package-protection-order-test-{}-{unique}",
+                std::process::id()
+            ));
+            fs::create_dir(&fixture).expect("create ordering fixture");
+            let protected_state = fixture.join("package-protected-state.json");
+            fs::write(&protected_state, document).expect("write invalid package protected state");
+            let root_store = fixture.join("root-store-that-must-not-be-opened");
+            let options = LauncherCatalogOptions {
+                source: LauncherCatalogSourceOptions::GenerationStore {
+                    store_root: fixture.join("package-store-that-must-not-be-opened"),
+                    protected_state,
+                    content_root: None,
+                    runtime_root: fixture.join("runtime"),
+                    data_root: fixture.join("data"),
+                },
+                update_trust: LauncherUpdateTrustOptions {
+                    store_root: root_store.clone(),
+                    root_anchors: fixture.join("missing-anchors.json"),
+                    protected_state: fixture.join("missing-root-protected-state.json"),
+                    channel: "stable".to_owned(),
+                    trusted_unix_seconds: 2_000_000_000,
+                },
+                profiles: LauncherProfileSource::DevelopmentIds(Vec::new()),
+                watchdog_game_ids: Vec::new(),
+                launch_replay_root: None,
+            };
+            let Err(error) = options.load(true) else {
+                panic!("invalid package protected state must fail first");
+            };
+            assert!(error.contains("package protected state"));
+            assert!(!root_store.exists());
+            fs::remove_dir_all(&fixture).expect("remove ordering fixture");
+        }
+    }
+
+    #[test]
     fn launcher_profiles_require_exactly_one_replay_root() {
         let mut configured = vec![
             "--browser",
@@ -1847,6 +1932,8 @@ mod tests {
         complete.extend([
             "--package-store-root",
             "/package-store",
+            "--package-protected-state",
+            "/platform/package-protected-state.json",
             "--content-root",
             "/content",
             "--runtime-root",
@@ -1864,6 +1951,7 @@ mod tests {
         let catalog = catalog.expect("catalog options exist");
         let LauncherCatalogSourceOptions::GenerationStore {
             store_root,
+            protected_state,
             content_root,
             ..
         } = catalog.source
@@ -1871,6 +1959,10 @@ mod tests {
             panic!("generation store source expected");
         };
         assert_eq!(store_root, std::path::Path::new("/package-store"));
+        assert_eq!(
+            protected_state,
+            std::path::Path::new("/platform/package-protected-state.json")
+        );
         assert_eq!(
             content_root.as_deref(),
             Some(std::path::Path::new("/content"))
@@ -1897,6 +1989,36 @@ mod tests {
             "/data",
         ]);
         assert!(launcher_request(&args(&missing_key)).is_err());
+
+        let mut missing_package_state = base.to_vec();
+        missing_package_state.extend([
+            "--package-store-root",
+            "/package-store",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+        ]);
+        extend_update_trust(&mut missing_package_state);
+        assert!(launcher_request(&args(&missing_package_state)).is_err());
+
+        let mut loose_with_package_state = base.to_vec();
+        loose_with_package_state.extend([
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--install-root",
+            "/installed",
+            "--package-protected-state",
+            "/platform/package-protected-state.json",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+        ]);
+        extend_update_trust(&mut loose_with_package_state);
+        assert!(launcher_request(&args(&loose_with_package_state)).is_err());
     }
 
     #[test]

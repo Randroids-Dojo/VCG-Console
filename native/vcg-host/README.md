@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable package-generation activation, strict persistent opaque profile intake, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim tamper-protected update-root/time persistence, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, a qualified profile writer/deletion lifecycle, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable exact protected-state package-generation activation, strict persistent opaque profile intake, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim a qualified platform mechanism or provenance for update-root/package-generation protected state and trusted time, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, a qualified profile writer/deletion lifecycle, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -91,15 +91,20 @@ candidate health and live/watchdog preparation. This does not restrict ambient
 filesystem, environment, network, device, or descendant access. See the
 [native package runtime contract](../../docs/NATIVE_PACKAGE_RUNTIME.md).
 
-`--package-store-root <absolute-path>` may replace the loose `--catalog`,
-`--catalog-signature`, and `--install-root` inputs. Normal startup completes a
-valid interrupted promotion and re-verifies the active generation before the
-API or browser starts. `--dry-run` never mutates package state and fails if
-recovery is pending. The provisioned store must include the inert regular
+`--package-store-root <absolute-path>` plus mandatory
+`--package-protected-state <absolute-platform-state-path>` may replace the loose
+`--catalog`, `--catalog-signature`, and `--install-root` inputs. Normal startup
+completes a valid interrupted promotion and re-verifies that the active
+generation exactly matches protected channel, target, generation, and catalog
+digest before the API or browser starts. Pending commit, rollback/deletion,
+substitution, and scope mismatch fail closed; launcher startup never commits
+protected state. `--dry-run` never mutates package state and fails if recovery
+is pending. The provisioned store must include the inert regular
 `.vcg-package-store.lock`; cooperating staging, promotion, recovery, and
 cleanup-planning operations take it nonblockingly. The store and loose source
-modes cannot be combined. See
-the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
+modes cannot be combined. See the
+[signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md) and
+[protected-state adapter contract](../../docs/PACKAGE_GENERATION_PROTECTED_STATE.md).
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
@@ -131,7 +136,11 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
   not establish protected-state, anchor, or time provenance.
 - `package_transfer`: exclusively locked exact-offset archive receipt, byte-identical replay, restart resume, remaining-byte capacity checks, full-hash verification, and no-replace ready publication.
 - `package_intake`: signature-first release admission, capacity checks, exact archive/catalog evidence, and bounded portable regular-files-only TAR extraction.
-- `package_generation`: receiver-locked ready-archive intake, serialized verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and launch-frozen path-free read-only retention planning.
+- `package_generation`: receiver-locked ready-archive intake, serialized
+  verify-before-intent and verify-after-move signed generation activation,
+  exact externally protected channel/target/generation/catalog-digest gating,
+  deterministic interrupted-promotion recovery, and launch-frozen path-free
+  retention planning and explicit cleanup.
 - `native_launch`: profile-allowlisted durable idempotent intent, one active child, bounded append-only replay, restart-indeterminate cleanup barrier, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.

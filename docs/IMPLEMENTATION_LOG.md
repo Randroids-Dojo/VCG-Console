@@ -1672,3 +1672,61 @@ lifecycle. A qualified privileged writer, synchronization and rollback policy,
 guest lifetime, profile creation/removal, sensitive-data deletion, save
 unassignment, encrypted-vault integration, backup/support/recovery exclusion,
 target permissions, hostile-writer tests, and power-loss recovery remain open.
+
+## 2026-07-24: exact protected package-generation state
+
+### Delivered
+
+- Added a strict 1 KiB v1 package protected-state document binding one exact
+  update channel, compiled platform target, generation, and installed-catalog
+  SHA-256. Generation zero is the only uninitialized form.
+- Required every store open to match protected scope to its trusted update
+  policy and target, and required writable activation history to equal the
+  protected generation and digest before launch, generation cleanup, candidate
+  health, or later promotion.
+- Changed promotion into a two-phase transaction: verify and publish the
+  activation first, return the exact next state, and keep the generation
+  unusable until a privileged platform adapter commits that state.
+- Made recovery report the same exact pending state after interruption without
+  advancing it. Re-verified the signed catalog and every artifact before a
+  pending state can be returned.
+- Rejected protected history deletion/rollback, same-generation catalog
+  substitution, cross-channel/target state, state ahead of history, and
+  additional candidate execution while a commit is pending.
+- Required generation-store launcher mode to supply
+  `--package-protected-state`, rejected it in loose-catalog development mode,
+  validated it after profile intake but before root/package recovery, and kept
+  launcher startup unable to auto-acknowledge writable history.
+- Added `PACKAGE_GENERATION_PROTECTED_STATE.md`, D-161, and a separate Q-136
+  through Q-139 owner record.
+
+### Verification evidence
+
+Thirty-six focused generation-store tests cover strict document bounds and
+scope, first and later two-phase promotion, pending launch/health/promotion
+denial, exact retry, deletion to an older valid activation, same-generation
+digest substitution, changed pending artifacts, interruption on both sides of
+the generation move, cleanup composition, and the pre-existing signed
+intake/health/recovery cases.
+
+Nineteen CLI tests cover mandatory source-specific configuration and prove that
+invalid package protected state is rejected before update-root recovery. Full
+native verification passes 246 library tests with five intentional subprocess
+helpers ignored and all nineteen CLI tests. Rust formatting, strict all-target
+Clippy, and warning-denied Rustdoc pass.
+
+The full parallel native suite also exposed a Windows temporary-fixture name
+collision in the pre-existing installed-catalog tests. A process-local atomic
+suffix now supplements the timestamp and process ID; the focused test passed
+ten consecutive repetitions and two subsequent complete workspace test runs
+passed.
+
+### Remaining boundary
+
+The JSON document is an adapter representation, not protected storage. The
+Windows and Linux integrity/anti-rollback mechanism, exact compare-and-swap,
+exclusive slot identity, authorized channel/target migration, disaster reset,
+audit/product response, trusted refreshed time, hostile-writer qualification,
+and physical power-loss campaigns remain Q-136 through Q-139 and
+I-101/I-141/I-209 work. Loose-catalog mode remains development-only and has no
+persistent package-generation anti-rollback history.
