@@ -410,7 +410,7 @@ I-009 closes as a contract task. Native network containment, optional-service in
 - Host-API tests cover conditional capability discovery, metadata-only package lookup, invalid IDs, and missing packages without disclosing signed paths or hashes.
 - TypeScript tests cover fixed-ID-only requests, capability gating, 404 fail-closed behavior, invalid intent, mismatched returned identity, and the absence of browser-supplied path/hash/program/command authority.
 - Playwright covers the Svelte Retro lookup end to end and proves that a resolved signed package still stops before execution.
-- Strict Rust formatting and Clippy pass; 42 Rust library tests and 12 CLI tests pass with four helper entrypoints intentionally ignored. All workspace unit suites pass, including 36 console-lab tests; Svelte reports zero errors and warnings; the production build and all four manifest validations pass; and all 18 Playwright flows pass.
+- Strict Rust formatting and Clippy pass; 42 Rust library tests and 12 CLI tests pass with four helper entrypoints intentionally ignored. All workspace unit suites pass, including 36 console-lab tests; Svelte reports zero errors and warnings; the production build and all four manifest validations pass; and all 18 Playwright flows pass. Cargo Audit 0.22.2 scans all 34 locked Rust dependencies against 1,169 RustSec advisories with no vulnerability finding.
 
 ### Remaining boundary
 
