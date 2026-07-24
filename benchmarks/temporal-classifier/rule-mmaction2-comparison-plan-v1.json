@@ -1,0 +1,203 @@
+{
+  "format": "vcg-rule-temporal-classifier-comparison",
+  "formatVersion": 1,
+  "documentType": "plan",
+  "campaignId": "core17-rule-mmaction2-v1",
+  "generatedAt": "2026-07-24T18:42:40.673Z",
+  "sourceCommit": "17b22fa59cf3f786f9de7c89cc997cf0f01b2b07",
+  "workingTreeClean": false,
+  "claimBoundary": "Architecture and evidence plan only. No MMAction2 environment, custom VCG dataset, training run, checkpoint, held-out participant, accuracy result, runtime, package size, target platform, or model selection exists.",
+  "upstream": {
+    "project": "open-mmlab/mmaction2",
+    "release": "v1.2.0",
+    "documentationRevision": "4d6c9347",
+    "releaseUrl": "https://github.com/open-mmlab/mmaction2/releases/tag/v1.2.0",
+    "installationUrl": "https://github.com/open-mmlab/mmaction2/blob/v1.2.0/docs/en/get_started/installation.md",
+    "customDatasetUrl": "https://mmaction2.readthedocs.io/en/stable/advanced_guides/customize_dataset.html",
+    "posec3dUrl": "https://github.com/open-mmlab/mmaction2/blob/v1.2.0/configs/skeleton/posec3d/README.md",
+    "stgcnUrl": "https://github.com/open-mmlab/mmaction2/blob/v1.2.0/configs/skeleton/stgcn/README.md",
+    "supportedKeypointFormats": [
+      "coco",
+      "nturgb+d",
+      "openpose"
+    ],
+    "dependencyBoundary": "pin and hash Python, PyTorch, MMEngine, MMCV, MMAction2, config, custom dataset adapter, and every checkpoint before execution"
+  },
+  "candidates": [
+    {
+      "candidateId": "core17-rules-v1",
+      "family": "deterministic-rule",
+      "implementation": "packages/motion-contract/src/rule-baselines.ts",
+      "temporalInputFrames": null,
+      "upstreamReportedFlops": null,
+      "upstreamReportedParameters": null,
+      "upstreamMetricBoundary": "VCG camera-free synthetic evidence only; no real-player qualification",
+      "checkpointPolicy": "no checkpoint"
+    },
+    {
+      "candidateId": "mmaction2-posec3d-keypoint",
+      "family": "skeleton-temporal-classifier",
+      "implementation": "configs/skeleton/posec3d/slowonly_r50_8xb16-u48-240e_ntu60-xsub-keypoint.py",
+      "temporalInputFrames": 48,
+      "upstreamReportedFlops": "20.6G",
+      "upstreamReportedParameters": "2.0M",
+      "upstreamMetricBoundary": "upstream NTU60 cross-subject keypoint configuration; not VCG labels, data, event timing, or runtime",
+      "checkpointPolicy": "upstream checkpoints may verify installation only and cannot score as VCG evidence"
+    },
+    {
+      "candidateId": "mmaction2-stgcn-joint-2d",
+      "family": "skeleton-temporal-classifier",
+      "implementation": "configs/skeleton/stgcn/stgcn_8xb16-joint-u100-80e_ntu60-xsub-keypoint-2d.py",
+      "temporalInputFrames": 100,
+      "upstreamReportedFlops": "3.8G",
+      "upstreamReportedParameters": "3.1M",
+      "upstreamMetricBoundary": "upstream NTU60 cross-subject 2D joint configuration; not VCG labels, data, event timing, or runtime",
+      "checkpointPolicy": "upstream checkpoints may verify installation only and cannot score as VCG evidence"
+    }
+  ],
+  "labels": [
+    "jump",
+    "squat",
+    "lean_left",
+    "lean_right",
+    "step_left",
+    "step_right",
+    "reach_left",
+    "reach_right",
+    "punch_left",
+    "punch_right",
+    "negative"
+  ],
+  "dataset": {
+    "inputProfile": "Motion 0.4.0 body.core17 normalized 2D skeleton-only",
+    "rawFramesRetainedByDefault": false,
+    "persistentFields": [
+      "opaque participant/session code",
+      "persona class",
+      "monotonic skeleton timestamps",
+      "17 named normalized 2D landmarks",
+      "per-landmark observed and confidence state",
+      "independent action/event labels",
+      "bounded context and invalid-reason fields"
+    ],
+    "prohibitedFields": [
+      "RGB image",
+      "depth image",
+      "video",
+      "audio",
+      "name",
+      "portrait",
+      "face embedding",
+      "durable body identity"
+    ],
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "exploratoryPersonaClasses": [
+      "seated-exploratory",
+      "limited-range-exploratory"
+    ],
+    "splitUnit": "participant; every session from one participant belongs to exactly one of train, validation, or held-out test",
+    "splitOrder": "freeze participant assignment and trace hashes before any model training or rule-threshold tuning",
+    "minimumParticipantsPerBlockingClass": null,
+    "attemptsPerPositiveLabelPerParticipant": 20,
+    "negativeMinutesPerParticipant": 15,
+    "requiredNegativeStrata": [
+      "neutral standing",
+      "ordinary setup movement",
+      "crossed arms",
+      "self-occlusion",
+      "partial exit and re-entry",
+      "camera shift",
+      "spectator or passerby",
+      "controller-only recovery"
+    ],
+    "augmentationPolicy": "training split only; every transform, probability, seed, and left/right label remap is frozen and hashed"
+  },
+  "training": {
+    "seeds": [
+      17,
+      23,
+      47
+    ],
+    "deterministicModeRequested": true,
+    "repeatedRunsPerTemporalCandidate": 3,
+    "rulesTrainingPolicy": "freeze calibration, thresholds, hysteresis, cooldown, and lifecycle adapter before held-out evaluation",
+    "temporalTrainingPolicy": "train custom 11-label heads only; validation may select epoch and thresholds; held-out test is single-use",
+    "classBalancePolicy": "report natural prevalence and a separately balanced training sampler; never rebalance held-out metrics",
+    "earlyStoppingSource": "validation split only",
+    "prohibitedLeakage": [
+      "participant across splits",
+      "session fragment across splits",
+      "held-out threshold tuning",
+      "held-out augmentation selection",
+      "test-set checkpoint selection",
+      "synthetic test truth passed to a candidate"
+    ]
+  },
+  "evaluation": {
+    "commonInput": "the exact same ordered core17 skeleton traces and independent labels for every candidate",
+    "commonOutput": "candidate-specific scores converted through one versioned validation-tuned action lifecycle adapter",
+    "requiredPerLabelMetrics": [
+      "precision",
+      "recall",
+      "f1",
+      "false events per negative minute",
+      "trigger signed-error p50",
+      "trigger signed-error p95",
+      "trigger worst absolute error"
+    ],
+    "requiredAggregateMetrics": [
+      "participant-macro precision",
+      "participant-macro recall",
+      "participant-macro f1",
+      "persona-macro f1",
+      "confusion matrix",
+      "invalid and unavailable attempt counts"
+    ],
+    "requiredResourceMetrics": [
+      "training wall time",
+      "training peak RAM and VRAM",
+      "checkpoint bytes",
+      "runtime package bytes",
+      "cold-load time",
+      "per-window inference p50/p95/p99/worst",
+      "full camera-to-action p50/p95/p99/worst",
+      "runtime CPU/RAM/GPU/VRAM"
+    ],
+    "requiredExplainabilityArtifacts": [
+      "rule threshold and state transition trace",
+      "temporal per-class score timeline",
+      "temporal joint/time attribution with method and limitations",
+      "bounded skeleton-only false-positive and false-negative exemplars"
+    ],
+    "reportSlices": [
+      "participant",
+      "persona class",
+      "camera position",
+      "backend",
+      "movement amplitude",
+      "occlusion stratum",
+      "target platform"
+    ],
+    "selectionPolicy": "no candidate selection from aggregate accuracy alone; every blocking persona and privileged false-event gate must pass, resource/package costs must fit both target tiers, and accessibility results remain separate",
+    "minimumHeldOutParticipantsPerBlockingClass": null,
+    "perLabelMetricGates": null,
+    "resourceGates": null
+  },
+  "requiredArtifacts": [
+    "consent and minimization protocol hash",
+    "dataset manifest and every skeleton-trace hash",
+    "participant-disjoint split manifest hash",
+    "independent label manifest and adjudication hash",
+    "exact MMAction2 repository/tag/revision and dependency lock hashes",
+    "custom dataset adapter, configs, label map, transforms, and seeds",
+    "rule implementation and parameter hashes",
+    "every trained checkpoint and training-log hash",
+    "per-run and aggregate held-out metrics without omitted failures",
+    "runtime/package/resource measurements on ordinary x86-64 Linux and Raspberry Pi",
+    "license, dependency, model-weight, and dataset-rights review",
+    "explicit no-selection or selected-candidate decision record"
+  ]
+}

@@ -3131,3 +3131,42 @@ pending Q-235, exact devices and room geometry, consented participants,
 qualified synchronization/reference uncertainty, all scheduled sessions,
 per-player/per-position distributions, D-110 full action latency, false-action
 scoring, backend parity, and ordinary x86-64 Linux/Raspberry Pi execution.
+
+## 2026-07-24: rule versus MMAction2 temporal comparison plan
+
+### Delivered
+
+- Advanced I-066 from open to active with a pinned primary-source boundary for
+  MMAction2 v1.2.0 and documentation revision `4d6c9347`.
+- Defined a fair three-candidate comparison: the current core17 deterministic
+  rules, 48-frame PoseC3D keypoint heatmaps, and 100-frame ST-GCN 2D joints.
+- Freezes an 11-label vocabulary including Negative and requires the exact same
+  Motion `0.4.0` core17 traces and independent labels for every candidate.
+- Requires participant-disjoint splits frozen before tuning/training, three
+  fixed seeds per temporal candidate, validation-only checkpoint/threshold
+  selection, a single-use held-out test, and a common lifecycle/event adapter.
+- Requires per-label accuracy, negative exposure, trigger timing,
+  participant/persona slices, training/runtime/package resources,
+  explainability artifacts, dependency/data/config/checkpoint hashes, and
+  license/rights review.
+- Added Q-236 for participant scale, candidate scope, metric gates, and
+  compute/resource ceilings; all collection/selection fields remain null.
+
+### Verification evidence
+
+- The pinned three-candidate / eleven-label plan validates.
+- Ten adversarial tests reject raw-frame retention, mutable upstream state,
+  upstream checkpoint metrics presented as VCG evidence, participant leakage,
+  unseeded single runs, missing Negative, premature collection/selection
+  gates, aggregate-only selection, and undeclared candidate claims.
+- Official upstream complexity figures remain labeled as the published NTU
+  protocol, not VCG runtime or accuracy evidence.
+
+### Remaining boundary
+
+No MMAction2 environment, VCG dataset, training run, checkpoint, held-out
+participant, runtime, package, or selection exists. I-066 remains active
+pending Q-236, consented minimized data, exact dependency/config locks,
+participant-disjoint traces and labels, repeated training, single-use
+held-out scoring, common event timing, target x86/Pi resources, license review,
+and an explicit no-selection or selected-candidate decision.
