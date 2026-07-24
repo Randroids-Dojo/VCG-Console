@@ -3214,3 +3214,44 @@ destination policy, independently reviewed support materialization, crash and
 swap policy, and positive/negative canary evidence across every real update,
 rollback, save, developer, log, support, recovery, clone, reflash,
 replacement, deletion, reset, and target-hardware path.
+
+## 2026-07-24: exact allowlisted hosted-browser preview
+
+### Delivered
+
+- Advanced I-180 from a raw external Museum link to one exact-issued
+  generated-catalog preview plan containing only a safe destination ID, exact
+  credential-free HTTPS origin, schema version, and explicit
+  `unsupervised-browser-preview` disclosure.
+- Removed caller-supplied `href` authority from the generic launch screen.
+  Remote actions now pass through the same trusted callback path as other
+  launch actions, with the exact plan retained as raw Svelte state.
+- Rejects unsafe or duplicate destination registries, unknown destinations,
+  clones, cross-controller plans, replaced/discarded plans, replay, and
+  reentrant opening before another URL can be selected.
+- Consumes the plan before `window.open`, requests `noopener,noreferrer`,
+  clears a writable opener, and reissues only the same catalog destination
+  after a blocked popup.
+- Replaced false native-reachability and supervision copy with an explicit
+  browser-only, unsupervised, uncontained preview boundary.
+
+### Verification evidence
+
+- Fourteen focused controller cases cover exact opening, immutability,
+  one-shot authority, every substitution/replay boundary, unsafe registries,
+  popup failure, reentrancy, and a restrictive `WindowProxy`.
+- Three focused real-Chrome flows cover the visible boundary, generic remote
+  launch presentation, offline/retry, blocked-popup reissue, and two exact
+  observed handoffs without making an external request.
+- The Playwright preview server production build succeeds with the new
+  button-only action path.
+
+### Remaining boundary
+
+This is browser-prototype intent hygiene, not the supervised top-level hosted
+game lane. Same-origin compromise can bypass it. I-180 still requires a
+no-chrome isolated browser process/profile, post-launch redirect/origin,
+popup/download/custom-scheme/permission/storage containment, controller focus,
+unstealable compositor Home/Back/Pause, crash/hang/resource/network/login
+recovery and cleanup, authenticated native readiness, and ARM64/x86-64 Linux
+qualification.
