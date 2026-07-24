@@ -64,8 +64,10 @@ On normal close, abort, failure, or violation, cleanup first requests
 `Browser.close`. Windows development fallback terminates the exact spawned PID
 tree; POSIX launch uses a separate process group and signals that group. The
 temporary browser profile is recursively removed only after the owned browser
-process exits. This does not replace a production service-manager/cgroup
-boundary.
+process exits. Cleanup accepts only a branded direct child of the operating
+system temporary directory and rejects links and non-directories before
+removal. This does not replace a production service-manager/cgroup boundary or
+eliminate a same-account path-swap race.
 
 ## Active containment
 
@@ -91,7 +93,7 @@ game-ready, compositor-ready, interactive, or healthy.
 
 ## Automated evidence
 
-Fourteen focused cases cover:
+Fifteen focused cases cover:
 
 - strict policy derivation and immutability;
 - runtime, ID, origin, credential, duplicate, bound, timeout, entrypoint, and
@@ -104,7 +106,9 @@ Fourteen focused cases cover:
 - redirect-before-request enforcement, redirect bounds, missing locations, and
   unhealthy responses; and
 - fixed process arguments without `--no-sandbox` or
-  `--disable-web-security`.
+  `--disable-web-security`; and
+- destructive-profile lexical scope, including refusal of the temporary root,
+  unrelated names, short names, and nested paths.
 
 The final test launches installed Chrome headlessly through the real random
 DevTools endpoint and ephemeral profile, arms the production guard, injects a

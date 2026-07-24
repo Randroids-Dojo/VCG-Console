@@ -1,6 +1,8 @@
 import type { ChildProcess } from "node:child_process";
 import { spawn } from "node:child_process";
-import { readFile, rm } from "node:fs/promises";
+import { lstat, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import WebSocket, { type RawData } from "ws";
 
@@ -426,6 +428,7 @@ export async function requireHealthyHostedEndpoint(
 export async function runSupervisedHostedBrowser(
   options: HostedBrowserRunOptions,
 ): Promise<HostedBrowserRunResult> {
+  const profilePath = validateHostedBrowserProfilePath(options.profilePath);
   const report = (status: HostedBrowserStatus) => {
     options.onStatus?.(Object.freeze(status));
   };
@@ -435,7 +438,7 @@ export async function runSupervisedHostedBrowser(
   });
   const child = spawn(
     options.browserPath,
-    [...buildHostedBrowserArguments(options.profilePath)],
+    [...buildHostedBrowserArguments(profilePath)],
     {
       detached: process.platform !== "win32",
       stdio: ["ignore", "inherit", "inherit"],
@@ -500,7 +503,7 @@ export async function runSupervisedHostedBrowser(
       detail: "Attaching browser policy supervisor",
     });
     const endpoint = await waitForDevToolsEndpoint(
-      options.profilePath,
+      profilePath,
       child,
       DEVTOOLS_ENDPOINT_TIMEOUT_MS,
     );
@@ -637,7 +640,7 @@ export async function runSupervisedHostedBrowser(
       await stopPromise;
     }
     connection?.close();
-    await removeEphemeralProfile(options.profilePath);
+    await removeEphemeralProfile(profilePath);
   }
 }
 
@@ -652,6 +655,7 @@ export async function probeHostedBrowserContainment(
   browserPath: string,
   profilePath: string,
 ): Promise<HostedBrowserContainmentProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
   const probePolicy = createHostedBrowserPolicy({
     id: "containment-probe",
     runtime: "remote-web",
@@ -1155,12 +1159,54 @@ async function terminateBrowserTree(child: ChildProcess): Promise<void> {
 }
 
 async function removeEphemeralProfile(profilePath: string): Promise<void> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  let metadata;
+  try {
+    metadata = await lstat(profilePath);
+  } catch (error) {
+    const code =
+      isRecord(error) && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code === "ENOENT") return;
+    throw error;
+  }
+  if (!metadata.isDirectory() || metadata.isSymbolicLink()) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile is not an owned temporary directory",
+    );
+  }
   await rm(profilePath, {
     force: true,
     maxRetries: 3,
     recursive: true,
     retryDelay: 50,
   });
+}
+
+export function validateHostedBrowserProfilePath(value: string): string {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile path is invalid",
+    );
+  }
+  const normalized = resolve(value);
+  const temporaryRoot = resolve(tmpdir());
+  const samePath = (left: string, right: string) =>
+    process.platform === "win32"
+      ? left.toLowerCase() === right.toLowerCase()
+      : left === right;
+  if (
+    !samePath(dirname(normalized), temporaryRoot)
+    || !/^vcg-hosted-(?:browser|probe)-[A-Za-z0-9_-]{6,64}$/.test(
+      basename(normalized),
+    )
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile must be one branded temporary directory",
+    );
+  }
+  return normalized;
 }
 
 async function withDeadline<T>(

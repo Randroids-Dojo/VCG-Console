@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -12,6 +12,7 @@ import {
   probeHostedBrowserContainment,
   requireHealthyHostedEndpoint,
   type HostedBrowserManifestInput,
+  validateHostedBrowserProfilePath,
 } from "./hosted-browser-supervisor";
 
 function installedChromePath(): string | undefined {
@@ -425,6 +426,37 @@ describe("hosted browser process arguments", () => {
       false,
     );
     assert.equal(Object.isFrozen(args), true);
+  });
+
+  it("accepts only one branded direct child of the temporary directory", async () => {
+    const profilePath = await mkdtemp(
+      join(tmpdir(), "vcg-hosted-browser-"),
+    );
+    try {
+      assert.equal(
+        validateHostedBrowserProfilePath(profilePath),
+        profilePath,
+      );
+      for (const invalid of [
+        "",
+        ".",
+        tmpdir(),
+        join(tmpdir(), "unrelated-profile-123456"),
+        join(tmpdir(), "vcg-hosted-browser-short"),
+        join(
+          tmpdir(),
+          "nested",
+          "vcg-hosted-browser-123456",
+        ),
+      ]) {
+        assert.throws(
+          () => validateHostedBrowserProfilePath(invalid),
+          HostedBrowserPolicyError,
+        );
+      }
+    } finally {
+      await rm(profilePath, { recursive: true, force: true });
+    }
   });
 
   const chrome = installedChromePath();
