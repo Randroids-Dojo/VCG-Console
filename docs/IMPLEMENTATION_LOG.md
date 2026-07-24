@@ -298,3 +298,27 @@ I-058 is closed as a specification/transform task. Floor calibration confidence,
 ### Remaining boundary
 
 I-109 advances to active but is not closed. Real Linux cgroup OOM classification, GPU-reset detection, descendant process-group containment, compositor/browser hangs, launcher IPC/re-entry, service-manager restart of the launcher itself, and ARM64/x86-64 target fault injection remain required. A game or wrapper must atomically replace the changing heartbeat content; merely touching a file is not the contract.
+
+## 2026-07-23: contained RetroArch launch foundation
+
+### Delivered
+
+- The game manifest now has a strict `libretro` contract for frontend/core identities, versions, sources, licenses, architectures, optional artifact hashes, content mode/hash, controller profile, save namespace, and BIOS inventory.
+- Runtime parsing requires an exact `libretro:<core-id>` entrypoint, native architecture parity, offline operation, no web origins, restricted permissions, non-HTTP health, and no contentless launch unless the core declares no-game support. A manifest cannot be called qualified until frontend and core SHA-256 hashes are present.
+- The new Rust adapter resolves symlinks and confines the frontend, core, and base configuration to the installed-package root. Imported content must resolve beneath a separate console-managed content root, so RetroArch cannot launch directly from USB or an arbitrary user path.
+- The host generates one private append configuration and distinct cache/log/save/state/remap/screenshot/system/core-option directories per profile and game. It disables mutable/network-facing RetroArch surfaces, selects kiosk/fullscreen behavior, redirects writable paths, and atomically publishes the configuration.
+- `vcg-host retroarch` supports a no-mutation dry run and a direct no-shell launch with stable prepared/started/completed lifecycle lines. It does not fabricate a heartbeat or window-ready event that RetroArch does not provide.
+- The catalog and launcher expose 2048 as an uninstalled, unverified qualification candidate. Search finds it across hubs; the native-host-unavailable state remains explicit in the browser prototype.
+- The new owner-question document records two non-blocking product choices rather than interrupting implementation.
+
+### Verification evidence
+
+- Manifest unit tests cover exact core entrypoint, architecture mismatch, missing qualification hashes, network/origin/permission escape attempts, invalid contentless launch, and libretro fields on another runtime.
+- Rust tests cover exact direct arguments, contentless menu handoff, private storage/config creation, unmanaged content, unmanaged core, path traversal, relative roots, and missing content authority.
+- The generated JSON Schema and all four catalog manifests validate.
+- Strict Rust formatting/Clippy and the complete native test suite pass for the software-only desk boundary.
+- The 1440 x 1000 `test-results/console-lab/retro-candidate.png` review keeps the uninstalled state dominant, gives the candidate one restrained catalog row, and preserves the existing minimal OCR-A hierarchy.
+
+### Remaining boundary
+
+I-198 is active, not closed. No RetroArch or 2048 binary was downloaded or bundled. Exact signed artifacts and hashes, reproducible ARM64/x86-64 packages, one-action Start Core, launcher IPC, compositor window readiness and hang recovery, descendant containment, SDL3/reserved controls, target audio/video/latency, and update/removal cleanup remain required. Configuration restriction is defense in depth; target OS sandboxing still has to prove there is no unrestricted desktop or filesystem route.

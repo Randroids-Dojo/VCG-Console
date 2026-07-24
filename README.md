@@ -31,11 +31,12 @@ pnpm supervise:game catalog/determined.vcg-game.json --dry-run
 pnpm native:verify
 cargo run -p vcg-host -- doctor
 cargo run -p vcg-host -- watchdog --dry-run --heartbeat-file /tmp/vcg-game.heartbeat -- /path/to/game
+cargo run -p vcg-host -- help
 ```
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, and an explicit resource-fault signal boundary. Actual Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
+The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, and contained RetroArch launch planning with per-profile storage. Actual RetroArch artifacts, one-action 2048 startup, window readiness, Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
 
 ## Research workspace
 
@@ -50,8 +51,10 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)
+- [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
 - [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)
+- [Deferred owner questions from the RetroArch tranche](docs/OWNER_QUESTIONS_RETROARCH_2026-07-23.md)
 - [Source ledger](docs/SOURCES.md)
 
 ## Experience principles

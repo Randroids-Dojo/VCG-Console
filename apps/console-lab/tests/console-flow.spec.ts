@@ -164,7 +164,7 @@ test("universal search traps focus and restores its opener", async ({ page }) =>
   await trigger.click();
   const input = page.locator("#universal-search");
   await expect(input).toBeFocused();
-  await input.fill("retro");
+  await input.fill("retroarch");
   const result = page.getByRole("button", { name: /RetroArch Retro library/ });
   await result.focus();
   await page.keyboard.press("Tab");
@@ -174,6 +174,22 @@ test("universal search traps focus and restores its opener", async ({ page }) =>
   await page.keyboard.press("Escape");
   await expect(trigger).toBeFocused();
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+});
+
+test("retro candidate remains visibly uninstalled and uses the host handoff", async ({ page }) => {
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await expect(page.getByText("No retro packages installed")).toBeVisible();
+  await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
+  const launch = page.getByRole("dialog", { name: "2048" });
+  await expect(launch).toHaveAttribute("data-launch-adapter", "retro");
+  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(launch.getByText(/Rust console host is not connected/)).toBeVisible();
+  await launch.getByRole("button", { name: /Exit/ }).click();
+
+  await page.getByRole("button", { name: /Search games/ }).click();
+  await page.locator("#universal-search").fill("2048");
+  await expect(page.getByRole("button", { name: /2048 Retro qualification candidate/ })).toBeVisible();
 });
 
 test("launcher remains usable on a narrow setup display", async ({ page }) => {

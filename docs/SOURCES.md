@@ -108,6 +108,9 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 | [Libretro core development](https://docs.libretro.com/development/cores/developing-cores/) | Libretro API and core architecture; the API is MIT-licensed while individual cores vary. |
 | [Libretro licenses](https://docs.libretro.com/development/licenses/) | RetroArch GPLv3, per-core license variation, and current Lakka non-commercial notice. |
 | [Libretro overview](https://docs.libretro.com/development/libretro-overview/) | Relationship among libretro, RetroArch, Lakka, Batocera, and RetroPie. |
+| [RetroArch command-line interface](https://docs.libretro.com/guides/cli-intro/) | Direct `-L` core/content launch, explicit base and appended configuration, verbose logging, macOS executable location, and the contentless `--menu` caveat. |
+| [RetroArch overrides and remaps](https://docs.libretro.com/guides/overrides/) | Core, content-directory, and game override/remap hierarchy plus configurable storage locations. |
+| [Libretro 2048 core](https://docs.libretro.com/library/2048/) and [license file](https://github.com/libretro/libretro-2048/blob/master/COPYING) | Contentless startup, public-domain dedication, RetroPad controls, saves, states, and remapping. This supports a rights-simple smoke candidate, not a qualified package result. |
 | [MAME about](https://www.mamedev.org/about.html) and [legal page](https://www.mamedev.org/legal.html) | MAME is open-source emulator software and does not include ROMs or other copyrighted game content. |
 | [MAME ROM FAQ](https://wiki.mamedev.org/index.php?title=FAQ%3AROMs) | MAME's explicit position that ROM rights are separate and users must have permission. |
 | [MAME ROM set documentation](https://docs.mamedev.org/usingmame/aboutromsets.html) | Versioned sets, parent/clone relationships, and why imports need precise metadata. |

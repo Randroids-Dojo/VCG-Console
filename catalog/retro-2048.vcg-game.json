@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "retro-2048",
+  "version": "qualification-candidate-2026-07-23",
+  "title": "2048",
+  "publisher": "Gabriele Cirulli / Libretro",
+  "runtime": "libretro",
+  "entrypoint": "libretro:2048",
+  "architectures": ["aarch64", "x86_64"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "rights": {
+    "distribution": "redistributable",
+    "codeLicense": "GPL-3.0-only AND LicenseRef-Public-Domain",
+    "contentLicense": "NONE",
+    "reviewStatus": "unreviewed"
+  },
+  "libretro": {
+    "frontend": {
+      "id": "retroarch",
+      "version": "qualification-pending",
+      "license": "GPL-3.0-only",
+      "source": "https://github.com/libretro/RetroArch"
+    },
+    "core": {
+      "id": "2048",
+      "version": "qualification-pending",
+      "license": "LicenseRef-Public-Domain",
+      "source": "https://github.com/libretro/libretro-2048",
+      "architectures": ["aarch64", "x86_64"],
+      "supportsNoGame": true
+    },
+    "content": {
+      "mode": "none"
+    },
+    "controllerProfile": "retropad-standard-v1",
+    "saveNamespace": "retro-2048",
+    "bios": []
+  },
+  "notes": [
+    "Candidate smoke lane only; no RetroArch or core binary is bundled by this manifest.",
+    "The frontend and core versions, hashes, packaging, one-action startup, controller behavior, and architecture results remain unqualified.",
+    "2048 requires no separately distributed ROM and is documented by Libretro as a public-domain core with save, state, and remap support."
+  ]
+}

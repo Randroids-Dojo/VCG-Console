@@ -42,6 +42,7 @@
     { title: "Mi Casa Es Su Casa", detail: "Museum catalog", group: "Game", terms: "vibecoded online casa", action: () => showView("museum") },
     { title: "Determined", detail: "Museum catalog", group: "Game", terms: "vibecoded online word game", action: () => showView("museum") },
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
+    { title: "2048", detail: "Retro qualification candidate", group: "Retro", terms: "libretro smoke test public domain offline", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
@@ -159,7 +160,7 @@
         phases: [
           { label: "Check library", detail: "Resolve the game, core, and controller profile" },
           { label: "Request host", detail: "Ask the Rust appliance service to launch" },
-          { label: "Wait for ready", detail: "Hold until RetroArch reports healthy" },
+          { label: "Wait for ready", detail: "Hold until the host confirms a healthy window" },
         ],
       },
     };
@@ -241,8 +242,8 @@
     supervisor.ready("Browser handoff ready · reachability is checked by the native host");
   }
 
-  function launchHostedAdapter(adapter: "native" | "retro"): void {
-    const title = adapter === "retro" ? "RetroArch" : "Native game";
+  function launchHostedAdapter(adapter: "native" | "retro", requestedTitle?: string): void {
+    const title = requestedTitle ?? (adapter === "retro" ? "RetroArch" : "Native game");
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
     const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
     launchRetryOperation = () => runHostedAttempt(supervisor);
@@ -424,8 +425,13 @@
         <header class="view-header"><div><p class="view-kicker">RETRO HUB</p><h1>One library.<br />No clutter.</h1></div><p>RetroArch runs beneath the VCG shell so Home, loading, and recovery stay consistent.</p></header>
         <div class="empty-library">
           <span class="empty-glyph" aria-hidden="true">○</span>
-          <div><strong>No retro games installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
+          <div><strong>No retro packages installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
           <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
+        </div>
+        <div class="library-list">
+          <button type="button" onclick={() => launchHostedAdapter("retro", "2048")}>
+            <span>Q1</span><strong>2048</strong><small>Contentless public-domain core · artifact qualification pending</small><b>Candidate</b>
+          </button>
         </div>
         <div class="retro-actions">
           <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>

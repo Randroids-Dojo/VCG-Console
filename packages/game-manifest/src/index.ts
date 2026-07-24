@@ -1,11 +1,56 @@
 import { z } from "zod";
 
 const HttpsUrlSchema = z.url().refine((value) => value.startsWith("https://"), "remote entrypoints and origins must use HTTPS");
+const PackageIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/, "SHA-256 values must be 64 lowercase hexadecimal characters");
+const NativeArchitectureSchema = z.enum(["aarch64", "x86_64"]);
+
+const LibretroArtifactSchema = z
+  .object({
+    id: PackageIdSchema,
+    version: z.string().min(1),
+    sha256: Sha256Schema.optional(),
+    license: z.string().min(1),
+    source: HttpsUrlSchema,
+  })
+  .passthrough();
+
+const LibretroManifestSchema = z
+  .object({
+    frontend: LibretroArtifactSchema,
+    core: LibretroArtifactSchema.extend({
+      architectures: z.array(NativeArchitectureSchema).min(1),
+      supportsNoGame: z.boolean(),
+    }),
+    content: z.discriminatedUnion("mode", [
+      z.object({ mode: z.literal("none") }).passthrough(),
+      z
+        .object({
+          mode: z.literal("managed"),
+          format: z.string().regex(/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/),
+          sha256: Sha256Schema,
+        })
+        .passthrough(),
+    ]),
+    controllerProfile: PackageIdSchema,
+    saveNamespace: PackageIdSchema,
+    bios: z.array(
+      z
+        .object({
+          id: PackageIdSchema,
+          sha256: Sha256Schema,
+          required: z.boolean(),
+          license: z.string().min(1),
+        })
+        .passthrough(),
+    ),
+  })
+  .passthrough();
 
 export const GameManifestSchema = z
   .object({
     schemaVersion: z.literal(1),
-    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    id: PackageIdSchema,
     version: z.string().min(1),
     title: z.string().min(1),
     publisher: z.string().min(1),
@@ -31,6 +76,7 @@ export const GameManifestSchema = z
       contentLicense: z.string().min(1),
       reviewStatus: z.enum(["unreviewed", "owner-confirmed", "audited"]),
     }).passthrough(),
+    libretro: LibretroManifestSchema.optional(),
     notes: z.array(z.string()),
   })
   .passthrough()
@@ -45,6 +91,59 @@ export const GameManifestSchema = z
     if (manifest.network === "offline" && manifest.permissions.includes("network")) {
       context.addIssue({ code: "custom", path: ["permissions"], message: "offline manifests cannot request network" });
     }
+    if (manifest.runtime === "libretro") {
+      if (!manifest.libretro) {
+        context.addIssue({ code: "custom", path: ["libretro"], message: "libretro runtimes require a libretro launch contract" });
+        return;
+      }
+      if (manifest.entrypoint !== `libretro:${manifest.libretro.core.id}`) {
+        context.addIssue({ code: "custom", path: ["entrypoint"], message: "libretro entrypoint must identify the selected core" });
+      }
+      if (manifest.network !== "offline") {
+        context.addIssue({ code: "custom", path: ["network"], message: "curated libretro packages must launch offline" });
+      }
+      if (manifest.allowedOrigins.length > 0) {
+        context.addIssue({ code: "custom", path: ["allowedOrigins"], message: "libretro packages cannot declare web origins" });
+      }
+      if (manifest.architectures.includes("web")) {
+        context.addIssue({ code: "custom", path: ["architectures"], message: "libretro packages require native architectures" });
+      }
+      const unsupportedPermission = manifest.permissions.find(
+        (permission) => !["gamepad", "persistent-storage"].includes(permission),
+      );
+      if (unsupportedPermission) {
+        context.addIssue({
+          code: "custom",
+          path: ["permissions"],
+          message: `libretro packages cannot request ${unsupportedPermission}`,
+        });
+      }
+      if (manifest.launch.healthCheck.type === "http") {
+        context.addIssue({ code: "custom", path: ["launch", "healthCheck", "type"], message: "libretro health checks must be process or explicit-ready" });
+      }
+      if (manifest.libretro.content.mode === "none" && !manifest.libretro.core.supportsNoGame) {
+        context.addIssue({ code: "custom", path: ["libretro", "content"], message: "contentless launch requires a core that supports no-game startup" });
+      }
+      for (const architecture of manifest.architectures) {
+        if (architecture !== "web" && !manifest.libretro.core.architectures.includes(architecture)) {
+          context.addIssue({
+            code: "custom",
+            path: ["libretro", "core", "architectures"],
+            message: `core artifact is missing ${architecture}`,
+          });
+        }
+      }
+      if (manifest.compatibilityStatus === "qualified") {
+        if (!manifest.libretro.frontend.sha256) {
+          context.addIssue({ code: "custom", path: ["libretro", "frontend", "sha256"], message: "qualified libretro frontends require an artifact hash" });
+        }
+        if (!manifest.libretro.core.sha256) {
+          context.addIssue({ code: "custom", path: ["libretro", "core", "sha256"], message: "qualified libretro cores require an artifact hash" });
+        }
+      }
+    } else if (manifest.libretro) {
+      context.addIssue({ code: "custom", path: ["libretro"], message: "only libretro runtimes may declare a libretro launch contract" });
+    }
   });
 
 export type GameManifest = z.infer<typeof GameManifestSchema>;
@@ -58,9 +157,22 @@ gameManifestJsonSchema.allOf = [
     if: { properties: { network: { const: "offline" } }, required: ["network"] },
     then: { properties: { permissions: { not: { contains: { const: "network" } } } } },
   },
+  {
+    if: { properties: { runtime: { const: "libretro" } }, required: ["runtime"] },
+    then: {
+      required: ["libretro"],
+      properties: {
+        entrypoint: { pattern: "^libretro:[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        network: { const: "offline" },
+        allowedOrigins: { maxItems: 0 },
+        architectures: { not: { contains: { const: "web" } } },
+      },
+    },
+    else: { not: { required: ["libretro"] } },
+  },
 ];
 gameManifestJsonSchema.$comment =
-  "parseGameManifest additionally compares normalized entrypoint and allowedOrigins values; standard JSON Schema cannot express cross-property URL-origin equality.";
+  "parseGameManifest additionally compares normalized entrypoint/origin values and libretro core/architecture identity; standard JSON Schema cannot express those cross-property constraints.";
 
 export function parseGameManifest(value: unknown): GameManifest {
   return GameManifestSchema.parse(value);
