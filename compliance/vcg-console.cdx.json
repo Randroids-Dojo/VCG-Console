@@ -2,7 +2,7 @@
   "$schema": "https://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:61c375d3-dacb-5f43-b0b7-797771f614bc",
+  "serialNumber": "urn:uuid:e9bc3777-cd89-5238-85a3-da035b4bc363",
   "version": 1,
   "metadata": {
     "component": {
@@ -1191,6 +1191,66 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:cargo/tinyvec_macros@0.1.1",
+      "name": "tinyvec_macros",
+      "version": "0.1.1",
+      "purl": "pkg:cargo/tinyvec_macros@0.1.1",
+      "scope": "required",
+      "description": "Some macros for tiny containers",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Soveu/tinyvec_macros"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0 OR Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0 OR Zlib"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/tinyvec@1.12.0",
+      "name": "tinyvec",
+      "version": "1.12.0",
+      "purl": "pkg:cargo/tinyvec@1.12.0",
+      "scope": "required",
+      "description": "`tinyvec` provides 100% safe vec-like data structures.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Lokathor/tinyvec"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Zlib OR Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Zlib OR Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:cargo/typenum@1.20.1",
       "name": "typenum",
       "version": "1.20.1",
@@ -1246,6 +1306,36 @@
         {
           "name": "vcg:reported-license",
           "value": "(MIT OR Apache-2.0) AND Unicode-3.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/unicode-normalization@0.1.25",
+      "name": "unicode-normalization",
+      "version": "0.1.25",
+      "purl": "pkg:cargo/unicode-normalization@0.1.25",
+      "scope": "required",
+      "description": "This crate provides functions for normalization of\nUnicode strings, including Canonical and Compatible\nDecomposition and Recomposition, as described in\nUnicode Standard Annex #15.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/unicode-rs/unicode-normalization"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
         }
       ]
     },
@@ -4065,8 +4155,11 @@
         "pkg:cargo/syn@2.0.119",
         "pkg:cargo/syn@3.0.3",
         "pkg:cargo/tar@0.4.46",
+        "pkg:cargo/tinyvec_macros@0.1.1",
+        "pkg:cargo/tinyvec@1.12.0",
         "pkg:cargo/typenum@1.20.1",
         "pkg:cargo/unicode-ident@1.0.24",
+        "pkg:cargo/unicode-normalization@0.1.25",
         "pkg:cargo/vcg-host@0.1.0",
         "pkg:cargo/windows-link@0.2.1",
         "pkg:cargo/windows-sys@0.61.2",

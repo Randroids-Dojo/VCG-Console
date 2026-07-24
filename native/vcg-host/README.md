@@ -142,6 +142,12 @@ modes cannot be combined. See the
   deterministic interrupted-promotion recovery, and launch-frozen path-free
   retention planning and explicit cleanup.
 - `native_launch`: profile-allowlisted durable idempotent intent, one active child, bounded append-only replay, restart-indeterminate cleanup barrier, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
+- `retro_import`: exact-intent-authorized plain-file copy from an opened host
+  handle, streaming SHA-256, pluggable exact-subject scan evidence,
+  same-filesystem no-replace content publication, append-only installed-library
+  generations, path-free audit records, replacement cleanup, cancellation,
+  nonblocking serialization, and deterministic interruption recovery. It
+  implements neither USB/LAN acquisition nor a scanner or archive decoder.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 

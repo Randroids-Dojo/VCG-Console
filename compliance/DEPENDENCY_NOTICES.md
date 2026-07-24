@@ -23,9 +23,9 @@ fails while either blocker remains.
 | Project root | 1 |
 | First-party subcomponents | 7 |
 | npm dependencies | 82 |
-| Cargo packages | 42 |
+| Cargo packages | 45 |
 | Pinned assets | 2 |
-| Total | 134 |
+| Total | 137 |
 
 ## npm dependencies
 
@@ -154,8 +154,11 @@ fails while either blocker remains.
 | syn | 2.0.119 | required | MIT OR Apache-2.0 | <https://github.com/dtolnay/syn> |
 | syn | 3.0.3 | required | MIT OR Apache-2.0 | <https://github.com/dtolnay/syn> |
 | tar | 0.4.46 | required | MIT OR Apache-2.0 | <https://github.com/composefs/tar-rs> |
+| tinyvec_macros | 0.1.1 | required | MIT OR Apache-2.0 OR Zlib | <https://github.com/Soveu/tinyvec_macros> |
+| tinyvec | 1.12.0 | required | Zlib OR Apache-2.0 OR MIT | <https://github.com/Lokathor/tinyvec> |
 | typenum | 1.20.1 | required | MIT OR Apache-2.0 | <https://github.com/paholg/typenum> |
 | unicode-ident | 1.0.24 | required | (MIT OR Apache-2.0) AND Unicode-3.0 | <https://github.com/dtolnay/unicode-ident> |
+| unicode-normalization | 0.1.25 | required | MIT OR Apache-2.0 | <https://github.com/unicode-rs/unicode-normalization> |
 | windows-link | 0.2.1 | required | MIT OR Apache-2.0 | <https://github.com/microsoft/windows-rs> |
 | windows-sys | 0.61.2 | required | MIT OR Apache-2.0 | <https://github.com/microsoft/windows-rs> |
 | zeroize | 1.9.0 | required | Apache-2.0 OR MIT | <https://github.com/RustCrypto/utils> |

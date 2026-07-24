@@ -112,3 +112,34 @@ Needed before enabling ZIP: total and per-entry limits, compatibility-path
 collision parity, decompression ratio, encrypted/data-descriptor/ZIP64 cases,
 CRC/hash mismatch, truncation, cancellation, source removal, disk-full and
 power-loss recovery, and proof no entry escapes staging.
+
+## RI-008: installed-library history compaction
+
+How many append-only installed-library generations and path-free audit records
+should remain locally, and what protected checkpoint permits older generations
+to be compacted without weakening crash recovery or forensic review?
+
+Safe default: retain every contiguous generation and block a new import after
+4,096 generations. Do not delete history automatically and do not treat a
+generated audit record as eligible diagnostics/export data.
+
+Needed before activation at scale: exact retention duration/count, protected
+current-generation anchor, crash-safe compaction transaction, audit-retention
+answer from RI-004, full-disk behavior, factory-reset behavior, and tests
+proving compaction cannot select a forged or incomplete generation.
+
+## RI-009: privileged import coordinator ownership
+
+Which native service owns source-handle creation, live session revocation,
+exact-intent authorization, scanner invocation, recovery at boot, and handoff
+of committed object identity to RetroArch?
+
+Safe default: no browser or LAN endpoint invokes the new filesystem module.
+The exact terminal intent must first be authorized against independently held
+native source/session/policy state; a structurally valid JSON document alone
+has no installation authority.
+
+Needed before activation: one service identity and startup order, private IPC
+schema, caller authentication, controller-visible lifecycle, reboot recovery
+ordering, scanner sandbox, object/library read authority, and tests proving a
+browser cannot mint or replay native context.

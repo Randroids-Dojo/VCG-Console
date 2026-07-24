@@ -1,7 +1,8 @@
 # Shared retro import contract
 
-Status: implemented pure contract and planner; native intake and installation
-not implemented
+Status: implemented pure contract/planner and native plain-file transaction
+foundation; acquisition, scanner, product wiring, and qualification not
+implemented
 
 Last updated: 2026-07-24
 
@@ -46,6 +47,61 @@ emits an exact one-shot terminal intent for a future privileged coordinator.
 The output is an intent, not evidence that installation occurred. A native
 transaction must revalidate policy, session, source, scan, library generation,
 capacity reservation, and filesystem state before mutation.
+
+## Native plain-file transaction
+
+`vcg_host::retro_import` now consumes an exact `install-new` or
+`replace-existing` terminal-intent document plus native inspection, expiry,
+revocation, and release-policy context. Authorization retains a canonical
+SHA-256 of the whole intent. Changing the plan, source handle/hash, installed
+entry, replacement target, provenance, or audit projection afterward fails
+before filesystem mutation.
+
+The store requires preprovisioned, canonical, non-symlinked roots:
+
+```text
+staging/retro-imports/
+  retro-import.lock
+
+retro/
+  objects/
+  libraries/
+    generation-00000000000000000001.json
+  audit/
+```
+
+On Linux, staging and content must have the same device ID. The transaction:
+
+1. takes one nonblocking operation lock;
+2. revalidates the strict bounded intent, current contiguous library
+   generation, live context snapshot, release mapping, quota, replacement
+   object, and physical free space plus reserve;
+3. durably publishes a path-free pending record before copying;
+4. streams from an already-opened regular source handle into a private staged
+   file while enforcing exact length and SHA-256;
+5. invokes a pluggable scanner over a separately opened read-only staged
+   subject and accepts only exact inspection/hash-bound clean evidence;
+6. rehashes and seals the staged payload, then hard-links it into the
+   console-managed object store without replacement;
+7. publishes the next full installed-library generation through a synchronized
+   no-replace hard link;
+8. persists a path-free terminal audit record containing the exact clean scan
+   evidence;
+9. removes an exact replaced object only after the new generation and audit
+   are durable; and
+10. cleans scan/staging/temporary/pending state last.
+
+An interruption before a complete staged hash discards only that bound stage.
+A complete unscanned stage can be scanned and committed without the original
+USB/LAN source. Once content or a library generation is published, recovery
+moves the same exact authorized transaction forward. Generation files are
+append-only, contiguous from generation one, and currently capped at 4,096
+retained generations pending a qualified compaction policy.
+
+The Rust module accepts no source path and returns none. Its generated object
+name derives only from validated system ID, full content hash, and canonical
+extension. It does not create an HTTP endpoint or treat a browser-submitted
+intent as native authority.
 
 ## Closed policy
 
@@ -207,6 +263,17 @@ Twenty-three focused tests cover:
 - exact-plan identity, decision scope, one-shot authorization,
   expiry/revocation, and cleanup cancellation.
 
+The native module adds ten Windows library tests and eleven Linux tests. They
+cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
+exact-intent authorization, expiry/revocation/policy/generation checks before
+mutation, source length/hash change, clean/blocked/error/unavailable/misbound
+scanner behavior, capacity overflow, library history shape, nonblocking lock
+and exact cancellation, incomplete-copy cleanup, recovery after source
+removal, recovery across object/library publication windows, replacement
+ordering, path-free audit persistence, and Linux symlink refusal. Strict
+Clippy and Rustdoc pass on the module; physical power removal has not been
+tested.
+
 ## Remaining implementation and evidence
 
 I-199 remains active. Product activation still requires:
@@ -217,13 +284,16 @@ I-199 remains active. Product activation still requires:
    behavior;
 3. a separately authorized authenticated paired-LAN receiver with bounded
    resume, timeout, revocation, and reboot closure;
-4. streaming hashing and a selected offline scanner with signed/updateable
-   rules and explicit unavailable/error behavior;
+4. a selected offline scanner with signed/updateable rules, rule-age policy,
+   process isolation, and explicit unavailable/error behavior; native
+   streaming hashing and an exact-subject scanner interface now exist;
 5. a bounded ZIP inspector/extractor or a decision to keep archives disabled;
-6. durable same-filesystem staging, real reservations, synchronized writes,
-   hash revalidation, atomic no-replace promotion, and cleanup recovery;
-7. crash-safe installed-library generation commits, conflict replacement,
-   deletion, deduplication, quotas, and full-disk/power-loss campaigns;
+6. real block reservations and physical full-disk/power-loss qualification;
+   the plain-file path now has durable same-filesystem staging, synchronized
+   writes, hash revalidation, no-replace publication, and cleanup recovery;
+7. library-history compaction, explicit deletion, reuse/cancel audit handling,
+   and physical fault campaigns; append-only generation commits, exact
+   replacement, entry/byte quotas, and recovery now exist;
 8. isolation from packages, cores, BIOS, saves, states, remaps, profiles,
    updates, and source media;
 9. family-mode/controller-accessible disclosure, progress, conflict,
