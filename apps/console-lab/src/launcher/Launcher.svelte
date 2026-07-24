@@ -1060,13 +1060,13 @@
         </div>
         <div class="home-destinations" aria-label="Game destinations">
           <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")}>
-            <span class="destination-index" data-tv-critical-text>MOTION / 01</span><strong data-tv-critical-text>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action" data-tv-critical-text>Continue <b>→</b></span>
+            <span class="destination-index" data-tv-critical-text>MOTION / 01</span><strong data-tv-critical-text>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action" data-tv-critical-text>Continue <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
           <button class="destination" type="button" data-tv-action onclick={() => showView("museum")}>
-            <span class="destination-index" data-tv-critical-text>ONLINE / 02</span><strong data-tv-critical-text>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action" data-tv-critical-text>Enter <b>→</b></span>
+            <span class="destination-index" data-tv-critical-text>ONLINE / 02</span><strong data-tv-critical-text>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action" data-tv-critical-text>Enter <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
           <button class="destination" type="button" data-tv-action onclick={() => showView("retro")}>
-            <span class="destination-index" data-tv-critical-text>LOCAL / 03</span><strong data-tv-critical-text>RetroArch</strong><small>Your installed retro library</small><span class="destination-action" data-tv-critical-text>Open <b>→</b></span>
+            <span class="destination-index" data-tv-critical-text>LOCAL / 03</span><strong data-tv-critical-text>RetroArch</strong><small>Your installed retro library</small><span class="destination-action" data-tv-critical-text>Open <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
         </div>
         <footer class="home-status"><span data-tv-critical-text><i></i> Console ready</span><span data-tv-critical-text>{installedPackageSummary()}</span><span data-tv-critical-text>Network setup required</span></footer>
@@ -1093,7 +1093,7 @@
         <p class="view-kicker">{museumHost.toUpperCase()}</p>
         <div class="museum-title"><h1>The museum is<br />a world of its own.</h1><span>LIVE / WEB</span></div>
         <p class="museum-copy">Walk through the full VibeCoded collection. This browser prototype can open only the cataloged origin in a separate tab, but does not supervise or contain it.</p>
-        <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span>↗</span></button>
+        <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span class="ui-icon ui-icon-arrow-up-right" aria-hidden="true"></span></button>
         <p class="boundary-note">Internet required · Unsupervised preview · Opens {museumHost}</p>
         <div class="museum-catalog" aria-label="Canonical museum catalog">
           {#each museumCatalogEntries as entry}

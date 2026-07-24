@@ -71,13 +71,13 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 154306,
-    sha256: "a4b02e2b0be3aa8038510f20310bc9e3e5810df68b0aea466f45678bdb1e9940",
+    bytes: 154367,
+    sha256: "c946b7bf18be01d5aa662faeee8395e86be3def0076263ac81c5261d022ccb3a",
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-    bytes: 162001,
-    sha256: "289427ddc5230d425693b33d9339a220df8dbcd5e7a9a790221a85df33e39f83",
+    bytes: 162390,
+    sha256: "bfb07926c1617a95c5dc9c1e432b7f3d3366b8deb6e9e524582d7a62681b3981",
   },
   "motion-catalog/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
@@ -86,13 +86,13 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 233483,
-    sha256: "6a99df5eae61903a741a4a624ac7bc2b080f0092af0f82b2e37c476ca30cb3ac",
+    bytes: 233525,
+    sha256: "37c4be7c7db20f3f361511697e9ccc5ec891ceeff99017175342a03dad649359",
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-    bytes: 256110,
-    sha256: "b9a8f343175633a1d67febda171c66020407b9aeaa208ad22ffd9737bdaf5ec3",
+    bytes: 256542,
+    sha256: "f059c0130d8e399e35f679315b24eae4d6a543042bac135f4f380e13d3249e1c",
   },
   "motion-catalog/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
@@ -101,13 +101,13 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 626465,
-    sha256: "a244f7dc88a3f07b5699da21df5542e6a06ceac6274a1310035397d2502f8f7c",
+    bytes: 628063,
+    sha256: "5bcd0db137c5778dd8aab82bf2464ec1b66eb8886b95dae867cd29cbd9f73cb5",
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-    bytes: 660341,
-    sha256: "3a34785d02e4015b1bf0963f07577a3f252bf450c7e6cb4b3abd06436eec8fc6",
+    bytes: 661167,
+    sha256: "38520115721cdc6b0525e34c215d4e3d2aedc0ec8d0d17d4e649b321bef0d4d3",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
@@ -123,7 +123,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   },
   "launch-offline/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 151.359,
+    minimumActionTargetWidthCssPx: 156.594,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-catalog/1080p": {
@@ -138,7 +138,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   },
   "launch-offline/1080p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 167.375,
+    minimumActionTargetWidthCssPx: 172.609,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-catalog/4k": {

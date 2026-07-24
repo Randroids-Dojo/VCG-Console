@@ -161,6 +161,16 @@ for (const resolution of RESOLUTIONS) {
 
     expect(criticalText.length).toBe(24);
     expect(actions.length).toBe(12);
+    const destinationIcons = page.locator(
+      ".home-destinations .ui-icon-arrow-right",
+    );
+    await expect(destinationIcons).toHaveCount(3);
+    expect(
+      await destinationIcons.evaluateAll((icons) =>
+        icons.map((icon) => icon.getAttribute("aria-hidden")),
+      ),
+    ).toEqual(["true", "true", "true"]);
+    await expect(destinationIcons).toHaveText(["", "", ""]);
     for (const item of criticalText) {
       expect(
         item.left,
@@ -352,6 +362,9 @@ for (const resolution of RESOLUTIONS) {
 
     const exit = page.getByRole("button", { name: /Exit/ });
     const retry = page.getByRole("button", { name: /Retry/ });
+    const retryIcon = retry.locator(".ui-icon-retry");
+    await expect(retryIcon).toHaveAttribute("aria-hidden", "true");
+    await expect(retryIcon).toHaveText("");
     await expect(exit).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(retry).toBeFocused();
@@ -380,9 +393,17 @@ for (const resolution of RESOLUTIONS) {
     await input.fill("motion");
     const results = page.locator("#search-results button");
     await expect(results).toHaveCount(5);
+    const resultIcons = results.locator(".ui-icon-arrow-right");
+    await expect(resultIcons).toHaveCount(5);
+    expect(
+      await resultIcons.evaluateAll((icons) =>
+        icons.map((icon) => icon.getAttribute("aria-hidden")),
+      ),
+    ).toEqual(["true", "true", "true", "true", "true"]);
+    await expect(resultIcons).toHaveText(["", "", "", "", ""]);
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, ".search-overlay", 18, 6);
+    await assertTvGeometry(page, resolution, ".search-overlay", 13, 6);
 
     await page.keyboard.press("ArrowDown");
     await expect(results.first()).toBeFocused();

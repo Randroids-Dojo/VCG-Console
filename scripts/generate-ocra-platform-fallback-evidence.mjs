@@ -21,7 +21,7 @@ export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
 export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-24";
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
-  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 15 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
+  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 10 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
   "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
   "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
@@ -36,10 +36,6 @@ export const OCRA_FALLBACK_PROBES = Object.freeze([
   { id: "em-dash", codePoint: "U+2014", character: "—", role: "separator/error copy" },
   { id: "smart-apostrophe", codePoint: "U+2019", character: "’", role: "possessive copy" },
   { id: "ellipsis", codePoint: "U+2026", character: "…", role: "scanning status" },
-  { id: "left-arrow", codePoint: "U+2190", character: "←", role: "back action" },
-  { id: "right-arrow", codePoint: "U+2192", character: "→", role: "continue/open action" },
-  { id: "north-east-arrow", codePoint: "U+2197", character: "↗", role: "external navigation" },
-  { id: "clockwise-open-circle-arrow", codePoint: "U+21BB", character: "↻", role: "retry action" },
   { id: "white-up-triangle", codePoint: "U+25B3", character: "△", role: "controller/status marker" },
   { id: "black-diamond", codePoint: "U+25C6", character: "◆", role: "profile marker" },
   { id: "white-diamond", codePoint: "U+25C7", character: "◇", role: "status marker" },

@@ -42,7 +42,7 @@ const EXPECTED_STATES = Object.freeze([
     id: "motion-results",
     query: "motion",
     resultCount: 5,
-    criticalTextCount: 18,
+    criticalTextCount: 13,
     actionTargetCount: 6,
     focusTrace: [
       "universal-search",
@@ -69,33 +69,33 @@ const EXPECTED_STATES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-    bytes: 87677,
-    sha256: "f2920c52d1cac016377b3a162aaa3b59f66d86255cc0d5fe9f61806ccb87b3af",
+    bytes: 87322,
+    sha256: "9cf90168726fd0798f121951249af4e1759ea4d2deb7007e15a3421a82ac8287",
   },
   "no-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-    bytes: 60201,
-    sha256: "eda318b463142a230948414e62c002904d883182e45a5e1e6195eff88a3ad9ca",
+    bytes: 60488,
+    sha256: "c3593515baa954309d653560f2f21a8607d887857646c35408f80c15b1346a12",
   },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-    bytes: 105737,
-    sha256: "1bcf7d1d0dd51655226d44e645bdcf542ab6b559b0ebb878ac805c473ddb77a5",
+    bytes: 105601,
+    sha256: "39ff9d5f1e6f89cee0b769324cf40b259fbccfe6ef66c170aa289ca30f1ebfaf",
   },
   "no-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-    bytes: 77433,
-    sha256: "51396d4c858be6fb22cd8eb171314b3765d186ada4a534cc95c1b8560c4a31e8",
+    bytes: 77616,
+    sha256: "99f5058c2d096bae92f083cccb04809e4f1eba32a2a2fc9c1deb1e9c1db95361",
   },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-    bytes: 257114,
-    sha256: "db0a3d918ad10d58ae1eeee74c96be2b284dbdcee6cdc59c20d1e2ec9b93a737",
+    bytes: 256781,
+    sha256: "a7f322fc0fbbe0257b08d6b403e9d980e3c5c2606ebcd76259305aa890817340",
   },
   "no-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-    bytes: 191013,
-    sha256: "440c8a751720d84510aa969a62f138ed0e1389bedf53b0a02c3c6c5f436f65b4",
+    bytes: 191832,
+    sha256: "75149754866be9418894ab3a56c715678f412958a798be700cb16319fe97193f",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({

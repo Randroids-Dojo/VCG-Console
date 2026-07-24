@@ -67,7 +67,7 @@ const SEARCH_STATES = Object.freeze([
     id: "motion-results",
     query: "motion",
     resultCount: 5,
-    criticalTextCount: 18,
+    criticalTextCount: 13,
     actionTargetCount: 6,
     focusTrace: [
       "universal-search",

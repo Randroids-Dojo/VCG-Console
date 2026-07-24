@@ -5,7 +5,7 @@
 Chrome’s platform-font report confirms that the current production CSS stack
 does not produce one coherent fallback family on the Windows x64 development
 host. The exact OCR-A custom font renders the ASCII baseline and middle dot.
-The 14 current production-source characters missing from OCR-A are divided
+The 10 current production-source characters missing from OCR-A are divided
 among Consolas, Cambria Math, and Segoe UI Symbol.
 
 This is useful current-host evidence for I-147/Q-077. It is not a fallback
@@ -49,12 +49,18 @@ Environment:
 | Selected family | Kind | Exact probes |
 |---|---|---|
 | OCRA | prepared custom font | `A`, `·` |
-| Consolas | Windows platform font | `×`, `—`, `’`, `…`, `←`, `→`, `○`, `●` |
-| Cambria Math | Windows platform font | `↻`, `△`, `◆`, `◇` |
-| Segoe UI Symbol | Windows platform font | `↗`, `✓` |
+| Consolas | Windows platform font | `×`, `—`, `’`, `…`, `○`, `●` |
+| Cambria Math | Windows platform font | `△`, `◆`, `◇` |
+| Segoe UI Symbol | Windows platform font | `✓` |
 
-The custom-font count is 2 of 16 probes. The platform-fallback count is 14 of
-16, matching the structural artifact’s 14 missing current-source code points.
+The custom-font count is 2 of 12 probes. The platform-fallback count is 10 of
+12, matching the structural artifact’s 10 missing current-source code points.
+
+The four removed probes were navigation decoration: `U+2190 LEFTWARDS ARROW`,
+`U+2192 RIGHTWARDS ARROW`, `U+2197 NORTH EAST ARROW`, and
+`U+21BB CLOCKWISE OPEN CIRCLE ARROW`. Production now draws those marks with a
+shared first-party CSS primitive, keeps visible text as the accessible
+authority, and marks each decorative icon `aria-hidden`.
 
 The result is more specific than “monospace fallback”: even on this one host,
 the browser moves through three platform resources. Cambria Math and Segoe UI

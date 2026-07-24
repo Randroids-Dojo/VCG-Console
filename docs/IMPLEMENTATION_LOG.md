@@ -4665,9 +4665,9 @@ frame pacing remain unqualified.
 ### Verification evidence
 
 - OCR-A maps all 95 printable ASCII code points.
-- It maps only `U+00B7 MIDDLE DOT` among 15 distinct non-ASCII code points in
-  current production source. Fourteen arrows, punctuation marks, geometric
-  symbols, status markers, and check marks require fallback.
+- It maps only `U+00B7 MIDDLE DOT` among 11 distinct non-ASCII code points in
+  current production source. Ten punctuation marks, geometric symbols, status
+  markers, and check marks require fallback.
 - Eleven tests accept the exact artifact and reject sfnt/source/provenance/
   claim mutations, truncation, oversize input, duplicate tables, escaped table
   ranges, and unsupported sfnt versions.
@@ -4685,7 +4685,8 @@ localization, accessibility, and final redistribution approval remain.
 ### Delivered
 
 - Built the production app and injected a diagnostic-only 1920x1080 grid for
-  the exact 16-code-point structural inventory.
+  the exact 12-code-point observation set: one ASCII baseline, one covered
+  non-ASCII character, and ten current-source fallback characters.
 - Queried installed Chrome's platform-font report per single-character node
   after the production `OCRA.ttf` and CSS stack loaded.
 - Bound the exact environment, base structural evidence, production source
@@ -4698,8 +4699,8 @@ localization, accessibility, and final redistribution approval remain.
 ### Verification evidence
 
 - OCR-A rendered only the `A` baseline and `U+00B7 MIDDLE DOT`.
-- Windows Chrome selected Consolas for eight missing characters, Cambria Math
-  for four, and Segoe UI Symbol for two.
+- Windows Chrome selected Consolas for six missing characters, Cambria Math
+  for three, and Segoe UI Symbol for one.
 - Eleven adversarial tests reject environment/base/probe/font/request/
   screenshot/provenance/claim substitutions.
 
@@ -4754,19 +4755,22 @@ offline package.
 
 ### Evidence refresh
 
-- The structural inventory now contains 15 distinct non-ASCII production
-  source code points, 14 of which require fallback.
-- The Windows Chrome probe now contains 16 observations: two OCR-A glyphs and
-  14 platform fallbacks. Cambria Math falls from five observed symbols to four.
+- After this Search-only change, the structural inventory contained 15
+  distinct non-ASCII production source code points, 14 of which required
+  fallback. The later shared navigation-icon tranche reduced those current
+  totals further.
+- At this intermediate point, the Windows Chrome probe contained 16
+  observations: two OCR-A glyphs and 14 platform fallbacks. Cambria Math fell
+  from five observed symbols to four.
 - The structural, Windows fallback, launcher Home, representative-surface, and
   Search evidence chains were regenerated against the exact new source tree.
 
 ### Remaining boundary
 
-This removes one semantic and platform-font dependency; it does not select the
-remaining fallback or shared icon system. Fourteen current characters still
-resolve through Consolas, Cambria Math, or Segoe UI Symbol on the observed
-Windows host, and target Linux/native/physical-TV qualification remains.
+This removed one semantic and platform-font dependency; it did not by itself
+select the remaining fallback or shared icon system. The subsequent shared
+navigation-icon tranche removes four more font dependencies. Target
+Linux/native/physical-TV qualification remains.
 
 ## 2026-07-24: first-party exact-head rights screen
 
@@ -4798,3 +4802,47 @@ not redistribution authority. Every title still needs exact code/content/
 asset/title/trademark/dependency/submodule provenance, source-to-deployment
 and signed-package binding, notices/corresponding source, ARM64/x86-64 release
 artifacts, named authorization, and qualified legal/release review.
+
+## 2026-07-24: remove navigation-critical font fallbacks
+
+### Delivered
+
+- Added one shared first-party CSS primitive for left, right, external, and
+  retry navigation marks.
+- Replaced production `U+2190`, `U+2192`, `U+2197`, and `U+21BB` decoration
+  across Home destinations, Search results, launch recovery, Museum entry,
+  profile flows, calibration, portrait capture, unassigned progress, and the
+  active Settings marker.
+- Kept visible adjacent action text as the semantic authority and marked every
+  element-backed icon `aria-hidden`.
+- Added browser assertions for empty, assistive-technology-hidden Home,
+  Search-result, and retry marks.
+
+### Verification evidence
+
+- The affected 18-case TV matrix passes at 720p, 1080p, and 4K with zero
+  overflow or critical-text overlap. Search motion results now contain 13
+  marked critical-text elements rather than counting five decorative arrows.
+- The strict structural inventory now contains 11 distinct non-ASCII
+  production-source code points: one OCR-A mapping and ten fallback
+  requirements.
+- The regenerated Windows Chrome observation contains 12 probes: two custom
+  OCR-A glyphs and ten platform fallbacks. Consolas supplies six, Cambria Math
+  three, and Segoe UI Symbol one.
+- Home, representative-surface, Search, structural-font, and platform-fallback
+  artifacts were regenerated against the exact source tree; their validators
+  require the new screenshots, asset requests, measurements, and provenance.
+- The complete root unit gate, workspace typecheck, production build, schema,
+  manifest, and compliance freshness checks pass. All 53 Chromium flows pass,
+  including every profile/calibration view changed by the shared icon
+  primitive.
+
+### Remaining boundary
+
+I-147/Q-077 remain active. Shared CSS geometry removes platform-font
+dependencies for navigation-critical decoration, but it is not yet a
+versioned release icon package or a physical-TV, target-Linux, native-renderer,
+localization, low-vision, or accessibility qualification. Ten current
+punctuation/status/profile/controller characters still require a selected,
+rights-reviewed deterministic fallback or first-party treatment. OF-001
+through OF-006 and PFO-001 through PFO-005 retain the owner decisions.

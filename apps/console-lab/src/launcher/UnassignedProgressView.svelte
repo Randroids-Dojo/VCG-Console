@@ -248,7 +248,7 @@
 
 <header class="view-header unassigned-header">
   <div>
-    <button class="text-back" type="button" onclick={onback}>← Profiles</button>
+    <button class="text-back" type="button" onclick={onback}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profiles</button>
     <p class="view-kicker">DEVICE-ONLY / UNASSIGNED</p>
     <h1>Progress without a profile.</h1>
   </div>

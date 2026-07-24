@@ -16,12 +16,17 @@ qualification from depending on an OS-installed font.
 
 ## OF-002: Icons as text or assets
 
-Should launcher arrows, status marks, profile diamonds, Search decoration, and
-controller symbols remain font characters?
+Should the remaining status marks, profile diamonds, and controller symbols
+remain font characters, and should the prototype’s shared CSS navigation
+geometry become the release icon asset?
 
 Safe default: use accessible text labels for meaning and a small first-party
 SVG/icon set for decoration. Do not depend on a fallback font for the identity
 or geometry of navigation-critical icons.
+
+Current prototype status: Search, Back, Continue/Open, Retry, and external
+navigation no longer depend on font glyphs. Their shared CSS geometry is
+decorative, `aria-hidden`, and adjacent to visible authoritative text.
 
 ## OF-003: Supported language scope
 

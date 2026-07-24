@@ -292,7 +292,7 @@
 
 <header class="view-header calibration-header">
   <div>
-    <button class="text-back" type="button" onclick={cancelAndReturn}>← Profile management</button>
+    <button class="text-back" type="button" onclick={cancelAndReturn}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profile management</button>
     <p class="view-kicker">PLAYER + PLAY-ZONE CALIBRATION / DESK REHEARSAL</p>
     <h1>Show what the console understood.</h1>
   </div>

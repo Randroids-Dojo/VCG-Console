@@ -23,6 +23,11 @@ glyphs hidden from assistive technology, and replace navigation-critical
 decoration with a small first-party SVG set whose geometry is tested at every
 required scale.
 
+Current prototype status: Search, Back, Continue/Open, Retry, and external
+navigation now use shared first-party CSS geometry with visible adjacent text
+and `aria-hidden` decoration. The remaining decision is whether that primitive
+is the release asset or an interim implementation before a versioned icon set.
+
 ## PFO-003: Target-image dependency
 
 May a release depend on fonts supplied by the target operating-system image?
@@ -51,6 +56,9 @@ Safe default: keep the mark decorative and hidden from assistive technology
 beside the existing visible “Search everything” label. Preserve the current
 removal of the semantically unrelated font character, then migrate the CSS
 shape only when the versioned first-party icon set exists.
+
+Current prototype status: the Search mark remains within the shared CSS icon
+boundary and has browser coverage for empty text and `aria-hidden`.
 
 ## Handoff
 

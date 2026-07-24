@@ -139,10 +139,10 @@
     {/if}
     <div class="launch-actions">
       {#if session.action}
-        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onaction}>{session.action.label}<span>→</span></button>
+        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onaction}>{session.action.label}<span class="ui-icon ui-icon-arrow-right" aria-hidden="true"></span></button>
       {/if}
       {#if session.canRetry}
-        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onretry}>Retry<span>↻</span></button>
+        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onretry}>Retry<span class="ui-icon ui-icon-retry" aria-hidden="true"></span></button>
       {/if}
       {#if session.diagnostics}
         <button type="button" data-tv-action data-tv-critical-text aria-expanded={detailsVisible} onclick={() => (detailsVisible = !detailsVisible)}>{detailsVisible ? "Hide details" : "Details"}<span>+</span></button>

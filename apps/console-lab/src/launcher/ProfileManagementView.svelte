@@ -288,7 +288,7 @@
 
 <header class="view-header profile-management-header">
   <div>
-    <button class="text-back" type="button" onclick={onback}>← Profiles</button>
+    <button class="text-back" type="button" onclick={onback}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profiles</button>
     <p class="view-kicker">LOCAL PROFILE MANAGEMENT / DESK REHEARSAL</p>
     <h1>{profile ? `Manage ${profile.name}.` : "Create a local profile."}</h1>
   </div>

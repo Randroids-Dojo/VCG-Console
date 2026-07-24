@@ -105,7 +105,7 @@
     <div bind:this={results} class="search-results" id="search-results">
       {#each matches as item (item.title)}
         <button type="button" data-tv-action onclick={() => choose(item)}>
-          <span data-tv-critical-text>{item.group}</span><strong data-tv-critical-text>{item.title}</strong><small>{item.detail}</small><b data-tv-critical-text>→</b>
+          <span data-tv-critical-text>{item.group}</span><strong data-tv-critical-text>{item.title}</strong><small>{item.detail}</small><b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b>
         </button>
       {/each}
     </div>

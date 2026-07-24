@@ -44,7 +44,11 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(canonicalMuseumCatalog.getByText("VibeBots")).toBeVisible();
   await expect(canonicalMuseumCatalog.getByText("Mi Casa Es Su Casa")).toBeVisible();
   await expect(canonicalMuseumCatalog.getByText("Determined")).toBeVisible();
-  await page.getByRole("button", { name: /Enter the museum/ }).click();
+  const museumEntry = page.getByRole("button", { name: /Enter the museum/ });
+  const museumEntryIcon = museumEntry.locator(".ui-icon-arrow-up-right");
+  await expect(museumEntryIcon).toHaveAttribute("aria-hidden", "true");
+  await expect(museumEntryIcon).toHaveText("");
+  await museumEntry.click();
   await expect(page.getByRole("dialog", { name: "VibeCoded Museum" })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Open unsupervised preview" }),
@@ -60,7 +64,17 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.locator("#managed-profile-name").fill("Guest Two");
   await page.getByRole("button", { name: "Save display name" }).click();
   await expect(page.locator("#active-profile-name")).toHaveText("Guest Two");
-  await page.getByRole("button", { name: "← Profiles" }).click();
+  const management = page.locator('[data-launcher-view="profile-management"]');
+  const profileBack = management.getByRole("button", {
+    name: "Profiles",
+    exact: true,
+  });
+  await expect(profileBack.locator(".ui-icon-arrow-left")).toHaveAttribute(
+    "aria-hidden",
+    "true",
+  );
+  await expect(profileBack.locator(".ui-icon-arrow-left")).toHaveText("");
+  await profileBack.click();
   await page.getByRole("button", { name: /Create profile New local player/ }).click();
   await page.locator("#managed-profile-name").fill("Player Three");
   await page.getByRole("button", { name: "Create local profile" }).click();

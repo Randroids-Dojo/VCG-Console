@@ -176,7 +176,7 @@
 
 <header class="view-header portrait-capture-header">
   <div>
-    <button class="text-back" type="button" onclick={cancelAndReturn}>← Profiles</button>
+    <button class="text-back" type="button" onclick={cancelAndReturn}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profiles</button>
     <p class="view-kicker">DEVICE-ONLY PORTRAIT / DESK REHEARSAL</p>
     <h1>Choose the image deliberately.</h1>
   </div>

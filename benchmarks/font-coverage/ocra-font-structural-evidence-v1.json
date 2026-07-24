@@ -552,17 +552,13 @@
       {
         "id": "console-source-non-ascii",
         "description": "Every non-ASCII code point present in console-lab production CSS, Svelte, and TypeScript source.",
-        "codePointCount": 15,
+        "codePointCount": 11,
         "codePoints": [
           "U+00B7",
           "U+00D7",
           "U+2014",
           "U+2019",
           "U+2026",
-          "U+2190",
-          "U+2192",
-          "U+2197",
-          "U+21BB",
           "U+25B3",
           "U+25C6",
           "U+25C7",
@@ -578,10 +574,6 @@
           "U+2014",
           "U+2019",
           "U+2026",
-          "U+2190",
-          "U+2192",
-          "U+2197",
-          "U+21BB",
           "U+25B3",
           "U+25C6",
           "U+25C7",
@@ -754,7 +746,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 809137,
+      "totalBytes": 811453,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -863,28 +855,28 @@
         },
         {
           "path": "apps/console-lab/src/launcher/CalibrationRehearsalView.svelte",
-          "bytes": 15042,
-          "sha256": "c006e23fc50f623bfcca56ae50f3db8efb8ee2bae5bacf31a24d8364894df599"
+          "bytes": 15105,
+          "sha256": "87983e55e399023b3fb1c66bfa8eaf30c36afc07d08a9ade50ea34d6f04c5e64"
         },
         {
           "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-          "bytes": 6329,
-          "sha256": "5bfa2c7f2d7edfe076d7606a19a453a3f14d6f114446112d628d460d2ee32ed6"
+          "bytes": 6427,
+          "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 53535,
-          "sha256": "215a91d1b1c9f43dc5e1ce7461720b93650288b8c2e4fe3ec0b1eb9c4513df07"
+          "bytes": 53746,
+          "sha256": "7382861197feee6d7bf318a9f889979085b3452baee9f63c12d857f21f303e70"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
-          "bytes": 8629,
-          "sha256": "7240f6b23fbff89df2f8eb40da88c850eb90aeda833eaf34f6504bd02fc7f03c"
+          "bytes": 8692,
+          "sha256": "35960c6fb36400c989e15ad1c57f5ce5511772c6cc160833aa573e7b817bcd7c"
         },
         {
           "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
-          "bytes": 19355,
-          "sha256": "e5be5766a09ebae849dcc76ebb65b12041b3e087ec7ef3fb351e6a3231e8e53e"
+          "bytes": 19418,
+          "sha256": "d62fb51edd3b8b88a7b519ed11ecc6e01396aac6283c2d33628d22151f5fd960"
         },
         {
           "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
@@ -893,8 +885,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-          "bytes": 3693,
-          "sha256": "86b937404e55916340c09e459b9c1fc7a86d49b25b122e971f075c62150e3fac"
+          "bytes": 3723,
+          "sha256": "10f4c45a27db30c975d2783f089a55ed1f75f8ef2d4c23de71d4d02655205dc7"
         },
         {
           "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
@@ -908,8 +900,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-          "bytes": 14356,
-          "sha256": "831f80ed7c723cb47112e4ac5904acc233e48ca8417b506921c51092d36fa54c"
+          "bytes": 14419,
+          "sha256": "32e46d42024288beb3532606597fa0df150db8a17f0ca915f9d8205ac6aa0a13"
         },
         {
           "path": "apps/console-lab/src/launcher/accessibility-preferences.test.ts",
@@ -1128,8 +1120,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 98262,
-          "sha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba"
+          "bytes": 99987,
+          "sha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1314,7 +1306,7 @@
             {
               "path": "apps/console-lab/src/styles.css",
               "lines": [
-                1945
+                2033
               ]
             }
           ]
@@ -1333,7 +1325,7 @@
             {
               "path": "apps/console-lab/src/styles.css",
               "lines": [
-                325
+                410
               ]
             }
           ]
@@ -1372,96 +1364,6 @@
           ]
         },
         {
-          "codePoint": "U+2190",
-          "character": "←",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/CalibrationRehearsalView.svelte",
-              "lines": [
-                295
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
-              "lines": [
-                179
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
-              "lines": [
-                291
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-              "lines": [
-                251
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2192",
-          "character": "→",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-              "lines": [
-                142
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/Launcher.svelte",
-              "lines": [
-                1063,
-                1066,
-                1069
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-              "lines": [
-                108
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                2194
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2197",
-          "character": "↗",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/Launcher.svelte",
-              "lines": [
-                1096
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+21BB",
-          "character": "↻",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-              "lines": [
-                145
-              ]
-            }
-          ]
-        },
-        {
           "codePoint": "U+25B3",
           "character": "△",
           "fontCovered": false,
@@ -1469,7 +1371,7 @@
             {
               "path": "apps/console-lab/src/styles.css",
               "lines": [
-                1937
+                2025
               ]
             }
           ]
@@ -1507,7 +1409,7 @@
             {
               "path": "apps/console-lab/src/styles.css",
               "lines": [
-                1017
+                1105
               ]
             }
           ]
@@ -1541,7 +1443,7 @@
             {
               "path": "apps/console-lab/src/styles.css",
               "lines": [
-                1949
+                2037
               ]
             }
           ]
@@ -1565,9 +1467,9 @@
       "fontCodePointCount": 114,
       "printableAsciiCodePointCount": 95,
       "printableAsciiMissingCount": 0,
-      "productionSourceNonAsciiCodePointCount": 15,
+      "productionSourceNonAsciiCodePointCount": 11,
       "productionSourceNonAsciiCoveredCount": 1,
-      "productionSourceNonAsciiMissingCount": 14,
+      "productionSourceNonAsciiMissingCount": 10,
       "fallbackRequired": true
     }
   },
@@ -1577,7 +1479,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba",
+    "stylePathSha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

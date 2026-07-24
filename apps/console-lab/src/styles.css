@@ -29,6 +29,91 @@
   font-size: 100%;
 }
 
+.ui-icon {
+  position: relative;
+  box-sizing: border-box;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.ui-icon::before,
+.ui-icon::after {
+  position: absolute;
+  box-sizing: border-box;
+  content: "";
+}
+
+.ui-icon-arrow-right::before,
+.ui-icon-arrow-left::before {
+  width: 0.78em;
+  height: 0.1em;
+  top: 0.45em;
+  background: currentColor;
+}
+
+.ui-icon-arrow-right::before {
+  left: 0.08em;
+}
+
+.ui-icon-arrow-left::before {
+  right: 0.08em;
+}
+
+.ui-icon-arrow-right::after,
+.ui-icon-arrow-left::after,
+.ui-icon-arrow-up-right::after {
+  width: 0.42em;
+  height: 0.42em;
+  border-top: 0.1em solid currentColor;
+  border-right: 0.1em solid currentColor;
+}
+
+.ui-icon-arrow-right::after {
+  top: 0.29em;
+  right: 0.08em;
+  transform: rotate(45deg);
+}
+
+.ui-icon-arrow-left::after {
+  top: 0.29em;
+  left: 0.08em;
+  transform: rotate(-135deg);
+}
+
+.ui-icon-arrow-up-right::before {
+  width: 0.88em;
+  height: 0.1em;
+  left: 0.02em;
+  top: 0.47em;
+  background: currentColor;
+  transform: rotate(-45deg);
+}
+
+.ui-icon-arrow-up-right::after {
+  top: 0.06em;
+  right: 0.06em;
+}
+
+.ui-icon-retry {
+  border: 0.1em solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+
+.ui-icon-retry::after {
+  width: 0;
+  height: 0;
+  top: -0.13em;
+  left: 0.05em;
+  border-top: 0.18em solid transparent;
+  border-right: 0.32em solid currentColor;
+  border-bottom: 0.18em solid transparent;
+  transform: rotate(-24deg);
+}
+
 :root[data-vcg-text-scale="large"] {
   font-size: 112.5%;
 }
@@ -803,6 +888,9 @@ a:focus-visible {
 .unassigned-profile-link,
 .text-back {
   min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
   padding: 0;
   border: 0;
   background: transparent;
@@ -2189,9 +2277,16 @@ a:focus-visible {
 }
 
 .settings-nav button.active::after {
+  width: 0.42em;
+  height: 0.42em;
+  display: inline-block;
   float: right;
+  margin: 0.08em 0.12em 0 0;
+  border-top: 0.1em solid currentColor;
+  border-right: 0.1em solid currentColor;
   color: var(--accent);
-  content: "→";
+  content: "";
+  transform: rotate(45deg);
 }
 
 .settings-panels section {

@@ -51,9 +51,9 @@ to:
 | mapped Unicode code points | 114 |
 | printable ASCII code points | 95 of 95 covered |
 | production source files scanned | 83 |
-| distinct non-ASCII source code points | 15 |
+| distinct non-ASCII source code points | 11 |
 | non-ASCII source code points covered by OCR-A | 1 |
-| non-ASCII source code points requiring fallback | 14 |
+| non-ASCII source code points requiring fallback | 10 |
 
 The one covered non-ASCII source character is `U+00B7 MIDDLE DOT` (`·`).
 Current production source also contains these characters that OCR-A does not
@@ -65,10 +65,6 @@ map:
 | `U+2014` | `—` | separator/error copy |
 | `U+2019` | `’` | possessive copy |
 | `U+2026` | `…` | scanning status |
-| `U+2190` | `←` | back action |
-| `U+2192` | `→` | continue/open action |
-| `U+2197` | `↗` | external navigation |
-| `U+21BB` | `↻` | retry action |
 | `U+25B3` | `△` | controller/status marker |
 | `U+25C6` | `◆` | profile marker |
 | `U+25C7` | `◇` | status marker |
@@ -77,6 +73,10 @@ map:
 | `U+2713` | `✓` | passed check |
 
 The source evidence records every observed file and line for these code points.
+Back, continue/open, external-navigation, and retry marks no longer appear as
+font characters in production source. They use a shared first-party CSS icon
+primitive, remain adjacent to authoritative visible text, and are hidden from
+assistive technology.
 The current CSS uses
 `OCRA, ui-monospace, SFMono-Regular, monospace`, so the platform chooses the
 actual glyph whenever OCR-A lacks it. That is functioning fallback behavior,

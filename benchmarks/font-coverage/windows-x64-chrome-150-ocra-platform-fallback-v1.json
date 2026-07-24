@@ -18,13 +18,13 @@
     "fontPath": "apps/console-lab/public/fonts/OCRA.ttf",
     "fontBytes": 24316,
     "fontSha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
-    "productionSourceNonAsciiCodePointCount": 15,
-    "productionSourceNonAsciiMissingCount": 14
+    "productionSourceNonAsciiCodePointCount": 11,
+    "productionSourceNonAsciiMissingCount": 10
   },
   "probe": {
     "cssFontFamily": "OCRA, ui-monospace, SFMono-Regular, monospace",
     "cssFontSizePx": 88,
-    "observationCount": 16,
+    "observationCount": 12,
     "observations": [
       {
         "id": "ascii-a",
@@ -105,62 +105,6 @@
           {
             "familyName": "Consolas",
             "postScriptName": "Consolas",
-            "customFont": false,
-            "glyphCount": 1
-          }
-        ]
-      },
-      {
-        "id": "left-arrow",
-        "codePoint": "U+2190",
-        "character": "←",
-        "role": "back action",
-        "fonts": [
-          {
-            "familyName": "Consolas",
-            "postScriptName": "Consolas",
-            "customFont": false,
-            "glyphCount": 1
-          }
-        ]
-      },
-      {
-        "id": "right-arrow",
-        "codePoint": "U+2192",
-        "character": "→",
-        "role": "continue/open action",
-        "fonts": [
-          {
-            "familyName": "Consolas",
-            "postScriptName": "Consolas",
-            "customFont": false,
-            "glyphCount": 1
-          }
-        ]
-      },
-      {
-        "id": "north-east-arrow",
-        "codePoint": "U+2197",
-        "character": "↗",
-        "role": "external navigation",
-        "fonts": [
-          {
-            "familyName": "Segoe UI Symbol",
-            "postScriptName": "SegoeUISymbol",
-            "customFont": false,
-            "glyphCount": 1
-          }
-        ]
-      },
-      {
-        "id": "clockwise-open-circle-arrow",
-        "codePoint": "U+21BB",
-        "character": "↻",
-        "role": "retry action",
-        "fonts": [
-          {
-            "familyName": "Cambria Math",
-            "postScriptName": "CambriaMath",
             "customFont": false,
             "glyphCount": 1
           }
@@ -263,8 +207,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/": 1,
-      "/assets/main-CjOhK6ZD.js": 1,
-      "/assets/main-CM6GLoJk.css": 1,
+      "/assets/main-BK6031cb.js": 1,
+      "/assets/main-IxDvZKFO.css": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-EbToTsJV.js": 1,
       "/assets/synthetic-BTWSnpMo.js": 1,
@@ -274,13 +218,13 @@
   },
   "screenshot": {
     "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
-    "bytes": 86598,
-    "sha256": "fff9fc9829f3d026d65fbf3f71535aba35ab58ebf4acae1ff8f9fc0062552096"
+    "bytes": 70215,
+    "sha256": "e24887bb8dff9e6105b9670ce16a82202ff6dc32621a216db4e2f361883f1b75"
   },
   "summary": {
-    "probeCodePointCount": 16,
+    "probeCodePointCount": 12,
     "customFontObservationCount": 2,
-    "platformFallbackObservationCount": 14,
+    "platformFallbackObservationCount": 10,
     "distinctFamilyNames": [
       "Cambria Math",
       "Consolas",
@@ -296,15 +240,15 @@
   },
   "provenance": {
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba",
+    "stylePathSha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "4d4f91e89702331d930e12328af7fcab42c17405f4b5afdba851038fec5d4603",
+    "baseEvidencePathSha256": "7d09bc0612c1a42aa858f44d93620ad05ec8aae5c696ce101059aa4b5ea1cd8b",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "394e942dcfb06b6d7a01044094effe22f325182179a5b0673bab30a2ae98b5c4",
+    "generatorPathSha256": "82e0eef83d60ada7bd92b8e3942e2b2e558cdabb29098bc5e82f044e905078e1",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "c762e708b30d8aa56882c813097e36dcc73459214b82b6672c078563304b7783",
-    "baseEvidenceBytes": 45615,
-    "baseEvidenceSha256": "4d4f91e89702331d930e12328af7fcab42c17405f4b5afdba851038fec5d4603",
+    "validatorPathSha256": "f6b22e92e8f2734f1a23f729875c2e8f93de06c4a14c592cf4af5f6f6cd01b20",
+    "baseEvidenceBytes": 43129,
+    "baseEvidenceSha256": "7d09bc0612c1a42aa858f44d93620ad05ec8aae5c696ce101059aa4b5ea1cd8b",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -322,7 +266,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 125,
-      "sha256": "96aedbea5e158bd25634f00ed65a35b237763bb8d5d2f82d9b8cd8d4ece603ed"
+      "sha256": "4aba9289c953c655d7e85b646dad8f5db5391acbebab7607e579e0843b1d41be"
     }
   },
   "disposition": {
@@ -338,7 +282,7 @@
     "redistributionApproved": false,
     "productionReady": false
   },
-  "claimBoundary": "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 15 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.",
+  "claimBoundary": "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 10 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.",
   "limitations": [
     "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
     "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
