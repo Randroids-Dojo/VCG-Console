@@ -51,7 +51,7 @@ This is crash-monotonic selection, not tamper-resistant anti-rollback. The curre
 
 ## Signed archive intake
 
-`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). It verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
+`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
 
 Only then is the private directory atomically renamed to `staging/<transaction-id>`. This creates an inert promotion candidate; it does not publish `promotion.intent`, run candidate health, or change active state. Failure validates and removes only the private incoming direct child.
 
@@ -147,7 +147,8 @@ Planning never returns filesystem paths and never removes activation markers, ge
 
 Still required:
 
-- network download/resume, real capacity reservation, and low-space coordination/cleanup;
+- network discovery/client/TLS/range behavior, real capacity reservation, and low-space coordination/cleanup;
+- abandoned-transfer retention and cleanup;
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - bounded retention, uninstall, and garbage collection;

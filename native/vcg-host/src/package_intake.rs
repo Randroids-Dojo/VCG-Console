@@ -636,6 +636,11 @@ impl VerifiedPackageRelease {
     }
 
     #[must_use]
+    pub fn archive_sha256(&self) -> [u8; 32] {
+        self.archive_sha256
+    }
+
+    #[must_use]
     pub fn expanded_size_bytes(&self) -> u64 {
         self.expanded_size_bytes
     }
@@ -748,6 +753,52 @@ impl VerifiedPackageRelease {
         })
     }
 
+    /// Checks capacity while receiving an archive prefix.
+    ///
+    /// Already received bytes are reflected in the filesystem's available
+    /// count, so only the remaining archive bytes, complete expanded release,
+    /// and reserved headroom are charged.
+    ///
+    /// # Errors
+    ///
+    /// Rejects an impossible received length, zero reserve, arithmetic
+    /// overflow, or insufficient space.
+    pub fn admit_remaining_transfer_capacity(
+        &self,
+        available_bytes: u64,
+        received_bytes: u64,
+        reserve_bytes: u64,
+    ) -> Result<CapacityAdmission, PackageIntakeError> {
+        let remaining_archive_bytes = self.archive_size_bytes.checked_sub(received_bytes).ok_or(
+            PackageIntakeError::ReceivedBytesExceeded {
+                received_bytes,
+                archive_bytes: self.archive_size_bytes,
+            },
+        )?;
+        if reserve_bytes == 0 {
+            return Err(PackageIntakeError::InvalidReserve);
+        }
+        let peak_without_reserve = remaining_archive_bytes
+            .checked_add(self.expanded_size_bytes)
+            .ok_or(PackageIntakeError::CapacityOverflow)?;
+        let required_bytes = peak_without_reserve
+            .checked_add(reserve_bytes)
+            .ok_or(PackageIntakeError::CapacityOverflow)?;
+        if available_bytes < required_bytes {
+            return Err(PackageIntakeError::InsufficientCapacity {
+                available_bytes,
+                required_bytes,
+            });
+        }
+        Ok(CapacityAdmission {
+            available_bytes,
+            archive_bytes: remaining_archive_bytes,
+            expanded_bytes: self.expanded_size_bytes,
+            reserve_bytes,
+            remaining_after_peak_bytes: available_bytes - peak_without_reserve,
+        })
+    }
+
     /// Reads available bytes for the filesystem containing an existing
     /// host-owned staging directory and applies peak-capacity admission.
     ///
@@ -794,6 +845,29 @@ impl VerifiedPackageRelease {
                 source,
             })?;
         self.admit_extraction_capacity(available_bytes, reserve_bytes)
+    }
+
+    /// Reads available bytes from the transfer filesystem and checks the
+    /// remaining-download peak requirement.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unsafe roots, filesystem-stat failures, impossible progress,
+    /// invalid reserve, overflow, or insufficient capacity.
+    pub fn admit_remaining_transfer_capacity_at(
+        &self,
+        transfer_root: &Path,
+        received_bytes: u64,
+        reserve_bytes: u64,
+    ) -> Result<CapacityAdmission, PackageIntakeError> {
+        require_absolute_directory("package transfer root", transfer_root)?;
+        let available_bytes =
+            fs4::available_space(transfer_root).map_err(|source| PackageIntakeError::Io {
+                operation: "read package transfer capacity",
+                path: transfer_root.to_owned(),
+                source,
+            })?;
+        self.admit_remaining_transfer_capacity(available_bytes, received_bytes, reserve_bytes)
     }
 
     /// Verifies a completed archive against its signed exact length and hash.
@@ -1107,6 +1181,10 @@ pub enum PackageIntakeError {
     },
     InvalidRecord(String),
     InvalidReserve,
+    ReceivedBytesExceeded {
+        received_bytes: u64,
+        archive_bytes: u64,
+    },
     CapacityOverflow,
     InsufficientCapacity {
         available_bytes: u64,
@@ -1209,6 +1287,13 @@ impl fmt::Display for PackageIntakeError {
             Self::InvalidReserve => {
                 formatter.write_str("package capacity reserve must be greater than zero")
             }
+            Self::ReceivedBytesExceeded {
+                received_bytes,
+                archive_bytes,
+            } => write!(
+                formatter,
+                "package transfer reports {received_bytes} received bytes for a {archive_bytes}-byte archive"
+            ),
             Self::CapacityOverflow => {
                 formatter.write_str("package peak capacity calculation overflowed")
             }
@@ -1781,6 +1866,22 @@ mod descriptor_tests {
                 .expect("capacity admits"),
             expected
         );
+        assert_eq!(
+            release
+                .admit_remaining_transfer_capacity(20_000, 5, 4_096)
+                .expect("resumed transfer capacity admits"),
+            CapacityAdmission {
+                available_bytes: 20_000,
+                archive_bytes: 10,
+                expanded_bytes: 8_192,
+                reserve_bytes: 4_096,
+                remaining_after_peak_bytes: 11_798,
+            }
+        );
+        assert!(matches!(
+            release.admit_remaining_transfer_capacity(20_000, 16, 1),
+            Err(PackageIntakeError::ReceivedBytesExceeded { .. })
+        ));
         assert!(
             release
                 .admit_capacity_at(&fixture.root, 1)

@@ -8,5 +8,6 @@ pub mod native_launch;
 pub mod package_generation;
 pub mod package_health;
 pub mod package_intake;
+pub mod package_transfer;
 pub mod process;
 pub mod retroarch;

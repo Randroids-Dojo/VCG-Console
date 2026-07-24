@@ -650,6 +650,27 @@ This is pre-promotion candidate health, not live or post-activation qualificatio
 
 This is local completed-archive intake, not an update client. Network transport/resume, mirrors/TLS policy, disk reservation, low-space coordination/UI, `tar-zstd`, key-role separation, immutable destination ownership, target-Linux permission/mount behavior, and sudden-power qualification remain open.
 
+## 2026-07-23: durable resumable package archive receipt
+
+### Delivered
+
+- Added an exclusive transfer transaction bound to an already verified release generation, archive length, and archive SHA-256.
+- Durable progress is the synchronized partial-file length. New chunks must be sequential and at most 8 MiB; wholly received retries are accepted only when every byte matches.
+- Resume refuses gaps, partial overlap, conflicting replay, overrun, changed release binding, unsafe state, and an unbound partial file.
+- Opening and every new append recheck available capacity using remaining archive bytes plus complete expanded bytes plus a mandatory nonzero reserve, without charging the received prefix twice.
+- Finalization verifies the complete signed hash and publishes a no-replace hard-link ready name. Reopening after ready-before-cleanup interruption verifies the ready archive and completes cleanup.
+- D-140 records the transfer-neutral durability contract. Q-120 and Q-121 preserve the network-source and abandoned-partial choices.
+
+### Verification evidence
+
+- Transfer tests cover append, identical replay, restart resume, completion, repeated finalize, gap/overlap/conflict/overrun rejection, chunk bounds, lock contention, changed binding, orphan partial refusal, wrong-hash retention, unsafe IDs, and interruption after ready publication.
+- Capacity tests cover remaining-byte arithmetic, impossible received lengths, overflow, reserve, and real filesystem availability.
+- The Rust workspace passes 100 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+
+### Remaining boundary
+
+This is a durable local byte sink, not a network update client. Descriptor discovery, URL/TLS/proxy/mirror policy, HTTP range validation, retry/backoff, bandwidth limits, abandoned-partial cleanup, real reservation, cross-writer low-space coordination, target filesystem locks, and sudden-power evidence remain open.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered
