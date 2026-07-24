@@ -14,6 +14,7 @@ use vcg_host::package_generation::{
     PackageGenerationConfig, PackageGenerationStore, RecoveryOutcome,
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
+use vcg_host::profile_registry::{HostProfileRegistry, MAX_PROFILE_REGISTRY_BYTES};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 use vcg_host::update_root_store::{
     MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES, ProtectedUpdateRootState, RootAcceptance,
@@ -88,6 +89,7 @@ struct LauncherOptions {
     runtime_root: Option<PathBuf>,
     data_root: Option<PathBuf>,
     launch_replay_root: Option<PathBuf>,
+    profile_registry: Option<PathBuf>,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
     update_root_store: Option<PathBuf>,
@@ -100,9 +102,14 @@ struct LauncherOptions {
 struct LauncherCatalogOptions {
     source: LauncherCatalogSourceOptions,
     update_trust: LauncherUpdateTrustOptions,
-    profile_ids: Vec<String>,
+    profiles: LauncherProfileSource,
     watchdog_game_ids: Vec<String>,
     launch_replay_root: Option<PathBuf>,
+}
+
+enum LauncherProfileSource {
+    Registry(PathBuf),
+    DevelopmentIds(Vec<String>),
 }
 
 enum LauncherCatalogSourceOptions {
@@ -277,6 +284,13 @@ fn report_package_recovery(recovery: Option<RecoveryOutcome>) {
 
 impl LauncherCatalogOptions {
     fn load(self, recover: bool) -> Result<LauncherCatalogConfiguration, String> {
+        let profile_ids = self.profiles.load()?;
+        if !self.watchdog_game_ids.is_empty() && profile_ids.is_empty() {
+            return Err("watchdog games require at least one registered profile".to_owned());
+        }
+        if !profile_ids.is_empty() && self.launch_replay_root.is_none() {
+            return Err("nonempty profile registry requires --launch-replay-root".to_owned());
+        }
         let (update_policy, root_recovery) = self.update_trust.load(recover)?;
         let (catalog, source, recovery) = match self.source {
             LauncherCatalogSourceOptions::Loose {
@@ -334,13 +348,28 @@ impl LauncherCatalogOptions {
         };
         Ok(LauncherCatalogConfiguration {
             catalog,
-            profile_ids: self.profile_ids,
+            profile_ids,
             watchdog_game_ids: self.watchdog_game_ids,
             launch_replay_root: self.launch_replay_root,
             source,
             recovery,
             root_recovery,
         })
+    }
+}
+
+impl LauncherProfileSource {
+    fn load(self) -> Result<Vec<String>, String> {
+        match self {
+            Self::Registry(path) => HostProfileRegistry::from_json_bytes(&read_bounded_host_file(
+                &path,
+                MAX_PROFILE_REGISTRY_BYTES,
+                "profile registry",
+            )?)
+            .map(HostProfileRegistry::into_profile_ids)
+            .map_err(|error| error.to_string()),
+            Self::DevelopmentIds(profile_ids) => Ok(profile_ids),
+        }
     }
 }
 
@@ -579,6 +608,7 @@ fn launcher_catalog_options(
         || options.runtime_root.is_some()
         || options.data_root.is_some()
         || options.launch_replay_root.is_some()
+        || options.profile_registry.is_some()
         || !options.profile_ids.is_empty()
         || !options.watchdog_game_ids.is_empty()
         || options.update_root_store.is_some()
@@ -586,15 +616,7 @@ fn launcher_catalog_options(
         || options.update_root_protected_state.is_some()
         || options.update_channel.is_some()
         || options.trusted_unix_seconds.is_some();
-    if !options.watchdog_game_ids.is_empty() && options.profile_ids.is_empty() {
-        return Err("--watchdog-game-id requires at least one --profile-id".to_owned());
-    }
-    if options.profile_ids.is_empty() && options.launch_replay_root.is_some() {
-        return Err("--launch-replay-root requires at least one --profile-id".to_owned());
-    }
-    if !options.profile_ids.is_empty() && options.launch_replay_root.is_none() {
-        return Err("--profile-id requires --launch-replay-root".to_owned());
-    }
+    validate_launcher_profile_options(&options)?;
     let catalog = if catalog_requested {
         let runtime_root = options
             .runtime_root
@@ -644,10 +666,14 @@ fn launcher_catalog_options(
                 },
             }
         };
+        let profiles = options.profile_registry.map_or_else(
+            || LauncherProfileSource::DevelopmentIds(options.profile_ids),
+            LauncherProfileSource::Registry,
+        );
         Some(LauncherCatalogOptions {
             source,
             update_trust,
-            profile_ids: options.profile_ids,
+            profiles,
             watchdog_game_ids: options.watchdog_game_ids,
             launch_replay_root: options.launch_replay_root,
         })
@@ -655,6 +681,23 @@ fn launcher_catalog_options(
         None
     };
     Ok(catalog)
+}
+
+fn validate_launcher_profile_options(options: &LauncherOptions) -> Result<(), String> {
+    if options.profile_registry.is_some() && !options.profile_ids.is_empty() {
+        return Err("launcher accepts --profile-registry or --profile-id, not both".to_owned());
+    }
+    let any_profile_source = options.profile_registry.is_some() || !options.profile_ids.is_empty();
+    if !options.watchdog_game_ids.is_empty() && !any_profile_source {
+        return Err("--watchdog-game-id requires launch profiles".to_owned());
+    }
+    if !any_profile_source && options.launch_replay_root.is_some() {
+        return Err("--launch-replay-root requires launch profiles".to_owned());
+    }
+    if !options.profile_ids.is_empty() && options.launch_replay_root.is_none() {
+        return Err("--profile-id requires --launch-replay-root".to_owned());
+    }
+    Ok(())
 }
 
 fn parse_launcher_option(
@@ -744,6 +787,7 @@ fn parse_launcher_catalog_option(
         "--runtime-root" => &mut output.runtime_root,
         "--data-root" => &mut output.data_root,
         "--launch-replay-root" => &mut output.launch_replay_root,
+        "--profile-registry" => &mut output.profile_registry,
         "--update-root-store" => &mut output.update_root_store,
         "--update-root-anchors" => &mut output.update_root_anchors,
         "--update-root-protected-state" => &mut output.update_root_protected_state,
@@ -1267,16 +1311,17 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        LauncherCatalogSourceOptions, LauncherUpdateTrustOptions, ProtectedUpdateRootState,
-        UpdateRootOptions, launcher_request, parse_update_root_option, plan_launcher,
-        retroarch_request, supervise, supervise_plan, watchdog_plan,
+        LauncherCatalogOptions, LauncherCatalogSourceOptions, LauncherProfileSource,
+        LauncherUpdateTrustOptions, ProtectedUpdateRootState, UpdateRootOptions, launcher_request,
+        parse_update_root_option, plan_launcher, retroarch_request, supervise, supervise_plan,
+        watchdog_plan,
     };
     use ed25519_dalek::{Signer, SigningKey};
     use std::ffi::OsString;
@@ -1564,7 +1609,11 @@ mod tests {
         let (_, _, catalog) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
         let catalog = catalog.expect("catalog options exist");
-        assert_eq!(catalog.profile_ids, ["profile-randy", "profile-guest"]);
+        assert!(matches!(
+            &catalog.profiles,
+            LauncherProfileSource::DevelopmentIds(profile_ids)
+                if profile_ids == &["profile-randy", "profile-guest"]
+        ));
         assert_eq!(catalog.watchdog_game_ids, ["retro-2048"]);
         assert_eq!(
             catalog.launch_replay_root.as_deref(),
@@ -1623,6 +1672,124 @@ mod tests {
         ]);
         extend_update_trust(&mut duplicate_watchdog_game);
         assert!(launcher_request(&args(&duplicate_watchdog_game)).is_err());
+    }
+
+    #[test]
+    fn launcher_profile_registry_is_bounded_persistent_and_exclusive() {
+        let unique = NEXT_ROOT_FIXTURE.fetch_add(1, Ordering::Relaxed);
+        let fixture = std::env::temp_dir().join(format!("vcg-profile-registry-main-test-{unique}"));
+        fs::create_dir(&fixture).expect("create registry fixture");
+        let registry = fixture.join("profiles.json");
+        fs::write(
+            &registry,
+            br#"{"schemaVersion":1,"profiles":[{"id":"profile-randy"},{"id":"guest-01"}]}"#,
+        )
+        .expect("write profile registry");
+        assert_eq!(
+            LauncherProfileSource::Registry(registry.clone())
+                .load()
+                .expect("registry loads"),
+            ["profile-randy", "guest-01"]
+        );
+
+        let base = [
+            "--browser",
+            "/browser",
+            "--profile-dir",
+            "/profile",
+            "--url",
+            "http://127.0.0.1:5173/",
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+            "--launch-replay-root",
+            "/launch-replay",
+            "--profile-registry",
+            "/metadata/profiles.json",
+        ];
+        let mut configured = base.to_vec();
+        extend_update_trust(&mut configured);
+        let (_, _, catalog) =
+            launcher_request(&args(&configured)).expect("profile registry parses");
+        assert!(matches!(
+            catalog.expect("catalog options").profiles,
+            LauncherProfileSource::Registry(path)
+                if path == std::path::Path::new("/metadata/profiles.json")
+        ));
+
+        let mut metadata_only = configured.clone();
+        let replay_option = metadata_only
+            .iter()
+            .position(|value| *value == "--launch-replay-root")
+            .expect("replay option exists");
+        metadata_only.drain(replay_option..=replay_option + 1);
+        assert!(
+            launcher_request(&args(&metadata_only)).is_ok(),
+            "an empty persistent registry may remain metadata-only"
+        );
+
+        let mut mixed = base.to_vec();
+        mixed.extend(["--profile-id", "profile-randy"]);
+        extend_update_trust(&mut mixed);
+        assert!(launcher_request(&args(&mixed)).is_err());
+
+        fs::write(
+            &registry,
+            br#"{"schemaVersion":1,"profiles":[{"id":"../escape"}]}"#,
+        )
+        .expect("replace with invalid registry");
+        assert!(LauncherProfileSource::Registry(registry).load().is_err());
+        fs::remove_dir_all(&fixture).expect("remove registry fixture");
+    }
+
+    #[test]
+    fn invalid_profile_registry_precedes_any_trust_or_package_recovery() {
+        let unique = NEXT_ROOT_FIXTURE.fetch_add(1, Ordering::Relaxed);
+        let fixture =
+            std::env::temp_dir().join(format!("vcg-profile-registry-order-test-{unique}"));
+        fs::create_dir(&fixture).expect("create ordering fixture");
+        let registry = fixture.join("profiles.json");
+        fs::write(
+            &registry,
+            br#"{"schemaVersion":1,"profiles":[{"id":"../escape"}]}"#,
+        )
+        .expect("write invalid profile registry");
+        let root_store = fixture.join("root-store-that-must-not-be-opened");
+        let options = LauncherCatalogOptions {
+            source: LauncherCatalogSourceOptions::Loose {
+                catalog: fixture.join("missing-catalog.json"),
+                signature: fixture.join("missing-catalog.sig"),
+                roots: vcg_host::installed_catalog::CatalogRoots {
+                    install_root: fixture.join("missing-install"),
+                    content_root: None,
+                    runtime_root: fixture.join("runtime"),
+                    data_root: fixture.join("data"),
+                },
+            },
+            update_trust: LauncherUpdateTrustOptions {
+                store_root: root_store.clone(),
+                root_anchors: fixture.join("missing-anchors.json"),
+                protected_state: fixture.join("missing-protected-state.json"),
+                channel: "stable".to_owned(),
+                trusted_unix_seconds: 2_000_000_000,
+            },
+            profiles: LauncherProfileSource::Registry(registry),
+            watchdog_game_ids: Vec::new(),
+            launch_replay_root: Some(fixture.join("launch-replay")),
+        };
+        let Err(error) = options.load(true) else {
+            panic!("invalid registry must fail first");
+        };
+        assert!(error.contains("profile registry ID is invalid"));
+        assert!(!root_store.exists());
+        fs::remove_dir_all(&fixture).expect("remove ordering fixture");
     }
 
     #[test]

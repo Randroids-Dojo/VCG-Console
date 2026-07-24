@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim tamper-protected update-root/time persistence, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, persistent profile storage, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable package-generation activation, strict persistent opaque profile intake, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim tamper-protected update-root/time persistence, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, a qualified profile writer/deletion lifecycle, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -14,9 +14,10 @@ cargo run -p vcg-host -- launcher --windowed \
   --url http://127.0.0.1:5173/
 # Add the signed-catalog/root options documented below, then include:
 #   --launch-replay-root /var/lib/vcg/launch-replay
-# and repeat:
-#   --profile-id profile-randy
-# to enable native package launch for that host-owned profile.
+# and provide:
+#   --profile-registry /var/lib/vcg/profiles.json
+# to enable native package launch for its validated host-owned profiles.
+# Repeated --profile-id is a development-only fallback.
 # Add a signed installed game ID with:
 #   --watchdog-game-id retro-2048
 # only when that game's trusted wrapper implements the heartbeat contract.
@@ -64,10 +65,12 @@ pending root recovery. Bootstrap and rotation are separate privileged
 `update-root` commands documented in
 [the accepted-root store contract](../../docs/UPDATE_ROOT_STORE.md). See the
 [signed installed-package catalog contract](../../docs/INSTALLED_PACKAGE_CATALOG.md).
-Add an absolute `--launch-replay-root <path>` and one or more repeated
-`--profile-id <opaque-id>` options to enable
-`trusted-package-launch` for exactly those host-owned profiles. With no profile
-IDs, the same catalog remains discovery-only. See the
+Add an absolute `--launch-replay-root <path>` and a strict
+`--profile-registry <path>` to enable `trusted-package-launch` for exactly its
+validated host-owned opaque IDs. Repeated `--profile-id` remains a mutually
+exclusive development fallback. An empty registry leaves the catalog
+discovery-only. See the
+[profile-registry contract](../../docs/PROFILE_REGISTRY.md) and
 [native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
 The host durably accepts each launch before execution and replays retained
 terminal requests across restart. Recovered nonterminal work becomes

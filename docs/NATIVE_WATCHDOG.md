@@ -29,7 +29,7 @@ The authenticated package-launch path enables the same policy only for host-sele
 ```sh
 vcg-host launcher \
   <signed-catalog, root, browser, and URL options> \
-  --profile-id profile-randy \
+  --profile-registry /var/lib/vcg/profiles.json \
   --watchdog-game-id retro-2048
 ```
 

@@ -20,4 +20,11 @@ Safe default: make generation monotonic per signed channel, persist the highest 
 
 Should guest and child profiles receive persistent opaque host IDs, or should the first native launch operation support an explicitly ephemeral session profile?
 
+Implemented read boundary: launcher restart configuration now loads stable
+opaque IDs from a strict bounded persistent registry; browser display text and
+paths remain outside that document, and repeated CLI IDs are development-only.
+Creation, guest lifetime, protection, removal, sensitive-data deletion, and
+save unassignment remain Q-132 through Q-135 in the separate
+profile-registry question record.
+
 Safe default: use a stable opaque local ID for every persisted profile, never a display name or browser-selected filesystem segment. If ephemeral guest play is required, represent it as a separately typed host-created session ID with a documented save-retention policy.

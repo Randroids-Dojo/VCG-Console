@@ -1630,3 +1630,45 @@ descendant cgroup cleanup, compositor surface readiness, reserved global
 controls, Godot packaging, or ARM64/x86-64 hardware behavior. A native catalog
 entry is executable authority under the desk host; it is not family-mode
 qualification or evidence that hostile native code is contained.
+
+## 2026-07-24: persistent opaque launch-profile intake
+
+### Delivered
+
+- Added a strict 16 KiB v1 profile registry containing at most 64 unique safe
+  opaque IDs and no names, portraits, body data, paths, permissions, or
+  lifecycle commands.
+- Added `--profile-registry` as the normal persistent launcher profile source.
+  Repeated `--profile-id` remains a mutually exclusive development fallback.
+- Kept an empty registry metadata-only, required the durable launch-replay root
+  for nonempty profile configuration, and required at least one validated
+  profile for watchdog games.
+- Loaded and validated the profile source before accepted-root or package
+  recovery, so malformed profile state cannot trigger those mutations and fail
+  afterward.
+- Passed only validated registry IDs into the existing authenticated
+  `trusted-package-launch` capability; browser display text still cannot create
+  a storage or launch identity.
+- Added `PROFILE_REGISTRY.md`, D-160, and a separate Q-132 through Q-135 owner
+  record without claiming a profile writer or deletion transaction.
+
+### Verification evidence
+
+Three library tests cover ordered/empty state, closed-document and identifier
+bounds, duplicate/oversize rejection, and registry-to-authenticated-capability
+handoff. Two CLI tests cover source exclusivity, invalid-file denial, replay
+requirements, and proof that registry validation precedes recovery.
+
+The isolated `ab0c57b` verification tree passes 242 active library tests with
+five intentional subprocess helpers ignored and all eighteen CLI tests. Rust
+formatting, strict all-target Clippy, and warning-denied Rustdoc pass. This
+isolated proof intentionally excludes a concurrent uncommitted
+package-generation anti-rollback tranche in the shared worktree.
+
+### Remaining boundary
+
+This is read-only launch authority, not the complete persistent profile
+lifecycle. A qualified privileged writer, synchronization and rollback policy,
+guest lifetime, profile creation/removal, sensitive-data deletion, save
+unassignment, encrypted-vault integration, backup/support/recovery exclusion,
+target permissions, hostile-writer tests, and power-loss recovery remain open.

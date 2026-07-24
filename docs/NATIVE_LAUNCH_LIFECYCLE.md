@@ -10,9 +10,15 @@ The launch capability exists only when `vcg-host launcher` receives:
 
 - a valid signed installed catalog and all host-owned roots;
 - an absolute `--launch-replay-root <path>`;
-- at least one repeated `--profile-id <opaque-id>` option.
+- a nonempty strict `--profile-registry <path>`, or repeated
+  `--profile-id <opaque-id>` only for development compatibility.
 
-The profile list is privileged host configuration. The Svelte launcher may select one of those IDs but cannot create an accepted native profile merely by sending a new string. Catalog-only configuration continues to expose metadata without exposing process launch.
+The profile sources are mutually exclusive. The registry is bounded, closed
+JSON containing opaque IDs only and is validated before any root/package
+recovery mutation. The Svelte launcher may select one of those IDs but cannot
+create an accepted native profile merely by sending a new string. An empty
+registry and catalog-only configuration expose metadata without exposing
+process launch.
 
 The host may additionally repeat `--watchdog-game-id <opaque-id>`. Every watchdog game must name a package in the signature-verified installed catalog. A selected game requires the default startup/heartbeat policy for every player profile; other games retain process-only observation when they do not implement a qualified heartbeat. Neither the browser nor a public manifest can enable this mode or select probe paths.
 
@@ -110,7 +116,9 @@ The host retains at most 64 lifecycle records and retires the oldest terminal hi
 
 ## Remaining qualification boundary
 
-- Replace development CLI profile allowlisting with a host-owned persistent profile registry and deletion/unassignment semantics.
+- Replace the development CLI fallback with a qualified registry writer and
+  crash-recoverable creation, removal, sensitive-data deletion, and save
+  unassignment transactions.
 - Provide a production service-manager/cgroup adapter that proves interrupted descendants are gone before acknowledging the restart-cleanup barrier.
 - Qualify the implemented explicit crash-recoverable generation remover on target Linux under sudden power loss and lock/filesystem faults; automatic retention scheduling, byte policy, uninstall, managed-content cleanup, and save disposition remain separate.
 - Select and enforce the journal's operating-system boot scope and age retention; qualify lock, rename, file synchronization, and sudden-power behavior on the target Linux filesystems.

@@ -34,7 +34,8 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 --runtime-root <absolute-ephemeral-runtime-root>
 --data-root <absolute-persistent-data-root>
 [--content-root <absolute-managed-retro-content-root>]
-[--profile-id <host-owned-profile-id>]...
+[--profile-registry <absolute-host-profile-registry> |
+ --profile-id <development-profile-id>...]
 [--watchdog-game-id <installed-game-id>]...
 ```
 
@@ -48,7 +49,13 @@ generation-store contract](PACKAGE_GENERATION_STORE.md).
 
 The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
 
-Without `--profile-id`, the API exposes metadata only. With one or more unique bounded IDs, it also advertises `trusted-package-launch`; submitted profile IDs must exactly match that host allowlist. The current Svelte profile IDs are desk-prototype identifiers and are not yet a persisted native profile registry.
+Normal launch authority comes from the strict bounded
+`--profile-registry`. Repeated `--profile-id` is a mutually exclusive
+development fallback. An empty registry or no profile source leaves the API
+metadata-only. With one or more validated IDs, it also advertises
+`trusted-package-launch`; submitted profile IDs must exactly match that host
+allowlist. Registry validation happens before root/package recovery. See the
+[persistent registry contract](PROFILE_REGISTRY.md).
 
 An optional watchdog game must name a package in the verified installed catalog. It is privileged host configuration, not browser or public-manifest metadata, and means that game's exact qualified runtime producer must satisfy the bounded heartbeat contract for every player profile.
 

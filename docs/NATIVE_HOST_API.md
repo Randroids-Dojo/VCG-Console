@@ -65,7 +65,13 @@ The 128-bit random request ID is a durable idempotency key. Before execution, th
 
 On restart, a nonterminal record is made terminal with `HOST_RESTARTED_INDETERMINATE` and is never re-executed. Fresh launches then fail with HTTP 503 `LAUNCH_RESTART_CLEANUP_REQUIRED` until trusted native service code proves the old process group empty and synchronizes a cleanup acknowledgement. The browser cannot acknowledge cleanup. Unavailable or corrupt replay state fails with HTTP 503 `LAUNCH_REPLAY_UNAVAILABLE`.
 
-The profile ID must be in the host's explicit `--profile-id` allowlist. Browser-created or renamed display text cannot create a storage namespace. After accepting intent, Rust re-resolves and verifies the signed catalog, manifest, frontend, core, base configuration, and content, prepares host-owned storage, and invokes the executable directly without a shell.
+The profile ID must be in the host's strict persistent
+`--profile-registry` allowlist. Repeated `--profile-id` remains only as an
+explicit development fallback and is mutually exclusive with that registry.
+Browser-created or renamed display text cannot create a storage namespace.
+After accepting intent, Rust re-resolves and verifies the signed catalog,
+manifest, runtime artifacts, and content, prepares host-owned storage, and
+invokes the executable directly without a shell.
 
 If privileged host configuration names the signed game ID with `--watchdog-game-id`, the same request record owns bounded heartbeat/restart recovery for every player profile. The browser cannot enable watchdog mode, set its policy, or provide probe paths, and a runtime heartbeat does not satisfy compositor/window readiness.
 
@@ -87,6 +93,6 @@ Process start is not window readiness. Svelte polls while the launch screen rema
 
 ## Evidence and remaining boundary
 
-Rust tests cover authenticated status, route-specific exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security and framing headers, transfer/body rejection, per-launch token uniqueness, signed-catalog discovery and path-free inventory, profile allowlisting, fixed-intent launch, durable at-most-once replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement, journal corruption and contention, bounded lifecycle, direct process start/observation, and idempotent cancellation. TypeScript tests cover strict bridge parsing, bounded bodies, canonical bounded package inventory, fixed package/profile/request IDs, lifecycle identity and sequence validation, bounded recovery failures, failure records, polling, and cancellation. Playwright proves the Svelte flow derives installed labeling from signed inventory, sends only versioned package/profile intent, and reports process failure without inventing readiness.
+Rust tests cover authenticated status, route-specific exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security and framing headers, transfer/body rejection, per-launch token uniqueness, signed-catalog discovery and path-free inventory, strict persistent profile-registry intake, development-source mutual exclusion, fixed-intent launch, durable at-most-once replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement, journal corruption and contention, bounded lifecycle, direct process start/observation, and idempotent cancellation. TypeScript tests cover strict bridge parsing, bounded bodies, canonical bounded package inventory, fixed package/profile/request IDs, lifecycle identity and sequence validation, bounded recovery failures, failure records, polling, and cancellation. Playwright proves the Svelte flow derives installed labeling from signed inventory, sends only versioned package/profile intent, and reports process failure without inventing readiness.
 
 Still required are hostile-navigation and process-inspection tests, service-manager descendant cleanup acknowledgement, boot-scoped replay retention, target-filesystem power-loss qualification, push/event delivery or a measured polling decision, immutable key/artifact provisioning, anti-rollback state, compositor window identity/readiness, watchdog and descendant-process integration, reserved global controls, target-Linux sandboxing, and service-manager restart evidence. D-129, D-132, and D-141 remain working decisions until those tests justify retaining them.
