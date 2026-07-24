@@ -4887,3 +4887,40 @@ not a complete service/data-flow inventory, and candidate metadata is not a
 manifest, signed catalog, permission grant, package descriptor, admission
 record, or owner authorization. The isolated owner questions and exact
 promotion gates in the two dedicated evidence documents remain authoritative.
+
+## 2026-07-24: committed research evidence root coverage
+
+### Delivered
+
+- Audited every committed `scripts/validate-*.test.*` file against the root
+  package commands and found 16 research-evidence suites with no named or root
+  validation path.
+- Added one explicit `validate:research-evidence` command with a closed file
+  list and registered it in `pnpm test`.
+- Used the TypeScript-aware runner for the entire set. Three `.mjs` suites
+  import project TypeScript and fail under plain Node module resolution, while
+  the chosen runner exercises their real source dependencies.
+- Excluded the then-concurrent remote-game input-surface tranche from the
+  closed list; it landed independently as `a5f7e38` after the list was frozen,
+  and this gate cannot silently absorb it or any future file.
+
+### Verification evidence
+
+- All 164 tests pass across camera-to-action timing, tracker identity,
+  gamepad projection, laterality, rule baselines, smoothing, confidence,
+  seated/partial-body support, player-session authority/interference, backend
+  comparison, power-cut campaigns, RGB-depth floor contact, temporal-rule
+  comparison, blind skeleton debugging, and the x86 development baseline.
+- The suites retain their exact hash, privacy, raw-frame, truth-leakage,
+  authority, coverage, failure-oracle, provenance, and claim boundaries.
+- The expanded root unit gate, workspace typecheck, and production build pass.
+  The four package-bound launcher/OCR-A records were regenerated after the
+  command changed their production-source commitment.
+
+### Remaining boundary
+
+Root execution prevents these committed artifacts from drifting silently; it
+does not turn synthetic, planned, incomplete, developer-host, or camera-free
+evidence into physical participant, target-device, production, accessibility,
+latency, safety, or release qualification. Each artifact’s existing owner
+questions and investigation disposition remain unchanged.
