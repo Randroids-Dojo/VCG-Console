@@ -3243,8 +3243,9 @@ replacement, deletion, reset, and target-hardware path.
 - Three focused real-Chrome flows cover the visible boundary, generic remote
   launch presentation, offline/retry, blocked-popup reissue, and two exact
   observed handoffs without making an external request.
-- The Playwright preview server production build succeeds with the new
-  button-only action path.
+- All 419 workspace unit tests, workspace typecheck, production build, and all
+  33 real-Chrome flows pass with the button-only action path and concurrent
+  Motion trace v2 changes present.
 
 ### Remaining boundary
 
