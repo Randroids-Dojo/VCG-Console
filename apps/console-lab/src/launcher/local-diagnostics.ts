@@ -24,35 +24,35 @@ export type LocalDiagnosticSeverity =
   (typeof DIAGNOSTIC_DEFINITIONS)[LocalDiagnosticCode]["severity"];
 
 export interface LocalDiagnosticEvent {
-  sequence: number;
-  uptimeMs: number;
-  subsystem: LocalDiagnosticSubsystem;
-  severity: LocalDiagnosticSeverity;
-  code: LocalDiagnosticCode;
+  readonly sequence: number;
+  readonly uptimeMs: number;
+  readonly subsystem: LocalDiagnosticSubsystem;
+  readonly severity: LocalDiagnosticSeverity;
+  readonly code: LocalDiagnosticCode;
 }
 
 export interface LocalDiagnosticBundle {
-  schemaVersion: 1;
-  generatedAtUptimeMs: number;
-  privacy: {
-    containsRawFrames: false;
-    containsSkeletons: false;
-    containsProfiles: false;
-    containsPersonalIdentifiers: false;
-    containsCredentials: false;
-    containsFreeText: false;
+  readonly schemaVersion: 1;
+  readonly generatedAtUptimeMs: number;
+  readonly privacy: {
+    readonly containsRawFrames: false;
+    readonly containsSkeletons: false;
+    readonly containsProfiles: false;
+    readonly containsPersonalIdentifiers: false;
+    readonly containsCredentials: false;
+    readonly containsFreeText: false;
   };
-  retention: {
-    storage: "memory-only";
-    maximumEvents: number;
-    droppedEvents: number;
+  readonly retention: {
+    readonly storage: "memory-only";
+    readonly maximumEvents: number;
+    readonly droppedEvents: number;
   };
-  events: LocalDiagnosticEvent[];
+  readonly events: readonly LocalDiagnosticEvent[];
 }
 
 export interface PreparedLocalDiagnosticExport {
-  bundle: LocalDiagnosticBundle;
-  serialized: string;
+  readonly bundle: LocalDiagnosticBundle;
+  readonly serialized: string;
 }
 
 /**
@@ -66,6 +66,7 @@ export class LocalDiagnosticBuffer {
   #nextSequence = 1;
   #lastUptimeMs: number | undefined;
   #droppedEvents = 0;
+  #preparedExport: PreparedLocalDiagnosticExport | undefined;
 
   record(code: LocalDiagnosticCode, uptimeMs: number): LocalDiagnosticEvent {
     requireUptime(uptimeMs);
@@ -126,17 +127,31 @@ export class LocalDiagnosticBuffer {
   }
 
   serialize(generatedAtUptimeMs: number): string {
-    return this.prepareExport(generatedAtUptimeMs).serialized;
+    return serializeDiagnosticBundle(this.snapshot(generatedAtUptimeMs));
   }
 
   prepareExport(generatedAtUptimeMs: number): PreparedLocalDiagnosticExport {
-    const bundle = this.snapshot(generatedAtUptimeMs);
-    const serialized = `${JSON.stringify(bundle, null, 2)}\n`;
-    const bytes = new TextEncoder().encode(serialized).byteLength;
-    if (bytes > MAX_LOCAL_DIAGNOSTIC_EXPORT_BYTES) {
-      throw new Error("diagnostic bundle exceeds its export bound");
+    const bundle = freezeDiagnosticBundle(this.snapshot(generatedAtUptimeMs));
+    const prepared = Object.freeze({
+      bundle,
+      serialized: serializeDiagnosticBundle(bundle),
+    });
+    this.#preparedExport = prepared;
+    return prepared;
+  }
+
+  confirmExport(prepared: PreparedLocalDiagnosticExport): string {
+    if (this.#preparedExport !== prepared) {
+      throw new Error("diagnostic export was not issued by this buffer");
     }
-    return { bundle, serialized };
+    return prepared.serialized;
+  }
+
+  discardExport(prepared: PreparedLocalDiagnosticExport): void {
+    if (this.#preparedExport !== prepared) {
+      throw new Error("diagnostic export was not issued by this buffer");
+    }
+    this.#preparedExport = undefined;
   }
 
   clear(): void {
@@ -144,6 +159,7 @@ export class LocalDiagnosticBuffer {
     this.#nextSequence = 1;
     this.#lastUptimeMs = undefined;
     this.#droppedEvents = 0;
+    this.#preparedExport = undefined;
   }
 }
 
@@ -155,4 +171,26 @@ function requireUptime(uptimeMs: number): void {
   if (!Number.isSafeInteger(uptimeMs) || uptimeMs < 0) {
     throw new Error("diagnostic uptime must be a non-negative safe integer");
   }
+}
+
+function freezeDiagnosticBundle(
+  bundle: LocalDiagnosticBundle,
+): LocalDiagnosticBundle {
+  return Object.freeze({
+    ...bundle,
+    privacy: Object.freeze({ ...bundle.privacy }),
+    retention: Object.freeze({ ...bundle.retention }),
+    events: Object.freeze(
+      bundle.events.map((event) => Object.freeze({ ...event })),
+    ),
+  });
+}
+
+function serializeDiagnosticBundle(bundle: LocalDiagnosticBundle): string {
+  const serialized = `${JSON.stringify(bundle, null, 2)}\n`;
+  const bytes = new TextEncoder().encode(serialized).byteLength;
+  if (bytes > MAX_LOCAL_DIAGNOSTIC_EXPORT_BYTES) {
+    throw new Error("diagnostic bundle exceeds its export bound");
+  }
+  return serialized;
 }

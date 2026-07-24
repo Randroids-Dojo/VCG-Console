@@ -88,6 +88,39 @@ describe("LocalDiagnosticBuffer", () => {
       MAX_LOCAL_DIAGNOSTIC_EXPORT_BYTES,
     );
     expect(JSON.parse(first)).toEqual(prepared.bundle);
+    expect(diagnostics.confirmExport(prepared)).toBe(first);
+    expect(Object.isFrozen(prepared)).toBe(true);
+    expect(Object.isFrozen(prepared.bundle)).toBe(true);
+    expect(Object.isFrozen(prepared.bundle.privacy)).toBe(true);
+    expect(Object.isFrozen(prepared.bundle.retention)).toBe(true);
+    expect(Object.isFrozen(prepared.bundle.events)).toBe(true);
+    expect(prepared.bundle.events.every(Object.isFrozen)).toBe(true);
+  });
+
+  it("confirms only the exact current export issued by the same buffer", () => {
+    const diagnostics = new LocalDiagnosticBuffer();
+    const other = new LocalDiagnosticBuffer();
+    diagnostics.record("launcher.ready", 1);
+    const first = diagnostics.prepareExport(2);
+    const clone = structuredClone(first);
+
+    expect(() => diagnostics.confirmExport(clone)).toThrow("not issued");
+    expect(() => other.confirmExport(first)).toThrow("not issued");
+
+    const replacement = diagnostics.prepareExport(3);
+    expect(() => diagnostics.confirmExport(first)).toThrow("not issued");
+    expect(diagnostics.confirmExport(replacement)).toBe(replacement.serialized);
+    expect(diagnostics.confirmExport(replacement)).toBe(replacement.serialized);
+
+    diagnostics.discardExport(replacement);
+    expect(() => diagnostics.confirmExport(replacement)).toThrow("not issued");
+  });
+
+  it("revokes every prepared export when the buffer is cleared", () => {
+    const diagnostics = new LocalDiagnosticBuffer();
+    const prepared = diagnostics.prepareExport(0);
+    diagnostics.clear();
+    expect(() => diagnostics.confirmExport(prepared)).toThrow("not issued");
   });
 
   it("clears all retained and linkable buffer state", () => {

@@ -93,14 +93,16 @@ test("the actual local diagnostic export excludes every seeded device-only field
   );
 
   const prepared = diagnostics.prepareExport(5);
-  const exportBytes = Buffer.from(prepared.serialized, "utf8");
+  const confirmed = diagnostics.confirmExport(prepared);
+  assert.equal(confirmed, prepared.serialized);
+  const exportBytes = Buffer.from(confirmed, "utf8");
   const exportSha256 = createHash("sha256")
     .update(exportBytes)
     .digest("hex");
   assert.match(exportSha256, /^[0-9a-f]{64}$/);
   assert.ok(exportBytes.byteLength <= MAX_LOCAL_DIAGNOSTIC_EXPORT_BYTES);
   assert.equal(
-    CANARIES.some(({ value }) => prepared.serialized.includes(value)),
+    CANARIES.some(({ value }) => confirmed.includes(value)),
     false,
   );
   await writeFile(

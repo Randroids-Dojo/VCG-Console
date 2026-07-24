@@ -1,6 +1,6 @@
 # Local diagnostics and consented export
 
-Status: bounded volatile browser record, review, and consented export implemented; native persistent logging, health aggregation, retention policy, and support workflow remain open.
+Status: bounded volatile browser record, exact-issued review, and consented export implemented; native persistent logging, health aggregation, retention policy, and support workflow remain open.
 
 ## Purpose
 
@@ -48,17 +48,23 @@ an aggregate `droppedEvents` count increases.
 
 The Developer settings panel offers the following flow:
 
-1. Review local diagnostics creates one exact immutable-to-the-flow snapshot.
+1. Review local diagnostics creates one deeply immutable snapshot and makes it
+   the buffer's only currently issued export.
 2. The screen shows retained/dropped counts, all privacy exclusions, and the
    last eight stable codes.
 3. Family mode can review but cannot export or clear.
 4. After local admin confirmation, Prepare diagnostics export displays the
    exact file disclosure.
-5. Confirm diagnostics export downloads the already reviewed bytes as
+5. Confirm diagnostics export succeeds only for the exact object currently
+   issued by that same buffer, then downloads the already reviewed bytes as
    `vcg-console-diagnostics-v1.json`.
 
 Events recorded after review do not silently enter that file. The export
-document declares:
+object, nested declarations, and events are frozen. An identical clone, an
+object issued by another buffer, or a review replaced by a newer preparation
+is rejected. Closing the review, clearing the record, or losing local-admin
+authority revokes the current UI reference; Svelte preserves it as raw state
+instead of substituting a reactive proxy. The export document declares:
 
 ```json
 {
@@ -93,14 +99,15 @@ also remain prohibited.
 
 ## Automated evidence
 
-Six focused unit tests cover:
+Eight focused unit tests cover:
 
 - closed code-to-subsystem/severity derivation and explicit privacy flags;
 - exact newest-256 retention and eviction count;
 - unknown code, invalid time, reversal, and bundle-time rejection;
 - attempted free-text/profile/path/token/frame smuggling;
-- deterministic bounded JSON; and
-- complete in-memory clear and unlinking.
+- deterministic bounded and deeply immutable JSON;
+- exact same-buffer issuance, clone/cross-buffer/replaced-review refusal; and
+- complete in-memory clear, prepared-export revocation, and unlinking.
 
 A separate I-186 producer integration materializes the exact
 `prepareExport` JSON and runs the device-only data-exclusion verifier against
@@ -112,7 +119,8 @@ and report every signal ID without echoing any value. The named
 ten underlying verifier-contract cases.
 
 A real-Chrome test proves family-mode export denial, local admin gating, exact
-review disclosure, deliberate two-step download, expected filename and parsed
+review disclosure, prepared-export revocation when authority returns to family
+mode, deliberate re-review and two-step download, expected filename and parsed
 schema, false privacy flags, absence of the active name/profile ID/URL secret,
 and complete clear. The full browser suite still observes no diagnostic upload.
 

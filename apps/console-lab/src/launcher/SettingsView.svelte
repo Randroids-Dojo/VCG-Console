@@ -67,7 +67,7 @@
   let diagnostics = $state(false);
   const operatingMode = new ConsoleOperatingModeController();
   let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
-  let diagnosticReview = $state<PreparedLocalDiagnosticExport | undefined>();
+  let diagnosticReview = $state.raw<PreparedLocalDiagnosticExport | undefined>();
   let diagnosticExportArmed = $state(false);
   let observedProfileId: string | undefined;
   let operatingModeElement: HTMLElement;
@@ -159,6 +159,9 @@
   }
 
   function closeDiagnosticReview(): void {
+    if (diagnosticReview !== undefined) {
+      localDiagnostics.discardExport(diagnosticReview);
+    }
     diagnosticReview = undefined;
     diagnosticExportArmed = false;
   }
@@ -173,8 +176,17 @@
       !diagnosticExportArmed ||
       diagnosticReview === undefined
     ) return;
+    let serialized: string;
+    try {
+      serialized = localDiagnostics.confirmExport(diagnosticReview);
+    } catch {
+      diagnosticReview = undefined;
+      diagnosticExportArmed = false;
+      ontoast("Diagnostic review changed. Review the record again.");
+      return;
+    }
     const objectUrl = URL.createObjectURL(
-      new Blob([diagnosticReview.serialized], { type: "application/json" }),
+      new Blob([serialized], { type: "application/json" }),
     );
     const download = document.createElement("a");
     download.href = objectUrl;
@@ -193,7 +205,11 @@
 
   function setOperatingModeSnapshot(snapshot: ConsoleOperatingModeSnapshot): void {
     operatingModeSnapshot = snapshot;
-    if (!snapshot.canManageConsole) diagnosticExportArmed = false;
+    if (!snapshot.canManageConsole && diagnosticReview !== undefined) {
+      closeDiagnosticReview();
+    } else if (!snapshot.canManageConsole) {
+      diagnosticExportArmed = false;
+    }
     if (operatingModeTimer !== undefined) window.clearTimeout(operatingModeTimer);
     operatingModeTimer = undefined;
     const pending = snapshot.pendingConfirmation;
@@ -215,6 +231,9 @@
   onDestroy(() => {
     if (scanTimer !== undefined) window.clearTimeout(scanTimer);
     if (operatingModeTimer !== undefined) window.clearTimeout(operatingModeTimer);
+    if (diagnosticReview !== undefined) {
+      localDiagnostics.discardExport(diagnosticReview);
+    }
   });
 </script>
 

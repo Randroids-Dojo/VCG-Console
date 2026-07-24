@@ -1364,6 +1364,18 @@ test("diagnostic export is reviewed, admin-gated, bounded, and identity-free", a
 
   await diagnostics.getByRole("button", { name: "Prepare diagnostics export" }).click();
   await expect(diagnostics.getByText(/Export only these reviewed stable codes/)).toBeVisible();
+  await operatingMode.getByRole("button", { name: "Lock to family mode" }).click();
+  await expect(
+    diagnostics.getByRole("button", { name: "Review local diagnostics" }),
+  ).toBeVisible();
+  await expect(
+    diagnostics.getByRole("button", { name: "Confirm diagnostics export" }),
+  ).toHaveCount(0);
+
+  await operatingMode.getByRole("button", { name: "Request admin access" }).click();
+  await operatingMode.getByRole("button", { name: "Confirm admin access" }).click();
+  await diagnostics.getByRole("button", { name: "Review local diagnostics" }).click();
+  await diagnostics.getByRole("button", { name: "Prepare diagnostics export" }).click();
   const downloadPromise = page.waitForEvent("download");
   exportStarted = true;
   await diagnostics.getByRole("button", { name: "Confirm diagnostics export" }).click();
