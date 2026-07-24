@@ -2886,3 +2886,43 @@ actions rather than transferring them. I-054/I-056 still require calibrated
 per-player recognition, stable physical identity tracks, true simultaneous
 Pause races, two-player runtime/game-freeze integration, target tracker
 restart, and household adversarial evidence.
+
+## 2026-07-24: anatomical laterality abuse comparison
+
+### Delivered
+
+- Advanced I-064 with a strict research-only laterality guard around the
+  core17 rule baseline. It checks named shoulder and hip axis continuity
+  before permitting directional Lean, Step, Reach, or Punch labels.
+- Blocks directional output when anchors disappear, the named anatomical axis
+  reverses, or the body is too foreshortened for reliable left/right claims.
+  Non-directional Jump and Squat labels remain available.
+- Resets rule temporal state across every ambiguity interval so stale
+  activation cannot leak through a blocked frame.
+- Added a deterministic 41-scenario adversarial suite covering clear frontal
+  poses, complete anatomical swaps, distal-only swaps, mild turns, profile
+  ambiguity, crossed arms, and self-occlusion.
+- Added full confusion matrices, scenario-family counts, exact source hashes,
+  deterministic evaluation digests, timing distributions, and a fail-closed
+  evidence validator.
+
+### Verification evidence
+
+- The Motion contract package passes all 124 tests and TypeScript checking.
+- Ten adversarial validator tests reject suite, guard, script, result, timing,
+  confusion-matrix, and undeclared-field substitution.
+- The continuity guard raised exact scenario outcomes from 15/41 to 31/41,
+  explicitly blocked all 8 full anatomical swaps and all 8 profile-ambiguity
+  cases, and reduced unsafe directional ambiguity outcomes from 14 to 4.
+- Residual evidence remains explicit: distal-only swaps still caused four
+  wrong-direction Reach/Punch outcomes and two silent Step misses, while mild
+  turns caused four Lean/Step misses.
+
+### Remaining boundary
+
+Generated transformations prove bounded suppression behavior only. I-064
+remains active pending approved real captures across camera mirrors, detector
+label swaps, rotation/foreshortening, crossing, self-occlusion, varied bodies
+and clothing, seated/limited-range motion, and backend/platform parity. The
+guard is not a production identity, multiplayer, or anatomy reassignment
+authority.

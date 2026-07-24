@@ -72,6 +72,13 @@ without changing this lifecycle contract. Its Lean, Reach, and Punch outputs
 are research labels only: they are not Motion actions, are not advertised by
 either v1 action profile, and cannot authorize a client side effect.
 
+The camera-free laterality artifact adds a research-only anatomical-axis
+continuity guard. When named hip/shoulder axes reverse, collapse, or disappear,
+it suppresses directional research labels and clears temporal continuity
+instead of guessing from screen position. This is not yet a wire availability
+state or game-freeze policy, and it cannot detect a distal-only left/right swap
+when torso labels remain plausible.
+
 ## Confidence and time
 
 `confidence` is the recognizer's confidence for that sampled phase, bounded from zero to one. `cancelled` uses zero because the candidate is no longer accepted; `ended` retains the last accepted confidence. Confidence never authorizes a side effect without `phase: "triggered"`.
