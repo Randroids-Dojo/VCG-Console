@@ -747,14 +747,14 @@ This eliminates repository-local presentation drift and now reconciles exact sig
 - Added authenticated `GET /v1/packages` beside the existing single-package lookup. It returns the active positive catalog generation and every signed package's id, version, and runtime in canonical game-ID order.
 - The response inherits the signed catalog's 1,024-record bound and discloses no paths, hashes, keys, commands, environments, permissions, profile data, or writable roots.
 - The TypeScript client independently enforces a 1 MiB byte bound, 1,024-entry count, exact protocol and fields, positive safe generation, bounded id/version/runtime values, and strictly increasing unique IDs.
-- The Svelte launcher checks inventory at startup and refreshes it when the player enters Retro or the shell regains focus. It labels a generated local entry installed only when signed id, version, and runtime exactly match. Concurrent refresh triggers share one in-flight request; an absent host/catalog remains visibly unavailable, and an empty signed inventory remains visibly empty.
+- The Svelte launcher checks inventory at startup and refreshes it when the player enters Retro or the shell regains focus. It labels and counts a generated local entry installed only when signed id, version, and runtime exactly match. Concurrent refresh triggers share one in-flight request; unknown signed entries do not enter public lists or totals, an absent host/catalog remains visibly unavailable, and an empty signed inventory remains visibly empty.
 - D-144 records the authority split. No new owner choice is required; Q-127 still owns exact hosted-game deep-link behavior.
 
 ### Verification evidence
 
 - Rust tests prove path-free inventory disclosure and no inventory without a configured signed catalog.
 - TypeScript tests prove successful authenticated listing, a valid inventory larger than the smaller status-document bound, and rejection of protocol/generation mismatch, duplicate or unsorted IDs, unknown fields, and excessive counts.
-- Playwright proves the Retro hub rejects a release-mismatched inventory, refreshes the same shell session on hub re-entry, marks the exact matching candidate Installed, and still submits only fixed game/profile intent to the launch endpoint.
+- Playwright proves the Retro hub rejects a release-mismatched inventory, refreshes the same shell session on hub re-entry, marks and counts the exact matching candidate Installed, hides an unknown signed entry from both presentation and totals, and still submits only fixed game/profile intent to the launch endpoint.
 - The final workspace passes 127 TypeScript unit tests, 115 active Rust library tests with five subprocess helpers ignored by the parent run, 14 Rust CLI tests, and all 18 Playwright flows. Typecheck, production build, Rust formatting/Clippy, manifest/catalog freshness, JavaScript audit, and Rust advisory audit pass.
 
 ### Remaining boundary
