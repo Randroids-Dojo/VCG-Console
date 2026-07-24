@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { PlayerSessionController } from "./player-session";
+import {
+  MAX_PLAYER_SESSION_ACTION_COMPLETIONS,
+  MAX_PLAYER_SESSION_VISIBLE_TRACKS,
+  PlayerSessionController,
+} from "./player-session";
 
 function joinedController(maxPlayers: 1 | 2 = 1): PlayerSessionController {
   const session = new PlayerSessionController({ maxPlayers });
@@ -125,6 +129,37 @@ describe("PlayerSessionController", () => {
     expect(session.snapshot()).toMatchObject({ phase: "playing", launcherOwner: 1 });
   });
 
+  it("binds gameplay and pause authority to an exact visible joined track", () => {
+    const session = joinedController(2);
+    session.observe(100, ["track-a", "track-b", "spectator", "pet"]);
+
+    expect(session.authorizeGameplayAction("track-a")).toBe(1);
+    expect(session.authorizeGameplayAction("track-b")).toBe(2);
+    expect(session.authorizeGameplayAction("spectator")).toBeUndefined();
+    expect(session.authorizeGameplayAction("pet")).toBeUndefined();
+    expect(
+      session.openPauseForTracks([
+        { trackId: "spectator", completedAtMs: 90 },
+        { trackId: "track-b", completedAtMs: 100 },
+        { trackId: "track-a", completedAtMs: 100 },
+      ]),
+    ).toEqual({ type: "pause-opened", ownerSlot: 1 });
+    expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+  });
+
+  it("withholds action authority during loss confirmation and recovery", () => {
+    const session = joinedController();
+    session.observe(100, []);
+    expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+    session.observe(400, []);
+    expect(session.snapshot().phase).toBe("frozen");
+    expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+    session.observe(2_400, ["passerby"]);
+    expect(session.snapshot().phase).toBe("recovery");
+    expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+    expect(session.authorizeGameplayAction("passerby")).toBeUndefined();
+  });
+
   it("preserves a manual pause through short loss and replaces it after expiry", () => {
     const session = joinedController();
     session.openPause([{ slot: 1, completedAtMs: 100 }]);
@@ -165,5 +200,25 @@ describe("PlayerSessionController", () => {
     const session = new PlayerSessionController();
     expect(() => session.observe(0, ["same", "same"])).toThrow("duplicate");
     expect(() => session.observe(Number.NaN, [])).toThrow("nowMs");
+    expect(() =>
+      session.observe(
+        0,
+        Array.from(
+          { length: MAX_PLAYER_SESSION_VISIBLE_TRACKS + 1 },
+          (_, index) => `track-${index}`,
+        ),
+      ),
+    ).toThrow("visible tracks");
+    expect(() =>
+      session.openPauseForTracks(
+        Array.from(
+          { length: MAX_PLAYER_SESSION_ACTION_COMPLETIONS + 1 },
+          (_, index) => ({
+            trackId: `track-${index}`,
+            completedAtMs: index,
+          }),
+        ),
+      ),
+    ).toThrow("track action completions");
   });
 });

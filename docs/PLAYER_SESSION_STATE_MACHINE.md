@@ -64,12 +64,42 @@ Only that slot may close the manual overlay. Returning through an exit flow tran
 
 Reserved controller Home/Back remains outside this motion ownership model. Controller input may navigate recovery and confirm a visible candidate, but it does not fabricate a body track or silently reassign a player.
 
+Gameplay and motion-Pause authority are now resolved from the exact current
+track, not from candidate order. `authorizeGameplayAction(trackId)` returns a
+slot only while the session is playing and the exact track is visible and
+joined. `openPauseForTracks(completions)` filters every completion through
+that authority check before applying the existing timing and slot tie rules.
+Setup, loss confirmation, frozen recovery, manual pause, recovery, and
+non-joined tracks have no gameplay authority. Observation batches and action
+completion batches are independently capped at 16 entries and reject overflow
+before changing authority state.
+
 ## Implemented evidence
 
 `PlayerSessionController` is a pure, clock-injected TypeScript state machine. Tests cover passive candidates, sequential join, multiple-update debounce, global two-player freeze, wrong-track rejection, all-player silent recovery, recovery expiry, deliberate one-player takeover, explicit roster reduction, pause races, owner isolation, hard faults, clock regression, duplicate tracks, and invalid timing.
 
 The console lab uses the state machine for its one-player join/loss/recovery path. The previous boolean tracking-loss controller was removed so there is one behavioral authority.
 
+The camera-free Session authority rehearsal adds five deterministic scenarios
+covering spectators, pets, mirrors, television people, passersby, deliberate
+replacement, and multiplayer outsider substitution. The synthetic report
+records false candidates separately from false joins, false controls,
+unintended takeovers, false actions, and expected explicit takeovers. Unit and
+browser tests prove all named classes execute, the four authority-failure
+counts remain zero, explicit one-player Resume transfers exactly once, no
+camera request is made, and controller Select/Back remains usable.
+
+`PLAYER_SESSION_INTERFERENCE_CAMPAIGN_2026-07-24.md` and its strict validator
+pre-register the later physical campaign as 70 class/persona/scene cells and
+840 scheduled trials. This is future evidence, not a completed result.
+
 ## Remaining qualification boundary
 
-This contract does not qualify a multi-person tracker or close I-056. Still required are separate per-player calibration, accessible visual identities, real crossing/occlusion tracks, stable identity evidence, controller-only recovery UI, explicit leave/re-entry UI, tracker restart on target Linux, two-player action ownership, game freeze integration across runtimes, and the full spectator/pet/mirror/television adversarial suite. Those remain under I-054, I-056, I-057, I-059, I-069, I-150, and I-161.
+This contract does not qualify a multi-person tracker or close I-056/I-069.
+Still required are separate per-player calibration, accessible visual
+identities, real crossing/occlusion tracks, stable identity evidence,
+production candidate-selection and controller-only recovery UI, explicit
+leave/re-entry UI, tracker restart on target Linux, two-player action
+ownership, game freeze integration across runtimes, and a validator-passing
+physical spectator/pet/mirror/television/passerby campaign. Those remain under
+I-054, I-056, I-057, I-059, I-069, I-150, and I-161.

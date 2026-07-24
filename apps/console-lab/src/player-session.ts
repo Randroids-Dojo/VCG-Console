@@ -56,9 +56,16 @@ interface PauseCompletion {
   completedAtMs: number;
 }
 
+export interface TrackActionCompletion {
+  trackId: string;
+  completedAtMs: number;
+}
+
 const DEFAULT_LOSS_CONFIRMATION_MS = 300;
 const DEFAULT_REACQUISITION_MS = 2_000;
 const DEFAULT_MINIMUM_MISSING_UPDATES = 2;
+export const MAX_PLAYER_SESSION_VISIBLE_TRACKS = 16;
+export const MAX_PLAYER_SESSION_ACTION_COMPLETIONS = 16;
 
 export class PlayerSessionController {
   readonly #maxPlayers: 1 | 2;
@@ -210,7 +217,39 @@ export class PlayerSessionController {
     return { type: "player-joined", slot, trackId };
   }
 
+  authorizeGameplayAction(trackId: string): PlayerSlot | undefined {
+    validTrackId(trackId);
+    if (this.#phase !== "playing") return undefined;
+    const player = [...this.#players.values()].find(
+      (candidate) =>
+        candidate.trackId === trackId &&
+        candidate.presence === "joined" &&
+        candidate.visible,
+    );
+    return player?.slot;
+  }
+
+  openPauseForTracks(
+    completions: readonly TrackActionCompletion[],
+  ): PlayerSessionEvent | undefined {
+    boundedArray(
+      completions,
+      MAX_PLAYER_SESSION_ACTION_COMPLETIONS,
+      "track action completions",
+    );
+    const authorized = completions.flatMap(({ trackId, completedAtMs }) => {
+      const slot = this.authorizeGameplayAction(trackId);
+      return slot === undefined ? [] : [{ slot, completedAtMs }];
+    });
+    return this.openPause(authorized);
+  }
+
   openPause(completions: readonly PauseCompletion[]): PlayerSessionEvent | undefined {
+    boundedArray(
+      completions,
+      MAX_PLAYER_SESSION_ACTION_COMPLETIONS,
+      "pause completions",
+    );
     if (this.#phase !== "playing") return undefined;
     const eligible = completions
       .filter(
@@ -360,6 +399,11 @@ function sortedSlots(slots: readonly PlayerSlot[]): PlayerSlot[] {
 }
 
 function uniqueTrackIds(trackIds: readonly string[]): Set<string> {
+  boundedArray(
+    trackIds,
+    MAX_PLAYER_SESSION_VISIBLE_TRACKS,
+    "visible tracks",
+  );
   const output = new Set<string>();
   for (const trackId of trackIds) {
     validTrackId(trackId);
@@ -367,6 +411,16 @@ function uniqueTrackIds(trackIds: readonly string[]): Set<string> {
     output.add(trackId);
   }
   return output;
+}
+
+function boundedArray(
+  value: readonly unknown[],
+  maximum: number,
+  name: string,
+): void {
+  if (value.length > maximum) {
+    throw new Error(`${name} must contain at most ${maximum} entries`);
+  }
 }
 
 function validTrackId(trackId: string): void {

@@ -45,6 +45,7 @@
   } from "./profile-management";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
+  import SessionAdversarialView from "./SessionAdversarialView.svelte";
   import SettingsView from "./SettingsView.svelte";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, LocalProfile, SearchItem, SettingsPanel } from "./types";
   import UnassignedProgressView from "./UnassignedProgressView.svelte";
@@ -60,6 +61,7 @@
   let portraitCapture: PortraitCaptureView;
   let profileManagement: ProfileManagementView;
   let calibrationRehearsal: CalibrationRehearsalView;
+  let sessionAdversarial: SessionAdversarialView;
   let unassigned: UnassignedProgressView;
   let visible = $state(true);
   let view = $state<LauncherView>("home");
@@ -147,6 +149,7 @@
     { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
     { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") },
     { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") },
+    { title: "Session authority rehearsal", detail: "Synthetic spectator and takeover abuse suite", group: "Motion", terms: "candidate join spectator pet mirror television passerby takeover recovery", action: () => showView("session-adversarial") },
     { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: () => showView("museum") },
     ...launcherCatalog.entries.map((entry): SearchItem => ({
       title: entry.title,
@@ -422,6 +425,12 @@
           '[data-launcher-view="calibration"] .calibration-phase-actions button',
         )
         ?.focus({ preventScroll: true });
+    } else if (next === "session-adversarial") {
+      launcher
+        .querySelector<HTMLButtonElement>(
+          '[data-launcher-view="session-adversarial"] .session-adversarial-actions button',
+        )
+        ?.focus({ preventScroll: true });
     } else if (next === "unassigned") {
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
@@ -460,6 +469,7 @@
       calibrationRehearsal.cancelPending();
       showView("profile-management");
     }
+    else if (view === "session-adversarial") showView("motion");
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -974,7 +984,7 @@
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateY(${navSignalOffset}px)`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
-        <button class:active={view === target} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "motion" && view === "session-adversarial")} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
@@ -1009,7 +1019,15 @@
           <button type="button" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span>01</span><strong>Obstacle</strong><small>Dodge · Duck · Jump</small><b>Ready</b></button>
           <button type="button" onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span>02</span><strong>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b>Ready</b></button>
           <button type="button" onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span>03</span><strong>Shell Lab</strong><small>Gesture navigation and recovery</small><b>Ready</b></button>
+          <button type="button" onclick={() => showView("session-adversarial")}><span>04</span><strong>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b>Synthetic</b></button>
         </div>
+      </div>
+
+      <div class="launcher-view session-adversarial-view" data-launcher-view="session-adversarial" hidden={view !== "session-adversarial"}>
+        <SessionAdversarialView
+          bind:this={sessionAdversarial}
+          onback={() => showView("motion")}
+        />
       </div>
 
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>

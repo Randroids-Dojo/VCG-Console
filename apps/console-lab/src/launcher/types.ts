@@ -3,6 +3,7 @@ import type { AccessibilityPreferenceController } from "./accessibility-preferen
 export type LauncherView =
   | "home"
   | "motion"
+  | "session-adversarial"
   | "museum"
   | "retro"
   | "profiles"

@@ -668,6 +668,137 @@ test("credential-free profile management gates destructive scope and never reass
   ).toBe(true);
 });
 
+test("session authority rehearsal contains synthetic household interference", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    let cameraCalls = 0;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setSessionAdversarialGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright session-authority controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+    const originalGetUserMedia =
+      navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: (...constraints: Parameters<typeof originalGetUserMedia>) => {
+        cameraCalls += 1;
+        return originalGetUserMedia(...constraints);
+      },
+    });
+    (
+      window as unknown as Record<string, () => number>
+    ).__sessionAdversarialCameraCalls = () => cameraCalls;
+  });
+  await page.setViewportSize({ width: 520, height: 900 });
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Motion", exact: true }).click();
+  await page.getByRole("button", { name: /Session authority/ }).click();
+
+  const view = page.locator(
+    '[data-launcher-view="session-adversarial"]',
+  );
+  await expect(
+    view.getByRole("heading", { name: "Detection is not control." }),
+  ).toBeVisible();
+  await expect(view.getByText("Five interference classes.")).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__sessionAdversarialCameraCalls!(),
+    ),
+  ).toBe(0);
+
+  await view
+    .getByRole("button", { name: "Run five synthetic scenarios" })
+    .click();
+  await expect(view.getByText("SYNTHETIC PASS")).toBeVisible();
+  await expect(
+    view.getByText("5 / 5 interference classes covered"),
+  ).toBeVisible();
+  await expect(
+    view.getByRole("navigation", {
+      name: "Synthetic authority scenarios",
+    }).getByRole("button"),
+  ).toHaveCount(5);
+  await expect(
+    view.locator(".session-report-metrics").getByText("FALSE JOINS"),
+  ).toBeVisible();
+  await expect(
+    view.locator(".session-report-metrics").getByText("UNINTENDED TAKEOVERS"),
+  ).toBeVisible();
+  await expect(
+    view.getByText("Synthetic state-machine evidence only"),
+  ).toBeVisible();
+
+  await view
+    .getByRole("button", {
+      name: /A passerby cannot silently recover/,
+    })
+    .click();
+  await expect(
+    view.getByText(
+      "A different visible track cannot satisfy silent reacquisition.",
+    ),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "../../test-results/console-lab/session-authority-report.png",
+    fullPage: true,
+  });
+
+  const runAgain = view.getByRole("button", { name: "Run again" });
+  await runAgain.focus();
+  await pressSyntheticGamepadButton(
+    page,
+    "__setSessionAdversarialGamepad",
+    0,
+  );
+  await expect(view.getByText("SYNTHETIC PASS")).toBeVisible();
+  await pressSyntheticGamepadButton(
+    page,
+    "__setSessionAdversarialGamepad",
+    1,
+  );
+  await expect(
+    page.getByRole("heading", { name: "Move to play." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__sessionAdversarialCameraCalls!(),
+    ),
+  ).toBe(0);
+});
+
 test("synthetic calibration guides failed dimensions and invalidates changed rooms", async ({
   page,
 }) => {
