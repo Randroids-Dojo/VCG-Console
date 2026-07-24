@@ -1,6 +1,6 @@
 # VCG Console data flows
 
-Status: browser prototype implemented; native appliance boundaries planned  
+Status: browser prototype implemented; native appliance boundaries planned
 Last audited: 2026-07-24
 
 This document maps camera frames, skeletons, profiles, saves, logs, and network calls across the current prototype and the selected appliance design. “Planned” is not an implementation claim. Every raw-frame guarantee must be requalified when the native tracker or another capture backend is added.
@@ -61,7 +61,17 @@ Invariant: a cooperative game receives the smallest negotiated skeleton/action p
 
 ### Profiles, portraits, and calibration
 
-Current profile names are prototype session state. Portrait and automatic body-profile matching are intentionally absent. The selected future boundary keeps portrait pixels separate from appearance-free calibration features, requires visible confirmation before applying a predicted profile, and denies games direct vault access. Legal, child/privacy, consent, and real household tests remain explicit gates.
+Current profile names are prototype session state. A camera-free portrait
+rehearsal now exercises dedicated notice, countdown, temporary synthetic
+preview, Retake, explicit acceptance, cancellation, expiry, and volatile
+profile-tile replacement using opaque synthetic handles. It requests no camera
+permission, receives no pixels, and writes no vault/browser storage. Real
+portrait capture and automatic body-profile matching remain absent. The
+selected future boundary keeps portrait pixels separate from appearance-free
+calibration features, requires visible confirmation before applying a
+predicted profile, and denies games direct vault access. Legal, child/privacy,
+consent, native capture/vault/deletion/exclusion, and real household tests
+remain explicit gates.
 
 Invariant: profile UI copy must not imply durable encrypted storage until the native vault exists.
 

@@ -73,7 +73,13 @@ The highest-level security objectives are to keep games from becoming console au
 - Browser, OS, compositor, GPU, camera-driver, kernel, firmware, and hardware-root vulnerabilities are considered dependency/platform risks; this repository is responsible for safe configuration, pinning, update response, and containment but cannot repair those components here.
 - Physical destruction, invasive hardware extraction, and an already-unrestricted root attacker are outside application-level prevention. Recovery, encryption, read-only roots, and key separation should still reduce persistence and data exposure.
 - Casual household leaderboards are explicitly unverified. Ordinary cheating without crossing a privilege, privacy, integrity, or availability boundary is not a security vulnerability.
-- Future installer, update, import, persistent profile, portrait, save, paired developer, and service-manager code is in scope for design threats but cannot have a present code vulnerability before it exists.
+- Future installer, update, import, persistent profile/save, paired developer,
+  and service-manager code remains in scope for design threats that cannot
+  become present implementation vulnerabilities before the code exists. A
+  portrait lifecycle model and UI now exist, so their state/input/claim
+  boundary is present attack surface; the implementation is restricted to
+  opaque synthetic handles and invokes no camera, pixel, or durable store.
+  Real portrait capture/storage remains future attack surface.
 - Denial of one voluntarily launched untrusted game is less severe than denial of boot, Home/Back, tracker recovery, update rollback, or the whole console.
 
 ## Attack Surface, Mitigations, and Attacker Stories
@@ -82,7 +88,16 @@ The highest-level security objectives are to keep games from becoming console au
 
 Relevant classes include unintended capture, raw-frame retention or egress, microphone activation, worker-message confusion, stale-run frame acceptance, unbounded traces, capability overgrant, skeleton re-identification, adversarial poses, false privileged actions, profile misidentification, portrait leakage, and diagnostic/crash-dump exposure.
 
-Present controls include `audio: false`, no rendered camera pixels, one-frame backpressure, run IDs, local worker inference with main-thread fallback disclosed, image closure, schema validation, bounded skeleton-only traces, a closed game-permission vocabulary, explicit host profile grants before Motion negotiation, per-profile frame projection, acknowledgement backpressure, and session expiry. The browser test suite observes no external requests or persistent browser stores during normal camera mode.
+Present controls include `audio: false`, no rendered tracking-camera pixels,
+one-frame backpressure, run IDs, local worker inference with main-thread
+fallback disclosed, image closure, schema validation, bounded skeleton-only
+traces, a closed game-permission vocabulary, explicit host profile grants
+before Motion negotiation, per-profile frame projection, acknowledgement
+backpressure, and session expiry. The synthetic portrait rehearsal additionally
+requires exact notice/countdown/session/attempt/preview acceptance, rejects
+stale callbacks, and invokes no `getUserMedia` in its simulator-backed Chrome
+flow. The browser test suite observes no external requests or persistent
+browser stores during normal camera mode.
 
 Important attacker stories are a hostile game requesting richer landmarks than approved; a same-origin compromise inheriting an origin allowlist; a crafted scene causing false join/Back/pause; a stale worker result crossing camera restart; or future support/log tooling accidentally including frames, portraits, body measurements, or linkable traces. Required follow-up includes OS/device permission tests, crash/swap inspection, legal/privacy review for body matching and portraits, sensitive-store encryption and deletion, adversarial action scoring, and negative export/support-bundle tests.
 

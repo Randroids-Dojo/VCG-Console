@@ -6,6 +6,7 @@ export type LauncherView =
   | "museum"
   | "retro"
   | "profiles"
+  | "portrait"
   | "unassigned"
   | "settings";
 export type LabMode = "tracker" | "obstacle" | "shell";

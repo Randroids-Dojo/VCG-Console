@@ -2376,3 +2376,59 @@ remain Q-175 through Q-178. Real Windows/macOS/Linux household restores,
 I-186 canary exclusion, hostile media/archive/fault testing, blank/replacement
 card trials, and measured restore times are still required before I-113 can
 close.
+
+## 2026-07-24: camera-free profile portrait lifecycle rehearsal
+
+### Delivered
+
+- Added a pure clock-injected portrait lifecycle with dedicated notice,
+  monotonic three-second countdown, exact session/attempt callback binding,
+  temporary preview, Retake, acceptance planning, one-handle-per-profile
+  replacement, cancellation, and bounded expiry.
+- Rejected early/stale callbacks, time rollback, unsafe IDs, data URLs,
+  arbitrary render handles, unknown/forged commit fields, changed replacement
+  state, and acceptance outside the exact preview.
+- Added a dedicated OCR-A launcher screen using geometric synthetic fixtures,
+  explicit Camera Off / Synthetic / Not Saved copy, visible countdown,
+  controller parity, hands-together acceptance, crossed-arm/controller Back,
+  Home cancellation, and replacement without background promotion.
+- Kept the implementation camera-free and storage-free: no media request,
+  pixel/Blob/data URL, encoder, browser persistence, vault write, face
+  analysis, export, network, diagnostic, support, or recovery-image operation
+  exists.
+- Added visible synthetic treatment to accepted profile tiles while preserving
+  the prior accepted handle across cancelled replacement.
+- Documented the required native broker/camera/indicator/vault shape, eleven
+  invariants, data and trust boundaries, fourteen attacker/failure stories,
+  negative-propagation matrix, qualification gates, and Q-179 through Q-183.
+- Corrected the global threat model and data-flow map to distinguish present
+  synthetic lifecycle attack surface from absent real capture/storage.
+- Advanced I-185 from `open` to `active`.
+
+### Verification evidence
+
+Nine focused Vitest cases cover empty/frozen state, explicit notice,
+countdown, exact callbacks, early/stale refusal, one-still replacement,
+Retake invalidation, cancellation without promotion, expiry, forged plans,
+unsafe handles/IDs, excessive state, backwards time, and refusal to infer
+acceptance from names or non-preview states. Zero-warning Svelte typecheck and
+the production bundle pass.
+
+One Chrome flow proves notice/countdown/preview, zero `getUserMedia` calls in
+the camera-free simulator lane, focused-but-not-automatic acceptance,
+controller Back cancellation, controller acceptance, Retake followed by
+hands-together replacement, Home cancellation preserving the prior accepted
+handle, and visible synthetic profile-tile state. The 1440 by 1000 temporary
+preview is reviewed.
+
+### Remaining boundary
+
+No real portrait exists. Consent and legal policy, exact encoding/crop/decoder,
+native exclusive camera and activity-indicator authority, raw-frame
+confinement, encrypted temporary and accepted vault records, protected-state
+commit, delete/profile-reset/factory-reset/vault-loss behavior, I-186 producer
+canaries and real artifact inspection, no-face dependency proof, household
+misuse, child/guest/simultaneous-player/accessibility/TV tests, and both-target
+fault/power/update/storage campaigns remain under I-185/I-186/I-187/I-188 and
+Q-075/Q-099/Q-179 through Q-183. Non-photographic profile art remains the safe
+release fallback.

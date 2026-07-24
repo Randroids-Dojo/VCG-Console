@@ -279,6 +279,164 @@ test("triggered motion shell actions navigate and safely leave unassigned progre
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
 });
 
+test("synthetic portrait rehearsal requires preview acceptance and never opens the camera", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    let cameraCalls = 0;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setPortraitGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright portrait controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+    const originalGetUserMedia =
+      navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: (...constraints: Parameters<typeof originalGetUserMedia>) => {
+        cameraCalls += 1;
+        return originalGetUserMedia(...constraints);
+      },
+    });
+    (
+      window as unknown as Record<string, () => number>
+    ).__portraitCameraCalls = () => cameraCalls;
+  });
+  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.waitForTimeout(850);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  const profileTile = page.locator('[data-profile="Randy"]');
+  await page.locator("#capture-profile-portrait").click();
+  const portraitView = page.locator('[data-launcher-view="portrait"]');
+  await expect(
+    portraitView.getByRole("heading", { name: "Choose the image deliberately." }),
+  ).toBeVisible();
+  await expect(
+    portraitView.getByText("Camera off · synthetic fixture only"),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__portraitCameraCalls!(),
+    ),
+  ).toBe(0);
+
+  await portraitView
+    .getByRole("button", { name: "Start 3-second rehearsal" })
+    .click();
+  await expect(
+    portraitView.getByRole("heading", {
+      name: "Fixture appears after the countdown.",
+    }),
+  ).toBeVisible();
+  const firstPreview = portraitView.getByRole("img", {
+    name: "Synthetic portrait preview for Randy",
+  });
+  await expect(firstPreview).toBeVisible({ timeout: 5_000 });
+  await page.screenshot({
+    path: "../../test-results/console-lab/synthetic-portrait-preview.png",
+  });
+  await pressSyntheticGamepadButton(page, "__setPortraitGamepad", 1);
+  await expect(profileTile.locator(".synthetic-portrait")).toHaveCount(0);
+
+  await page.locator("#capture-profile-portrait").click();
+  await portraitView
+    .getByRole("button", { name: "Start 3-second rehearsal" })
+    .click();
+  await expect(firstPreview).toBeVisible({ timeout: 5_000 });
+  await expect(
+    portraitView.getByRole("button", { name: "Use synthetic portrait" }),
+  ).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setPortraitGamepad", 0);
+  await expect(profileTile.locator(".synthetic-portrait")).toHaveCount(1);
+  const acceptedHandle = await profileTile
+    .locator(".synthetic-portrait")
+    .getAttribute("data-portrait-handle");
+
+  await page.locator("#capture-profile-portrait").click();
+  await portraitView
+    .getByRole("button", { name: "Start 3-second rehearsal" })
+    .click();
+  await expect(firstPreview).toBeVisible({ timeout: 5_000 });
+  await portraitView.getByRole("button", { name: "Retake" }).click();
+  await expect(firstPreview).toBeVisible({ timeout: 5_000 });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
+  await expect(
+    page.getByRole("heading", { name: "Who is playing?" }),
+  ).toBeVisible({ timeout: 1_500 });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await expect(profileTile.locator(".synthetic-portrait")).not.toHaveAttribute(
+    "data-portrait-handle",
+    acceptedHandle ?? "",
+  );
+  const replacementHandle = await profileTile
+    .locator(".synthetic-portrait")
+    .getAttribute("data-portrait-handle");
+  expect(replacementHandle).not.toBe(acceptedHandle);
+
+  await page.locator("#capture-profile-portrait").click();
+  await portraitView
+    .getByRole("button", { name: "Start 3-second rehearsal" })
+    .click();
+  await pressSyntheticGamepadButton(page, "__setPortraitGamepad", 16);
+  await expect(
+    page.getByRole("heading", { name: /Good evening/ }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  await expect(profileTile.locator(".synthetic-portrait")).toHaveAttribute(
+    "data-portrait-handle",
+    replacementHandle ?? "",
+  );
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__portraitCameraCalls!(),
+    ),
+  ).toBe(0);
+  await page.screenshot({
+    path: "../../test-results/console-lab/synthetic-portrait-profile.png",
+  });
+  await page.setViewportSize({ width: 520, height: 900 });
+  await page.locator("#capture-profile-portrait").click();
+  await expect(
+    portraitView.getByRole("heading", { name: "Choose the image deliberately." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await portraitView.getByRole("button", { name: "Cancel" }).click();
+});
+
 test("accessibility preferences apply, persist, disclose gaps, and reset", async ({
   page,
 }) => {

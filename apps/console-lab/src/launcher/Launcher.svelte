@@ -25,6 +25,8 @@
     LocalDiagnosticBuffer,
   } from "./local-diagnostics";
   import { nativeLifecycleDetail } from "./native-lifecycle";
+  import PortraitCaptureView from "./PortraitCaptureView.svelte";
+  import { PortraitCaptureController } from "./portrait-capture";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
   import SettingsView from "./SettingsView.svelte";
@@ -39,6 +41,7 @@
   let launcher: HTMLElement;
   let search: SearchOverlay;
   let settings: SettingsView;
+  let portraitCapture: PortraitCaptureView;
   let unassigned: UnassignedProgressView;
   let visible = $state(true);
   let view = $state<LauncherView>("home");
@@ -48,6 +51,7 @@
   ]);
   let activeProfile = $state("Randy");
   let activeProfileId = $state("profile-randy");
+  let portraitProfileId = $state<string | null>(null);
   let nextProfileId = 3;
   let clock = $state("");
   let toastMessage = $state("");
@@ -70,6 +74,8 @@
     untrack(() => accessibilityPreferences.snapshot()),
   );
   const localDiagnostics = new LocalDiagnosticBuffer();
+  const portraitCaptureController = new PortraitCaptureController();
+  let portraitCaptureSnapshot = $state(portraitCaptureController.snapshot());
   const unassignedProgressController = new UnassignedProgressController(
     UNASSIGNED_PROGRESS_DEMO_ENTRIES,
     [
@@ -114,6 +120,7 @@
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
+    { title: "Portrait rehearsal", detail: "Synthetic device-only capture lifecycle", group: "System", terms: "profile portrait camera preview retake consent", action: () => openPortraitCapture(activeProfileId) },
     { title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") },
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
@@ -191,6 +198,24 @@
     if (profile) selectProfile(profile);
   }
 
+  function openPortraitCapture(profileId: string): void {
+    const profile = profiles.find((candidate) => candidate.id === profileId);
+    if (!profile) {
+      toast("Select an existing local profile first.");
+      return;
+    }
+    try {
+      portraitProfileId = profile.id;
+      portraitCaptureSnapshot = portraitCaptureController.open(
+        profile.id,
+        Math.floor(performance.now()),
+      );
+      void showView("portrait");
+    } catch (error) {
+      toast(error instanceof Error ? error.message : "Portrait rehearsal unavailable.");
+    }
+  }
+
   onDestroy(() => {
     if (clockTimer !== undefined) window.clearInterval(clockTimer);
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
@@ -212,15 +237,27 @@
   export function hide(): void {
     search.close();
     closeLaunch(false);
+    if (view === "portrait") portraitCapture.cancelPending();
     visible = false;
   }
 
   export async function showView(next: LauncherView): Promise<void> {
+    if (
+      view === "portrait"
+      && next !== "portrait"
+      && portraitCaptureSnapshot.phase !== "idle"
+    ) {
+      portraitCapture.cancelPending();
+    }
     view = next;
     if (next === "retro") void refreshNativePackageInventory();
     await tick();
     await positionSignal();
-    if (next === "unassigned") {
+    if (next === "portrait") {
+      launcher.querySelector<HTMLButtonElement>(".portrait-primary")?.focus({
+        preventScroll: true,
+      });
+    } else if (next === "unassigned") {
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
       });
@@ -230,6 +267,9 @@
   }
 
   export async function showSettings(panel: SettingsPanel): Promise<void> {
+    if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
+      portraitCapture.cancelPending();
+    }
     view = "settings";
     await tick();
     settings.show(panel);
@@ -240,6 +280,10 @@
     if (launchSession) closeLaunch();
     else if (search.isOpen()) search.close();
     else if (view === "settings" && settings.cancelPendingModeConfirmation()) return;
+    else if (view === "portrait") {
+      portraitCapture.cancelPending();
+      showView("profiles");
+    }
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -248,6 +292,7 @@
   export function handleInput(action: ConsoleInputAction): void {
     if (action === "home") {
       closeLaunch();
+      if (view === "portrait") portraitCapture.cancelPending();
       showView("home");
       return;
     }
@@ -276,6 +321,10 @@
 
   export function openSearch(): void {
     if (launchSession) return;
+    if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
+      portraitCapture.cancelPending();
+      view = "home";
+    }
     void search.open();
   }
 
@@ -743,7 +792,7 @@
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
-        <button class:active={view === target || (target === "profiles" && view === "unassigned")} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "profiles" && (view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
 
@@ -836,10 +885,27 @@
           {profiles}
           activeId={activeProfileId}
           unassignedCount={unassignedProgressSnapshot.entries.length}
+          acceptedPortraits={portraitCaptureSnapshot.acceptedPortraits}
           onselect={selectProfile}
           oncreate={createProfile}
           onrename={renameProfile}
+          onportrait={openPortraitCapture}
           onunassigned={() => showView("unassigned")}
+          ontoast={toast}
+        />
+      </div>
+
+      <div class="launcher-view portrait-view" data-launcher-view="portrait" hidden={view !== "portrait"}>
+        <PortraitCaptureView
+          bind:this={portraitCapture}
+          controller={portraitCaptureController}
+          snapshot={portraitCaptureSnapshot}
+          profile={profiles.find((profile) => profile.id === portraitProfileId) ?? null}
+          onchanged={(snapshot) => {
+            portraitCaptureSnapshot = snapshot;
+          }}
+          oncomplete={() => showView("profiles")}
+          onback={() => showView("profiles")}
           ontoast={toast}
         />
       </div>
