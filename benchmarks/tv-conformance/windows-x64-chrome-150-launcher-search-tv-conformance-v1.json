@@ -3,10 +3,10 @@
   "evidenceDate": "2026-07-24",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-two-search-states-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-24T23:23:15.978Z",
+  "retrievedAtUtc": "2026-07-24T23:27:51.968Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "f13394e175ea0eba77efc38d3d6b5d76236f61ab376a3613f1453536c9c7a8ec"
+    "sha256": "232677a3d650632ee1178cb7870ac9c939efdfadfc62178b19c0c5f5efac30f4"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -359,7 +359,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "06a681ec189c2fd2f4eb7e999260dedae97249266517ebb65d6a0af7443dec59",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "f13394e175ea0eba77efc38d3d6b5d76236f61ab376a3613f1453536c9c7a8ec",
+    "representativeEvidencePathSha256": "232677a3d650632ee1178cb7870ac9c939efdfadfc62178b19c0c5f5efac30f4",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
@@ -383,7 +383,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 125,
-      "sha256": "dfde827b3f73954616df7f7f2cd00b185e3c26e0d4754f530fb8a29275d7501b"
+      "sha256": "96aedbea5e158bd25634f00ed65a35b237763bb8d5d2f82d9b8cd8d4ece603ed"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query and no-result Search overlay states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact keyboard focus/Back recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify unfiltered or scrolling result sets, arbitrary localization or query text, result activation, a game, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

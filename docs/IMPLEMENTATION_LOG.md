@@ -4767,3 +4767,34 @@ This removes one semantic and platform-font dependency; it does not select the
 remaining fallback or shared icon system. Fourteen current characters still
 resolve through Consolas, Cambria Math, or Segoe UI Symbol on the observed
 Windows host, and target Linux/native/physical-TV qualification remains.
+
+## 2026-07-24: first-party exact-head rights screen
+
+### Delivered
+
+- Preserved an exact public-HEAD/tree screen for all 23 first-party entries in
+  the 2026-07-19 catalog snapshot without cloning or packaging a game.
+- Recorded root license/notice paths and bytes, package-license declarations,
+  asset-like extension counts, submodules, repository state, and mandatory
+  fail-closed blockers.
+- Added a canonical bounded validator, eight adversarial test groups, and
+  FPR-001 through FPR-011 owner questions.
+- Registered deterministic validation in the root gate while keeping GitHub
+  refresh behind the explicit `refresh:first-party-game-rights` command.
+
+### Verification evidence
+
+- Twenty repositories expose no observed root grant.
+- Block Punch Kick has only an ISC package declaration; Clankers has MIT text
+  with an explicit upstream-design-document exclusion; VibeGear2 has MIT
+  signals but 207 asset-like paths requiring separate review.
+- The artifact derives and requires zero recorded owner authorizations, zero
+  redistribution approvals, and zero production catalog mutations.
+
+### Remaining boundary
+
+I-095/Q-051 remain active. Public visibility and organization membership are
+not redistribution authority. Every title still needs exact code/content/
+asset/title/trademark/dependency/submodule provenance, source-to-deployment
+and signed-package binding, notices/corresponding source, ARM64/x86-64 release
+artifacts, named authorization, and qualified legal/release review.
