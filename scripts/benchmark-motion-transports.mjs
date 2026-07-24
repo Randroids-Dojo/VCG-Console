@@ -1,7 +1,7 @@
 import { fork } from "node:child_process";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { createConnection, createServer } from "node:net";
-import { cpus, tmpdir } from "node:os";
+import { cpus, release, tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
@@ -21,6 +21,7 @@ const payloadCodec = createTransportPayloadCodec(
 );
 const payload = payloadCodec.referencePayload;
 const results = [];
+const osRelease = release();
 
 await record("direct-library", benchmarkDirect(payloadCodec, options));
 await record("shared-memory-slot", benchmarkSharedMemory(payloadCodec, options));
@@ -60,7 +61,7 @@ await record(
 
 const report = {
   format: "vcg-motion-transport-benchmark",
-  formatVersion: 2,
+  formatVersion: 3,
   createdAt: new Date().toISOString(),
   environment: {
     platform: process.platform,
@@ -68,6 +69,12 @@ const report = {
     node: process.version,
     cpuModel: cpus()[0]?.model.trim() ?? "unknown",
     logicalCpuCount: cpus().length,
+    osRelease,
+    environmentKind:
+      process.platform === "linux" &&
+      (process.env.WSL_DISTRO_NAME || /microsoft/i.test(osRelease))
+        ? "wsl2"
+        : "native-or-unknown",
   },
   method: {
     iterations: options.iterations,

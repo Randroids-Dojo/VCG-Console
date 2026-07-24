@@ -40,8 +40,8 @@ if (failures > 0) process.exitCode = 1;
 function validateReport(report) {
   requireRecord(report, "report");
   requireEqual(report.format, "vcg-motion-transport-benchmark", "format");
-  if (![1, 2].includes(report.formatVersion)) {
-    throw new Error("formatVersion must equal 1 or 2");
+  if (![1, 2, 3].includes(report.formatVersion)) {
+    throw new Error("formatVersion must equal 1, 2, or 3");
   }
   requireString(report.createdAt, "createdAt");
   if (!Number.isFinite(Date.parse(report.createdAt))) throw new Error("createdAt must be ISO date text");
@@ -51,6 +51,26 @@ function validateReport(report) {
     requireString(report.environment[field], `environment.${field}`);
   }
   requireInteger(report.environment.logicalCpuCount, 1, 4_096, "environment.logicalCpuCount");
+  if (report.formatVersion === 3) {
+    requireString(report.environment.osRelease, "environment.osRelease");
+    if (!["wsl2", "native-or-unknown"].includes(report.environment.environmentKind)) {
+      throw new Error(
+        "environment.environmentKind must equal wsl2 or native-or-unknown",
+      );
+    }
+    if (
+      report.environment.environmentKind === "wsl2" &&
+      report.environment.platform !== "linux"
+    ) {
+      throw new Error("environment.environmentKind wsl2 requires platform linux");
+    }
+  } else {
+    for (const field of ["osRelease", "environmentKind"]) {
+      if (field in report.environment) {
+        throw new Error(`environment.${field} is unexpected before format v3`);
+      }
+    }
+  }
 
   requireRecord(report.method, "method");
   requireInteger(report.method.iterations, 100, 100_000, "method.iterations");
