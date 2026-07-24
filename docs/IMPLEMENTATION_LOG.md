@@ -904,6 +904,25 @@ No household benchmark has been run. I-053 and I-210 still require consented rea
 
 This is deterministic synthetic/UI evidence. Real-player comprehension, TV-distance visibility, threshold tuning, stable focus, one-handed and limited-range alternatives, feedback sound, accessibility review, false privileged actions, and cross-backend behavior remain under I-060, I-183, and I-210.
 
+## 2026-07-24: reproducible OCR-A release evidence
+
+### Delivered
+
+- Completed the release evidence around the already pinned OCR-A 1.0 runtime font rather than committing a generated binary against D-122.
+- The generated provenance now binds the exact version, upstream project and release-source locations, SourceForge's Public Domain label, retrieval date, 24,316-byte length, and SHA-256.
+- Added a human third-party notice with the upstream author/contributor credits, modification-source filenames, exact artifact evidence, and the explicit boundary around the separately copyrighted ANSI specification.
+- Kept `pnpm prepare:assets` as the single reproducible acquisition path; it accepts an existing font only after hashing it and rejects downloaded byte-length or digest drift.
+
+### Verification evidence
+
+- The prepared `OCRA.ttf` is exactly 24,316 bytes and hashes to `a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e`.
+- A fresh `pnpm prepare:assets` run verifies the font and model, copies the pinned MediaPipe WASM runtime, and regenerates byte-identical provenance metadata.
+- I-146 closes with an auditable source link and notice while preserving the generated-asset policy.
+
+### Remaining boundary
+
+This is artifact provenance, not font qualification or a complete release notice bundle. Glyph coverage, fallback behavior, TV-distance legibility, low-vision/accessibility testing, and target rendering remain under I-147 and Q-077. The complete dependency/model/game/core SBOM and notices process remains I-137.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

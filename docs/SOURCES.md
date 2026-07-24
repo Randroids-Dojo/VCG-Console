@@ -99,7 +99,7 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 
 | Source | Relevant evidence |
 |---|---|
-| [OCR-A font project](https://sourceforge.net/projects/ocr-a-font/) and [1.0 files](https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/) | SourceForge describes an ANSI X3.17-1977-conformant font with sources and labels it Public Domain. The 1.0 folder lists `OCRA.ttf` at 24.3 kB and records prior macOS conversion defects. Hash, glyph coverage, and TV testing remain before vendoring. |
+| [OCR-A font project](https://sourceforge.net/projects/ocr-a-font/) and [1.0 files](https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/) | SourceForge describes an ANSI X3.17-1977-conformant font with sources and labels it Public Domain. The exact 24,316-byte `OCRA.ttf` is reproducibly staged under a pinned SHA-256 with source links and a notice. Glyph coverage, accessibility, and TV testing remain. |
 
 ## Retro and content rights
 
