@@ -3721,3 +3721,50 @@ complete legal approval and notice/source bundle, independent reproduction,
 signed/scanned/frontend-loaded ARM64 and x86-64 target artifacts, open-crash
 disposition, one-action startup, legibility, runtime behavior, and package
 lifecycle evidence remain. The public manifest stays `unverified`.
+
+## 2026-07-24: Motion bridge wall-clock child-process stall rehearsal
+
+### Delivered
+
+- Extended I-084 beyond virtual-time and same-process evidence with one
+  bounded wall-clock Windows x64 desk rehearsal.
+- Connected an acknowledging child and a non-acknowledging child to the actual
+  `MotionBridgeHost` through real Node child-process IPC, forcibly terminated
+  the stalled child, then forcibly terminated the first healthy child and
+  connected a fresh healthy replacement.
+- Retained exact per-child offered/received/acknowledged frame counts, RSS,
+  heap, cumulative user/system CPU, termination result, parent RSS/CPU,
+  per-callback scheduler delay, and final bridge stats.
+- Preserved requested and achieved rates separately. An 8-second requested
+  100 Hz producer produced 514 callbacks, or 64.25 Hz, on this Windows lane;
+  it still exceeded the 60 FPS bridge ceiling and exercised backpressure.
+- Added a hash-bound artifact, bounded strict validator, ten mutation tests,
+  detailed evidence report, and Q-241 for target process topology, duration,
+  failure injection, resource, latency, and recovery gates.
+
+### Verification evidence
+
+- The host published 257 per-session frames and rate/ACK-limited 382
+  publication opportunities.
+- The non-acknowledging client received one frame. The initial and replacement
+  healthy clients received 114 and 142 offered frames respectively.
+- Both failed sessions expired. Peak active sessions were two; final state
+  before shutdown was one active healthy session, zero pending frames, and
+  zero invalid acknowledgements.
+- Parent peak RSS was 98,942,976 bytes with 11,235,328 bytes peak growth.
+  Child peaks ranged from 68,669,440 through 69,427,200 bytes. Scheduler
+  positive-delay p99 was 6.363 ms and maximum was 13.151 ms.
+- All 12 harness-integrity assertions and all 10 validator mutation tests
+  pass. The mutation suite rejects target/native/suspend/tracker/product
+  claims, participant/camera fabrication, weakened isolation/expiry/state,
+  scheduler/RSS substitution, assertion/configuration drift, stale
+  provenance, and undeclared claims.
+
+### Remaining boundary
+
+I-084 remains active. This is one Windows Node IPC observation with synthetic
+frames, not a repeated long soak, achieved 100 Hz result, Chromium renderer or
+OS suspend test, tracker-process isolation, selected native transport, target
+Linux evidence, product resource budget, or full latency/recovery result.
+Q-241 and repeated ARM64/x86-64 target campaigns under the actual
+tracker/renderer/compositor/service-manager topology remain required.

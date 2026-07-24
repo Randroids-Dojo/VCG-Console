@@ -130,6 +130,15 @@ Relevant classes include XSS in the trusted shell, compromised approved origins,
 
 Exact origin/source checks, schema/version validation, requested-capability negotiation, data projection, per-session IDs, ACK gating, rate limits, and expiry materially constrain the cooperative bridge. Vite development/preview now gives every launcher HTML navigation a response-level deny-by-default CSP, Permissions Policy, no-referrer/MIME protections, and cross-origin isolation; route-specific policies preserve only exact cooperative fixture relationships. A real Chrome hostile cross-origin iframe proves sensitive capability, parent-DOM, network, form, popup, download, top-navigation, and fullscreen attempts are denied even after granting site-level camera, microphone, and location permission. These are desk-lab iframe controls, not production-server or top-level-game containment. The hosted supervisor validates the initial and redirected health-check origin and uses a private browser profile, but it does not yet contain navigation after launch.
 
+A separate Windows x64 wall-clock desk rehearsal now uses three real Node
+child processes to preserve healthy-client delivery while one client stops
+acknowledging and another is forcibly terminated. Both failed sessions expire,
+one replacement remains with zero pending frames, and bounded RSS/CPU/scheduler
+telemetry is retained. The requested 100 Hz timer achieved only 64.25 Hz. This
+is application-level child-process IPC evidence, not Chromium/OS suspension,
+tracker isolation, native IPC, target Linux, or product-resource
+qualification.
+
 [`MOTION_SECURITY_REVIEW.md`](MOTION_SECURITY_REVIEW.md) supplies the current Motion-specific data-flow diagram, trust assumptions, security invariants, abuse matrix, test evidence, and residual-risk boundary. It also records the default-16/hard-64 distinct-session bound and proves that a correct-origin sibling window cannot spoof server health or terminate another source window by copying its session ID.
 
 Remaining threat tests include hostile same-window and sibling-window messages, allowed-origin compromise, redirects after readiness, custom schemes, `file:` attempts, pointer lock, nested full-screen, focus theft, storage persistence, high-rate messages, hung renderers, production header parity, and reserved Home/Back during each state. Approval and emergency revocation must be version/origin scoped rather than a permanent endorsement.
