@@ -3896,3 +3896,63 @@ I-077 and I-086 remain active. This is a synthetic same-host desk fixture, not
 the privileged native package server, signed permission admission, production
 compositor, physical controller, real tracker, participant, target Linux or
 ARM64 system, native IPC, package lifecycle, or latency qualification.
+
+## 2026-07-24: shared retro import contract and native plain-file transaction
+
+### Delivered
+
+- Added one strict TypeScript coordinator and closed installed-library schema
+  for USB and paired-LAN import planning. It binds visible bounded sessions,
+  selected-file entitlement, family-mode denial, exact policy/system/core/
+  controller mappings, portable path and archive limits, scanner evidence,
+  duplicate/conflict/capacity decisions, and one-shot terminal intents.
+- Added a strict Rust transaction that authorizes the exact canonical terminal
+  intent, receives only an already-opened source handle, verifies regular-file
+  metadata, streams exact length and SHA-256, and binds a pluggable clean scan
+  to the same inspection and subject hash.
+- Added preprovisioned same-filesystem staging and operation locking,
+  synchronized no-replace content publication, contiguous append-only
+  installed-library generations, path-free audits, exact replacement cleanup,
+  cancellation, and deterministic recovery across copy, scan, object, library,
+  audit, and cleanup interruption windows.
+- Added terminal reuse without copying, full managed-object revalidation,
+  cancellation after expiry or revocation, idempotent retry after unrelated
+  library advancement, storage-namespace derivation, and a recovery-aware
+  path-free current-library snapshot.
+- Added a checked-in TypeScript/Rust interoperability fixture and an
+  adversarial proof that replacing a source path after the capability is
+  opened cannot redirect the imported bytes.
+- Pinned Unicode normalization, regenerated the Cargo/npm/asset compliance
+  inventory, and recorded RI-001 through RI-009 for production mappings,
+  content shape, conflict UX, legal wording, LAN authority, scanner policy,
+  archives, library compaction, and privileged coordinator ownership.
+
+### Verification evidence
+
+- All 24 TypeScript retro-contract tests pass, including exact emission of the
+  checked-in native interoperability fixture.
+- All 15 Windows and 16 Linux native retro-import tests pass. They cover strict
+  parsing and authority binding, source mutation and path replacement,
+  clean/rejected/unavailable/misbound scans, capacity and history bounds,
+  operation locking, cancellation, publication recovery, replacement, reuse,
+  storage derivation, path-free snapshots/audits, and Linux symlink refusal.
+- Windows workspace compilation, formatting, strict Clippy, and Rustdoc pass.
+  The final complete Ubuntu/WSL workspace run passes 285 library tests with
+  five intentional helper ignores plus all 19 CLI tests and Rustdoc tests.
+- Root tests, workspace typechecking, production build, and every ordinary
+  checked-in validation command pass. Compliance inventory contains 137
+  components: 82 npm, 46 Cargo, and two assets. The release-only compliance
+  gate correctly remains blocked by the recorded project-license and
+  pose-model redistribution decisions.
+
+### Remaining boundary
+
+I-199 and I-200 remain active. Production still requires a signed system/core/
+controller/BIOS policy and reviewed entitlement wording; privileged USB
+enumeration and readonly handle brokering; an authenticated paired-LAN
+receiver with bounded resume and revocation; a selected isolated scanner and
+rules lifecycle; ZIP implementation or continued disablement; real block
+reservation; explicit deletion and library compaction; product service and
+controller UI wiring; target-architecture, hostile-media/LAN, full-disk,
+reboot, and physical power-loss campaigns; legal review and entitled
+fixtures; and proof that supervised RetroArch never opens source-media paths.
