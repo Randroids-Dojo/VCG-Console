@@ -1,9 +1,11 @@
 use std::env;
 use std::ffi::OsString;
+use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Duration;
 
+use vcg_host::launcher::{LauncherRequest, plan as plan_launcher};
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 
@@ -27,6 +29,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
         "doctor" => {
             println!("vcg-host {}", env!("CARGO_PKG_VERSION"));
             println!("target: {}-{}", env::consts::ARCH, env::consts::OS);
+            println!("launcher-shell: loopback-chromium-app-mode");
             println!("process-supervision: available");
             println!("game-watchdog: heartbeat-and-bounded-restart");
             println!("retroarch-adapter: plan-and-direct-launch");
@@ -36,6 +39,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("sdl3-input: adapter pending target-Linux qualification");
             Ok(ExitCode::SUCCESS)
         }
+        "launcher" => launcher(&arguments[1..]),
         "supervise" => supervise(&arguments[1..]),
         "watchdog" => watchdog(&arguments[1..]),
         "retroarch" => retroarch(&arguments[1..]),
@@ -45,6 +49,103 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
         }
         _ => Err(usage()),
     }
+}
+
+#[derive(Default)]
+struct LauncherOptions {
+    dry_run: bool,
+    windowed: bool,
+    browser: Option<PathBuf>,
+    profile_dir: Option<PathBuf>,
+    url: Option<String>,
+}
+
+fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
+    let (dry_run, request) = launcher_request(arguments)?;
+    let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
+    if dry_run {
+        println!("launcher:plan mode=dry-run");
+        println!("program: {}", spec.program().display());
+        for argument in spec.arguments() {
+            println!("argument: {}", argument.to_string_lossy());
+        }
+        return Ok(ExitCode::SUCCESS);
+    }
+
+    fs::create_dir_all(request.profile_dir())
+        .map_err(|error| format!("failed to create launcher profile directory: {error}"))?;
+    let child = ProcessSupervisor
+        .launch(&spec)
+        .map_err(|error| error.to_string())?;
+    println!("launcher:started pid={} url={}", child.id(), request.url());
+    let status = child.wait().map_err(|error| error.to_string())?;
+    println!(
+        "launcher:completed exit_code={}",
+        status
+            .code()
+            .map_or_else(|| "signal".to_owned(), |code| code.to_string())
+    );
+    Ok(if status.success() {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE
+    })
+}
+
+fn launcher_request(arguments: &[OsString]) -> Result<(bool, LauncherRequest), String> {
+    let mut options = LauncherOptions::default();
+    let mut cursor = 0;
+    while let Some(argument) = arguments.get(cursor) {
+        let option = argument
+            .to_str()
+            .ok_or_else(|| "launcher options must be UTF-8".to_owned())?;
+        match option {
+            "--dry-run" => options.dry_run = true,
+            "--windowed" => options.windowed = true,
+            "--browser" => {
+                cursor += 1;
+                set_path_option(
+                    &mut options.browser,
+                    required_path(arguments, cursor, option)?,
+                    option,
+                )?;
+            }
+            "--profile-dir" => {
+                cursor += 1;
+                set_path_option(
+                    &mut options.profile_dir,
+                    required_path(arguments, cursor, option)?,
+                    option,
+                )?;
+            }
+            "--url" => {
+                cursor += 1;
+                set_text_option(
+                    &mut options.url,
+                    required_text(arguments, cursor, option)?,
+                    option,
+                )?;
+            }
+            value => return Err(format!("unknown launcher option: {value}")),
+        }
+        cursor += 1;
+    }
+
+    let mut request = LauncherRequest::new(
+        options
+            .browser
+            .ok_or_else(|| "launcher requires --browser".to_owned())?,
+        options
+            .profile_dir
+            .ok_or_else(|| "launcher requires --profile-dir".to_owned())?,
+        options
+            .url
+            .ok_or_else(|| "launcher requires --url".to_owned())?,
+    );
+    if options.windowed {
+        request = request.windowed();
+    }
+    Ok((options.dry_run, request))
 }
 
 fn retroarch(arguments: &[OsString]) -> Result<ExitCode, String> {
@@ -469,13 +570,16 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{retroarch_request, supervise, supervise_plan, watchdog_plan};
+    use super::{
+        launcher_request, plan_launcher, retroarch_request, supervise, supervise_plan,
+        watchdog_plan,
+    };
     use std::ffi::OsString;
 
     fn args(values: &[&str]) -> Vec<OsString> {
@@ -486,6 +590,44 @@ mod tests {
     fn supervise_requires_a_program() {
         assert!(supervise(&[]).is_err());
         assert!(supervise(&args(&["--dry-run"])).is_err());
+    }
+
+    #[test]
+    fn parses_a_windowed_launcher_request() {
+        let browser = std::env::current_dir()
+            .expect("current directory is available")
+            .join("browser");
+        let profile = std::env::current_dir()
+            .expect("current directory is available")
+            .join("profile");
+        let arguments = vec![
+            OsString::from("--dry-run"),
+            OsString::from("--windowed"),
+            OsString::from("--browser"),
+            browser.into_os_string(),
+            OsString::from("--profile-dir"),
+            profile.into_os_string(),
+            OsString::from("--url"),
+            OsString::from("http://127.0.0.1:5173/"),
+        ];
+        let (dry_run, request) = launcher_request(&arguments).expect("launcher request parses");
+
+        assert!(dry_run);
+        let spec = plan_launcher(&request).expect("launcher request plans");
+        assert!(
+            !spec
+                .arguments()
+                .any(|argument| argument == "--start-fullscreen")
+        );
+    }
+
+    #[test]
+    fn launcher_requires_all_explicit_inputs() {
+        assert!(launcher_request(&[]).is_err());
+        assert!(launcher_request(&args(&["--browser", "browser"])).is_err());
+        assert!(
+            launcher_request(&args(&["--browser", "browser", "--profile-dir", "profile"])).is_err()
+        );
     }
 
     #[test]

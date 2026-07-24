@@ -8,6 +8,10 @@ The host implements direct child-process supervision, bounded heartbeat recovery
 
 ```sh
 cargo run -p vcg-host -- doctor
+cargo run -p vcg-host -- launcher --windowed \
+  --browser "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" \
+  --profile-dir "C:\Users\<you>\AppData\Local\VCG-Console\browser-profile" \
+  --url http://127.0.0.1:5173/
 cargo run -p vcg-host -- supervise --dry-run -- /path/to/program argument
 cargo run -p vcg-host -- supervise -- /path/to/program argument
 cargo run -p vcg-host -- watchdog --dry-run \
@@ -26,6 +30,12 @@ cargo run -p vcg-host -- retroarch --dry-run \
   --profile player-one \
   --game retro-2048
 ```
+
+`launcher` is the first native-host entry point for the existing local console
+surface. It accepts only an explicit loopback HTTP URL, uses a dedicated
+Chromium profile, launches app mode directly without shell interpretation, and
+keeps the Rust host attached to the browser lifecycle. Start the local Vite
+server first during desk development. Omit `--windowed` for fullscreen.
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 

@@ -30,6 +30,7 @@ pnpm validate:manifests
 pnpm supervise:game catalog/determined.vcg-game.json --dry-run
 pnpm native:verify
 cargo run -p vcg-host -- doctor
+cargo run -p vcg-host -- launcher --dry-run --browser /path/to/chromium --profile-dir /absolute/path/to/profile --url http://127.0.0.1:5173/
 cargo run -p vcg-host -- watchdog --dry-run --heartbeat-file /tmp/vcg-game.heartbeat -- /path/to/game
 cargo run -p vcg-host -- help
 ```
