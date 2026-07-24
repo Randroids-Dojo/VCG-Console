@@ -946,3 +946,106 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 2");
 });
+
+test("browser policy denies hostile cross-origin capabilities and escape", async ({
+  context,
+  page,
+}) => {
+  await context.setGeolocation({ latitude: 47.6062, longitude: -122.3321 });
+  await context.grantPermissions(
+    ["camera", "microphone", "geolocation"],
+    { origin: "http://localhost:4173" },
+  );
+
+  const launcherResponse = await page.goto("/");
+  expect(launcherResponse).not.toBeNull();
+  const launcherHeaders = launcherResponse?.headers() ?? {};
+  expect(launcherHeaders["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(launcherHeaders["content-security-policy"]).toContain("frame-src 'none'");
+  expect(launcherHeaders["content-security-policy"]).toContain(
+    "connect-src 'self' http://127.0.0.1:*",
+  );
+  expect(launcherHeaders["permissions-policy"]).toContain("camera=(self)");
+  expect(launcherHeaders["permissions-policy"]).toContain("microphone=()");
+  expect(launcherHeaders["permissions-policy"]).toContain("geolocation=()");
+  expect(launcherHeaders["permissions-policy"]).toContain("fullscreen=()");
+  expect(launcherHeaders["referrer-policy"]).toBe("no-referrer");
+  expect(launcherHeaders["x-content-type-options"]).toBe("nosniff");
+  expect(launcherHeaders["cross-origin-embedder-policy"]).toBe("require-corp");
+  expect(launcherHeaders["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(launcherHeaders["origin-agent-cluster"]).toBe("?1");
+  expect(launcherHeaders["cross-origin-resource-policy"]).toBe("same-origin");
+
+  const fallbackResponse = await page.goto("/launcher-history-fallback");
+  expect(fallbackResponse?.headers()["content-security-policy"]).toContain(
+    "frame-ancestors 'none'",
+  );
+
+  const hostileResponsePromise = page.waitForResponse((response) =>
+    response.url().endsWith("/browser-policy-hostile.html"),
+  );
+  const hostResponse = await page.goto("/browser-policy-host.html");
+  const hostileResponse = await hostileResponsePromise;
+  expect(hostResponse?.headers()["content-security-policy"]).toContain(
+    "frame-src http://localhost:4173",
+  );
+  expect(hostileResponse.headers()["content-security-policy"]).toContain(
+    "connect-src 'none'",
+  );
+  expect(hostileResponse.headers()["content-security-policy"]).toContain(
+    "form-action 'none'",
+  );
+  expect(hostileResponse.headers()["cross-origin-resource-policy"]).toBe("cross-origin");
+
+  const escapeRequests: string[] = [];
+  let popupCount = 0;
+  let downloadCount = 0;
+  page.on("request", (request) => {
+    if (request.url().includes("policyEscape=1")) escapeRequests.push(request.url());
+  });
+  page.on("popup", (popup) => {
+    popupCount += 1;
+    void popup.close();
+  });
+  page.on("download", () => {
+    downloadCount += 1;
+  });
+
+  const hostile = page.frameLocator("#hostile-game");
+  await expect(hostile.locator("#frame-origin")).toHaveText("http://localhost:4173");
+  await expect(hostile.locator("#camera-policy")).toHaveText("DENIED");
+  await expect(hostile.locator("#microphone-policy")).toHaveText("DENIED");
+  await expect(hostile.locator("#geolocation-policy")).toHaveText("DENIED");
+  await expect(hostile.locator("#fullscreen-policy")).toHaveText("DENIED");
+
+  await hostile.getByRole("button", { name: "TRY PARENT DOCUMENT" }).click();
+  await expect(hostile.locator("#parent-document")).toContainText("BLOCKED:");
+
+  await hostile.getByRole("button", { name: "TRY CAMERA" }).click();
+  await expect(hostile.locator("#camera-request")).toContainText("BLOCKED:");
+  await hostile.getByRole("button", { name: "TRY MICROPHONE" }).click();
+  await expect(hostile.locator("#microphone-request")).toContainText("BLOCKED:");
+  await hostile.getByRole("button", { name: "TRY GEOLOCATION" }).click();
+  await expect(hostile.locator("#geolocation-request")).toContainText("BLOCKED:");
+
+  await hostile.getByRole("button", { name: "TRY NETWORK" }).click();
+  await expect(hostile.locator("#network-request")).toContainText("BLOCKED:");
+  await hostile.getByRole("button", { name: "TRY POPUP" }).click();
+  await expect(hostile.locator("#popup-request")).toHaveText("BLOCKED");
+  await hostile.getByRole("button", { name: "TRY TOP NAVIGATION" }).click();
+  await expect(hostile.locator("#navigation-request")).toContainText("BLOCKED:");
+  await hostile.getByRole("button", { name: "TRY DOWNLOAD" }).click();
+  await expect(hostile.locator("#download-request")).toHaveText("ATTEMPTED");
+  await hostile.getByRole("button", { name: "TRY FORM SUBMISSION" }).click();
+  await expect(hostile.locator("#form-request")).toHaveText("ATTEMPTED");
+  await hostile.getByRole("button", { name: "TRY FULLSCREEN" }).click();
+  await expect(hostile.locator("#fullscreen-request")).toContainText("BLOCKED:");
+  await hostile.getByRole("button", { name: "TRY POINTER LOCK" }).click();
+  await expect(hostile.locator("#pointer-lock-request")).toContainText("BLOCKED");
+
+  await page.waitForTimeout(250);
+  expect(page.url()).toBe("http://127.0.0.1:4173/browser-policy-host.html");
+  expect(escapeRequests).toEqual([]);
+  expect(popupCount).toBe(0);
+  expect(downloadCount).toBe(0);
+});

@@ -2044,3 +2044,43 @@ tests, accuracy and accessibility trials, household research, and legal review
 are all unimplemented or unperformed. I-067, I-072, I-186, and I-187 must
 produce that evidence, and the owner must answer Q-151 through Q-154 before
 I-184 can close or any household beta can enable matching.
+
+## 2026-07-24: local browser document policy and hostile boundary
+
+### Delivered
+
+- Added response-delivered, route-specific CSP for every Vite-served HTML
+  navigation, including history fallbacks.
+- Kept the trusted launcher frame-free, form-free, ancestor-free, and
+  loopback-only for host API connectivity while allowing its pinned local
+  worker, model, font, Blob, camera, and WebAssembly behavior.
+- Added a closed Permissions Policy: camera/gamepad stay same-origin and
+  microphone, location, display capture, fullscreen, sensors, payment,
+  device APIs, credentials, wake lock, and sharing are denied.
+- Added no-referrer, MIME-sniffing prevention, cross-origin opener/embedder
+  isolation, origin-agent clustering, and default same-origin resource policy.
+- Added exact frame-ancestor/resource exceptions only for the two
+  cross-origin fixture documents that require embedding.
+- Added a hostile cross-origin child with CSP and a sandbox that omits popup,
+  top-navigation, download, form, pointer-lock, and presentation authority.
+- Added `BROWSER_POLICY_BOUNDARY.md` and D-163; advanced I-136 to `active`.
+
+### Verification evidence
+
+The Chrome abuse flow grants camera, microphone, and location site permission
+to the hostile child before load. It observes response headers and then proves
+parent-DOM reads, camera/microphone/location requests, network, popup, top
+navigation, download, form, fullscreen, and pointer-lock attempts are denied.
+It also observes no escape request, popup, download, or top-page navigation.
+Zero-warning typecheck and a production multi-page build pass with the new
+policies and fixtures.
+
+### Remaining boundary
+
+These headers are emitted by Vite development/preview, not yet a qualified
+production loopback server. The fixture is an iframe, not the planned
+top-level hosted-game lane. Same-origin/XSS, post-launch redirects, custom
+schemes/`file:`, service workers/storage, browser-profile destruction,
+resource ceilings, crash/hang cleanup, compositor ownership, global
+Home/Back/Pause, and both Linux targets remain under I-136, I-150, I-180, and
+I-209.
