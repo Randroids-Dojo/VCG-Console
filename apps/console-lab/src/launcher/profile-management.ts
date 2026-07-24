@@ -6,6 +6,7 @@ import {
 
 export const PROFILE_MANAGEMENT_MAX_PROFILES = 64;
 export const PROFILE_MANAGEMENT_MAX_PROGRESS_RECORDS = 256;
+export const PROFILE_MANAGEMENT_MAX_UNLINK_QUALIFICATIONS = 256;
 export const PROFILE_MANAGEMENT_CONFIRMATION_DELAY_MS = 1_500;
 export const PROFILE_MANAGEMENT_CONFIRMATION_TTL_MS = 30_000;
 
@@ -41,6 +42,26 @@ export interface ManagedProgressSeed {
   slotId: string;
   runtime: ProfileManagementRuntime;
   hostedServiceSeparate: boolean;
+}
+
+export interface QualifiedProgressUnlink {
+  id: string;
+  progressId: string;
+  profileId: string;
+  gameId: string;
+  slotId: string;
+  runtime: ProfileManagementRuntime;
+  hostedServiceSeparate: boolean;
+  sanitizerId: string;
+  sanitizerRevision: number;
+}
+
+export interface ProfileDeletionBlocker {
+  progressId: string;
+  gameId: string;
+  gameTitle: string;
+  slotId: string;
+  runtime: ProfileManagementRuntime;
 }
 
 export interface ManagedProfileSummary {
@@ -98,6 +119,7 @@ export interface DestructiveProfilePlan {
   expectedCalibrationRevision: number | null;
   expectedBodyProfilePresent: boolean;
   expectedProgressIds: readonly string[];
+  expectedUnlinkQualificationIds: readonly string[];
   hostedServiceGameIds: readonly string[];
   confirmAfterMs: number;
   expiresAtMs: number;
@@ -146,6 +168,17 @@ const progressSeedKeys = [
   "slotId",
   "unassignedOwnerId",
 ] as const;
+const unlinkQualificationKeys = [
+  "gameId",
+  "hostedServiceSeparate",
+  "id",
+  "profileId",
+  "progressId",
+  "runtime",
+  "sanitizerId",
+  "sanitizerRevision",
+  "slotId",
+] as const;
 const createPlanKeys = [
   "detail",
   "expectedRevision",
@@ -178,6 +211,7 @@ const destructivePlanKeys = [
   "expectedPortraitRenderHandle",
   "expectedProgressIds",
   "expectedRevision",
+  "expectedUnlinkQualificationIds",
   "expiresAtMs",
   "hostedServiceGameIds",
   "kind",
@@ -204,6 +238,79 @@ const destructiveOperations = new Set<ProfileManagementDestructiveOperation>([
 
 export class ProfileManagementError extends Error {}
 
+export class QualifiedProgressUnlinkCollection {
+  readonly #qualifications =
+    new Map<string, Readonly<QualifiedProgressUnlink>>();
+  readonly #progressIds = new Set<string>();
+
+  constructor(
+    qualifications: readonly QualifiedProgressUnlink[] = [],
+  ) {
+    if (
+      qualifications.length
+      > PROFILE_MANAGEMENT_MAX_UNLINK_QUALIFICATIONS
+    ) {
+      throw new ProfileManagementError(
+        "too many progress-unlink qualifications",
+      );
+    }
+    for (const source of qualifications) {
+      const qualification = validateUnlinkQualification(source);
+      if (this.#qualifications.has(qualification.id)) {
+        throw new ProfileManagementError(
+          "duplicate progress-unlink qualification",
+        );
+      }
+      if (this.#progressIds.has(qualification.progressId)) {
+        throw new ProfileManagementError(
+          "progress has multiple unlink qualifications",
+        );
+      }
+      this.#qualifications.set(
+        qualification.id,
+        Object.freeze(qualification),
+      );
+      this.#progressIds.add(qualification.progressId);
+    }
+  }
+
+  qualificationFor(
+    progress: ManagedProgressSeed,
+  ): Readonly<QualifiedProgressUnlink> | null {
+    const qualification = [...this.#qualifications.values()].find(
+      (candidate) =>
+        candidate.progressId === progress.id
+        && candidate.profileId === progress.profileId
+        && candidate.gameId === progress.gameId
+        && candidate.slotId === progress.slotId
+        && candidate.runtime === progress.runtime
+        && candidate.hostedServiceSeparate
+          === progress.hostedServiceSeparate,
+    );
+    return qualification ?? null;
+  }
+
+  revokeExact(qualification: QualifiedProgressUnlink): boolean {
+    let validated: QualifiedProgressUnlink;
+    try {
+      validated = validateUnlinkQualification(qualification);
+    } catch {
+      return false;
+    }
+    const current = this.#qualifications.get(validated.id);
+    if (!current || !sameUnlinkQualification(current, validated)) {
+      return false;
+    }
+    this.#qualifications.delete(validated.id);
+    this.#progressIds.delete(validated.progressId);
+    return true;
+  }
+
+  get size(): number {
+    return this.#qualifications.size;
+  }
+}
+
 export class ProfileManagementController {
   #revision = 0;
   #lastNowMs = 0;
@@ -213,12 +320,14 @@ export class ProfileManagementController {
   readonly #progress = new Map<string, ManagedProgressRecord>();
   readonly #portraits: AcceptedPortraitCollection;
   readonly #calibrationResults: AcceptedCalibrationResultCollection;
+  readonly #unlinkQualifications: QualifiedProgressUnlinkCollection;
 
   constructor(
     profiles: readonly ManagedProfileSeed[],
     progress: readonly ManagedProgressSeed[],
     portraits = new AcceptedPortraitCollection(),
     calibrationResults = new AcceptedCalibrationResultCollection(),
+    unlinkQualifications = new QualifiedProgressUnlinkCollection(),
   ) {
     if (profiles.length > PROFILE_MANAGEMENT_MAX_PROFILES) {
       throw new ProfileManagementError("too many local profiles");
@@ -261,6 +370,7 @@ export class ProfileManagementController {
     }
     this.#portraits = portraits;
     this.#calibrationResults = calibrationResults;
+    this.#unlinkQualifications = unlinkQualifications;
   }
 
   snapshot(): ProfileManagementSnapshot {
@@ -284,6 +394,23 @@ export class ProfileManagementController {
         (record) => record.profileId === null,
       ).length,
     });
+  }
+
+  deletionBlockers(
+    profileId: string,
+  ): readonly Readonly<ProfileDeletionBlocker>[] {
+    const profile = this.#requireProfile(profileId);
+    return Object.freeze(
+      this.#unlinkBlockers(this.#linkedProgress(profile.id)).map(
+        (record) => Object.freeze({
+          progressId: record.id,
+          gameId: record.gameId,
+          gameTitle: record.gameTitle,
+          slotId: record.slotId,
+          runtime: record.runtime,
+        }),
+      ),
+    );
   }
 
   planCreate(name: string): CreateProfilePlan {
@@ -353,6 +480,10 @@ export class ProfileManagementController {
     }
     const profile = this.#requireProfile(profileId);
     const linked = this.#linkedProgress(profile.id);
+    const unlinkQualificationIds =
+      kind === "delete-profile"
+        ? this.#requireUnlinkQualifications(linked)
+        : [];
     if (
       nowMs
       > Number.MAX_SAFE_INTEGER
@@ -376,6 +507,9 @@ export class ProfileManagementController {
       expectedBodyProfilePresent: profile.bodyProfilePresent,
       expectedProgressIds: Object.freeze(
         linked.map((record) => record.id).sort(),
+      ),
+      expectedUnlinkQualificationIds: Object.freeze(
+        unlinkQualificationIds,
       ),
       hostedServiceGameIds: Object.freeze(
         linked
@@ -538,6 +672,10 @@ export class ProfileManagementController {
       .filter((record) => record.hostedServiceSeparate)
       .map((record) => record.gameId)
       .sort();
+    const unlinkQualificationIds =
+      plan.kind === "delete-profile"
+        ? this.#requireUnlinkQualifications(linked)
+        : [];
     if (
       profile.name !== plan.expectedName
       || profile.calibrationRevision !== plan.expectedCalibrationRevision
@@ -545,6 +683,10 @@ export class ProfileManagementController {
       || this.#portraits.portraitFor(profile.id)
         !== plan.expectedPortraitRenderHandle
       || !sameStrings(progressIds, plan.expectedProgressIds)
+      || !sameStrings(
+        unlinkQualificationIds,
+        plan.expectedUnlinkQualificationIds,
+      )
       || !sameStrings(hostedGameIds, plan.hostedServiceGameIds)
     ) {
       throw new ProfileManagementError(
@@ -618,6 +760,40 @@ export class ProfileManagementController {
     );
   }
 
+  #unlinkBlockers(
+    linked: readonly ManagedProgressRecord[],
+  ): ManagedProgressRecord[] {
+    return linked.filter(
+      (record) =>
+        this.#unlinkQualifications.qualificationFor(record) === null,
+    );
+  }
+
+  #requireUnlinkQualifications(
+    linked: readonly ManagedProgressRecord[],
+  ): string[] {
+    const blockers = this.#unlinkBlockers(linked);
+    if (blockers.length > 0) {
+      const titles = [...new Set(
+        blockers.map((record) => record.gameTitle),
+      )].sort();
+      const visible = titles.slice(0, 3);
+      const remainder = titles.length - visible.length;
+      throw new ProfileManagementError(
+        `${blockers.length} linked progress item${
+          blockers.length === 1 ? "" : "s"
+        } cannot be safely unassigned until a sanitizer is qualified: ${
+          visible.join(", ")
+        }${remainder === 0 ? "" : ` and ${remainder} more`}`,
+      );
+    }
+    return linked
+      .map((record) =>
+        this.#unlinkQualifications.qualificationFor(record)!.id
+      )
+      .sort();
+  }
+
   #observeTime(nowMs: number): void {
     if (!Number.isSafeInteger(nowMs) || nowMs < 0) {
       throw new ProfileManagementError(
@@ -683,6 +859,32 @@ export const PROFILE_MANAGEMENT_DEMO_PROGRESS = Object.freeze([
   }),
 ] satisfies readonly ManagedProgressSeed[]);
 
+export const PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS =
+  Object.freeze([
+    Object.freeze({
+      id: "unlink-randy-obstacle-v1",
+      progressId: "randy-obstacle-main",
+      profileId: "profile-randy",
+      gameId: "obstacle",
+      slotId: "main-slot",
+      runtime: "local-web",
+      hostedServiceSeparate: false,
+      sanitizerId: "sanitize-local-web-profile-v1",
+      sanitizerRevision: 1,
+    }),
+    Object.freeze({
+      id: "unlink-randy-vibebots-v1",
+      progressId: "randy-vibebots-local",
+      profileId: "profile-randy",
+      gameId: "vibebots",
+      slotId: "local-settings",
+      runtime: "remote-web",
+      hostedServiceSeparate: true,
+      sanitizerId: "sanitize-remote-local-settings-v1",
+      sanitizerRevision: 1,
+    }),
+  ] satisfies readonly QualifiedProgressUnlink[]);
+
 function validateProfileSeed(source: ManagedProfileSeed): ManagedProfileRecord {
   validateExactKeys(source, profileSeedKeys, "profile seed");
   validateId(source.id, "profile ID");
@@ -741,6 +943,49 @@ function validateProgressSeed(
   ) {
     throw new ProfileManagementError(
       "local progress cannot claim a hosted-service boundary",
+    );
+  }
+  return { ...source };
+}
+
+function validateUnlinkQualification(
+  source: QualifiedProgressUnlink,
+): QualifiedProgressUnlink {
+  validateExactKeys(
+    source,
+    unlinkQualificationKeys,
+    "progress-unlink qualification",
+  );
+  validateId(source.id, "progress-unlink qualification ID");
+  validateId(source.progressId, "progress ID");
+  validateId(source.profileId, "profile ID");
+  validateId(source.gameId, "game ID");
+  validateId(source.slotId, "slot ID");
+  if (!runtimes.has(source.runtime)) {
+    throw new ProfileManagementError(
+      "invalid progress-unlink qualification runtime",
+    );
+  }
+  if (typeof source.hostedServiceSeparate !== "boolean") {
+    throw new ProfileManagementError(
+      "invalid progress-unlink hosted-service boundary",
+    );
+  }
+  if (
+    (source.runtime === "remote-web")
+      !== source.hostedServiceSeparate
+  ) {
+    throw new ProfileManagementError(
+      "progress-unlink runtime boundary mismatch",
+    );
+  }
+  validateId(source.sanitizerId, "progress sanitizer ID");
+  if (
+    !Number.isSafeInteger(source.sanitizerRevision)
+    || source.sanitizerRevision <= 0
+  ) {
+    throw new ProfileManagementError(
+      "invalid progress sanitizer revision",
     );
   }
   return { ...source };
@@ -826,6 +1071,18 @@ function validatePlan(plan: ProfileManagementPlan): void {
     throw new ProfileManagementError("invalid body-profile scope");
   }
   validateIdArray(plan.expectedProgressIds, "progress scope");
+  validateIdArray(
+    plan.expectedUnlinkQualificationIds,
+    "progress-unlink qualification scope",
+  );
+  if (
+    plan.kind !== "delete-profile"
+    && plan.expectedUnlinkQualificationIds.length > 0
+  ) {
+    throw new ProfileManagementError(
+      "non-deletion plan cannot carry unlink qualification scope",
+    );
+  }
   validateIdArray(plan.hostedServiceGameIds, "hosted-service scope");
   if (
     !Number.isSafeInteger(plan.confirmAfterMs)
@@ -961,5 +1218,14 @@ function sameStrings(
   return (
     left.length === right.length
     && left.every((value, index) => value === right[index])
+  );
+}
+
+function sameUnlinkQualification(
+  left: QualifiedProgressUnlink,
+  right: QualifiedProgressUnlink,
+): boolean {
+  return unlinkQualificationKeys.every(
+    (key) => left[key] === right[key],
   );
 }

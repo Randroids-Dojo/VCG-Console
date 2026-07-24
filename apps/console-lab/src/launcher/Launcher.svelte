@@ -40,7 +40,9 @@
   import {
     PROFILE_MANAGEMENT_DEMO_PROFILES,
     PROFILE_MANAGEMENT_DEMO_PROGRESS,
+    PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
     ProfileManagementController,
+    QualifiedProgressUnlinkCollection,
     type ProfileManagementCommitResult,
     type ProfileManagementSnapshot,
   } from "./profile-management";
@@ -69,11 +71,16 @@
   const acceptedPortraits = new AcceptedPortraitCollection();
   const acceptedCalibrationResults =
     new AcceptedCalibrationResultCollection();
+  const qualifiedProgressUnlinks =
+    new QualifiedProgressUnlinkCollection(
+      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
+    );
   const profileManagementController = new ProfileManagementController(
     PROFILE_MANAGEMENT_DEMO_PROFILES,
     PROFILE_MANAGEMENT_DEMO_PROGRESS,
     acceptedPortraits,
     acceptedCalibrationResults,
+    qualifiedProgressUnlinks,
   );
   let profileManagementSnapshot = $state(
     profileManagementController.snapshot(),

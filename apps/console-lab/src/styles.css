@@ -1318,6 +1318,33 @@ a:focus-visible {
   border-color: rgba(255, 118, 95, 0.55);
 }
 
+.profile-management-actions button:disabled {
+  border-color: #2c3234;
+  color: #777f81;
+  cursor: not-allowed;
+}
+
+.profile-delete-blockers {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 118, 95, 0.55);
+  background: rgba(255, 118, 95, 0.06);
+}
+
+.profile-delete-blockers strong {
+  display: block;
+  color: var(--fault);
+}
+
+.profile-delete-blockers ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.56rem;
+  line-height: 1.55;
+}
+
 .profile-create-panel {
   width: min(720px, 100%);
   margin: 38px auto 0;

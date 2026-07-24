@@ -661,6 +661,30 @@ test("credential-free profile management gates destructive scope and never reass
   await expect(
     management.getByText("None", { exact: true }),
   ).toBeVisible();
+
+  await management.getByRole("button", { name: /Profiles/ }).click();
+  await page.locator('[data-profile="Guest"]').click();
+  await page.getByRole("button", {
+    name: "Manage selected profile",
+  }).click();
+  await expect(
+    management.getByRole("heading", { name: "Manage Guest." }),
+  ).toBeVisible();
+  await expect(
+    management.getByText(
+      "Deletion is blocked for this synthetic fixture.",
+    ),
+  ).toBeVisible();
+  await expect(
+    management.getByText(
+      "Godot Motion Game / campaign (native)",
+    ),
+  ).toBeVisible();
+  await expect(
+    management.getByRole("button", {
+      name: /Delete local profile/,
+    }),
+  ).toBeDisabled();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

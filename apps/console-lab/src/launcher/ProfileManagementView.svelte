@@ -47,6 +47,11 @@
   const profile = $derived(
     snapshot.profiles.find((candidate) => candidate.id === profileId) ?? null,
   );
+  const deletionBlockers = $derived(
+    profile === null
+      ? []
+      : controller.deletionBlockers(profile.id),
+  );
 
   $effect(() => {
     if (pending === null) {
@@ -291,9 +296,29 @@
           <strong>Reset local identity data</strong>
           <span>Clears portrait, calibration, and body match; keeps the profile and linked progress.</span>
         </button>
-        <button class="profile-delete-entry" type="button" onclick={(event) => begin("delete-profile", event)}>
+        {#if deletionBlockers.length > 0}
+          <div class="profile-delete-blockers" role="status">
+            <strong>Deletion is blocked for this synthetic fixture.</strong>
+            <span>These linked items lack reviewed identity sanitizers:</span>
+            <ul>
+              {#each deletionBlockers as blocker}
+                <li>{blocker.gameTitle} / {blocker.slotId} ({blocker.runtime})</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
+        <button
+          class="profile-delete-entry"
+          type="button"
+          disabled={deletionBlockers.length > 0}
+          onclick={(event) => begin("delete-profile", event)}
+        >
           <strong>Delete local profile</strong>
-          <span>Removes identity data and unassigns console-managed progress without deleting it.</span>
+          <span>
+            {deletionBlockers.length > 0
+              ? "Unavailable until every linked game has an exact reviewed sanitizer."
+              : "Removes identity data and unassigns qualified console-managed progress without deleting it."}
+          </span>
         </button>
       </div>
     </section>

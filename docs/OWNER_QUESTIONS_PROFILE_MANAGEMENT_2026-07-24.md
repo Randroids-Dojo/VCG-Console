@@ -45,6 +45,14 @@ choice to retain linked data temporarily or permanently delete that game's
 local progress. Never label opaque relinking alone anonymous and never invent
 a generic browser-side save rewrite.
 
+The current browser rehearsal now implements the first fail-closed half of
+this default: every preserved link needs an exact synthetic qualification
+bound to profile, game, slot, runtime, hosted boundary, sanitizer identity,
+and revision at both planning and commit. Missing or revoked evidence blocks
+the whole profile deletion and names the affected game/slot/runtime. It does
+not yet implement permanent progress deletion or qualify any real sanitizer,
+so Q-189 remains open.
+
 ## Q-190: destructive confirmation ceremony
 
 What review duration, expiry, wording, focus order, controller input, motion

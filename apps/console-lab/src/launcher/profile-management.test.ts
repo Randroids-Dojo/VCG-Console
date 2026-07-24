@@ -6,21 +6,29 @@ import {
   PROFILE_MANAGEMENT_CONFIRMATION_TTL_MS,
   PROFILE_MANAGEMENT_DEMO_PROFILES,
   PROFILE_MANAGEMENT_DEMO_PROGRESS,
+  PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
   PROFILE_MANAGEMENT_MAX_PROFILES,
+  PROFILE_MANAGEMENT_MAX_UNLINK_QUALIFICATIONS,
   ProfileManagementController,
   ProfileManagementError,
+  QualifiedProgressUnlinkCollection,
   type ManagedProfileSeed,
+  type QualifiedProgressUnlink,
 } from "./profile-management";
 
 function controller(
   portraits = new AcceptedPortraitCollection(),
   calibrationResults = new AcceptedCalibrationResultCollection(),
+  unlinkQualifications = new QualifiedProgressUnlinkCollection(
+    PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
+  ),
 ): ProfileManagementController {
   return new ProfileManagementController(
     PROFILE_MANAGEMENT_DEMO_PROFILES,
     PROFILE_MANAGEMENT_DEMO_PROGRESS,
     portraits,
     calibrationResults,
+    unlinkQualifications,
   );
 }
 
@@ -397,6 +405,118 @@ describe("ProfileManagementController", () => {
       preservedLinkedProgressCount: 0,
       hostedServicesUnaffected: 1,
     });
+  });
+
+  it("blocks deletion until every exact progress unlink is qualified and rechecks at commit", () => {
+    const unqualified = controller(
+      new AcceptedPortraitCollection(),
+      new AcceptedCalibrationResultCollection(),
+      new QualifiedProgressUnlinkCollection(),
+    );
+    const blockers = unqualified.deletionBlockers("profile-randy");
+    expect(blockers).toEqual([
+      expect.objectContaining({
+        progressId: "randy-obstacle-main",
+        gameTitle: "Obstacle",
+        runtime: "local-web",
+      }),
+      expect.objectContaining({
+        progressId: "randy-vibebots-local",
+        gameTitle: "VibeBots",
+        runtime: "remote-web",
+      }),
+    ]);
+    expect(Object.isFrozen(blockers)).toBe(true);
+    expect(Object.isFrozen(blockers[0])).toBe(true);
+    expect(() =>
+      unqualified.planDestructive(
+        "delete-profile",
+        "profile-randy",
+        0,
+      ),
+    ).toThrow("2 linked progress items cannot be safely unassigned");
+
+    const qualifications = new QualifiedProgressUnlinkCollection(
+      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
+    );
+    const manager = controller(
+      new AcceptedPortraitCollection(),
+      new AcceptedCalibrationResultCollection(),
+      qualifications,
+    );
+    const plan = manager.planDestructive(
+      "delete-profile",
+      "profile-randy",
+      0,
+    );
+    expect(plan.expectedUnlinkQualificationIds).toEqual([
+      "unlink-randy-obstacle-v1",
+      "unlink-randy-vibebots-v1",
+    ]);
+    expect(
+      Object.isFrozen(plan.expectedUnlinkQualificationIds),
+    ).toBe(true);
+    expect(qualifications.revokeExact(
+      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS[1]!,
+    )).toBe(true);
+    expect(() =>
+      manager.commit(plan, plan.confirmAfterMs),
+    ).toThrow("1 linked progress item cannot be safely unassigned");
+    expect(manager.snapshot().profiles).toContainEqual(
+      expect.objectContaining({ id: "profile-randy" }),
+    );
+    expect(
+      manager.progressOwnerKind("randy-obstacle-main"),
+    ).toEqual({
+      kind: "profile",
+      profileId: "profile-randy",
+    });
+
+    const first =
+      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS[0]!;
+    expect(() =>
+      new QualifiedProgressUnlinkCollection([{
+        ...first,
+        sourcePath: "C:\\saves\\randy",
+      } as never]),
+    ).toThrow("closed schema");
+    expect(() =>
+      new QualifiedProgressUnlinkCollection([{
+        ...first,
+        runtime: "remote-web",
+        hostedServiceSeparate: false,
+      }]),
+    ).toThrow("runtime boundary mismatch");
+    expect(() =>
+      new QualifiedProgressUnlinkCollection([
+        first,
+        {
+          ...first,
+          id: "unlink-randy-obstacle-other",
+        },
+      ]),
+    ).toThrow("multiple unlink qualifications");
+    expect(() =>
+      new QualifiedProgressUnlinkCollection(
+        Array.from(
+          {
+            length:
+              PROFILE_MANAGEMENT_MAX_UNLINK_QUALIFICATIONS + 1,
+          },
+          (_, index) => ({
+            ...first,
+            id: `unlink-fixture-${index + 1}`,
+            progressId: `progress-fixture-${index + 1}`,
+          }),
+        ),
+      ),
+    ).toThrow("too many progress-unlink qualifications");
+    expect(
+      qualifications.revokeExact({
+        ...first,
+        sanitizerRevision: 2,
+      } as QualifiedProgressUnlink),
+    ).toBe(false);
   });
 
   it("never reattaches unassigned progress when the same display name is recreated", () => {
