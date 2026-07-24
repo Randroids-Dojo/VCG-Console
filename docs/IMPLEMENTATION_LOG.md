@@ -1110,3 +1110,23 @@ The simulator is developer/test evidence, not a camera benchmark or accessibilit
 ### Remaining boundary
 
 The public manifest is not signed launch authority by itself. Production still needs the native host to derive grants from signature-verified installed package evidence, render a controller-accessible permission review, enforce network/storage/input/device isolation for every runtime lane, support revocation/family policy, and prove that top-level hosted or native games cannot obtain undeclared OS/browser capabilities.
+
+## 2026-07-24: casual household-local obstacle leaderboard
+
+### Delivered
+
+- Added a versioned, bounded local obstacle-run store with exact game, rules, input, calibration, pause, tracking-dropout, player-assignment, score, and completion context.
+- Kept the claim deliberately narrow and visible: `UNVERIFIED RUNS`, `NO UPLOAD`, no anti-cheat, no cross-household comparison, and explicit developer-build mutability.
+- Recorded a run exactly once at game over, retained the highest 20 locally, displayed the highest five, and added a separate New Run action.
+- Added deliberate two-step board reset, fail-whole malformed-document recovery, honest unavailable-storage feedback, and a profile-deletion operation that removes the profile link while preserving unassigned progress.
+- Documented lifecycle, privacy, security, corruption, and production-save boundaries in `LOCAL_LEADERBOARD.md`; I-204 closes for the obstacle desk sample.
+
+### Verification evidence
+
+- One hundred console unit tests pass, including ordering, bounded retention, reload, profile unassignment, reset, malformed data, storage failure, and invalid run context.
+- All twenty-two real-Chrome flows pass. The new flow completes an actual run, verifies the unverified/local-only disclosure and recorded context, reloads the page to prove persistence, and verifies the two-step reset clears the storage key.
+- Workspace typechecks and production build pass; exported schemas, all four game manifests plus canonical launcher policy, and the 14-trial/280-attempt benchmark remain fresh.
+
+### Remaining boundary
+
+Browser local storage is not the final console-managed per-game writable mount. Package isolation, quotas, low-space behavior, healthy update/rollback preservation, sudden-power durability, factory reset, profile lifecycle integration, and hostile-package access remain under I-189, I-191, I-202, and I-209. No public, remote, prize-bearing, or anti-cheat leaderboard is authorized by this work.
