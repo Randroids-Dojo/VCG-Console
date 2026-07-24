@@ -4281,3 +4281,80 @@ Home, native host, and people; actual target Linux output/scaling, overscan,
 seating distance, accessibility/localization, audio, concurrent load, frame
 pacing, and performance remain unproven. Q-242 and Q-243 still select the
 final visual and tier output policies.
+
+## 2026-07-24: canonical controller mapping authority
+
+### Delivered
+
+- Added a strict v1 controller profile binding opaque mapping identity and
+  revision to exact lowercase SDL GUID, USB vendor/product identity, fixed
+  console-and-consenting-games scope, and the host-owned Home/Back/Pause
+  declaration.
+- Required unique action-sorted controls and the complete shell navigation
+  plus confirm set. Bounded physical vocabulary covers buttons, directional
+  axis halves, and hats without accepting arbitrary keys or game commands.
+- Added deterministic snapshot projection with separately sorted mapped
+  ordinary actions and valid-but-unmapped diagnostics. Reserved-action output
+  is structurally empty and every result is deeply frozen.
+- Added `CONTROLLER_MAPPING_CONTRACT.md` and CM-001 through CM-006 for database
+  ownership, physical device cohort, guided mapping, storage scope, recovery,
+  and per-game remap policy.
+
+### Verification evidence
+
+- All 9 focused mapping tests pass; the Motion-contract package has 187
+  passing tests and passes strict TypeScript checking.
+- Tests cover full shell projection, unmapped input, missing or duplicate
+  actions, duplicate controls, noncanonical ordering, reserved-action
+  exclusion, mapping/revision substitution, cloned and malformed inputs,
+  unknown fields, unsafe control/device identity, and exact reserved policy.
+- Full root tests, workspace typechecking, production build, and the ordinary
+  compliance gate passed with the combined working tree.
+
+### Remaining boundary
+
+I-128 is active, not closed. The contract does not select or distribute a
+mapping database, observe a physical controller, connect the native SDL/Steam
+Input adapter, persist or sign custom profiles, handle hot-plug/reconnect or
+multiple controllers, implement the controller-only mapper and independent
+recovery path, define glyph/accessibility/per-game-remap UX, or qualify the
+representative physical cohort on target Linux/SteamOS.
+
+## 2026-07-24: host-derived RetroArch sandbox intent
+
+### Delivered
+
+- Added an immutable sandbox plan to every successfully verified
+  `RetroArchPlan`. It exposes the exact frontend, core, base configuration,
+  and optional managed-content files read-only.
+- Exposed only the exact session, saves, states, remaps, screenshots, system,
+  and core-options namespaces read-write; complete install/content roots and
+  source media are absent.
+- Allowed display, audio, and mediated gamepad capability while explicitly
+  denying network, camera, microphone, raw input, source media, and desktop
+  authority. Contentless launches expose no content-store path.
+- Canonicalized the deepest existing ancestor of planned writable paths and
+  rejected a verified artifact nested beneath them, including before private
+  directories exist.
+- Added `RETRO_SANDBOX_PLAN.md` and RS-001 through RS-006 for the enforcement
+  adapter, runtime surface, device mediation, network policy, firmware mounts,
+  and descendant cleanup.
+
+### Verification evidence
+
+- All 14 focused RetroArch tests pass, including four new mount, capability,
+  contentless, and unsafe-overlap cases.
+- The full native library suite passes with 291 tests and 5 intentional helper
+  ignores.
+- Workspace compilation, formatting, strict Clippy with warnings denied, and
+  Rustdoc all pass.
+
+### Remaining boundary
+
+I-129 is active, not closed. This is a reviewable host policy plan, not an OS
+sandbox. `LaunchSpec` still starts an ordinary direct child. Production still
+requires a fail-closed Linux adapter; exact dynamic-library, locale/font,
+GPU/audio/display and controller surfaces; read-only firmware projection;
+artifact hash-to-exec retention; descendant, namespace, cgroup and compositor
+containment; crash/restart cleanup; malicious real-content tests; and
+ARM64/x86-64 target evidence.
