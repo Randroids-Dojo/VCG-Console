@@ -2532,3 +2532,48 @@ power, thermals, acoustics, storage, update/recovery, Raspberry Pi, Hailo, or
 SteamOS behavior. The tracked capture honestly records that unrelated
 profile-calibration edits were active in the shared worktree and binds its
 source commit and reused evidence bytes instead of claiming a clean tree.
+
+## 2026-07-24: camera-to-action latency campaign contract
+
+### Delivered
+
+- Advanced I-015 from an unstructured hardware task to a strict, pre-registered
+  plan/result contract without claiming that a camera configuration has run.
+- Rejects capture-arrival timing and accepts only hardware exposure
+  start/midpoint or an independently validated driver exposure timestamp,
+  with exact exposure-semantics and clock-mapping proof digests.
+- Freezes exact target, camera, pipeline, workload, room, placement, persona,
+  and canonical household-motion-plan digests before results are visible.
+- Requires 20 attempts for each of all ten Motion `0.3.0` actions in every
+  declared persona/placement/workload cell, plus at least 15 minutes of
+  negative/idle evidence per cell.
+- Retains invalid attempts and dropped frames; binds skeleton, ground-truth,
+  workload, and system traces; and forbids raw-frame claims or unknown fields.
+- Derives action precision/recall and nearest-rank p50/p95/p99/worst from raw
+  exposure and game-receipt timestamps. Per-attempt timing uncertainty is
+  added as a conservative latency upper bound.
+- Requires zero unintended Back, Pause, Home, Resume, or Exit activations in
+  negative windows and can pre-register an independent 240 FPS-or-faster
+  visible-response cross-check without substituting display timing for D-110.
+- Reserved Q-211 for available exposure/optical reference equipment and Q-212
+  for the consented blocking-persona room session. No equipment was ordered
+  and no camera stream or participant evidence was captured.
+
+### Verification evidence
+
+Eighteen Node tests cover a qualifying synthetic cell, exact 20-attempt
+coverage, benchmark substitution, path traversal, capture-arrival rejection,
+clock mismatch, plan-byte substitution, missing cell evidence, nearest-rank
+tail failure, conservative uncertainty, wrong/duplicate false actions, invalid
+attempt preservation, drop accounting, privileged negative activation,
+shortened negative windows, required optical-check omission, pre-exposure
+receipt rejection, and raw-frame-policy rejection. Git whitespace checks pass.
+
+### Remaining boundary
+
+Synthetic tests prove only validation and arithmetic. I-015 remains active
+until a frozen physical plan runs with trustworthy exposure timing, exact
+camera/room/placement/persona evidence, both blocking personas and qualified
+placements, representative concurrent workload, minimized trace artifacts,
+and an honest derived result. Neither the browser capture-arrival metrics nor
+the transport benchmarks can satisfy the 120 ms p95 gate.
