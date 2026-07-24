@@ -1377,4 +1377,46 @@ Twenty-one focused Rust tests cover initialization/reload, inactive staging, slo
 
 ### Remaining boundary
 
-This is metadata policy and crash-recovery logic, not a working Raspberry Pi updater. It does not download or sign-verify an image, reserve capacity, write/read back a partition, drive firmware or a bootloader, establish a protected monotonic anchor, authenticate health producers, perform migrations, compact the bounded journal, or touch writable content. Target-Linux filesystem semantics, exact firmware selection, partition isolation, timed boots, update/write-volume measurements, hostile writers, and sudden-power injection across hundreds of qualified microSD cycles remain open under I-022, I-110 through I-114, I-141, I-202, and I-209.
+At this checkpoint the journal was metadata policy and crash-recovery logic, not a working Raspberry Pi updater. It did not download or sign-verify an image, reserve capacity, write/read back a partition, drive firmware or a bootloader, establish a protected monotonic anchor, authenticate health producers, perform migrations, compact the bounded journal, or touch writable content. The next slice adds signed regular-file verification only; target-Linux filesystem semantics, exact firmware selection, partition isolation, timed boots, update/write-volume measurements, hostile writers, and sudden-power injection across hundreds of qualified microSD cycles remain open under I-022, I-110 through I-114, I-141, I-202, and I-209.
+
+## 2026-07-24: signature-first system-image evidence
+
+### Delivered
+
+- Added a domain-separated Ed25519 v1 manifest verifier for system images; exact signature verification occurs before closed JSON parsing.
+- Bound positive generation, safe release ID, exact privileged target, raw format, signed byte length, and canonical SHA-256 while limiting the manifest to 64 KiB and image authority to 64 GiB.
+- Required absolute regular manifest/signature/key/image inputs and canonical lowercase single-line public-key and signature encodings.
+- Opened the raw image once, checked signed length before hashing, streamed every byte through SHA-256 with bounded memory, and rechecked the same handle's length afterward.
+- Retained the exact verified file handle and exposed a consuming rewind handoff for the future privileged writer, preventing later path replacement from redirecting the copy.
+- Added exact signed image length to persisted facts and a sealed, non-deserializable `VerifiedSystemImageEvidence` type as the only journal initialization/staging authority.
+- Added `verify_inactive_readback` so sealed evidence exists only after an adapter-owned host-selected slot stream matches the signed length/hash; deserialized journal snapshots cannot be replayed as mutation authority.
+- Added `SYSTEM_IMAGE_MANIFEST.md`, D-152, and updated I-110/I-141, offline behavior, native boundaries, owner questions, and the security threat model.
+
+### Verification evidence
+
+Ten focused tests cover signature-before-parse ordering, cross-domain signature denial, exact release/target/hash/length authority, complete verification, exact-handle rewind, path-replacement resistance, sealed matching read-back evidence, short/changed read-back denial, changed same-size and truncated source images, wrong target, unknown fields, unsupported schema/compression, zero generation and out-of-bound size, noncanonical/wrong keys, unsafe identifiers, uppercase hashes, relative/nonregular paths, and oversized metadata. Final isolated native verification passes 184 library tests with five intentional subprocess helpers ignored and all fourteen CLI tests; formatting and strict Clippy are clean.
+
+### Remaining boundary
+
+This verifies one regular file under one provisioned key, retains its exact handle, and mechanically verifies a supplied read-back stream; it is not a downloader or block-device update transaction. Offline-root/online roles, expiration/rotation/revocation, protected anti-rollback, TLS/resume/capacity/cleanup, concurrent-write exclusion or copy-time reverify, actual synchronized reader provenance, compression, signed migrations, bootloader selection, trustworthy health, target Linux, and power-loss campaigns remain open. The public key path, expected target, slot, and reader are privileged configuration, but none is yet protected by verified boot or qualified provisioning.
+
+## 2026-07-24: bounded storage layout and capacity boundary
+
+### Delivered
+
+- Added a pure four-partition planner for one firmware/boot extent, two equal runtime-read-only system extents, and one writable-data remainder over exact bounded device capacity.
+- Represented D-048's selected card as 256,000,000,000 nominal manufacturer bytes without claiming final partition sizes; boot and slot inputs use 4 MiB alignment.
+- Added nine fixed writable categories and host-derived direct-child namespaces for system state, production/developer packages, games/saves, profiles, retro content, logs, cache, and staging.
+- Preserved explicit recovery headroom against every ordinary write while allowing a separately authorized recovery workspace to consume it without exceeding physical free space.
+- Bound system-update capacity to sealed signed/read-back evidence, denied active-slot targets, and returned the writable-data extent unchanged as preservation evidence.
+- Limited log/cache cleanup to policy, staging cleanup to its recovery coordinator, installed content to explicit lifecycle operations, and metadata/profile/save deletion to never automatic.
+- Made factory-reset behavior explicit: sensitive/developer/transient domains delete, system metadata reinitializes from trusted state, and production-package/retro disposition remains an owner policy question.
+- Added `STORAGE_LAYOUT_AND_CAPACITY.md`, D-153, an active I-111 evidence row, and a dedicated owner-question document.
+
+### Verification evidence
+
+Twelve focused Rust tests cover aligned contiguous derivation, equal read-only slots, one writable remainder, invalid/overflow/non-fitting input, fixed usage and full-threshold capacity, recovery-reserve consumption, sealed inactive-image fit, logical partition fault scope, cleanup and factory-reset disposition, fixed namespaces, and unsafe relative/root/traversal-like denial. Combined native verification passes 196 library tests with five intentional subprocess helpers ignored and all fourteen CLI tests; formatting and strict Clippy are clean.
+
+### Remaining boundary
+
+This code changes no disk. Exact card identity/capacity, final sizes, partition table, firmware compatibility, filesystems, runtime mount enforcement, real reservations/quotas, full-disk/corruption/update/reset/garbage-collection behavior, whole-card failure, computer-assisted reflash, endurance, write amplification, and sudden-power evidence remain open. The fixture's 512 MiB boot, 16 GiB slots, and 8 GiB reserve are illustrative qualification inputs only.

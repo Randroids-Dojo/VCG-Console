@@ -1,6 +1,6 @@
 # Atomic A/B System Update State
 
-Status: implemented metadata primitive; Raspberry Pi image writer, bootloader, and target qualification remain open.
+Status: implemented metadata primitive plus sealed signed-image/read-back evidence; Raspberry Pi image writer, bootloader, and target qualification remain open.
 
 ## Scope
 
@@ -11,12 +11,12 @@ The privileged image service must:
 1. download a target-specific signed manifest and image;
 2. verify the signature before trusting either;
 3. write only the inactive system slot;
-4. read back and hash the complete written image;
-5. construct `SystemImage` from the exact release ID, target, generation, manifest SHA-256, image SHA-256, and inactive slot;
-6. stage and arm the verified evidence;
+4. use the signature-first verifier in `system_image.rs` to bind the exact release ID, target, generation, manifest SHA-256, image SHA-256, and length while retaining the exact opened source handle;
+5. write from that handle, synchronize, then pass a trusted inactive-slot read-back stream through the signed verifier;
+6. stage and arm only the resulting sealed slot evidence;
 7. let the boot coordinator durably claim the attempt before transferring control.
 
-Treating caller-supplied strings as proof of verification is forbidden. The Rust constructor validates evidence shape, not signatures or partition bytes.
+Treating caller-supplied strings or deserialized snapshot facts as proof of verification is forbidden. Journal initialization and staging accept non-deserializable `VerifiedSystemImageEvidence`, obtained only after the signed manifest, complete source file, and privileged inactive-slot read-back stream match as documented in `SYSTEM_IMAGE_MANIFEST.md`. Partition writing, synchronization, and read-back provenance remain platform responsibilities.
 
 ## State flow
 
@@ -120,7 +120,7 @@ cargo clippy -p vcg-host --all-targets -- -D warnings
 
 This primitive advances I-110 but does not close it. The following still require target implementation or evidence:
 
-- signed image manifest, offline-root/online-key hierarchy, rotation, revocation, and protected anti-rollback anchor;
+- offline-root/online-key hierarchy, rotation, revocation, and protected anti-rollback anchor (the detached signature-first image-manifest primitive now exists);
 - resumable download, capacity reservation, inactive-partition writer, complete read-back verification, and update/write-volume measurement;
 - exact Raspberry Pi bootloader adapter and atomic selection semantics;
 - watchdog timing, service identity, and trustworthy health producers;

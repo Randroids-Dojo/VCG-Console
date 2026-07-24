@@ -23,6 +23,7 @@ const TEMP_RECORD_FILE: &str = ".next-record.tmp";
 const MAX_RECORD_BYTES: u64 = 64 * 1_024;
 const MAX_RECORDS: usize = 16_384;
 const MAX_BOOT_ATTEMPTS: u8 = 10;
+pub const MAX_SYSTEM_IMAGE_BYTES: u64 = 64 * 1_024 * 1_024 * 1_024;
 const REQUIRED_HEALTH_CHECKS: [SystemHealthCheck; 6] = [
     SystemHealthCheck::Launcher,
     SystemHealthCheck::Tracker,
@@ -50,7 +51,7 @@ impl SystemSlot {
     }
 }
 
-/// Exact evidence for one signature-verified image already written to a slot.
+/// Persisted journal facts for one verified image already written to a slot.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SystemImage {
@@ -58,6 +59,7 @@ pub struct SystemImage {
     generation: u64,
     release_id: String,
     target: String,
+    image_size_bytes: u64,
     manifest_sha256: String,
     image_sha256: String,
 }
@@ -71,11 +73,12 @@ impl SystemImage {
     /// # Errors
     ///
     /// Rejects zero generations, unsafe identifiers, and noncanonical hashes.
-    pub fn new(
+    fn new(
         slot: SystemSlot,
         generation: u64,
         release_id: impl Into<String>,
         target: impl Into<String>,
+        image_size_bytes: u64,
         manifest_sha256: impl Into<String>,
         image_sha256: impl Into<String>,
     ) -> Result<Self, SystemUpdateError> {
@@ -84,6 +87,7 @@ impl SystemImage {
             generation,
             release_id: release_id.into(),
             target: target.into(),
+            image_size_bytes,
             manifest_sha256: manifest_sha256.into(),
             image_sha256: image_sha256.into(),
         };
@@ -109,6 +113,53 @@ impl SystemImage {
     #[must_use]
     pub fn target(&self) -> &str {
         &self.target
+    }
+
+    #[must_use]
+    pub const fn image_size_bytes(&self) -> u64 {
+        self.image_size_bytes
+    }
+}
+
+/// Sealed evidence accepted by journal initialization and staging.
+///
+/// Unlike [`SystemImage`], this type is not deserializable and cannot be
+/// assembled from caller-supplied snapshot JSON.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct VerifiedSystemImageEvidence {
+    image: SystemImage,
+}
+
+impl VerifiedSystemImageEvidence {
+    pub(crate) fn new(
+        slot: SystemSlot,
+        generation: u64,
+        release_id: impl Into<String>,
+        target: impl Into<String>,
+        image_size_bytes: u64,
+        manifest_sha256: impl Into<String>,
+        image_sha256: impl Into<String>,
+    ) -> Result<Self, SystemUpdateError> {
+        Ok(Self {
+            image: SystemImage::new(
+                slot,
+                generation,
+                release_id,
+                target,
+                image_size_bytes,
+                manifest_sha256,
+                image_sha256,
+            )?,
+        })
+    }
+
+    #[must_use]
+    pub const fn image(&self) -> &SystemImage {
+        &self.image
+    }
+
+    fn into_image(self) -> SystemImage {
+        self.image
     }
 }
 
@@ -345,13 +396,14 @@ impl SystemUpdateJournal {
     /// unsafe/corrupt journal.
     pub fn initialize(
         &self,
-        active: SystemImage,
+        active: VerifiedSystemImageEvidence,
     ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
         let _operation = self.acquire_operation_lock()?;
         self.recover_temp_unlocked()?;
         if self.load_unlocked()?.is_some() {
             return Err(SystemUpdateError::AlreadyInitialized);
         }
+        let active = active.into_image();
         let snapshot = SystemUpdateSnapshot {
             highest_seen_generation: active.generation,
             last_attempt_id: 0,
@@ -401,9 +453,10 @@ impl SystemUpdateJournal {
     /// generation rollback, lock contention, or corrupt state.
     pub fn stage_verified_update(
         &self,
-        image: SystemImage,
+        image: VerifiedSystemImageEvidence,
     ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
         self.mutate(|snapshot| {
+            let image = image.into_image();
             if snapshot.pending.is_some() {
                 return Err(SystemUpdateError::PendingUpdateExists);
             }
@@ -1131,6 +1184,11 @@ fn validate_image(image: &SystemImage) -> Result<(), SystemUpdateError> {
             "generation must be greater than zero".to_owned(),
         ));
     }
+    if !(1..=MAX_SYSTEM_IMAGE_BYTES).contains(&image.image_size_bytes) {
+        return Err(SystemUpdateError::InvalidImage(format!(
+            "image size must be within 1..={MAX_SYSTEM_IMAGE_BYTES} bytes"
+        )));
+    }
     validate_identifier("release ID", &image.release_id, 128)?;
     validate_identifier("target", &image.target, 64)?;
     validate_sha256("manifest SHA-256", &image.manifest_sha256)?;
@@ -1527,12 +1585,13 @@ mod tests {
         }
     }
 
-    fn image(slot: SystemSlot, generation: u64, release: &str) -> SystemImage {
-        SystemImage::new(
+    fn image(slot: SystemSlot, generation: u64, release: &str) -> VerifiedSystemImageEvidence {
+        VerifiedSystemImageEvidence::new(
             slot,
             generation,
             release,
             "raspberry-pi-5",
+            1_024,
             "1".repeat(64),
             "2".repeat(64),
         )
@@ -1605,11 +1664,12 @@ mod tests {
                 .stage_verified_update(image(SystemSlot::A, 2, "release-2")),
             Err(SystemUpdateError::CandidateIsNotInactive)
         ));
-        let wrong_target = SystemImage::new(
+        let wrong_target = VerifiedSystemImageEvidence::new(
             SystemSlot::B,
             2,
             "release-2",
             "other-target",
+            1_024,
             "1".repeat(64),
             "2".repeat(64),
         )
@@ -1976,7 +2036,7 @@ mod tests {
         let mut next_snapshot = fixture.journal.snapshot().expect("state");
         next_snapshot.highest_seen_generation = 2;
         next_snapshot.pending = Some(PendingSystemUpdate {
-            image: image(SystemSlot::B, 2, "release-2"),
+            image: image(SystemSlot::B, 2, "release-2").into_image(),
             max_attempts: 0,
             attempts_remaining: 0,
             phase: PendingPhase::Staged,
@@ -2039,33 +2099,36 @@ mod tests {
     #[test]
     fn invalid_image_evidence_is_rejected() {
         assert!(
-            SystemImage::new(
+            VerifiedSystemImageEvidence::new(
                 SystemSlot::A,
                 0,
                 "release",
                 "target",
+                1,
                 "1".repeat(64),
                 "2".repeat(64)
             )
             .is_err()
         );
         assert!(
-            SystemImage::new(
+            VerifiedSystemImageEvidence::new(
                 SystemSlot::A,
                 1,
                 "../release",
                 "target",
+                1,
                 "1".repeat(64),
                 "2".repeat(64)
             )
             .is_err()
         );
         assert!(
-            SystemImage::new(
+            VerifiedSystemImageEvidence::new(
                 SystemSlot::A,
                 1,
                 "release",
                 "target",
+                1,
                 "A".repeat(64),
                 "2".repeat(64)
             )
