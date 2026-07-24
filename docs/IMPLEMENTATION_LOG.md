@@ -4924,3 +4924,38 @@ does not turn synthetic, planned, incomplete, developer-host, or camera-free
 evidence into physical participant, target-device, production, accessibility,
 latency, safety, or release qualification. Each artifact’s existing owner
 questions and investigation disposition remain unchanged.
+
+## 2026-07-24: catalog input-surface evidence gate
+
+### Delivered
+
+- Preserved the separate `a5f7e38` 26-title neutral browser observation and
+  its exact API/listener/control counts without turning an initial-route signal
+  into a required-input or controller-compatibility declaration.
+- Registered its deterministic validator and eight adversarial tests in the
+  root gate, plus named offline validation and explicit live refresh commands
+  in `fc51d7b`.
+- Refreshed Home, representative-surface, Search, and OCR-A fallback evidence
+  against the changed package source commitment in `a37bab4`.
+- Updated I-089’s evidence column while deliberately retaining `open`: the
+  investigation requires hands-on television/gamepad/remote sessions, which
+  this synthetic neutral fixture did not perform.
+
+### Verification evidence
+
+- All 26 URLs loaded in isolated contexts. Five exposed a Gamepad API signal,
+  25 keyboard, 21 pointer, 19 touch, and 12 initial text-entry surfaces.
+- Zero titles requested pointer lock or fullscreen without interaction, made a
+  mutating HTTP request, or received input qualification.
+- The validator and all eight mutation groups pass and retain the bounded
+  canonical artifact, prior-catalog provenance, privacy exclusions,
+  zero-qualification summary, and exact limitation set.
+
+### Remaining boundary
+
+I-089/Q-049 remain open. API polling and listener registration do not prove
+correct mappings, controller-only menus/gameplay, pause/exit/recovery,
+hot-plug/reconnect/replacement, battery/sleep, simultaneous devices,
+keyboard/pointer/touch/text requirements, reserved Home/Back authority,
+fullscreen/focus/hang/crash behavior, physical-TV/audio behavior, or either
+target tier. The dedicated owner-question document retains the decisions.
