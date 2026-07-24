@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, strict signed installed-package resolution, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor, navigation containment, trusted package execution over IPC, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, strict signed installed-package resolution, idempotent profile-allowlisted launch/cancel lifecycle, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -12,6 +12,9 @@ cargo run -p vcg-host -- launcher --windowed \
   --browser "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" \
   --profile-dir "C:\Users\<you>\AppData\Local\VCG-Console\browser-profile" \
   --url http://127.0.0.1:5173/
+# Add the signed-catalog/root options documented below, then repeat:
+#   --profile-id profile-randy
+# to enable native package launch for that host-owned profile.
 cargo run -p vcg-host -- supervise --dry-run -- /path/to/program argument
 cargo run -p vcg-host -- supervise -- /path/to/program argument
 cargo run -p vcg-host -- watchdog --dry-run \
@@ -49,19 +52,24 @@ launcher options (plus `--content-root` when needed) to expose signed
 installed-package metadata. These paths are privileged service configuration,
 not launcher input. See the
 [signed installed-package catalog contract](../../docs/INSTALLED_PACKAGE_CATALOG.md).
+Add one or more repeated `--profile-id <opaque-id>` options to enable
+`trusted-package-launch` for exactly those host-owned profiles. With no profile
+IDs, the same catalog remains discovery-only. See the
+[native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
 `watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.
 
-`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact manifest SHA-256 for the frontend, core, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Current readiness is process-only; a compositor/window probe must be added before hang recovery can be claimed.
+`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact signed SHA-256 for the frontend, core, base configuration, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Current lifecycle is process-only; a compositor/window probe must be added before readiness can be claimed.
 
 ## Boundary
 
 - `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
-- `host_api`: per-launch authenticated loopback status and package lookup, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
+- `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata validation and host-owned package resolution from fixed game/profile IDs.
+- `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 

@@ -1,7 +1,14 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
-  import { checkNativeHost, checkNativePackage } from "../native-host-client";
+  import {
+    cancelNativeLaunch,
+    checkNativeHost,
+    checkNativePackage,
+    getNativeLaunch,
+    startNativeLaunch,
+    type NativeLaunchSnapshot,
+  } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
@@ -17,6 +24,7 @@
   let visible = $state(true);
   let view = $state<LauncherView>("home");
   let activeProfile = $state("Randy");
+  let activeProfileId = $state("profile-randy");
   let clock = $state("");
   let toastMessage = $state("");
   let toastVisible = $state(false);
@@ -30,6 +38,7 @@
   let launchSupervisor: LaunchSupervisor | undefined;
   let launchUnsubscribe: (() => void) | undefined;
   let launchRetryOperation: ((attempt: number) => void) | undefined;
+  let activeNativeRequestId: string | undefined;
 
   const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 5_000, timeoutMs: 15_000, heartbeatTimeoutMs: 8_000 };
   const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 10_000, timeoutMs: 30_000, heartbeatTimeoutMs: 15_000 };
@@ -254,17 +263,44 @@
   async function runHostedAttempt(supervisor: LaunchSupervisor, gameId?: string): Promise<void> {
     supervisor.advance(1, "Requesting the Rust console host");
     if (gameId) {
+      if (activeNativeRequestId) {
+        const previousRequestId = activeNativeRequestId;
+        activeNativeRequestId = undefined;
+        await cancelNativeLaunch(previousRequestId);
+        if (launchSupervisor !== supervisor) return;
+      }
       const packageResult = await checkNativePackage(gameId);
       if (launchSupervisor !== supervisor) return;
       if (!packageResult.ok) {
         supervisor.unavailable(packageResult.detail, packageResult.code);
         return;
       }
-      supervisor.advance(2, `Rust host ${packageResult.status.hostVersion} connected on ${packageResult.status.target}`);
-      supervisor.unavailable(
-        `Signed catalog entry ${packageResult.package.version} found in generation ${packageResult.package.catalogGeneration} · artifact resolution and privileged launch execution are not connected yet`,
-        "PACKAGE_LAUNCH_PENDING",
+      if (!packageResult.status.capabilities.includes("trusted-package-launch")) {
+        supervisor.advance(
+          2,
+          `Rust host ${packageResult.status.hostVersion} connected on ${packageResult.status.target}`,
+        );
+        supervisor.unavailable(
+          `Signed catalog entry ${packageResult.package.version} found in generation ${packageResult.package.catalogGeneration} · privileged package execution is not configured`,
+          "PACKAGE_LAUNCH_PENDING",
+        );
+        return;
+      }
+      const launchResult = await startNativeLaunch(gameId, activeProfileId);
+      if (launchSupervisor !== supervisor) {
+        if (launchResult.ok) void cancelNativeLaunch(launchResult.launch.requestId);
+        return;
+      }
+      if (!launchResult.ok) {
+        supervisor.unavailable(launchResult.detail, launchResult.code);
+        return;
+      }
+      activeNativeRequestId = launchResult.launch.requestId;
+      supervisor.advance(
+        2,
+        `Signed ${packageResult.package.version} resolved for ${activeProfile} · host process lifecycle ${launchResult.launch.detailCode.toLowerCase().replaceAll("_", " ")}`,
       );
+      await monitorNativeLaunch(supervisor, launchResult.launch);
       return;
     }
 
@@ -276,6 +312,77 @@
     }
     supervisor.advance(2, `Rust host ${hostResult.status.hostVersion} connected on ${hostResult.status.target}`);
     supervisor.unavailable("Rust host connected · no trusted installed package is available for this launch", "PACKAGE_NOT_INSTALLED");
+  }
+
+  async function monitorNativeLaunch(
+    supervisor: LaunchSupervisor,
+    initial: NativeLaunchSnapshot,
+  ): Promise<void> {
+    let snapshot = initial;
+    while (
+      launchSupervisor === supervisor &&
+      activeNativeRequestId === snapshot.requestId
+    ) {
+      if (snapshot.state === "failed") {
+        activeNativeRequestId = undefined;
+        supervisor.crash(
+          "The host could not start the verified package",
+          snapshot.detailCode,
+        );
+        return;
+      }
+      if (snapshot.state === "completed") {
+        activeNativeRequestId = undefined;
+        supervisor.crash(
+          "The game process exited before window readiness was proven",
+          snapshot.detailCode,
+        );
+        return;
+      }
+      if (snapshot.state === "cancelled") {
+        activeNativeRequestId = undefined;
+        supervisor.unavailable("Native launch was cancelled", snapshot.detailCode);
+        return;
+      }
+      if (["hung", "crashed", "unavailable"].includes(supervisor.snapshot.status)) {
+        const requestId = snapshot.requestId;
+        activeNativeRequestId = undefined;
+        await cancelNativeLaunch(requestId);
+        return;
+      }
+
+      supervisor.heartbeat(
+        snapshot.state === "running"
+          ? "Host process started · waiting for compositor window readiness"
+          : "Host is preparing the verified package",
+      );
+      await new Promise((resolve) => window.setTimeout(resolve, 200));
+      if (
+        launchSupervisor !== supervisor ||
+        activeNativeRequestId !== snapshot.requestId
+      ) {
+        return;
+      }
+      const next = await getNativeLaunch(snapshot.requestId);
+      if (!next.ok) {
+        activeNativeRequestId = undefined;
+        supervisor.unavailable(next.detail, next.code);
+        return;
+      }
+      if (
+        next.launch.gameId !== snapshot.gameId ||
+        next.launch.profileId !== snapshot.profileId ||
+        next.launch.sequence < snapshot.sequence
+      ) {
+        activeNativeRequestId = undefined;
+        supervisor.unavailable(
+          "Rust console host returned a conflicting launch lifecycle",
+          "HOST_PROTOCOL_INVALID",
+        );
+        return;
+      }
+      snapshot = next.launch;
+    }
   }
 
   function previewLaunch(adapter: LaunchAdapter): void {
@@ -326,6 +433,11 @@
 
   function closeLaunch(restoreFocus = true): void {
     if (!launchSession) return;
+    if (activeNativeRequestId) {
+      const requestId = activeNativeRequestId;
+      activeNativeRequestId = undefined;
+      void cancelNativeLaunch(requestId);
+    }
     launchRun += 1;
     launchAttempt += 1;
     launchSession = undefined;
@@ -463,7 +575,13 @@
       </div>
 
       <div class="launcher-view profiles-view" data-launcher-view="profiles" hidden={view !== "profiles"}>
-        <ProfilesView onselect={(name) => (activeProfile = name)} ontoast={toast} />
+        <ProfilesView
+          onselect={(profile) => {
+            activeProfileId = profile.id;
+            activeProfile = profile.name;
+          }}
+          ontoast={toast}
+        />
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>

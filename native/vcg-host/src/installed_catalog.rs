@@ -128,7 +128,7 @@ impl TrustedPackageCatalog {
         let mut ids = HashSet::with_capacity(document.packages.len());
         let mut packages = Vec::with_capacity(document.packages.len());
         for package in document.packages {
-            validate_id("game", &package.id)?;
+            validate_intent_id("game", &package.id)?;
             validate_version(&package.version)?;
             if !ids.insert(package.id.clone()) {
                 return Err(CatalogError::InvalidRecord(format!(
@@ -223,7 +223,7 @@ impl TrustedPackageCatalog {
     ///
     /// Rejects malformed or unknown game identifiers.
     pub fn package_summary(&self, game_id: &str) -> Result<PackageSummary<'_>, CatalogError> {
-        validate_id("game", game_id)?;
+        validate_intent_id("game", game_id)?;
         let package = self
             .packages
             .iter()
@@ -252,8 +252,8 @@ impl TrustedPackageCatalog {
         game_id: &str,
         profile_id: &str,
     ) -> Result<ResolvedPackage, CatalogError> {
-        validate_id("game", game_id)?;
-        validate_id("profile", profile_id)?;
+        validate_intent_id("game", game_id)?;
+        validate_intent_id("profile", profile_id)?;
         let package = self
             .packages
             .iter()
@@ -529,7 +529,7 @@ fn resolve_managed_file(
     Ok(canonical)
 }
 
-fn validate_id(kind: &'static str, value: &str) -> Result<(), CatalogError> {
+pub(crate) fn validate_intent_id(kind: &'static str, value: &str) -> Result<(), CatalogError> {
     let valid = !value.is_empty()
         && value.len() <= 80
         && value.bytes().enumerate().all(|(index, byte)| {
@@ -807,7 +807,7 @@ pub(crate) mod tests {
             fs::create_dir_all(&cores).expect("create core directory");
 
             let manifest = package.join("vcg-game.json");
-            let frontend = retroarch.join("retroarch");
+            let frontend = retroarch.join(format!("retroarch{}", std::env::consts::EXE_SUFFIX));
             let core = cores.join("2048_libretro.so");
             let base_config = retroarch.join("vcg-base.cfg");
             fs::write(
@@ -873,7 +873,7 @@ pub(crate) mod tests {
                     "\"runtime\":\"libretro\",",
                     "\"manifest\":{{\"path\":\"{}\",\"sha256\":\"{}\"}},",
                     "\"libretro\":{{",
-                    "\"frontend\":{{\"path\":\"retroarch/retroarch\",\"sha256\":\"{}\"}},",
+                    "\"frontend\":{{\"path\":\"{}\",\"sha256\":\"{}\"}},",
                     "\"core\":{{\"path\":\"cores/2048_libretro.so\",\"sha256\":\"{}\"}},",
                     "\"baseConfig\":{{\"path\":\"retroarch/vcg-base.cfg\",\"sha256\":\"{}\"}},",
                     "\"content\":{{\"mode\":\"none\"}}",
@@ -884,6 +884,11 @@ pub(crate) mod tests {
                 target,
                 manifest_path,
                 digest_path(&self.manifest),
+                self.frontend
+                    .strip_prefix(&self.install)
+                    .expect("frontend is inside install root")
+                    .to_string_lossy()
+                    .replace('\\', "/"),
                 digest_path(&self.frontend),
                 digest_path(&self.core),
                 digest_path(&self.base_config),
@@ -917,6 +922,22 @@ pub(crate) mod tests {
     pub(crate) fn signed_catalog() -> (Fixture, TrustedPackageCatalog) {
         let fixture = Fixture::new();
         let catalog = fixture.load().expect("signed fixture catalog loads");
+        (fixture, catalog)
+    }
+
+    pub(crate) fn signed_launch_catalog() -> (Fixture, TrustedPackageCatalog) {
+        let fixture = Fixture::new();
+        fs::copy(
+            std::env::current_exe().expect("test executable path resolves"),
+            &fixture.frontend,
+        )
+        .expect("copy launchable test executable");
+        fixture.sign_catalog(
+            &fixture.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+        );
+        let catalog = fixture
+            .load()
+            .expect("launchable signed fixture catalog loads");
         (fixture, catalog)
     }
 

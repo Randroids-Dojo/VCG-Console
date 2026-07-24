@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the first host-owned trust bridge from an approved installed package to the local launcher. It is deliberately narrower than an installer or launch service.
+This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. It remains deliberately narrower than an installer or production package lifecycle.
 
 The implemented slice can:
 
@@ -11,9 +11,10 @@ The implemented slice can:
 - validate target, generation, qualification, identifiers, hashes, and relative paths;
 - bind one installed game manifest to the signed package identity, version, runtime, and qualification;
 - resolve a fixed `{gameId, profileId}` intent into a trusted `RetroArchRequest`;
-- disclose only id, version, runtime, and catalog generation to the authenticated trusted launcher.
+- disclose only id, version, runtime, and catalog generation to the authenticated trusted launcher;
+- start the resolved child only when the profile ID is in the host-owned allowlist.
 
-It cannot install, update, revoke, roll back, or launch a package through the browser API. The launcher therefore reports `PACKAGE_LAUNCH_PENDING` after finding a signed catalog entry.
+It cannot install, update, revoke, roll back, prove window readiness, persist launch idempotency across host restart, or provide target-Linux containment. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs enables the separate launch lifecycle.
 
 ## Host configuration
 
@@ -27,9 +28,12 @@ It cannot install, update, revoke, roll back, or launch a package through the br
 --runtime-root <absolute-ephemeral-runtime-root>
 --data-root <absolute-persistent-data-root>
 [--content-root <absolute-managed-retro-content-root>]
+[--profile-id <host-owned-profile-id>]...
 ```
 
-These values come from the service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints only generation and target.
+The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the number of configured profiles.
+
+Without `--profile-id`, the API exposes metadata only. With one or more unique bounded IDs, it also advertises `trusted-package-launch`; submitted profile IDs must exactly match that host allowlist. The current Svelte profile IDs are desk-prototype identifiers and are not yet a persisted native profile registry.
 
 The public-key file is currently a host-configured path. Target images still need to pin that key in a verified read-only system slot and define rotation/revocation under I-112/I-141. A writable key path beside a writable catalog is not a production trust root.
 
@@ -140,11 +144,11 @@ When a catalog is configured, `/v1/status` adds `trusted-package-catalog` to its
 
 Missing packages return `404 PACKAGE_NOT_INSTALLED`; invalid IDs return `400 PACKAGE_ID_INVALID`. Paths, hashes, keys, permissions, environment, command lines, and writable roots never cross this endpoint.
 
-The metadata lookup proves only that a valid signed catalog contains the entry. Artifact and manifest verification occurs during host-owned resolution, and no browser launch operation exists yet.
+The metadata lookup proves only that a valid signed catalog contains the entry. `POST /v1/launches` separately triggers host-owned artifact/manifest verification and direct process start from fixed game/profile intent. See [the native launcher-host API contract](NATIVE_HOST_API.md) for idempotency, lifecycle, cancellation, and current readiness limits.
 
 ## Evidence and remaining boundary
 
-Native tests cover valid signed resolution, signature-before-parse failure, wrong target, unknown fields, duplicates, unsafe paths, malformed key material, oversized catalogs, invalid launcher IDs, missing packages, manifest tamper and misbinding, base-config tamper at resolve and adapter use, and final RetroArch plan acceptance. Host-API tests verify capability discovery and metadata-only disclosure. TypeScript and Playwright tests verify fixed-ID requests with no browser-provided path, hash, program, or command fields.
+Native tests cover valid signed resolution, signature-before-parse failure, wrong target, unknown fields, duplicates, unsafe paths, malformed key material, oversized catalogs, invalid launcher IDs, missing packages, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only disclosure. TypeScript and Playwright tests verify fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
 
 Still required:
 
@@ -152,6 +156,6 @@ Still required:
 - persisted monotonic generation and rollback protection;
 - signed package installation and atomic catalog promotion;
 - immutable or descriptor-bound artifact use;
-- a narrow authenticated launch operation with replay and idempotency policy;
-- readiness events, watchdog integration, compositor containment, reserved Home/Back, and target-Linux sandboxing;
+- persistent replay/idempotency policy across host restart;
+- window readiness events, watchdog integration, compositor containment, reserved Home/Back, and target-Linux sandboxing;
 - update and removal cleanup plus architecture-parity evidence.

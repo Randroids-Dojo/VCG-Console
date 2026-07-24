@@ -8,6 +8,7 @@ use std::time::Duration;
 use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
 use vcg_host::installed_catalog::{CatalogRoots, TrustedPackageCatalog};
 use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
+use vcg_host::native_launch::NativeLaunchService;
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 
@@ -36,6 +37,9 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("game-watchdog: heartbeat-and-bounded-restart");
             println!("retroarch-adapter: plan-and-direct-launch");
             println!("retroarch-integrity: sha256-required");
+            println!("installed-catalog: ed25519-signed-target-qualified");
+            println!("native-launch: fixed-intent-process-lifecycle");
+            println!("native-launch-replay: in-memory-bounded");
             println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
             println!("sdl3-input: adapter pending target-Linux qualification");
@@ -67,6 +71,7 @@ struct LauncherOptions {
     content_root: Option<PathBuf>,
     runtime_root: Option<PathBuf>,
     data_root: Option<PathBuf>,
+    profile_ids: Vec<String>,
 }
 
 struct LauncherCatalogOptions {
@@ -74,22 +79,28 @@ struct LauncherCatalogOptions {
     signature: PathBuf,
     public_key: PathBuf,
     roots: CatalogRoots,
+    profile_ids: Vec<String>,
 }
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     let (dry_run, request, catalog_options) = launcher_request(arguments)?;
-    let catalog = catalog_options
+    let catalog_configuration = catalog_options
         .map(LauncherCatalogOptions::load)
         .transpose()?;
     if dry_run {
         let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
         println!("launcher:plan mode=dry-run");
-        if let Some(catalog) = &catalog {
+        if let Some((catalog, profile_ids)) = &catalog_configuration {
             println!(
                 "launcher:catalog generation={} target={}",
                 catalog.generation(),
                 catalog.target()
             );
+            println!("launcher:profiles count={}", profile_ids.len());
+            if !profile_ids.is_empty() {
+                NativeLaunchService::new(std::sync::Arc::new(catalog.clone()), profile_ids.clone())
+                    .map_err(|error| error.to_string())?;
+            }
         }
         println!("program: {}", spec.program().display());
         for argument in spec.arguments() {
@@ -99,8 +110,12 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     }
 
     let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
-    let host_api = if let Some(catalog) = catalog {
-        HostStatusServer::start_with_catalog(origin, catalog)
+    let host_api = if let Some((catalog, profile_ids)) = catalog_configuration {
+        if profile_ids.is_empty() {
+            HostStatusServer::start_with_catalog(origin, catalog)
+        } else {
+            HostStatusServer::start_with_launch_service(origin, catalog, profile_ids)
+        }
     } else {
         HostStatusServer::start(origin)
     }
@@ -140,9 +155,15 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
 }
 
 impl LauncherCatalogOptions {
-    fn load(self) -> Result<TrustedPackageCatalog, String> {
-        TrustedPackageCatalog::load(&self.catalog, &self.signature, &self.public_key, self.roots)
-            .map_err(|error| error.to_string())
+    fn load(self) -> Result<(TrustedPackageCatalog, Vec<String>), String> {
+        let catalog = TrustedPackageCatalog::load(
+            &self.catalog,
+            &self.signature,
+            &self.public_key,
+            self.roots,
+        )
+        .map_err(|error| error.to_string())?;
+        Ok((catalog, self.profile_ids))
     }
 }
 
@@ -179,7 +200,8 @@ fn launcher_request(
         || options.install_root.is_some()
         || options.content_root.is_some()
         || options.runtime_root.is_some()
-        || options.data_root.is_some();
+        || options.data_root.is_some()
+        || !options.profile_ids.is_empty();
     let catalog = if catalog_requested {
         Some(LauncherCatalogOptions {
             catalog: options
@@ -203,6 +225,7 @@ fn launcher_request(
                     .data_root
                     .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?,
             },
+            profile_ids: options.profile_ids,
         })
     } else {
         None
@@ -250,6 +273,18 @@ fn parse_launcher_catalog_option(
     option: &str,
     output: &mut LauncherOptions,
 ) -> Result<(), String> {
+    if option == "--profile-id" {
+        let profile_id = required_next_text(arguments, cursor, option)?;
+        if output
+            .profile_ids
+            .iter()
+            .any(|existing| existing == &profile_id)
+        {
+            return Err("--profile-id values must be unique".to_owned());
+        }
+        output.profile_ids.push(profile_id);
+        return Ok(());
+    }
     let slot = match option {
         "--catalog" => &mut output.catalog,
         "--catalog-signature" => &mut output.catalog_signature,
@@ -712,7 +747,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>]]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]...]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -798,14 +833,27 @@ mod tests {
             "/runtime",
             "--data-root",
             "/data",
+            "--profile-id",
+            "profile-randy",
+            "--profile-id",
+            "profile-guest",
         ]);
         let (_, _, catalog) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
-        assert!(catalog.is_some());
+        assert_eq!(
+            catalog.expect("catalog options exist").profile_ids,
+            ["profile-randy", "profile-guest"]
+        );
 
         let mut partial = base.to_vec();
         partial.extend(["--catalog", "/metadata/catalog.json"]);
         assert!(launcher_request(&args(&partial)).is_err());
+        let mut profile_without_catalog = base.to_vec();
+        profile_without_catalog.extend(["--profile-id", "profile-randy"]);
+        assert!(launcher_request(&args(&profile_without_catalog)).is_err());
+        let mut duplicate_profile = complete;
+        duplicate_profile.extend(["--profile-id", "profile-randy"]);
+        assert!(launcher_request(&args(&duplicate_profile)).is_err());
     }
 
     #[test]

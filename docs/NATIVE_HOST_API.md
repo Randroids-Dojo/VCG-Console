@@ -6,9 +6,9 @@ This document defines the first reversible transport between the local Svelte la
 
 ## Scope
 
-The implemented `0.1.0` surface answers two read-only questions: is the Rust host instance that launched this browser still present and compatible, and does its signature-verified installed catalog contain one fixed game ID?
+The implemented `0.1.0` surface answers status and installed-package queries and accepts one narrow privileged operation: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog.
 
-It does not yet launch a game, accept a browser-provided manifest, expose filesystem paths, return logs, change settings, or grant a web game any host access. A found catalog entry ends in `PACKAGE_LAUNCH_PENDING` until a privileged launch operation and readiness stream exist.
+It never accepts a browser-provided manifest, executable, path, hash, command, environment, or writable root. It does not return logs, change settings, grant a game access to the host API, prove a visible game window, or connect the existing heartbeat watchdog. Process start is observable; compositor readiness remains deliberately unproven.
 
 ## Launch and authority flow
 
@@ -16,7 +16,7 @@ It does not yet launch a game, accept a browser-provided manifest, expose filesy
 2. For a non-dry run, the host binds an operating-system-selected port on `127.0.0.1` only.
 3. The host obtains 32 random bytes from the operating-system random source and encodes the per-launch capability as 64 lowercase hexadecimal characters.
 4. The host starts Chromium directly, without a shell, and appends `vcg-host-port` and `vcg-host-token` to the launcher URL fragment.
-5. The Svelte launcher parses exactly one port and token, sends the token as `Authorization: Bearer …`, omits credentials and referrer data, and applies a 1.5-second deadline to both headers and body.
+5. The Svelte launcher parses exactly one port and token, sends the token as `Authorization: Bearer …`, omits credentials and referrer data, and applies bounded deadlines and response sizes.
 6. The host requires the launcher's exact validated origin for browser CORS requests and constant-time-compares the bearer capability.
 7. Dropping the host closes the listener and terminates/reaps the browser if it is still owned by the process supervisor.
 
@@ -24,7 +24,7 @@ The fragment is not sent to the launcher HTTP server and is not included in ordi
 
 ## Protocol `0.1.0`
 
-The status endpoint is `GET /v1/status`. Cross-origin browser use performs an `OPTIONS` preflight for `GET` plus the `Authorization` header.
+The status endpoint is `GET /v1/status`. Cross-origin browser use performs a route-specific `OPTIONS` preflight. The host permits only the declared `GET`, `POST`, or `DELETE` method and only the `Authorization` and, for launch creation, `Content-Type` request headers.
 
 A successful response is JSON with:
 
@@ -33,13 +33,38 @@ A successful response is JSON with:
 - `target`: the compiled Rust architecture and operating system;
 - `capabilities`: stable capability identifiers compiled into this host.
 
-Responses are non-cacheable, close the connection, and disclose no status body on a rejected token or origin. The server caps request headers at 8 KiB, applies bounded read/write timeouts, rejects ambiguous duplicate Origin/Authorization/preflight-method headers, and handles one request per connection.
+Responses are non-cacheable, close the connection, and disclose no status body on a rejected token or origin. The server caps each complete request at 8 KiB and a launch JSON body at 1 KiB, applies bounded read/write timeouts, rejects duplicate security/framing headers, rejects transfer encoding and unexpected bodies, and handles one request per connection.
 
 The launcher rejects malformed or oversized `Content-Length` declarations and streams at most 16 KiB for the response document. It distinguishes absent or malformed fragment authority, unreachable/timed-out host, rejected authority, malformed or oversized status, protocol mismatch, and a valid host with no trusted installed package. A host connection alone never makes a game appear installed or launchable.
 
 When the host has loaded a signature-verified installed catalog, status includes the `trusted-package-catalog` capability. `GET /v1/packages/<game-id>` accepts only the bounded package-ID grammar and returns id, version, `libretro` runtime, and catalog generation. It returns stable missing/invalid codes and never exposes paths, hashes, keys, permissions, commands, environment, or writable roots. See [the signed installed-package catalog contract](INSTALLED_PACKAGE_CATALOG.md).
 
-## Security invariants for future endpoints
+When at least one host-configured profile ID is also present, status adds `trusted-package-launch`. The lifecycle endpoints are:
+
+- `POST /v1/launches`: create or replay one launch;
+- `GET /v1/launches/<request-id>`: read its current state;
+- `DELETE /v1/launches/<request-id>`: request cancellation.
+
+Creation accepts exactly:
+
+```json
+{
+  "protocolVersion": "0.1.0",
+  "requestId": "32-lowercase-hex-characters",
+  "gameId": "retro-2048",
+  "profileId": "profile-randy"
+}
+```
+
+The 128-bit random request ID is an idempotency key within one host process. Repeating identical intent returns the existing record and cannot start a second child. Reusing the ID for different intent fails with `REQUEST_ID_CONFLICT`. The host permits one active native game, keeps at most 64 lifecycle records, and prunes terminal records first. These records are memory-only: replay protection does not survive host restart.
+
+The profile ID must be in the host's explicit `--profile-id` allowlist. Browser-created or renamed display text cannot create a storage namespace. After accepting intent, Rust re-resolves and verifies the signed catalog, manifest, frontend, core, base configuration, and content, prepares host-owned storage, and invokes the executable directly without a shell.
+
+A lifecycle response contains protocol version, request ID, game ID, profile ID, monotonic per-launch sequence, state, stable detail code, replay marker, and an exit code only for terminal completed/failed states. It never contains a process ID or native path. States are `preparing`, `running`, `stopping`, `completed`, `failed`, and `cancelled`.
+
+Process start is not window readiness. Svelte polls while the launch screen remains in progress and cancels the child when its absolute local-launch deadline expires, the operator exits, or the lifecycle becomes invalid. No response currently produces the launcher `READY` state.
+
+## Security invariants
 
 - Keep the listener loopback-only, per launcher process, and closed when that process ends.
 - Keep authority per launch; do not store the bearer capability in profiles, local storage, logs, query strings, or catalog data.
@@ -48,11 +73,11 @@ When the host has loaded a signature-verified installed catalog, status includes
 - Accept high-level operations such as a catalog game identifier and active profile identifier only.
 - Resolve signed manifests, installed paths, expected hashes, permissions, and launch adapters inside the Rust host.
 - Never accept an arbitrary executable, command line, shell text, artifact hash, content path, environment map, or writable root from the browser as launch authority.
-- Bind launch attempts to host-owned supervision, readiness, reserved Home/Back, bounded recovery, and branded launcher re-entry.
+- Bind launch attempts to host-owned supervision and cancellation now; readiness, reserved Home/Back, bounded watchdog recovery, and branded re-entry remain mandatory before qualification.
 - Do not expose this API or its capability to hosted games, local game origins, the cooperative Motion bridge, or developer-LAN deployment.
 
 ## Evidence and remaining boundary
 
-Rust tests cover authenticated status, exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security headers, per-launch token uniqueness, fragment rather than query placement, signed-catalog capability discovery, and metadata-only package lookup. TypeScript tests cover strict fragment parsing, request options, host error classes, protocol validation, malformed status, bounded bodies, fixed package IDs, absent catalogs, missing packages, and mismatched metadata. Playwright proves the Svelte flow sends the bearer token and only the package ID.
+Rust tests cover authenticated status, route-specific exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security and framing headers, transfer/body rejection, per-launch token uniqueness, signed-catalog discovery, profile allowlisting, fixed-intent launch, at-most-once replay/conflict, bounded lifecycle, direct process start/observation, and idempotent cancellation. TypeScript tests cover strict bridge parsing, bounded bodies, fixed package/profile/request IDs, lifecycle identity and sequence validation, failure records, polling, and cancellation. Playwright proves the Svelte flow sends only versioned package/profile intent and reports process failure without inventing readiness.
 
-Still required are a hostile-navigation and process-inspection threat test, privileged launch requests, event delivery, replay and idempotency policy, anti-rollback state, immutable-key and artifact provisioning, compositor readiness, global recovery controls, target-Linux sandboxing, and service-manager restart evidence. D-129 remains a working transport decision until those tests justify retaining it.
+Still required are hostile-navigation and process-inspection tests, persistent replay policy across host restart, push/event delivery or a measured polling decision, immutable key/artifact provisioning, anti-rollback state, compositor window identity/readiness, watchdog and descendant-process integration, reserved global controls, target-Linux sandboxing, and service-manager restart evidence. D-129 and D-132 remain working decisions until those tests justify retaining them.

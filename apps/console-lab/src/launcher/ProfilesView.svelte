@@ -2,7 +2,7 @@
   import { tick } from "svelte";
 
   interface Profile {
-    id: number;
+    id: string;
     name: string;
     detail: string;
   }
@@ -10,15 +10,18 @@
   let {
     onselect,
     ontoast,
-  }: { onselect: (name: string) => void; ontoast: (message: string) => void } = $props();
+  }: {
+    onselect: (profile: { id: string; name: string }) => void;
+    ontoast: (message: string) => void;
+  } = $props();
 
   let profiles = $state<Profile[]>([
-    { id: 1, name: "Randy", detail: "Local player" },
-    { id: 2, name: "Guest", detail: "Local guest" },
+    { id: "profile-randy", name: "Randy", detail: "Local player" },
+    { id: "profile-guest", name: "Guest", detail: "Local guest" },
   ]);
-  let activeId = $state(1);
+  let activeId = $state("profile-randy");
   let nextId = 3;
-  let editingId = $state<number | null>(null);
+  let editingId = $state<string | null>(null);
   let editorOpen = $state(false);
   let editorName = $state("");
   let input: HTMLInputElement;
@@ -38,7 +41,7 @@
 
   function select(profile: Profile): void {
     activeId = profile.id;
-    onselect(profile.name);
+    onselect({ id: profile.id, name: profile.name });
   }
 
   function save(event: SubmitEvent): void {
@@ -56,16 +59,20 @@
       profiles = [...profiles];
       activeId = profile.id;
       closeEditor();
-      onselect(name);
+      onselect({ id: profile.id, name });
       ontoast(`Profile updated: ${name}`);
       return;
     }
 
-    const profile = { id: nextId++, name, detail: "Local player" };
+    const profile = {
+      id: `profile-local-${nextId++}`,
+      name,
+      detail: "Local player",
+    };
     profiles = [...profiles, profile];
     activeId = profile.id;
     closeEditor();
-    onselect(name);
+    onselect({ id: profile.id, name });
     ontoast(`Profile created: ${name}`);
   }
 

@@ -37,7 +37,7 @@ cargo run -p vcg-host -- help
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, signed installed-package resolution, and contained RetroArch launch planning with artifact SHA-256 enforcement and per-profile storage. Actual privileged launch IPC, RetroArch artifacts, one-action 2048 startup, window readiness, Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
+The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, signed installed-package resolution, idempotent game/profile launch intent, cancellation, and contained RetroArch planning with artifact SHA-256 enforcement and per-profile storage. Actual RetroArch artifacts, one-action 2048 startup, window readiness, Linux GPU/OOM detectors, compositor containment, persistent native profiles, and target-hardware behavior remain unqualified.
 
 ## Research workspace
 
@@ -55,6 +55,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)
 - [Native launcher-host API contract](docs/NATIVE_HOST_API.md)
+- [Native package launch lifecycle](docs/NATIVE_LAUNCH_LIFECYCLE.md)
 - [Signed installed-package catalog contract](docs/INSTALLED_PACKAGE_CATALOG.md)
 - [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
@@ -63,6 +64,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Deferred owner questions from the native-host API tranche](docs/OWNER_QUESTIONS_HOST_API_2026-07-23.md)
 - [Deferred owner questions from the prototype-gates tranche](docs/OWNER_QUESTIONS_PROTOTYPE_GATES_2026-07-23.md)
 - [Deferred owner questions from the installed-catalog tranche](docs/OWNER_QUESTIONS_INSTALLED_CATALOG_2026-07-23.md)
+- [Deferred owner questions from the native-launch tranche](docs/OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md)
 - [Source ledger](docs/SOURCES.md)
 
 ## Experience principles

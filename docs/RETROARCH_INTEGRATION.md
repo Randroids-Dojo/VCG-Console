@@ -129,7 +129,7 @@ Still required:
 
 - signed, pinned frontend/core artifacts on ARM64 and x86-64;
 - production key rotation, catalog anti-rollback, and immutable verification-to-child binding;
-- native launch IPC, stable profile identity, and event mapping;
+- persistent host profile identity, compositor/readiness event mapping, and watchdog integration for API-launched children;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
 - SDL3 mapping, player assignment, and compositor-reserved Home/Back;

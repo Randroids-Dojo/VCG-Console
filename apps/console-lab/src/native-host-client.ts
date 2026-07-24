@@ -2,6 +2,7 @@ const HOST_API_PROTOCOL_VERSION = "0.1.0";
 const HOST_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
 const HOST_PORT_PATTERN = /^[1-9][0-9]{0,4}$/;
 const HOST_REQUEST_TIMEOUT_MS = 1_500;
+const HOST_LAUNCH_TIMEOUT_MS = 15_000;
 const MAX_HOST_STATUS_BYTES = 16_384;
 
 export interface NativeHostStatus {
@@ -18,6 +19,26 @@ export interface NativeInstalledPackage {
   catalogGeneration: number;
 }
 
+export type NativeLaunchState =
+  | "preparing"
+  | "running"
+  | "stopping"
+  | "completed"
+  | "failed"
+  | "cancelled";
+
+export interface NativeLaunchSnapshot {
+  protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
+  requestId: string;
+  gameId: string;
+  profileId: string;
+  state: NativeLaunchState;
+  sequence: number;
+  detailCode: string;
+  replayed: boolean;
+  exitCode?: number | null;
+}
+
 type NativeHostFailure = {
   ok: false;
   code:
@@ -27,13 +48,21 @@ type NativeHostFailure = {
     | "HOST_REJECTED"
     | "HOST_PROTOCOL_INVALID"
     | "HOST_PROTOCOL_MISMATCH"
-    | "PACKAGE_NOT_INSTALLED";
+    | "PACKAGE_NOT_INSTALLED"
+    | "PACKAGE_LAUNCH_FAILED"
+    | "LAUNCH_NOT_FOUND";
   detail: string;
 };
 
 export type NativeHostResult = { ok: true; status: NativeHostStatus } | NativeHostFailure;
 export type NativePackageResult =
   | { ok: true; status: NativeHostStatus; package: NativeInstalledPackage }
+  | NativeHostFailure;
+export type NativeLaunchStartResult =
+  | { ok: true; status: NativeHostStatus; launch: NativeLaunchSnapshot }
+  | NativeHostFailure;
+export type NativeLaunchSnapshotResult =
+  | { ok: true; launch: NativeLaunchSnapshot }
   | NativeHostFailure;
 
 interface HostBridge {
@@ -258,6 +287,230 @@ export async function checkNativePackage(
   }
 }
 
+export function createNativeLaunchRequestId(): string {
+  const bytes = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(bytes);
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function startNativeLaunch(
+  gameId: string,
+  profileId: string,
+  requestId = createNativeLaunchRequestId(),
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_LAUNCH_TIMEOUT_MS,
+): Promise<NativeLaunchStartResult> {
+  if (!isIntentId(gameId) || !isIntentId(profileId) || !isRequestId(requestId)) {
+    return {
+      ok: false,
+      code: "PACKAGE_LAUNCH_FAILED",
+      detail: "Native launch intent is invalid",
+    };
+  }
+  const host = await checkNativeHost(href, fetcher, timeoutMs);
+  if (!host.ok) return host;
+  if (!host.status.capabilities.includes("trusted-package-launch")) {
+    return {
+      ok: false,
+      code: "PACKAGE_LAUNCH_FAILED",
+      detail: "Rust host connected · trusted package execution is not configured",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: "HOST_CONFIG_INVALID",
+      detail: "Rust console host launch capability is invalid",
+    };
+  }
+
+  const response = await fetchNative(
+    `${parsed.bridge.endpoint}/v1/launches`,
+    parsed.bridge.token,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        protocolVersion: HOST_API_PROTOCOL_VERSION,
+        requestId,
+        gameId,
+        profileId,
+      }),
+    },
+    fetcher,
+    timeoutMs,
+  );
+  if (!response.ok) return response.failure;
+  if (![200, 202, 422].includes(response.value.status)) {
+    return launchHttpFailure(response.value.status);
+  }
+  const launch = parseLaunchResponse(response.value.body);
+  if (
+    !launch ||
+    launch.requestId !== requestId ||
+    launch.gameId !== gameId ||
+    launch.profileId !== profileId
+  ) {
+    return invalidLaunchDocument();
+  }
+  return { ok: true, status: host.status, launch };
+}
+
+export async function getNativeLaunch(
+  requestId: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_REQUEST_TIMEOUT_MS,
+): Promise<NativeLaunchSnapshotResult> {
+  return mutateOrReadNativeLaunch("GET", requestId, href, fetcher, timeoutMs);
+}
+
+export async function cancelNativeLaunch(
+  requestId: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_REQUEST_TIMEOUT_MS,
+): Promise<NativeLaunchSnapshotResult> {
+  return mutateOrReadNativeLaunch("DELETE", requestId, href, fetcher, timeoutMs);
+}
+
+async function mutateOrReadNativeLaunch(
+  method: "GET" | "DELETE",
+  requestId: string,
+  href: string,
+  fetcher: typeof fetch,
+  timeoutMs: number,
+): Promise<NativeLaunchSnapshotResult> {
+  if (!isRequestId(requestId)) {
+    return {
+      ok: false,
+      code: "LAUNCH_NOT_FOUND",
+      detail: "Native launch session is invalid",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: parsed.kind === "absent" ? "HOST_NOT_CONNECTED" : "HOST_CONFIG_INVALID",
+      detail:
+        parsed.kind === "absent"
+          ? "Rust console host is not connected in this browser session"
+          : "Rust console host launch capability is invalid",
+    };
+  }
+  const response = await fetchNative(
+    `${parsed.bridge.endpoint}/v1/launches/${requestId}`,
+    parsed.bridge.token,
+    { method },
+    fetcher,
+    timeoutMs,
+  );
+  if (!response.ok) return response.failure;
+  if (!response.value.responseOk) return launchHttpFailure(response.value.status);
+  const launch = parseLaunchResponse(response.value.body);
+  if (!launch || launch.requestId !== requestId) return invalidLaunchDocument();
+  return { ok: true, launch };
+}
+
+type NativeFetchResult =
+  | {
+      ok: true;
+      value: { status: number; responseOk: boolean; body: unknown };
+    }
+  | { ok: false; failure: NativeHostFailure };
+
+async function fetchNative(
+  url: string,
+  token: string,
+  init: Pick<RequestInit, "method" | "headers" | "body">,
+  fetcher: typeof fetch,
+  timeoutMs: number,
+): Promise<NativeFetchResult> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    try {
+      const headers = new Headers(init.headers);
+      headers.set("Authorization", `Bearer ${token}`);
+      const response = await fetcher(url, {
+        ...init,
+        headers,
+        cache: "no-store",
+        credentials: "omit",
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        signal: controller.signal,
+      });
+      if (response.status === 401 || response.status === 403) {
+        return {
+          ok: false,
+          failure: {
+            ok: false,
+            code: "HOST_REJECTED",
+            detail: "Rust console host rejected this launcher session",
+          },
+        };
+      }
+      let body: unknown;
+      try {
+        body = await readBoundedJson(response);
+      } catch {
+        if (controller.signal.aborted) {
+          return { ok: false, failure: unreachableHost() };
+        }
+        if (response.ok || response.status === 422) {
+          return { ok: false, failure: invalidLaunchDocument() };
+        }
+      }
+      return {
+        ok: true,
+        value: {
+          status: response.status,
+          responseOk: response.ok,
+          body,
+        },
+      };
+    } catch {
+      return { ok: false, failure: unreachableHost() };
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function parseLaunchResponse(body: unknown): NativeLaunchSnapshot | undefined {
+  return isNativeLaunchSnapshot(body) ? body : undefined;
+}
+
+function launchHttpFailure(status: number): NativeHostFailure {
+  if (status === 404) {
+    return {
+      ok: false,
+      code: "LAUNCH_NOT_FOUND",
+      detail: "Native launch session or host-owned profile is not available",
+    };
+  }
+  return {
+    ok: false,
+    code: "PACKAGE_LAUNCH_FAILED",
+    detail:
+      status === 409
+        ? "Rust console host rejected a conflicting launch request"
+        : `Rust console host could not start the trusted package (status ${status})`,
+  };
+}
+
+function invalidLaunchDocument(): NativeHostFailure {
+  return {
+    ok: false,
+    code: "HOST_PROTOCOL_INVALID",
+    detail: "Rust console host returned an invalid launch document",
+  };
+}
+
 function unreachableHost(): NativeHostFailure {
   return {
     ok: false,
@@ -342,6 +595,65 @@ function isNativeInstalledPackage(value: unknown): value is NativeInstalledPacka
     (candidate.catalogGeneration as number) > 0 &&
     Object.keys(candidate).every((key) =>
       ["id", "version", "runtime", "catalogGeneration"].includes(key),
+    )
+  );
+}
+
+function isIntentId(value: string): boolean {
+  return (
+    value.length <= 80 &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+  );
+}
+
+function isRequestId(value: string): boolean {
+  return /^[0-9a-f]{32}$/.test(value);
+}
+
+function isNativeLaunchSnapshot(value: unknown): value is NativeLaunchSnapshot {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  const states: NativeLaunchState[] = [
+    "preparing",
+    "running",
+    "stopping",
+    "completed",
+    "failed",
+    "cancelled",
+  ];
+  const terminalWithExit = candidate.state === "completed" || candidate.state === "failed";
+  const hasValidExit = terminalWithExit
+    ? Object.hasOwn(candidate, "exitCode") &&
+      (candidate.exitCode === null || Number.isSafeInteger(candidate.exitCode))
+    : !Object.hasOwn(candidate, "exitCode");
+  return (
+    candidate.protocolVersion === HOST_API_PROTOCOL_VERSION &&
+    typeof candidate.requestId === "string" &&
+    isRequestId(candidate.requestId) &&
+    typeof candidate.gameId === "string" &&
+    isIntentId(candidate.gameId) &&
+    typeof candidate.profileId === "string" &&
+    isIntentId(candidate.profileId) &&
+    typeof candidate.state === "string" &&
+    states.includes(candidate.state as NativeLaunchState) &&
+    Number.isSafeInteger(candidate.sequence) &&
+    (candidate.sequence as number) > 0 &&
+    typeof candidate.detailCode === "string" &&
+    /^[A-Z][A-Z0-9_]{0,63}$/.test(candidate.detailCode) &&
+    typeof candidate.replayed === "boolean" &&
+    hasValidExit &&
+    Object.keys(candidate).every((key) =>
+      [
+        "protocolVersion",
+        "requestId",
+        "gameId",
+        "profileId",
+        "state",
+        "sequence",
+        "detailCode",
+        "replayed",
+        "exitCode",
+      ].includes(key),
     )
   );
 }

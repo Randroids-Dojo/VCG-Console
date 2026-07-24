@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { checkNativeHost, checkNativePackage, parseNativeHostBridge } from "./native-host-client";
+import {
+  cancelNativeLaunch,
+  checkNativeHost,
+  checkNativePackage,
+  createNativeLaunchRequestId,
+  getNativeLaunch,
+  parseNativeHostBridge,
+  startNativeLaunch,
+} from "./native-host-client";
 
 const TOKEN = "a".repeat(64);
 const HOST_URL = `http://127.0.0.1:5173/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${TOKEN}`;
@@ -259,5 +267,137 @@ describe("trusted native package catalog", () => {
       ok: false,
       code: "HOST_PROTOCOL_INVALID",
     });
+  });
+});
+
+describe("trusted native launch lifecycle", () => {
+  const requestId = "1".repeat(32);
+  const launchStatus = {
+    ...STATUS,
+    capabilities: [...STATUS.capabilities, "trusted-package-catalog", "trusted-package-launch"],
+  };
+  const running = {
+    protocolVersion: "0.1.0",
+    requestId,
+    gameId: "retro-2048",
+    profileId: "local-player",
+    state: "running",
+    sequence: 2,
+    detailCode: "PROCESS_STARTED",
+    replayed: false,
+  };
+
+  it("creates a fresh bounded correlation id without embedding intent", () => {
+    const first = createNativeLaunchRequestId();
+    const second = createNativeLaunchRequestId();
+    expect(first).toMatch(/^[0-9a-f]{32}$/);
+    expect(second).toMatch(/^[0-9a-f]{32}$/);
+    expect(second).not.toBe(first);
+  });
+
+  it("posts only versioned fixed intent and accepts a host-owned lifecycle record", async () => {
+    const requests: Array<{ url: string; method: string; authorization: string | null; body: string | null }> = [];
+    const fetcher = vi.fn<typeof fetch>(async (input, init) => {
+      const url = String(input);
+      requests.push({
+        url,
+        method: init?.method ?? "GET",
+        authorization: new Headers(init?.headers).get("authorization"),
+        body: typeof init?.body === "string" ? init.body : null,
+      });
+      return url.endsWith("/v1/status")
+        ? new Response(JSON.stringify(launchStatus), { status: 200 })
+        : new Response(JSON.stringify(running), { status: 202 });
+    });
+
+    await expect(
+      startNativeLaunch("retro-2048", "local-player", requestId, HOST_URL, fetcher, 100),
+    ).resolves.toEqual({ ok: true, status: launchStatus, launch: running });
+    expect(requests).toHaveLength(2);
+    expect(requests[1]).toEqual({
+      url: "http://127.0.0.1:43123/v1/launches",
+      method: "POST",
+      authorization: `Bearer ${TOKEN}`,
+      body: JSON.stringify({
+        protocolVersion: "0.1.0",
+        requestId,
+        gameId: "retro-2048",
+        profileId: "local-player",
+      }),
+    });
+    expect(JSON.stringify(requests)).not.toMatch(/path|sha256|program|command|environment/i);
+  });
+
+  it("preserves a verified pre-start failure as an observable idempotent record", async () => {
+    const failed = {
+      ...running,
+      state: "failed",
+      sequence: 2,
+      detailCode: "PROCESS_START_FAILED",
+      exitCode: null,
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(launchStatus), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(failed), { status: 422 }));
+
+    await expect(
+      startNativeLaunch("retro-2048", "local-player", requestId, HOST_URL, fetcher, 100),
+    ).resolves.toEqual({ ok: true, status: launchStatus, launch: failed });
+  });
+
+  it("reads and cancels lifecycle state with the same authenticated request id", async () => {
+    const stopping = {
+      ...running,
+      state: "stopping",
+      sequence: 3,
+      detailCode: "CANCEL_REQUESTED",
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(running), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(stopping), { status: 202 }));
+
+    await expect(getNativeLaunch(requestId, HOST_URL, fetcher, 100)).resolves.toEqual({
+      ok: true,
+      launch: running,
+    });
+    await expect(cancelNativeLaunch(requestId, HOST_URL, fetcher, 100)).resolves.toEqual({
+      ok: true,
+      launch: stopping,
+    });
+    expect(fetcher.mock.calls.map(([input, init]) => ({
+      url: String(input),
+      method: init?.method,
+      authorization: new Headers(init?.headers).get("authorization"),
+    }))).toEqual([
+      {
+        url: `http://127.0.0.1:43123/v1/launches/${requestId}`,
+        method: "GET",
+        authorization: `Bearer ${TOKEN}`,
+      },
+      {
+        url: `http://127.0.0.1:43123/v1/launches/${requestId}`,
+        method: "DELETE",
+        authorization: `Bearer ${TOKEN}`,
+      },
+    ]);
+  });
+
+  it("fails closed on invalid intent and mismatched lifecycle identity", async () => {
+    const unused = vi.fn<typeof fetch>();
+    await expect(
+      startNativeLaunch("../escape", "local-player", requestId, HOST_URL, unused, 100),
+    ).resolves.toMatchObject({ ok: false, code: "PACKAGE_LAUNCH_FAILED" });
+    expect(unused).not.toHaveBeenCalled();
+
+    const mismatched = {
+      ...running,
+      gameId: "another-game",
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(launchStatus), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(mismatched), { status: 202 }));
+    await expect(
+      startNativeLaunch("retro-2048", "local-player", requestId, HOST_URL, fetcher, 100),
+    ).resolves.toMatchObject({ ok: false, code: "HOST_PROTOCOL_INVALID" });
   });
 });

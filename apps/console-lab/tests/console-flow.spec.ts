@@ -141,9 +141,14 @@ test("native launch authenticates to the Rust host before checking installed pac
   expect(authorization).toBe(`Bearer ${token}`);
 });
 
-test("retro launch resolves only signed package metadata by game id", async ({ page }) => {
+test("retro launch submits only signed package and profile intent to the host", async ({ page }) => {
   const token = "c".repeat(64);
-  const observed: Array<{ url: string; authorization: string | undefined }> = [];
+  const observed: Array<{
+    url: string;
+    method: string;
+    authorization: string | undefined;
+    body?: unknown;
+  }> = [];
   await page.route("http://127.0.0.1:43124/v1/**", async (route) => {
     const request = route.request();
     if (request.method() === "OPTIONS") {
@@ -151,31 +156,64 @@ test("retro launch resolves only signed package metadata by game id", async ({ p
         status: 204,
         headers: {
           "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Authorization",
+          "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Authorization, Content-Type",
         },
       });
       return;
     }
-    observed.push({
+    const entry: (typeof observed)[number] = {
       url: request.url(),
+      method: request.method(),
       authorization: request.headers().authorization,
-    });
-    const body = request.url().endsWith("/v1/status")
-      ? {
+    };
+    if (request.method() === "POST") {
+      entry.body = request.postDataJSON();
+    }
+    observed.push(entry);
+
+    let status = 200;
+    let body: unknown;
+    if (request.url().endsWith("/v1/status")) {
+      body = {
           protocolVersion: "0.1.0",
           hostVersion: "0.1.0",
           target: "x86_64-windows",
-          capabilities: ["launcher-shell", "retroarch-plan", "trusted-package-catalog"],
-        }
-      : {
-          id: "retro-2048",
-          version: "1.0.0",
-          runtime: "libretro",
-          catalogGeneration: 7,
-        };
+          capabilities: [
+            "launcher-shell",
+            "retroarch-plan",
+            "trusted-package-catalog",
+            "trusted-package-launch",
+          ],
+      };
+    } else if (request.url().includes("/v1/packages/")) {
+      body = {
+        id: "retro-2048",
+        version: "1.0.0",
+        runtime: "libretro",
+        catalogGeneration: 7,
+      };
+    } else {
+      const intent = request.postDataJSON() as {
+        requestId: string;
+        gameId: string;
+        profileId: string;
+      };
+      status = 422;
+      body = {
+        protocolVersion: "0.1.0",
+        requestId: intent.requestId,
+        gameId: intent.gameId,
+        profileId: intent.profileId,
+        state: "failed",
+        sequence: 2,
+        detailCode: "PROCESS_START_FAILED",
+        replayed: false,
+        exitCode: null,
+      };
+    }
     await route.fulfill({
-      status: 200,
+      status,
       contentType: "application/json",
       headers: {
         "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
@@ -190,21 +228,33 @@ test("retro launch resolves only signed package metadata by game id", async ({ p
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
 
   const launch = page.getByRole("dialog", { name: "2048" });
-  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
-  await expect(launch.getByText(/Signed catalog entry 1.0.0 found in generation 7/)).toBeVisible();
+  await expect(launch.getByText("STOPPED")).toBeVisible();
+  await expect(
+    launch.getByText("The host could not start the verified package"),
+  ).toBeVisible();
   await launch.getByRole("button", { name: /Details/ }).click();
-  await expect(launch.getByText("PACKAGE_LAUNCH_PENDING")).toBeVisible();
-  expect(observed).toEqual([
-    {
-      url: "http://127.0.0.1:43124/v1/status",
-      authorization: `Bearer ${token}`,
-    },
+  await expect(launch.getByText("PROCESS_START_FAILED")).toBeVisible();
+  expect(observed.map(({ url, method }) => ({ url, method }))).toEqual([
+    { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
     {
       url: "http://127.0.0.1:43124/v1/packages/retro-2048",
-      authorization: `Bearer ${token}`,
+      method: "GET",
     },
+    { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
+    { url: "http://127.0.0.1:43124/v1/launches", method: "POST" },
   ]);
-  expect(JSON.stringify(observed)).not.toMatch(/sha256|frontend|core|config|path/i);
+  expect(observed.every(({ authorization }) => authorization === `Bearer ${token}`)).toBe(true);
+  expect(observed.at(-1)?.body).toMatchObject({
+    protocolVersion: "0.1.0",
+    gameId: "retro-2048",
+    profileId: "profile-randy",
+  });
+  expect(String((observed.at(-1)?.body as { requestId?: string })?.requestId)).toMatch(
+    /^[0-9a-f]{32}$/,
+  );
+  expect(JSON.stringify(observed)).not.toMatch(
+    /sha256|frontend|core|config|path|program|command|environment|root/i,
+  );
 });
 
 test("launch supervision distinguishes faults and recovers through retry", async ({ page }) => {

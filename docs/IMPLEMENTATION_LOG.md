@@ -415,3 +415,26 @@ I-009 closes as a contract task. Native network containment, optional-service in
 ### Remaining boundary
 
 This is package authority and safe discovery, not a production package lifecycle or game launch. Offline-root delegation, immutable public-key provisioning, key rotation/revocation, persisted channel-scoped anti-rollback, signed installation and atomic promotion, immutable verification-to-child binding, stable host profile IDs, launch replay/idempotency policy, lifecycle events, cancellation, visible readiness, reserved Home/Back, sandboxing, update/removal cleanup, and target-Linux evidence remain open under I-101, I-109, I-141, I-198, and I-209.
+
+## 2026-07-23: fixed-intent native launch lifecycle
+
+### Delivered
+
+- The authenticated host API now accepts only versioned 128-bit request ID, signed game ID, and host-allowlisted profile ID intent. Strict 1 KiB JSON and 8 KiB total request bounds, duplicate framing rejection, transfer-encoding rejection, exact route/method preflight, and unknown-field denial fail closed before launch.
+- Rust re-resolves the signed catalog, manifest, runtime artifacts, base configuration, content, storage roots, and final `RetroArchPlan`; the browser still cannot supply a program, path, command, hash, environment, or writable root.
+- A per-host-lifetime coordinator permits one active native game, retains at most 64 lifecycle records, replays identical request IDs without re-execution, rejects conflicting reuse, starts directly without a shell, observes exit, and cancels/reaps on request or host shutdown.
+- Lifecycle polling exposes only protocol, request/game/profile IDs, monotonic sequence, state, stable detail code, replay marker, and terminal exit code. Process IDs and native implementation details stay private.
+- Launcher profiles now carry bounded opaque desk-prototype IDs separately from display names. Host configuration must explicitly list launchable IDs with repeatable `--profile-id`; catalog-only mode remains metadata-only.
+- Svelte checks catalog and launch capabilities separately, submits fixed intent, validates lifecycle identity and nondecreasing sequence, polls while in progress, and requests cancellation on Exit, timeout, stale handoff, or invalid state. It reports process failure honestly and never converts process start into `READY`.
+- D-132 records the reversible launch boundary.
+
+### Verification evidence
+
+- Strict Rust formatting and Clippy pass. Fifty Rust library tests pass with four helper entrypoints intentionally ignored, and all 12 CLI parser tests pass.
+- Native tests cover host-profile allowlisting, invalid intent, signed direct process start, pre-start failure records, replay without re-execution, request conflict, lifecycle sequence, idempotent cancellation, route-specific preflight, duplicate/ambiguous framing, unexpected bodies, and metadata/path non-disclosure.
+- All workspace unit suites pass, including 41 console-lab tests. TypeScript tests cover fixed-intent POST, 422 lifecycle failure, identity validation, authenticated polling/cancellation, and absence of native authority fields.
+- Svelte reports zero errors and warnings; the production build and all four public manifest validations pass; all 18 Playwright flows pass. The Retro flow proves that its only POST body is protocol, random request ID, `retro-2048`, and `profile-randy`, then displays the host failure without inventing readiness.
+
+### Remaining boundary
+
+This is process lifecycle, not a qualified playable handoff. Request records are not persistent across host restart; the Svelte profile list is not a native persistent registry; polling is not a measured event transport; API-launched children do not yet use the heartbeat/restart watchdog; descendant process groups are not contained; cancellation is not yet proven under hostile children; no compositor window identity/readiness exists; and reserved Home/Back, re-entry, immutable artifact handoff, target-Linux sandboxing, service-manager recovery, and hardware evidence remain open.
