@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-24",
   "evidenceClass": "windows-x64-godot-export-web-load-and-wsl-x86-boot",
   "qualification": "desk-export-and-load-only-not-target-qualification",
-  "retrievedAtUtc": "2026-07-24T20:49:41.974Z",
+  "retrievedAtUtc": "2026-07-24T21:08:37.374Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -93,7 +93,7 @@
       "preset": "Web",
       "target": "wasm32-web-unthreaded",
       "fileCount": 9,
-      "totalBytes": 39866665,
+      "totalBytes": 39867945,
       "files": [
         {
           "path": "artifacts/godot-motion/web/index.apple-touch-icon.png",
@@ -113,7 +113,7 @@
         {
           "path": "artifacts/godot-motion/web/index.html",
           "bytes": 5449,
-          "sha256": "3b994d83ca53acf6d2c4aa7869d3c7a545b9c561ce4804f5cdc7175c2713a6d7"
+          "sha256": "f4680a7c520c0e26b5709ef6dd34db53b7dce65f46393ba8e1b2f2d98e4e3dc2"
         },
         {
           "path": "artifacts/godot-motion/web/index.icon.png",
@@ -127,8 +127,8 @@
         },
         {
           "path": "artifacts/godot-motion/web/index.pck",
-          "bytes": 18952,
-          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+          "bytes": 20232,
+          "sha256": "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a"
         },
         {
           "path": "artifacts/godot-motion/web/index.png",
@@ -152,12 +152,12 @@
         "machineCode": 62
       },
       "fileCount": 2,
-      "totalBytes": 73489216,
+      "totalBytes": 73490496,
       "files": [
         {
           "path": "artifacts/godot-motion/linux-x86_64/vcg-tiny-motion-game.pck",
-          "bytes": 18952,
-          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+          "bytes": 20232,
+          "sha256": "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a"
         },
         {
           "path": "artifacts/godot-motion/linux-x86_64/vcg-tiny-motion-game.x86_64",
@@ -184,7 +184,7 @@
         "machineCode": 183
       },
       "fileCount": 2,
-      "totalBytes": 67065624,
+      "totalBytes": 67066904,
       "files": [
         {
           "path": "artifacts/godot-motion/linux-arm64/vcg-tiny-motion-game.arm64",
@@ -193,8 +193,8 @@
         },
         {
           "path": "artifacts/godot-motion/linux-arm64/vcg-tiny-motion-game.pck",
-          "bytes": 18952,
-          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+          "bytes": 20232,
+          "sha256": "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a"
         }
       ],
       "executionAttempted": false
@@ -205,7 +205,7 @@
     "originClass": "random-loopback-http",
     "path": "/index.html",
     "httpStatus": 200,
-    "readyMs": 710.38,
+    "readyMs": 722.712,
     "document": {
       "title": "VCG Tiny Motion Game",
       "readyState": "complete",
@@ -273,13 +273,13 @@
     "scenePath": "examples/godot-motion-game/main.tscn",
     "scenePathSha256": "95871e3b1cfe4a52dafcc882f22af42b254a03d9d3341fb3475bb165aa6b9df7",
     "mainScriptPath": "examples/godot-motion-game/scripts/main.gd",
-    "mainScriptPathSha256": "f118b309c097bfd53b56019186dbd2cea3f3164e9c955f04f957e90827dd392a",
+    "mainScriptPathSha256": "428fd945c8129c8839f8a5c139fb4976f553f4c40a95542c8671ca25265f0a09",
     "gameScriptPath": "examples/godot-motion-game/scripts/motion_game.gd",
     "gameScriptPathSha256": "ebd32337fc6cc4aa4caa328117c8b9e761aa62f2723daf980ed6e522df8313cc",
     "presetPath": "examples/godot-motion-game/export_presets.cfg",
     "presetPathSha256": "d00238a434fd970c06f16757994626c0f838d5342856ce431354e5746fc6d1cd",
     "generatorPath": "scripts/generate-godot-export-evidence.mjs",
-    "generatorPathSha256": "a43c6321d7bfb7e3f50d67e3b3f6ce5bd36daab69c2a6bb5ac2e98b3f710c86d",
+    "generatorPathSha256": "d67cd7ab372aba6bf2bf85056b40ab5855d73b5582f9d224795a8e68c54ac18c",
     "validatorPath": "scripts/validate-godot-export-evidence.mjs",
     "validatorPathSha256": "03b98cc11670c789dea824e0050046fb8857b17c8f1c442357682f162aa1bd35"
   },

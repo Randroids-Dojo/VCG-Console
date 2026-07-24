@@ -1,8 +1,10 @@
 extends Control
 
 const TinyGame := preload("res://scripts/motion_game.gd")
+const WebBridge := preload("res://scripts/motion_web_bridge.gd")
 
 var _game: RefCounted
+var _bridge: RefCounted
 var _title: Label
 var _state: Label
 var _help: Label
@@ -13,6 +15,12 @@ func _ready() -> void:
 	_game = TinyGame.new()
 	_game.changed.connect(_render)
 	_render(_game.current_snapshot())
+	_start_host_configured_web_bridge()
+
+
+func _exit_tree() -> void:
+	if _bridge != null:
+		_bridge.stop()
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -74,3 +82,21 @@ func _publish_web_export_probe(snapshot: Dictionary) -> void:
 	JavaScriptBridge.eval(
 		"globalThis.__vcgGodotExportProbe = Object.freeze(%s);" % JSON.stringify(value)
 	)
+
+
+func _start_host_configured_web_bridge() -> void:
+	if not OS.has_feature("web"):
+		return
+	if JavaScriptBridge.eval(
+		"typeof globalThis.__vcgGodotMotionHostConfig"
+	) != "object":
+		return
+	var config := JavaScriptBridge.get_interface("__vcgGodotMotionHostConfig")
+	if config == null:
+		return
+	var target_origin_value: Variant = config.targetOrigin
+	if typeof(target_origin_value) != TYPE_STRING:
+		return
+	_bridge = WebBridge.new(_game, String(target_origin_value))
+	if not _bridge.start():
+		_bridge = null

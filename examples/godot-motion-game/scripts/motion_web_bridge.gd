@@ -4,6 +4,7 @@ extends RefCounted
 const PROTOCOL_VERSION := 2
 const MOTION_API_SCHEMA_VERSION := "0.4.0"
 const ORIGIN_PATTERN := "^https?://[A-Za-z0-9.-]+(?::[0-9]{1,5})?$"
+const MAX_SAFE_INTEGER := 9_007_199_254_740_991.0
 
 var _game: RefCounted
 var _target_origin: String
@@ -111,8 +112,20 @@ func _on_message(arguments: Array) -> void:
 		if message.get("sessionId") != _session_id or typeof(message.get("frame")) != TYPE_DICTIONARY:
 			return
 		var frame: Dictionary = message["frame"]
-		if _game.accept_frame(frame) and typeof(frame.get("sequence")) == TYPE_INT:
-			_helper.ack(_target_origin, _session_id, frame["sequence"])
+		var sequence_value: Variant = frame.get("sequence")
+		if not valid_json_sequence(sequence_value):
+			return
+		var sequence := int(sequence_value)
+		frame["sequence"] = sequence
+		if _game.accept_frame(frame):
+			_helper.ack(_target_origin, _session_id, sequence)
+
+
+static func valid_json_sequence(value: Variant) -> bool:
+	if typeof(value) not in [TYPE_INT, TYPE_FLOAT]:
+		return false
+	var numeric := float(value)
+	return is_finite(numeric) and numeric >= 0.0 and numeric <= MAX_SAFE_INTEGER and floor(numeric) == numeric
 
 
 func _valid_origin(value: String) -> bool:

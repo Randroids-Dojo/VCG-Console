@@ -141,7 +141,7 @@ export const GODOT_EXPECTED_OUTPUT_FILES = Object.freeze([
   Object.freeze({
     path: "artifacts/godot-motion/web/index.html",
     bytes: 5_449,
-    sha256: "3b994d83ca53acf6d2c4aa7869d3c7a545b9c561ce4804f5cdc7175c2713a6d7",
+    sha256: "f4680a7c520c0e26b5709ef6dd34db53b7dce65f46393ba8e1b2f2d98e4e3dc2",
   }),
   Object.freeze({
     path: "artifacts/godot-motion/web/index.icon.png",
@@ -155,8 +155,8 @@ export const GODOT_EXPECTED_OUTPUT_FILES = Object.freeze([
   }),
   Object.freeze({
     path: "artifacts/godot-motion/web/index.pck",
-    bytes: 18_952,
-    sha256: "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca",
+    bytes: 20_232,
+    sha256: "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a",
   }),
   Object.freeze({
     path: "artifacts/godot-motion/web/index.png",
@@ -170,8 +170,8 @@ export const GODOT_EXPECTED_OUTPUT_FILES = Object.freeze([
   }),
   Object.freeze({
     path: "artifacts/godot-motion/linux-x86_64/vcg-tiny-motion-game.pck",
-    bytes: 18_952,
-    sha256: "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca",
+    bytes: 20_232,
+    sha256: "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a",
   }),
   Object.freeze({
     path:
@@ -186,8 +186,8 @@ export const GODOT_EXPECTED_OUTPUT_FILES = Object.freeze([
   }),
   Object.freeze({
     path: "artifacts/godot-motion/linux-arm64/vcg-tiny-motion-game.pck",
-    bytes: 18_952,
-    sha256: "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca",
+    bytes: 20_232,
+    sha256: "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a",
   }),
 ]);
 

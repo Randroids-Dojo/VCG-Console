@@ -1,7 +1,7 @@
 # Motion SDK authoring guide
 
-Status: runnable web and Godot quickstarts plus desk export evidence implemented;
-target qualification pending
+Status: runnable web and Godot quickstarts plus cross-origin desk bridge
+evidence implemented; target qualification pending
 
 Authority: Motion API 0.4, bridge v2, D-004, D-006, D-059, and I-086
 
@@ -138,7 +138,9 @@ consumer boundary in GDScript:
 
 The reviewed console origin must come from host-owned package configuration.
 The sample deliberately rejects path-bearing origins and does not read an
-origin from a page query string. It requires `body.core17`, requests
+origin from a page query string. Its Web main scene reads only a
+response-injected, frozen `globalThis.__vcgGodotMotionHostConfig` object and
+stays offline when the object is absent. It requires `body.core17`, requests
 `actions.obstacle.v1` as optional, and acknowledges only an exact sequence
 after the game consumer accepts the frame.
 
@@ -148,7 +150,7 @@ Validate the sample with Godot 4.7:
 pnpm validate:godot
 ```
 
-The validator runs three GDScript contract tests, imports and parses the
+The validator runs four GDScript contract tests, imports and parses the
 complete project, and boots the main scene. Set `GODOT_BIN` when the executable
 is not on `PATH`. The reference scene demonstrates controller fallback while
 keeping Home and Back platform-owned.
@@ -169,7 +171,9 @@ aligned with the current contracts.
 The Godot headless tests independently cover all 17 portable landmark names,
 triggered-versus-held semantics, shell-action exclusion, controller recovery,
 deterministic replay, raw-frame denial, unsafe-origin denial, and non-web
-live-bridge denial.
+live-bridge denial. They also pin the adapter rule that JSON integral floats
+must be finite, non-negative safe integers before normalization to the
+GDScript integer required by the game consumer.
 
 The checked-in Godot release presets now produce unthreaded Web, Linux x86-64,
 and Linux ARM64 outputs with exact Godot 4.7.1 templates. The dated Windows
@@ -179,16 +183,25 @@ keyboard fallback produce the expected game states. The x86-64 ELF boots
 headlessly under WSL2; the ARM64 ELF has the expected AArch64 identity but was
 not executed.
 
-Run the offline evidence gate:
+One additional Chrome desk run embeds the actual Web export from a
+`localhost` child origin in an `127.0.0.1` parent fixture. The HTTP response
+injects the exact parent origin without a URL parameter. The existing
+`MotionBridgeHost` negotiates bridge v2/Motion 0.4, publishes two deterministic
+synthetic `body.core17` frames, the Godot probe reaches `LANDMARKS ACTIVE`, and
+both exact acknowledgements clear before the next publication. The run has
+zero console, page, and request errors.
+
+Run the offline evidence gates:
 
 ```powershell
 pnpm validate:godot-exports
+pnpm validate:godot-web-bridge
 ```
 
 This advances both quickstart source paths for I-086 but keeps the
-investigation active until a real physical controller and reviewed Motion
-bridge negotiate with the export, target ARM64/x86-64 execution is observed,
-and the tooling and camera/landmark/action latency comparison is recorded
-under I-077/Q-058. Neither sample replaces real-player action qualification,
-signed permission grants, target origin containment, or native
-reserved-control enforcement.
+investigation active until a real physical controller and real tracker
+exercise the export, target ARM64/x86-64 execution is observed, and the
+tooling and camera/landmark/action latency comparison is recorded under
+I-077/Q-058. The desk host is not production launcher authority and does not
+replace signed permission grants, real-player action qualification, target
+origin containment, or native reserved-control enforcement.

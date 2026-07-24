@@ -15,8 +15,9 @@ func _run() -> void:
 	_test_landmarks_actions_and_fallback()
 	_test_replay_is_deterministic_and_raw_free()
 	_test_bridge_denies_non_web_and_unsafe_origins()
+	_test_bridge_normalizes_json_sequences()
 	if _failures.is_empty():
-		print("Godot Motion sample: 3 tests passed")
+		print("Godot Motion sample: 4 tests passed")
 		quit(0)
 	else:
 		for failure in _failures:
@@ -69,6 +70,15 @@ func _test_bridge_denies_non_web_and_unsafe_origins() -> void:
 	_expect(not unsafe.start(), "path-bearing origin must be rejected")
 	var headless := WebBridge.new(game, "https://console.example")
 	_expect(not headless.start(), "non-web runtime must not claim a live web bridge")
+
+
+func _test_bridge_normalizes_json_sequences() -> void:
+	_expect(WebBridge.valid_json_sequence(0.0), "integral JSON sequence should be accepted")
+	_expect(WebBridge.valid_json_sequence(9_007_199_254_740_991.0), "maximum safe JSON sequence should be accepted")
+	_expect(not WebBridge.valid_json_sequence(-1.0), "negative JSON sequence must be rejected")
+	_expect(not WebBridge.valid_json_sequence(0.5), "fractional JSON sequence must be rejected")
+	_expect(not WebBridge.valid_json_sequence(INF), "non-finite JSON sequence must be rejected")
+	_expect(not WebBridge.valid_json_sequence("1"), "string JSON sequence must be rejected")
 
 
 func _frame(sequence: int, timestamp_ms: int, hip_x: float, actions: Array = []) -> Dictionary:

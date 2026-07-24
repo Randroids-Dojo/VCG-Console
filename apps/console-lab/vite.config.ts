@@ -140,6 +140,7 @@ const documentPolicies = new Map<string, string>([
   ["/bridge-client.html", sameOriginBridgeClientCsp],
   ["/bridge-stalled-client.html", sameOriginBridgeClientCsp],
   ["/bridge-cross-origin-host.html", crossOriginBridgeHostCsp],
+  ["/godot-bridge-host.html", crossOriginBridgeHostCsp],
   ["/bridge-cross-origin-client.html", crossOriginBridgeClientCsp],
   ["/bridge-hostile-client.html", crossOriginBridgeClientCsp],
   ["/browser-policy-host.html", hostilePolicyHostCsp],
@@ -210,6 +211,9 @@ export default defineConfig({
         ),
         bridgeCrossOriginHost: fileURLToPath(
           new URL("./bridge-cross-origin-host.html", import.meta.url),
+        ),
+        godotBridgeHost: fileURLToPath(
+          new URL("./godot-bridge-host.html", import.meta.url),
         ),
         bridgeCrossOriginClient: fileURLToPath(
           new URL("./bridge-cross-origin-client.html", import.meta.url),

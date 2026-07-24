@@ -3857,3 +3857,42 @@ a physical gamepad or recovery remote. No live Motion bridge, camera, tracker,
 participant, native IPC, signed package, target compositor/service manager,
 ordinary x86-64 Linux, ARM64 execution, GPU/audio, or camera-to-action latency
 was tested. WSL2 remains same-host virtualized evidence, so Q-058 cannot close.
+
+## 2026-07-24: Godot cross-origin Web Motion bridge evidence
+
+### Delivered
+
+- Wired the Web main scene to an exact parent origin supplied only through a
+  frozen response-injected host configuration object; no URL parameter gains
+  origin authority and a normal unconfigured export stays offline.
+- Added a console-lab fixture using the existing `MotionBridgeHost`, served the
+  actual byte-pinned Godot export from a distinct sandboxed loopback origin,
+  and applied restrictive parent and child response policies.
+- Fixed a defect found by the first live run: Godot JSON parsing materialized
+  integral frame sequences as floats, but the game required integers. The
+  adapter now bounds values to finite, non-negative, exactly integral
+  JavaScript-safe numbers and normalizes before consumption and ACK.
+- Added a 64 KiB-bounded hash-bound artifact, strict validator, ten mutation
+  tests, an offline validation command, and a detailed evidence report.
+
+### Verification evidence
+
+- Chrome `150.0.7871.182` negotiated one bridge v2/Motion 0.4 session across
+  distinct random `127.0.0.1` and `localhost` origins.
+- The host published two deterministic `body.core17` frames. Godot reached
+  `inputSource=motion` and `LANDMARKS ACTIVE`, and both exact ACKs cleared
+  pending state before the next publication.
+- The injected config matched the exact parent, was frozen/non-writable, and
+  the child URL query was empty. Console, page, request-failure, and invalid-ACK
+  counts were all zero.
+- Four Godot headless tests and ten evidence mutation tests pass. The mutation
+  suite rejects origin/config/query drift, protocol/schema substitution,
+  frame/ACK/state changes, hidden errors, physical evidence fabrication,
+  authority/target/latency promotion, stale provenance, and unknown claims.
+
+### Remaining boundary
+
+I-077 and I-086 remain active. This is a synthetic same-host desk fixture, not
+the privileged native package server, signed permission admission, production
+compositor, physical controller, real tracker, participant, target Linux or
+ARM64 system, native IPC, package lifecycle, or latency qualification.

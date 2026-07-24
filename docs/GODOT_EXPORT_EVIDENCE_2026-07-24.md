@@ -3,8 +3,9 @@
 Evidence date: 2026-07-24
 
 Status: Windows desk export and browser-load evidence complete; I-077, I-086,
-and Q-058 remain active for live Motion, physical-controller, target, latency,
-and engine-comparison evidence.
+and Q-058 remain active for physical-controller, target, latency, and
+engine-comparison evidence. Live synthetic bridge evidence is recorded
+separately in `GODOT_WEB_BRIDGE_EVIDENCE_2026-07-24.md`.
 
 ## Result
 
@@ -31,13 +32,13 @@ This is desk evidence, not target or product qualification.
 
 | Preset | Files | Total bytes | Strongest executed evidence |
 |---|---:|---:|---|
-| Web | 9 | 39,866,665 | HTTP 200 required assets, complete document, 960×540 canvas, bounded game probe, two keyboard fallback actions |
-| Linux x86-64 | 2 | 73,489,216 | ELF64 machine 62 and a clean one-second headless WSL2 boot |
-| Linux ARM64 | 2 | 67,065,624 | ELF64 machine 183; no execution attempted |
+| Web | 9 | 39,867,945 | HTTP 200 required assets, complete document, 960×540 canvas, bounded game probe, two keyboard fallback actions |
+| Linux x86-64 | 2 | 73,490,496 | ELF64 machine 62 and a clean one-second headless WSL2 boot |
+| Linux ARM64 | 2 | 67,066,904 | ELF64 machine 183; no execution attempted |
 
-The 18,952-byte project pack is byte-identical across all three targets at
+The 20,232-byte project pack is byte-identical across all three targets at
 SHA-256
-`608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca`.
+`b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a`.
 The complete per-file ledger is in
 `benchmarks/godot/windows-x64-godot-4.7.1-export-v1.json`.
 
@@ -105,9 +106,10 @@ stale source provenance, weakened limitations, and unknown claims.
 ## Claim boundary
 
 No camera, tracker, Motion frame, participant, physical controller, recovery
-remote, native Motion IPC, or live web-bridge negotiation was present. The
-loopback page did not run through the production console wrapper or signed
-package launcher.
+remote, native Motion IPC, or live web-bridge negotiation was present in this
+base export run. The separate Godot web-bridge artifact adds synthetic bridge
+evidence without promoting it into production authority. Neither loopback
+fixture ran through the production console wrapper or signed package launcher.
 
 WSL2 is a virtualized same-host observation, not ordinary target Linux. The
 ARM64 executable was never run. No GPU/audio behavior, safe area, full-screen,
