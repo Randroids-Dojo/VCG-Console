@@ -6,12 +6,14 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
+use fs4::TryLockError;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 use crate::installed_catalog::{
     CatalogError, CatalogRoots, ResolvedPackage, TrustedPackageCatalog,
 };
+use crate::native_launch::{NativeLaunchError, NativeLaunchService};
 use crate::package_health::{CandidateHealthChecker, CandidateHealthError, CandidateHealthRequest};
 use crate::package_intake::{
     CapacityAdmission, PackageIntakeError, PackageIntakeStats, VerifiedPackageRelease,
@@ -24,6 +26,7 @@ use crate::retroarch::plan as plan_retroarch;
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
 const MAX_MARKER_BYTES: u64 = 1_024;
 const INTENT_FILE: &str = "promotion.intent";
+const OPERATION_LOCK_FILE: &str = ".vcg-package-store.lock";
 const STAGED_INTENT_FILE: &str = ".vcg-promotion-intent";
 const STAGED_TRANSFER_RECEIPT_FILE: &str = ".vcg-transfer-receipt.json";
 const STAGED_TRANSFER_RECEIPT_SCHEMA_VERSION: u32 = 1;
@@ -91,6 +94,7 @@ pub struct GenerationCleanupPlan {
 #[derive(Clone, Debug)]
 pub struct PackageGenerationStore {
     root: PathBuf,
+    operation_lock: PathBuf,
     staging: PathBuf,
     generations: PathBuf,
     activations: PathBuf,
@@ -120,6 +124,11 @@ impl PackageGenerationStore {
         validate_absolute("data root", &config.data_root)?;
 
         let root = canonical_directory("store root", &config.store_root)?;
+        let operation_lock = canonical_direct_file(
+            "package store operation lock",
+            &root,
+            &root.join(OPERATION_LOCK_FILE),
+        )?;
         let staging = canonical_child_directory(&root, "staging")?;
         let generations = canonical_child_directory(&root, "generations")?;
         let activations = canonical_child_directory(&root, "activations")?;
@@ -132,6 +141,7 @@ impl PackageGenerationStore {
 
         Ok(Self {
             root,
+            operation_lock,
             staging,
             generations,
             activations,
@@ -174,7 +184,8 @@ impl PackageGenerationStore {
         &self,
         retain_count: usize,
     ) -> Result<GenerationCleanupPlan, GenerationError> {
-        self.plan_cleanup_with_protected_generations(retain_count, &[])
+        let _operation = self.acquire_operation_lock()?;
+        self.plan_cleanup_unlocked(retain_count, &[])
     }
 
     /// Classifies package generations while retaining exact generations that
@@ -188,7 +199,41 @@ impl PackageGenerationStore {
     ///
     /// Rejects invalid protection values in addition to the errors returned by
     /// [`Self::plan_cleanup`].
-    pub fn plan_cleanup_with_protected_generations(
+    #[cfg(test)]
+    fn plan_cleanup_with_protected_generations(
+        &self,
+        retain_count: usize,
+        protected_generations: &[u64],
+    ) -> Result<GenerationCleanupPlan, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
+        self.plan_cleanup_unlocked(retain_count, protected_generations)
+    }
+
+    /// Derives a cleanup plan while fresh native launch admission and every
+    /// cooperating package-store mutation are both frozen.
+    ///
+    /// Lock order is launch maintenance first, then package store. The plan is
+    /// still read-only and grants no deletion authority; this operation merely
+    /// closes the race between obtaining native generation protection and
+    /// validating package history.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unavailable launch protection, package-store lock contention,
+    /// invalid retention/protection, recovery-required state, or malformed
+    /// package history.
+    pub fn plan_cleanup_for_launch_service(
+        &self,
+        retain_count: usize,
+        launch_service: &NativeLaunchService,
+    ) -> Result<GenerationCleanupPlan, GenerationError> {
+        let launch_maintenance = launch_service.acquire_maintenance()?;
+        let _operation = self.acquire_operation_lock()?;
+        let protected = launch_maintenance.protected_catalog_generations()?;
+        self.plan_cleanup_unlocked(retain_count, &protected)
+    }
+
+    fn plan_cleanup_unlocked(
         &self,
         retain_count: usize,
         protected_generations: &[u64],
@@ -289,6 +334,7 @@ impl PackageGenerationStore {
         archive_path: &Path,
         reserve_bytes: u64,
     ) -> Result<StagedPackageGeneration, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         validate_transaction_id(transaction_id)?;
         if self.recovery_required()? {
             return Err(GenerationError::RecoveryRequired);
@@ -322,6 +368,7 @@ impl PackageGenerationStore {
         descriptor_signature_path: &Path,
         reserve_bytes: u64,
     ) -> Result<StagedPackageGeneration, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         let transaction_id = transfer.transaction_id();
         validate_transaction_id(transaction_id)?;
         if self.recovery_required()? {
@@ -352,6 +399,7 @@ impl PackageGenerationStore {
         &self,
         transfer: PackageArchiveTransfer,
     ) -> Result<PackageTransferCleanup, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         let transaction_id = transfer.transaction_id();
         validate_transaction_id(transaction_id)?;
         if self.recovery_required()? {
@@ -618,6 +666,7 @@ impl PackageGenerationStore {
         transaction_id: &str,
         checker: &CandidateHealthChecker,
     ) -> Result<PromotionOutcome, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         self.promote_health_checked_with(transaction_id, |request| checker.check(request))
     }
 
@@ -749,6 +798,7 @@ impl PackageGenerationStore {
         &self,
         transaction_id: &str,
     ) -> Result<PromotionOutcome, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         self.activate_verified(transaction_id, None)
     }
 
@@ -762,6 +812,7 @@ impl PackageGenerationStore {
     ///
     /// Rejects inconsistent or changed candidate state and downgrades.
     pub fn recover(&self) -> Result<RecoveryOutcome, GenerationError> {
+        let _operation = self.acquire_operation_lock()?;
         let intent_path = self.root.join(INTENT_FILE);
         if !intent_path.exists() {
             return Ok(RecoveryOutcome::Clean);
@@ -951,6 +1002,44 @@ impl PackageGenerationStore {
     fn activation_path(&self, generation: u64) -> PathBuf {
         self.activations.join(format!("{generation:020}.json"))
     }
+
+    fn acquire_operation_lock(&self) -> Result<PackageStoreOperationLock, GenerationError> {
+        let path = self.operation_lock.clone();
+        require_regular_file(&path, "package store operation lock")?;
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .map_err(|source| GenerationError::Io {
+                operation: "open package store operation lock",
+                path: path.clone(),
+                source,
+            })?;
+        let metadata = file.metadata().map_err(|source| GenerationError::Io {
+            operation: "inspect package store operation lock",
+            path: path.clone(),
+            source,
+        })?;
+        if !metadata.file_type().is_file() {
+            return Err(GenerationError::UnsafePath {
+                kind: "package store operation lock",
+                path,
+            });
+        }
+        match fs4::FileExt::try_lock(&file) {
+            Ok(()) => Ok(PackageStoreOperationLock { _file: file }),
+            Err(TryLockError::WouldBlock) => Err(GenerationError::Busy),
+            Err(TryLockError::Error(source)) => Err(GenerationError::Io {
+                operation: "lock package store operation",
+                path,
+                source,
+            }),
+        }
+    }
+}
+
+struct PackageStoreOperationLock {
+    _file: File,
 }
 
 struct VerifiedRelease {
@@ -1380,6 +1469,7 @@ pub enum GenerationError {
         source: io::Error,
     },
     Catalog(CatalogError),
+    Launch(NativeLaunchError),
     Health(CandidateHealthError),
     Intake(PackageIntakeError),
     Transfer(PackageTransferError),
@@ -1395,6 +1485,7 @@ pub enum GenerationError {
     StagedTransferReceiptMismatch(String),
     IntakeDescriptorMismatch(String),
     MarkerMismatch(String),
+    Busy,
     RecoveryRequired,
     RollbackRejected {
         current: u64,
@@ -1427,6 +1518,7 @@ impl fmt::Display for GenerationError {
                 path.display()
             ),
             Self::Catalog(error) => write!(formatter, "{error}"),
+            Self::Launch(error) => write!(formatter, "{error}"),
             Self::Health(error) => write!(formatter, "{error}"),
             Self::Intake(error) => write!(formatter, "{error}"),
             Self::Transfer(error) => write!(formatter, "{error}"),
@@ -1460,6 +1552,7 @@ impl fmt::Display for GenerationError {
             Self::MarkerMismatch(error) => {
                 write!(formatter, "package activation marker is invalid: {error}")
             }
+            Self::Busy => formatter.write_str("package store operation is already in progress"),
             Self::RecoveryRequired => formatter.write_str("package promotion recovery is required"),
             Self::RollbackRejected { current, candidate } => write!(
                 formatter,
@@ -1498,6 +1591,7 @@ impl std::error::Error for GenerationError {
         match self {
             Self::Io { source, .. } | Self::IntakeCleanup { source, .. } => Some(source),
             Self::Catalog(error) => Some(error),
+            Self::Launch(error) => Some(error),
             Self::Health(error) => Some(error),
             Self::Intake(error) => Some(error),
             Self::Transfer(error) => Some(error),
@@ -1510,6 +1604,12 @@ impl std::error::Error for GenerationError {
 impl From<CatalogError> for GenerationError {
     fn from(error: CatalogError) -> Self {
         Self::Catalog(error)
+    }
+}
+
+impl From<NativeLaunchError> for GenerationError {
+    fn from(error: NativeLaunchError) -> Self {
+        Self::Launch(error)
     }
 }
 
@@ -1535,6 +1635,7 @@ impl From<PackageTransferError> for GenerationError {
 mod tests {
     use std::fs::{self, File};
     use std::path::{Path, PathBuf};
+    use std::sync::Arc;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use ed25519_dalek::{Signer, SigningKey};
@@ -1544,11 +1645,12 @@ mod tests {
 
     use super::{
         ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, GenerationError, INTENT_FILE,
-        PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
-        STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker, publish_intent,
-        read_marker,
+        OPERATION_LOCK_FILE, PackageGenerationConfig, PackageGenerationStore, PromotionOutcome,
+        RecoveryOutcome, STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker,
+        publish_intent, read_marker,
     };
     use crate::installed_catalog::PackageHealthCheck;
+    use crate::native_launch::NativeLaunchService;
     use crate::package_health::CandidateHealthChecker;
     use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
     use crate::package_transfer::{
@@ -1589,6 +1691,8 @@ mod tests {
             ] {
                 fs::create_dir_all(directory).expect("fixture directory creates");
             }
+            File::create(root.join(OPERATION_LOCK_FILE))
+                .expect("package store operation lock creates");
             let signing_key = SigningKey::from_bytes(&[23_u8; 32]);
             let public_key = root.join("catalog-public-key.hex");
             fs::write(&public_key, hex(signing_key.verifying_key().as_bytes()))
@@ -2419,6 +2523,106 @@ mod tests {
                 orphan_generations: Vec::new(),
             }
         );
+    }
+
+    #[test]
+    fn cleanup_planning_composes_launch_maintenance_with_store_serialization() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        fixture.stage("install-seven", 7, "1.0.0");
+        store
+            .promote_without_health("install-seven")
+            .expect("generation promotes");
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+
+        assert_eq!(
+            store
+                .plan_cleanup_for_launch_service(2, &service)
+                .expect("coordinated cleanup plan derives"),
+            super::GenerationCleanupPlan {
+                active_generation: Some(7),
+                protected_generations: Vec::new(),
+                retained_generations: vec![7],
+                retired_generations: Vec::new(),
+                orphan_generations: Vec::new(),
+            }
+        );
+    }
+
+    #[test]
+    fn package_store_operation_lock_fails_closed_across_open_handles() {
+        let fixture = Fixture::new();
+        let first = fixture.store();
+        let second = fixture.store();
+        let operation = first
+            .acquire_operation_lock()
+            .expect("first operation lock acquires");
+
+        assert!(matches!(second.plan_cleanup(2), Err(GenerationError::Busy)));
+        assert!(matches!(second.recover(), Err(GenerationError::Busy)));
+
+        drop(operation);
+        assert_eq!(
+            second
+                .plan_cleanup(2)
+                .expect("planning resumes after operation"),
+            super::GenerationCleanupPlan {
+                active_generation: None,
+                protected_generations: Vec::new(),
+                retained_generations: Vec::new(),
+                retired_generations: Vec::new(),
+                orphan_generations: Vec::new(),
+            }
+        );
+    }
+
+    #[test]
+    fn package_store_operation_lock_must_remain_a_regular_inert_file() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        let lock_path = fixture.root.join(OPERATION_LOCK_FILE);
+        assert_eq!(
+            fs::read(&lock_path).expect("operation lock reads"),
+            Vec::<u8>::new(),
+            "the lock must contain no authority or progress"
+        );
+
+        fs::remove_file(&lock_path).expect("test lock file removes");
+        fs::create_dir(&lock_path).expect("test lock directory creates");
+        assert!(matches!(
+            store.plan_cleanup(2),
+            Err(GenerationError::UnsafePath {
+                kind: "package store operation lock",
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn package_store_requires_a_preprovisioned_operation_lock() {
+        let fixture = Fixture::new();
+        fs::remove_file(fixture.root.join(OPERATION_LOCK_FILE))
+            .expect("test operation lock removes");
+
+        assert!(matches!(
+            PackageGenerationStore::open(PackageGenerationConfig {
+                store_root: fixture.root.clone(),
+                public_key_path: fixture.public_key.clone(),
+                content_root: Some(fixture.content.clone()),
+                runtime_root: fixture.runtime.clone(),
+                data_root: fixture.data.clone(),
+            }),
+            Err(GenerationError::Io {
+                operation: "resolve file",
+                ..
+            })
+        ));
     }
 
     #[test]

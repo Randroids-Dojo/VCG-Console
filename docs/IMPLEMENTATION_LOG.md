@@ -782,6 +782,26 @@ Catalog membership is availability metadata, not proof that artifacts remain exe
 
 The cleanup mechanism does not decide retention. No automatic age/space policy, low-space coordinator, network client, transfer scheduler, or generation deletion is enabled. Target-Linux directory synchronization/lock behavior, sudden-power removal, hostile noncooperating writers, service serialization, and operator-visible recovery still require qualification.
 
+## 2026-07-24: serialized package maintenance planning
+
+### Delivered
+
+- Added one persistent inert generation-store operation lock. Cooperating archive staging, staged-transfer cleanup, health-gated promotion, recovery, and cleanup planning acquire it nonblockingly; contention fails closed.
+- Added a host-only native maintenance lease over the same shared state used by launch reservation. Holding it freezes fresh launch admission, restart-cleanup acknowledgement, and lifecycle mutation while generation protection is consumed.
+- Added `plan_cleanup_for_launch_service`, which always takes the launch lease before the store lock, derives generation protection internally, and validates the cleanup plan without accepting browser/package-supplied protection.
+- Kept the result path-free and read-only. No activation marker, generation directory, staging state, managed content, runtime state, or save is deleted, and no retention count or scheduling policy was selected.
+- D-146 records the fixed lock order and authority boundary. Q-113, Q-114, and Q-126 remain open for retention/deletion policy.
+
+### Verification evidence
+
+- Native-launch tests prove a fresh reservation cannot complete while the maintenance lease is held and that the accepted generation becomes protected immediately after release.
+- Generation-store tests prove contention across independently opened handles fails with `Busy`, lock state contains no authority or progress, a non-regular lock path is rejected, and coordinated cleanup planning composes both leases.
+- Rust formatting and Clippy with warnings denied pass. The Rust workspace contains 124 active library tests with five subprocess helpers ignored by the parent run, plus 14 CLI tests.
+
+### Remaining boundary
+
+This closes the cooperating planning race, not garbage collection. Crash-recoverable generation deletion must consume the validated plan without releasing either lease, preserve rollback and save boundaries, and stop on ambiguity. Target-Linux advisory-lock/directory-durability tests, hostile noncooperating-writer containment, actual service-manager ownership, automatic scheduling, low-space reservation, and uninstall remain open.
+
 ## 2026-07-24: cross-origin Motion bridge browser boundary
 
 ### Delivered

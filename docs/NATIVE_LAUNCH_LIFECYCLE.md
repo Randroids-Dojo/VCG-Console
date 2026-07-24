@@ -105,7 +105,7 @@ The host retains at most 64 lifecycle records and retires the oldest terminal hi
 
 - Replace development CLI profile allowlisting with a host-owned persistent profile registry and deletion/unassignment semantics.
 - Provide a production service-manager/cgroup adapter that proves interrupted descendants are gone before acknowledging the restart-cleanup barrier.
-- Serialize launch admission, promotion, protection snapshots, and future generation deletion in one native maintenance coordinator; the current planner remains read-only.
+- Extend the implemented launch-maintenance lease and generation-store operation lock into crash-recoverable deletion/uninstall that consumes a validated plan without releasing either lease; the current planner remains read-only.
 - Select and enforce the journal's operating-system boot scope and age retention; qualify lock, rename, file synchronization, and sudden-power behavior on the target Linux filesystems.
 - Add compositor/window identity, visible readiness, continued responsiveness, and focus/input ownership events.
 - Decide whether the production browser transport retains bounded polling or moves lifecycle changes to an authenticated event stream.

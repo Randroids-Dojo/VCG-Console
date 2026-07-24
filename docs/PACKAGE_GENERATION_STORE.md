@@ -10,6 +10,7 @@ An already provisioned store has this shape:
 
 ```text
 <store-root>/
+  .vcg-package-store.lock
   staging/
     <transaction-id>/
       .vcg-transfer-receipt.json
@@ -28,9 +29,9 @@ An already provisioned store has this shape:
 <managed-content-root>/  # optional, configured separately
 ```
 
-`promotion.intent` exists only while one durable promotion is incomplete. The store root, public key, optional managed-content root, ephemeral runtime root, and persistent data/save root are host configuration. A browser, game, public manifest, hosted origin, or package payload cannot choose them.
+`.vcg-package-store.lock` is a provisioned inert persistent regular file. It contains no authority or progress. Every cooperating staging, staged-receipt cleanup, health/promotion, recovery, and cleanup-planning operation takes it nonblockingly; contention fails closed instead of running two mutations concurrently. `promotion.intent` exists only while one durable promotion is incomplete. The store root, public key, optional managed-content root, ephemeral runtime root, and persistent data/save root are host configuration. A browser, game, public manifest, hosted origin, or package payload cannot choose them.
 
-The store opener requires absolute paths and existing real `staging`, `generations`, and `activations` directories. A staged transaction ID uses the same bounded lowercase identifier grammar as other host intent. Canonical candidate and generation directories must be direct children of their expected host-owned parent; an escaping symlink or reparse point is rejected.
+The store opener requires absolute paths, the existing direct-child regular lock file, and existing real `staging`, `generations`, and `activations` directories. A staged transaction ID uses the same bounded lowercase identifier grammar as other host intent. Canonical candidate and generation directories must be direct children of their expected host-owned parent; an escaping symlink or reparse point is rejected.
 
 ## Verification and promotion
 
@@ -133,6 +134,8 @@ Rust tests cover:
 - equal-generation rollback rejection;
 - recovery before and after the generation-directory move;
 - exclusive no-replace intent publication and recovery after activation-before-intent-unlink;
+- required preprovisioning, nonblocking operation-lock contention across independently opened store handles, inert contents, and rejection of a non-regular lock path;
+- launch-frozen cleanup planning composed with the store operation lock;
 - fail-closed malformed newest activation state;
 - preservation of data-root save bytes.
 
@@ -140,7 +143,7 @@ Rust tests cover:
 
 `plan_cleanup(retain_count)` is a read-only host primitive. It accepts only a bounded count of at least two, refuses pending recovery, validates every activation marker and generation-directory name, requires every activated marker to retain a matching directory, and re-verifies the active generation.
 
-Trusted native coordination may instead call `plan_cleanup_with_protected_generations`. The supplied generation numbers come only from native launch ownership; they are not browser or package values. The planner rejects zero, duplicate, excessive, unactivated, or uninstalled protection and unions every valid protected generation with the ordinary newest-generation rollback set.
+Live native coordination calls `plan_cleanup_for_launch_service`. It first takes a host-only maintenance lease over the same mutex used by launch reservation, then takes the package-store operation lock, derives path-free generation protection from the locked launch state, and validates package history before releasing either lease. This fixed launch-then-store lock order prevents a fresh launch from appearing between protection capture and plan derivation. The internal planner rejects zero, duplicate, excessive, unactivated, or uninstalled protection and unions every valid protected generation with the ordinary newest-generation rollback set. Browser and package callers cannot supply protection values or acquire the maintenance lease.
 
 The result exposes generation numbers only:
 
@@ -151,7 +154,7 @@ The result exposes generation numbers only:
 
 The launch service binds the exact trusted catalog generation when accepting an intent. Preparing, running, and stopping records protect that generation. After restart, an indeterminate record continues protecting it until trusted native code proves old descendants gone and clears the durable cleanup barrier. Normal terminal history does not retain a generation.
 
-Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. Actual deletion remains disabled until the coordinator atomically obtains launch protection and a cleanup plan, serializes maintenance against launch/promotion, and the owner selects the count/byte and scheduling policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md) and [Q-126](OWNER_QUESTIONS_GENERATION_CLEANUP_2026-07-24.md).
+Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. The implemented lease and store lock close the in-process launch-admission/protection race and serialize cooperating store handles, but they are not deletion authority. Actual deletion remains disabled until a crash-recoverable remover consumes the validated plan under the same leases, preserves the rollback/save boundaries, and the owner selects the count/byte and scheduling policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md) and [Q-126](OWNER_QUESTIONS_GENERATION_CLEANUP_2026-07-24.md).
 
 Still required:
 
@@ -159,7 +162,7 @@ Still required:
 - automatic abandoned/consumed-transfer retention and cleanup scheduling;
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
-- bounded retention, uninstall, and garbage collection;
+- crash-recoverable bounded retention deletion, uninstall, and garbage collection under the existing coordinator leases;
 - offline-root delegation, key rotation/revocation, and per-channel monotonic state;
 - immutable/read-only artifact handoff and target-Linux crash/power-loss qualification;
-- developer-namespace separation and hostile concurrency tests.
+- developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.

@@ -14,4 +14,4 @@ Safe default: retain at least the two newest activated generations and stop clea
 
 May maintenance remove a retired generation while a game launched from that generation is still active?
 
-Safe default: no. Durable launches now bind and report active or restart-ambiguous generations to the read-only planner. Actual deletion still waits for one native coordinator to serialize this protection snapshot with launch admission, promotion, and filesystem mutation, then prove the selected generation remains unreferenced through deletion.
+Safe default: no. Durable launches now bind active or restart-ambiguous generations, and the read-only planner holds a host-only launch-maintenance lease while it derives that protection and validates history under the generation-store operation lock. Actual deletion still waits for a crash-recoverable remover that consumes the plan without releasing those same leases and proves each selected generation remains unreferenced through deletion.

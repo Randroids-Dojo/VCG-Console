@@ -165,6 +165,22 @@ struct SharedLaunches {
     restart_cleanup_required: bool,
 }
 
+/// Host-only lease that freezes launch admission while package maintenance
+/// derives and consumes generation protection.
+///
+/// The lease intentionally exposes only path-free generation metadata. Holding
+/// it prevents `start` from reserving a new launch because reservation uses the
+/// same shared-state mutex.
+pub(crate) struct NativeLaunchMaintenanceLease<'a> {
+    shared: MutexGuard<'a, SharedLaunches>,
+}
+
+impl NativeLaunchMaintenanceLease<'_> {
+    pub(crate) fn protected_catalog_generations(&self) -> Result<Vec<u64>, NativeLaunchError> {
+        protected_catalog_generations(&self.shared)
+    }
+}
+
 impl Default for SharedLaunches {
     fn default() -> Self {
         Self {
@@ -372,20 +388,21 @@ impl NativeLaunchService {
     ///
     /// Fails closed when replay persistence is unavailable.
     pub fn protected_catalog_generations(&self) -> Result<Vec<u64>, NativeLaunchError> {
-        let shared = lock(&self.shared)?;
-        if shared.journal_faulted {
-            return Err(NativeLaunchError::ReplayUnavailable);
-        }
-        let mut generations = BTreeSet::new();
-        for record in &shared.records {
-            if record.state.active()
-                || (shared.restart_cleanup_required
-                    && record.detail_code == "HOST_RESTARTED_INDETERMINATE")
-            {
-                generations.insert(record.catalog_generation);
-            }
-        }
-        Ok(generations.into_iter().collect())
+        self.acquire_maintenance()?.protected_catalog_generations()
+    }
+
+    /// Freezes fresh launch admission for one host-owned maintenance
+    /// operation.
+    ///
+    /// This is crate-private so browser/API callers cannot manufacture a
+    /// maintenance window. Package coordination holds the returned lease while
+    /// it acquires the package-store operation lock and derives a cleanup plan.
+    pub(crate) fn acquire_maintenance(
+        &self,
+    ) -> Result<NativeLaunchMaintenanceLease<'_>, NativeLaunchError> {
+        Ok(NativeLaunchMaintenanceLease {
+            shared: lock(&self.shared)?,
+        })
     }
 
     /// Starts one package or returns the existing record for an identical
@@ -1040,6 +1057,22 @@ fn prune_records(shared: &mut SharedLaunches) -> Result<(), NativeLaunchError> {
     Ok(())
 }
 
+fn protected_catalog_generations(shared: &SharedLaunches) -> Result<Vec<u64>, NativeLaunchError> {
+    if shared.journal_faulted {
+        return Err(NativeLaunchError::ReplayUnavailable);
+    }
+    let mut generations = BTreeSet::new();
+    for record in &shared.records {
+        if record.state.active()
+            || (shared.restart_cleanup_required
+                && record.detail_code == "HOST_RESTARTED_INDETERMINATE")
+        {
+            generations.insert(record.catalog_generation);
+        }
+    }
+    Ok(generations.into_iter().collect())
+}
+
 fn validate_request_id(value: &str) -> Result<(), NativeLaunchError> {
     if value.len() == REQUEST_ID_HEX_BYTES * 2
         && value
@@ -1193,8 +1226,8 @@ impl From<LaunchReplayError> for NativeLaunchError {
 mod tests {
     use std::fs;
     use std::path::PathBuf;
-    use std::sync::Arc;
     use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+    use std::sync::{Arc, mpsc};
     use std::thread;
     use std::time::{Duration, Instant};
 
@@ -1365,6 +1398,59 @@ mod tests {
             service.start(request_id, "not-installed", "local-player"),
             Err(NativeLaunchError::RequestConflict(_))
         ));
+    }
+
+    #[test]
+    fn maintenance_lease_freezes_fresh_admission_and_reports_protection() {
+        let (_fixture, catalog) = signed_catalog();
+        let generation = catalog.generation();
+        let service = Arc::new(
+            NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures"),
+        );
+        let lease = service
+            .acquire_maintenance()
+            .expect("maintenance lease acquires");
+        assert!(
+            lease
+                .protected_catalog_generations()
+                .expect("initial protection reads")
+                .is_empty()
+        );
+
+        let (attempted_tx, attempted_rx) = mpsc::channel();
+        let (result_tx, result_rx) = mpsc::channel();
+        let worker_service = Arc::clone(&service);
+        let worker = thread::spawn(move || {
+            attempted_tx.send(()).expect("attempt signal sends");
+            let result = worker_service.reserve(
+                "10101010101010101010101010101010",
+                "retro-2048",
+                "local-player",
+                Arc::new(AtomicBool::new(false)),
+            );
+            result_tx.send(result).expect("reserve result sends");
+        });
+        attempted_rx
+            .recv_timeout(Duration::from_secs(1))
+            .expect("worker reaches reservation");
+        assert!(
+            result_rx.recv_timeout(Duration::from_millis(50)).is_err(),
+            "reservation must wait while maintenance owns launch state"
+        );
+
+        drop(lease);
+        result_rx
+            .recv_timeout(Duration::from_secs(1))
+            .expect("reservation resumes after maintenance")
+            .expect("reservation succeeds");
+        worker.join().expect("reservation worker joins");
+        assert_eq!(
+            service
+                .protected_catalog_generations()
+                .expect("accepted generation protection reads"),
+            vec![generation]
+        );
     }
 
     #[test]
