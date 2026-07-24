@@ -25,6 +25,7 @@ interface Session {
   profiles: MotionProfile[];
   lastFrameAtMs: number;
   unacknowledgedSinceMs?: number;
+  unacknowledgedSequence?: number;
 }
 
 export interface MotionBridgeHostStats {
@@ -36,6 +37,10 @@ export interface MotionBridgeHostStats {
   rateLimitedFrames: number;
   publishedHealthEvents: number;
   expiredSessions: number;
+  invalidAcknowledgements: number;
+  activeSessions: number;
+  pendingFrames: number;
+  peakSessions: number;
 }
 
 export interface MotionBridgeHostOptions {
@@ -66,7 +71,7 @@ export class MotionBridgeHost {
   readonly #sessionTtlMs: number;
   readonly #now: () => number;
   readonly #sessions = new Map<BridgePostTarget, Session>();
-  readonly #stats: MotionBridgeHostStats = {
+  readonly #stats: Omit<MotionBridgeHostStats, "activeSessions" | "pendingFrames"> = {
     acceptedConnections: 0,
     rejectedConnections: 0,
     hostileOriginMessages: 0,
@@ -75,6 +80,8 @@ export class MotionBridgeHost {
     rateLimitedFrames: 0,
     publishedHealthEvents: 0,
     expiredSessions: 0,
+    invalidAcknowledgements: 0,
+    peakSessions: 0,
   };
   #started = false;
   #nextSession = 1;
@@ -139,7 +146,36 @@ export class MotionBridgeHost {
   }
 
   stats(): Readonly<MotionBridgeHostStats> {
-    return { ...this.#stats };
+    let pendingFrames = 0;
+    for (const session of this.#sessions.values()) {
+      if (session.unacknowledgedSequence !== undefined) pendingFrames += 1;
+    }
+    return {
+      ...this.#stats,
+      activeSessions: this.#sessions.size,
+      pendingFrames,
+    };
+  }
+
+  /**
+   * Removes sessions with a frame that has remained unacknowledged past the
+   * configured TTL. The trusted host loop may call this even when no new frame
+   * is available, so cleanup never depends on another publication.
+   */
+  collectExpiredSessions(): number {
+    const now = this.#now();
+    let expired = 0;
+    for (const [target, session] of this.#sessions) {
+      if (
+        session.unacknowledgedSinceMs !== undefined &&
+        now - session.unacknowledgedSinceMs > this.#sessionTtlMs
+      ) {
+        this.#sessions.delete(target);
+        expired += 1;
+      }
+    }
+    this.#stats.expiredSessions += expired;
+    return expired;
   }
 
   publish(value: MotionFrame): number {
@@ -149,16 +185,12 @@ export class MotionBridgeHost {
         `Motion frame source/health ${frame.source}/${frame.health} does not match current tracker health ${this.#currentHealth.source}/${this.#currentHealth.status}`,
       );
     }
+    this.collectExpiredSessions();
     const now = this.#now();
     let recipients = 0;
-    for (const [target, session] of this.#sessions) {
+    for (const session of this.#sessions.values()) {
       if (session.unacknowledgedSinceMs !== undefined) {
-        if (now - session.unacknowledgedSinceMs > this.#sessionTtlMs) {
-          this.#sessions.delete(target);
-          this.#stats.expiredSessions += 1;
-        } else {
-          this.#stats.rateLimitedFrames += 1;
-        }
+        this.#stats.rateLimitedFrames += 1;
         continue;
       }
       if (now - session.lastFrameAtMs < this.#minimumFrameIntervalMs) {
@@ -166,7 +198,8 @@ export class MotionBridgeHost {
         continue;
       }
       session.lastFrameAtMs = now;
-      session.unacknowledgedSinceMs ??= now;
+      session.unacknowledgedSinceMs = now;
+      session.unacknowledgedSequence = frame.sequence;
       this.#send(session.target, session.origin, {
         type: "vcg.motion.frame",
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
@@ -188,6 +221,7 @@ export class MotionBridgeHost {
       throw new Error("Tracker health time cannot move backwards");
     }
     this.#currentHealth = event;
+    this.collectExpiredSessions();
     for (const session of this.#sessions.values()) {
       this.#send(session.target, session.origin, {
         type: "vcg.motion.health",
@@ -216,6 +250,7 @@ export class MotionBridgeHost {
       });
       return;
     }
+    this.collectExpiredSessions();
     if (parsed.data.type === "vcg.motion.goodbye") {
       const session = this.#sessions.get(event.source);
       if (session?.id === parsed.data.sessionId && session.origin === event.origin) this.#sessions.delete(event.source);
@@ -223,7 +258,14 @@ export class MotionBridgeHost {
     }
     if (parsed.data.type === "vcg.motion.ack") {
       const session = this.#sessions.get(event.source);
-      if (session?.id === parsed.data.sessionId && session.origin === event.origin) delete session.unacknowledgedSinceMs;
+      if (session?.id === parsed.data.sessionId && session.origin === event.origin) {
+        if (session.unacknowledgedSequence === parsed.data.sequence) {
+          delete session.unacknowledgedSinceMs;
+          delete session.unacknowledgedSequence;
+        } else {
+          this.#stats.invalidAcknowledgements += 1;
+        }
+      }
       return;
     }
 
@@ -259,6 +301,7 @@ export class MotionBridgeHost {
       lastFrameAtMs: -Infinity,
     };
     this.#sessions.set(event.source, session);
+    this.#stats.peakSessions = Math.max(this.#stats.peakSessions, this.#sessions.size);
     this.#stats.acceptedConnections += 1;
     this.#send(event.source, event.origin, {
       type: "vcg.motion.welcome",

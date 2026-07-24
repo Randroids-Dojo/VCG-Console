@@ -32,6 +32,9 @@ export default defineConfig({
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
         bridgeHost: fileURLToPath(new URL("./bridge-host.html", import.meta.url)),
         bridgeClient: fileURLToPath(new URL("./bridge-client.html", import.meta.url)),
+        bridgeStalledClient: fileURLToPath(
+          new URL("./bridge-stalled-client.html", import.meta.url),
+        ),
         bridgeCrossOriginHost: fileURLToPath(
           new URL("./bridge-cross-origin-host.html", import.meta.url),
         ),

@@ -605,9 +605,179 @@ describe("Motion web bridge", () => {
     now = 1_500;
     expect(host.publish(frame(2))).toBe(0);
     now = 2_001;
+    expect(host.collectExpiredSessions()).toBe(1);
     expect(host.publish(frame(3))).toBe(0);
-    expect(host.stats().expiredSessions).toBe(1);
+    expect(host.stats()).toMatchObject({
+      expiredSessions: 1,
+      activeSessions: 0,
+      pendingFrames: 0,
+      peakSessions: 1,
+    });
     expect(host.stats().rateLimitedFrames).toBe(1);
+  });
+
+  it("binds acknowledgements to the exact pending frame sequence", () => {
+    let now = 1_000;
+    const link = fakeLink();
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+      authorizedProfiles: capabilities.profiles,
+      initialHealth: readyHealth(),
+      now: () => now,
+      sessionTtlMs: 1_000,
+    });
+    const replies: unknown[] = [];
+    const target: BridgePostTarget = { postMessage: (message) => replies.push(message) };
+    host.start();
+    link.hostReceiver.dispatch({
+      origin: link.gameOrigin,
+      source: target,
+      data: {
+        type: "vcg.motion.hello",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
+        clientId: "slow-client",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+    });
+    const sessionId = (replies[0] as { sessionId: string }).sessionId;
+    expect(host.publish(frame(7))).toBe(1);
+    link.hostReceiver.dispatch({
+      origin: link.gameOrigin,
+      source: target,
+      data: {
+        type: "vcg.motion.ack",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId,
+        sequence: 6,
+      },
+    });
+    now += 20;
+    expect(host.publish(frame(8))).toBe(0);
+    expect(host.stats()).toMatchObject({
+      invalidAcknowledgements: 1,
+      activeSessions: 1,
+      pendingFrames: 1,
+    });
+    link.hostReceiver.dispatch({
+      origin: link.gameOrigin,
+      source: target,
+      data: {
+        type: "vcg.motion.ack",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId,
+        sequence: 7,
+      },
+    });
+    now += 20;
+    expect(host.publish(frame(8))).toBe(1);
+    now += 1_001;
+    link.hostReceiver.dispatch({
+      origin: link.gameOrigin,
+      source: target,
+      data: {
+        type: "vcg.motion.ack",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId,
+        sequence: 8,
+      },
+    });
+    expect(host.stats()).toMatchObject({
+      expiredSessions: 1,
+      activeSessions: 0,
+      pendingFrames: 0,
+    });
+  });
+
+  it("isolates a healthy client from another session that stops acknowledging", () => {
+    let now = 1_000;
+    const { host, hostReceiver, gameOrigin, received } = connectedPair({
+      maximumSessions: 2,
+      now: () => now,
+      sessionTtlMs: 1_000,
+    });
+    const stalledTarget: BridgePostTarget = { postMessage: () => undefined };
+    hostReceiver.dispatch({
+      origin: gameOrigin,
+      source: stalledTarget,
+      data: {
+        type: "vcg.motion.hello",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
+        clientId: "stalled-neighbor",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+    });
+
+    expect(host.publish(frame(1))).toBe(2);
+    now += 20;
+    expect(host.publish(frame(2))).toBe(1);
+    expect(received.map(({ sequence }) => sequence)).toEqual([1, 2]);
+    expect(host.stats()).toMatchObject({
+      activeSessions: 2,
+      pendingFrames: 1,
+      peakSessions: 2,
+    });
+
+    now = 2_001;
+    expect(host.collectExpiredSessions()).toBe(1);
+    expect(host.publish(frame(3))).toBe(1);
+    expect(received.map(({ sequence }) => sequence)).toEqual([1, 2, 3]);
+    expect(host.stats()).toMatchObject({
+      activeSessions: 1,
+      pendingFrames: 0,
+      expiredSessions: 1,
+    });
+  });
+
+  it("keeps reconnect churn and a virtual-time publication soak bounded", () => {
+    let now = 0;
+    let receivedCount = 0;
+    const link = fakeLink();
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+      authorizedProfiles: capabilities.profiles,
+      initialHealth: readyHealth(),
+      maximumFramesPerSecond: 60,
+      now: () => now,
+    });
+    const client = new MotionBridgeClient({
+      receiver: link.gameReceiver,
+      target: link.hostTarget,
+      targetOrigin: link.consoleOrigin,
+      clientId: "soak-client",
+      request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      onFrame: () => {
+        receivedCount += 1;
+      },
+      schedule: () => 0,
+      cancelScheduled: () => undefined,
+    });
+    host.start();
+    client.start();
+    for (let reconnect = 0; reconnect < 1_000; reconnect += 1) client.reconnect();
+
+    const producerIntervalMs = 10;
+    const virtualDurationMs = 5 * 60 * 1_000;
+    let sequence = 0;
+    while (now < virtualDurationMs) {
+      host.publish(frame(sequence++));
+      now += producerIntervalMs;
+    }
+
+    expect(receivedCount).toBe(15_000);
+    expect(host.stats()).toMatchObject({
+      acceptedConnections: 1_001,
+      activeSessions: 1,
+      pendingFrames: 0,
+      peakSessions: 1,
+      expiredSessions: 0,
+    });
+    expect(host.stats().publishedFrames).toBe(receivedCount);
   });
 
   it("retries the handshake until the console host becomes available", () => {

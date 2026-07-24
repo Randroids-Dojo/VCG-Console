@@ -686,6 +686,32 @@ test("cooperative web game negotiates, receives a frame, and reconnects after re
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 1");
 });
 
+test("stalled browser game is bounded, collected, and replaced by a healthy client", async ({ page }) => {
+  await page.goto("/bridge-host.html");
+  const game = page.frameLocator("#game");
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+
+  await page.locator("#game").evaluate((element: HTMLIFrameElement) => {
+    element.src = "/bridge-stalled-client.html";
+  });
+  await expect(game.locator("#stalled-status")).toHaveText("CONNECTED / ACKS DISABLED");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#stalled-frame")).toHaveText("FRAME 0 / ACK WITHHELD");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(page.locator("#host-status")).toHaveText("PUBLISHED 1 TO 0");
+
+  await page.waitForTimeout(1_100);
+  await page.getByRole("button", { name: "COLLECT STALLED SESSION" }).click();
+  await expect(page.locator("#host-status")).toHaveText("COLLECTED 1; ACTIVE 0; PENDING 0");
+
+  await page.locator("#game").evaluate((element: HTMLIFrameElement) => {
+    element.src = "/bridge-client.html";
+  });
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#frame-sequence")).toHaveText("FRAME 2");
+});
+
 test("cross-origin motion bridge survives sandboxing and rejects navigation origin drift", async ({ page }) => {
   await page.goto("/bridge-cross-origin-host.html");
   const game = page.frameLocator("#game");

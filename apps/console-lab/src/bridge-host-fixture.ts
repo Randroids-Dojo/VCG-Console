@@ -5,9 +5,10 @@ import { trackerHealthFixture } from "./tracker-health";
 
 const status = document.querySelector<HTMLElement>("#host-status");
 const publish = document.querySelector<HTMLButtonElement>("#publish");
+const collectExpired = document.querySelector<HTMLButtonElement>("#collect-expired");
 const publishDegradedHealth = document.querySelector<HTMLButtonElement>("#publish-degraded-health");
 const publishReadyHealth = document.querySelector<HTMLButtonElement>("#publish-ready-health");
-if (!status || !publish || !publishDegradedHealth || !publishReadyHealth) {
+if (!status || !publish || !collectExpired || !publishDegradedHealth || !publishReadyHealth) {
   throw new Error("Bridge host fixture is incomplete");
 }
 
@@ -31,6 +32,7 @@ const host = new MotionBridgeHost({
     reason: "healthy",
     controlAvailability: "full",
   },
+  sessionTtlMs: 1_000,
 });
 host.start();
 
@@ -40,6 +42,11 @@ publish.addEventListener("click", () => {
   const recipients = host.publish(syntheticFrame(sequence, performance.now()));
   status.textContent = `PUBLISHED ${sequence} TO ${recipients}`;
   sequence += 1;
+});
+collectExpired.addEventListener("click", () => {
+  const expired = host.collectExpiredSessions();
+  const stats = host.stats();
+  status.textContent = `COLLECTED ${expired}; ACTIVE ${stats.activeSessions}; PENDING ${stats.pendingFrames}`;
 });
 publishDegradedHealth.addEventListener("click", () => {
   const recipients = host.publishHealth(trackerHealthFixture("overload", healthSequence++, performance.now()));
