@@ -1066,3 +1066,25 @@ No target Linux filesystem, sudden-power, noncooperating-writer, or service-mana
 ### Remaining boundary
 
 This is a design-and-desk-test review, not production browser or native isolation. Same-origin compromise is intentionally not described as mitigated by an allowlist. Hostile popup/download/fullscreen/permission flows, emergency revocation, real resource exhaustion, native transport, OS-level body-data leakage, and redacted support tooling remain under I-076, I-084, I-115, I-116, I-134, I-136, I-141, I-180, and I-208.
+
+## 2026-07-24: deterministic camera-free pose simulation
+
+### Delivered
+
+- Exported `MotionPoseSimulator` from the Motion contract package with nine exact poses, stable player identity, explicit loss/reacquisition, reset, snapshots, and deterministic schema-validated frame generation.
+- Kept simulation below the action layer: frames contain only `body.core17` landmarks and the existing recognizer still owns action timing, context, hysteresis, cooldown, and side effects.
+- Added an explicit Motion Lab simulator mode with latched UI poses, held W/A/S/D/J/K/Q/E keyboard controls, player hide/show, and continuous standard-controller pose state.
+- Preserved Home and Back as console navigation rather than simulator input. Camera startup disables the simulator before capture permission is requested.
+- Added a query-gated `window.__vcgMotionSimulator` automation seam that is absent by default and uses the same visible simulator instance.
+- Documented the SDK, mappings, automation boundary, and non-qualification limits in `MOTION_SIMULATOR.md`; I-082 closes without changing the unresolved LAN developer-mode question Q-057.
+
+### Verification evidence
+
+- Fifty Motion contract tests validate every pose, repeatability, frame schema, player loss/reacquisition, reset, and invalid inputs.
+- Eighty-seven console unit tests include obstacle, join/select, Back, swipe, loss/reappearance, held controller-state, release, and existing navigation/action regressions.
+- Twenty-one real-Chrome flows pass, including visible simulator controls, keyboard hold/release, synthetic standard-controller polling, query-gated hooks, hidden-player telemetry, and compositor-path Home recovery.
+- Workspace typechecks and production build pass; schema, manifest, and the 14-trial/280-attempt benchmark are fresh; the high-severity dependency audit reports no known vulnerabilities. Native formatting/clippy pass, 136 Rust library tests plus 14 CLI tests pass, and five intentional subprocess helpers remain ignored.
+
+### Remaining boundary
+
+The simulator is developer/test evidence, not a camera benchmark or accessibility substitute. It does not qualify real-room motion accuracy, child/adult/seated/limited-range behavior, physical controller mappings, native SDL3, compositor enforcement, target Linux, or LAN deployment security. Those remain under I-053, I-102, I-161, I-183, I-209, and I-210.

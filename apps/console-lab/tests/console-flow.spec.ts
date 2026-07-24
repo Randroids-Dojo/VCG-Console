@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function openMotionLab(page: Page): Promise<void> {
-  await page.goto("/?skipBoot=1");
+async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
+  await page.goto(`/?skipBoot=1${simulatorTest ? "&motionSimulatorTest=1" : ""}`);
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
 }
@@ -494,6 +494,80 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
   await page.getByRole("button", { name: "READY" }).click();
   await expect(page.locator("#health-badge")).toHaveText("READY");
   await expect(page.locator("#tracker-control")).toHaveText("FULL");
+});
+
+test("drives the camera-free pose simulator through UI, keyboard, controller, and test hooks", async ({ page }) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (window as unknown as {
+      __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
+    }).__setSimulatorGamepad = (buttons, axes = [0, 0]) => {
+      gamepad = {
+        axes,
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright standard controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+  });
+  await openMotionLab(page, true);
+  expect(await page.evaluate(() => window.__vcgMotionSimulator?.snapshot())).toEqual({
+    enabled: false,
+    playerVisible: true,
+    pose: "neutral",
+  });
+
+  await page.getByRole("button", { name: "ENABLE POSE SIMULATOR" }).click();
+  await expect(page.locator("#simulator-state")).toHaveText("NEUTRAL / VISIBLE");
+  await expect(page.locator("#source-badge")).toHaveText("POSE SIMULATOR / NEUTRAL");
+
+  await page.keyboard.down("w");
+  await expect(page.locator("#simulator-state")).toHaveText("JUMP / VISIBLE");
+  await page.keyboard.up("w");
+  await expect(page.locator("#simulator-state")).toHaveText("NEUTRAL / VISIBLE");
+
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("dodge-left"));
+  await expect(page.locator("#simulator-state")).toHaveText("DODGE LEFT / VISIBLE");
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPlayerVisible(false));
+  await expect(page.locator("#simulator-state")).toHaveText("DODGE LEFT / HIDDEN");
+  await expect(page.locator("#metric-player")).toHaveText("NOT FOUND");
+  await page.evaluate(() => {
+    window.__vcgMotionSimulator?.setPlayerVisible(true);
+    window.__vcgMotionSimulator?.setPose("neutral");
+  });
+
+  await page.evaluate(() => {
+    (window as unknown as {
+      __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
+    }).__setSimulatorGamepad([0]);
+  });
+  await expect(page.locator("#simulator-state")).toHaveText("HANDS TOGETHER / VISIBLE");
+  await page.evaluate(() => {
+    (window as unknown as {
+      __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
+    }).__setSimulatorGamepad([]);
+  });
+  await expect(page.locator("#simulator-state")).toHaveText("NEUTRAL / VISIBLE");
+
+  await page.evaluate(() => {
+    (window as unknown as {
+      __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
+    }).__setSimulatorGamepad([16]);
+  });
+  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
 });
 
 test("loads the pinned local model and starts a camera pipeline", async ({ page }) => {

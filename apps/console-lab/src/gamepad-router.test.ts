@@ -94,6 +94,26 @@ describe("activeActions", () => {
 });
 
 describe("GamepadRouter", () => {
+  it("reports the combined held state continuously and clears it after release", () => {
+    const environment = new FakeGamepadEnvironment();
+    const controller = browserGamepad(0, "controller", [0], [0.8, 0]);
+    environment.gamepads = [controller];
+    const states: string[][] = [];
+    const router = new GamepadRouter(
+      () => undefined,
+      () => undefined,
+      environment,
+      (actions) => states.push([...actions].sort()),
+    );
+
+    router.start();
+    environment.step();
+    environment.gamepads = [browserGamepad(0, "controller")];
+    environment.step();
+
+    expect(states).toEqual([["right", "select"], []]);
+  });
+
   it("discovers a controller that was already connected and emits only action edges", () => {
     const environment = new FakeGamepadEnvironment();
     const controller = browserGamepad(0, "preconnected", [0]);

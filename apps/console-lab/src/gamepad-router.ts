@@ -48,6 +48,7 @@ export class GamepadRouter {
     private readonly onAction: (action: ConsoleInputAction, gamepad: Gamepad) => void,
     private readonly onConnection: (gamepad: Gamepad, connected: boolean) => void,
     environment?: GamepadRouterEnvironment,
+    private readonly onState?: (actions: ReadonlySet<ConsoleInputAction>) => void,
   ) {
     this.#environment = environment ?? browserGamepadEnvironment();
   }
@@ -83,20 +84,25 @@ export class GamepadRouter {
     this.#frameHandle = undefined;
     if (!this.#running) return;
     const seen = new Set<number>();
+    const combined = new Set<ConsoleInputAction>();
+    const pending: Array<readonly [ConsoleInputAction, Gamepad]> = [];
     for (const gamepad of this.#environment.getGamepads()) {
       if (!gamepad) continue;
       seen.add(gamepad.index);
       this.#observeConnected(gamepad);
       const current = activeActions(gamepad);
+      for (const action of current) combined.add(action);
       const previous = this.#previous.get(gamepad.index) ?? new Set<ConsoleInputAction>();
       for (const action of current) {
-        if (!previous.has(action)) this.onAction(action, gamepad);
+        if (!previous.has(action)) pending.push([action, gamepad]);
       }
       this.#previous.set(gamepad.index, current);
     }
     for (const [index, gamepad] of this.#connectedGamepads) {
       if (!seen.has(index)) this.#observeDisconnected(gamepad);
     }
+    this.onState?.(combined);
+    for (const [action, gamepad] of pending) this.onAction(action, gamepad);
     this.#schedulePoll();
   };
 

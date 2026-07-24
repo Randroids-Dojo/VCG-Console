@@ -18,7 +18,7 @@ pnpm prepare:schemas
 pnpm dev
 ```
 
-Open the printed local URL. The boot sequence resolves into the launcher; Motion opens the existing synthetic skeletal replay and camera lab. Select **Start Camera** there to run the pinned MediaPipe model locally. Camera pixels are not displayed or written. **Export Skeleton Trace** is the only diagnostic export in this prototype.
+Open the printed local URL. The boot sequence resolves into the launcher; Motion opens the existing synthetic skeletal replay and camera lab. Select **Enable Pose Simulator** for deterministic camera-free keyboard/controller fixtures, or **Start Camera** to run the pinned MediaPipe model locally. Camera pixels are not displayed or written. **Export Skeleton Trace** is the only diagnostic export in this prototype.
 
 Useful verification commands:
 
@@ -64,6 +64,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Motion service and bridge security review](docs/MOTION_SECURITY_REVIEW.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Motion standardized action semantics](docs/MOTION_ACTIONS_V1.md)
+- [Camera-free Motion pose simulator](docs/MOTION_SIMULATOR.md)
 - [Tracker health and degraded-control contract](docs/TRACKER_HEALTH.md)
 - [Household motion benchmark protocol](docs/MOTION_BENCHMARK_PROTOCOL.md)
 - [Player session and recovery state machine](docs/PLAYER_SESSION_STATE_MACHINE.md)

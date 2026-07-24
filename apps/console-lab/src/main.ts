@@ -4,6 +4,11 @@ import type {
   TrackerHealthEvent,
   TrackerHealthReason,
 } from "@vcg/motion-contract";
+import {
+  MOTION_SIMULATOR_POSES,
+  MotionPoseSimulator,
+  type MotionSimulatorPose,
+} from "@vcg/motion-contract";
 import { actionFeedback } from "./action-feedback";
 import { ActionEngine } from "./action-engine";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
@@ -20,6 +25,23 @@ import { trackerHealthFixture, trackerHealthPresentation } from "./tracker-healt
 
 type AppMode = "tracker" | "obstacle" | "shell";
 type OverlayKind = "manual" | "recovery";
+
+interface MotionSimulatorTestApi {
+  enable(enabled?: boolean): void;
+  setPlayerVisible(visible: boolean): void;
+  setPose(pose: MotionSimulatorPose): void;
+  snapshot(): Readonly<{
+    enabled: boolean;
+    playerVisible: boolean;
+    pose: MotionSimulatorPose;
+  }>;
+}
+
+declare global {
+  interface Window {
+    __vcgMotionSimulator?: MotionSimulatorTestApi;
+  }
+}
 
 const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string }> = {
   tracker: { eyebrow: "MOTION LAB / 001", title: "YOUR BODY IS THE SIGNAL.", note: "RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED" },
@@ -114,6 +136,27 @@ app.innerHTML = `
             <button type="button" data-health-fixture="camera-disconnected">DISCONNECT</button>
           </div>
         </section>
+        <section class="simulator-card" id="simulator-card" data-enabled="false">
+          <div class="simulator-heading">
+            <span>CAMERA-FREE SDK INPUT</span>
+            <strong id="simulator-state">OFF</strong>
+          </div>
+          <button id="simulator-toggle" class="simulator-toggle" type="button" aria-pressed="false">ENABLE POSE SIMULATOR</button>
+          <div class="simulator-poses" aria-label="Pose simulator controls">
+            <button type="button" data-simulator-pose="neutral">NEUTRAL</button>
+            <button type="button" data-simulator-pose="dodge-left">LEFT</button>
+            <button type="button" data-simulator-pose="dodge-right">RIGHT</button>
+            <button type="button" data-simulator-pose="duck">DUCK</button>
+            <button type="button" data-simulator-pose="jump">JUMP</button>
+            <button type="button" data-simulator-pose="hands-together">HANDS</button>
+            <button type="button" data-simulator-pose="crossed-arms">CROSS</button>
+            <button type="button" data-simulator-pose="swipe-left">SWIPE L</button>
+            <button type="button" data-simulator-pose="swipe-right">SWIPE R</button>
+            <button id="simulator-player-toggle" type="button" aria-pressed="false">HIDE PLAYER</button>
+          </div>
+          <p><strong>KEYS</strong> W/A/S/D move · J hands · K cross · Q/E swipe · H hide</p>
+          <p><strong>PAD</strong> Stick/D-pad move · A hands · Start cross. Home and Back remain reserved.</p>
+        </section>
         <section class="gesture-feedback" id="gesture-feedback" data-state="idle" aria-live="polite">
           <div class="gesture-feedback-heading">
             <span id="gesture-action">GESTURE FEEDBACK</span>
@@ -194,15 +237,25 @@ const trackerHealthTitle = required<HTMLElement>("#tracker-health-title");
 const trackerHealthDetail = required<HTMLElement>("#tracker-health-detail");
 const trackerControl = required<HTMLElement>("#tracker-control");
 const healthFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-health-fixture]")];
+const simulatorCard = required<HTMLElement>("#simulator-card");
+const simulatorState = required<HTMLElement>("#simulator-state");
+const simulatorToggle = required<HTMLButtonElement>("#simulator-toggle");
+const simulatorPlayerToggle = required<HTMLButtonElement>("#simulator-player-toggle");
+const simulatorPoseButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-simulator-pose]")];
 const sourceBadge = required<HTMLElement>("#source-badge");
 const overlay = required<HTMLElement>("#console-overlay");
 const modeButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
 const shellCards = [...document.querySelectorAll<HTMLButtonElement>("[data-shell-target]")];
 const overlayButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-overlay-action]")];
+const poseSimulator = new MotionPoseSimulator();
 
 let latestFrame: MotionFrame | undefined;
 let replayRunning = true;
 let replaySequence = 0;
+let simulatorEnabled = false;
+let simulatorLatchedPose: MotionSimulatorPose = "neutral";
+let simulatorControllerPose: MotionSimulatorPose | undefined;
+const simulatorKeyboardPoses = new Map<string, MotionSimulatorPose>();
 let lastMetricsPaint = 0;
 let currentMode: AppMode = "tracker";
 let focusedModeIndex = 0;
@@ -252,7 +305,7 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
   statusDetail.textContent = connected
     ? `Controller connected: ${gamepad.id} (${mapping}). Browser input is a prototype adapter; native SDL3 qualification remains pending.`
     : `Controller disconnected: ${gamepad.id}. Motion and keyboard recovery remain available.`;
-});
+}, undefined, handleSimulatorGamepadState);
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
@@ -336,6 +389,7 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     goBack();
     return;
   }
+  if (simulatorEnabled) return;
   if (action === "pause" && currentMode === "obstacle") {
     showOverlay("manual");
     return;
@@ -377,7 +431,12 @@ function joinPlayer(): void {
 function paintMetrics(frame: MotionFrame): void {
   const snapshot = metrics.snapshot();
   const player = frame.players[0];
-  required<HTMLElement>("#metric-tracker").textContent = frame.source === "mediapipe-web" ? tracker.delegate.toUpperCase() : "SYNTHETIC";
+  required<HTMLElement>("#metric-tracker").textContent =
+    frame.source === "mediapipe-web"
+      ? tracker.delegate.toUpperCase()
+      : simulatorEnabled
+        ? "SIMULATOR"
+        : "SYNTHETIC";
   required<HTMLElement>("#metric-player").textContent = player ? `${player.state.toUpperCase()} 01` : "NOT FOUND";
   required<HTMLElement>("#metric-confidence").textContent = player ? `${Math.round(player.confidence * 100)}%` : "--";
   required<HTMLElement>("#metric-fps").textContent = snapshot.fps ? snapshot.fps.toFixed(1) : "--";
@@ -393,7 +452,12 @@ function updateStatus(status: TrackerStatus, detail: string): void {
   cameraButton.disabled = status === "loading" || status === "requesting-camera";
   cameraButton.textContent = status === "running" ? "STOP CAMERA" : "START CAMERA";
   replayButton.disabled = replayRunning;
-  sourceBadge.textContent = status === "running" ? "MEDIAPIPE / LOCAL" : "SYNTHETIC REPLAY";
+  sourceBadge.textContent =
+    status === "running"
+      ? "MEDIAPIPE / LOCAL"
+      : simulatorEnabled
+        ? `POSE SIMULATOR / ${poseSimulator.snapshot.pose.replaceAll("-", " ").toUpperCase()}`
+        : "SYNTHETIC REPLAY";
   for (const button of healthFixtureButtons) button.disabled = !replayRunning;
 }
 
@@ -425,6 +489,85 @@ function applyTrackerHealth(event: TrackerHealthEvent): void {
     for (const sessionEvent of playerSession.observe(event.occurredAtMs, [], { hardFault: true })) {
       handlePlayerSessionEvent(sessionEvent);
     }
+  }
+}
+
+function simulatorPoseFromGamepad(actions: ReadonlySet<ConsoleInputAction>): MotionSimulatorPose | undefined {
+  if (actions.has("pause")) return "crossed-arms";
+  if (actions.has("select")) return "hands-together";
+  if (actions.has("down")) return "duck";
+  if (actions.has("up")) return "jump";
+  if (actions.has("left")) return "dodge-left";
+  if (actions.has("right")) return "dodge-right";
+  return undefined;
+}
+
+function handleSimulatorGamepadState(actions: ReadonlySet<ConsoleInputAction>): void {
+  if (!simulatorEnabled) return;
+  const next = simulatorPoseFromGamepad(actions);
+  if (next === simulatorControllerPose) return;
+  simulatorControllerPose = next;
+  applyEffectiveSimulatorPose();
+}
+
+function effectiveSimulatorPose(): MotionSimulatorPose {
+  const keyboard = [...simulatorKeyboardPoses.values()].at(-1);
+  return keyboard ?? simulatorControllerPose ?? simulatorLatchedPose;
+}
+
+function applyEffectiveSimulatorPose(): void {
+  poseSimulator.setPose(effectiveSimulatorPose());
+  paintSimulator();
+}
+
+function setSimulatorLatchedPose(pose: MotionSimulatorPose): void {
+  simulatorLatchedPose = pose;
+  applyEffectiveSimulatorPose();
+}
+
+function setSimulatorPlayerVisible(visible: boolean): void {
+  poseSimulator.setPlayerVisible(visible);
+  paintSimulator();
+}
+
+function setSimulatorEnabled(enabled: boolean, restartReplay = true): void {
+  if (simulatorEnabled === enabled && !restartReplay) return;
+  simulatorEnabled = enabled;
+  simulatorLatchedPose = "neutral";
+  simulatorControllerPose = undefined;
+  simulatorKeyboardPoses.clear();
+  poseSimulator.reset();
+  paintSimulator();
+  if (restartReplay) {
+    startReplay(
+      "idle",
+      enabled
+        ? "Camera-free pose simulator is active. Landmarks are deterministic; no camera is requested."
+        : "Synthetic input is running. Camera access is off.",
+    );
+  }
+}
+
+function paintSimulator(): void {
+  const snapshot = poseSimulator.snapshot;
+  simulatorCard.dataset.enabled = String(simulatorEnabled);
+  simulatorState.textContent = simulatorEnabled
+    ? `${snapshot.pose.replaceAll("-", " ").toUpperCase()} / ${snapshot.playerVisible ? "VISIBLE" : "HIDDEN"}`
+    : "OFF";
+  simulatorToggle.textContent = simulatorEnabled ? "DISABLE POSE SIMULATOR" : "ENABLE POSE SIMULATOR";
+  simulatorToggle.setAttribute("aria-pressed", String(simulatorEnabled));
+  simulatorPlayerToggle.textContent = snapshot.playerVisible ? "HIDE PLAYER" : "SHOW PLAYER";
+  simulatorPlayerToggle.setAttribute("aria-pressed", String(!snapshot.playerVisible));
+  simulatorPlayerToggle.disabled = !simulatorEnabled;
+  for (const button of simulatorPoseButtons) {
+    const pose = button.dataset.simulatorPose as MotionSimulatorPose;
+    button.disabled = !simulatorEnabled;
+    button.classList.toggle("active", simulatorEnabled && snapshot.pose === pose);
+  }
+  if (replayRunning) {
+    sourceBadge.textContent = simulatorEnabled
+      ? `POSE SIMULATOR / ${snapshot.pose.replaceAll("-", " ").toUpperCase()}`
+      : "SYNTHETIC REPLAY";
   }
 }
 
@@ -545,13 +688,19 @@ function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input i
   resetPlayerSession();
   replayButton.disabled = true;
   cameraButton.textContent = "START CAMERA";
-  sourceBadge.textContent = "SYNTHETIC REPLAY";
+  paintSimulator();
   applyTrackerHealth(trackerHealthFixture("healthy", healthSequence++, performance.now()));
   updateStatus(status, detail);
 }
 
 function replayLoop(now: number): void {
-  if (replayRunning) acceptFrame(syntheticFrame(replaySequence++, now));
+  if (replayRunning) {
+    acceptFrame(
+      simulatorEnabled
+        ? poseSimulator.frame(replaySequence++, now)
+        : syntheticFrame(replaySequence++, now),
+    );
+  }
   requestAnimationFrame(replayLoop);
 }
 
@@ -560,6 +709,7 @@ cameraButton.addEventListener("click", async () => {
     startReplay();
     return;
   }
+  setSimulatorEnabled(false, false);
   replayRunning = false;
   metrics.reset();
   trace.clear();
@@ -575,6 +725,15 @@ cameraButton.addEventListener("click", async () => {
 
 joinButton.addEventListener("click", joinPlayer);
 replayButton.addEventListener("click", () => startReplay());
+simulatorToggle.addEventListener("click", () => setSimulatorEnabled(!simulatorEnabled));
+simulatorPlayerToggle.addEventListener("click", () => {
+  if (simulatorEnabled) setSimulatorPlayerVisible(!poseSimulator.snapshot.playerVisible);
+});
+for (const button of simulatorPoseButtons) {
+  button.addEventListener("click", () => {
+    if (simulatorEnabled) setSimulatorLatchedPose(button.dataset.simulatorPose as MotionSimulatorPose);
+  });
+}
 required<HTMLButtonElement>("#home-button").addEventListener("click", showLauncher);
 for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode));
 for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode));
@@ -607,11 +766,63 @@ function paintClock(): void {
   required<HTMLElement>("#clock").textContent = new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
 
+const SIMULATOR_KEY_POSES = new Map<string, MotionSimulatorPose>([
+  ["KeyW", "jump"],
+  ["KeyA", "dodge-left"],
+  ["KeyD", "dodge-right"],
+  ["KeyS", "duck"],
+  ["KeyJ", "hands-together"],
+  ["KeyK", "crossed-arms"],
+  ["KeyQ", "swipe-left"],
+  ["KeyE", "swipe-right"],
+]);
+
+function handleSimulatorKeyDown(event: KeyboardEvent): boolean {
+  if (
+    !simulatorEnabled
+    || motionLab.hidden
+    || event.metaKey
+    || event.ctrlKey
+    || event.altKey
+    || event.target instanceof HTMLInputElement
+    || event.target instanceof HTMLTextAreaElement
+  ) {
+    return false;
+  }
+  if (event.code === "KeyH") {
+    event.preventDefault();
+    if (!event.repeat) setSimulatorPlayerVisible(!poseSimulator.snapshot.playerVisible);
+    return true;
+  }
+  if (event.code === "KeyN") {
+    event.preventDefault();
+    if (!event.repeat) {
+      simulatorKeyboardPoses.clear();
+      setSimulatorLatchedPose("neutral");
+    }
+    return true;
+  }
+  const pose = SIMULATOR_KEY_POSES.get(event.code);
+  if (!pose) return false;
+  event.preventDefault();
+  simulatorKeyboardPoses.set(event.code, pose);
+  applyEffectiveSimulatorPose();
+  return true;
+}
+
+function handleSimulatorKeyUp(event: KeyboardEvent): void {
+  if (!simulatorKeyboardPoses.delete(event.code)) return;
+  event.preventDefault();
+  applyEffectiveSimulatorPose();
+}
+
 window.addEventListener("beforeunload", () => {
   gamepads.stop();
   void tracker.close();
 });
+window.addEventListener("keyup", handleSimulatorKeyUp);
 document.addEventListener("keydown", (event) => {
+  if (handleSimulatorKeyDown(event)) return;
   if (event.key === "/" && launcher.visible && !event.metaKey && !event.ctrlKey && !(event.target instanceof HTMLInputElement)) {
     event.preventDefault();
     launcher.openSearch();
@@ -639,6 +850,29 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && overlayKind) chooseOverlayAction(overlayFocus);
 });
 
+if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "1") {
+  window.__vcgMotionSimulator = Object.freeze({
+    enable(enabled = true) {
+      setSimulatorEnabled(enabled);
+    },
+    setPlayerVisible(visible: boolean) {
+      if (!simulatorEnabled) setSimulatorEnabled(true);
+      setSimulatorPlayerVisible(visible);
+    },
+    setPose(pose: MotionSimulatorPose) {
+      if (!(MOTION_SIMULATOR_POSES as readonly string[]).includes(pose)) {
+        throw new Error(`Unknown simulator pose: ${String(pose)}`);
+      }
+      if (!simulatorEnabled) setSimulatorEnabled(true);
+      setSimulatorLatchedPose(pose);
+    },
+    snapshot() {
+      return { enabled: simulatorEnabled, ...poseSimulator.snapshot };
+    },
+  });
+}
+
+paintSimulator();
 paintClock();
 setInterval(paintClock, 15_000);
 requestAnimationFrame(replayLoop);

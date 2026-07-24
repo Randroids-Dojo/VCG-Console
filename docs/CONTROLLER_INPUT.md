@@ -16,7 +16,7 @@ The adapter interprets the browser's standard mapping as follows:
 | Pause | Start button 9 |
 | Home | Home button 16 when the browser exposes it |
 
-Actions are edge-triggered. Holding a button or axis emits one action until it returns through neutral; reconnecting after an observed absence starts a new edge epoch. Direction repeat, ambiguous-device mapping, controller glyphs, haptics, battery, and per-player ownership are not implemented.
+Console actions are edge-triggered. Holding a button or axis emits one action until it returns through neutral; reconnecting after an observed absence starts a new edge epoch. The router also publishes the union of currently held semantic actions on every poll to the explicitly enabled camera-free pose simulator. That observation path changes only simulator landmarks: Home and Back continue through the edge-triggered console path and are never converted to poses. Direction repeat, ambiguous-device mapping, controller glyphs, haptics, battery, and per-player ownership are not implemented.
 
 ## Connection lifecycle
 
