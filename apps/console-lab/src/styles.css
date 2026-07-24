@@ -4375,6 +4375,100 @@ kbd {
   letter-spacing: 0.06em;
 }
 
+@media (min-width: 1000px) and (min-height: 600px) {
+  .launcher {
+    --tv-launcher-topbar-height: clamp(72px, 8vh, 172px);
+
+    height: 100vh;
+    min-height: 0;
+    padding: 5vh 5vw;
+  }
+
+  .launcher-topbar {
+    height: var(--tv-launcher-topbar-height);
+    min-height: var(--tv-launcher-topbar-height);
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(520px, 34vw)
+      minmax(0, 1fr);
+    padding-inline: clamp(24px, 2.5vw, 96px);
+  }
+
+  .launcher-frame {
+    height: calc(90vh - var(--tv-launcher-topbar-height));
+    min-height: 0;
+    grid-template-columns: clamp(188px, 12vw, 460px) 1fr;
+  }
+
+  .launcher-nav {
+    min-height: 0;
+    padding:
+      clamp(28px, 4vh, 86px)
+      clamp(24px, 2vw, 76px)
+      clamp(24px, 3vh, 65px);
+  }
+
+  .nav-signal {
+    top: clamp(28px, 4vh, 86px);
+    bottom: clamp(24px, 3vh, 65px);
+  }
+
+  .launcher-content {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding:
+      clamp(24px, 4vh, 86px)
+      clamp(24px, 4vw, 154px)
+      clamp(18px, 3vh, 65px);
+  }
+
+  .launcher-view {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .home-view {
+    grid-template-rows: minmax(180px, 1fr) auto auto;
+  }
+
+  .destination {
+    min-height: clamp(180px, 25vh, 500px);
+    padding:
+      clamp(18px, 2vh, 43px)
+      clamp(18px, 1.5vw, 58px);
+  }
+
+  .destination small {
+    font-size: clamp(18px, 0.9vw, 34px);
+    line-height: 1.4;
+  }
+
+  .launcher [data-tv-critical-text][data-tv-critical-text] {
+    font-size: clamp(24px, 1.25vw, 48px);
+    line-height: 1.25;
+  }
+
+  .launcher .home-heading h1[data-tv-critical-text] {
+    font-size: clamp(44px, 5vw, 128px);
+    line-height: 0.94;
+  }
+
+  .launcher [data-tv-action] {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .launcher-nav button[data-tv-action] {
+    min-height: clamp(48px, 5vh, 108px);
+  }
+
+  .home-status {
+    gap: clamp(18px, 2vw, 76px);
+    padding-top: clamp(12px, 2vh, 43px);
+  }
+}
+
 @media (max-width: 900px) {
   .launcher-topbar {
     grid-template-columns: 1fr auto;

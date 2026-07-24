@@ -1029,12 +1029,12 @@
 
 <main bind:this={launcher} class="launcher" id="launcher" hidden={!visible}>
   <header class="launcher-topbar">
-    <button class="launcher-brand" type="button" data-launcher-home aria-label="VCG Console home" onclick={() => showView("home")}>VCG<span>/</span>CONSOLE</button>
-    <button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog" onclick={openSearch}>
+    <button class="launcher-brand" type="button" data-launcher-home data-tv-action data-tv-critical-text aria-label="VCG Console home" onclick={() => showView("home")}>VCG<span>/</span>CONSOLE</button>
+    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" onclick={openSearch}>
       <span>Search games, hubs, and settings</span><kbd>/</kbd>
     </button>
     <div class="launcher-presence">
-      <button type="button" onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
+      <button type="button" data-tv-action data-tv-critical-text onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
       <time id="launcher-clock" aria-label="Local time">{clock}</time>
     </div>
   </header>
@@ -1043,33 +1043,33 @@
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateY(${navSignalOffset}px)`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
-        <button class:active={view === target || (target === "motion" && view === "session-adversarial")} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "motion" && view === "session-adversarial")} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
-        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
 
     <section class="launcher-content">
       <div class="launcher-view home-view" data-launcher-view="home" hidden={view !== "home"}>
         <div class="home-heading">
-          <p class="view-kicker">READY / LOCAL</p>
-          <h1>Good evening,<br /><span id="home-profile-name">{activeProfile}.</span></h1>
-          <p>Choose where to play.</p>
+          <p class="view-kicker" data-tv-critical-text>READY / LOCAL</p>
+          <h1 data-tv-critical-text>Good evening,<br /><span id="home-profile-name">{activeProfile}.</span></h1>
+          <p data-tv-critical-text>Choose where to play.</p>
         </div>
         <div class="home-destinations" aria-label="Game destinations">
-          <button class="destination featured" type="button" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}>
-            <span class="destination-index">MOTION / 01</span><strong>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action">Continue <b>→</b></span>
+          <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")}>
+            <span class="destination-index" data-tv-critical-text>MOTION / 01</span><strong data-tv-critical-text>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action" data-tv-critical-text>Continue <b>→</b></span>
           </button>
-          <button class="destination" type="button" onclick={() => showView("museum")}>
-            <span class="destination-index">ONLINE / 02</span><strong>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action">Enter <b>→</b></span>
+          <button class="destination" type="button" data-tv-action onclick={() => showView("museum")}>
+            <span class="destination-index" data-tv-critical-text>ONLINE / 02</span><strong data-tv-critical-text>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action" data-tv-critical-text>Enter <b>→</b></span>
           </button>
-          <button class="destination" type="button" onclick={() => showView("retro")}>
-            <span class="destination-index">LOCAL / 03</span><strong>RetroArch</strong><small>Your installed retro library</small><span class="destination-action">Open <b>→</b></span>
+          <button class="destination" type="button" data-tv-action onclick={() => showView("retro")}>
+            <span class="destination-index" data-tv-critical-text>LOCAL / 03</span><strong data-tv-critical-text>RetroArch</strong><small>Your installed retro library</small><span class="destination-action" data-tv-critical-text>Open <b>→</b></span>
           </button>
         </div>
-        <footer class="home-status"><span><i></i> Console ready</span><span>{installedPackageSummary()}</span><span>Network setup required</span></footer>
+        <footer class="home-status"><span data-tv-critical-text><i></i> Console ready</span><span data-tv-critical-text>{installedPackageSummary()}</span><span data-tv-critical-text>Network setup required</span></footer>
       </div>
 
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>

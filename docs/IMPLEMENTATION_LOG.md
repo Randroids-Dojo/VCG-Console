@@ -4196,3 +4196,88 @@ selected-file import, retained-handle hashing and scanning, protected storage,
 launch-specific read-only sandbox mounts, native generation binding, reviewed
 per-system UI/help, dependency-aware removal and reset, signed policy updates,
 target RetroArch diagnostics, and real corrupt/missing/wrong-revision tests.
+
+## 2026-07-24: versioned arcade parent/clone preflight
+
+### Delivered
+
+- Added a separate strict arcade-set module without loosening retro import v1.
+  It binds policy/revision, exact core and core version, exact set version,
+  sorted unique title/set identities, parent/clone relationships, exact
+  hashes, and explicit test-versus-user-supplied rights status.
+- Added a same-scope installed inventory with exact generation and clean/
+  blocked/unavailable scan state. Paths, filenames, display names, download
+  URLs, content bytes, unknown fields, duplicates, unsafe IDs, and ambiguous
+  ordering fail.
+- Added stable missing, wrong-hash, and unsafe-set diagnostics. Clone readiness
+  requires both exact parent and child; launch binding accepts only the exact
+  parsed policy, inventory, and readiness capability.
+- Added synthetic rights-cleared parent/clone identities only. No ROM/archive
+  bytes, real commercial title, real MAME compatibility, or import permission
+  is claimed.
+- Added `RETRO_ARCADE_SET_DIAGNOSTICS.md` and RA-001 through RA-006 for exact
+  core/set organization, rights-cleared fixtures, dependency scope, import
+  packaging, reviewed diagnostics, and update/removal.
+
+### Verification evidence
+
+- All 10 focused arcade tests pass; the retro import-contract package now has
+  34 passing tests.
+- Strict package typechecking passes.
+- Tests cover exact parent, exact parent-plus-clone, independently missing
+  sets, wrong hash, unsafe scan, core/core-version/set-version confusion,
+  malformed graphs/order, forbidden data fields, clone/stale authority,
+  unknown titles, unparsed objects, and canonical JSON.
+
+### Remaining boundary
+
+I-126 is active, not closed. Retro import v1 still intentionally rejects MAME
+sets and other multi-file content. Production requires a selected real core/
+set organization and metadata source, genuinely rights-cleared fixtures,
+archive/member and BIOS/device/sample/CHD validation, an atomic multi-object
+import/removal/recovery transaction, reviewed UI, target frontend execution on
+both architectures, and real corrupt/incomplete/version-mismatch evidence.
+
+## 2026-07-24: launcher-home television conformance
+
+### Delivered
+
+- Applied the candidate television floor to the production launcher home with
+  explicit critical-text and action markers, a five-percent viewport inset,
+  responsive TV typography, 48 CSS-pixel action minima, bounded fixed-height
+  layout, and a no-request favicon.
+- Added three production-build Playwright cases at 1280x720, 1920x1080, and
+  3840x2160. They require 24 marked critical texts and 12 actions, exact
+  safe-area containment, minimum sizes, pairwise critical-text and
+  heading/destination/status non-overlap, zero launcher overflow, and a real
+  Home/Search/Enter/Escape focus round trip.
+- Added a frozen installed-Chrome generator with deterministic clock input,
+  three byte-stable screenshots, exact build-resource accounting, and a
+  truthful no-native-host projection.
+- Added a strict offline validator and 11 mutation tests that bind the base TV
+  contract, production sources, build inputs, exact screenshots, geometry,
+  focus trace, errors, limitations, and zero physical/native/other-view/
+  target claims.
+- Published the dated evidence report and linked the launcher application from
+  the candidate authoring contract.
+
+### Verification evidence
+
+- All 72 marked-text observations and 36 marked-action observations pass
+  across the three resolutions. Critical-text minima are 24/24/48 CSS px;
+  action minima are 125.813x48, 125.813x48, and 211.609x60 CSS px.
+- All six critical/section overlap counts and all six horizontal/vertical
+  overflow values are zero. All three focus traces are exactly Home, Search
+  trigger, Search input, restored Search trigger.
+- The production build loads with zero console, page, and request errors.
+  `pnpm validate:launcher-tv-conformance` passes the artifact and all 11
+  adversarial cases.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. This is one launcher home view on a Windows desk.
+Every other launcher/game/failure surface; physical TV, controller, reserved
+Home, native host, and people; actual target Linux output/scaling, overscan,
+seating distance, accessibility/localization, audio, concurrent load, frame
+pacing, and performance remain unproven. Q-242 and Q-243 still select the
+final visual and tier output policies.

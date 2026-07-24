@@ -85,6 +85,21 @@ The frame observations prove only that the page used ordered, nonnegative
 elapsed-time samples. They are not a 60 Hz claim, GPU frame-pacing result, or
 performance threshold.
 
+## Launcher-home application
+
+The production-built launcher home view now applies the same candidate floor
+to 24 explicitly marked critical-text elements and 12 actions. A separate
+hash-bound run at all three viewports verifies safe-area containment, minimum
+sizes, pairwise text and section non-overlap, zero launcher overflow, and a
+Home-to-Search keyboard select/Back focus round trip.
+
+See
+[the dated launcher evidence](LAUNCHER_TV_CONFORMANCE_EVIDENCE_2026-07-24.md)
+and its
+[strict artifact](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json).
+This advances one shell surface only; the remaining launcher views and every
+game still require the checklist below.
+
 ## Author checklist
 
 Before proposing a title or shell surface as television-compatible, record:

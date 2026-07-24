@@ -1,0 +1,253 @@
+{
+  "format": "vcg-launcher-home-tv-conformance-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
+  "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-24T22:12:58.527Z",
+  "environment": {
+    "producerPlatform": "win32",
+    "producerArchitecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "devicePixelRatio": 1,
+    "browserClock": "2026-07-24T19:00:00-07:00"
+  },
+  "baseContract": {
+    "format": "vcg-tv-conformance-evidence/v1",
+    "sha256": "e5fa7806fe070cf7952436d8b95fa49c3568a77051c669b4cc03043387000da6"
+  },
+  "contract": {
+    "surface": "launcher-home",
+    "safeInsetPercent": 5,
+    "minimumCriticalTextCssPx": 24,
+    "minimumActionTargetCssPx": 48,
+    "resolutions": [
+      {
+        "id": "720p",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "id": "4k",
+        "width": 3840,
+        "height": 2160
+      }
+    ]
+  },
+  "browser": {
+    "browserProduct": "Chrome/150.0.7871.182",
+    "observations": [
+      {
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 12,
+        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetHeightCssPx": 48,
+        "sectionOverlapCount": 0,
+        "launcherOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "nativePackageProjection": "unavailable-no-host-bridge-configured",
+        "focusTrace": [
+          "launcher-home",
+          "search-trigger",
+          "universal-search",
+          "search-trigger"
+        ],
+        "searchVisibleAfterSelect": true,
+        "searchHiddenAfterBack": true,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
+          "bytes": 206924,
+          "sha256": "c0a1d6060118aa7cd2c5eec21cbadea14b316d6222ff8499fed3523449bd0ae9"
+        }
+      },
+      {
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 12,
+        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetHeightCssPx": 48,
+        "sectionOverlapCount": 0,
+        "launcherOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "nativePackageProjection": "unavailable-no-host-bridge-configured",
+        "focusTrace": [
+          "launcher-home",
+          "search-trigger",
+          "universal-search",
+          "search-trigger"
+        ],
+        "searchVisibleAfterSelect": true,
+        "searchHiddenAfterBack": true,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
+          "bytes": 296194,
+          "sha256": "305ff042cdf301d3524b8a3c1c330fa5fad5a00ed82904688abeb1a1a06fdf54"
+        }
+      },
+      {
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 12,
+        "minimumActionTargetWidthCssPx": 211.609,
+        "minimumActionTargetHeightCssPx": 60,
+        "sectionOverlapCount": 0,
+        "launcherOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "nativePackageProjection": "unavailable-no-host-bridge-configured",
+        "focusTrace": [
+          "launcher-home",
+          "search-trigger",
+          "universal-search",
+          "search-trigger"
+        ],
+        "searchVisibleAfterSelect": true,
+        "searchHiddenAfterBack": true,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
+          "bytes": 751902,
+          "sha256": "33df44a9ac9e2071e647e53dfef19159a0892a457c96dc2b2e427c9c0be65626"
+        }
+      }
+    ],
+    "consoleErrorCount": 0,
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "requestCounts": {
+      "/": 3,
+      "/assets/main-CEom15Ni.css": 3,
+      "/assets/main-IhPddd8o.js": 3,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
+      "/assets/src-EbToTsJV.js": 3,
+      "/assets/synthetic-BTWSnpMo.js": 3,
+      "/assets/tracker-health--oynSZbv.js": 3,
+      "/fonts/OCRA.ttf": 3
+    }
+  },
+  "disposition": {
+    "productionBuildLoaded": true,
+    "markedCriticalTextVerified": true,
+    "markedActionTargetsVerified": true,
+    "criticalAndSectionOverlapRejected": true,
+    "keyboardFocusSelectBackVerified": true,
+    "launcherOverflowRejected": true,
+    "physicalTelevisionVerified": false,
+    "physicalControllerVerified": false,
+    "reservedHomeVerified": false,
+    "nativeHostVerified": false,
+    "otherLauncherViewsVerified": false,
+    "catalogGameCompatibilityVerified": false,
+    "targetPlatformQualified": false,
+    "frameRateQualified": false
+  },
+  "summary": {
+    "resolutionCount": 3,
+    "screenshotCount": 3,
+    "launcherViewCount": 1,
+    "markedCriticalTextCountPerResolution": 24,
+    "markedActionTargetCountPerResolution": 12,
+    "physicalTelevisionCount": 0,
+    "physicalControllerCount": 0,
+    "participantCount": 0,
+    "catalogGameCount": 0,
+    "targetHardwareCount": 0
+  },
+  "provenance": {
+    "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
+    "launcherPathSha256": "236fb50c2f0b228dd39d89115d90bbddb40af494d745bd6aeda308e89b86f200",
+    "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
+    "searchPathSha256": "b86c49434ece0103d60ec87b7748c10c8ae14ba973b00844c99ea22e1fd9fcdf",
+    "stylePath": "apps/console-lab/src/styles.css",
+    "stylePathSha256": "6903f79f81b1c066469d9487bc569af7a44b22b75c70438f7e665b34963a5fa3",
+    "entryPath": "apps/console-lab/src/main.ts",
+    "entryPathSha256": "3f756b74a73b15bcb56909c1f50326c80857624b8df6feba0127e5389f24e487",
+    "documentPath": "apps/console-lab/index.html",
+    "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
+    "viteConfigPath": "apps/console-lab/vite.config.ts",
+    "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
+    "catalogPath": "apps/console-lab/src/launcher/catalog.generated.ts",
+    "catalogPathSha256": "f7bb55eb2de3658081a639140ed7b96629d4368f798724ee7e30ef2cb0465f62",
+    "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
+    "browserTestPathSha256": "4521f8dccbb9af1cd7aae33060870924d1d88b37f09a6bff8dadfbc7ada69c7c",
+    "baseContractPath": "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+    "baseContractPathSha256": "e5fa7806fe070cf7952436d8b95fa49c3568a77051c669b4cc03043387000da6",
+    "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
+    "generatorPathSha256": "7824c334deda07e0e5df788b1fb00ca74b3cb290a0e4f98f8196c42969b3ea43",
+    "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
+    "validatorPathSha256": "ab9cd93e9e89d96c20e2045140e9cf9a0dbfe1e64505257eaa12960364ad2fc8",
+    "productionSourceTree": {
+      "roots": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "apps/console-lab/package.json",
+        "apps/console-lab/index.html",
+        "apps/console-lab/vite.config.ts",
+        "apps/console-lab/src",
+        "packages/game-manifest/src",
+        "packages/launcher-catalog/src",
+        "packages/motion-contract/src",
+        "packages/motion-web-bridge/src",
+        "packages/retro-firmware-contract/src",
+        "packages/retro-import-contract/src"
+      ],
+      "fileCount": 125,
+      "sha256": "bc68a147a0e31b9aa798ba849f4f583955fd3b07770265d94c1e8604cfe6315e"
+    }
+  },
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",
+  "limitations": [
+    "Only the marked launcher home view was measured. Motion, Museum, Retro, Profiles, Settings, overlays other than Search, launch progress, Motion Lab, games, and failure/recovery surfaces remain outside this evidence.",
+    "The three observations used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
+    "Keyboard Tab, Enter, and Escape exercised one focus/select/Back round trip. No physical controller, hot-plug, reserved Home, motion input, pointer lock, fullscreen, crash, hang, or compositor-owned recovery action was tested.",
+    "A frozen browser clock makes the screenshots reproducible. It is evidence-fixture input, not secure time, native-host state, profile authority, or a production clock integration.",
+    "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, or catalog-wide compatibility."
+  ]
+}
