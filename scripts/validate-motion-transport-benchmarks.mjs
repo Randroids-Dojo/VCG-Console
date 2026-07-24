@@ -8,6 +8,11 @@ const expectedTransports = [
   "local-socket",
   "websocket-loopback",
 ];
+const expectedMotionFrameShapes = [
+  "one synthetic candidate with body.core17 landmarks and no actions",
+  "one synthetic joined player with body.core17 plus body.mediapipe33 world landmarks and no actions",
+  "one synthetic joined player with body.core17 landmarks and ten standardized triggered actions",
+];
 const requested = process.argv.slice(2);
 const paths =
   requested.length > 0
@@ -114,7 +119,9 @@ function validatePayloadMethod(method) {
   requireEqual(method.producerSchemaValidation, true, "method.producerSchemaValidation");
   requireEqual(method.consumerSchemaValidation, true, "method.consumerSchemaValidation");
   requireEqual(method.motionApiVersion, "0.3.0", "method.motionApiVersion");
-  requireString(method.frameShape, "method.frameShape");
+  if (!expectedMotionFrameShapes.includes(method.frameShape)) {
+    throw new Error("method.frameShape must identify a supported canonical benchmark frame");
+  }
 }
 
 function validateResult(result, expectedTransport, isolated) {

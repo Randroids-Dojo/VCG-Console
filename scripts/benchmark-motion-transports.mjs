@@ -14,7 +14,11 @@ const transportServerScript = fileURLToPath(
   new URL("./benchmark-motion-transport-server.mjs", import.meta.url),
 );
 const options = parseOptions(process.argv.slice(2));
-const payloadCodec = createTransportPayloadCodec(options.payloadMode, options.payloadBytes);
+const payloadCodec = createTransportPayloadCodec(
+  options.payloadMode,
+  options.payloadBytes,
+  options.motionFrameShape,
+);
 const payload = payloadCodec.referencePayload;
 const results = [];
 
@@ -86,7 +90,7 @@ const report = {
     "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
     "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
     options.payloadMode === "motion-json"
-      ? "The representative frame is synthetic body.core17 data; richer profiles and action-heavy frames require separate measurements."
+      ? "The representative frame is synthetic; live backend distributions, multi-player traffic, and worst-case frames require separate measurements."
       : "Opaque-byte mode excludes Motion serialization and schema validation.",
     "No result grants authority or selects the production transport.",
   ],
@@ -651,7 +655,7 @@ function parseOptions(arguments_) {
     const value = arguments_[index + 1];
     if (!name?.startsWith("--") || value === undefined) {
       throw new Error(
-        "Expected --iterations, --warmup, --payload-bytes, --payload-mode, --server-layout, or --output with a value",
+        "Expected --iterations, --warmup, --payload-bytes, --payload-mode, --motion-frame-shape, --server-layout, or --output with a value",
       );
     }
     values.set(name, value);
@@ -667,16 +671,25 @@ function parseOptions(arguments_) {
   const output = values.get("--output");
   const serverLayout = values.get("--server-layout") ?? "same-process";
   const payloadMode = values.get("--payload-mode") ?? "opaque-bytes";
+  const motionFrameShape = values.get("--motion-frame-shape") ?? "core17";
   if (!["same-process", "child-process"].includes(serverLayout)) {
     throw new Error("server-layout must be same-process or child-process");
   }
   if (!["opaque-bytes", "motion-json"].includes(payloadMode)) {
     throw new Error("payload-mode must be opaque-bytes or motion-json");
   }
+  if (!["core17", "mediapipe33-world", "action-heavy"].includes(motionFrameShape)) {
+    throw new Error(
+      "motion-frame-shape must be core17, mediapipe33-world, or action-heavy",
+    );
+  }
   if (payloadMode === "motion-json" && values.has("--payload-bytes")) {
     throw new Error(
       "payload-bytes cannot be set with motion-json; the canonical frame determines its encoded size",
     );
+  }
+  if (payloadMode === "opaque-bytes" && values.has("--motion-frame-shape")) {
+    throw new Error("motion-frame-shape is available only with payload-mode motion-json");
   }
   for (const name of values.keys()) {
     if (
@@ -687,12 +700,21 @@ function parseOptions(arguments_) {
         "--output",
         "--server-layout",
         "--payload-mode",
+        "--motion-frame-shape",
       ].includes(name)
     ) {
       throw new Error(`Unknown option ${name}`);
     }
   }
-  return { iterations, warmup, payloadBytes, output, serverLayout, payloadMode };
+  return {
+    iterations,
+    warmup,
+    payloadBytes,
+    output,
+    serverLayout,
+    payloadMode,
+    motionFrameShape,
+  };
 }
 
 function boundedInteger(value, minimum, maximum, name) {

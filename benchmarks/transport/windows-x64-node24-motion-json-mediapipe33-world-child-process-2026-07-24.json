@@ -1,7 +1,7 @@
 {
   "format": "vcg-motion-transport-benchmark",
   "formatVersion": 2,
-  "createdAt": "2026-07-24T13:22:05.462Z",
+  "createdAt": "2026-07-24T13:22:40.430Z",
   "environment": {
     "platform": "win32",
     "architecture": "x64",
@@ -12,7 +12,7 @@
   "method": {
     "iterations": 5000,
     "warmupIterations": 500,
-    "payloadBytes": 2010,
+    "payloadBytes": 8353,
     "pattern": "sequential request/echo round trip",
     "compression": false,
     "payloadMode": "motion-json",
@@ -21,107 +21,107 @@
     "producerSchemaValidation": true,
     "consumerSchemaValidation": true,
     "motionApiVersion": "0.3.0",
-    "frameShape": "one synthetic candidate with body.core17 landmarks and no actions",
+    "frameShape": "one synthetic joined player with body.core17 plus body.mediapipe33 world landmarks and no actions",
     "processLayout": "socket and WebSocket echo servers run in separate child processes; client, direct baseline, and shared-memory worker orchestration run in the parent"
   },
   "results": [
     {
       "transport": "direct-library",
       "latencyMicroseconds": {
-        "p50": 36.6,
-        "p95": 55.7,
-        "p99": 91.3,
-        "max": 2130.8
+        "p50": 135.5,
+        "p95": 217.8,
+        "p99": 357,
+        "max": 7476.4
       },
-      "elapsedMs": 213.02,
-      "roundTripsPerSecond": 23471.48,
-      "processCpuMs": 359,
+      "elapsedMs": 821.59,
+      "roundTripsPerSecond": 6085.75,
+      "processCpuMs": 1062,
       "queueModel": "synchronous call; no retained queue",
       "stallCapacityFrames": 0
     },
     {
       "transport": "shared-memory-slot",
       "latencyMicroseconds": {
-        "p50": 54.3,
-        "p95": 96.9,
-        "p99": 190.3,
-        "max": 457
+        "p50": 159.1,
+        "p95": 281.1,
+        "p99": 363.6,
+        "max": 7516
       },
-      "elapsedMs": 305.3,
-      "roundTripsPerSecond": 16377.53,
-      "processCpuMs": 313,
+      "elapsedMs": 968.17,
+      "roundTripsPerSecond": 5164.4,
+      "processCpuMs": 1171,
       "queueModel": "one request slot and one response slot",
       "stallCapacityFrames": 1
     },
     {
       "transport": "tcp-loopback",
       "latencyMicroseconds": {
-        "p50": 114.2,
-        "p95": 204.5,
-        "p99": 270.3,
-        "max": 1348.9
+        "p50": 239.5,
+        "p95": 411.4,
+        "p99": 585.7,
+        "max": 7199
       },
-      "elapsedMs": 652.94,
-      "roundTripsPerSecond": 7657.71,
-      "processCpuMs": 500,
+      "elapsedMs": 1447.99,
+      "roundTripsPerSecond": 3453.06,
+      "processCpuMs": 1765,
       "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
-      "clientRssStartBytes": 161366016,
-      "clientRssEndBytes": 162889728,
-      "serverProcessCpuMs": 266,
-      "serverRssStartBytes": 76693504,
-      "serverRssEndBytes": 85086208,
-      "serverRssPeakBytes": 85086208,
+      "clientRssStartBytes": 332488704,
+      "clientRssEndBytes": 333815808,
+      "serverProcessCpuMs": 281,
+      "serverRssStartBytes": 76414976,
+      "serverRssEndBytes": 86331392,
+      "serverRssPeakBytes": 91660288,
       "stallCapacityFrames": {
-        "framesAcceptedBeforeSignal": 122,
-        "writableLengthBytes": 18090,
+        "framesAcceptedBeforeSignal": 29,
+        "writableLengthBytes": 16706,
         "writableHighWaterMarkBytes": 16384
       }
     },
     {
       "transport": "local-socket",
       "latencyMicroseconds": {
-        "p50": 85.3,
-        "p95": 172.4,
-        "p99": 255.3,
-        "max": 1254
+        "p50": 208.1,
+        "p95": 379.8,
+        "p99": 537.2,
+        "max": 6717.7
       },
-      "elapsedMs": 502.8,
-      "roundTripsPerSecond": 9944.35,
-      "processCpuMs": 515,
+      "elapsedMs": 1294.85,
+      "roundTripsPerSecond": 3861.45,
+      "processCpuMs": 1625,
       "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
-      "clientRssStartBytes": 163172352,
-      "clientRssEndBytes": 164175872,
-      "serverProcessCpuMs": 126,
-      "serverRssStartBytes": 75100160,
-      "serverRssEndBytes": 84041728,
-      "serverRssPeakBytes": 84041728,
+      "clientRssStartBytes": 334356480,
+      "clientRssEndBytes": 333803520,
+      "serverProcessCpuMs": 188,
+      "serverRssStartBytes": 74985472,
+      "serverRssEndBytes": 80760832,
+      "serverRssPeakBytes": 98295808,
       "stallCapacityFrames": {
-        "framesAcceptedBeforeSignal": 8,
-        "writableLengthBytes": 18090,
+        "framesAcceptedBeforeSignal": 1,
+        "writableLengthBytes": 16706,
         "writableHighWaterMarkBytes": 16384
       }
     },
     {
       "transport": "websocket-loopback",
       "latencyMicroseconds": {
-        "p50": 140.2,
-        "p95": 255.9,
-        "p99": 325.3,
-        "max": 1198.6
+        "p50": 316.1,
+        "p95": 497.6,
+        "p99": 655.1,
+        "max": 6657.3
       },
-      "elapsedMs": 800.72,
-      "roundTripsPerSecond": 6244.4,
-      "processCpuMs": 578,
+      "elapsedMs": 1821.19,
+      "roundTripsPerSecond": 2745.46,
+      "processCpuMs": 1766,
       "queueModel": "cross-process WebSocket bufferedAmount; publisher must enforce an application-level frame bound",
-      "clientRssStartBytes": 164499456,
-      "clientRssEndBytes": 163135488,
-      "serverProcessCpuMs": 532,
-      "serverRssStartBytes": 76513280,
-      "serverRssEndBytes": 82305024,
-      "serverRssPeakBytes": 82599936,
+      "clientRssStartBytes": 334237696,
+      "clientRssEndBytes": 333041664,
+      "serverProcessCpuMs": 610,
+      "serverRssStartBytes": 76365824,
+      "serverRssEndBytes": 87908352,
+      "serverRssPeakBytes": 89145344,
       "stallCapacityFrames": {
-        "framesAcceptedBeforeOneMiBBuffered": 627,
-        "bufferedAmountBytes": 1049360,
+        "framesAcceptedBeforeOneMiBBuffered": 151,
+        "bufferedAmountBytes": 1053486,
         "applicationFrameBoundRequired": true
       }
     }

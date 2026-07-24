@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Status: opaque and Motion-JSON child-process Windows development runs recorded; no production transport selected
+Status: size-paired core, action-heavy, and rich-world Motion-JSON child-process Windows development runs recorded; no production transport selected
 
 Authority: D-004, I-074, I-084
 
@@ -62,12 +62,18 @@ size, so `--payload-bytes` is deliberately rejected in this mode:
 pnpm benchmark:transports -- --iterations 5000 --warmup 500 --payload-mode motion-json --server-layout child-process --output benchmarks/transport/<target>-motion-json.json
 ```
 
+Choose one of the three schema-valid fixed frame shapes with
+`--motion-frame-shape core17`, `action-heavy`, or `mediapipe33-world`. The
+option is valid only with `motion-json`; opaque mode takes an exact byte count
+instead.
+
 Arguments are bounded to 100–100,000 measured iterations, 0–10,000 warmups,
 and 256 bytes–1 MiB per payload. `--server-layout` accepts only
 `same-process` or `child-process`; `--payload-mode` accepts `opaque-bytes` or
-`motion-json`. Checked-in reports are structurally checked by
+`motion-json`; and `--motion-frame-shape` accepts only the three canonical
+shapes above. Checked-in reports are structurally checked by
 `pnpm validate:transport-benchmarks`, which also exercises deterministic,
-malformed, and schema-invalid payload cases.
+malformed, schema-invalid, and unsupported-shape cases.
 
 ## First Windows x64 result
 
@@ -117,23 +123,40 @@ and Zod validation to every candidate:
 
 | Transport | Opaque p50 µs | Motion p50 µs | Motion p95 µs | Motion p99 µs | Motion client CPU ms |
 |---|---:|---:|---:|---:|---:|
-| Direct library copy | 0.6 | 36.0 | 53.5 | 85.3 | 250 |
-| One-slot worker shared memory | 2.9 | 59.9 | 100.3 | 174.5 | 343 |
-| Windows named pipe | 35.5 | 82.3 | 160.3 | 248.6 | 453 |
-| TCP loopback | 58.8 | 118.7 | 200.2 | 271.5 | 609 |
-| WebSocket loopback | 85.6 | 140.6 | 259.0 | 327.1 | 578 |
+| Direct library copy | 0.6 | 36.6 | 55.7 | 91.3 | 359 |
+| One-slot worker shared memory | 2.9 | 54.3 | 96.9 | 190.3 | 313 |
+| Windows named pipe | 35.5 | 85.3 | 172.4 | 255.3 | 515 |
+| TCP loopback | 58.8 | 114.2 | 204.5 | 270.3 | 500 |
+| WebSocket loopback | 85.6 | 140.2 | 255.9 | 325.3 | 578 |
 
 The reports are:
 
 - `benchmarks/transport/windows-x64-node24-opaque-2010-child-process-2026-07-24.json`
 - `benchmarks/transport/windows-x64-node24-motion-json-child-process-2026-07-24.json`
 
-The paired observation shows that a real small Motion frame's validation and
-serialization cost is material and must be included in transport selection.
-It does not establish a portable budget: the frame is synthetic, carries one
-core-landmark player and no actions, and both schema operations run in the
-client process. Rich landmarks, action-heavy frames, other implementations,
-and target Linux remain unmeasured.
+Two additional size-paired runs cover a ten-action peak frame and a
+MediaPipe-33 frame carrying provider-world positions. Each table cell is
+Motion p50 / same-size opaque p50 in microseconds:
+
+| Frame shape | Bytes | Direct | Shared slot | Named pipe | TCP | WebSocket |
+|---|---:|---:|---:|---:|---:|---:|
+| Core 17, no actions | 2,010 | 36.6 / 0.6 | 54.3 / 2.9 | 85.3 / 35.5 | 114.2 / 58.8 | 140.2 / 85.6 |
+| Core 17, ten actions | 2,919 | 50.5 / 1.3 | 70.5 / 3.2 | 107.0 / 36.2 | 131.5 / 59.6 | 163.8 / 94.1 |
+| MediaPipe 33 + world | 8,353 | 135.5 / 2.7 | 159.1 / 13.7 | 208.1 / 53.6 | 239.5 / 88.8 | 316.1 / 162.7 |
+
+The additional reports are:
+
+- `benchmarks/transport/windows-x64-node24-opaque-2919-child-process-2026-07-24.json`
+- `benchmarks/transport/windows-x64-node24-motion-json-actions-child-process-2026-07-24.json`
+- `benchmarks/transport/windows-x64-node24-opaque-8353-child-process-2026-07-24.json`
+- `benchmarks/transport/windows-x64-node24-motion-json-mediapipe33-world-child-process-2026-07-24.json`
+
+The paired observations show that validation and serialization cost is
+material and scales with actual Motion shape, so transport selection cannot
+use opaque bytes alone. They do not establish a portable budget: every frame
+is synthetic, both schema operations run in the client process, and live
+backend distributions, multiple players, worst-case action lifecycles, other
+implementations, and target Linux remain unmeasured.
 
 ## Backpressure observations
 
@@ -169,7 +192,8 @@ Before a decision:
 
 - rerun the unchanged harness on target Linux x86-64 and ARM64;
 - implement a bounded cross-process shared-memory ownership/recovery design;
-- measure rich-profile and action-heavy frames with the same validation path;
+- measure live multi-player and worst-case backend frame distributions with
+  the same validation path;
 - run wall-clock process-isolated CPU/RSS soaks and suspend, kill, reconnect,
   and churn game and tracker processes;
 - bind admission to signed host-owned permission grants; and

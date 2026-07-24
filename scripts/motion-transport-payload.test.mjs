@@ -40,6 +40,34 @@ test("Motion JSON performs a stable full-frame round trip with validation", () =
   });
 });
 
+test("Motion JSON exposes distinct validated rich and action-heavy shapes", () => {
+  const core = createTransportPayloadCodec("motion-json", 4_096, "core17");
+  const rich = createTransportPayloadCodec(
+    "motion-json",
+    4_096,
+    "mediapipe33-world",
+  );
+  const actions = createTransportPayloadCodec(
+    "motion-json",
+    4_096,
+    "action-heavy",
+  );
+
+  assert.ok(rich.referencePayload.byteLength > core.referencePayload.byteLength);
+  assert.ok(actions.referencePayload.byteLength > core.referencePayload.byteLength);
+  assert.notEqual(rich.referencePayload.byteLength, actions.referencePayload.byteLength);
+  assert.doesNotThrow(() => rich.verify(rich.encode()));
+  assert.doesNotThrow(() => actions.verify(actions.encode()));
+  assert.equal(
+    rich.metadata.frameShape,
+    "one synthetic joined player with body.core17 plus body.mediapipe33 world landmarks and no actions",
+  );
+  assert.equal(
+    actions.metadata.frameShape,
+    "one synthetic joined player with body.core17 landmarks and ten standardized triggered actions",
+  );
+});
+
 test("Motion JSON rejects malformed and schema-invalid responses", () => {
   const codec = createTransportPayloadCodec("motion-json", 4_096);
   assert.throws(() => codec.verify(Buffer.from("{", "utf8")), SyntaxError);
@@ -56,5 +84,9 @@ test("unknown payload modes fail closed", () => {
   assert.throws(
     () => createTransportPayloadCodec("compressed-binary", 4_096),
     /payload-mode must be opaque-bytes or motion-json/,
+  );
+  assert.throws(
+    () => createTransportPayloadCodec("motion-json", 4_096, "all-data"),
+    /motion-frame-shape must be core17, mediapipe33-world, action-heavy/,
   );
 });
