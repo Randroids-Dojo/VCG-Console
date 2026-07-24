@@ -1,6 +1,6 @@
 # Motion SDK authoring guide
 
-Status: runnable web quickstart implemented; Godot quickstart pending
+Status: runnable web and Godot quickstarts implemented; target export qualification pending
 
 Authority: Motion API 0.3, bridge v2, D-004, D-006, D-059, and I-086
 
@@ -115,17 +115,57 @@ Rendering is deliberately outside the consumer. DOM, Canvas, WebGL, Godot, and
 native renderers can map this state without changing Motion authority or test
 fixtures.
 
+## Godot 4.7 quickstart
+
+The matching project is `examples/godot-motion-game`. It keeps the same
+consumer boundary in GDScript:
+
+- `VcgTinyMotionGame` validates the portable core, consumes normalized hip
+  landmarks, triggers only obstacle `triggered` actions, ignores shell
+  actions, fails visible on loss, and accepts controller recovery;
+- `VcgMotionReplay` advances a skeleton-only `vcg-motion-trace` from an
+  injected elapsed clock and rejects raw-frame or unordered input; and
+- `VcgMotionWebBridge` binds a Godot web export to exact bridge v2/Motion 0.3
+  welcome, health, frame, session, origin, and acknowledgement fields.
+
+The reviewed console origin must come from host-owned package configuration.
+The sample deliberately rejects path-bearing origins and does not read an
+origin from a page query string. It requires `body.core17`, requests
+`actions.obstacle.v1` as optional, and acknowledges only an exact sequence
+after the game consumer accepts the frame.
+
+Validate the sample with Godot 4.7:
+
+```powershell
+pnpm validate:godot
+```
+
+The validator runs three GDScript contract tests, imports and parses the
+complete project, and boots the main scene. Set `GODOT_BIN` when the executable
+is not on `PATH`. The reference scene demonstrates controller fallback while
+keeping Home and Back platform-owned.
+
+There is intentionally no native Godot transport adapter yet. I-074 must select
+and measure a local IPC transport before native Godot can receive live Motion
+data; an unauthenticated ad hoc socket would bypass the permission and
+backpressure work already established by the web bridge.
+
 ## Verification and remaining work
 
-The reference tests prove portable landmark lane input, triggered obstacle
+The TypeScript tests prove portable landmark lane input, triggered obstacle
 actions, rejection of shell actions as gameplay, deterministic replay through
 the same consumer, player-loss handling, and controller recovery. Package
 typechecking ensures both the live bridge adapter and replay adapter remain
 aligned with the current contracts.
 
-This completes the runnable web half of I-086. It does not close the
-investigation: the Godot quickstart, live/replay Godot client, ARM64/x86-64/web
-exports, package-size/tooling/latency comparison, and engine choice under Q-058
-remain I-077/I-086 work. It also does not replace real-player action
-qualification, origin containment, signed permission grants, or native
-reserved-control enforcement.
+The Godot headless tests independently cover all 17 portable landmark names,
+triggered-versus-held semantics, shell-action exclusion, controller recovery,
+deterministic replay, raw-frame denial, unsafe-origin denial, and non-web
+live-bridge denial.
+
+This completes both quickstart source paths for I-086 but keeps the
+investigation active until a real reviewed Godot web export negotiates live
+with the browser host and the target ARM64/x86-64 export, package-size,
+tooling, and latency comparison is recorded under I-077/Q-058. Neither sample
+replaces real-player action qualification, signed permission grants, target
+origin containment, or native reserved-control enforcement.

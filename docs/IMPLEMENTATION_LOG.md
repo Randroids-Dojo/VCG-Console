@@ -1210,4 +1210,25 @@ I-084 stays active. The virtual soak measures protocol-state bounds rather than 
 
 ### Remaining boundary
 
-The Godot quickstart, live/replay Godot adapter, ARM64/x86-64/web exports, package-size/tooling/latency comparison, and final engine choice remain I-077/I-086/Q-058. The example is developer evidence, not real-player motion accuracy, hostile-origin containment, signed host integration, or native reserved-control qualification.
+At that checkpoint, the Godot quickstart, live/replay Godot adapter, ARM64/x86-64/web exports, package-size/tooling/latency comparison, and final engine choice remained I-077/I-086/Q-058. The following tranche adds the source quickstart without overstating export or hardware qualification.
+
+## 2026-07-24: Godot Motion SDK quickstart
+
+### Delivered
+
+- Added a self-contained Godot 4.7 project with a portable 17-landmark consumer, triggered obstacle actions, shell-action exclusion, visible loss/degradation, and controller fallback.
+- Added deterministic skeleton-only replay with ordered injected-clock advancement and raw-frame denial.
+- Added a Godot web-export adapter bound to an exact configured origin, bridge v2, Motion API 0.3, session IDs, health, and exact consumed-frame acknowledgements.
+- Kept native live input unimplemented until I-074 selects a measured transport rather than inventing an unauthenticated socket.
+- Expanded `MOTION_SDK_AUTHORING.md` with the Godot architecture, commands, authority rules, and qualification boundaries.
+
+### Verification evidence
+
+- Godot 4.7.1 was installed through WinGet for validation.
+- Three headless GDScript tests pass for landmarks/actions/fallback, deterministic raw-free replay, and web-origin/runtime denial.
+- Headless editor import parses all global classes and the main scene boots cleanly.
+- Full workspace tests, diagnostics, build, all twenty-three Chrome flows, schemas, manifests, benchmarks, compliance freshness, dependency audit, and native regressions pass.
+
+### Remaining boundary
+
+I-077 and I-086 stay active. The web adapter still needs a reviewed live Godot browser-export flow, and ARM64/x86-64/web exports need measured size, tooling, and landmark/action latency. Native live Motion waits on I-074 transport selection; no target-hardware, real-player, or release-package qualification is claimed.
