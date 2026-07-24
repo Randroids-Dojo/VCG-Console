@@ -116,6 +116,19 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@22.15.3)(vite@8.1.5(@types/node@22.15.3)(esbuild@0.28.1)(tsx@4.23.1))
 
+  packages/retro-firmware-contract:
+    dependencies:
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 22.15.3
+        version: 22.15.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@22.15.3)(vite@8.1.5(@types/node@22.15.3)(esbuild@0.28.1)(tsx@4.23.1))
+
   packages/retro-import-contract:
     devDependencies:
       '@types/node':

@@ -4144,3 +4144,55 @@ review; emergency-disable delivery to discovery and launch authority;
 active-session termination behavior; durable save/data disposition; appeal or
 reinstatement; target compositor/input/sandbox evidence; and a complete audit
 retention and privacy policy.
+
+## 2026-07-24: strict retro firmware readiness and launch binding
+
+### Delivered
+
+- Added `@vcg/retro-firmware-contract` with strict v1 host policy and installed
+  inventory schemas. Policies bind an opaque ID/revision, exact system/core,
+  and at most 64 sorted unique requirements; inventories bind the same scope,
+  a generation, and at most 128 sorted unique ID/hash/scan records.
+- Kept the contract data-minimal: paths, filenames, URLs, display names,
+  source-device identity, encoded bytes, unknown fields, duplicates, unsafe
+  IDs, invalid hashes, and ambiguous ordering are rejected. Canonical JSON is
+  capped at 64 KiB.
+- Enforced that console-bundled firmware has separately approved
+  redistribution status. Restricted or unverified firmware can be represented
+  only as locally user-supplied; the contract never downloads, names, locates,
+  copies, or distributes it.
+- Added immutable readiness diagnostics for no-requirement, ready,
+  optional-attention, and blocked states, with separate missing, wrong-hash,
+  and blocked/unavailable opaque IDs plus stable reviewed-help/import/rescan
+  action codes.
+- Made readiness an in-memory authority. Launch binding requires the exact
+  parsed policy, parsed inventory, and readiness object evaluated together;
+  clones, policy revisions, inventory generations, system/core substitution,
+  and blocked readiness fail.
+- Added `RETRO_FIRMWARE_HANDLING.md` and RF-001 through RF-006 for exact first
+  systems, legal wording, reviewed labels, storage sharing/protection,
+  removal/reset, and policy/hash migration.
+
+### Verification evidence
+
+- All 12 focused firmware tests pass.
+- The package strict TypeScript check passes.
+- Full root tests, workspace typechecking, production build, and the ordinary
+  compliance gate pass. The regenerated inventory contains 138 components;
+  the release-only gate retains the known project-license and pose-model
+  decision classes.
+- Tests cover empty/no-BIOS readiness, exact required identity, missing/
+  mismatched/blocked/unavailable required objects, optional attention, bounds,
+  sorting and uniqueness, forbidden data fields, redistribution gating,
+  system/core confusion, clone/stale authority, parsed-object branding,
+  canonical UTF-8 and duplicate refusal, and deeply frozen path-free output.
+
+### Remaining boundary
+
+I-127 is active, not closed. The 2048 candidate remains correctly no-BIOS.
+Production still requires exact selected system/core/firmware identities,
+legal approval for every object and user-facing instruction, privileged
+selected-file import, retained-handle hashing and scanning, protected storage,
+launch-specific read-only sandbox mounts, native generation binding, reviewed
+per-system UI/help, dependency-aware removal and reset, signed policy updates,
+target RetroArch diagnostics, and real corrupt/missing/wrong-revision tests.
