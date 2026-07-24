@@ -28,7 +28,8 @@
     "validate:godot": "node scripts/validate-godot-motion-sample.mjs",
     "validate:manifests": "tsx scripts/validate-game-manifests.ts",
     "validate:release-compliance": "node scripts/generate-compliance.mjs --check --release",
-    "validate:schemas": "tsx scripts/export-schemas.ts --check"
+    "validate:schemas": "tsx scripts/export-schemas.ts --check",
+    "validate:transport-benchmarks": "node scripts/validate-motion-transport-benchmarks.mjs"
   },
   "devDependencies": {
     "@vcg/game-manifest": "workspace:*",

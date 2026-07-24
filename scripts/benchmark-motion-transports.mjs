@@ -1,30 +1,49 @@
+import { fork } from "node:child_process";
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { createServer } from "node:net";
+import { createConnection, createServer } from "node:net";
 import { cpus, tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { WebSocket, WebSocketServer } from "ws";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const transportServerScript = fileURLToPath(
+  new URL("./benchmark-motion-transport-server.mjs", import.meta.url),
+);
 const options = parseOptions(process.argv.slice(2));
 const payload = deterministicPayload(options.payloadBytes);
 const results = [];
 
-await record(benchmarkDirect(payload, options));
-await record(benchmarkSharedMemory(payload, options));
-await record(benchmarkStream("tcp-loopback", payload, options, { host: "127.0.0.1", port: 0 }));
+await record("direct-library", benchmarkDirect(payload, options));
+await record("shared-memory-slot", benchmarkSharedMemory(payload, options));
+await record(
+  "tcp-loopback",
+  options.serverLayout === "child-process"
+    ? benchmarkIsolatedStream("tcp-loopback", "tcp", payload, options)
+    : benchmarkStream("tcp-loopback", payload, options, { host: "127.0.0.1", port: 0 }),
+);
 
 const localEndpoint =
   process.platform === "win32"
     ? `\\\\.\\pipe\\vcg-motion-benchmark-${process.pid}-${Date.now()}`
     : join(tmpdir(), `vcg-motion-benchmark-${process.pid}-${Date.now()}.sock`);
 try {
-  await record(benchmarkStream("local-socket", payload, options, localEndpoint));
+  await record(
+    "local-socket",
+    options.serverLayout === "child-process"
+      ? benchmarkIsolatedStream("local-socket", "local-socket", payload, options, localEndpoint)
+      : benchmarkStream("local-socket", payload, options, localEndpoint),
+  );
 } finally {
   if (process.platform !== "win32") await rm(localEndpoint, { force: true });
 }
-await record(benchmarkWebSocket(payload, options));
+await record(
+  "websocket-loopback",
+  options.serverLayout === "child-process"
+    ? benchmarkIsolatedWebSocket(payload, options)
+    : benchmarkWebSocket(payload, options),
+);
 
 const report = {
   format: "vcg-motion-transport-benchmark",
@@ -45,12 +64,16 @@ const report = {
     compression: false,
     schemaValidation: false,
     processLayout:
-      "direct, socket, and WebSocket endpoints share one Node process; shared memory uses one worker thread",
+      options.serverLayout === "child-process"
+        ? "socket and WebSocket echo servers run in separate child processes; client, direct baseline, and shared-memory worker orchestration run in the parent"
+        : "direct, socket, and WebSocket endpoints share one Node process; shared memory uses one worker thread",
   },
   results,
   limitations: [
     "This is transport overhead, not camera-to-action latency.",
-    "Same-process socket servers understate scheduler and process-isolation costs.",
+    options.serverLayout === "child-process"
+      ? "Client and server CPU/RSS are process-isolated, but both processes still share one development host and scheduler."
+      : "Same-process socket servers understate scheduler and process-isolation costs.",
     "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
     "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
     "No result grants authority or selects the production transport.",
@@ -60,13 +83,18 @@ const report = {
 const json = `${JSON.stringify(report, null, 2)}\n`;
 if (options.output) {
   const outputPath = resolve(repositoryRoot, options.output);
+  const repositoryRelativePath = relative(repositoryRoot, outputPath);
+  if (repositoryRelativePath.startsWith("..") || isAbsolute(repositoryRelativePath)) {
+    throw new Error("output must remain inside the repository");
+  }
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, json, "utf8");
   console.error(`wrote ${outputPath}`);
 }
 process.stdout.write(json);
 
-async function record(pendingResult) {
+async function record(name, pendingResult) {
+  console.error(`starting ${name}`);
   const result = await pendingResult;
   results.push(result);
   console.error(`completed ${result.transport}`);
@@ -157,7 +185,6 @@ async function benchmarkStream(name, payload, { iterations, warmup }, endpoint) 
   const address = server.address();
   const connectionOptions =
     typeof address === "string" ? { path: address } : { host: "127.0.0.1", port: address.port };
-  const { createConnection } = await import("node:net");
   const socket = createConnection(connectionOptions);
   await once(socket, "connect");
   socket.setNoDelay?.(true);
@@ -170,6 +197,51 @@ async function benchmarkStream(name, payload, { iterations, warmup }, endpoint) 
   } finally {
     socket.destroy();
     await closeServer(server);
+  }
+}
+
+async function benchmarkIsolatedStream(
+  name,
+  childTransport,
+  payload,
+  { iterations, warmup },
+  endpoint,
+) {
+  const childState = await startTransportChild(childTransport, endpoint);
+  const socket = createConnection(childState.connectionOptions);
+  let forceStop = false;
+  try {
+    await once(socket, "connect");
+    socket.setNoDelay?.(true);
+    const invoke = createFixedEchoInvoker(socket, payload);
+    await commandTransportChild(childState.child, { kind: "begin" }, "begun");
+    const clientRssStartBytes = process.memoryUsage().rss;
+    const result = await measureAsync(name, invoke, iterations, warmup);
+    const clientRssEndBytes = process.memoryUsage().rss;
+    const serverStats = await commandTransportChild(childState.child, { kind: "stats" }, "stats");
+    result.queueModel =
+      "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false";
+    result.clientRssStartBytes = clientRssStartBytes;
+    result.clientRssEndBytes = clientRssEndBytes;
+    result.serverProcessCpuMs = serverStats.processCpuMs;
+    result.serverRssStartBytes = serverStats.rssStartBytes;
+    result.serverRssEndBytes = serverStats.rssEndBytes;
+    result.serverRssPeakBytes = serverStats.rssPeakBytes;
+    socket.destroy();
+    await commandTransportChild(
+      childState.child,
+      { kind: "set-mode", mode: "stalled" },
+      "mode-set",
+    );
+    forceStop = true;
+    result.stallCapacityFrames = await probeStreamBackpressureClient(
+      childState.connectionOptions,
+      payload,
+    );
+    return result;
+  } finally {
+    socket.destroy();
+    await stopTransportChild(childState.child, forceStop);
   }
 }
 
@@ -219,6 +291,46 @@ async function benchmarkWebSocket(payload, { iterations, warmup }) {
     client.close();
     await once(client, "close");
     await new Promise((resolveClose) => server.close(resolveClose));
+  }
+}
+
+async function benchmarkIsolatedWebSocket(payload, { iterations, warmup }) {
+  const childState = await startTransportChild("websocket");
+  const url = `ws://${childState.connectionOptions.host}:${childState.connectionOptions.port}`;
+  const client = new WebSocket(url, { perMessageDeflate: false });
+  let forceStop = false;
+  try {
+    await once(client, "open");
+    const invoke = createWebSocketEchoInvoker(client, payload);
+    await commandTransportChild(childState.child, { kind: "begin" }, "begun");
+    const clientRssStartBytes = process.memoryUsage().rss;
+    const result = await measureAsync("websocket-loopback", invoke, iterations, warmup);
+    const clientRssEndBytes = process.memoryUsage().rss;
+    const serverStats = await commandTransportChild(childState.child, { kind: "stats" }, "stats");
+    result.queueModel =
+      "cross-process WebSocket bufferedAmount; publisher must enforce an application-level frame bound";
+    result.clientRssStartBytes = clientRssStartBytes;
+    result.clientRssEndBytes = clientRssEndBytes;
+    result.serverProcessCpuMs = serverStats.processCpuMs;
+    result.serverRssStartBytes = serverStats.rssStartBytes;
+    result.serverRssEndBytes = serverStats.rssEndBytes;
+    result.serverRssPeakBytes = serverStats.rssPeakBytes;
+    const clientClosed = once(client, "close");
+    client.close();
+    await clientClosed;
+    await commandTransportChild(
+      childState.child,
+      { kind: "set-mode", mode: "stalled" },
+      "mode-set",
+    );
+    forceStop = true;
+    result.stallCapacityFrames = await probeWebSocketBackpressureEndpoint(url, payload);
+    return result;
+  } finally {
+    if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
+      client.terminate();
+    }
+    await stopTransportChild(childState.child, forceStop);
   }
 }
 
@@ -293,6 +405,28 @@ function createFixedEchoInvoker(socket, payload) {
     });
 }
 
+function createWebSocketEchoInvoker(client, payload) {
+  return () =>
+    new Promise((resolveEcho, reject) => {
+      const onError = (error) => {
+        client.off("message", onMessage);
+        reject(error);
+      };
+      const onMessage = (data) => {
+        client.off("error", onError);
+        const response = Buffer.from(data);
+        if (response[0] !== payload[0] || response.at(-1) !== payload.at(-1)) {
+          reject(new Error("WebSocket response mismatch"));
+        } else {
+          resolveEcho();
+        }
+      };
+      client.once("error", onError);
+      client.once("message", onMessage);
+      client.send(payload, { binary: true, compress: false });
+    });
+}
+
 async function probeStreamBackpressure(connectionOptions, payload) {
   let serverPeer;
   const stalledServer = createServer((socket) => {
@@ -305,19 +439,10 @@ async function probeStreamBackpressure(connectionOptions, payload) {
   try {
     await listen(stalledServer, stalledEndpoint);
     const address = stalledServer.address();
-    const { createConnection } = await import("node:net");
-    const client = createConnection(
+    const result = await probeStreamBackpressureClient(
       typeof address === "string" ? { path: address } : { host: "127.0.0.1", port: address.port },
+      payload,
     );
-    await once(client, "connect");
-    let frames = 0;
-    while (frames < 100_000 && client.write(payload)) frames += 1;
-    const result = {
-      framesAcceptedBeforeSignal: frames,
-      writableLengthBytes: client.writableLength,
-      writableHighWaterMarkBytes: client.writableHighWaterMark,
-    };
-    client.destroy();
     serverPeer?.destroy();
     await closeServer(stalledServer);
     return result;
@@ -326,6 +451,20 @@ async function probeStreamBackpressure(connectionOptions, payload) {
       await rm(stalledEndpoint, { force: true });
     }
   }
+}
+
+async function probeStreamBackpressureClient(connectionOptions, payload) {
+  const client = createConnection(connectionOptions);
+  await once(client, "connect");
+  let frames = 0;
+  while (frames < 100_000 && client.write(payload)) frames += 1;
+  const result = {
+    framesAcceptedBeforeSignal: frames,
+    writableLengthBytes: client.writableLength,
+    writableHighWaterMarkBytes: client.writableHighWaterMark,
+  };
+  client.destroy();
+  return result;
 }
 
 async function probeWebSocketBackpressure(server, payload) {
@@ -351,6 +490,93 @@ async function probeWebSocketBackpressure(server, payload) {
   serverPeer?.terminate();
   await Promise.all([stalledClosed, serverPeerClosed]);
   return result;
+}
+
+async function probeWebSocketBackpressureEndpoint(url, payload) {
+  const stalled = new WebSocket(url, { perMessageDeflate: false });
+  await once(stalled, "open");
+  let frames = 0;
+  while (frames < 100_000 && stalled.bufferedAmount <= 1_048_576) {
+    stalled.send(payload, { binary: true, compress: false });
+    frames += 1;
+  }
+  const result = {
+    framesAcceptedBeforeOneMiBBuffered: frames,
+    bufferedAmountBytes: stalled.bufferedAmount,
+    applicationFrameBoundRequired: true,
+  };
+  stalled.terminate();
+  return result;
+}
+
+async function startTransportChild(transport, endpoint) {
+  const arguments_ = ["--transport", transport];
+  if (typeof endpoint === "string") arguments_.push("--endpoint", endpoint);
+  const child = fork(transportServerScript, arguments_, {
+    stdio: ["ignore", "ignore", "inherit", "ipc"],
+  });
+  try {
+    const ready = await waitForTransportChildMessage(child, "ready");
+    return {
+      child,
+      connectionOptions: ready.connectionOptions,
+    };
+  } catch (error) {
+    child.kill();
+    throw error;
+  }
+}
+
+function commandTransportChild(child, message, responseKind) {
+  const response = waitForTransportChildMessage(child, responseKind);
+  child.send(message);
+  return response;
+}
+
+function waitForTransportChildMessage(child, kind) {
+  return new Promise((resolveMessage, reject) => {
+    const onMessage = (message) => {
+      if (message?.kind === "failure") {
+        cleanup();
+        reject(new Error(`transport child failed: ${message.message}`));
+      } else if (message?.kind === kind) {
+        cleanup();
+        resolveMessage(message);
+      }
+    };
+    const onError = (error) => {
+      cleanup();
+      reject(error);
+    };
+    const onExit = (code, signal) => {
+      cleanup();
+      reject(
+        new Error(
+          `transport child exited before ${kind} (code=${String(code)}, signal=${String(signal)})`,
+        ),
+      );
+    };
+    const cleanup = () => {
+      child.off("message", onMessage);
+      child.off("error", onError);
+      child.off("exit", onExit);
+    };
+    child.on("message", onMessage);
+    child.once("error", onError);
+    child.once("exit", onExit);
+  });
+}
+
+async function stopTransportChild(child, force = false) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((resolveExit) => child.once("exit", resolveExit));
+  if (force) {
+    child.kill();
+    await exited;
+    return;
+  }
+  await commandTransportChild(child, { kind: "shutdown" }, "shutdown");
+  await exited;
 }
 
 function listen(server, endpoint) {
@@ -416,12 +642,24 @@ function parseOptions(arguments_) {
     "payload-bytes",
   );
   const output = values.get("--output");
+  const serverLayout = values.get("--server-layout") ?? "same-process";
+  if (!["same-process", "child-process"].includes(serverLayout)) {
+    throw new Error("server-layout must be same-process or child-process");
+  }
   for (const name of values.keys()) {
-    if (!["--iterations", "--warmup", "--payload-bytes", "--output"].includes(name)) {
+    if (
+      ![
+        "--iterations",
+        "--warmup",
+        "--payload-bytes",
+        "--output",
+        "--server-layout",
+      ].includes(name)
+    ) {
       throw new Error(`Unknown option ${name}`);
     }
   }
-  return { iterations, warmup, payloadBytes, output };
+  return { iterations, warmup, payloadBytes, output, serverLayout };
 }
 
 function boundedInteger(value, minimum, maximum, name) {

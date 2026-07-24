@@ -1,0 +1,130 @@
+{
+  "format": "vcg-motion-transport-benchmark",
+  "formatVersion": 1,
+  "createdAt": "2026-07-24T10:41:01.404Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0",
+    "cpuModel": "AMD Ryzen 9 5900X 12-Core Processor",
+    "logicalCpuCount": 24
+  },
+  "method": {
+    "iterations": 5000,
+    "warmupIterations": 500,
+    "payloadBytes": 4096,
+    "pattern": "sequential request/echo round trip",
+    "compression": false,
+    "schemaValidation": false,
+    "processLayout": "socket and WebSocket echo servers run in separate child processes; client, direct baseline, and shared-memory worker orchestration run in the parent"
+  },
+  "results": [
+    {
+      "transport": "direct-library",
+      "latencyMicroseconds": {
+        "p50": 1.4,
+        "p95": 4.6,
+        "p99": 7,
+        "max": 45.2
+      },
+      "elapsedMs": 9.14,
+      "roundTripsPerSecond": 547093.84,
+      "processCpuMs": 31,
+      "queueModel": "synchronous call; no retained queue",
+      "stallCapacityFrames": 0
+    },
+    {
+      "transport": "shared-memory-slot",
+      "latencyMicroseconds": {
+        "p50": 2.3,
+        "p95": 6,
+        "p99": 20.9,
+        "max": 223.4
+      },
+      "elapsedMs": 16.43,
+      "roundTripsPerSecond": 304325.07,
+      "processCpuMs": 48,
+      "queueModel": "one request slot and one response slot",
+      "stallCapacityFrames": 1
+    },
+    {
+      "transport": "tcp-loopback",
+      "latencyMicroseconds": {
+        "p50": 56.9,
+        "p95": 114.5,
+        "p99": 202.8,
+        "max": 519.9
+      },
+      "elapsedMs": 342.39,
+      "roundTripsPerSecond": 14603.39,
+      "processCpuMs": 203,
+      "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
+      "clientRssStartBytes": 78069760,
+      "clientRssEndBytes": 79007744,
+      "serverProcessCpuMs": 235,
+      "serverRssStartBytes": 70258688,
+      "serverRssEndBytes": 74461184,
+      "serverRssPeakBytes": 79007744,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeSignal": 82,
+        "writableLengthBytes": 16384,
+        "writableHighWaterMarkBytes": 16384
+      }
+    },
+    {
+      "transport": "local-socket",
+      "latencyMicroseconds": {
+        "p50": 34.8,
+        "p95": 81.6,
+        "p99": 181.7,
+        "max": 475
+      },
+      "elapsedMs": 221.53,
+      "roundTripsPerSecond": 22570.42,
+      "processCpuMs": 125,
+      "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
+      "clientRssStartBytes": 79437824,
+      "clientRssEndBytes": 79773696,
+      "serverProcessCpuMs": 141,
+      "serverRssStartBytes": 68186112,
+      "serverRssEndBytes": 73510912,
+      "serverRssPeakBytes": 76496896,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeSignal": 3,
+        "writableLengthBytes": 16384,
+        "writableHighWaterMarkBytes": 16384
+      }
+    },
+    {
+      "transport": "websocket-loopback",
+      "latencyMicroseconds": {
+        "p50": 103.5,
+        "p95": 182.9,
+        "p99": 309.6,
+        "max": 1079.7
+      },
+      "elapsedMs": 592.31,
+      "roundTripsPerSecond": 8441.49,
+      "processCpuMs": 391,
+      "queueModel": "cross-process WebSocket bufferedAmount; publisher must enforce an application-level frame bound",
+      "clientRssStartBytes": 80195584,
+      "clientRssEndBytes": 80666624,
+      "serverProcessCpuMs": 359,
+      "serverRssStartBytes": 70258688,
+      "serverRssEndBytes": 73416704,
+      "serverRssPeakBytes": 75165696,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeOneMiBBuffered": 307,
+        "bufferedAmountBytes": 1050624,
+        "applicationFrameBoundRequired": true
+      }
+    }
+  ],
+  "limitations": [
+    "This is transport overhead, not camera-to-action latency.",
+    "Client and server CPU/RSS are process-isolated, but both processes still share one development host and scheduler.",
+    "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
+    "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
+    "No result grants authority or selects the production transport."
+  ]
+}

@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Status: first Windows development run recorded; no production transport selected
+Status: same-process and child-process Windows development runs recorded; no production transport selected
 
 Authority: D-004, I-074, I-084
 
@@ -44,8 +44,16 @@ Write a reviewable report:
 pnpm benchmark:transports -- --iterations 5000 --warmup 500 --payload-bytes 4096 --output benchmarks/transport/<target>.json
 ```
 
+Run socket and WebSocket echo servers in separate child processes:
+
+```powershell
+pnpm benchmark:transports -- --iterations 5000 --warmup 500 --payload-bytes 4096 --server-layout child-process --output benchmarks/transport/<target>.json
+```
+
 Arguments are bounded to 100–100,000 measured iterations, 0–10,000 warmups,
-and 256 bytes–1 MiB per payload.
+and 256 bytes–1 MiB per payload. `--server-layout` accepts only
+`same-process` or `child-process`. Checked-in reports are structurally checked
+by `pnpm validate:transport-benchmarks`.
 
 ## First Windows x64 result
 
@@ -64,6 +72,27 @@ The result is in
 `benchmarks/transport/windows-x64-node24-2026-07-24.json`. These are
 development-machine observations, not portable thresholds.
 
+## Child-process Windows x64 result
+
+The second checked-in run uses the same host, payload, warmups, and measured
+sample count. TCP, named-pipe, and WebSocket echo servers each run in a fresh
+child process. The parent remains the client. CPU is measured independently in
+each process during measured RTTs; child RSS is sampled every 5 ms and records
+start, end, and observed peak.
+
+| Transport | p50 µs | p95 µs | p99 µs | Client CPU ms | Server CPU ms | Server peak RSS MiB |
+|---|---:|---:|---:|---:|---:|---:|
+| Direct library copy | 1.4 | 4.6 | 7.0 | 31 | — | — |
+| One-slot worker shared memory | 2.3 | 6.0 | 20.9 | 48 | — | — |
+| Windows named pipe | 34.8 | 81.6 | 181.7 | 125 | 141 | 73.0 |
+| TCP loopback | 56.9 | 114.5 | 202.8 | 203 | 235 | 75.3 |
+| WebSocket loopback | 103.5 | 182.9 | 309.6 | 391 | 359 | 71.7 |
+
+The result is in
+`benchmarks/transport/windows-x64-node24-child-process-2026-07-24.json`.
+Direct copy remains a same-process baseline and shared memory still uses one
+worker thread; neither is mislabeled as a child-process transport.
+
 ## Backpressure observations
 
 - Direct calls are synchronous and retain no transport queue.
@@ -75,25 +104,32 @@ development-machine observations, not portable thresholds.
 - A deliberately paused WebSocket peer allowed 303 frames before client
   `bufferedAmount` exceeded 1 MiB.
 
+The child-process run produced the same three-frame named-pipe signal, 82 TCP
+writes, and 307 WebSocket frames. Kernel and runtime buffering make those
+counts observational rather than stable limits. Each isolated stalled-reader
+probe runs after timing and the disposable server child is terminated once the
+bound is observed, so a paused peer cannot keep the harness alive.
+
 These numbers are not acceptable queue sizes. They show why every candidate
 still needs the application-level one-frame bound already used by the web
 bridge. A transport's default buffering must never become Motion latency.
 
 ## Why I-074 remains active
 
-The direct, TCP, local-socket, and WebSocket endpoints currently share one Node
-process. Shared memory crosses only to a worker thread and does not solve
-cross-process lifetime, ownership, crash recovery, permissions, or stale-reader
-reclamation. Windows named pipes are not evidence for Linux Unix-domain
-sockets.
+The socket and WebSocket paths now have separate-process Windows evidence.
+Shared memory crosses only to a worker thread and does not solve cross-process
+lifetime, ownership, crash recovery, permissions, or stale-reader reclamation.
+Windows named pipes are not evidence for Linux Unix-domain sockets. Short
+development runs do not establish wall-clock stability, scheduler isolation,
+or an acceptable memory budget.
 
 Before a decision:
 
 - rerun the unchanged harness on target Linux x86-64 and ARM64;
-- move servers and clients into separate processes and record both CPU and RSS;
 - implement a bounded cross-process shared-memory ownership/recovery design;
 - add identical Motion serialization/schema validation to every candidate;
-- stall, suspend, kill, reconnect, and churn game and tracker processes;
+- run wall-clock process-isolated CPU/RSS soaks and suspend, kill, reconnect,
+  and churn game and tracker processes;
 - bind admission to signed host-owned permission grants; and
 - measure end-to-end exposure-to-game-action latency under real tracker/game
   load.

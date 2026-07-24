@@ -1319,3 +1319,23 @@ The router is privileged policy code, not a real SDL3 producer or compositor hoo
 ### Remaining boundary
 
 This proves shared-stack portability on one Windows workstation, not the I-207 ordinary Linux premium reference. The present C920 was inventoried but not opened against a real room; no physical controller was detected; no reboot, suspend, hosted-game, or soak matrix ran; and neither physical SSD was modified. I-211 remains active pending hands-on evidence and a reviewed native-Linux disk/recovery plan.
+
+## 2026-07-24: process-isolated Motion transport evidence
+
+### Delivered
+
+- Extended the bounded transport harness with an explicit `child-process` layout for TCP, OS local sockets, and WebSocket while retaining direct-copy and worker-shared-memory baselines.
+- Added a narrow child protocol for ready, measurement, stats, stalled-reader mode, and shutdown; data still travels only through the transport under test.
+- Recorded client and server CPU separately plus client RSS start/end and 5 ms sampled server RSS start/end/peak.
+- Kept stalled-reader probes bounded and force-terminated the disposable child after the buffer signal so a deliberately paused peer cannot keep the harness alive.
+- Added strict structural validation for both checked-in transport reports.
+
+### Initial evidence
+
+On the same Windows x64 host and 4 KiB/5,000-sample method, child-process p50/p95/p99 RTT was 34.8/81.6/181.7 µs for the named pipe, 56.9/114.5/202.8 µs for TCP, and 103.5/182.9/309.6 µs for WebSocket. Measured client/server CPU was 125/141 ms, 203/235 ms, and 391/359 ms respectively. Observed child peak RSS was 73.0, 75.3, and 71.7 MiB.
+
+The checked-in report is `benchmarks/transport/windows-x64-node24-child-process-2026-07-24.json`. Both reports pass `validate:transport-benchmarks`; a fresh isolated smoke run also completes all five paths and teardown.
+
+### Remaining boundary
+
+I-074 remains active and D-004 remains unchanged. The shared-memory case is still a worker rather than a safe cross-process ownership/recovery design. Windows named pipes do not qualify Linux Unix-domain sockets. Target Linux x86-64 and ARM64, wall-clock CPU/RSS and scheduler soaks, identical Motion serialization/schema work, renderer/tracker suspend/kill/reconnect/churn, signed permission admission, and camera-to-action timing remain required before selecting a production transport.
