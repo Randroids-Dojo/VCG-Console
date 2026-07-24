@@ -98,4 +98,3 @@ long strings, localization, large text/high contrast/reduced motion,
 controller directional navigation, result activation, physical-TV viewing,
 reserved Home, native-host recovery, and both target Linux display stacks.
 Q-242/Q-243 and STV-001 through STV-004 retain the final policy choices.
-

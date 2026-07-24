@@ -48,4 +48,3 @@ Record selected behavior as later product decisions. Until then, retain the
 two exact queries, bounded claims, offline processing, and opener restoration
 documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).
-
