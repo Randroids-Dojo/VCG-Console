@@ -346,6 +346,9 @@ fn handle_connection(
                     &status_body(catalog, launch_service),
                 );
             }
+            if request.path == "/v1/packages" {
+                return write_package_inventory_response(stream, allowed_origin, catalog);
+            }
             if let Some(game_id) = request.path.strip_prefix("/v1/packages/") {
                 return write_package_response(stream, allowed_origin, catalog, game_id);
             }
@@ -395,6 +398,7 @@ fn valid_preflight(request: &Request) -> bool {
     let valid_target = match method {
         "GET" => {
             request.path == "/v1/status"
+                || request.path == "/v1/packages"
                 || request.path.starts_with("/v1/packages/")
                 || request.path.starts_with("/v1/launches/")
         }
@@ -490,6 +494,40 @@ fn write_package_response(
             r#"{"code":"PACKAGE_ID_INVALID"}"#,
         ),
     }
+}
+
+fn write_package_inventory_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    catalog: Option<&TrustedPackageCatalog>,
+) -> io::Result<()> {
+    let Some(catalog) = catalog else {
+        return write_response(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            r#"{"code":"PACKAGE_CATALOG_NOT_CONFIGURED"}"#,
+        );
+    };
+    let packages = catalog
+        .package_summaries()
+        .into_iter()
+        .map(|package| {
+            serde_json::json!({
+                "id": package.id,
+                "version": package.version,
+                "runtime": package.runtime,
+            })
+        })
+        .collect::<Vec<_>>();
+    let body = serde_json::json!({
+        "protocolVersion": HOST_API_PROTOCOL_VERSION,
+        "catalogGeneration": catalog.generation(),
+        "packages": packages,
+    })
+    .to_string();
+    write_response(stream, 200, "OK", allowed_origin, &body)
 }
 
 #[derive(serde::Deserialize)]
@@ -972,6 +1010,16 @@ mod tests {
             "\"protocolVersion\":\"{HOST_API_PROTOCOL_VERSION}\""
         )));
         assert!(response.contains("\"process-supervision\""));
+
+        let inventory = request(
+            &server,
+            &format!(
+                "GET /v1/packages HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        assert!(inventory.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(inventory.contains("PACKAGE_CATALOG_NOT_CONFIGURED"));
+        assert!(!inventory.contains("\"packages\""));
     }
 
     #[test]
@@ -1142,6 +1190,12 @@ mod tests {
                 "GET /v1/packages/retro-2048 HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
             ),
         );
+        let inventory = request(
+            &server,
+            &format!(
+                "GET /v1/packages HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
         let missing = request(
             &server,
             &format!(
@@ -1161,6 +1215,17 @@ mod tests {
         assert!(installed.contains("\"runtime\":\"libretro\""));
         assert!(!installed.contains("frontend"));
         assert!(!installed.contains("sha256"));
+        assert!(inventory.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert!(inventory.contains(&format!(
+            "\"protocolVersion\":\"{HOST_API_PROTOCOL_VERSION}\""
+        )));
+        assert!(inventory.contains("\"catalogGeneration\":7"));
+        assert!(inventory.contains(
+            r#""packages":[{"id":"retro-2048","runtime":"libretro","version":"1.0.0"}]"#
+        ));
+        assert!(!inventory.contains("frontend"));
+        assert!(!inventory.contains("sha256"));
+        assert!(!inventory.contains("install"));
         assert!(missing.starts_with("HTTP/1.1 404 Not Found\r\n"));
         assert!(missing.contains("PACKAGE_NOT_INSTALLED"));
         assert!(invalid.starts_with("HTTP/1.1 400 Bad Request\r\n"));

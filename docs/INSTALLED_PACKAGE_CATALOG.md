@@ -11,7 +11,7 @@ The implemented slice can:
 - validate target, generation, qualification, identifiers, hashes, and relative paths;
 - bind one installed game manifest to the signed package identity, version, runtime, and qualification;
 - resolve a fixed `{gameId, profileId}` intent into a trusted `RetroArchRequest`;
-- disclose only id, version, runtime, and catalog generation to the authenticated trusted launcher;
+- disclose only bounded id, version, runtime, and catalog-generation inventory to the authenticated trusted launcher;
 - start the resolved child only when the profile ID is in the host-owned allowlist.
 
 The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; it also cannot prove window readiness, clean escaped descendants after restart, or provide target-Linux containment. Package installation currently exists as a separate signature-first inert staging and generation-promotion boundary. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs plus a durable replay root enables the separate launch lifecycle.
@@ -138,7 +138,7 @@ Path canonicalization and repeated hashes narrow substitution risk, but target q
 
 When a catalog is configured, `/v1/status` adds `trusted-package-catalog` to its capabilities.
 
-`GET /v1/packages/<game-id>` uses the same per-launch bearer capability, exact launcher origin, bounded request handling, and no-store response as status. A success discloses only:
+`GET /v1/packages` and `GET /v1/packages/<game-id>` use the same per-launch bearer capability, exact launcher origin, bounded request handling, and no-store response as status. A single-item success discloses only:
 
 ```json
 {
@@ -149,13 +149,15 @@ When a catalog is configured, `/v1/status` adds `trusted-package-catalog` to its
 }
 ```
 
-Missing packages return `404 PACKAGE_NOT_INSTALLED`; invalid IDs return `400 PACKAGE_ID_INVALID`. Paths, hashes, keys, permissions, environment, command lines, and writable roots never cross this endpoint.
+Missing packages return `404 PACKAGE_NOT_INSTALLED`; invalid IDs return `400 PACKAGE_ID_INVALID`. Paths, hashes, keys, permissions, environment, command lines, and writable roots never cross these endpoints.
 
-The metadata lookup proves only that a valid signed catalog contains the entry. `POST /v1/launches` separately triggers host-owned artifact/manifest verification and direct process start from fixed game/profile intent. See [the native launcher-host API contract](NATIVE_HOST_API.md) for idempotency, lifecycle, cancellation, and current readiness limits.
+The inventory response moves the shared positive catalog generation to the document root and returns every package's id, version, and runtime in canonical ID order. Catalog load already limits the signed set to 1,024 entries. The TypeScript consumer additionally requires the exact protocol and fields, positive safe generation, at most 1,024 unique strictly increasing IDs, the bounded ID/version grammar, known runtime values, and no more than 1 MiB of UTF-8 JSON. A missing catalog returns no inventory.
+
+These metadata lookups prove only that a valid signed catalog contains each entry. They let the launcher reconcile public presentation with actual installed availability without probing a copied ID list. The shell labels a public entry installed only after exact ID/version/runtime matching, keeps unknown or release-mismatched installed entries out of the public catalog, and reports an unavailable host/catalog instead of claiming an empty library. `POST /v1/launches` separately triggers host-owned artifact/manifest verification and direct process start from fixed game/profile intent. See [the native launcher-host API contract](NATIVE_HOST_API.md) for idempotency, lifecycle, cancellation, and current readiness limits.
 
 ## Evidence and remaining boundary
 
-Native tests cover valid signed resolution, signature-before-parse failure, wrong target, unknown fields, duplicates, unsafe paths, malformed key material, oversized catalogs, invalid launcher IDs, missing packages, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only disclosure. TypeScript and Playwright tests verify fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
+Native tests cover valid signed resolution, signature-before-parse failure, wrong target, unknown fields, duplicates, unsafe paths, malformed key material, oversized catalogs, invalid launcher IDs, missing packages, canonical summaries, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only inventory disclosure. TypeScript tests reject duplicate, unsorted, excessive, version-mismatched, unknown-field, and otherwise malformed inventories. Playwright tests verify signed availability labeling and fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
 
 Still required:
 

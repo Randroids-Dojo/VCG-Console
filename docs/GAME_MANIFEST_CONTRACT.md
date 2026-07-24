@@ -43,11 +43,12 @@ Run:
 
 ```sh
 pnpm prepare:schemas
+pnpm prepare:catalog
 pnpm test
 pnpm validate:manifests
 ```
 
-`pnpm validate:manifests` first compares the checked-in game-manifest schema byte-for-byte with the current generated export, then validates either every `catalog/*.vcg-game.json` file or the explicit paths supplied on the command line.
+`pnpm validate:manifests` first compares the checked-in game-manifest schema and browser-safe launcher catalog byte-for-byte with their current generated exports, validates exact launcher-policy membership, then validates either every `catalog/*.vcg-game.json` file or the explicit paths supplied on the command line. See [the canonical launcher policy](LAUNCHER_CATALOG_POLICY.md) for the presentation-only authority split.
 
 Author diagnostics use sorted `path: [issue-code] message` lines. Path and issue code are the stable automation surface. Human-readable messages are explanatory and may improve without a schema-version change.
 

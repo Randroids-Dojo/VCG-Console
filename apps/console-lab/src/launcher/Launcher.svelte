@@ -6,10 +6,13 @@
     checkNativeHost,
     checkNativePackage,
     getNativeLaunch,
+    listNativePackages,
     startNativeLaunch,
     type NativeLaunchSnapshot,
+    type NativePackageInventory,
   } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
+  import { launcherCatalog } from "./catalog.generated";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
   import { nativeLifecycleDetail } from "./native-lifecycle";
@@ -40,20 +43,29 @@
   let launchUnsubscribe: (() => void) | undefined;
   let launchRetryOperation: ((attempt: number) => void) | undefined;
   let activeNativeRequestId: string | undefined;
+  let nativePackageInventory = $state<NativePackageInventory | undefined>();
+  let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
 
-  const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 5_000, timeoutMs: 15_000, heartbeatTimeoutMs: 8_000 };
-  const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = { slowAfterMs: 10_000, timeoutMs: 30_000, heartbeatTimeoutMs: 15_000 };
+  const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.local;
+  const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.remote;
+  const museum = launcherCatalog.museum;
+  const museumHost = new URL(museum.entrypoint).host;
+  const museumCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "museum");
+  const retroCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "retro");
 
   const searchItems: SearchItem[] = [
     { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
     { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") },
     { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") },
-    { title: "VibeCoded Museum", detail: "vibecoded.games", group: "Online", terms: "museum collection web games", action: () => showView("museum") },
-    { title: "VibeBots", detail: "Museum catalog", group: "Game", terms: "vibecoded online robots", action: () => showView("museum") },
-    { title: "Mi Casa Es Su Casa", detail: "Museum catalog", group: "Game", terms: "vibecoded online casa", action: () => showView("museum") },
-    { title: "Determined", detail: "Museum catalog", group: "Game", terms: "vibecoded online word game", action: () => showView("museum") },
+    { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: () => showView("museum") },
+    ...launcherCatalog.entries.map((entry): SearchItem => ({
+      title: entry.title,
+      detail: entry.searchDetail,
+      group: entry.surface === "museum" ? "Game" : "Retro",
+      terms: [entry.id, entry.runtime, entry.network, entry.compatibilityStatus, ...entry.searchTerms].join(" "),
+      action: () => showView(entry.surface),
+    })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
-    { title: "2048", detail: "Retro qualification candidate", group: "Retro", terms: "libretro smoke test public domain offline", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
@@ -64,6 +76,7 @@
     paintClock();
     clockTimer = window.setInterval(paintClock, 15_000);
     void positionSignal();
+    void refreshNativePackageInventory();
   });
 
   onDestroy(() => {
@@ -138,6 +151,37 @@
 
   function openLab(mode: LabMode): void {
     openMotionLab(mode);
+  }
+
+  async function refreshNativePackageInventory(): Promise<void> {
+    const result = await listNativePackages();
+    if (result.ok) {
+      nativePackageInventory = result.inventory;
+      nativePackageInventoryState = "available";
+      return;
+    }
+    nativePackageInventory = undefined;
+    nativePackageInventoryState = "unavailable";
+  }
+
+  function isCatalogEntryInstalled(entry: (typeof launcherCatalog.entries)[number]): boolean {
+    return nativePackageInventory?.packages.some(
+      (installed) =>
+        installed.id === entry.id &&
+        installed.version === entry.version &&
+        installed.runtime === entry.runtime,
+    ) ?? false;
+  }
+
+  function installedPackageSummary(): string {
+    if (nativePackageInventoryState === "checking") return "Checking signed package catalog";
+    if (nativePackageInventoryState === "unavailable") return "Local package catalog unavailable";
+    const count = nativePackageInventory?.packages.length ?? 0;
+    return `${count} signed ${count === 1 ? "package" : "packages"} installed`;
+  }
+
+  function hasInstalledRetroPackage(): boolean {
+    return retroCatalogEntries.some(isCatalogEntryInstalled);
   }
 
   function baseLaunch(adapter: LaunchAdapter, title: string, context: string): LaunchSession {
@@ -236,8 +280,8 @@
 
   function launchMuseum(): void {
     const { supervisor } = beginSupervisedLaunch({
-      ...baseLaunch("remote-web", "VibeCoded Museum", "VIBECODED.GAMES / ONLINE"),
-      action: { label: "Open museum", href: "https://vibecoded.games" },
+      ...baseLaunch("remote-web", museum.title, museum.context),
+      action: { label: "Open museum", href: museum.entrypoint },
     }, REMOTE_LAUNCH_BUDGET);
     launchRetryOperation = () => runMuseumAttempt(supervisor);
     runMuseumAttempt(supervisor);
@@ -249,7 +293,7 @@
       return;
     }
     supervisor.advance(1, "Network interface is online");
-    supervisor.advance(2, "Remote origin fixed to vibecoded.games");
+    supervisor.advance(2, `Remote origin fixed to ${museumHost}`);
     supervisor.ready("Browser handoff ready · reachability is checked by the native host");
   }
 
@@ -389,11 +433,11 @@
     }
     if (adapter === "remote-web") {
       const { supervisor } = beginSupervisedLaunch({
-        ...baseLaunch(adapter, "VibeCoded Museum", "DEVELOPER PREVIEW / ONLINE"),
-        action: { label: "Open museum", href: "https://vibecoded.games" },
+        ...baseLaunch(adapter, museum.title, "DEVELOPER PREVIEW / ONLINE"),
+        action: { label: "Open museum", href: museum.entrypoint },
       }, REMOTE_LAUNCH_BUDGET);
       supervisor.advance(1, "Network interface is online");
-      supervisor.advance(2, "Remote origin fixed to vibecoded.games");
+      supervisor.advance(2, `Remote origin fixed to ${museumHost}`);
       supervisor.ready("Remote browser handoff is ready");
       return;
     }
@@ -527,13 +571,13 @@
             <span class="destination-index">MOTION / 01</span><strong>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action">Continue <b>→</b></span>
           </button>
           <button class="destination" type="button" onclick={() => showView("museum")}>
-            <span class="destination-index">ONLINE / 02</span><strong>VibeCoded Museum</strong><small>Explore the complete collection</small><span class="destination-action">Enter <b>→</b></span>
+            <span class="destination-index">ONLINE / 02</span><strong>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action">Enter <b>→</b></span>
           </button>
           <button class="destination" type="button" onclick={() => showView("retro")}>
             <span class="destination-index">LOCAL / 03</span><strong>RetroArch</strong><small>Your installed retro library</small><span class="destination-action">Open <b>→</b></span>
           </button>
         </div>
-        <footer class="home-status"><span><i></i> Console ready</span><span>0 games installed locally</span><span>Network setup required</span></footer>
+        <footer class="home-status"><span><i></i> Console ready</span><span>{installedPackageSummary()}</span><span>Network setup required</span></footer>
       </div>
 
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
@@ -546,24 +590,44 @@
       </div>
 
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>
-        <p class="view-kicker">VIBECODED.GAMES</p>
+        <p class="view-kicker">{museumHost.toUpperCase()}</p>
         <div class="museum-title"><h1>The museum is<br />a world of its own.</h1><span>LIVE / WEB</span></div>
         <p class="museum-copy">Walk through the full VibeCoded collection. The console host will supervise this web experience; this browser prototype opens a new tab.</p>
         <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span>↗</span></button>
-        <p class="boundary-note">Internet required · Opens vibecoded.games</p>
+        <p class="boundary-note">Internet required · Opens {museumHost}</p>
+        <div class="museum-catalog" aria-label="Canonical museum catalog">
+          {#each museumCatalogEntries as entry}
+            <span><b>{entry.displayIndex}</b><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
+          {/each}
+        </div>
       </div>
 
       <div class="launcher-view retro-view" data-launcher-view="retro" hidden={view !== "retro"}>
         <header class="view-header"><div><p class="view-kicker">RETRO HUB</p><h1>One library.<br />No clutter.</h1></div><p>RetroArch runs beneath the VCG shell so Home, loading, and recovery stay consistent.</p></header>
-        <div class="empty-library">
-          <span class="empty-glyph" aria-hidden="true">○</span>
-          <div><strong>No retro packages installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
-          <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
-        </div>
+        {#if nativePackageInventoryState === "checking"}
+          <div class="empty-library" aria-live="polite">
+            <span class="empty-glyph" aria-hidden="true">○</span>
+            <div><strong>Checking installed retro catalog</strong><p>Waiting for the authenticated native console host.</p></div>
+          </div>
+        {:else if nativePackageInventoryState === "unavailable"}
+          <div class="empty-library">
+            <span class="empty-glyph" aria-hidden="true">○</span>
+            <div><strong>Installed retro catalog unavailable</strong><p>Connect the native console host to verify signed local packages.</p></div>
+            <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
+          </div>
+        {:else if !hasInstalledRetroPackage()}
+          <div class="empty-library">
+            <span class="empty-glyph" aria-hidden="true">○</span>
+            <div><strong>No retro packages installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
+            <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
+          </div>
+        {/if}
         <div class="library-list">
-          <button type="button" onclick={() => launchHostedAdapter("retro", "2048", "retro-2048")}>
-            <span>Q1</span><strong>2048</strong><small>Contentless public-domain core · artifact qualification pending</small><b>Candidate</b>
-          </button>
+          {#each retroCatalogEntries as entry}
+            <button type="button" onclick={() => launchHostedAdapter("retro", entry.title, entry.id)}>
+              <span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
+            </button>
+          {/each}
         </div>
         <div class="retro-actions">
           <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>

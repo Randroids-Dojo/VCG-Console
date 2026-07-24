@@ -718,6 +718,49 @@ This is the durable at-most-once primitive, not production process-group recover
 
 This is reference-safe classification, not garbage collection. A production coordinator must serialize launch admission, promotion/recovery, protection capture, filesystem mutation, and low-space accounting; recheck authority across interruption; preserve rollback and save boundaries; and pass target-Linux power-loss, lock, mount, and hostile-process tests before deletion is enabled.
 
+## 2026-07-24: canonical generated launcher catalog
+
+### Delivered
+
+- Added a strict versioned launcher policy that owns museum destination, visible catalog placement/order, search metadata, status copy, summaries, and local/remote loading budgets separately from public author manifests.
+- Added `@vcg/launcher-catalog`, which validates every public manifest, requires exact one-to-one policy membership, rejects duplicates and runtime/surface confusion, and permits an explicit `hidden` policy entry that does not enter the browser artifact.
+- Added deterministic generation of a checked-in typed browser catalog. Ordinary manifest validation byte-compares the expected output and fails on stale hand edits or source drift.
+- The generated artifact selects only browser-safe presentation and routing facts. It does not contain permissions, rights evidence, notes, hashes, installed paths, keys, commands, environments, profiles, or signed-package authority.
+- Svelte home, universal search, museum destination and previews, retro candidate cards, and launch budgets now consume the generated artifact instead of copying game and policy facts.
+- D-143 records the authority split. Q-127 preserves the choice between exact hosted-game deep links and museum-owned selection.
+
+### Verification evidence
+
+- Six launcher-catalog tests cover deterministic joining, browser-safe generation, missing/unknown/duplicate membership, duplicate positions, unsafe credential-bearing destinations, incoherent budgets, unknown fields, runtime/surface confusion, and hidden-entry omission.
+- Manifest validation proves all four current manifests and the canonical launcher policy agree with the checked-in generated artifact.
+- Svelte diagnostics report zero errors and warnings. All 18 Playwright flows pass, including canonical museum previews, manifest-derived search, retro handoff, and the narrow launcher layout.
+- The TypeScript workspace passes 127 unit tests.
+
+### Remaining boundary
+
+This eliminates repository-local presentation drift and now reconciles exact signed local availability through the separate D-144 inventory. It does not make the external museum consume this artifact and does not join admission/emergency-disable state or grant browser-native authority. Exact hosted-game deep links remain disabled until the supervised top-level browser lane proves origin containment, global controls, cleanup, and return.
+
+## 2026-07-24: signed installed-package inventory
+
+### Delivered
+
+- Added authenticated `GET /v1/packages` beside the existing single-package lookup. It returns the active positive catalog generation and every signed package's id, version, and runtime in canonical game-ID order.
+- The response inherits the signed catalog's 1,024-record bound and discloses no paths, hashes, keys, commands, environments, permissions, profile data, or writable roots.
+- The TypeScript client independently enforces a 1 MiB byte bound, 1,024-entry count, exact protocol and fields, positive safe generation, bounded id/version/runtime values, and strictly increasing unique IDs.
+- The Svelte launcher checks inventory at startup and labels a generated local entry installed only when signed id, version, and runtime exactly match. An absent host/catalog remains visibly unavailable; an empty signed inventory remains visibly empty.
+- D-144 records the authority split. No new owner choice is required; Q-127 still owns exact hosted-game deep-link behavior.
+
+### Verification evidence
+
+- Rust tests prove path-free inventory disclosure and no inventory without a configured signed catalog.
+- TypeScript tests prove successful authenticated listing, a valid inventory larger than the smaller status-document bound, and rejection of protocol/generation mismatch, duplicate or unsorted IDs, unknown fields, and excessive counts.
+- Playwright proves the Retro hub consumes signed inventory, marks the exact matching candidate Installed, and still submits only fixed game/profile intent to the launch endpoint.
+- The final workspace passes 127 TypeScript unit tests, 115 active Rust library tests with five subprocess helpers ignored by the parent run, 14 Rust CLI tests, and all 18 Playwright flows. Typecheck, production build, Rust formatting/Clippy, manifest/catalog freshness, JavaScript audit, and Rust advisory audit pass.
+
+### Remaining boundary
+
+Catalog membership is availability metadata, not proof that artifacts remain executable; launch re-verifies them. External museum consumption, admission/emergency-disable state, refresh after live promotion, install/update UI, supervised exact-game deep links, and target-host lifecycle evidence remain open.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

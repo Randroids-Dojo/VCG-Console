@@ -20,6 +20,7 @@
     "@playwright/test": "1.61.1",
     "@sveltejs/vite-plugin-svelte": "7.2.0",
     "@types/node": "22.15.3",
+    "@vcg/launcher-catalog": "workspace:*",
     "svelte-check": "4.7.3",
     "vite": "8.1.5",
     "vitest": "4.1.10"

@@ -336,6 +336,30 @@ impl TrustedPackageCatalog {
         })
     }
 
+    /// Returns every signed package's non-path launcher metadata in canonical
+    /// game-ID order.
+    ///
+    /// The catalog is already signature-verified and bounded to 1,024 package
+    /// records at load time. This view exposes no artifact, key, command,
+    /// environment, permission, or writable-root authority.
+    #[must_use]
+    pub fn package_summaries(&self) -> Vec<PackageSummary<'_>> {
+        let mut summaries = self
+            .packages
+            .iter()
+            .map(|package| PackageSummary {
+                id: package.id.as_str(),
+                version: package.version.as_str(),
+                runtime: match package.runtime {
+                    InstalledRuntime::Libretro(_) => "libretro",
+                },
+                generation: self.generation,
+            })
+            .collect::<Vec<_>>();
+        summaries.sort_unstable_by_key(|package| package.id);
+        summaries
+    }
+
     /// Resolves a browser-safe `{game_id, profile_id}` intent into trusted
     /// native adapter inputs.
     ///
@@ -928,7 +952,8 @@ pub(crate) mod tests {
 
     use super::{
         CatalogError, CatalogRoots, MAX_CATALOG_BYTES, PackageHealthCheck, PackageHealthPolicy,
-        ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog, current_target,
+        PackageSummary, ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog,
+        current_target,
     };
     use crate::retroarch::{RetroArchError, plan as plan_retroarch};
 
@@ -1127,6 +1152,15 @@ pub(crate) mod tests {
         let catalog = fixture.load().expect("catalog loads");
         assert_eq!(catalog.generation(), 7);
         assert_eq!(catalog.target(), current_target());
+        assert_eq!(
+            catalog.package_summaries(),
+            vec![PackageSummary {
+                id: "retro-2048",
+                version: "1.0.0",
+                runtime: "libretro",
+                generation: 7,
+            }]
+        );
         assert_eq!(
             catalog
                 .package_health_policy("retro-2048")

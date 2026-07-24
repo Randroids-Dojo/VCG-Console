@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "museum": {
+    "id": "vibecoded-museum",
+    "title": "VibeCoded Museum",
+    "entrypoint": "https://vibecoded.games",
+    "context": "VIBECODED.GAMES / ONLINE",
+    "searchTerms": ["museum", "collection", "web", "games"]
+  },
+  "launchBudgets": {
+    "local": {
+      "slowAfterMs": 5000,
+      "heartbeatTimeoutMs": 8000,
+      "timeoutMs": 15000
+    },
+    "remote": {
+      "slowAfterMs": 10000,
+      "heartbeatTimeoutMs": 15000,
+      "timeoutMs": 30000
+    }
+  },
+  "entries": [
+    {
+      "id": "vibebots",
+      "surface": "museum",
+      "displayIndex": "M1",
+      "searchDetail": "Museum catalog",
+      "searchTerms": ["vibecoded", "online", "robots"],
+      "summary": "Hosted service · controller qualification pending",
+      "statusLabel": "Partial"
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "surface": "museum",
+      "displayIndex": "M2",
+      "searchDetail": "Museum catalog",
+      "searchTerms": ["vibecoded", "online", "casa"],
+      "summary": "Hosted service · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "determined",
+      "surface": "museum",
+      "displayIndex": "M3",
+      "searchDetail": "Museum catalog",
+      "searchTerms": ["vibecoded", "online", "word", "game"],
+      "summary": "Hosted service · controller qualification pending",
+      "statusLabel": "Partial"
+    },
+    {
+      "id": "retro-2048",
+      "surface": "retro",
+      "displayIndex": "Q1",
+      "searchDetail": "Retro qualification candidate",
+      "searchTerms": ["libretro", "smoke", "test", "public", "domain", "offline"],
+      "summary": "Contentless public-domain core · artifact qualification pending",
+      "statusLabel": "Candidate"
+    }
+  ]
+}

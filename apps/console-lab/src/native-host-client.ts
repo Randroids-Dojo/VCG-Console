@@ -4,6 +4,8 @@ const HOST_PORT_PATTERN = /^[1-9][0-9]{0,4}$/;
 const HOST_REQUEST_TIMEOUT_MS = 1_500;
 const HOST_LAUNCH_TIMEOUT_MS = 15_000;
 const MAX_HOST_STATUS_BYTES = 16_384;
+const MAX_HOST_PACKAGE_INVENTORY_BYTES = 1_048_576;
+const MAX_HOST_PACKAGE_COUNT = 1_024;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -12,11 +14,20 @@ export interface NativeHostStatus {
   capabilities: string[];
 }
 
-export interface NativeInstalledPackage {
+export interface NativePackageSummary {
   id: string;
   version: string;
   runtime: "libretro";
+}
+
+export interface NativeInstalledPackage extends NativePackageSummary {
   catalogGeneration: number;
+}
+
+export interface NativePackageInventory {
+  protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
+  catalogGeneration: number;
+  packages: NativePackageSummary[];
 }
 
 export type NativeLaunchState =
@@ -59,6 +70,9 @@ type NativeHostFailure = {
 export type NativeHostResult = { ok: true; status: NativeHostStatus } | NativeHostFailure;
 export type NativePackageResult =
   | { ok: true; status: NativeHostStatus; package: NativeInstalledPackage }
+  | NativeHostFailure;
+export type NativePackageInventoryResult =
+  | { ok: true; status: NativeHostStatus; inventory: NativePackageInventory }
   | NativeHostFailure;
 export type NativeLaunchStartResult =
   | { ok: true; status: NativeHostStatus; launch: NativeLaunchSnapshot }
@@ -284,6 +298,92 @@ export async function checkNativePackage(
       };
     }
     return { ok: true, status: host.status, package: body };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function listNativePackages(
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_REQUEST_TIMEOUT_MS,
+): Promise<NativePackageInventoryResult> {
+  const host = await checkNativeHost(href, fetcher, timeoutMs);
+  if (!host.ok) return host;
+  if (!host.status.capabilities.includes("trusted-package-catalog")) {
+    return {
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+      detail: "Rust host connected · no trusted installed package catalog is configured",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: "HOST_CONFIG_INVALID",
+      detail: "Rust console host launch capability is invalid",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    let response: Response;
+    try {
+      response = await fetcher(`${parsed.bridge.endpoint}/v1/packages`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${parsed.bridge.token}` },
+        cache: "no-store",
+        credentials: "omit",
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        signal: controller.signal,
+      });
+    } catch {
+      return unreachableHost();
+    }
+    if (response.status === 401 || response.status === 403) {
+      return {
+        ok: false,
+        code: "HOST_REJECTED",
+        detail: "Rust console host rejected this launcher session",
+      };
+    }
+    if (response.status === 404) {
+      return {
+        ok: false,
+        code: "PACKAGE_NOT_INSTALLED",
+        detail: "Rust console host has no trusted installed package catalog",
+      };
+    }
+    if (!response.ok) {
+      return {
+        ok: false,
+        code: "HOST_UNREACHABLE",
+        detail: `Rust console host returned status ${response.status}`,
+      };
+    }
+
+    let body: unknown;
+    try {
+      body = await readBoundedJson(response, MAX_HOST_PACKAGE_INVENTORY_BYTES);
+    } catch {
+      if (controller.signal.aborted) return unreachableHost();
+      return {
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+        detail: "Rust console host returned an invalid package inventory",
+      };
+    }
+    if (!isNativePackageInventory(body)) {
+      return {
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+        detail: "Rust console host returned an invalid package inventory",
+      };
+    }
+    return { ok: true, status: host.status, inventory: body };
   } finally {
     clearTimeout(timeout);
   }
@@ -545,14 +645,17 @@ function unreachableHost(): NativeHostFailure {
   };
 }
 
-async function readBoundedJson(response: Response): Promise<unknown> {
+async function readBoundedJson(
+  response: Response,
+  maxBytes = MAX_HOST_STATUS_BYTES,
+): Promise<unknown> {
   const declaredLengthText = response.headers.get("content-length");
   if (declaredLengthText !== null) {
     const declaredLength = Number(declaredLengthText);
     if (
       !/^(0|[1-9][0-9]*)$/.test(declaredLengthText) ||
       !Number.isSafeInteger(declaredLength) ||
-      declaredLength > MAX_HOST_STATUS_BYTES
+      declaredLength > maxBytes
     ) {
       throw new Error("host status content length is invalid");
     }
@@ -560,7 +663,7 @@ async function readBoundedJson(response: Response): Promise<unknown> {
 
   if (!response.body) {
     const text = await response.text();
-    if (new TextEncoder().encode(text).byteLength > MAX_HOST_STATUS_BYTES) {
+    if (new TextEncoder().encode(text).byteLength > maxBytes) {
       throw new Error("host status body is too large");
     }
     return JSON.parse(text) as unknown;
@@ -574,7 +677,7 @@ async function readBoundedJson(response: Response): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       length += value.byteLength;
-      if (length > MAX_HOST_STATUS_BYTES) {
+      if (length > maxBytes) {
         await reader.cancel("host status body is too large");
         throw new Error("host status body is too large");
       }
@@ -611,17 +714,57 @@ function isNativeInstalledPackage(value: unknown): value is NativeInstalledPacka
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
   return (
-    typeof candidate.id === "string" &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) &&
-    typeof candidate.version === "string" &&
-    candidate.version.length > 0 &&
-    candidate.version.length <= 128 &&
-    candidate.runtime === "libretro" &&
+    hasNativePackageSummaryFields(candidate) &&
     Number.isSafeInteger(candidate.catalogGeneration) &&
     (candidate.catalogGeneration as number) > 0 &&
     Object.keys(candidate).every((key) =>
       ["id", "version", "runtime", "catalogGeneration"].includes(key),
     )
+  );
+}
+
+function isNativePackageInventory(value: unknown): value is NativePackageInventory {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  if (
+    candidate.protocolVersion !== HOST_API_PROTOCOL_VERSION ||
+    !Number.isSafeInteger(candidate.catalogGeneration) ||
+    (candidate.catalogGeneration as number) <= 0 ||
+    !Array.isArray(candidate.packages) ||
+    candidate.packages.length > MAX_HOST_PACKAGE_COUNT ||
+    !Object.keys(candidate).every((key) =>
+      ["protocolVersion", "catalogGeneration", "packages"].includes(key),
+    )
+  ) {
+    return false;
+  }
+  let previousId: string | undefined;
+  for (const packageValue of candidate.packages) {
+    if (!isNativePackageSummary(packageValue)) return false;
+    if (previousId !== undefined && packageValue.id <= previousId) return false;
+    previousId = packageValue.id;
+  }
+  return true;
+}
+
+function isNativePackageSummary(value: unknown): value is NativePackageSummary {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    hasNativePackageSummaryFields(candidate) &&
+    Object.keys(candidate).every((key) => ["id", "version", "runtime"].includes(key))
+  );
+}
+
+function hasNativePackageSummaryFields(candidate: Record<string, unknown>): boolean {
+  return (
+    typeof candidate.id === "string" &&
+    candidate.id.length <= 80 &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) &&
+    typeof candidate.version === "string" &&
+    candidate.version.length > 0 &&
+    candidate.version.length <= 128 &&
+    candidate.runtime === "libretro"
   );
 }
 

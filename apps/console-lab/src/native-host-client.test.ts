@@ -5,6 +5,7 @@ import {
   checkNativePackage,
   createNativeLaunchRequestId,
   getNativeLaunch,
+  listNativePackages,
   parseNativeHostBridge,
   startNativeLaunch,
 } from "./native-host-client";
@@ -223,15 +224,135 @@ describe("trusted native package catalog", () => {
     expect(JSON.stringify(requests)).not.toMatch(/path|sha256|program|command/i);
   });
 
-  it("fails closed when the catalog is absent or the package is not installed", async () => {
-    const noCatalog = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify(STATUS), { status: 200 }),
+  it("lists canonical signed package availability without native authority fields", async () => {
+    const requests: string[] = [];
+    const inventory = {
+      protocolVersion: "0.1.0",
+      catalogGeneration: 7,
+      packages: [
+        { id: "alpha-game", version: "2.0.0", runtime: "libretro" },
+        { id: "retro-2048", version: "1.0.0", runtime: "libretro" },
+      ],
+    };
+    const fetcher = vi.fn<typeof fetch>(async (input) => {
+      const url = String(input);
+      requests.push(url);
+      return url.endsWith("/v1/status")
+        ? new Response(JSON.stringify(catalogStatus), { status: 200 })
+        : new Response(JSON.stringify(inventory), { status: 200 });
+    });
+
+    await expect(listNativePackages(HOST_URL, fetcher)).resolves.toEqual({
+      ok: true,
+      status: catalogStatus,
+      inventory,
+    });
+    expect(requests).toEqual([
+      "http://127.0.0.1:43123/v1/status",
+      "http://127.0.0.1:43123/v1/packages",
+    ]);
+    expect(JSON.stringify(inventory)).not.toMatch(
+      /path|sha256|program|command|environment|permission/i,
     );
+  });
+
+  it("accepts a valid inventory larger than the small host-status body bound", async () => {
+    const packages = Array.from({ length: 200 }, (_, index) => ({
+      id: `game-${index.toString().padStart(4, "0")}`,
+      version: "v".repeat(128),
+      runtime: "libretro" as const,
+    }));
+    const inventory = {
+      protocolVersion: "0.1.0",
+      catalogGeneration: 7,
+      packages,
+    };
+    expect(new TextEncoder().encode(JSON.stringify(inventory)).byteLength).toBeGreaterThan(16_384);
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(inventory), { status: 200 }));
+
+    await expect(listNativePackages(HOST_URL, fetcher)).resolves.toMatchObject({
+      ok: true,
+      inventory: { packages },
+    });
+  });
+
+  it("rejects ambiguous, noncanonical, or excessive package inventories", async () => {
+    const valid = {
+      protocolVersion: "0.1.0",
+      catalogGeneration: 7,
+      packages: [
+        { id: "alpha-game", version: "2.0.0", runtime: "libretro" },
+        { id: "retro-2048", version: "1.0.0", runtime: "libretro" },
+      ],
+    };
+    const excessive = Array.from({ length: 1_025 }, (_, index) => ({
+      id: `game-${index.toString().padStart(4, "0")}`,
+      version: "1.0.0",
+      runtime: "libretro",
+    }));
+    const invalidDocuments: unknown[] = [
+      { ...valid, protocolVersion: "2.0.0" },
+      { ...valid, catalogGeneration: 0 },
+      { ...valid, packages: [...valid.packages].reverse() },
+      { ...valid, packages: [valid.packages[0], valid.packages[0]] },
+      {
+        ...valid,
+        packages: [{ ...valid.packages[0], installPath: "C:\\private" }],
+      },
+      { ...valid, packages: excessive },
+      { ...valid, unexpected: true },
+    ];
+
+    for (const document of invalidDocuments) {
+      const fetcher = vi.fn<typeof fetch>()
+        .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify(document), { status: 200 }));
+      await expect(listNativePackages(HOST_URL, fetcher)).resolves.toMatchObject({
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+      });
+    }
+  });
+
+  it("rejects an oversized package inventory before reading its body", async () => {
+    const response = new Response("{}", {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": "1048577",
+      },
+    });
+    Object.defineProperty(response, "body", {
+      get: () => {
+        throw new Error("body must not be read");
+      },
+    });
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+      .mockResolvedValueOnce(response);
+
+    await expect(listNativePackages(HOST_URL, fetcher)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
+  });
+
+  it("fails closed when the catalog is absent or the package is not installed", async () => {
+    const noCatalog = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => new Response(JSON.stringify(STATUS), { status: 200 }));
     await expect(checkNativePackage("retro-2048", HOST_URL, noCatalog)).resolves.toMatchObject({
       ok: false,
       code: "PACKAGE_NOT_INSTALLED",
     });
-    expect(noCatalog).toHaveBeenCalledOnce();
+    await expect(listNativePackages(HOST_URL, noCatalog)).resolves.toMatchObject({
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+    });
+    expect(noCatalog).toHaveBeenCalledTimes(2);
 
     const missing = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))

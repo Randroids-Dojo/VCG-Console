@@ -10,6 +10,7 @@
     "build": "pnpm -r build",
     "dev": "pnpm --filter @vcg/console-lab dev",
     "prepare:assets": "node scripts/prepare-assets.mjs",
+    "prepare:catalog": "tsx scripts/export-launcher-catalog.ts",
     "prepare:schemas": "tsx scripts/export-schemas.ts",
     "native:check": "cargo check --workspace",
     "native:fmt": "cargo fmt --all -- --check",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@vcg/game-manifest": "workspace:*",
+    "@vcg/launcher-catalog": "workspace:*",
     "@vcg/motion-web-bridge": "workspace:*",
     "tsx": "4.23.1",
     "typescript": "5.9.3"

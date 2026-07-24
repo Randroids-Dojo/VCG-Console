@@ -13,6 +13,7 @@ Prerequisites: Node.js 22 or newer, pnpm 10.30.3 (directly or through Corepack),
 ```sh
 pnpm install
 pnpm prepare:assets
+pnpm prepare:catalog
 pnpm prepare:schemas
 pnpm dev
 ```
@@ -47,6 +48,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Open-question register](docs/OPEN_QUESTIONS.md)
 - [VibeCoded game compatibility snapshot](docs/GAME_COMPATIBILITY.md)
 - [Canonical game manifest v1 contract](docs/GAME_MANIFEST_CONTRACT.md)
+- [Canonical launcher catalog policy](docs/LAUNCHER_CATALOG_POLICY.md)
 - [Game trust tiers and admission lifecycle](docs/GAME_TRUST_TIERS.md)
 - [Raspberry Pi 5 and AI HAT feasibility brief](docs/RASPBERRY_PI_AI_HAT.md)
 - [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
@@ -70,6 +72,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Deferred owner questions from the prototype-gates tranche](docs/OWNER_QUESTIONS_PROTOTYPE_GATES_2026-07-23.md)
 - [Deferred owner questions from the installed-catalog tranche](docs/OWNER_QUESTIONS_INSTALLED_CATALOG_2026-07-23.md)
 - [Deferred owner questions from the native-launch tranche](docs/OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md)
+- [Deferred owner question from the launcher-catalog tranche](docs/OWNER_QUESTIONS_LAUNCHER_CATALOG_2026-07-24.md)
 - [Deferred owner questions from the package-watchdog tranche](docs/OWNER_QUESTIONS_WATCHDOG_2026-07-23.md)
 - [Source ledger](docs/SOURCES.md)
 

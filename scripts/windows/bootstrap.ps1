@@ -48,6 +48,7 @@ if (-not ($chromeCandidates | Where-Object { Test-Path $_ } | Select-Object -Fir
 Invoke-PinnedPnpm --version
 Invoke-PinnedPnpm install --frozen-lockfile
 Invoke-PinnedPnpm prepare:assets
+Invoke-PinnedPnpm prepare:catalog
 Invoke-PinnedPnpm prepare:schemas
 Invoke-PinnedPnpm typecheck
 Invoke-PinnedPnpm test

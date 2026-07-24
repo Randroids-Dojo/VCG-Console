@@ -5,6 +5,11 @@ import {
   gameManifestJsonSchema,
   GameManifestSchema,
 } from "@vcg/game-manifest";
+import {
+  expectedLauncherCatalogSource,
+  generatedLauncherCatalogPath,
+  launcherPolicyPath,
+} from "./launcher-catalog-files";
 
 async function main(): Promise<void> {
   const requested = process.argv.slice(2);
@@ -20,6 +25,20 @@ async function main(): Promise<void> {
   } catch (error) {
     failures += 1;
     console.error(`${generatedSchemaPath}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  try {
+    const expectedCatalog = await expectedLauncherCatalogSource();
+    if ((await readFile(generatedLauncherCatalogPath, "utf8")) !== expectedCatalog) {
+      failures += 1;
+      console.error(`${generatedLauncherCatalogPath}: STALE (run pnpm prepare:catalog)`);
+    } else {
+      console.log(`${launcherPolicyPath}: valid (canonical launcher policy)`);
+    }
+  } catch (error) {
+    failures += 1;
+    console.error(
+      `${launcherPolicyPath}: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   for (const path of paths) {

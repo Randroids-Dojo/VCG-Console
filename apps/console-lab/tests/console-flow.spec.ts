@@ -21,6 +21,10 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.screenshot({ path: "../../test-results/console-lab/launcher-home.png" });
 
   await page.getByRole("button", { name: "Museum", exact: true }).click();
+  const canonicalMuseumCatalog = page.getByLabel("Canonical museum catalog");
+  await expect(canonicalMuseumCatalog.getByText("VibeBots")).toBeVisible();
+  await expect(canonicalMuseumCatalog.getByText("Mi Casa Es Su Casa")).toBeVisible();
+  await expect(canonicalMuseumCatalog.getByText("Determined")).toBeVisible();
   await page.getByRole("button", { name: /Enter the museum/ }).click();
   await expect(page.getByRole("dialog", { name: "VibeCoded Museum" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
@@ -45,6 +49,7 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.locator("#universal-search").fill("retro");
   await page.getByRole("button", { name: /RetroArch Retro library/ }).click();
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+  await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
 
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Storage", exact: true }).click();
@@ -143,6 +148,7 @@ test("native launch authenticates to the Rust host before checking installed pac
 
 test("retro launch submits only signed package and profile intent to the host", async ({ page }) => {
   const token = "c".repeat(64);
+  let installedVersion = "0.9.0";
   const observed: Array<{
     url: string;
     method: string;
@@ -186,10 +192,22 @@ test("retro launch submits only signed package and profile intent to the host", 
             "trusted-package-launch",
           ],
       };
+    } else if (request.url().endsWith("/v1/packages")) {
+      body = {
+        protocolVersion: "0.1.0",
+        catalogGeneration: 7,
+        packages: [
+          {
+            id: "retro-2048",
+            version: installedVersion,
+            runtime: "libretro",
+          },
+        ],
+      };
     } else if (request.url().includes("/v1/packages/")) {
       body = {
         id: "retro-2048",
-        version: "1.0.0",
+        version: "qualification-candidate-2026-07-23",
         runtime: "libretro",
         catalogGeneration: 7,
       };
@@ -225,6 +243,13 @@ test("retro launch submits only signed package and profile intent to the host", 
 
   await page.goto(`/?skipBoot=1#vcg-host-port=43124&vcg-host-token=${token}`);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await expect(page.getByRole("button", { name: /2048.*Candidate/ })).toBeVisible();
+
+  installedVersion = "qualification-candidate-2026-07-23";
+  observed.length = 0;
+  await page.reload();
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await expect(page.getByRole("button", { name: /2048.*Installed/ })).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
 
   const launch = page.getByRole("dialog", { name: "2048" });
@@ -235,6 +260,8 @@ test("retro launch submits only signed package and profile intent to the host", 
   await launch.getByRole("button", { name: /Details/ }).click();
   await expect(launch.getByText("PROCESS_START_FAILED")).toBeVisible();
   expect(observed.map(({ url, method }) => ({ url, method }))).toEqual([
+    { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
+    { url: "http://127.0.0.1:43124/v1/packages", method: "GET" },
     { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
     {
       url: "http://127.0.0.1:43124/v1/packages/retro-2048",
@@ -339,7 +366,7 @@ test("universal search traps focus and restores its opener", async ({ page }) =>
 test("retro candidate remains visibly uninstalled and uses the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
-  await expect(page.getByText("No retro packages installed")).toBeVisible();
+  await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
   const launch = page.getByRole("dialog", { name: "2048" });
   await expect(launch).toHaveAttribute("data-launch-adapter", "retro");
