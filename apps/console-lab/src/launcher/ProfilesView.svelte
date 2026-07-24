@@ -1,32 +1,33 @@
 <script lang="ts">
   import { tick } from "svelte";
-
-  interface Profile {
-    id: string;
-    name: string;
-    detail: string;
-  }
+  import type { LocalProfile } from "./types";
 
   let {
+    profiles,
+    activeId,
+    unassignedCount,
     onselect,
+    oncreate,
+    onrename,
+    onunassigned,
     ontoast,
   }: {
-    onselect: (profile: { id: string; name: string }) => void;
+    profiles: readonly LocalProfile[];
+    activeId: string;
+    unassignedCount: number;
+    onselect: (profile: LocalProfile) => void;
+    oncreate: (name: string) => void;
+    onrename: (profileId: string, name: string) => void;
+    onunassigned: () => void;
     ontoast: (message: string) => void;
   } = $props();
 
-  let profiles = $state<Profile[]>([
-    { id: "profile-randy", name: "Randy", detail: "Local player" },
-    { id: "profile-guest", name: "Guest", detail: "Local guest" },
-  ]);
-  let activeId = $state("profile-randy");
-  let nextId = 3;
   let editingId = $state<string | null>(null);
   let editorOpen = $state(false);
   let editorName = $state("");
   let input: HTMLInputElement;
 
-  async function openEditor(profile?: Profile): Promise<void> {
+  async function openEditor(profile?: LocalProfile): Promise<void> {
     editingId = profile?.id ?? null;
     editorName = profile?.name ?? "";
     editorOpen = true;
@@ -39,9 +40,8 @@
     editingId = null;
   }
 
-  function select(profile: Profile): void {
-    activeId = profile.id;
-    onselect({ id: profile.id, name: profile.name });
+  function select(profile: LocalProfile): void {
+    onselect(profile);
   }
 
   function save(event: SubmitEvent): void {
@@ -55,28 +55,18 @@
     if (editingId !== null) {
       const profile = profiles.find((candidate) => candidate.id === editingId);
       if (!profile) return;
-      profile.name = name;
-      profiles = [...profiles];
-      activeId = profile.id;
       closeEditor();
-      onselect({ id: profile.id, name });
+      onrename(profile.id, name);
       ontoast(`Profile updated: ${name}`);
       return;
     }
 
-    const profile = {
-      id: `profile-local-${nextId++}`,
-      name,
-      detail: "Local player",
-    };
-    profiles = [...profiles, profile];
-    activeId = profile.id;
     closeEditor();
-    onselect({ id: profile.id, name });
+    oncreate(name);
     ontoast(`Profile created: ${name}`);
   }
 
-  function selectedProfile(): Profile | undefined {
+  function selectedProfile(): LocalProfile | undefined {
     return profiles.find((profile) => profile.id === activeId);
   }
 
@@ -108,7 +98,12 @@
         <span>+</span><strong>Create profile</strong><small>New local player</small>
       </button>
     </div>
-    <button class="update-profile" type="button" id="edit-profile" onclick={openSelectedEditor}>Update selected profile</button>
+    <div class="profile-actions">
+      <button class="update-profile" type="button" id="edit-profile" onclick={openSelectedEditor}>Update selected profile</button>
+      <button class="unassigned-profile-link" type="button" id="open-unassigned-progress" onclick={onunassigned}>
+        Unassigned progress <span>{unassignedCount}</span>
+      </button>
+    </div>
   </div>
   <form class="profile-editor" id="profile-editor" hidden={!editorOpen} onsubmit={save}>
     <p class="view-kicker">PROFILE DETAILS</p>

@@ -102,6 +102,183 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(operatingMode).toHaveAttribute("data-operating-mode", "family");
 });
 
+test("unassigned progress requires deliberate controller-safe claim and deletion", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setUnassignedGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright unassigned-progress controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+  });
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  await page.getByRole("button", { name: /Unassigned progress 4/ }).click();
+
+  const view = page.locator('[data-launcher-view="unassigned"]');
+  await expect(
+    view.getByRole("heading", { name: "Progress without a profile." }),
+  ).toBeVisible();
+  await expect(view.getByText("Prototype sample data")).toBeVisible();
+  await expect(view.getByRole("button", { name: /Obstacle/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  const claim = view.getByRole("button", { name: "Claim to profile" });
+  await claim.focus();
+  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 0);
+  await expect(
+    page.getByRole("dialog", { name: /Who should receive Obstacle/ }),
+  ).toBeVisible();
+  const chooseProfileDialog = page.getByRole("dialog");
+  await expect(
+    chooseProfileDialog.getByRole("button", { name: /Randy/ }),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(
+    chooseProfileDialog.getByRole("button", { name: "Cancel" }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    chooseProfileDialog.getByRole("button", { name: /Randy/ }),
+  ).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 15);
+  await expect(
+    page.getByRole("dialog").getByRole("button", { name: /Guest/ }),
+  ).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 1);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(claim).toBeFocused();
+
+  await claim.click();
+  await page.getByRole("dialog").getByRole("button", { name: /Randy/ }).click();
+  const conflict = page.getByRole("dialog", {
+    name: "Randy already has this slot.",
+  });
+  await expect(conflict.getByText(/Nothing changes until/)).toBeVisible();
+  await conflict
+    .getByRole("button", { name: /Keep current profile progress/ })
+    .click();
+  await expect(view.getByRole("button", { name: /Obstacle/ })).toBeVisible();
+
+  await claim.click();
+  await page.getByRole("dialog").getByRole("button", { name: /Guest/ }).click();
+  const claimConfirmation = page.getByRole("dialog", {
+    name: /Claim Checkpoint 12 to Guest/,
+  });
+  await claimConfirmation.getByRole("button", { name: "Confirm claim" }).click();
+  await expect(view.getByRole("button", { name: /Obstacle/ })).toHaveCount(0);
+  await expect(
+    view.getByRole("button", { name: /Godot Motion Game/ }),
+  ).toBeFocused();
+  await expect(page.locator("#launcher-toast")).toContainText(
+    "Prototype claim completed",
+  );
+  const toastBox = await page.locator("#launcher-toast").boundingBox();
+  expect(toastBox).not.toBeNull();
+  expect((toastBox?.x ?? 0) + (toastBox?.width ?? 0)).toBeLessThanOrEqual(
+    await page.evaluate(() => window.innerWidth),
+  );
+
+  await view.getByRole("button", { name: /VibeBots/ }).click();
+  await expect(
+    view.getByText(/account or service data is separate/),
+  ).toBeVisible();
+  const deleteButton = view.getByRole("button", { name: "Delete permanently" });
+  await deleteButton.click();
+  const deletion = page.getByRole("dialog", {
+    name: /Delete VibeBots/,
+  });
+  await expect(deletion.getByText(/Hosted-service account data remains separate/)).toBeVisible();
+  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 1);
+  await expect(deletion).toHaveCount(0);
+  await expect(view.getByRole("button", { name: /VibeBots/ })).toBeVisible();
+
+  await deleteButton.click();
+  await page
+    .getByRole("dialog", { name: /Delete VibeBots/ })
+    .getByRole("button", { name: "Delete this progress" })
+    .click();
+  await expect(view.getByRole("button", { name: /VibeBots/ })).toHaveCount(0);
+  await expect(
+    view.getByRole("button", { name: /Godot Motion Game/ }),
+  ).toBeFocused();
+  await page.screenshot({
+    path: "../../test-results/console-lab/unassigned-progress.png",
+  });
+  await view.getByRole("button", { name: "Profiles" }).click();
+  await expect(
+    page.getByRole("button", { name: /Unassigned progress 2/ }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 520, height: 900 });
+  await page.getByRole("button", { name: /Unassigned progress 2/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Progress without a profile." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("triggered motion shell actions navigate and safely leave unassigned progress", async ({
+  page,
+}) => {
+  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.waitForTimeout(850);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  await page.getByRole("button", { name: /Unassigned progress 4/ }).click();
+  const view = page.locator('[data-launcher-view="unassigned"]');
+  const first = view.getByRole("button", { name: /Obstacle/ });
+  const second = view.getByRole("button", { name: /Godot Motion Game/ });
+  await expect(first).toBeFocused();
+
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("swipe-right"));
+  await expect(second).toBeFocused({ timeout: 1_500 });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
+  await expect(second).toHaveAttribute("aria-pressed", "true", {
+    timeout: 1_500,
+  });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("crossed-arms"));
+  await expect(
+    page.getByRole("heading", { name: "Who is playing?" }),
+  ).toBeVisible({ timeout: 1_500 });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+});
+
 test("accessibility preferences apply, persist, disclose gaps, and reset", async ({
   page,
 }) => {

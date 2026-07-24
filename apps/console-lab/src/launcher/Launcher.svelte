@@ -28,16 +28,27 @@
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
   import SettingsView from "./SettingsView.svelte";
-  import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
+  import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, LocalProfile, SearchItem, SettingsPanel } from "./types";
+  import UnassignedProgressView from "./UnassignedProgressView.svelte";
+  import {
+    UNASSIGNED_PROGRESS_DEMO_ENTRIES,
+    UnassignedProgressController,
+  } from "./unassigned-progress";
 
   let { accessibilityPreferences, openMotionLab }: LauncherOptions = $props();
   let launcher: HTMLElement;
   let search: SearchOverlay;
   let settings: SettingsView;
+  let unassigned: UnassignedProgressView;
   let visible = $state(true);
   let view = $state<LauncherView>("home");
+  let profiles = $state<LocalProfile[]>([
+    { id: "profile-randy", name: "Randy", detail: "Local player" },
+    { id: "profile-guest", name: "Guest", detail: "Local guest" },
+  ]);
   let activeProfile = $state("Randy");
   let activeProfileId = $state("profile-randy");
+  let nextProfileId = 3;
   let clock = $state("");
   let toastMessage = $state("");
   let toastVisible = $state(false);
@@ -59,6 +70,22 @@
     untrack(() => accessibilityPreferences.snapshot()),
   );
   const localDiagnostics = new LocalDiagnosticBuffer();
+  const unassignedProgressController = new UnassignedProgressController(
+    UNASSIGNED_PROGRESS_DEMO_ENTRIES,
+    [
+      {
+        profileId: "profile-randy",
+        gameId: "obstacle",
+        slotId: "main-slot",
+      },
+      {
+        profileId: "profile-guest",
+        gameId: "godot-motion-game",
+        slotId: "campaign",
+      },
+    ],
+  );
+  let unassignedProgressSnapshot = $state(unassignedProgressController.snapshot());
 
   type CatalogLaunchExpectation = {
     gameId: string;
@@ -87,6 +114,7 @@
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
+    { title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") },
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
@@ -140,6 +168,29 @@
     }
   }
 
+  function selectProfile(profile: LocalProfile): void {
+    activeProfileId = profile.id;
+    activeProfile = profile.name;
+  }
+
+  function createProfile(name: string): void {
+    const profile: LocalProfile = {
+      id: `profile-local-${nextProfileId++}`,
+      name,
+      detail: "Local player",
+    };
+    profiles = [...profiles, profile];
+    selectProfile(profile);
+  }
+
+  function renameProfile(profileId: string, name: string): void {
+    profiles = profiles.map((profile) =>
+      profile.id === profileId ? { ...profile, name } : profile
+    );
+    const profile = profiles.find((candidate) => candidate.id === profileId);
+    if (profile) selectProfile(profile);
+  }
+
   onDestroy(() => {
     if (clockTimer !== undefined) window.clearInterval(clockTimer);
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
@@ -167,8 +218,15 @@
   export async function showView(next: LauncherView): Promise<void> {
     view = next;
     if (next === "retro") void refreshNativePackageInventory();
+    await tick();
     await positionSignal();
-    launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
+    if (next === "unassigned") {
+      launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
+        preventScroll: true,
+      });
+    } else {
+      launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
+    }
   }
 
   export async function showSettings(panel: SettingsPanel): Promise<void> {
@@ -182,6 +240,8 @@
     if (launchSession) closeLaunch();
     else if (search.isOpen()) search.close();
     else if (view === "settings" && settings.cancelPendingModeConfirmation()) return;
+    else if (view === "unassigned" && unassigned.cancelPending()) return;
+    else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
   }
 
@@ -196,7 +256,12 @@
       return;
     }
 
-    const controlRoot = launchSession ? launcher.querySelector<HTMLElement>(".launch-screen") ?? launcher : launcher;
+    const visibleModal = [
+      ...launcher.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'),
+    ].find((element) => element.offsetParent !== null);
+    const controlRoot = launchSession
+      ? launcher.querySelector<HTMLElement>(".launch-screen") ?? launcher
+      : visibleModal ?? launcher;
     const controls = [...controlRoot.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input")].filter(
       (element) => element.offsetParent !== null,
     );
@@ -678,7 +743,7 @@
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
-        <button class:active={view === target} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "profiles" && view === "unassigned")} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
 
@@ -768,9 +833,26 @@
 
       <div class="launcher-view profiles-view" data-launcher-view="profiles" hidden={view !== "profiles"}>
         <ProfilesView
-          onselect={(profile) => {
-            activeProfileId = profile.id;
-            activeProfile = profile.name;
+          {profiles}
+          activeId={activeProfileId}
+          unassignedCount={unassignedProgressSnapshot.entries.length}
+          onselect={selectProfile}
+          oncreate={createProfile}
+          onrename={renameProfile}
+          onunassigned={() => showView("unassigned")}
+          ontoast={toast}
+        />
+      </div>
+
+      <div class="launcher-view unassigned-view" data-launcher-view="unassigned" hidden={view !== "unassigned"}>
+        <UnassignedProgressView
+          bind:this={unassigned}
+          controller={unassignedProgressController}
+          snapshot={unassignedProgressSnapshot}
+          {profiles}
+          onback={() => showView("profiles")}
+          onchanged={(snapshot) => {
+            unassignedProgressSnapshot = snapshot;
           }}
           ontoast={toast}
         />

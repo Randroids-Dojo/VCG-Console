@@ -1,6 +1,13 @@
 import type { AccessibilityPreferenceController } from "./accessibility-preferences";
 
-export type LauncherView = "home" | "motion" | "museum" | "retro" | "profiles" | "settings";
+export type LauncherView =
+  | "home"
+  | "motion"
+  | "museum"
+  | "retro"
+  | "profiles"
+  | "unassigned"
+  | "settings";
 export type LabMode = "tracker" | "obstacle" | "shell";
 export type SettingsPanel = "system" | "accessibility" | "network" | "storage" | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
@@ -41,6 +48,12 @@ export interface LaunchSession {
 export interface LauncherOptions {
   accessibilityPreferences: AccessibilityPreferenceController;
   openMotionLab: (mode?: LabMode) => void;
+}
+
+export interface LocalProfile {
+  id: string;
+  name: string;
+  detail: string;
 }
 
 export interface SearchItem {

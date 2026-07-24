@@ -92,9 +92,13 @@ D-089 supersedes the Export action originally mentioned by D-088. Unassigned
 progress can be viewed, played locally, claimed, or permanently deleted, but
 the console provides no export path.
 
-The pure record transition is implemented and tested. Durable unlink ordering,
-power-loss recovery, metadata sanitation, actual Play Unassigned, permanent
-deletion, and the controller/motion UX remain I-188 through I-191.
+The pure native record transition is implemented and tested. A separate
+bounded Svelte desk prototype now exercises sanitized synthetic entries,
+Play Unassigned intent, explicit claim/conflict/delete flows, safe Back,
+controller navigation, and camera-free shell-motion navigation without
+claiming a native mutation. Durable unlink ordering, power-loss recovery,
+trusted metadata sanitation, actual launch/deletion, and target household
+qualification remain I-188 through I-191.
 
 ## Reset and no-egress rules
 

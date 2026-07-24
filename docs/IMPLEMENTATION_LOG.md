@@ -2273,3 +2273,56 @@ coordination, authenticated acknowledgements, per-game suspend/checkpoint
 manifest semantics, systemd/firmware/SteamOS/Pi adapters, physical controls,
 display blanking and wake devices, signed recovery, data/reset disposition,
 and target suspend/resume/power-cut/thermal/energy/endurance tests remain open.
+
+## 2026-07-24: Unassigned Progress console UX
+
+### Delivered
+
+- Added a pure bounded controller for no-more-than-64 closed sanitized
+  unassigned-progress projections, exact profile-slot conflict inspection,
+  path-free play plans, revision-bound claim/delete plans, and stale
+  confirmation refusal.
+- Added an OCR-A launcher screen with representative synthetic local-web,
+  native/Godot, Libretro, and remote-web records; compatibility and local-loss
+  disclosures; Play Unassigned; explicit profile selection; conflict
+  resolution; and deliberate permanent deletion.
+- Kept opaque owner IDs out of rendered copy and omitted paths, arbitrary
+  metadata, export, migration, cloud, portrait, calibration, and
+  body-matching fields from the browser model.
+- Added explicit Keep Both capability gating, destructive replacement copy,
+  hosted-service separation, in-memory-only disclaimers, safe Back/Home, modal
+  focus containment, and live unassigned count on the Profiles screen.
+- Routed triggered shell motion swipe/select/Back through the same bounded
+  launcher vocabulary as controller navigation while preserving deliberate
+  player join.
+- Documented the UX/data/security boundary, fixture/runtime matrix, abuse
+  evidence, implementation map, remaining qualification, and Q-170 through
+  Q-174.
+- Advanced I-190 from `open` to `active`.
+
+### Verification evidence
+
+Ten focused Vitest cases cover the closed record schema, bounds, defensive
+copies, duplicate and unsafe input, runtime/hosted-boundary consistency,
+path-free nonmutating play, incompatible play refusal, exact conflict
+detection, replace, capability-gated Keep Both, stale plans, absence of
+display-name inference, runtime-forged plan rejection, and exact-entry
+deletion. The production Svelte bundle builds.
+
+Two focused Chrome flows prove controller modal focus containment, Select,
+Back cancellation and focus restoration, conflict cancellation, confirmed
+claim, hosted-service disclosure, destructive-delete cancellation and
+confirmation, live count updates, viewport-bounded status copy, and a
+camera-free Motion join/swipe/select/crossed-arm Back path. The screen was
+reviewed at the 1440 by 1000 test viewport.
+
+### Remaining boundary
+
+This is an in-memory desk prototype over synthetic data. It does not enumerate
+or mutate native saves. Authenticated host projections, trusted per-game
+metadata extraction, signed compatibility and multi-slot policy, durable
+unlink/claim/replace/delete transactions, loading and recovery, real browser,
+native/Godot, Libretro and hosted-title local data, package lifecycle,
+simultaneous-player behavior, target hardware, household, TV-distance,
+accessibility, privacy, legal, low-space, fault, and power-loss evidence remain
+under I-189 through I-191 and Q-170 through Q-174.

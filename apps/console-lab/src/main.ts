@@ -21,6 +21,7 @@ import {
   type BodyVisibilityFixture,
 } from "./body-visibility-fixture";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
+import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
 import {
   AccessibilityPreferenceController,
@@ -462,6 +463,12 @@ function handleAction(action: MotionAction): void {
     `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
   paintActionFeedback(action);
   if (action.phase !== "triggered") return;
+  if (launcher.visible) {
+    if (action.name === "player_join") joinPlayer();
+    const launcherInput = launcherInputForMotionAction(action);
+    if (launcherInput) launcher.handleInput(launcherInput);
+    return;
+  }
   if (action.name === "player_join") joinPlayer();
   if (["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)) obstacle.handleAction(action.name);
   if (action.name === "pause" && currentMode === "obstacle") showOverlay("manual");
