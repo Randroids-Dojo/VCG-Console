@@ -1193,21 +1193,21 @@ No depth, segmentation, or hand provider is implemented or qualified by this con
 
 I-084 stays active. The virtual soak measures protocol-state bounds rather than wall-clock RSS or scheduler behavior, and the browser fixture withholds ACKs without suspending an OS renderer. Multi-process memory telemetry, renderer kill/suspend, tracker-process isolation, and selected native IPC backpressure still require target-system evidence.
 
-## 2026-07-24: bounded Motion bridge stalls and reconnect churn
+## 2026-07-24: Motion SDK web reference game
 
 ### Delivered
 
-- Bound each session to one exact pending frame sequence; stale or mismatched acknowledgements no longer release publication backpressure.
-- Added timer-independent stale-session collection plus bounded active, peak, pending, expiry, and invalid-acknowledgement telemetry.
-- Proved that a non-acknowledging session neither queues frames nor blocks a healthy neighboring session.
-- Added 1,000 same-window reconnects and a five-minute virtual-time 100 Hz producer soak without retained frame history or session growth.
-- Added a real-Chrome fixture that deliberately withholds acknowledgements, is collected after TTL, and is replaced by a healthy cooperative client.
+- Added a tiny engine-independent TypeScript game consumer with one immutable state model behind live Motion bridge, deterministic replay, and controller input.
+- Required only the portable core skeleton, requested obstacle actions as optional, and kept the client request explicitly subordinate to host permission grants.
+- Demonstrated normalized landmark-driven lane selection plus edge-triggered jump/duck/dodge actions while ignoring console shell actions as gameplay.
+- Made player loss and degraded frames fail visible to Waiting without stale-input continuation; controller fallback remains available.
+- Published the authoring, health, action-phase, origin, privacy, replay, and fallback rules in `MOTION_SDK_AUTHORING.md`; I-086 moves to active with its web half complete.
 
 ### Verification evidence
 
-- Twenty-two focused bridge tests pass, including exact ACK binding, explicit expiry, healthy-client isolation, churn, soak, and the existing 10,000-frame burst.
-- The focused Chrome stall/recovery flow, bridge/console TypeScript diagnostics, and production console build pass.
+- Twenty-four Motion bridge tests pass. Three focused reference-game tests cover landmark input, triggered action ownership, deterministic replay through the same consumer, player loss, and controller recovery.
+- The Motion bridge package typechecks with its live and replay example imports.
 
 ### Remaining boundary
 
-I-084 stays active. The virtual soak measures protocol-state bounds rather than wall-clock RSS or scheduler behavior, and the browser fixture withholds ACKs without suspending an OS renderer. Multi-process memory telemetry, renderer kill/suspend, tracker-process isolation, and selected native IPC backpressure still require target-system evidence.
+The Godot quickstart, live/replay Godot adapter, ARM64/x86-64/web exports, package-size/tooling/latency comparison, and final engine choice remain I-077/I-086/Q-058. The example is developer evidence, not real-player motion accuracy, hostile-origin containment, signed host integration, or native reserved-control qualification.
