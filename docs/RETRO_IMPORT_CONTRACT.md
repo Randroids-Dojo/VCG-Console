@@ -290,7 +290,7 @@ clean/blocked/error/unavailable/misbound scanner behavior, capacity overflow,
 reported-free-space refusal before mutation, library history shape,
 nonblocking lock and exact cancellation, incomplete-copy cleanup, recovery
 after source removal, recovery across object/library publication windows,
-replacement ordering, duplicate reuse with full object revalidation,
+replacement ordering, duplicate reuse with missing/tampered object refusal,
 cancellation after expiry/revocation and after an unrelated generation
 advance, path-free audit persistence, shared storage-namespace derivation,
 an actual derived-root import that preserves package/core/save/state/remap/

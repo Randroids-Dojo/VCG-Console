@@ -3074,6 +3074,19 @@ mod tests {
         ]
     }
 
+    fn replace_managed_object_bytes_for_test(path: &Path, bytes: &[u8]) {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mut permissions = fs::metadata(path)
+                .expect("inspect managed object permissions")
+                .permissions();
+            permissions.set_mode(0o600);
+            fs::set_permissions(path, permissions).expect("make managed object test-writable");
+        }
+        fs::write(path, bytes).expect("replace managed object bytes");
+    }
+
     #[derive(Clone)]
     struct FakeScanner {
         status: RetroScanStatus,
@@ -3797,7 +3810,19 @@ mod tests {
         );
         assert_eq!(fixture.audit_files().len(), 2);
 
-        fs::remove_file(&fixture.object_files()[0]).expect("remove managed object");
+        let object = fixture.object_files()[0].clone();
+        replace_managed_object_bytes_for_test(&object, &vec![b'x'; bytes.len()]);
+        let tampered = reuse_intent(bytes, 2, "reuse-tampered", &existing_id);
+        assert!(matches!(
+            fixture
+                .store
+                .commit_without_copy(&tampered, &context(&tampered), 1_000),
+            Err(RetroImportError::CommittedContentMismatch)
+        ));
+        assert_eq!(fixture.library().generation, 2);
+        assert_eq!(fixture.audit_files().len(), 2);
+
+        fs::remove_file(object).expect("remove managed object");
         let missing = reuse_intent(bytes, 2, "reuse-missing", &existing_id);
         assert!(
             fixture
