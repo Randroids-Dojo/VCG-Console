@@ -1,7 +1,8 @@
 # Hosted browser preview boundary
 
 Status: exact allowlisted browser-only preview implemented; supervised
-top-level hosted-game runtime remains open under I-180.
+top-level hosted-game runtime has a separate bounded desk prototype under
+I-180.
 
 ## Purpose
 
@@ -96,3 +97,9 @@ does not provide:
 
 Until those controls exist, the product must continue to call this an
 unsupervised preview and must not represent any hosted game as appliance-safe.
+
+The separate [hosted browser supervision prototype](HOSTED_BROWSER_SUPERVISION.md)
+now enforces a fresh profile plus active top-level origin, popup, and download
+containment in an external developer command. It does not silently upgrade
+this browser-only preview or remove the remaining native-host/compositor
+qualification work.
