@@ -76,10 +76,13 @@ The highest-level security objectives are to keep games from becoming console au
 - Future installer, update, import, persistent profile/save, paired developer,
   and service-manager code remains in scope for design threats that cannot
   become present implementation vulnerabilities before the code exists. A
-  portrait lifecycle model and UI now exist, so their state/input/claim
-  boundary is present attack surface; the implementation is restricted to
-  opaque synthetic handles and invokes no camera, pixel, or durable store.
-  Real portrait capture/storage remains future attack surface.
+  portrait and credential-free profile-management lifecycle models and UIs
+  now exist, so their state/input/claim boundaries are present attack surface.
+  The implementation is restricted to opaque synthetic handles, closed
+  session-only profile/progress fixtures, and invokes no camera, pixel,
+  registry, vault, save broker, hosted service, or durable store. Real
+  portrait capture/storage and native profile mutation remain future attack
+  surface.
 - Denial of one voluntarily launched untrusted game is less severe than denial of boot, Home/Back, tracker recovery, update rollback, or the whole console.
 
 ## Attack Surface, Mitigations, and Attacker Stories
@@ -96,8 +99,13 @@ before Motion negotiation, per-profile frame projection, acknowledgement
 backpressure, and session expiry. The synthetic portrait rehearsal additionally
 requires exact notice/countdown/session/attempt/preview acceptance, rejects
 stale callbacks, and invokes no `getUserMedia` in its simulator-backed Chrome
-flow. The browser test suite observes no external requests or persistent
-browser stores during normal camera mode.
+flow. The credential-free management rehearsal requires one exact opaque
+profile, closed revision-bound scope, initially safe focus, a 1.5-second
+review, 30-second expiry, and stale portrait/calibration/body/progress
+rejection. Reset and delete revoke the shared synthetic portrait; deletion
+unassigns local progress and same-name recreation receives no links. The
+browser test suite observes no external requests or persistent browser stores
+during normal camera mode.
 
 Important attacker stories are a hostile game requesting richer landmarks than approved; a same-origin compromise inheriting an origin allowlist; a crafted scene causing false join/Back/pause; a stale worker result crossing camera restart; or future support/log tooling accidentally including frames, portraits, body measurements, or linkable traces. Required follow-up includes OS/device permission tests, crash/swap inspection, legal/privacy review for body matching and portraits, sensitive-store encryption and deletion, adversarial action scoring, and negative export/support-bundle tests.
 
@@ -232,6 +240,19 @@ separate prepare/confirm actions; automated byte inspection excludes active
 profile identity, URL secrets, frames, skeletons, credentials, personal
 identifiers, and free text, and observes no export request. This constrains the
 prototype but does not authenticate event truth or provide native persistence.
+
+The credential-free profile-management prototype keeps display text separate
+from opaque authority, permits duplicate names, and requires exact delayed
+confirmation for recalibration, reset, and deletion. Its deletion result
+removes the selected synthetic sensitive state and converts only exact linked
+progress records to unassigned; hosted-service records remain visibly outside
+VCG authority. Early motion Select activates the initially focused safe choice,
+Back cancels the modal, changed state fails closed, and same-name recreation
+does not reattach progress. These controls do not supply a native atomic
+transaction, authorization, sanitization proof, crash recovery, forensic
+deletion, or household-abuse acceptance. Production must bind registry, vault,
+progress, and protected state under one qualified broker and fault-test every
+commit boundary.
 
 The repository now models one aligned firmware/equal A/B/writable-data layout, fixed direct-child data namespaces, aggregate capacity, recovery reserve, inactive verified-image fit, logical fault scope, and cleanup/reset disposition. It rejects relative/root/traversal-like roots and never treats automatic cleanup as authority over identity, saves, or installed content. Production brokers and physical enforcement remain absent. Safe implementation still requires real partition/mount identity, per-game identities and quotas, serialized block reservation, atomic writes, bounded/redacted logs, deliberate consented export, archive limits, staging recovery, no source-path retention, protected paired keys, visible developer state, factory-reset policy/verification, and tests proving profiles/portraits/body data never enter system slots, saves, diagnostics, recovery images, or cloud paths.
 

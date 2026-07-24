@@ -6,6 +6,7 @@ export type LauncherView =
   | "museum"
   | "retro"
   | "profiles"
+  | "profile-management"
   | "portrait"
   | "unassigned"
   | "settings";

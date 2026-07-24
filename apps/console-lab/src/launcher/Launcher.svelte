@@ -26,7 +26,18 @@
   } from "./local-diagnostics";
   import { nativeLifecycleDetail } from "./native-lifecycle";
   import PortraitCaptureView from "./PortraitCaptureView.svelte";
-  import { PortraitCaptureController } from "./portrait-capture";
+  import {
+    AcceptedPortraitCollection,
+    PortraitCaptureController,
+  } from "./portrait-capture";
+  import ProfileManagementView from "./ProfileManagementView.svelte";
+  import {
+    PROFILE_MANAGEMENT_DEMO_PROFILES,
+    PROFILE_MANAGEMENT_DEMO_PROGRESS,
+    ProfileManagementController,
+    type ProfileManagementCommitResult,
+    type ProfileManagementSnapshot,
+  } from "./profile-management";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
   import SettingsView from "./SettingsView.svelte";
@@ -42,17 +53,29 @@
   let search: SearchOverlay;
   let settings: SettingsView;
   let portraitCapture: PortraitCaptureView;
+  let profileManagement: ProfileManagementView;
   let unassigned: UnassignedProgressView;
   let visible = $state(true);
   let view = $state<LauncherView>("home");
-  let profiles = $state<LocalProfile[]>([
-    { id: "profile-randy", name: "Randy", detail: "Local player" },
-    { id: "profile-guest", name: "Guest", detail: "Local guest" },
-  ]);
+  const acceptedPortraits = new AcceptedPortraitCollection();
+  const profileManagementController = new ProfileManagementController(
+    PROFILE_MANAGEMENT_DEMO_PROFILES,
+    PROFILE_MANAGEMENT_DEMO_PROGRESS,
+    acceptedPortraits,
+  );
+  let profileManagementSnapshot = $state(
+    profileManagementController.snapshot(),
+  );
+  let profiles = $state<LocalProfile[]>(
+    localProfiles(profileManagementController.snapshot()),
+  );
   let activeProfile = $state("Randy");
   let activeProfileId = $state("profile-randy");
+  let managementProfileId = $state<string | null>(null);
   let portraitProfileId = $state<string | null>(null);
-  let nextProfileId = 3;
+  let portraitReturnView = $state<"profiles" | "profile-management">(
+    "profiles",
+  );
   let clock = $state("");
   let toastMessage = $state("");
   let toastVisible = $state(false);
@@ -74,7 +97,9 @@
     untrack(() => accessibilityPreferences.snapshot()),
   );
   const localDiagnostics = new LocalDiagnosticBuffer();
-  const portraitCaptureController = new PortraitCaptureController();
+  const portraitCaptureController = new PortraitCaptureController(
+    acceptedPortraits,
+  );
   let portraitCaptureSnapshot = $state(portraitCaptureController.snapshot());
   const unassignedProgressController = new UnassignedProgressController(
     UNASSIGNED_PROGRESS_DEMO_ENTRIES,
@@ -180,22 +205,72 @@
     activeProfile = profile.name;
   }
 
-  function createProfile(name: string): void {
-    const profile: LocalProfile = {
-      id: `profile-local-${nextProfileId++}`,
+  function localProfiles(
+    snapshot: ProfileManagementSnapshot,
+  ): LocalProfile[] {
+    return snapshot.profiles.map(({ id, name, detail }) => ({
+      id,
       name,
-      detail: "Local player",
-    };
-    profiles = [...profiles, profile];
+      detail,
+    }));
+  }
+
+  function applyProfileManagementSnapshot(
+    snapshot: ProfileManagementSnapshot,
+  ): void {
+    profileManagementSnapshot = snapshot;
+    profiles = localProfiles(snapshot);
+    portraitCaptureSnapshot = portraitCaptureController.snapshot();
+    const current = profiles.find(
+      (profile) => profile.id === activeProfileId,
+    );
+    const fallback = current ?? profiles[0] ?? null;
+    activeProfileId = fallback?.id ?? "";
+    activeProfile = fallback?.name ?? "No profile";
+  }
+
+  function openProfileManagement(profileId: string | null): void {
+    if (
+      profileId !== null
+      && !profiles.some((profile) => profile.id === profileId)
+    ) {
+      toast("Select an existing local profile first.");
+      return;
+    }
+    managementProfileId = profileId;
+    void showView("profile-management");
+  }
+
+  function profileCreated(profileId: string): void {
+    const profile = profiles.find((candidate) => candidate.id === profileId);
+    if (!profile) {
+      toast("Created profile is unavailable.");
+      return;
+    }
+    managementProfileId = profile.id;
     selectProfile(profile);
   }
 
-  function renameProfile(profileId: string, name: string): void {
-    profiles = profiles.map((profile) =>
-      profile.id === profileId ? { ...profile, name } : profile
+  function profileDeleted(
+    profileId: string,
+    result: ProfileManagementCommitResult,
+  ): void {
+    applyProfileManagementSnapshot(result.snapshot);
+    managementProfileId = null;
+    toast(
+      `Profile deleted in the rehearsal. ${result.disposition.unassignedProgressCount} local progress items are now unassigned; hosted services were not changed.`,
     );
-    const profile = profiles.find((candidate) => candidate.id === profileId);
-    if (profile) selectProfile(profile);
+    void showView("profiles");
+    if (profileId === portraitProfileId) portraitProfileId = null;
+  }
+
+  function finishPortraitCapture(): void {
+    applyProfileManagementSnapshot(profileManagementController.snapshot());
+    void showView(portraitReturnView);
+  }
+
+  function leavePortraitCapture(): void {
+    void showView(portraitReturnView);
   }
 
   function openPortraitCapture(profileId: string): void {
@@ -205,6 +280,8 @@
       return;
     }
     try {
+      portraitReturnView =
+        view === "profile-management" ? "profile-management" : "profiles";
       portraitProfileId = profile.id;
       portraitCaptureSnapshot = portraitCaptureController.open(
         profile.id,
@@ -238,6 +315,7 @@
     search.close();
     closeLaunch(false);
     if (view === "portrait") portraitCapture.cancelPending();
+    if (view === "profile-management") profileManagement.cancelPending();
     visible = false;
   }
 
@@ -249,6 +327,12 @@
     ) {
       portraitCapture.cancelPending();
     }
+    if (
+      view === "profile-management"
+      && next !== "profile-management"
+    ) {
+      profileManagement.cancelPending();
+    }
     view = next;
     if (next === "retro") void refreshNativePackageInventory();
     await tick();
@@ -257,6 +341,13 @@
       launcher.querySelector<HTMLButtonElement>(".portrait-primary")?.focus({
         preventScroll: true,
       });
+    } else if (next === "profile-management") {
+      (
+        launcher.querySelector<HTMLInputElement>("#managed-profile-name")
+        ?? launcher.querySelector<HTMLButtonElement>(
+          ".profile-management-actions button",
+        )
+      )?.focus({ preventScroll: true });
     } else if (next === "unassigned") {
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
@@ -270,6 +361,7 @@
     if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
       portraitCapture.cancelPending();
     }
+    if (view === "profile-management") profileManagement.cancelPending();
     view = "settings";
     await tick();
     settings.show(panel);
@@ -282,8 +374,13 @@
     else if (view === "settings" && settings.cancelPendingModeConfirmation()) return;
     else if (view === "portrait") {
       portraitCapture.cancelPending();
-      showView("profiles");
+      showView(portraitReturnView);
     }
+    else if (
+      view === "profile-management"
+      && profileManagement.cancelPending()
+    ) return;
+    else if (view === "profile-management") showView("profiles");
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -293,6 +390,7 @@
     if (action === "home") {
       closeLaunch();
       if (view === "portrait") portraitCapture.cancelPending();
+      if (view === "profile-management") profileManagement.cancelPending();
       showView("home");
       return;
     }
@@ -323,6 +421,10 @@
     if (launchSession) return;
     if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
       portraitCapture.cancelPending();
+      view = "home";
+    }
+    if (view === "profile-management") {
+      profileManagement.cancelPending();
       view = "home";
     }
     void search.open();
@@ -792,7 +894,7 @@
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
-        <button class:active={view === target || (target === "profiles" && (view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
 
@@ -887,10 +989,23 @@
           unassignedCount={unassignedProgressSnapshot.entries.length}
           acceptedPortraits={portraitCaptureSnapshot.acceptedPortraits}
           onselect={selectProfile}
-          oncreate={createProfile}
-          onrename={renameProfile}
+          onmanage={openProfileManagement}
           onportrait={openPortraitCapture}
           onunassigned={() => showView("unassigned")}
+        />
+      </div>
+
+      <div class="launcher-view profile-management-view" data-launcher-view="profile-management" hidden={view !== "profile-management"}>
+        <ProfileManagementView
+          bind:this={profileManagement}
+          controller={profileManagementController}
+          snapshot={profileManagementSnapshot}
+          profileId={managementProfileId}
+          onchanged={applyProfileManagementSnapshot}
+          oncreated={profileCreated}
+          ondeleted={profileDeleted}
+          onportrait={openPortraitCapture}
+          onback={() => showView("profiles")}
           ontoast={toast}
         />
       </div>
@@ -904,8 +1019,8 @@
           onchanged={(snapshot) => {
             portraitCaptureSnapshot = snapshot;
           }}
-          oncomplete={() => showView("profiles")}
-          onback={() => showView("profiles")}
+          oncomplete={finishPortraitCapture}
+          onback={leavePortraitCapture}
           ontoast={toast}
         />
       </div>

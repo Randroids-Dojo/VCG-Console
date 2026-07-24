@@ -30,7 +30,7 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Tracker health | Tracker lifecycle → ordered Motion `0.3.0` health event → shell/bridge/game | Current event in volatile host/session memory only; no provider exception text on the wire | Shell and exact-origin cooperative clients | Camera/replay control; independent controller/keyboard fallback | Implemented contract and browser demo |
 | Rich/world skeleton extensions | MediaPipe adapter capability profiles | Same bounded in-memory treatment as the portable frame | No v1 game permission grants these profiles; bridge host also requires an explicit profile grant | A future manifest/Motion version plus reviewed host grant | Denied to games in v1 |
 | Skeleton trace export | Bounded `MotionTrace` with `containsRawFrames: false` | Written only when the user activates Export; ordinary browser download retention then applies | User-selected local download | Explicit export action | Implemented |
-| Profile name/selection | Launcher profile component | Svelte session memory only; lost on reload | Launcher shell | Create, rename, select | Prototype only |
+| Profile management projection | Launcher profile-management controller | Closed bounded synthetic profiles and progress links in Svelte session memory only; lost on reload | Launcher shell | Create, rename, recalibrate, reset, delete, or select through revision-bound plans | Camera/storage-free lifecycle prototype only; no native registry, vault, or save mutation |
 | Console operating mode | Local launcher confirmation flow | Volatile fail-closed family/admin/developer state; boot/reload starts in family mode and no credential or pairing secret exists | Launcher policy only; no native service consumes it | Separate admin/developer confirmations, cancel, end developer mode, family lock | Browser policy/UX prototype only |
 | Accessibility preferences | Settings / Access closed v1 document | At most 1,024 bytes under `vcg.accessibility.v1`; device-wide prototype state only; invalid state defaults in full | Trusted shell presentation only; posture/remap are not sent to tracker, input host, profiles, or games | Pre-profile edit, local cue preview, complete reset | Browser prototype; native settings service not implemented |
 | Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
@@ -61,19 +61,33 @@ Invariant: a cooperative game receives the smallest negotiated skeleton/action p
 
 ### Profiles, portraits, and calibration
 
-Current profile names are prototype session state. A camera-free portrait
-rehearsal now exercises dedicated notice, countdown, temporary synthetic
-preview, Retake, explicit acceptance, cancellation, expiry, and volatile
-profile-tile replacement using opaque synthetic handles. It requests no camera
-permission, receives no pixels, and writes no vault/browser storage. Real
-portrait capture and automatic body-profile matching remain absent. The
-selected future boundary keeps portrait pixels separate from appearance-free
+Current profile state is a closed bounded session-only rehearsal. The
+credential-free management controller uses opaque IDs, permits duplicate
+display names, and binds rename, recalibration, reset, and deletion to exact
+revisions and scopes. Destructive plans require a visible 1.5-second review,
+expire after 30 seconds, initially focus the safe choice, and reject changed
+portrait, calibration, body, or progress state. Synthetic deletion removes the
+profile's sensitive fixtures and changes its local progress links to
+unassigned without attaching them to a later same-name profile. Hosted-service
+records are disclosed as separate and are not mutated.
+
+A camera-free portrait rehearsal exercises dedicated notice, countdown,
+temporary synthetic preview, Retake, explicit acceptance, cancellation,
+expiry, and volatile profile-tile replacement using opaque synthetic handles.
+The management controller shares that handle collection so synthetic reset
+and delete visibly revoke it. Neither flow requests camera permission, receives
+pixels, or writes a registry, vault, save broker, browser store, or network.
+Real portrait capture, automatic body-profile matching, native profile
+management, and durable progress unassignment remain absent. The selected
+future boundary keeps portrait pixels separate from appearance-free
 calibration features, requires visible confirmation before applying a
 predicted profile, and denies games direct vault access. Legal, child/privacy,
-consent, native capture/vault/deletion/exclusion, and real household tests
-remain explicit gates.
+consent, native capture/vault/deletion/exclusion, failure recovery, and real
+household tests remain explicit gates.
 
-Invariant: profile UI copy must not imply durable encrypted storage until the native vault exists.
+Invariant: profile UI copy must not imply durable encrypted storage, deletion,
+or progress unassignment until one native transaction and the native vault
+exist and pass fault evidence.
 
 The launcher mode prototype treats guest/local identity and privilege as
 orthogonal. A profile selection cannot elevate authority. Family mode denies

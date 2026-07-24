@@ -1111,6 +1111,339 @@ a:focus-visible {
   align-content: center;
 }
 
+.profile-actions .update-profile:disabled {
+  color: #596164;
+  cursor: not-allowed;
+}
+
+.profile-management-header {
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.profile-management-header .text-back {
+  display: block;
+  margin: -12px 0 22px;
+}
+
+.profile-management-header h1 {
+  font-size: clamp(2.8rem, 4.8vw, 5.2rem);
+}
+
+.profile-management-notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+  margin: 12px 0 18px;
+  padding: 13px 16px;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.profile-management-notice strong {
+  color: var(--accent);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.profile-management-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(430px, 1.28fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.profile-management-summary,
+.profile-management-panel,
+.profile-create-panel {
+  border: 1px solid #303638;
+  background: rgba(16, 19, 21, 0.62);
+}
+
+.profile-management-summary {
+  grid-row: span 2;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 22px;
+  padding: 28px;
+}
+
+.managed-profile-orbit {
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #4a5355;
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 1.5rem;
+}
+
+.managed-profile-orbit.synthetic-portrait {
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(135deg, transparent 36%, var(--accent) 37% 48%, transparent 49%),
+    linear-gradient(45deg, #202729 0 44%, #3b4648 45% 62%, #131718 63%);
+  color: var(--paper);
+  box-shadow: inset 0 0 0 1px #566163;
+}
+
+.profile-management-summary h2,
+.profile-management-panel h2,
+.profile-create-panel h2 {
+  margin: 7px 0 18px;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+}
+
+.profile-management-summary dl {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.profile-management-summary dl div {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.7fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #272d2f;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.61rem;
+  line-height: 1.45;
+}
+
+.profile-management-summary dt {
+  color: var(--muted);
+}
+
+.profile-management-summary dd {
+  margin: 0;
+  color: var(--paper);
+  overflow-wrap: anywhere;
+}
+
+.profile-management-panel {
+  padding: 24px 26px;
+}
+
+.profile-management-panel form,
+.profile-create-panel form {
+  display: grid;
+  gap: 11px;
+}
+
+.profile-management-panel label,
+.profile-create-panel label {
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.profile-management-panel input,
+.profile-create-panel input {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #41494b;
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+}
+
+.profile-management-panel form p,
+.profile-create-panel > p,
+.profile-input-copy {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.62rem;
+  line-height: 1.55;
+}
+
+.profile-management-panel form button,
+.profile-create-panel button {
+  min-height: 46px;
+  justify-self: start;
+  padding: 0 15px;
+  border: 1px solid var(--accent);
+  background: rgba(83, 218, 195, 0.05);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.61rem;
+}
+
+.profile-management-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.profile-management-actions button {
+  min-height: 88px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  padding: 13px 15px;
+  border: 1px solid #3b4345;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-management-actions button:hover,
+.profile-management-actions button:focus-visible {
+  border-color: var(--accent);
+}
+
+.profile-management-actions strong {
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+
+.profile-management-actions span {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.55rem;
+  line-height: 1.45;
+}
+
+.profile-management-actions .profile-delete-entry {
+  border-color: rgba(255, 118, 95, 0.55);
+}
+
+.profile-create-panel {
+  width: min(720px, 100%);
+  margin: 38px auto 0;
+  padding: 34px;
+}
+
+.profile-create-panel > p {
+  margin-bottom: 24px;
+}
+
+.profile-create-panel form > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.profile-create-panel form > div button:last-child {
+  border-color: #4a5355;
+  background: transparent;
+}
+
+.profile-management-dialog-backdrop {
+  position: fixed;
+  z-index: 86;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 36px;
+  background: rgba(3, 5, 6, 0.9);
+}
+
+.profile-management-dialog {
+  width: min(720px, 100%);
+  max-height: calc(100vh - 72px);
+  overflow: auto;
+  padding: 34px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
+}
+
+.profile-management-dialog h2 {
+  margin: 8px 0 18px;
+  font-size: clamp(1.55rem, 4vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.profile-management-dialog #profile-management-dialog-scope > p,
+.profile-management-dialog li {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.65rem;
+  line-height: 1.55;
+}
+
+.profile-management-dialog #profile-management-dialog-scope > p strong {
+  color: var(--paper);
+  font-weight: 400;
+}
+
+.profile-management-dialog ul {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+  padding-left: 22px;
+}
+
+.profile-management-dialog .profile-permanent-warning {
+  padding: 12px 14px;
+  border-left: 3px solid var(--fault);
+  background: rgba(255, 118, 95, 0.055);
+}
+
+.profile-confirmation-status {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 13px;
+  border: 1px dashed #4b5658;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.61rem;
+  line-height: 1.45;
+}
+
+.profile-management-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.profile-management-dialog-actions button {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid #4a5355;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.62rem;
+}
+
+.profile-management-dialog-actions button:first-child {
+  border-color: var(--accent);
+}
+
+.profile-management-dialog-actions .profile-delete-confirm {
+  border-color: var(--fault);
+  color: var(--fault);
+}
+
+.profile-management-dialog-actions button:disabled {
+  border-color: #2c3234;
+  color: #596164;
+  cursor: not-allowed;
+}
+
+.profile-management-dialog .profile-input-copy {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
 .unassigned-header {
   align-items: end;
 }
@@ -3339,9 +3672,14 @@ kbd {
 
   .view-header,
   .profile-layout,
+  .profile-management-layout,
   .portrait-capture-layout,
   .unassigned-layout {
     grid-template-columns: 1fr;
+  }
+
+  .profile-management-summary {
+    grid-row: auto;
   }
 
   .unassigned-list {
@@ -3460,8 +3798,42 @@ kbd {
   }
 
   .unassigned-demo-notice,
+  .profile-management-notice,
   .portrait-synthetic-notice,
   .unassigned-list {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-management-summary {
+    grid-template-columns: 64px minmax(0, 1fr);
+    padding: 22px 18px;
+  }
+
+  .managed-profile-orbit {
+    width: 60px;
+    height: 60px;
+  }
+
+  .profile-management-panel,
+  .profile-create-panel {
+    padding: 24px 20px;
+  }
+
+  .profile-management-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-management-dialog-backdrop {
+    padding: 16px;
+  }
+
+  .profile-management-dialog {
+    max-height: calc(100vh - 32px);
+    padding: 25px 20px;
+  }
+
+  .profile-management-dialog-actions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 

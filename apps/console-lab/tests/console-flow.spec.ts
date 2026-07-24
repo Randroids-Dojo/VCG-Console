@@ -51,13 +51,14 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.getByRole("button", { name: "Profiles", exact: true }).click();
   await page.getByRole("button", { name: /Guest Local guest/ }).click();
   await expect(page.locator("#active-profile-name")).toHaveText("Guest");
-  await page.getByRole("button", { name: "Update selected profile" }).click();
-  await page.locator("#profile-name-input").fill("Guest Two");
-  await page.getByRole("button", { name: "Save profile" }).click();
+  await page.getByRole("button", { name: "Manage selected profile" }).click();
+  await page.locator("#managed-profile-name").fill("Guest Two");
+  await page.getByRole("button", { name: "Save display name" }).click();
   await expect(page.locator("#active-profile-name")).toHaveText("Guest Two");
+  await page.getByRole("button", { name: "← Profiles" }).click();
   await page.getByRole("button", { name: /Create profile New local player/ }).click();
-  await page.locator("#profile-name-input").fill("Player Three");
-  await page.getByRole("button", { name: "Save profile" }).click();
+  await page.locator("#managed-profile-name").fill("Player Three");
+  await page.getByRole("button", { name: "Create local profile" }).click();
   await expect(page.locator("#active-profile-name")).toHaveText("Player Three");
 
   await page.keyboard.press("/");
@@ -435,6 +436,236 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
     ),
   ).toBe(true);
   await portraitView.getByRole("button", { name: "Cancel" }).click();
+});
+
+test("credential-free profile management gates destructive scope and never reassigns by name", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setProfileManagementGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright profile-management controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+  });
+  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.waitForTimeout(850);
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  const randyTile = page.locator('[data-profile="Randy"]');
+  await page.locator("#capture-profile-portrait").click();
+  const portraitView = page.locator('[data-launcher-view="portrait"]');
+  await portraitView
+    .getByRole("button", { name: "Start 3-second rehearsal" })
+    .click();
+  await expect(
+    portraitView.getByRole("img", {
+      name: "Synthetic portrait preview for Randy",
+    }),
+  ).toBeVisible({ timeout: 5_000 });
+  await portraitView
+    .getByRole("button", { name: "Use synthetic portrait" })
+    .click();
+  await expect(randyTile.locator(".synthetic-portrait")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Manage selected profile" }).click();
+  const management = page.locator(
+    '[data-launcher-view="profile-management"]',
+  );
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+  await expect(
+    management.getByText(
+      "No password · no administrator · synthetic state only",
+    ),
+  ).toBeVisible();
+  await expect(management.locator('input[type="password"]')).toHaveCount(0);
+  await expect(
+    management.getByText("2 linked items"),
+  ).toBeVisible();
+  await expect(
+    management.getByText("1 separate service"),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "../../test-results/console-lab/profile-management.png",
+  });
+
+  await management
+    .getByRole("button", { name: /Reset local identity data/ })
+    .click();
+  let dialog = page.getByRole("dialog", {
+    name: "Reset local identity data?",
+  });
+  await expect(dialog.getByRole("button", {
+    name: "Keep profile",
+  })).toBeFocused();
+  await expect(dialog.getByRole("button", {
+    name: "Reset identity data",
+  })).toBeDisabled();
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    management.getByText("Synthetic fixture present").first(),
+  ).toBeVisible();
+
+  await management
+    .getByRole("button", { name: /Require recalibration/ })
+    .click();
+  dialog = page.getByRole("dialog", { name: "Require recalibration?" });
+  await pressSyntheticGamepadButton(
+    page,
+    "__setProfileManagementGamepad",
+    1,
+  );
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+
+  await management
+    .getByRole("button", { name: /Reset local identity data/ })
+    .click();
+  dialog = page.getByRole("dialog", {
+    name: "Reset local identity data?",
+  });
+  await expect(
+    dialog.getByText("Keep the profile name and all 2 linked progress items."),
+  ).toBeVisible();
+  await page.waitForTimeout(1_600);
+  await expect(dialog.getByRole("button", {
+    name: "Reset identity data",
+  })).toBeEnabled();
+  await pressSyntheticGamepadButton(
+    page,
+    "__setProfileManagementGamepad",
+    15,
+  );
+  await pressSyntheticGamepadButton(
+    page,
+    "__setProfileManagementGamepad",
+    0,
+  );
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    management.getByText("None", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    management.getByText("Required", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    management.getByText("Not configured", { exact: true }),
+  ).toBeVisible();
+
+  await management
+    .getByRole("button", { name: /Delete local profile/ })
+    .click();
+  dialog = page.getByRole("dialog", {
+    name: "Delete this local profile?",
+  });
+  await expect(
+    dialog.getByText(
+      "Preserve 2 console-managed progress items as unassigned local data.",
+    ),
+  ).toBeVisible();
+  await expect(
+    dialog.getByText(
+      "1 hosted service remains separate and is not deleted by VCG.",
+    ),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "../../test-results/console-lab/profile-management-delete-review.png",
+  });
+  await expect(dialog.getByRole("button", {
+    name: "Delete profile",
+  })).toBeDisabled();
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+
+  await management
+    .getByRole("button", { name: /Delete local profile/ })
+    .click();
+  dialog = page.getByRole("dialog", {
+    name: "Delete this local profile?",
+  });
+  await page.waitForTimeout(1_600);
+  await expect(dialog.getByRole("button", {
+    name: "Delete profile",
+  })).toBeEnabled();
+  await pressSyntheticGamepadButton(
+    page,
+    "__setProfileManagementGamepad",
+    15,
+  );
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await expect(
+    page.getByRole("heading", { name: "Who is playing?" }),
+  ).toBeVisible();
+  await expect(page.locator('[data-profile="Randy"]')).toHaveCount(0);
+  await expect(page.locator("#active-profile-name")).toHaveText("Guest");
+  await expect(page.locator("#launcher-toast")).toContainText(
+    "2 local progress items are now unassigned; hosted services were not changed",
+  );
+
+  await page.getByRole("button", {
+    name: /Create profile New local player/,
+  }).click();
+  await page.locator("#managed-profile-name").fill("Randy");
+  await page.getByRole("button", { name: "Create local profile" }).click();
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+  await expect(
+    management.getByText("0 linked items"),
+  ).toBeVisible();
+  await expect(
+    management.getByText("None", { exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
 });
 
 test("accessibility preferences apply, persist, disclose gaps, and reset", async ({

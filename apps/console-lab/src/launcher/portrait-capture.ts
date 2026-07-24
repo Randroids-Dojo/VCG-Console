@@ -66,12 +66,7 @@ const fixtureHandlePattern = /^portrait-fixture-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export class PortraitCaptureError extends Error {}
 
-export class PortraitCaptureController {
-  #revision = 0;
-  #phase: PortraitCapturePhase = "idle";
-  #session: ActiveSession | null = null;
-  #nextSessionId = 1;
-  #lastNowMs = 0;
+export class AcceptedPortraitCollection {
   readonly #accepted = new Map<string, string>();
 
   constructor(acceptedPortraits: readonly AcceptedPortrait[] = []) {
@@ -88,6 +83,73 @@ export class PortraitCaptureController {
     }
   }
 
+  snapshot(): readonly Readonly<AcceptedPortrait>[] {
+    return Object.freeze(
+      [...this.#accepted.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([profileId, renderHandle]) =>
+          Object.freeze({ profileId, renderHandle }),
+        ),
+    );
+  }
+
+  portraitFor(profileId: string): string | null {
+    validateProfileId(profileId);
+    return this.#accepted.get(profileId) ?? null;
+  }
+
+  replaceExact(
+    profileId: string,
+    expectedRenderHandle: string | null,
+    nextRenderHandle: string,
+  ): string | null {
+    validateProfileId(profileId);
+    if (expectedRenderHandle !== null) validateFixtureHandle(expectedRenderHandle);
+    validateFixtureHandle(nextRenderHandle);
+    const current = this.#accepted.get(profileId) ?? null;
+    if (current !== expectedRenderHandle) {
+      throw new PortraitCaptureError("accepted portrait changed before commit");
+    }
+    if (current === null && this.#accepted.size >= PORTRAIT_MAX_PROFILES) {
+      throw new PortraitCaptureError("too many accepted portraits");
+    }
+    this.#accepted.set(profileId, nextRenderHandle);
+    return current;
+  }
+
+  removeExact(
+    profileId: string,
+    expectedRenderHandle: string | null,
+  ): string | null {
+    validateProfileId(profileId);
+    if (expectedRenderHandle !== null) validateFixtureHandle(expectedRenderHandle);
+    const current = this.#accepted.get(profileId) ?? null;
+    if (current !== expectedRenderHandle) {
+      throw new PortraitCaptureError("accepted portrait changed before removal");
+    }
+    if (current !== null) this.#accepted.delete(profileId);
+    return current;
+  }
+}
+
+export class PortraitCaptureController {
+  #revision = 0;
+  #phase: PortraitCapturePhase = "idle";
+  #session: ActiveSession | null = null;
+  #nextSessionId = 1;
+  #lastNowMs = 0;
+  readonly #accepted: AcceptedPortraitCollection;
+
+  constructor(
+    acceptedPortraits:
+      | readonly AcceptedPortrait[]
+      | AcceptedPortraitCollection = [],
+  ) {
+    this.#accepted = acceptedPortraits instanceof AcceptedPortraitCollection
+      ? acceptedPortraits
+      : new AcceptedPortraitCollection(acceptedPortraits);
+  }
+
   snapshot(): PortraitCaptureSnapshot {
     const session = this.#session;
     return Object.freeze({
@@ -98,19 +160,12 @@ export class PortraitCaptureController {
       countdownEndsAtMs: session?.countdownEndsAtMs ?? null,
       sessionExpiresAtMs: session?.expiresAtMs ?? null,
       temporaryRenderHandle: session?.temporaryRenderHandle ?? null,
-      acceptedPortraits: Object.freeze(
-        [...this.#accepted.entries()]
-          .sort(([left], [right]) => left.localeCompare(right))
-          .map(([profileId, renderHandle]) =>
-            Object.freeze({ profileId, renderHandle }),
-          ),
-      ),
+      acceptedPortraits: this.#accepted.snapshot(),
     });
   }
 
   portraitFor(profileId: string): string | null {
-    validateProfileId(profileId);
-    return this.#accepted.get(profileId) ?? null;
+    return this.#accepted.portraitFor(profileId);
   }
 
   open(profileId: string, nowMs: number): PortraitCaptureSnapshot {
@@ -211,7 +266,7 @@ export class PortraitCaptureController {
       attempt: session.attempt,
       profileId: session.profileId,
       temporaryRenderHandle: session.temporaryRenderHandle,
-      replacedRenderHandle: this.#accepted.get(session.profileId) ?? null,
+      replacedRenderHandle: this.#accepted.portraitFor(session.profileId),
     });
   }
 
@@ -238,11 +293,15 @@ export class PortraitCaptureController {
     ) {
       throw new PortraitCaptureError("portrait confirmation does not match the preview");
     }
-    const current = this.#accepted.get(session.profileId) ?? null;
+    const current = this.#accepted.portraitFor(session.profileId);
     if (current !== plan.replacedRenderHandle) {
       throw new PortraitCaptureError("accepted portrait changed before commit");
     }
-    this.#accepted.set(session.profileId, session.temporaryRenderHandle);
+    this.#accepted.replaceExact(
+      session.profileId,
+      current,
+      session.temporaryRenderHandle,
+    );
     const accepted = Object.freeze({
       profileId: session.profileId,
       renderHandle: session.temporaryRenderHandle,
@@ -262,7 +321,7 @@ export class PortraitCaptureController {
     const session = this.#requireLiveSession(nowMs);
     const discardedTemporaryRenderHandle = session.temporaryRenderHandle;
     const preservedAcceptedRenderHandle =
-      this.#accepted.get(session.profileId) ?? null;
+      this.#accepted.portraitFor(session.profileId);
     this.#session = null;
     this.#phase = "idle";
     this.#revision += 1;
@@ -279,7 +338,7 @@ export class PortraitCaptureController {
     const session = this.#session;
     const discardedTemporaryRenderHandle = session.temporaryRenderHandle;
     const preservedAcceptedRenderHandle =
-      this.#accepted.get(session.profileId) ?? null;
+      this.#accepted.portraitFor(session.profileId);
     this.#session = null;
     this.#phase = "idle";
     this.#revision += 1;
