@@ -4,12 +4,12 @@ import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { LauncherController, launcherMarkup } from "./launcher";
 import { Metrics } from "./metrics";
 import { ObstacleGame } from "./obstacle-game";
+import { PlayerSessionController, type PlayerSessionEvent } from "./player-session";
 import { SkeletonRenderer } from "./renderer";
 import "./styles.css";
 import { syntheticFrame } from "./synthetic";
 import { TraceBuffer } from "./trace-buffer";
 import { MediaPipeTracker, type TrackerStatus } from "./tracker";
-import { TrackingLossController } from "./tracking-loss";
 
 type AppMode = "tracker" | "obstacle" | "shell";
 type OverlayKind = "manual" | "recovery";
@@ -136,7 +136,7 @@ const motionLab = required<HTMLElement>("#motion-lab");
 const trace = new TraceBuffer();
 const metrics = new Metrics();
 const actionEngine = new ActionEngine();
-const trackingLoss = new TrackingLossController();
+const playerSession = new PlayerSessionController({ maxPlayers: 1 });
 const cameraButton = required<HTMLButtonElement>("#camera-button");
 const replayButton = required<HTMLButtonElement>("#replay-button");
 const joinButton = required<HTMLButtonElement>("#join-button");
@@ -156,7 +156,6 @@ let replaySequence = 0;
 let lastMetricsPaint = 0;
 let currentMode: AppMode = "tracker";
 let focusedModeIndex = 0;
-let sessionActive = false;
 let overlayKind: OverlayKind | undefined;
 let overlayFocus: "resume" | "exit" = "resume";
 
@@ -210,22 +209,32 @@ function acceptFrame(rawFrame: MotionFrame): void {
   trace.push(frame);
   metrics.push(frame);
   renderer.render(frame);
-  for (const action of frame.players[0]?.actions ?? []) handleAction(action);
-
-  const lossEvent = trackingLoss.update(frame.publishedAtMs, frame.players.length > 0, sessionActive);
-  if (lossEvent === "freeze") {
-    obstacle.setPaused(true);
-    statusDetail.textContent = "Tracking loss confirmed. Gameplay is frozen while Player 1 is reacquired.";
-  } else if (lossEvent === "recovered") {
-    if (!overlayKind) obstacle.setPaused(false);
-    statusDetail.textContent = "Player 1 reacquired inside the two-second recovery window.";
-  } else if (lossEvent === "show-recovery") {
-    showOverlay("recovery");
+  for (const event of playerSession.observe(
+    frame.publishedAtMs,
+    frame.players.map((player) => player.id),
+  )) {
+    handlePlayerSessionEvent(event);
   }
+  for (const action of frame.players[0]?.actions ?? []) handleAction(action);
 
   if (performance.now() - lastMetricsPaint > 250) {
     lastMetricsPaint = performance.now();
     paintMetrics(frame);
+  }
+}
+
+function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
+  if (event.type === "freeze") {
+    obstacle.setPaused(true);
+    statusDetail.textContent =
+      event.reason === "tracking-loss"
+        ? "Tracking loss confirmed. Gameplay is frozen while Player 1 is reacquired."
+        : "Tracker continuity failed. Gameplay is frozen pending deliberate recovery.";
+  } else if (event.type === "silent-recovery") {
+    if (!overlayKind && currentMode === "obstacle") obstacle.setPaused(false);
+    statusDetail.textContent = "Player 1 reacquired inside the two-second recovery window.";
+  } else if (event.type === "show-recovery") {
+    showOverlay("recovery");
   }
 }
 
@@ -273,15 +282,25 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     return;
   }
   if (action === "select") {
-    if (!sessionActive) joinPlayer();
+    if (playerSession.snapshot().players.length === 0) joinPlayer();
     else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump");
     else selectFocused();
   }
 }
 
 function joinPlayer(): void {
+  const candidate = latestFrame?.players[0];
+  if (!candidate) {
+    statusDetail.textContent = "No visible candidate is available to join.";
+    return;
+  }
+  try {
+    playerSession.join(candidate.id);
+  } catch (error) {
+    statusDetail.textContent = error instanceof Error ? error.message : String(error);
+    return;
+  }
   actionEngine.join();
-  sessionActive = true;
   joinButton.disabled = true;
   joinButton.textContent = "PLAYER 1 JOINED";
   statusDetail.textContent = "Player 1 joined. Automatic standing calibration is collecting its initial baseline.";
@@ -366,11 +385,32 @@ function paintOverlayFocus(): void {
 
 function chooseOverlayAction(action: "resume" | "exit"): void {
   if (action === "exit") {
+    if (overlayKind === "recovery") resetPlayerSession();
     closeOverlay(false);
     setMode("tracker");
     return;
   }
+  if (overlayKind === "recovery") {
+    const candidate = latestFrame?.players[0];
+    if (!candidate) {
+      statusDetail.textContent = "Resume requires a visible player candidate.";
+      return;
+    }
+    try {
+      playerSession.resumeRecovery(candidate.id);
+    } catch (error) {
+      statusDetail.textContent = error instanceof Error ? error.message : String(error);
+      return;
+    }
+  }
   closeOverlay(true);
+}
+
+function resetPlayerSession(): void {
+  playerSession.reset();
+  actionEngine.reset();
+  joinButton.disabled = false;
+  joinButton.textContent = "JOIN PLAYER 1";
 }
 
 function closeOverlay(resume: boolean): void {

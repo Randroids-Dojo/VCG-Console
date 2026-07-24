@@ -57,6 +57,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Motion standardized action semantics](docs/MOTION_ACTIONS_V1.md)
+- [Player session and recovery state machine](docs/PLAYER_SESSION_STATE_MACHINE.md)
 - [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)
 - [Native launcher-host API contract](docs/NATIVE_HOST_API.md)
 - [Native package launch lifecycle](docs/NATIVE_LAUNCH_LIFECYCLE.md)

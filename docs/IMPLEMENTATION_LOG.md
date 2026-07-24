@@ -458,6 +458,28 @@ This is process lifecycle, not a qualified playable handoff. Request records are
 
 Manifest validity is not qualification, redistribution authority, installation approval, signature verification, artifact integrity, origin containment, storage isolation, or a working launch adapter. Those remain enforced or investigated separately under I-094, I-095, I-096, I-101, I-104, I-105, I-136, and I-141.
 
+## 2026-07-23: player session and recovery state machine
+
+### Delivered
+
+- Replaced the one-player boolean tracking-loss helper with a pure one-to-two-player `PlayerSessionController` and made the console lab consume its one-player path.
+- Passive tracks remain candidates until an explicit visible-candidate join. Assignments are sequential, stable session slots with Player 1 before Player 2.
+- Ordinary loss requires elapsed time and multiple missing updates; hard faults and time regression freeze immediately. Confirmed loss of either player freezes the shared session.
+- Silent recovery accepts only every lost original session track inside the two-second window. After expiry, recovery never auto-resumes.
+- Recovery supports deliberate one-player candidate takeover and requires either every retained multiplayer track or an explicit non-empty roster reduction.
+- Manual pause ownership uses earliest completion with a lower-slot tie-break, cannot be stolen after opening, and transfers launcher ownership through an exit flow.
+- Recovery Exit resets the active lab session and returns the visible body to candidate status instead of hiding a frozen session behind the overlay.
+- `PLAYER_SESSION_STATE_MACHINE.md` records identity boundaries, phases, transitions, ownership, failure behavior, implemented evidence, and the remaining qualification boundary. D-135 records the working contract.
+
+### Verification evidence
+
+- Unit tests cover passive candidates, sequential join, sustained multi-update loss, global two-player freeze, wrong-track rejection, all-player silent recovery, overlay expiry, deliberate takeover, safe roster reduction, pause races/owner isolation, hard faults, time regression, duplicate tracks, and invalid timing.
+- Existing action, console, launcher, camera-privacy, bridge, manifest, and browser-flow gates remain part of the full workspace verification.
+
+### Remaining boundary
+
+This is deterministic desk behavior, not two-player qualification. Separate calibration, accessible player identities, crossing/occlusion evidence, controller-only recovery, explicit leave/re-entry UI, multi-player action routing, target-Linux tracker restart, game-runtime freeze enforcement, and physical spectator/pet/mirror/television abuse tests remain under I-054, I-056, I-057, I-059, I-069, I-150, and I-161.
+
 ## 2026-07-23: Motion standardized action lifecycle
 
 ### Delivered
