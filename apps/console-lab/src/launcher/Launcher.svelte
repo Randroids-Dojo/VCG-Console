@@ -45,6 +45,7 @@
   let activeNativeRequestId: string | undefined;
   let nativePackageInventory = $state<NativePackageInventory | undefined>();
   let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
+  let nativePackageInventoryRefresh: Promise<void> | undefined;
 
   const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.local;
   const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.remote;
@@ -77,11 +78,15 @@
     clockTimer = window.setInterval(paintClock, 15_000);
     void positionSignal();
     void refreshNativePackageInventory();
+    window.addEventListener("focus", refreshNativePackageInventory);
+    document.addEventListener("visibilitychange", refreshVisibleNativePackageInventory);
   });
 
   onDestroy(() => {
     if (clockTimer !== undefined) window.clearInterval(clockTimer);
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
+    window.removeEventListener("focus", refreshNativePackageInventory);
+    document.removeEventListener("visibilitychange", refreshVisibleNativePackageInventory);
     disposeLaunchSupervisor();
   });
 
@@ -103,6 +108,7 @@
 
   export async function showView(next: LauncherView): Promise<void> {
     view = next;
+    if (next === "retro") void refreshNativePackageInventory();
     await positionSignal();
     launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
   }
@@ -154,6 +160,16 @@
   }
 
   async function refreshNativePackageInventory(): Promise<void> {
+    if (nativePackageInventoryRefresh) return nativePackageInventoryRefresh;
+    nativePackageInventoryRefresh = loadNativePackageInventory();
+    try {
+      await nativePackageInventoryRefresh;
+    } finally {
+      nativePackageInventoryRefresh = undefined;
+    }
+  }
+
+  async function loadNativePackageInventory(): Promise<void> {
     const result = await listNativePackages();
     if (result.ok) {
       nativePackageInventory = result.inventory;
@@ -162,6 +178,10 @@
     }
     nativePackageInventory = undefined;
     nativePackageInventoryState = "unavailable";
+  }
+
+  function refreshVisibleNativePackageInventory(): void {
+    if (document.visibilityState === "visible") void refreshNativePackageInventory();
   }
 
   function isCatalogEntryInstalled(entry: (typeof launcherCatalog.entries)[number]): boolean {

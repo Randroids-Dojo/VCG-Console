@@ -247,7 +247,7 @@ test("retro launch submits only signed package and profile intent to the host", 
 
   installedVersion = "qualification-candidate-2026-07-23";
   observed.length = 0;
-  await page.reload();
+  await page.getByRole("button", { name: "Home", exact: true }).click();
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Installed/ })).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
