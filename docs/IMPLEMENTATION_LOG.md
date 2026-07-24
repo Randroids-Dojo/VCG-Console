@@ -3415,3 +3415,97 @@ has no real manifest-bound plan or result. Q-220 through Q-226, independent
 harness/oracle dry runs, consented child/adult sessions, safe interference
 and animal-welfare protocols, every planned ledger entry, reviewed failures,
 and reruns after material fixes remain required.
+
+## 2026-07-24: same-server opaque browser sandbox
+
+### Delivered
+
+- Advanced I-136 with a second hostile-frame fixture whose parent and child
+  are both served from `http://127.0.0.1:4173`.
+- Granted the child exactly `sandbox="allow-scripts"` and deliberately omitted
+  `allow-same-origin`, giving hostile content an opaque security origin even
+  though its URL is served by the launcher's server.
+- Kept the child deny-by-default for network, forms, descendants, media,
+  images, objects, styles, popups, navigation, downloads, fullscreen, and
+  pointer lock.
+- Limited wildcard CORS and cross-origin resource policy to the exact fixture
+  source and hashed fixture/module-preload assets needed by the opaque module;
+  no launcher script, host capability, model, font, general asset, or fallback
+  HTML receives the exception.
+
+### Verification evidence
+
+- The focused same-server Chrome test passes.
+- The existing cross-origin and new same-server hostile tests pass together.
+- The test grants camera, microphone, and location permission to the URL
+  origin first, then proves parent-DOM, device, network, popup, top-navigation,
+  download, form, fullscreen, and pointer-lock attempts remain blocked.
+- It asserts the exact sandbox plus actual host/child CSP and asset CORS/CORP
+  response headers.
+
+### Remaining boundary
+
+This is an intentionally sandbox-compatible fixture, not proof that arbitrary
+same-origin code or a signed local-web package works safely under an opaque
+origin. Production serving, same-origin/XSS resistance, service workers and
+storage, local-package runtime compatibility, target browser policy, global
+controls, process/resource ownership, and ARM64/x86-64 Linux evidence remain.
+
+## 2026-07-24: actively contained hosted-browser desk lane
+
+### Delivered
+
+- Advanced I-180 from an opt-in uncontained process launch to a default
+  fail-closed top-level Node/CDP supervisor. Removed
+  `VCG_ALLOW_UNCONTAINED_BROWSER`.
+- Derived a smaller immutable launch policy from a parsed remote-web manifest:
+  one safe game ID, one credential-free HTTPS entrypoint, one to eight unique
+  exact HTTPS origins, one in-scope health URL, and one bounded load deadline.
+- Changed the health check to manual redirect processing with a five-hop
+  ceiling, validating every next origin before issuing its request.
+- Starts Chrome with a fresh temporary profile, random loopback DevTools port,
+  fixed blank app target, normal sandbox/web security, and no entrypoint on
+  the process command line. It attaches before navigation, denies downloads,
+  resets permissions, and explicitly denies camera, microphone, geolocation,
+  MIDI, and notifications for every allowed origin.
+- Enforces every top-frame and page-target URL after navigation is armed.
+  HTTP, `file:`, `data:`, `chrome:`, custom, malformed, credentialed,
+  undeclared-subdomain, and foreign-origin navigation terminate the attempt.
+  A second page target, download, or renderer crash does the same.
+- Bounded CDP payloads, outstanding commands, and command deadlines. The first
+  terminal violation is stable.
+- Cleanup accepts only a branded direct child of the OS temporary directory,
+  rejects links and non-directories, requests `Browser.close`, then uses the
+  exact Windows PID tree or POSIX process group as a desk fallback. It removes
+  the profile only after process exit.
+- Kept the launcher Museum path explicitly unsupervised; this external
+  developer command does not silently upgrade browser-only preview authority.
+
+### Verification evidence
+
+- Fifteen focused supervisor cases cover strict policy authority, all URL and
+  lifecycle refusal classes, first-violation stability, safe manual redirects,
+  destructive-profile scope, and fixed browser arguments without disabling
+  sandbox or web security.
+- The final case launches installed Chrome 150.0.7871.182 headlessly through
+  the real random DevTools endpoint, arms the production guard, injects a
+  forbidden `data:` navigation, observes
+  `NAVIGATION_ORIGIN_DENIED`, closes the browser with exit code 0, and proves
+  the temporary profile is removed.
+- `pnpm supervise:game catalog/determined.vcg-game.json --dry-run` emits the
+  exact policy, fixed arguments, ephemeral-profile boundary, and honest
+  limitations without external mutation.
+- All 447 workspace unit tests, workspace typecheck, production build, schema,
+  manifest/catalog, compliance, benchmark, transport, Godot 4.7, and
+  device-only data-exclusion gates pass.
+- All 35 real-Chrome console flows pass.
+
+### Remaining boundary
+
+I-180 remains active. This is a Windows developer-command result, not
+privileged native-host or target qualification. Compositor-owned Home, Back,
+Pause, focus, fullscreen/pointer-lock recovery, exact browser/version and
+enterprise policy, cgroup/service-manager/resource/hang containment, explicit
+game readiness, in-page network and storage controls, login/offline recovery,
+popup-auth and permission-requiring compatibility, same-account profile-path
+swap resistance, and ARM64/ordinary x86-64 Linux evidence remain.
