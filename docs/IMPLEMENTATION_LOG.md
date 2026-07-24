@@ -1300,3 +1300,22 @@ The socket and WebSocket endpoints share one process, the shared-memory case use
 ### Remaining boundary
 
 The router is privileged policy code, not a real SDL3 producer or compositor hook. It is not yet connected to host launch/runtime delivery and does not prove a hostile browser or native game cannot read physical input, capture focus, hang, or suppress the shell. SDL3 mapping, runtime delivery, compositor/service ownership, physical controllers, hostile fullscreen/pointer-lock/native tests, and ARM64/x86-64 Linux qualification remain under I-150, I-151, I-152, and I-209.
+
+## 2026-07-24: exact Windows x86-64 automated qualification
+
+### Delivered
+
+- Captured an ignored exact-device inventory on the available Windows 11 x64 workstation and published only sanitized, non-unique evidence.
+- Recorded Ryzen 9 5900X, RTX 3080 Ti with corrected `nvidia-smi` 12 GiB evidence, ~64 GiB memory, two online physical 2 TB SSDs, a present Logitech C920, Chrome 150, pinned Node/pnpm/Rust, and no detected controller.
+- Extended the inventory with versioned format metadata, clean-tree state, physical disks, bounded structured NVIDIA evidence, Rust tools, and explicit WMI/device-ID caveats.
+- Fixed non-interactive Windows bootstrap by scoping `CI=true` to frozen pnpm installation and restoring the caller's prior environment.
+- Documented exact automated results and every unrun camera, controller, hosted-game, reboot, suspend, soak, disk-handoff, and native-Linux row in `WINDOWS_QUALIFICATION_RESULT_2026-07-24.md`.
+
+### Verification evidence
+
+- The pinned Windows bootstrap passes frozen install, asset/catalog/schema preparation, diagnostics, 215 unit tests, production build, manifest validation, native verification, and all 23 Chrome flows.
+- Native doctor reports the x86-64 Windows process/catalog/package/controller capabilities and preserves explicit SDL3, compositor-readiness, and resource-detector gaps.
+
+### Remaining boundary
+
+This proves shared-stack portability on one Windows workstation, not the I-207 ordinary Linux premium reference. The present C920 was inventoried but not opened against a real room; no physical controller was detected; no reboot, suspend, hosted-game, or soak matrix ran; and neither physical SSD was modified. I-211 remains active pending hands-on evidence and a reviewed native-Linux disk/recovery plan.

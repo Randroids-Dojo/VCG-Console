@@ -82,6 +82,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Signed installed-package catalog contract](docs/INSTALLED_PACKAGE_CATALOG.md)
 - [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
+- [Windows x86-64 qualification result (2026-07-24)](docs/WINDOWS_QUALIFICATION_RESULT_2026-07-24.md)
 - [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)
 - [Deferred owner questions from the RetroArch tranche](docs/OWNER_QUESTIONS_RETROARCH_2026-07-23.md)
 - [Deferred owner questions from the native-host API tranche](docs/OWNER_QUESTIONS_HOST_API_2026-07-23.md)
