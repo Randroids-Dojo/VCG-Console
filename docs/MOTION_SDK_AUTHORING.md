@@ -2,7 +2,7 @@
 
 Status: runnable web and Godot quickstarts implemented; target export qualification pending
 
-Authority: Motion API 0.3, bridge v2, D-004, D-006, D-059, and I-086
+Authority: Motion API 0.4, bridge v2, D-004, D-006, D-059, and I-086
 
 ## Start with the contract, not the camera
 
@@ -73,6 +73,13 @@ requestAnimationFrame(animationFrame);
 camera. Traces declare `containsRawFrames: false` and remain sensitive derived
 body data; do not upload them or turn them into telemetry by default.
 
+The TypeScript parser retains legacy trace v1 for existing authored fixtures.
+Current console exports use strict v2: bounded core17 x/y frames, stable health
+events, trace-local pseudonyms, exact provenance, and explicit
+privacy/retention declarations. Validate untrusted exports with
+`MotionTraceSchema`; do not infer that a skeleton trace proves physical scene,
+floor-contact, exposure-latency, or upstream association causes.
+
 ## Frame and action rules
 
 - Parse untrusted values with `MotionFrameSchema` and
@@ -123,9 +130,9 @@ consumer boundary in GDScript:
 - `VcgTinyMotionGame` validates the portable core, consumes normalized hip
   landmarks, triggers only obstacle `triggered` actions, ignores shell
   actions, fails visible on loss, and accepts controller recovery;
-- `VcgMotionReplay` advances a skeleton-only `vcg-motion-trace` from an
-  injected elapsed clock and rejects raw-frame or unordered input; and
-- `VcgMotionWebBridge` binds a Godot web export to exact bridge v2/Motion 0.3
+- `VcgMotionReplay` advances a legacy-v1 skeleton-only `vcg-motion-trace` from
+  an injected elapsed clock and rejects raw-frame or unordered input; and
+- `VcgMotionWebBridge` binds a Godot web export to exact bridge v2/Motion 0.4
   welcome, health, frame, session, origin, and acknowledgement fields.
 
 The reviewed console origin must come from host-owned package configuration.

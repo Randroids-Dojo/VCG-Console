@@ -3256,3 +3256,64 @@ popup/download/custom-scheme/permission/storage containment, controller focus,
 unstealable compositor Home/Back/Pause, crash/hang/resource/network/login
 recovery and cleanup, authenticated native readiness, and ARM64/x86-64 Linux
 qualification.
+
+## 2026-07-24: skeleton-trace debugging adequacy
+
+### Delivered
+
+- Advanced I-070 from open to active with a backward-compatible strict v2
+  Motion trace envelope while retaining v1 replay parsing.
+- Bounded v2 to 600 frames, 128 stable health events, four concurrent players,
+  64 trace-local track identities, and 4 MiB; requires exact sorted content
+  provenance, increasing sequences, monotonic timestamps, and at least one
+  frame.
+- Added exact dropped-frame/dropped-health counters and player/track-limit
+  flags; capacity eviction is disclosed and an unrepresentable frame is
+  skipped without throwing into the shell.
+- Minimized browser exports to portable core17 x/y, visibility, and observed
+  state; strips rich/world/z/presence data and maps source IDs to trace-local
+  pseudonyms that reset with the volatile buffer.
+- Added explicit privacy and retention declarations that acknowledge derived
+  skeletons, trace-local IDs, exact export time, user-managed downloaded
+  files, and the absence of raw frames, audio, portraits, profile IDs, free
+  text, or automatic persistence.
+- Added stable tracker-health reasons to the same bounded trace epoch and
+  disabled empty export.
+- Added the generated draft 2020-12 JSON Schema.
+- Ran an eight-case automated blind-to-truth synthetic exercise with a
+  pre-triage truth commitment and separate bundle, submission, and result.
+- Added Q-237 for retention, independent reviewer authority, and
+  defect-specific escalation.
+
+### Verification evidence
+
+- All seven defect symptoms were detected and the healthy control produced no
+  false positive.
+- Only two roots were identifiable: unsafe action authority under missing
+  required observations, and an exact stable camera-disconnected health
+  reason.
+- Laterality reversal, track discontinuity, and landmark loss preserve the
+  symptom but not the physical/upstream root.
+- Floor contact and camera-exposure latency correctly remain insufficient
+  under portable core17/capture-arrival evidence.
+- Nine new contract cases and seven browser-buffer cases cover
+  replay compatibility, closed envelopes, provenance, sequence bounds,
+  pseudonymization, minimization, health retention, clear/reset, and mutation
+  isolation.
+- Ten adversarial artifact-validator tests reject privacy, identity, trace,
+  truth, aggregate, field, case, and timestamp-provenance substitution.
+- All 423 workspace unit tests, workspace typecheck, production build, schema,
+  benchmark, transport, manifest, device-only data-exclusion, compliance,
+  Godot 4.7, and prior Motion evidence validators pass. All 35 real-Chrome
+  flows pass, including the downloaded v2 byte/privacy/provenance inspection.
+
+### Remaining boundary
+
+I-070 remains active. The exercise is deterministic synthetic automation whose
+triage function is blind to its truth object by interface; it is not an
+independent human or consented real-camera study. Production still needs
+Q-237, selected retention/deletion policy, an independent reviewer, frozen
+real bug reports, target traces, export/delete usability and filesystem
+inspection, and separately approved minimum evidence for physical cause,
+floor truth, exposure timing, discarded detector/association state, and target
+telemetry. Raw video remains excluded by default.

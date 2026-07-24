@@ -1,0 +1,88 @@
+{
+  "format": "vcg-skeleton-debugging-blind-submission",
+  "formatVersion": 1,
+  "campaignId": "core17-debugging-adequacy-v1",
+  "analyzerId": "core17-static-triage-v1",
+  "bundleSha256": "7c7974e35de77895c3e40bdcbdb81590f31e781be721f1b194e0e326942a52d5",
+  "truthAvailableToTriage": false,
+  "cases": [
+    {
+      "caseId": "trace-01",
+      "traceSha256": "63ee7db0d0106ffe97202ed30c6ee91dcab016abf31549120c6b27bc9a4bd876",
+      "reproductionLevel": "full",
+      "findingCodes": [
+        "unsafe-action-under-low-confidence"
+      ],
+      "rootCauseCode": "action-confidence-gate-failure",
+      "rationaleCode": "unsafe-authority-visible"
+    },
+    {
+      "caseId": "trace-02",
+      "traceSha256": "33496eb7eb75e54e3346825ac3e444097b78a7c58a470c39cba7b9dd372da582",
+      "reproductionLevel": "symptom-only",
+      "findingCodes": [
+        "anatomical-axis-discontinuity"
+      ],
+      "rootCauseCode": null,
+      "rationaleCode": "axis-break-visible-cause-ambiguous"
+    },
+    {
+      "caseId": "trace-03",
+      "traceSha256": "c8de027f2e898e30f84acc185acce9fecd350f3c8bc4b7e7f4490bb6ae4f0e52",
+      "reproductionLevel": "symptom-only",
+      "findingCodes": [
+        "track-position-discontinuity"
+      ],
+      "rootCauseCode": null,
+      "rationaleCode": "track-jump-visible-cause-ambiguous"
+    },
+    {
+      "caseId": "trace-04",
+      "traceSha256": "9a1266304be4bab2286ac8d9ae9ed981eb04ca4496f7ca9b8200a359f3048fc8",
+      "reproductionLevel": "insufficient",
+      "findingCodes": [
+        "floor-reference-absent"
+      ],
+      "rootCauseCode": null,
+      "rationaleCode": "physical-floor-truth-absent"
+    },
+    {
+      "caseId": "trace-05",
+      "traceSha256": "bf80cb76f836aed12b3d7109eb0a357a3a5bcce5bcbcd4cb8ed2c434ab636ed6",
+      "reproductionLevel": "insufficient",
+      "findingCodes": [
+        "camera-exposure-time-absent"
+      ],
+      "rootCauseCode": null,
+      "rationaleCode": "exposure-clock-absent"
+    },
+    {
+      "caseId": "trace-06",
+      "traceSha256": "2eea9625719053c6774c3a3df0c533af1f8c6d1a99953d7eb5588c6d76cf4449",
+      "reproductionLevel": "symptom-only",
+      "findingCodes": [
+        "landmark-observation-loss"
+      ],
+      "rootCauseCode": null,
+      "rationaleCode": "observation-loss-visible-cause-ambiguous"
+    },
+    {
+      "caseId": "trace-07",
+      "traceSha256": "c1251ad6ca569b8a6c04b768591ad6a40aee42da8c00e639fc7b870c41958c8f",
+      "reproductionLevel": "full",
+      "findingCodes": [
+        "camera-disconnected-health"
+      ],
+      "rootCauseCode": "camera-disconnected",
+      "rationaleCode": "stable-health-cause-visible"
+    },
+    {
+      "caseId": "trace-08",
+      "traceSha256": "8193744c5167ec33e430291c70c96adae46e7a8eb061ebe343dbcccfdb86e53a",
+      "reproductionLevel": "control",
+      "findingCodes": [],
+      "rootCauseCode": null,
+      "rationaleCode": "no-anomaly-detected"
+    }
+  ]
+}

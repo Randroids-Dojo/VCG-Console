@@ -288,6 +288,7 @@ const cameraButton = required<HTMLButtonElement>("#camera-button");
 const replayButton = required<HTMLButtonElement>("#replay-button");
 const joinButton = required<HTMLButtonElement>("#join-button");
 const exportButton = required<HTMLButtonElement>("#export-button");
+exportButton.disabled = true;
 const statusDetail = required<HTMLElement>("#status-detail");
 const gestureFeedback = required<HTMLElement>("#gesture-feedback");
 const gestureAction = required<HTMLElement>("#gesture-action");
@@ -339,6 +340,7 @@ let overlayKind: OverlayKind | undefined;
 let overlayFocus: "resume" | "exit" = "resume";
 let healthSequence = 1;
 let activeHealth = trackerHealthFixture("healthy", 0, 0);
+trace.pushHealth(activeHealth);
 let obstacleRunPauseCount = 0;
 let obstacleRunTrackingDropoutCount = 0;
 let obstacleRunRecorded = false;
@@ -426,7 +428,7 @@ function acceptFrame(rawFrame: MotionFrame): void {
     overlayKind ? "overlay" : currentMode === "obstacle" ? "game" : "shell",
   );
   latestFrame = frame;
-  trace.push(frame);
+  if (trace.push(frame)) exportButton.disabled = false;
   metrics.push(frame);
   renderer.render(frame);
   for (const event of playerSession.observe(
@@ -732,6 +734,7 @@ function updateStatus(status: TrackerStatus, detail: string): void {
 
 function applyTrackerHealth(event: TrackerHealthEvent): void {
   activeHealth = event;
+  trace.pushHealth(event);
   const presentation = trackerHealthPresentation(event);
   healthBadge.textContent = presentation.badge;
   healthBadge.dataset.state = event.status;
@@ -990,6 +993,7 @@ function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input i
   replayRunning = true;
   metrics.reset();
   trace.clear();
+  exportButton.disabled = true;
   resetPlayerSession();
   replayButton.disabled = true;
   cameraButton.textContent = "START CAMERA";
@@ -1073,6 +1077,7 @@ cameraButton.addEventListener("click", async () => {
   replayRunning = false;
   metrics.reset();
   trace.clear();
+  exportButton.disabled = true;
   resetPlayerSession();
   try {
     await tracker.start();

@@ -2033,6 +2033,92 @@ test("drives the camera-free pose simulator through UI, keyboard, controller, an
   await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
 });
 
+test("exports a bounded pseudonymized v2 skeleton trace", async ({ page }) => {
+  await openMotionLab(page, true);
+  await expect(page.locator("#metric-trace")).not.toHaveText("0");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "EXPORT SKELETON TRACE" }).click();
+  const download = await downloadPromise;
+  const path = await download.path();
+  expect(path).not.toBeNull();
+  const bytes = await readFile(path!);
+  expect(bytes.byteLength).toBeLessThanOrEqual(4 * 1024 * 1024);
+  const trace = JSON.parse(bytes.toString("utf8")) as {
+    format: string;
+    formatVersion: number;
+    containsRawFrames: boolean;
+    privacy: Record<string, boolean>;
+    retention: Record<string, unknown>;
+    provenance: {
+      motionSchemaVersion: string;
+      frameSources: string[];
+      timestampQualities: string[];
+      exportedProfiles: string[];
+    };
+    healthEvents: Array<{ reason: string }>;
+    frames: Array<{
+      players: Array<{
+        id: string;
+        coreLandmarks: Array<Record<string, unknown>>;
+        richLandmarks?: unknown;
+      }>;
+    }>;
+  };
+  expect(trace).toMatchObject({
+    format: "vcg-motion-trace",
+    formatVersion: 2,
+    containsRawFrames: false,
+    privacy: {
+      containsRawFrames: false,
+      containsAudio: false,
+      containsPortraits: false,
+      containsProfileIdentifiers: false,
+      containsFreeText: false,
+      containsDerivedSkeletons: true,
+      containsTraceLocalTrackIds: true,
+      containsExactExportTime: true,
+    },
+    retention: {
+      volatileFrameLimit: 600,
+      volatileHealthEventLimit: 128,
+      volatileTrackLimit: 64,
+      droppedFrames: 0,
+      droppedHealthEvents: 0,
+      trackLimitReached: false,
+      playerLimitExceeded: false,
+      persistentBeforeExport: false,
+      exportPersistence: "user-managed-file",
+    },
+    provenance: {
+      motionSchemaVersion: "0.4.0",
+      frameSources: ["synthetic"],
+      timestampQualities: ["replay"],
+      exportedProfiles: ["actions.obstacle.v1", "actions.shell.v1", "body.core17"],
+    },
+  });
+  expect(trace.frames.length).toBeGreaterThan(0);
+  expect(trace.frames.length).toBeLessThanOrEqual(600);
+  expect(trace.healthEvents.some((event) => event.reason === "healthy")).toBe(true);
+  expect(
+    trace.frames.every((frame) =>
+      frame.players.every(
+        (player) =>
+          /^trace-player-(?:[1-9]|[1-5][0-9]|6[0-4])$/.test(player.id) &&
+          player.richLandmarks === undefined &&
+          player.coreLandmarks.every(
+            (landmark) =>
+              !("z" in (landmark.position as Record<string, unknown>)) &&
+              !("worldPosition" in landmark) &&
+              !("presence" in landmark),
+          ),
+      ),
+    ),
+  ).toBe(true);
+  expect(bytes.toString("utf8")).not.toContain("synthetic-1");
+  expect(bytes.toString("utf8")).not.toMatch(/rawFrame|imageData|videoFrame/);
+});
+
 test("loads the pinned local model and starts a camera pipeline", async ({ page }) => {
   await openMotionLab(page);
   await page.getByRole("button", { name: "START CAMERA" }).click();

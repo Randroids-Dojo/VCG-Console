@@ -280,7 +280,7 @@ export const MotionFrameSchema = z
     });
   });
 
-export const MotionTraceSchema = z.object({
+export const MotionTraceV1Schema = z.object({
   format: z.literal("vcg-motion-trace"),
   formatVersion: z.literal(1),
   createdAt: z.string().datetime(),
@@ -288,8 +288,257 @@ export const MotionTraceSchema = z.object({
   frames: z.array(MotionFrameSchema),
 });
 
+export const MOTION_TRACE_MAX_FRAMES = 600 as const;
+export const MOTION_TRACE_MAX_HEALTH_EVENTS = 128 as const;
+export const MOTION_TRACE_MAX_PLAYERS = 4 as const;
+export const MOTION_TRACE_MAX_TRACKS = 64 as const;
+export const MOTION_TRACE_MAX_BYTES = 4 * 1024 * 1024;
+
+const MotionTracePrivacySchema = z
+  .object({
+    containsRawFrames: z.literal(false),
+    containsAudio: z.literal(false),
+    containsPortraits: z.literal(false),
+    containsProfileIdentifiers: z.literal(false),
+    containsFreeText: z.literal(false),
+    containsDerivedSkeletons: z.literal(true),
+    containsTraceLocalTrackIds: z.literal(true),
+    containsExactExportTime: z.literal(true),
+  })
+  .strict();
+
+const MotionTraceRetentionSchema = z
+  .object({
+    volatileFrameLimit: z.literal(MOTION_TRACE_MAX_FRAMES),
+    volatileHealthEventLimit: z.literal(MOTION_TRACE_MAX_HEALTH_EVENTS),
+    volatileTrackLimit: z.literal(MOTION_TRACE_MAX_TRACKS),
+    droppedFrames: z.number().int().nonnegative(),
+    droppedHealthEvents: z.number().int().nonnegative(),
+    trackLimitReached: z.boolean(),
+    playerLimitExceeded: z.boolean(),
+    persistentBeforeExport: z.literal(false),
+    exportPersistence: z.literal("user-managed-file"),
+    deletionControl: z.literal("clear-volatile-buffer-and-delete-exported-file"),
+  })
+  .strict();
+
+const MotionTraceProvenanceSchema = z
+  .object({
+    motionSchemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
+    coordinateSpecVersion: z.literal(COORDINATE_SPEC_VERSION),
+    frameSources: z.array(MotionSourceSchema).min(1).max(4),
+    timestampQualities: z
+      .array(z.enum(["camera-exposure", "capture-arrival", "replay"]))
+      .min(1)
+      .max(3),
+    exportedProfiles: z.array(MotionProfileSchema).min(1).max(5),
+  })
+  .strict();
+
+function requireSortedUnique(
+  values: readonly string[],
+  path: PropertyKey[],
+  context: z.core.$RefinementCtx,
+): void {
+  const expected = [...new Set(values)].sort();
+  if (values.length !== expected.length || values.some((value, index) => value !== expected[index])) {
+    context.addIssue({
+      code: "custom",
+      path,
+      message: "values must be unique and sorted",
+      input: values,
+    });
+  }
+}
+
+function requireExactSet(
+  declared: readonly string[],
+  observed: ReadonlySet<string>,
+  path: PropertyKey[],
+  context: z.core.$RefinementCtx,
+): void {
+  const expected = [...observed].sort();
+  if (declared.length !== expected.length || declared.some((value, index) => value !== expected[index])) {
+    context.addIssue({
+      code: "custom",
+      path,
+      message: "declared provenance must exactly match trace contents",
+      input: declared,
+    });
+  }
+}
+
+export const MotionTraceV2Schema = z
+  .object({
+    format: z.literal("vcg-motion-trace"),
+    formatVersion: z.literal(2),
+    createdAt: z.string().datetime(),
+    containsRawFrames: z.literal(false),
+    privacy: MotionTracePrivacySchema,
+    retention: MotionTraceRetentionSchema,
+    provenance: MotionTraceProvenanceSchema,
+    healthEvents: z.array(TrackerHealthEventSchema).max(MOTION_TRACE_MAX_HEALTH_EVENTS),
+    frames: z.array(MotionFrameSchema).min(1).max(MOTION_TRACE_MAX_FRAMES),
+  })
+  .strict()
+  .superRefine((trace, context) => {
+    requireSortedUnique(trace.provenance.frameSources, ["provenance", "frameSources"], context);
+    requireSortedUnique(trace.provenance.timestampQualities, ["provenance", "timestampQualities"], context);
+    requireSortedUnique(trace.provenance.exportedProfiles, ["provenance", "exportedProfiles"], context);
+
+    const observedSources = new Set<string>();
+    const observedTimestampQualities = new Set<string>();
+    const observedProfiles = new Set<string>();
+    for (const event of trace.healthEvents) observedSources.add(event.source);
+    for (const [frameIndex, frame] of trace.frames.entries()) {
+      observedSources.add(frame.source);
+      observedTimestampQualities.add(frame.capabilities.timestampQuality);
+      for (const profile of frame.capabilities.profiles) observedProfiles.add(profile);
+      if (new Set(frame.capabilities.profiles).size !== frame.capabilities.profiles.length) {
+        context.addIssue({
+          code: "custom",
+          path: ["frames", frameIndex, "capabilities", "profiles"],
+          message: "debug trace frame profiles must be unique",
+          input: frame.capabilities.profiles,
+        });
+      }
+      if (frame.capabilities.maxPlayers > MOTION_TRACE_MAX_PLAYERS) {
+        context.addIssue({
+          code: "custom",
+          path: ["frames", frameIndex, "capabilities", "maxPlayers"],
+          message: `debug traces support at most ${MOTION_TRACE_MAX_PLAYERS} players`,
+          input: frame.capabilities.maxPlayers,
+        });
+      }
+      if (frame.players.length > MOTION_TRACE_MAX_PLAYERS) {
+        context.addIssue({
+          code: "custom",
+          path: ["frames", frameIndex, "players"],
+          message: `debug traces support at most ${MOTION_TRACE_MAX_PLAYERS} players`,
+          input: frame.players,
+        });
+      }
+      const playerIds = new Set<string>();
+      const sessionSlots = new Set<number>();
+      for (const [playerIndex, player] of frame.players.entries()) {
+        if (playerIds.has(player.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "players", playerIndex, "id"],
+            message: "debug trace frame player IDs must be unique",
+            input: player.id,
+          });
+        }
+        playerIds.add(player.id);
+        if (sessionSlots.has(player.sessionSlot)) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "players", playerIndex, "sessionSlot"],
+            message: "debug trace frame session slots must be unique",
+            input: player.sessionSlot,
+          });
+        }
+        sessionSlots.add(player.sessionSlot);
+        if (!/^trace-player-(?:[1-9]|[1-5][0-9]|6[0-4])$/.test(player.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "players", playerIndex, "id"],
+            message: "debug trace player IDs must be trace-local pseudonyms",
+            input: player.id,
+          });
+        }
+        if (player.richLandmarks !== undefined) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "players", playerIndex, "richLandmarks"],
+            message: "v2 debug traces retain only the portable core skeleton",
+            input: player.richLandmarks,
+          });
+        }
+        for (const [landmarkIndex, landmark] of player.coreLandmarks.entries()) {
+          if (
+            landmark.position.z !== undefined ||
+            landmark.worldPosition !== undefined ||
+            landmark.presence !== undefined
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["frames", frameIndex, "players", playerIndex, "coreLandmarks", landmarkIndex],
+              message: "v2 debug traces retain only normalized x/y, visibility, and observed state",
+              input: landmark,
+            });
+          }
+        }
+      }
+      if (frameIndex > 0) {
+        const previous = trace.frames[frameIndex - 1]!;
+        if (frame.sequence <= previous.sequence) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "sequence"],
+            message: "debug trace frame sequences must increase strictly",
+            input: frame.sequence,
+          });
+        }
+        if (frame.sourceTimestampMs < previous.sourceTimestampMs) {
+          context.addIssue({
+            code: "custom",
+            path: ["frames", frameIndex, "sourceTimestampMs"],
+            message: "debug trace timestamps must be monotonic",
+            input: frame.sourceTimestampMs,
+          });
+        }
+      }
+    }
+    for (let eventIndex = 1; eventIndex < trace.healthEvents.length; eventIndex += 1) {
+      const previous = trace.healthEvents[eventIndex - 1]!;
+      const event = trace.healthEvents[eventIndex]!;
+      if (event.sequence <= previous.sequence) {
+        context.addIssue({
+          code: "custom",
+          path: ["healthEvents", eventIndex, "sequence"],
+          message: "debug trace health sequences must increase strictly",
+          input: event.sequence,
+        });
+      }
+      if (event.occurredAtMs < previous.occurredAtMs) {
+        context.addIssue({
+          code: "custom",
+          path: ["healthEvents", eventIndex, "occurredAtMs"],
+          message: "debug trace health timestamps must be monotonic",
+          input: event.occurredAtMs,
+        });
+      }
+    }
+
+    requireExactSet(trace.provenance.frameSources, observedSources, ["provenance", "frameSources"], context);
+    requireExactSet(
+      trace.provenance.timestampQualities,
+      observedTimestampQualities,
+      ["provenance", "timestampQualities"],
+      context,
+    );
+    requireExactSet(trace.provenance.exportedProfiles, observedProfiles, ["provenance", "exportedProfiles"], context);
+
+    const byteLength = new TextEncoder().encode(JSON.stringify(trace)).byteLength;
+    if (byteLength > MOTION_TRACE_MAX_BYTES) {
+      context.addIssue({
+        code: "custom",
+        path: [],
+        message: `debug trace exceeds ${MOTION_TRACE_MAX_BYTES} bytes`,
+        input: trace,
+      });
+    }
+  });
+
+export const MotionTraceSchema = z.discriminatedUnion("formatVersion", [
+  MotionTraceV1Schema,
+  MotionTraceV2Schema,
+]);
+
 export type MotionFrame = z.infer<typeof MotionFrameSchema>;
 export type MotionTrace = z.infer<typeof MotionTraceSchema>;
+export type MotionTraceV2 = z.infer<typeof MotionTraceV2Schema>;
 export type PlayerMotion = z.infer<typeof PlayerMotionSchema>;
 export type MotionAction = z.infer<typeof MotionActionSchema>;
 export type MotionCapabilities = z.infer<typeof MotionCapabilitiesSchema>;
@@ -301,6 +550,9 @@ export type TrackerHealthReason = z.infer<typeof TrackerHealthReasonSchema>;
 export type TrackerHealthEvent = z.infer<typeof TrackerHealthEventSchema>;
 
 export const motionFrameJsonSchema = z.toJSONSchema(MotionFrameSchema, {
+  target: "draft-2020-12",
+}) as Record<string, unknown>;
+export const motionTraceJsonSchema = z.toJSONSchema(MotionTraceV2Schema, {
   target: "draft-2020-12",
 }) as Record<string, unknown>;
 export const trackerHealthEventJsonSchema = z.toJSONSchema(TrackerHealthEventSchema, {

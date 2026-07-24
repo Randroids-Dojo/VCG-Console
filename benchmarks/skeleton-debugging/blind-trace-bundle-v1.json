@@ -1,0 +1,4756 @@
+{
+  "format": "vcg-skeleton-debugging-blind-exercise",
+  "formatVersion": 1,
+  "campaignId": "core17-debugging-adequacy-v1",
+  "sourceCommit": "24b7cca4abb6c28a1446c5ef3b8ce667ccc47a26",
+  "workingTreeClean": false,
+  "traceSchema": {
+    "format": "vcg-motion-trace",
+    "formatVersion": 2,
+    "motionSchemaVersion": "0.4.0"
+  },
+  "analyzer": {
+    "id": "core17-static-triage-v1",
+    "inputBoundary": "bundle-cases-only",
+    "truthAvailableToTriage": false
+  },
+  "truthCommitmentSha256": "ca2cf080643069b54c0f41244f3ec7ded647f0a297c1b24775fe2981c0d3fc4a",
+  "cases": [
+    {
+      "caseId": "trace-01",
+      "reportedSymptom": "unexpected-action",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "actions.obstacle.v1",
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17",
+                "actions.obstacle.v1"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17",
+                "actions.obstacle.v1"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.3,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": [
+                  {
+                    "name": "jump",
+                    "phase": "triggered",
+                    "confidence": 0.9,
+                    "occurredAtMs": 33
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 3,
+            "source": "synthetic",
+            "sourceTimestampMs": 66,
+            "inferenceStartedAtMs": 67,
+            "inferenceCompletedAtMs": 71,
+            "publishedAtMs": 72,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17",
+                "actions.obstacle.v1"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "63ee7db0d0106ffe97202ed30c6ee91dcab016abf31549120c6b27bc9a4bd876"
+    },
+    {
+      "caseId": "trace-02",
+      "reportedSymptom": "left-right-inversion",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 3,
+            "source": "synthetic",
+            "sourceTimestampMs": 66,
+            "inferenceStartedAtMs": 67,
+            "inferenceCompletedAtMs": 71,
+            "publishedAtMs": 72,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "33496eb7eb75e54e3346825ac3e444097b78a7c58a470c39cba7b9dd372da582"
+    },
+    {
+      "caseId": "trace-03",
+      "reportedSymptom": "player-swap",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 2,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.3,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.27999999999999997,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.32,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.25,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.35000000000000003,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.2,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.39999999999999997,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.15999999999999998,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.13,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.47000000000000003,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.24,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.36000000000000004,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.22999999999999998,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.36999999999999994,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.21999999999999997,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.37999999999999995,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.09999999999999998,
+                  "top": 0.1,
+                  "right": 0.49999999999999994,
+                  "bottom": 0.95
+                },
+                "actions": []
+              },
+              {
+                "id": "trace-player-2",
+                "sessionSlot": 2,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.7,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.6799999999999999,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.72,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.65,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.75,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.6000000000000001,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.8,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.8400000000000001,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.53,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.8700000000000001,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.76,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.63,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.77,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.62,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.78,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.5,
+                  "top": 0.1,
+                  "right": 0.8999999999999999,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 2,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.32,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.3,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.34,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.27,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.37000000000000005,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.22000000000000003,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.18,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.46,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.15000000000000002,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.49000000000000005,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.26,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.38000000000000006,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.25,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.38999999999999996,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.24,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.39999999999999997,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.12,
+                  "top": 0.1,
+                  "right": 0.52,
+                  "bottom": 0.95
+                },
+                "actions": []
+              },
+              {
+                "id": "trace-player-2",
+                "sessionSlot": 2,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.6799999999999999,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.6599999999999999,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.7,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.63,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.73,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.5800000000000001,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.78,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.54,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.8200000000000001,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.51,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.8500000000000001,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.62,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.74,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.61,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.75,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.76,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.48,
+                  "top": 0.1,
+                  "right": 0.8799999999999999,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 3,
+            "source": "synthetic",
+            "sourceTimestampMs": 66,
+            "inferenceStartedAtMs": 67,
+            "inferenceCompletedAtMs": 71,
+            "publishedAtMs": 72,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 2,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.6799999999999999,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.6599999999999999,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.7,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.63,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.73,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.5800000000000001,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.78,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.54,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.8200000000000001,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.51,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.8500000000000001,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.62,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.74,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.61,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.75,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.76,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.48,
+                  "top": 0.1,
+                  "right": 0.8799999999999999,
+                  "bottom": 0.95
+                },
+                "actions": []
+              },
+              {
+                "id": "trace-player-2",
+                "sessionSlot": 2,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.32,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.3,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.34,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.27,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.37000000000000005,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.22000000000000003,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.18,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.46,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.15000000000000002,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.49000000000000005,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.26,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.38000000000000006,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.25,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.38999999999999996,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.24,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.39999999999999997,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.12,
+                  "top": 0.1,
+                  "right": 0.52,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "c8de027f2e898e30f84acc185acce9fecd350f3c8bc4b7e7f4490bb6ae4f0e52"
+    },
+    {
+      "caseId": "trace-04",
+      "reportedSymptom": "floor-contact-mismatch",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "actions.obstacle.v1",
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17",
+                "actions.obstacle.v1"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17",
+                "actions.obstacle.v1"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": [
+                  {
+                    "name": "jump",
+                    "phase": "triggered",
+                    "confidence": 0.9,
+                    "occurredAtMs": 33
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "9a1266304be4bab2286ac8d9ae9ed981eb04ca4496f7ca9b8200a359f3048fc8"
+    },
+    {
+      "caseId": "trace-05",
+      "reportedSymptom": "latency-regression",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "capture-arrival"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 95,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "capture-arrival"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 129,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "capture-arrival"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "bf80cb76f836aed12b3d7109eb0a357a3a5bcce5bcbcd4cb8ed2c434ab636ed6"
+    },
+    {
+      "caseId": "trace-06",
+      "reportedSymptom": "landmark-loss",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.1,
+                    "observed": false
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 3,
+            "source": "synthetic",
+            "sourceTimestampMs": 66,
+            "inferenceStartedAtMs": 67,
+            "inferenceCompletedAtMs": 71,
+            "publishedAtMs": 72,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "2eea9625719053c6774c3a3df0c533af1f8c6d1a99953d7eb5588c6d76cf4449"
+    },
+    {
+      "caseId": "trace-07",
+      "reportedSymptom": "tracker-dropout",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "occurredAtMs": 0,
+            "status": "ready",
+            "reason": "healthy",
+            "controlAvailability": "full"
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "occurredAtMs": 33,
+            "status": "fault",
+            "reason": "camera-disconnected",
+            "controlAvailability": "blocked"
+          }
+        ],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "fault",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": []
+          }
+        ]
+      },
+      "traceSha256": "c1251ad6ca569b8a6c04b768591ad6a40aee42da8c00e639fc7b870c41958c8f"
+    },
+    {
+      "caseId": "trace-08",
+      "reportedSymptom": "no-defect",
+      "trace": {
+        "format": "vcg-motion-trace",
+        "formatVersion": 2,
+        "createdAt": "2026-07-24T12:00:00.000Z",
+        "containsRawFrames": false,
+        "privacy": {
+          "containsRawFrames": false,
+          "containsAudio": false,
+          "containsPortraits": false,
+          "containsProfileIdentifiers": false,
+          "containsFreeText": false,
+          "containsDerivedSkeletons": true,
+          "containsTraceLocalTrackIds": true,
+          "containsExactExportTime": true
+        },
+        "retention": {
+          "volatileFrameLimit": 600,
+          "volatileHealthEventLimit": 128,
+          "volatileTrackLimit": 64,
+          "droppedFrames": 0,
+          "droppedHealthEvents": 0,
+          "trackLimitReached": false,
+          "playerLimitExceeded": false,
+          "persistentBeforeExport": false,
+          "exportPersistence": "user-managed-file",
+          "deletionControl": "clear-volatile-buffer-and-delete-exported-file"
+        },
+        "provenance": {
+          "motionSchemaVersion": "0.4.0",
+          "coordinateSpecVersion": "0.1.0",
+          "frameSources": [
+            "synthetic"
+          ],
+          "timestampQualities": [
+            "replay"
+          ],
+          "exportedProfiles": [
+            "body.core17"
+          ]
+        },
+        "healthEvents": [],
+        "frames": [
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 1,
+            "source": "synthetic",
+            "sourceTimestampMs": 0,
+            "inferenceStartedAtMs": 1,
+            "inferenceCompletedAtMs": 5,
+            "publishedAtMs": 6,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 2,
+            "source": "synthetic",
+            "sourceTimestampMs": 33,
+            "inferenceStartedAtMs": 34,
+            "inferenceCompletedAtMs": 38,
+            "publishedAtMs": 39,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          },
+          {
+            "schemaVersion": "0.4.0",
+            "sequence": 3,
+            "source": "synthetic",
+            "sourceTimestampMs": 66,
+            "inferenceStartedAtMs": 67,
+            "inferenceCompletedAtMs": 71,
+            "publishedAtMs": 72,
+            "health": "ready",
+            "capabilities": {
+              "profiles": [
+                "body.core17"
+              ],
+              "maxPlayers": 1,
+              "coordinateSpecVersion": "0.1.0",
+              "coordinateSystem": "image.normalized.top-left",
+              "timestampQuality": "replay"
+            },
+            "players": [
+              {
+                "id": "trace-player-1",
+                "sessionSlot": 1,
+                "confidence": 0.98,
+                "state": "joined",
+                "coreLandmarks": [
+                  {
+                    "name": "nose",
+                    "position": {
+                      "x": 0.5,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_eye",
+                    "position": {
+                      "x": 0.48,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_eye",
+                    "position": {
+                      "x": 0.52,
+                      "y": 0.14
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ear",
+                    "position": {
+                      "x": 0.45,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ear",
+                    "position": {
+                      "x": 0.55,
+                      "y": 0.15
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_shoulder",
+                    "position": {
+                      "x": 0.4,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_shoulder",
+                    "position": {
+                      "x": 0.6,
+                      "y": 0.3
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_elbow",
+                    "position": {
+                      "x": 0.36,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_elbow",
+                    "position": {
+                      "x": 0.64,
+                      "y": 0.45
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_wrist",
+                    "position": {
+                      "x": 0.33,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_wrist",
+                    "position": {
+                      "x": 0.67,
+                      "y": 0.6
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_hip",
+                    "position": {
+                      "x": 0.44,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_hip",
+                    "position": {
+                      "x": 0.56,
+                      "y": 0.55
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_knee",
+                    "position": {
+                      "x": 0.43,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_knee",
+                    "position": {
+                      "x": 0.57,
+                      "y": 0.73
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "left_ankle",
+                    "position": {
+                      "x": 0.42,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  },
+                  {
+                    "name": "right_ankle",
+                    "position": {
+                      "x": 0.58,
+                      "y": 0.92
+                    },
+                    "visibility": 0.98,
+                    "observed": true
+                  }
+                ],
+                "bounds": {
+                  "left": 0.3,
+                  "top": 0.1,
+                  "right": 0.7,
+                  "bottom": 0.95
+                },
+                "actions": []
+              }
+            ]
+          }
+        ]
+      },
+      "traceSha256": "8193744c5167ec33e430291c70c96adae46e7a8eb061ebe343dbcccfdb86e53a"
+    }
+  ]
+}
