@@ -19,7 +19,9 @@ cargo run -p vcg-host -- retroarch --dry-run \
   --runtime-root /run/vcg \
   --data-root /var/lib/vcg \
   --frontend /var/lib/vcg/packages/retroarch/retroarch \
+  --frontend-sha256 <manifest-sha256> \
   --core /var/lib/vcg/packages/cores/2048_libretro.so \
+  --core-sha256 <manifest-sha256> \
   --base-config /var/lib/vcg/packages/retroarch/vcg-base.cfg \
   --profile player-one \
   --game retro-2048
@@ -29,13 +31,13 @@ cargo run -p vcg-host -- retroarch --dry-run \
 
 `watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.
 
-`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Current readiness is process-only; a compositor/window probe must be added before hang recovery can be claimed.
+`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact manifest SHA-256 for the frontend, core, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Current readiness is process-only; a compositor/window probe must be added before hang recovery can be claimed.
 
 ## Boundary
 
 - `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
-- `retroarch`: installed-artifact/content containment, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
+- `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 
 The current Rust SDL3 bindings are intentionally not a core dependency. They still document incomplete SDL3 migration and missing features. Pin and qualify the adapter against exact Linux hardware without allowing binding-specific types to escape into the host contracts.

@@ -322,3 +322,22 @@ I-109 advances to active but is not closed. Real Linux cgroup OOM classification
 ### Remaining boundary
 
 I-198 is active, not closed. No RetroArch or 2048 binary was downloaded or bundled. Exact signed artifacts and hashes, reproducible ARM64/x86-64 packages, one-action Start Core, launcher IPC, compositor window readiness and hang recovery, descendant containment, SDL3/reserved controls, target audio/video/latency, and update/removal cleanup remain required. Configuration restriction is defense in depth; target OS sandboxing still has to prove there is no unrestricted desktop or filesystem route.
+
+## 2026-07-23: RetroArch artifact-integrity enforcement
+
+### Delivered
+
+- The native RetroArch request now requires canonical SHA-256 values for the frontend and core, plus an exact content hash whenever managed content is present.
+- Hashes use the same 64-character lowercase hexadecimal form as the game manifest. Malformed, missing, unexpected, and mismatched values fail closed.
+- The host resolves and confines each file first, then streams it through SHA-256 before it creates session directories, publishes configuration, or launches a process. Large content files are not read into memory at once.
+- `vcg-host retroarch` exposes explicit frontend/core/content hash arguments, closing the gap where a correct path could still contain a substituted artifact.
+- `sha2` 0.11.0 is pinned without default features; its transitive versions are locked in `Cargo.lock`.
+
+### Verification evidence
+
+- Native tests prove exact digest parsing/round-trip, uppercase/non-hex/incorrect-length rejection, frontend/core/content success, core mismatch failure, missing managed-content hash failure, and rejection of a hash on contentless launch.
+- Strict Rust formatting, Clippy, and the full subprocess/native suite pass with 31 ordinary tests plus four intentionally ignored helper entrypoints.
+
+### Remaining boundary
+
+The host enforces integrity values but does not decide which manifest is trusted. Signed package/manifest verification, rollback/revocation policy, authenticated launcher-to-host IPC, and an immutable or file-descriptor-bound verification-to-use path must bind these expected hashes to the approved catalog before target qualification.
