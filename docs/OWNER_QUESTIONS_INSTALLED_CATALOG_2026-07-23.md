@@ -8,7 +8,7 @@ No answer here blocks the current software-only desk proof. The implementation u
 
 Should production use an offline root that authorizes rotating release/catalog keys, or provision one long-lived catalog key directly into each image?
 
-Implemented software boundary: a bounded offline-root threshold authorizes distinct channel/catalog/target keys, exact next-generation dual-threshold rotation, expiry, and revocation by omission. Production must still select thresholds/custody and provision anchors, accepted-root history, generation floors, and trusted time through protected platform mechanisms. Keep every private key out of this repository, the browser, package payloads, command lines, logs, and target devices.
+Implemented software boundary: a bounded offline-root threshold authorizes distinct channel/catalog/target keys, exact next-generation dual-threshold rotation, expiry, and revocation by omission. Exact accepted-root history is now persisted and replayed before launcher package admission. Production must still select thresholds/custody and provision anchors, generation-floor provenance, and trusted time through protected platform mechanisms. Keep every private key out of this repository, the browser, package payloads, command lines, logs, and target devices.
 
 ## Q-106: rollback scope
 

@@ -400,6 +400,36 @@ impl TrustedUpdateRoot {
         minimum_generation: u64,
         trusted_unix_seconds: u64,
     ) -> Result<Self, UpdateTrustError> {
+        Self::bootstrap_internal(
+            root_bytes,
+            signatures,
+            anchors,
+            minimum_generation,
+            Some(trusted_unix_seconds),
+        )
+    }
+
+    /// Replays a previously accepted bootstrap record.
+    ///
+    /// Historical roots may have expired since publication. Callers must
+    /// verify the final replayed root with [`Self::require_current`] before
+    /// using it for artifact authorization.
+    pub(crate) fn bootstrap_stored(
+        root_bytes: &[u8],
+        signatures: &DetachedUpdateSignatures,
+        anchors: &RootTrustAnchorSet,
+        minimum_generation: u64,
+    ) -> Result<Self, UpdateTrustError> {
+        Self::bootstrap_internal(root_bytes, signatures, anchors, minimum_generation, None)
+    }
+
+    fn bootstrap_internal(
+        root_bytes: &[u8],
+        signatures: &DetachedUpdateSignatures,
+        anchors: &RootTrustAnchorSet,
+        minimum_generation: u64,
+        trusted_unix_seconds: Option<u64>,
+    ) -> Result<Self, UpdateTrustError> {
         require_bounded_root(root_bytes)?;
         let anchor_keys = anchors
             .anchors
@@ -426,7 +456,9 @@ impl TrustedUpdateRoot {
             });
         }
         root.ensure_roles_distinct_from_roots(&anchor_keys)?;
-        root.ensure_current(trusted_unix_seconds)?;
+        if let Some(trusted_unix_seconds) = trusted_unix_seconds {
+            root.ensure_current(trusted_unix_seconds)?;
+        }
         verify_threshold(
             ROOT_SIGNED_MESSAGE_PREFIX,
             root_bytes,
@@ -453,6 +485,27 @@ impl TrustedUpdateRoot {
         candidate_bytes: &[u8],
         signatures: &DetachedUpdateSignatures,
         trusted_unix_seconds: u64,
+    ) -> Result<Self, UpdateTrustError> {
+        self.rotate_internal(candidate_bytes, signatures, Some(trusted_unix_seconds))
+    }
+
+    /// Replays one previously accepted consecutive rotation record.
+    ///
+    /// This preserves every signature and structural check while deferring
+    /// expiry validation until the final root in the stored chain.
+    pub(crate) fn rotate_stored(
+        &self,
+        candidate_bytes: &[u8],
+        signatures: &DetachedUpdateSignatures,
+    ) -> Result<Self, UpdateTrustError> {
+        self.rotate_internal(candidate_bytes, signatures, None)
+    }
+
+    fn rotate_internal(
+        &self,
+        candidate_bytes: &[u8],
+        signatures: &DetachedUpdateSignatures,
+        trusted_unix_seconds: Option<u64>,
     ) -> Result<Self, UpdateTrustError> {
         require_bounded_root(candidate_bytes)?;
         verify_threshold(
@@ -483,7 +536,9 @@ impl TrustedUpdateRoot {
             candidate.root_threshold,
             ThresholdKind::CandidateRoot,
         )?;
-        candidate.ensure_current(trusted_unix_seconds)?;
+        if let Some(trusted_unix_seconds) = trusted_unix_seconds {
+            candidate.ensure_current(trusted_unix_seconds)?;
+        }
         Ok(candidate)
     }
 
@@ -618,6 +673,13 @@ impl TrustedUpdateRoot {
             root_keys,
             roles,
         })
+    }
+
+    pub(crate) fn require_current(
+        &self,
+        trusted_unix_seconds: u64,
+    ) -> Result<(), UpdateTrustError> {
+        self.ensure_current(trusted_unix_seconds)
     }
 
     fn ensure_current(&self, trusted_unix_seconds: u64) -> Result<(), UpdateTrustError> {

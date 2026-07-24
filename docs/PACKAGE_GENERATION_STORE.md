@@ -94,8 +94,7 @@ The native launcher accepts the generation store as an alternative to loose cata
 
 ```text
 --package-store-root <absolute-store-root>
---update-root <absolute-root-metadata-path>
---update-root-signatures <absolute-root-signature-bundle-path>
+--update-root-store <absolute-accepted-root-store-path>
 --update-root-anchors <absolute-out-of-band-anchor-set-path>
 --update-root-min-generation <protected-generation-floor>
 --update-channel <host-selected-channel>
@@ -107,13 +106,15 @@ The native launcher accepts the generation store as an alternative to loose cata
 
 Loose catalog options and `--package-store-root` are mutually exclusive. Profile and watchdog-game allowlists retain the same host-owned semantics in either mode.
 
-The launcher bounds and parses the closed anchor and signature documents,
-bootstraps the root under the supplied generation floor and time, and creates
+The launcher bounds and parses the closed anchor document, explicitly recovers
+only unpublished accepted-root directories during normal startup, replays the
+complete root chain under the supplied generation floor and time, and creates
 one `TrustedUpdatePolicy` snapshot used by every store revalidation in that
-startup transaction. This CLI form is an integration boundary, not proof that
-anchors, the floor, or time came from protected storage. A host must obtain a
-fresh trustworthy time snapshot for later update admission rather than treat
-an old process value as a permanent clock.
+startup transaction. Dry-run refuses pending root recovery. This CLI form is
+an integration boundary, not proof that anchors, the floor, or time came from
+protected storage. A host must obtain a fresh trustworthy time snapshot for
+later update admission rather than treat an old process value as a permanent
+clock.
 
 Normal launcher startup opens the store, recovers a valid durable intent, loads and re-verifies the greatest active generation, then creates the authenticated API and browser process. An empty store or invalid recovery/activation state prevents launcher startup. A recovery result is written only to the host log as `clean` or `activated` plus generation; it is not browser authority.
 
@@ -195,6 +196,6 @@ Still required:
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - automatic retention scheduling/byte policy, uninstall, managed-content garbage collection, and controller-confirmed save disposition;
-- protected root history, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel monotonic state;
+- protected provenance for the accepted-root floor, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel artifact monotonic state;
 - immutable/read-only artifact handoff and target-Linux crash/power-loss/directory-synchronization qualification;
 - developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.

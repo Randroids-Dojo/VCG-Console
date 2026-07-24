@@ -26,4 +26,17 @@ During routine catalog-key rotation, must an already active catalog remain launc
 
 Safe default: before ordinary root rotation omits an old catalog key, activate a strictly newer catalog whose signature bundle satisfies both the current and candidate catalog roles, then prove launcher restart under each root. Never rewrite an activated generation in place. Treat emergency revocation as a separate witnessed incident flow with explicit unavailable-package UX and an offline recovery path; do not silently weaken the new root to preserve availability.
 
+## 5. Root-history provisioning and repair
+
+Which privileged service provisions and owns the accepted-root store, and what
+operator action is permitted when the protected generation floor is ahead of
+the remaining writable history after media corruption or replacement?
+
+Safe default: give only the native update service write access, retain every
+committed root until a separately designed checkpoint format exists, and never
+lower the protected floor. If writable history is missing, stop update
+admission and require authenticated recovery media containing a complete chain
+from an independently trusted checkpoint at or above the floor. Do not fetch a
+single latest root or silently factory-reset trust state.
+
 These remain owner/security/operations selections under Q-069, I-112, I-113, and I-141.

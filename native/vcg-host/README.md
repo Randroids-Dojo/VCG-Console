@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, bounded storage-layout/capacity planning, and a contained RetroArch launch adapter. It does not yet claim protected update-root/time persistence, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, and a contained RetroArch launch adapter. It does not yet claim tamper-protected update-root/time persistence, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -52,13 +52,17 @@ before attempting a native or RetroArch handoff. See the
 [native launcher-host API contract](../../docs/NATIVE_HOST_API.md).
 
 Add the all-or-nothing `--catalog`, `--catalog-signature`, `--install-root`,
-`--update-root`, `--update-root-signatures`, `--update-root-anchors`,
+`--update-root-store`, `--update-root-anchors`,
 `--update-root-min-generation`, `--update-channel`,
 `--trusted-unix-seconds`, `--runtime-root`, and `--data-root` launcher options
 (plus `--content-root` when needed) to expose delegated signed-package
 metadata. These paths and policy values are privileged integration
 configuration, not launcher input. Their CLI presence does not prove protected
-anchor, generation-floor, or trusted-time provisioning. See the
+anchor, generation-floor, or trusted-time provisioning. Normal startup
+recovers only unpublished root directories before replay; `--dry-run` refuses
+pending root recovery. Bootstrap and rotation are separate privileged
+`update-root` commands documented in
+[the accepted-root store contract](../../docs/UPDATE_ROOT_STORE.md). See the
 [signed installed-package catalog contract](../../docs/INSTALLED_PACKAGE_CATALOG.md).
 Add an absolute `--launch-replay-root <path>` and one or more repeated
 `--profile-id <opaque-id>` options to enable
@@ -104,7 +108,13 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 - `storage_layout`: aligned boot/equal read-only A/B/writable-data planning, fixed data namespaces, recovery-headroom admission, sealed inactive-image fit, and explicit cleanup/reset scope. It performs no partition, filesystem, mount, reservation, or deletion operation.
 - `system_image`: delegated channel/system-image/target threshold verification before manifest parsing, retained exact source-handle hashing, and sealed journal evidence after a privileged inactive-slot read-back stream matches. It performs no download, decompression, partition write/synchronization, reader-provenance proof, boot control, or migration.
 - `system_update`: hash-linked two-slot update state, inactive-only staging, bounded durably consumed boot attempts, same-attempt six-gate health confirmation, automatic rollback metadata, and deterministic temporary-record recovery. It performs no signature verification, image/partition write, bootloader mutation, migration, or user-data operation.
-- `update_trust`: bounded serialized out-of-band anchor/signature inputs, root bootstrap, exact old-and-new-threshold generation rotation, expiry, non-reused channel/artifact/target roles, fixed signature domains, and delegated threshold authorization for system images, installed catalogs, and package releases. It does not protect anchor provenance, establish or refresh trusted time, persist root history, fetch repository metadata, or perform recovery.
+- `update_trust`: bounded serialized out-of-band anchor/signature inputs, root bootstrap, exact old-and-new-threshold generation rotation, expiry, non-reused channel/artifact/target roles, fixed signature domains, and delegated threshold authorization for system images, installed catalogs, and package releases. It does not protect anchor provenance, establish or refresh trusted time, fetch repository metadata, or itself persist/recover history.
+- `update_root_store`: append-only exact-byte root/signature history,
+  signature-chain replay, final expiry/protected-floor enforcement, atomic
+  generation-directory publication, nonblocking serialization, and explicit
+  unpublished-directory recovery. The launcher replays it before package or
+  browser startup, but the module does not protect its writable history,
+  generation floor, anchors, or time from a privileged writer.
 - `package_transfer`: exclusively locked exact-offset archive receipt, byte-identical replay, restart resume, remaining-byte capacity checks, full-hash verification, and no-replace ready publication.
 - `package_intake`: signature-first release admission, capacity checks, exact archive/catalog evidence, and bounded portable regular-files-only TAR extraction.
 - `package_generation`: receiver-locked ready-archive intake, serialized verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and launch-frozen path-free read-only retention planning.

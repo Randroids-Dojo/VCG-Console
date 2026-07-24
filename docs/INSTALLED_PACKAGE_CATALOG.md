@@ -25,8 +25,7 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 --catalog <absolute-catalog-path>
 --catalog-signature <absolute-signature-bundle-path>
 --install-root <absolute-installed-package-root>
---update-root <absolute-root-metadata-path>
---update-root-signatures <absolute-root-signature-bundle-path>
+--update-root-store <absolute-accepted-root-store-path>
 --update-root-anchors <absolute-out-of-band-anchor-set-path>
 --update-root-min-generation <protected-generation-floor>
 --update-channel <host-selected-channel>
@@ -54,11 +53,13 @@ An optional watchdog game must name a package in the verified installed catalog.
 
 The production loader has no single-public-key entry point. It retains the
 accepted root generation, channel, target, artifact family, and signer IDs with
-the parsed catalog. The CLI representation does not itself prove that the
-anchor file, generation floor, or time snapshot came from protected storage.
-Target images still need verified provisioning plus crash-recoverable protected
-root-history/time adapters under I-112/I-141. A writable anchor file and
-operator-supplied floor beside a writable catalog are not a production trust
+the parsed catalog. The launcher replays every stored root transition before
+creating this policy. Normal startup recovers only unpublished root directories
+first; dry-run refuses pending root recovery. The CLI representation does not
+itself prove that the anchor file, generation floor, or time snapshot came from
+protected storage. Target images still need verified provisioning plus
+protected generation/time adapters under I-112/I-141. A writable anchor file
+and operator-supplied floor beside writable history are not a production trust
 root.
 
 ## Signature envelope

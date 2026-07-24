@@ -1,6 +1,9 @@
 # Update Trust Root and Delegated Roles
 
-Status: bounded root/role verification and system-image/package integration implemented; protected persistence, secure time, repository metadata, operator ceremony, and recovery drills remain open.
+Status: bounded root/role verification, system-image/package integration, and
+launcher-integrated crash-recoverable accepted-root history implemented;
+protected high-water provenance, secure time, repository metadata, operator
+ceremony, and recovery drills remain open.
 
 ## Purpose
 
@@ -136,7 +139,14 @@ The anchor threshold and actual anchors remain image/provisioning inputs. This r
 
 Removing a delegated key from the next root generation revokes it for subsequent role verification. Removing or replacing root keys requires the same dual-threshold transition. Skipped versions, rollback, an old-only signature set, a new-only signature set, malformed metadata, and expired candidates fail closed.
 
-This is only the in-memory verification rule. Production still needs crash-recoverable storage of every accepted root generation, protected high-water state, retention of the prior trusted root during interruption, and a physical recovery path.
+`update_root_store` now supplies bounded append-only local storage for every
+accepted generation and retains prior roots across interrupted publication.
+The final directory rename is its commit point, and replay re-verifies every
+old-and-new-threshold link. Catalog-backed launcher startup now requires and
+replays this store before package recovery or browser startup. The writable
+history is not a protected high-water mark. Production still needs qualified
+platform provisioning, tamper-resistant monotonic state, and a physical
+recovery path. See `UPDATE_ROOT_STORE.md`.
 
 ## Time and offline behavior
 
@@ -160,7 +170,14 @@ The manifest parser still independently checks its internal target, generation, 
 
 `VerifiedPackageRelease::load_with_update_role` and `TrustedPackageCatalog::load_with_update_role` apply the same signature-before-parse rule for exact package-release and installed-catalog roles. Both retain `VerifiedUpdateRole` evidence. `PackageGenerationStore` carries one `TrustedUpdatePolicy` snapshot through descriptor intake, catalog verification before inert publication, health/promotion, recovery, and active-generation reload. Catalog and release signature files are bounded key-ID-labeled bundles, so thresholds larger than one remain representable.
 
-The launcher no longer accepts `--catalog-public-key`. Catalog-backed startup requires `--update-root`, `--update-root-signatures`, `--update-root-anchors`, `--update-root-min-generation`, `--update-channel`, and `--trusted-unix-seconds`. These values are host integration inputs. The current binary does not establish their protected provenance, and a long-running host must not reuse a stale trusted-time snapshot for later update admission.
+The launcher no longer accepts `--catalog-public-key` or loose root candidate
+files. Catalog-backed startup requires `--update-root-store`,
+`--update-root-anchors`, `--update-root-min-generation`, `--update-channel`,
+and `--trusted-unix-seconds`. Root candidates enter the store only through the
+separate `update-root bootstrap|rotate` maintenance command. These paths and
+values are host integration inputs. The current binary does not establish their
+protected provenance, and a long-running host must not reuse a stale
+trusted-time snapshot for later update admission.
 
 ## Offline recovery drill design
 
@@ -206,10 +223,20 @@ Seventeen focused root-policy tests cover:
 
 Three artifact integration tests prove delegated role verification occurs before system-image, catalog, and release parsing and records accepted authority. A generation-store adversarial test proves changed descriptor bytes and a package-release signer presented as a catalog signer fail closed.
 
+Twelve accepted-root-store tests cover exact-byte persistence, consecutive
+rotation including recovery from an expired current root, replay with expired
+historical links, current expiry, protected-floor rollback, changed bytes,
+gaps, interruption/recovery, unexpected state, lock contention, and the
+directory-rename commit point. Two CLI tests cover explicit unique
+maintenance/store inputs plus read-only launcher replay and normal-startup
+recovery.
+
 ## Explicitly unproven
 
 - Root anchors are not pinned in a verified read-only image or hardware root.
-- Accepted root generations and their high-water mark are not persisted by this module.
+- Accepted root generations are persisted and replayed by the launcher through
+  the local root-store module, but its high-water mark is not protected against
+  privileged deletion or rollback.
 - Trusted time, clock rollback resistance, long-offline UX, and expiry policy are undefined.
 - Root/signature acquisition, consistent filenames, timestamp/snapshot metadata, mirrors, download-rate checks, and repository recovery are absent.
 - Threshold counts, signer custody, rotation cadence, emergency revocation, quorum loss, and offline ceremony are owner/security decisions.

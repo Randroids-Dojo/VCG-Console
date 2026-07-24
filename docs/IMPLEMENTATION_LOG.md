@@ -1499,3 +1499,56 @@ rotation, physical recovery drills, automated bad-package rollback, uninstall,
 and target power-loss qualification remain open. D-155 closes the production
 single-key bypass; it does not claim TUF/Uptane conformance or protected
 anti-rollback.
+
+## 2026-07-24: crash-recoverable accepted-root history
+
+### Delivered
+
+- Added an already-provisioned, bounded accepted-root store with a fixed
+  operation lock and append-only 20-digit generation directories.
+- Persisted exact bounded root and detached-signature bytes through
+  create-new synchronized files in a private generation directory, then made
+  the atomic directory rename the only commit point.
+- Replayed the complete bootstrap and old-and-new-threshold rotation chain on
+  every load. Historical roots may be expired, while the final root must meet
+  caller-supplied trusted time and the protected minimum generation.
+- Failed closed on unpublished state, unexpected entries, unsafe direct-child
+  paths, extra files, gaps, changed signed bytes, excessive history, expiry,
+  rollback, and operation-lock contention.
+- Added explicit recovery that removes only canonical unpublished
+  `.incoming-*` directories and never rewrites or deletes committed history.
+- Added separate `update-root bootstrap|rotate|recover` maintenance operations.
+  Catalog-backed launcher startup replays the accepted-root store before
+  package recovery or browser creation; dry-run remains read-only and refuses
+  pending root recovery.
+- Added `UPDATE_ROOT_STORE.md`, D-156/D-157, a root-history
+  provisioning/repair owner question, and updated I-112/I-141, update trust,
+  offline behavior, native boundaries, and the security threat model.
+
+### Verification evidence
+
+Twelve focused tests cover exact-byte persistence and reopen, consecutive
+rotation, expired historical replay, an expired current root authenticating one
+current successor, expired-current artifact denial, protected-floor rollback
+denial, committed-byte tampering, history gaps, interrupted publication and
+explicit recovery, committed-history preservation, unexpected entries,
+nonblocking lock contention, and the final directory rename as the publication
+point. Two CLI tests cover explicit unique maintenance inputs, launcher replay,
+read-only dry-run behavior, and normal-start recovery ordering.
+
+Final native verification passes 229 library tests with five intentional
+subprocess helpers ignored and all sixteen CLI tests. Rust formatting, strict
+all-target Clippy, and warning-denied Rustdoc pass. The 133-component
+compliance inventory remains fresh; the existing project-license (7) and
+pose-model-license (1) release blockers are unchanged.
+
+### Remaining boundary
+
+This is ordinary writable-filesystem crash monotonicity, not protected
+anti-rollback. The launcher now replays the store, and separate maintenance
+commands bootstrap, rotate, or recover it, but their privileged inputs still do
+not establish protected provenance. Out-of-band anchor provenance, protected
+high-water state, secure refreshed time, commit ordering with future monotonic
+hardware, checkpoint/retention policy, same-account write isolation, and
+target-Linux power-cut qualification remain open. Recovery must never lower the
+protected floor or accept an unauthenticated latest root.

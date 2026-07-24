@@ -67,6 +67,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Atomic A/B system-update state](docs/SYSTEM_AB_UPDATE_STATE.md)
 - [Signed system-image manifest](docs/SYSTEM_IMAGE_MANIFEST.md)
 - [Update trust root and delegated roles](docs/UPDATE_TRUST_ROOT.md)
+- [Crash-recoverable accepted update-root store](docs/UPDATE_ROOT_STORE.md)
 - [Storage layout and capacity boundary](docs/STORAGE_LAYOUT_AND_CAPACITY.md)
 - [Motion service and bridge security review](docs/MOTION_SECURITY_REVIEW.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
