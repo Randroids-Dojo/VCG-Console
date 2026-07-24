@@ -2688,3 +2688,43 @@ misses, held-out parameter selection, one-player gates before multiplayer
 authority, faithful/upstream ByteTrack if still relevant, full-workload native
 Linux/Rust timing, and an explicit owner decision before any appearance data
 is prototyped.
+
+## 2026-07-24: explicit player leave and fresh re-entry
+
+### Delivered
+
+- Advanced I-056's remaining browser leave/re-entry gap with an exact
+  `leave(slot)` state-machine operation available only during active play.
+- Revokes the departed track's gameplay and Pause authority immediately,
+  rejects unknown slots and unsafe phases without roster mutation, transfers
+  a departed launcher owner's role only to the lowest already joined slot,
+  and returns an empty roster to setup.
+- Treats a still-visible former track as a candidate. Re-entry requires a
+  fresh Join and receives the lowest available slot without restoring prior
+  authority implicitly.
+- Added an action-engine release gate so the hands-together selection that
+  activates Leave cannot continue across the boundary and silently trigger
+  Join.
+- Replaced the disabled joined-state control with a reversible
+  `LEAVE PLAYER 1` / `JOIN PLAYER 1` control. The browser controller can focus
+  it with Down and confirm through a distinct Select input.
+
+### Verification evidence
+
+- Fourteen player-session tests cover fresh leave/re-entry, retained-owner
+  transfer, empty-roster setup, revoked authority, and invalid slot/phase
+  refusal alongside the existing join/loss/recovery/pause cases.
+- Fifteen action-engine tests include the held-gesture release gate and fresh
+  Join lifecycle.
+- The real-Chrome simulator flow performs controller Join, Down-to-focus,
+  Leave, and fresh Join against an observed synthetic player without a camera.
+- Scoped console typechecking reports no diagnostics.
+
+### Remaining boundary
+
+This is deterministic prototype authority, not multiplayer or physical
+qualification. I-056 remains active pending separate per-player calibration,
+accessible number/pattern identities, real crossing and occlusion tracks,
+physical controller and motion leave/re-entry comprehension, two-player
+runtime/game-freeze integration, tracker restart on target Linux, and the
+validator-passing household interference campaign.

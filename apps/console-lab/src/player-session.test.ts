@@ -31,6 +31,59 @@ describe("PlayerSessionController", () => {
     expect(() => session.join("spectator")).toThrow("visible candidate");
   });
 
+  it("leaves only deliberately and treats re-entry as a fresh assignment", () => {
+    const session = joinedController(2);
+
+    expect(session.leave(1)).toEqual({
+      type: "player-left",
+      slot: 1,
+      trackId: "track-a",
+      remainingSlots: [2],
+    });
+    expect(session.snapshot()).toMatchObject({
+      phase: "playing",
+      launcherOwner: 2,
+      players: [{ slot: 2, trackId: "track-b" }],
+    });
+    expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+    expect(session.join("track-a")).toEqual({
+      type: "player-joined",
+      slot: 1,
+      trackId: "track-a",
+    });
+    expect(session.snapshot()).toMatchObject({
+      launcherOwner: 2,
+      players: [
+        { slot: 1, trackId: "track-a" },
+        { slot: 2, trackId: "track-b" },
+      ],
+    });
+
+    session.leave(2);
+    expect(session.leave(1)).toEqual({
+      type: "player-left",
+      slot: 1,
+      trackId: "track-a",
+      remainingSlots: [],
+    });
+    expect(session.snapshot()).toEqual({
+      phase: "setup",
+      players: [],
+    });
+    expect(() => session.leave(1)).toThrow("session phase is setup");
+  });
+
+  it("rejects unknown-slot or overlay leave attempts without changing the roster", () => {
+    const session = joinedController(2);
+    expect(() => session.leave(3 as 1)).toThrow("valid player slot");
+    session.openPause([{ slot: 1, completedAtMs: 100 }]);
+    expect(() => session.leave(2)).toThrow("session phase is paused");
+    expect(session.snapshot()).toMatchObject({
+      phase: "paused",
+      players: [{ slot: 1 }, { slot: 2 }],
+    });
+  });
+
   it("requires sustained multi-update loss evidence before freezing everyone", () => {
     const session = joinedController(2);
     expect(session.observe(100, ["track-a", "track-b"])).toEqual([]);
@@ -98,17 +151,20 @@ describe("PlayerSessionController", () => {
   it("requires every retained multiplayer track or explicit roster reduction", () => {
     const session = joinedController(2);
     session.observe(100, ["track-a", "track-b"]);
-    session.observe(200, ["track-a"]);
-    session.observe(500, ["track-a"]);
-    session.observe(2_500, ["track-a"]);
-    expect(() => session.resumeRecovery("track-a")).toThrow("every retained");
-    expect(session.resumeRecovery("track-a", [1])).toEqual({
+    session.observe(200, ["track-b"]);
+    session.observe(500, ["track-b"]);
+    session.observe(2_500, ["track-b"]);
+    expect(() => session.resumeRecovery("track-b")).toThrow("every retained");
+    expect(session.resumeRecovery("track-b", [2])).toEqual({
       type: "recovery-resumed",
-      ownerSlot: 1,
+      ownerSlot: 2,
       takeover: false,
-      removedSlots: [2],
+      removedSlots: [1],
     });
-    expect(session.snapshot().players.map(({ slot }) => slot)).toEqual([1]);
+    expect(session.snapshot()).toMatchObject({
+      launcherOwner: 2,
+      players: [{ slot: 2, trackId: "track-b" }],
+    });
   });
 
   it("awards simultaneous pause to the earliest completion then lower slot", () => {

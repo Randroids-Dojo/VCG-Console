@@ -1,6 +1,6 @@
 # Player session state machine
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This contract turns D-065 through D-076 into deterministic one- and two-player session behavior. The console lab currently exercises the one-player path. The pure state machine and adversarial tests cover the next two-player milestone without claiming that tracking, calibration, room coverage, or multiplayer gameplay is qualified.
 
@@ -11,6 +11,29 @@ A tracker supplies a bounded opaque `trackId` for the current process/session. I
 Passive detection creates only a candidate. `join(trackId)` succeeds only for a candidate visible in the latest observation, assigns the lowest available session slot, and never changes an existing assignment. Player 1 joins before Player 2. A production UI must pair each number with a pattern/shape and color, never color alone.
 
 Assignments are session-local. Restart, explicit session reset, factory reset, or loss of local state does not attempt biometric recovery.
+
+## Explicit leave and fresh re-entry
+
+Leaving is an explicit console action, never a consequence of disappearance,
+candidate ordering, or a replacement track. `leave(slot)` is available only
+while the session is playing and removes the exact assigned slot immediately.
+That track loses gameplay and Pause authority before the operation returns.
+Paused, frozen, recovery, unknown-slot, and duplicate leave attempts fail
+without changing the roster. Recovery-phase roster reduction remains the
+separate explicit `keepSlots` flow described below.
+
+If joined players remain, play continues and a departed launcher owner
+transfers deterministically to the lowest retained joined slot. If the final
+player leaves, the session returns to `setup` with no launcher or overlay
+owner. A still-visible former track is only a candidate. It must complete a
+fresh `join(trackId)` operation, receives the lowest available slot, and does
+not recover its former authority implicitly.
+
+The action recognizer also requires hands to separate after a motion-selected
+Leave before it can begin another Join hold. One continuous hands-together
+gesture therefore cannot both leave and silently re-enter. A controller can
+focus the Motion Lab assignment control with Down, explicitly select Leave,
+and select Join again as a distinct input.
 
 ## States
 
@@ -76,9 +99,20 @@ before changing authority state.
 
 ## Implemented evidence
 
-`PlayerSessionController` is a pure, clock-injected TypeScript state machine. Tests cover passive candidates, sequential join, multiple-update debounce, global two-player freeze, wrong-track rejection, all-player silent recovery, recovery expiry, deliberate one-player takeover, explicit roster reduction, pause races, owner isolation, hard faults, clock regression, duplicate tracks, and invalid timing.
+`PlayerSessionController` is a pure, clock-injected TypeScript state machine.
+Fourteen focused tests cover passive candidates, sequential join, explicit
+leave, fresh re-entry, deterministic retained-owner transfer, invalid
+phase/slot refusal, multiple-update debounce, global two-player freeze,
+wrong-track rejection, all-player silent recovery, recovery expiry,
+deliberate one-player takeover, explicit roster reduction, pause races, owner
+isolation, hard faults, clock regression, duplicate tracks, and invalid
+timing.
 
-The console lab uses the state machine for its one-player join/loss/recovery path. The previous boolean tracking-loss controller was removed so there is one behavioral authority.
+The console lab uses the state machine for its one-player
+join/leave/re-entry/loss/recovery path. The previous boolean tracking-loss
+controller was removed so there is one behavioral authority. The action
+engine adds a focused release-gate case, and the real-Chrome simulator flow
+proves controller Join, focus, Leave, and fresh Join without opening a camera.
 
 The camera-free Session authority rehearsal adds five deterministic scenarios
 covering spectators, pets, mirrors, television people, passersby, deliberate
@@ -99,7 +133,7 @@ This contract does not qualify a multi-person tracker or close I-056/I-069.
 Still required are separate per-player calibration, accessible visual
 identities, real crossing/occlusion tracks, stable identity evidence,
 production candidate-selection and controller-only recovery UI, explicit
-leave/re-entry UI, tracker restart on target Linux, two-player action
-ownership, game freeze integration across runtimes, and a validator-passing
-physical spectator/pet/mirror/television/passerby campaign. Those remain under
-I-054, I-056, I-057, I-059, I-069, I-150, and I-161.
+physical leave/re-entry usability, tracker restart on target Linux, two-player
+action ownership, game freeze integration across runtimes, and a
+validator-passing physical spectator/pet/mirror/television/passerby campaign.
+Those remain under I-054, I-056, I-057, I-059, I-069, I-150, and I-161.

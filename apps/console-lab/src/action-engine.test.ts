@@ -81,6 +81,51 @@ describe("ActionEngine", () => {
     expect(held.players[0]?.state).toBe("joined");
   });
 
+  it("requires a release after explicit leave before accepting a fresh join", () => {
+    const engine = new ActionEngine();
+    const hands = {
+      left_wrist: { x: 0.49, y: 0.45 },
+      right_wrist: { x: 0.51, y: 0.45 },
+    };
+    engine.join();
+    engine.leave();
+
+    expect(
+      engine.enrich(alter(syntheticFrame(1, 100), hands)).players[0],
+    ).toMatchObject({ state: "candidate", actions: [] });
+    expect(
+      engine.enrich(alter(syntheticFrame(2, 700), hands)).players[0]
+        ?.actions,
+    ).toEqual([]);
+    expect(engine.enrich(syntheticFrame(3, 800)).players[0]?.actions).toEqual(
+      [],
+    );
+    expect(
+      engine.enrich(alter(syntheticFrame(4, 900), hands)).players[0]
+        ?.actions,
+    ).toEqual([
+      expect.objectContaining({
+        name: "player_join",
+        phase: "started",
+      }),
+    ]);
+    expect(
+      engine.enrich(alter(syntheticFrame(5, 1_350), hands)).players[0],
+    ).toMatchObject({
+      state: "joined",
+      actions: [
+        expect.objectContaining({
+          name: "player_join",
+          phase: "held",
+        }),
+        expect.objectContaining({
+          name: "player_join",
+          phase: "triggered",
+        }),
+      ],
+    });
+  });
+
   it("does not invent actions before a standing baseline exists", () => {
     const engine = new ActionEngine();
     const early = alter(syntheticFrame(1, 100), { left_hip: { x: 0.8 }, right_hip: { x: 0.9 } });

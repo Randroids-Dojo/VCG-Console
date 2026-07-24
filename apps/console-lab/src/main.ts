@@ -499,6 +499,15 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     return;
   }
   if (simulatorEnabled) return;
+  if (
+    (action === "up" || action === "down")
+    && currentMode === "tracker"
+    && !overlayKind
+  ) {
+    if (action === "down") joinButton.focus();
+    else modeButtons[focusedModeIndex]?.focus();
+    return;
+  }
   if (action === "pause" && currentMode === "obstacle") {
     showOverlay("manual");
     return;
@@ -514,6 +523,12 @@ function handleConsoleInput(action: ConsoleInputAction): void {
   }
   if (action === "select") {
     if (playerSession.snapshot().players.length === 0) joinPlayer();
+    else if (
+      currentMode === "tracker"
+      && document.activeElement === joinButton
+    ) {
+      joinButton.click();
+    }
     else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump");
     else selectFocused();
   }
@@ -532,9 +547,35 @@ function joinPlayer(): void {
     return;
   }
   actionEngine.join();
-  joinButton.disabled = true;
-  joinButton.textContent = "PLAYER 1 JOINED";
+  joinButton.disabled = false;
+  joinButton.textContent = "LEAVE PLAYER 1";
   statusDetail.textContent = "Player 1 joined. Automatic standing calibration is collecting its initial baseline.";
+}
+
+function leavePlayer(): void {
+  const player = playerSession.snapshot().players[0];
+  if (!player) {
+    statusDetail.textContent = "No joined player is available to leave.";
+    return;
+  }
+  try {
+    playerSession.leave(player.slot);
+  } catch (error) {
+    statusDetail.textContent =
+      error instanceof Error ? error.message : String(error);
+    return;
+  }
+  actionEngine.leave();
+  obstacle.setPaused(true);
+  joinButton.disabled = false;
+  joinButton.textContent = "JOIN PLAYER 1";
+  statusDetail.textContent =
+    "Player 1 left deliberately. Visible bodies remain candidates; release the join gesture before a fresh re-entry.";
+}
+
+function togglePlayerAssignment(): void {
+  if (playerSession.snapshot().players.length === 0) joinPlayer();
+  else leavePlayer();
 }
 
 function paintMetrics(frame: MotionFrame): void {
@@ -946,7 +987,7 @@ cameraButton.addEventListener("click", async () => {
   }
 });
 
-joinButton.addEventListener("click", joinPlayer);
+joinButton.addEventListener("click", togglePlayerAssignment);
 replayButton.addEventListener("click", () => startReplay());
 simulatorToggle.addEventListener("click", () => setSimulatorEnabled(!simulatorEnabled));
 simulatorPlayerToggle.addEventListener("click", () => {

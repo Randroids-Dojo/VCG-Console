@@ -1824,6 +1824,21 @@ test("drives the camera-free pose simulator through UI, keyboard, controller, an
     pose: "neutral",
   });
 
+  const playerAssignment = page.locator("#join-button");
+  await expect(page.locator("#motion-lab")).toBeVisible();
+  await expect(page.locator("#metric-player")).not.toHaveText("NOT FOUND");
+  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 0);
+  await expect(playerAssignment).toHaveText("LEAVE PLAYER 1");
+  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 13);
+  await expect(playerAssignment).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 0);
+  await expect(playerAssignment).toHaveText("JOIN PLAYER 1");
+  await expect(page.locator("#status-detail")).toContainText(
+    "left deliberately",
+  );
+  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 0);
+  await expect(playerAssignment).toHaveText("LEAVE PLAYER 1");
+
   await page.getByRole("button", { name: "ENABLE POSE SIMULATOR" }).click();
   await expect(page.locator("#simulator-state")).toHaveText("NEUTRAL / VISIBLE");
   await expect(page.locator("#source-badge")).toHaveText("POSE SIMULATOR / NEUTRAL");

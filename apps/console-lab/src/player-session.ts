@@ -23,6 +23,12 @@ export interface PlayerSessionSnapshot {
 export type PlayerSessionEvent =
   | { type: "player-joined"; slot: PlayerSlot; trackId: string }
   | {
+      type: "player-left";
+      slot: PlayerSlot;
+      trackId: string;
+      remainingSlots: PlayerSlot[];
+    }
+  | {
       type: "freeze";
       reason: "tracking-loss" | "hard-fault" | "clock-regression";
       lostSlots: PlayerSlot[];
@@ -217,6 +223,35 @@ export class PlayerSessionController {
     return { type: "player-joined", slot, trackId };
   }
 
+  leave(slot: PlayerSlot): PlayerSessionEvent {
+    if (slot !== 1 && slot !== 2) {
+      throw new Error("leave requires a valid player slot");
+    }
+    if (this.#phase !== "playing") {
+      throw new Error(`cannot leave while session phase is ${this.#phase}`);
+    }
+    const player = this.#players.get(slot);
+    if (!player) throw new Error("cannot leave an unassigned player slot");
+
+    this.#players.delete(slot);
+    const remainingSlots = sortedSlots([...this.#players.keys()]);
+    if (this.#launcherOwner === slot) {
+      this.#launcherOwner = remainingSlots[0];
+    }
+    if (remainingSlots.length === 0) {
+      this.#phase = "setup";
+      this.#launcherOwner = undefined;
+      this.#overlayOwner = undefined;
+      this.#returnPhaseAfterFreeze = "playing";
+    }
+    return {
+      type: "player-left",
+      slot,
+      trackId: player.trackId,
+      remainingSlots,
+    };
+  }
+
   authorizeGameplayAction(trackId: string): PlayerSlot | undefined {
     validTrackId(trackId);
     if (this.#phase !== "playing") return undefined;
@@ -321,6 +356,12 @@ export class PlayerSessionController {
       (slot) => !uniqueSlots.includes(slot),
     );
     for (const slot of removedSlots) this.#players.delete(slot);
+    if (
+      this.#launcherOwner !== undefined
+      && !this.#players.has(this.#launcherOwner)
+    ) {
+      this.#launcherOwner = uniqueSlots[0];
+    }
     for (const player of this.#players.values()) {
       player.presence = "joined";
       player.visible = this.#visibleTracks.has(player.trackId);

@@ -71,6 +71,7 @@ export class ActionEngine {
   #handsHold: HoldState | undefined;
   #armsHold: HoldState | undefined;
   #joined = false;
+  #joinRequiresRelease = false;
 
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
     const now = frame.publishedAtMs;
@@ -119,6 +120,12 @@ export class ActionEngine {
 
   join(): void {
     this.#joined = true;
+    this.#joinRequiresRelease = false;
+  }
+
+  leave(): void {
+    this.reset();
+    this.#joinRequiresRelease = true;
   }
 
   suspend(): void {
@@ -132,6 +139,7 @@ export class ActionEngine {
     this.#resetGestureContinuity();
     this.#lastFrameAtMs = undefined;
     this.#joined = false;
+    this.#joinRequiresRelease = false;
   }
 
   #resetGestureContinuity(): void {
@@ -217,9 +225,14 @@ export class ActionEngine {
 
     if (leftWrist && rightWrist && current.shoulderWidth !== undefined) {
       const together = distance(leftWrist, rightWrist) < current.shoulderWidth * 0.52;
+      if (!together && this.#joinRequiresRelease) {
+        this.#joinRequiresRelease = false;
+      }
       const name = this.#joined ? "menu_select" : "player_join";
       const confidence = Math.max(0, Math.min(1, 1 - distance(leftWrist, rightWrist) / current.shoulderWidth));
-      const enabled = context !== "game";
+      const enabled =
+        context !== "game"
+        && (this.#joined || !this.#joinRequiresRelease);
       const update = this.#advanceHold(
         this.#handsHold,
         together && enabled,
