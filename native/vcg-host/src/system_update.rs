@@ -5,7 +5,10 @@
 //! read-only slot before producing sealed [`VerifiedSystemImageEvidence`]. A
 //! boot coordinator must durably claim a pending attempt before transferring
 //! control, and the running candidate must pass every required health check
-//! before confirmation.
+//! before confirmation. Every committed journal record is additionally bound
+//! to exact target/sequence/digest state supplied by a platform-protected
+//! monotonic-storage adapter. A mutation returns the next exact state, which
+//! must be committed before any later read, boot selection, or mutation.
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -17,7 +20,7 @@ use fs4::TryLockError;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-const JOURNAL_SCHEMA_VERSION: u32 = 1;
+const JOURNAL_SCHEMA_VERSION: u32 = 2;
 const RECORDS_DIRECTORY: &str = "records";
 const OPERATION_LOCK_FILE: &str = ".vcg-system-update.lock";
 const TEMP_RECORD_FILE: &str = ".next-record.tmp";
@@ -25,6 +28,9 @@ const MAX_RECORD_BYTES: u64 = 64 * 1_024;
 const MAX_RECORDS: usize = 16_384;
 const MAX_BOOT_ATTEMPTS: u8 = 10;
 pub const MAX_SYSTEM_IMAGE_BYTES: u64 = 64 * 1_024 * 1_024 * 1_024;
+const PROTECTED_STATE_SCHEMA_VERSION: u32 = 1;
+/// Maximum serialized journal state accepted from the platform adapter.
+pub const MAX_PROTECTED_SYSTEM_UPDATE_STATE_BYTES: usize = 1_024;
 const REQUIRED_HEALTH_CHECKS: [SystemHealthCheck; 6] = [
     SystemHealthCheck::Launcher,
     SystemHealthCheck::Tracker,
@@ -33,6 +39,134 @@ const REQUIRED_HEALTH_CHECKS: [SystemHealthCheck; 6] = [
     SystemHealthCheck::Network,
     SystemHealthCheck::Storage,
 ];
+
+/// Exact latest system-update journal identity held outside writable history.
+///
+/// The JSON form is an adapter boundary. Production must store it in
+/// platform-protected monotonic storage with exact compare-and-swap.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ProtectedSystemUpdateState {
+    schema_version: u32,
+    channel: String,
+    target: String,
+    sequence: u64,
+    record_sha256: Option<String>,
+}
+
+impl ProtectedSystemUpdateState {
+    /// Creates the state for a provisioned target before journal
+    /// initialization.
+    ///
+    /// # Errors
+    ///
+    /// Rejects an unsafe target identifier.
+    pub fn initial(
+        channel: impl Into<String>,
+        target: impl Into<String>,
+    ) -> Result<Self, SystemUpdateError> {
+        let state = Self {
+            schema_version: PROTECTED_STATE_SCHEMA_VERSION,
+            channel: channel.into(),
+            target: target.into(),
+            sequence: 0,
+            record_sha256: None,
+        };
+        state.validate()?;
+        Ok(state)
+    }
+
+    /// Parses one bounded closed adapter document.
+    ///
+    /// # Errors
+    ///
+    /// Rejects empty, oversized, malformed, unknown-field, unsupported, or
+    /// internally inconsistent state.
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, SystemUpdateError> {
+        if bytes.is_empty() || bytes.len() > MAX_PROTECTED_SYSTEM_UPDATE_STATE_BYTES {
+            return Err(SystemUpdateError::InvalidProtectedState(format!(
+                "document must be 1..={MAX_PROTECTED_SYSTEM_UPDATE_STATE_BYTES} bytes"
+            )));
+        }
+        let state: Self = serde_json::from_slice(bytes)
+            .map_err(|error| SystemUpdateError::InvalidProtectedState(error.to_string()))?;
+        state.validate()?;
+        Ok(state)
+    }
+
+    /// Serializes the exact adapter document returned after journal mutation.
+    ///
+    /// # Errors
+    ///
+    /// Returns a validation or serialization error.
+    pub fn to_json_bytes(&self) -> Result<Vec<u8>, SystemUpdateError> {
+        self.validate()?;
+        serde_json::to_vec(self)
+            .map_err(|error| SystemUpdateError::InvalidProtectedState(error.to_string()))
+    }
+
+    #[must_use]
+    pub fn channel(&self) -> &str {
+        &self.channel
+    }
+
+    #[must_use]
+    pub fn target(&self) -> &str {
+        &self.target
+    }
+
+    #[must_use]
+    pub const fn sequence(&self) -> u64 {
+        self.sequence
+    }
+
+    #[must_use]
+    pub fn record_sha256(&self) -> Option<&str> {
+        self.record_sha256.as_deref()
+    }
+
+    fn for_record(channel: &str, target: &str, sequence: u64, record_sha256: String) -> Self {
+        Self {
+            schema_version: PROTECTED_STATE_SCHEMA_VERSION,
+            channel: channel.to_owned(),
+            target: target.to_owned(),
+            sequence,
+            record_sha256: Some(record_sha256),
+        }
+    }
+
+    fn validate(&self) -> Result<(), SystemUpdateError> {
+        if self.schema_version != PROTECTED_STATE_SCHEMA_VERSION {
+            return Err(SystemUpdateError::InvalidProtectedState(format!(
+                "schema {} is unsupported",
+                self.schema_version
+            )));
+        }
+        validate_protected_scope("channel", &self.channel)?;
+        validate_protected_scope("target", &self.target)?;
+        match (self.sequence, self.record_sha256.as_deref()) {
+            (0, None) => Ok(()),
+            (0, Some(_)) => Err(SystemUpdateError::InvalidProtectedState(
+                "sequence zero must not contain a record digest".to_owned(),
+            )),
+            (_, None) => Err(SystemUpdateError::InvalidProtectedState(
+                "a nonzero sequence requires a record digest".to_owned(),
+            )),
+            (_, Some(digest)) if is_canonical_sha256(digest) => Ok(()),
+            (_, Some(_)) => Err(SystemUpdateError::InvalidProtectedState(
+                "record digest is not canonical lowercase SHA-256".to_owned(),
+            )),
+        }
+    }
+}
+
+/// One journal operation result and the exact state that must be committed
+/// before any subsequent journal use.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SystemUpdateTransition<T> {
+    pub outcome: T,
+    pub protected_state: ProtectedSystemUpdateState,
+}
 
 /// One of the two replaceable, read-only system slots.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
@@ -59,6 +193,7 @@ pub struct SystemImage {
     slot: SystemSlot,
     generation: u64,
     release_id: String,
+    channel: String,
     target: String,
     image_size_bytes: u64,
     manifest_sha256: String,
@@ -78,19 +213,20 @@ impl SystemImage {
         slot: SystemSlot,
         generation: u64,
         release_id: impl Into<String>,
+        channel: impl Into<String>,
         target: impl Into<String>,
         image_size_bytes: u64,
-        manifest_sha256: impl Into<String>,
-        image_sha256: impl Into<String>,
+        hashes: (String, String),
     ) -> Result<Self, SystemUpdateError> {
         let image = Self {
             slot,
             generation,
             release_id: release_id.into(),
+            channel: channel.into(),
             target: target.into(),
             image_size_bytes,
-            manifest_sha256: manifest_sha256.into(),
-            image_sha256: image_sha256.into(),
+            manifest_sha256: hashes.0,
+            image_sha256: hashes.1,
         };
         validate_image(&image)?;
         Ok(image)
@@ -109,6 +245,11 @@ impl SystemImage {
     #[must_use]
     pub fn release_id(&self) -> &str {
         &self.release_id
+    }
+
+    #[must_use]
+    pub fn channel(&self) -> &str {
+        &self.channel
     }
 
     #[must_use]
@@ -136,20 +277,20 @@ impl VerifiedSystemImageEvidence {
         slot: SystemSlot,
         generation: u64,
         release_id: impl Into<String>,
+        channel: impl Into<String>,
         target: impl Into<String>,
         image_size_bytes: u64,
-        manifest_sha256: impl Into<String>,
-        image_sha256: impl Into<String>,
+        hashes: (String, String),
     ) -> Result<Self, SystemUpdateError> {
         Ok(Self {
             image: SystemImage::new(
                 slot,
                 generation,
                 release_id,
+                channel,
                 target,
                 image_size_bytes,
-                manifest_sha256,
-                image_sha256,
+                hashes,
             )?,
         })
     }
@@ -361,6 +502,31 @@ pub struct SystemUpdateJournal {
     operation_lock: PathBuf,
 }
 
+struct LoadedJournal {
+    sequence: u64,
+    record_sha256: String,
+    snapshot: SystemUpdateSnapshot,
+}
+
+impl LoadedJournal {
+    fn protected_state(&self) -> ProtectedSystemUpdateState {
+        ProtectedSystemUpdateState::for_record(
+            &self.snapshot.active.channel,
+            &self.snapshot.active.target,
+            self.sequence,
+            self.record_sha256.clone(),
+        )
+    }
+}
+
+enum TransitionPosition {
+    Exact(Option<LoadedJournal>),
+    OneAhead {
+        previous: Option<LoadedJournal>,
+        latest: Box<LoadedJournal>,
+    },
+}
+
 impl SystemUpdateJournal {
     /// Opens a pre-provisioned metadata root containing `records/` and a
     /// regular `.vcg-system-update.lock` file.
@@ -391,20 +557,33 @@ impl SystemUpdateJournal {
 
     /// Creates the first healthy-slot record in an empty journal.
     ///
+    /// The returned exact state must be atomically committed before the
+    /// journal can be used. Repeating the exact initialization with the old
+    /// state recovers a crash after record publication; different evidence
+    /// cannot claim the pending record.
+    ///
     /// # Errors
     ///
-    /// Rejects invalid image evidence, existing state, lock contention, or an
-    /// unsafe/corrupt journal.
+    /// Rejects invalid image evidence, protected-state mismatch, existing
+    /// state, lock contention, or an unsafe/corrupt journal.
     pub fn initialize(
         &self,
         active: VerifiedSystemImageEvidence,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
-        let _operation = self.acquire_operation_lock()?;
-        self.recover_temp_unlocked()?;
-        if self.load_unlocked()?.is_some() {
-            return Err(SystemUpdateError::AlreadyInitialized);
-        }
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
         let active = active.into_image();
+        if active.target != protected_state.target {
+            return Err(SystemUpdateError::ProtectedTargetMismatch {
+                expected: protected_state.target.clone(),
+                actual: active.target,
+            });
+        }
+        if active.channel != protected_state.channel {
+            return Err(SystemUpdateError::ProtectedChannelMismatch {
+                expected: protected_state.channel.clone(),
+                actual: active.channel,
+            });
+        }
         let snapshot = SystemUpdateSnapshot {
             highest_seen_generation: active.generation,
             last_attempt_id: 0,
@@ -413,21 +592,71 @@ impl SystemUpdateJournal {
             last_rollback: None,
         };
         validate_snapshot(&snapshot)?;
-        self.append_unlocked(&snapshot)?;
-        Ok(snapshot)
+        let _operation = self.acquire_operation_lock()?;
+        match self.transition_position_unlocked(protected_state)? {
+            TransitionPosition::Exact(None) => {
+                if path_exists(&self.temp_path())? {
+                    self.recover_temp_unlocked()?;
+                    if !matches!(
+                        self.transition_position_unlocked(protected_state)?,
+                        TransitionPosition::Exact(None)
+                    ) {
+                        return Err(SystemUpdateError::RecoveryRequired);
+                    }
+                }
+                let protected_state = self.append_unlocked(&snapshot)?;
+                Ok(SystemUpdateTransition {
+                    outcome: snapshot,
+                    protected_state,
+                })
+            }
+            TransitionPosition::Exact(Some(_)) => Err(SystemUpdateError::AlreadyInitialized),
+            TransitionPosition::OneAhead {
+                previous: Some(_),
+                latest,
+            } => Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: latest.sequence,
+            }),
+            TransitionPosition::OneAhead {
+                previous: None,
+                latest,
+            } => {
+                let expected = expected_next_protected_state(None, &snapshot)?;
+                if expected != latest.protected_state() {
+                    return Err(SystemUpdateError::ProtectionCommitRequired {
+                        protected_sequence: protected_state.sequence,
+                        journal_sequence: latest.sequence,
+                    });
+                }
+                if path_exists(&self.temp_path())? {
+                    self.recover_temp_unlocked()?;
+                }
+                Ok(SystemUpdateTransition {
+                    outcome: snapshot,
+                    protected_state: expected,
+                })
+            }
+        }
     }
 
-    /// Loads and validates the complete hash-linked journal.
+    /// Loads and validates the complete hash-linked journal against exact
+    /// platform-protected state.
     ///
     /// # Errors
     ///
-    /// Rejects uninitialized, recovery-pending, malformed, gapped, or corrupt
-    /// journals.
-    pub fn snapshot(&self) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+    /// Rejects uninitialized, recovery-pending, rolled-back, substituted,
+    /// uncommitted, malformed, gapped, or corrupt journals.
+    pub fn snapshot(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+        protected_state.validate()?;
         if path_exists(&self.temp_path())? {
             return Err(SystemUpdateError::RecoveryRequired);
         }
-        self.load_unlocked()?
+        self.load_protected_unlocked(protected_state)?
+            .map(|loaded| loaded.snapshot)
             .ok_or(SystemUpdateError::NotInitialized)
     }
 
@@ -438,25 +667,39 @@ impl SystemUpdateJournal {
     ///
     /// # Errors
     ///
-    /// Rejects lock contention, unsafe paths, conflicting records, and corrupt
-    /// journal state.
-    pub fn recover(&self) -> Result<JournalRecovery, SystemUpdateError> {
+    /// Rejects lock contention, protected-state mismatch, unsafe paths,
+    /// conflicting records, and corrupt journal state. An already-published
+    /// record must first be authenticated by retrying the exact operation and
+    /// committing its returned state.
+    pub fn recover(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<JournalRecovery, SystemUpdateError> {
         let _operation = self.acquire_operation_lock()?;
-        self.recover_temp_unlocked()
+        self.load_protected_unlocked(protected_state)?;
+        let outcome = self.recover_temp_unlocked()?;
+        self.load_protected_unlocked(protected_state)?;
+        Ok(outcome)
     }
 
     /// Records an exactly verified image in the inactive slot without changing
     /// boot selection.
     ///
+    /// The returned state must be committed before arming or selecting a boot.
+    /// An exact sealed-evidence retry can recover publication before that
+    /// commit.
+    ///
     /// # Errors
     ///
-    /// Rejects an occupied pending slot, target mismatch, non-inactive slot,
-    /// generation rollback, lock contention, or corrupt state.
+    /// Rejects an occupied pending slot, target/protected-state mismatch,
+    /// non-inactive slot, generation rollback, lock contention, or corrupt
+    /// state.
     pub fn stage_verified_update(
         &self,
         image: VerifiedSystemImageEvidence,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
-        self.mutate(|snapshot| {
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
+        self.mutate(protected_state, |snapshot| {
             let image = image.into_image();
             if snapshot.pending.is_some() {
                 return Err(SystemUpdateError::PendingUpdateExists);
@@ -468,6 +711,12 @@ impl SystemUpdateJournal {
                 return Err(SystemUpdateError::TargetMismatch {
                     active: snapshot.active.target.clone(),
                     candidate: image.target.clone(),
+                });
+            }
+            if image.channel != snapshot.active.channel {
+                return Err(SystemUpdateError::ChannelMismatch {
+                    active: snapshot.active.channel.clone(),
+                    candidate: image.channel.clone(),
                 });
             }
             if image.generation <= snapshot.highest_seen_generation {
@@ -489,18 +738,21 @@ impl SystemUpdateJournal {
 
     /// Arms a staged candidate with a bounded boot-attempt budget.
     ///
+    /// The returned state must be committed before claiming an attempt.
+    ///
     /// # Errors
     ///
-    /// Rejects limits outside `1..=10`, invalid phases, lock contention, or
-    /// corrupt state.
+    /// Rejects limits outside `1..=10`, protected-state mismatch, invalid
+    /// phases, lock contention, or corrupt state.
     pub fn arm_staged_update(
         &self,
         max_attempts: u8,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
         if !(1..=MAX_BOOT_ATTEMPTS).contains(&max_attempts) {
             return Err(SystemUpdateError::InvalidAttemptLimit(max_attempts));
         }
-        self.mutate(|snapshot| {
+        self.mutate(protected_state, |snapshot| {
             let pending = snapshot
                 .pending
                 .as_mut()
@@ -526,9 +778,13 @@ impl SystemUpdateJournal {
     ///
     /// # Errors
     ///
-    /// Rejects recovery-pending, uninitialized, malformed, or corrupt state.
-    pub fn boot_selection(&self) -> Result<SystemSlot, SystemUpdateError> {
-        let snapshot = self.snapshot()?;
+    /// Rejects recovery-pending, uninitialized, protected-state-mismatched,
+    /// malformed, or corrupt state.
+    pub fn boot_selection(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemSlot, SystemUpdateError> {
+        let snapshot = self.snapshot(protected_state)?;
         match snapshot.pending {
             Some(PendingSystemUpdate {
                 phase: PendingPhase::Booting { .. },
@@ -541,13 +797,20 @@ impl SystemUpdateJournal {
     /// Durably consumes one attempt before the bootloader transfers control to
     /// the pending image.
     ///
+    /// The caller must commit the returned protected state before transferring
+    /// control. Repeating the claim with the prior state recovers the same
+    /// attempt rather than consuming another one.
+    ///
     /// # Errors
     ///
-    /// Rejects missing/unarmed candidates, exhausted budgets, lock contention,
-    /// or corrupt state.
-    pub fn claim_pending_boot(&self) -> Result<PendingBootClaim, SystemUpdateError> {
+    /// Rejects missing/unarmed candidates, exhausted budgets, protected-state
+    /// mismatch, lock contention, or corrupt state.
+    pub fn claim_pending_boot(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<PendingBootClaim>, SystemUpdateError> {
         let mut claim = None;
-        self.mutate(|snapshot| {
+        let transition = self.mutate(protected_state, |snapshot| {
             let pending = snapshot
                 .pending
                 .as_mut()
@@ -577,20 +840,31 @@ impl SystemUpdateJournal {
             });
             Ok(())
         })?;
-        claim.ok_or(SystemUpdateError::InvalidState(
+        let outcome = claim.ok_or(SystemUpdateError::InvalidState(
             "boot claim was not produced".to_owned(),
-        ))
+        ))?;
+        Ok(SystemUpdateTransition {
+            outcome,
+            protected_state: transition.protected_state,
+        })
     }
 
     /// Converts a boot-in-progress record found after restart into one retry,
     /// or rolls back after the last attempt was consumed.
     ///
+    /// The returned state must be committed before the retry or rollback may
+    /// guide boot selection.
+    ///
     /// # Errors
     ///
-    /// Rejects lock contention, recovery ambiguity, or corrupt state.
-    pub fn recover_interrupted_boot(&self) -> Result<InterruptedBootRecovery, SystemUpdateError> {
+    /// Rejects protected-state mismatch, lock contention, recovery ambiguity,
+    /// or corrupt state.
+    pub fn recover_interrupted_boot(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<InterruptedBootRecovery>, SystemUpdateError> {
         let mut outcome = InterruptedBootRecovery::NoInterruptedBoot;
-        self.mutate_if_changed(|snapshot| {
+        let transition = self.mutate_if_changed(protected_state, |snapshot| {
             let Some(pending) = snapshot.pending.as_mut() else {
                 return Ok(false);
             };
@@ -614,23 +888,30 @@ impl SystemUpdateJournal {
             }
             Ok(true)
         })?;
-        Ok(outcome)
+        Ok(SystemUpdateTransition {
+            outcome,
+            protected_state: transition.protected_state,
+        })
     }
 
     /// Persists one passing gate and confirms the candidate only after all six
     /// selected D-050 gates have passed in the same boot attempt.
     ///
+    /// The returned state must be committed before another health transition
+    /// or confirmed boot selection.
+    ///
     /// # Errors
     ///
-    /// Rejects missing or stale attempts, invalid phases, lock contention, or
-    /// corrupt state.
+    /// Rejects missing or stale attempts, protected-state mismatch, invalid
+    /// phases, lock contention, or corrupt state.
     pub fn pass_health_check(
         &self,
         attempt_id: u64,
         check: SystemHealthCheck,
-    ) -> Result<HealthProgress, SystemUpdateError> {
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<HealthProgress>, SystemUpdateError> {
         let mut progress = None;
-        self.mutate_if_changed(|snapshot| {
+        let transition = self.mutate_if_changed(protected_state, |snapshot| {
             let pending = snapshot
                 .pending
                 .as_mut()
@@ -666,48 +947,64 @@ impl SystemUpdateJournal {
             }
             Ok(changed)
         })?;
-        progress.ok_or(SystemUpdateError::InvalidState(
+        let outcome = progress.ok_or(SystemUpdateError::InvalidState(
             "health progress was not produced".to_owned(),
-        ))
+        ))?;
+        Ok(SystemUpdateTransition {
+            outcome,
+            protected_state: transition.protected_state,
+        })
     }
 
     /// Rejects the candidate immediately when a required gate fails.
     ///
+    /// The returned rollback state must be committed before boot selection.
+    ///
     /// # Errors
     ///
-    /// Rejects missing or stale attempts, invalid phases, lock contention, or
-    /// corrupt state.
+    /// Rejects missing or stale attempts, protected-state mismatch, invalid
+    /// phases, lock contention, or corrupt state.
     pub fn fail_health_check(
         &self,
         attempt_id: u64,
         check: SystemHealthCheck,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
         self.rollback_attempt(
             attempt_id,
             SystemRollbackReason::FailedHealthCheck { check },
+            protected_state,
         )
     }
 
     /// Rejects the candidate when the privileged watchdog's bounded health
     /// window expires.
     ///
+    /// The returned rollback state must be committed before boot selection.
+    ///
     /// # Errors
     ///
-    /// Rejects missing or stale attempts, invalid phases, lock contention, or
-    /// corrupt state.
+    /// Rejects missing or stale attempts, protected-state mismatch, invalid
+    /// phases, lock contention, or corrupt state.
     pub fn expire_health_window(
         &self,
         attempt_id: u64,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
-        self.rollback_attempt(attempt_id, SystemRollbackReason::HealthWindowExpired)
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
+        self.rollback_attempt(
+            attempt_id,
+            SystemRollbackReason::HealthWindowExpired,
+            protected_state,
+        )
     }
 
     fn rollback_attempt(
         &self,
         attempt_id: u64,
         reason: SystemRollbackReason,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
-        self.mutate(|snapshot| {
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
+        self.mutate(protected_state, |snapshot| {
             let pending = snapshot
                 .pending
                 .as_ref()
@@ -733,9 +1030,10 @@ impl SystemUpdateJournal {
 
     fn mutate(
         &self,
+        protected_state: &ProtectedSystemUpdateState,
         mutation: impl FnOnce(&mut SystemUpdateSnapshot) -> Result<(), SystemUpdateError>,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
-        self.mutate_if_changed(|snapshot| {
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
+        self.mutate_if_changed(protected_state, |snapshot| {
             mutation(snapshot)?;
             Ok(true)
         })
@@ -743,21 +1041,213 @@ impl SystemUpdateJournal {
 
     fn mutate_if_changed(
         &self,
+        protected_state: &ProtectedSystemUpdateState,
         mutation: impl FnOnce(&mut SystemUpdateSnapshot) -> Result<bool, SystemUpdateError>,
-    ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+    ) -> Result<SystemUpdateTransition<SystemUpdateSnapshot>, SystemUpdateError> {
         let _operation = self.acquire_operation_lock()?;
-        self.recover_temp_unlocked()?;
-        let mut snapshot = self
-            .load_unlocked()?
-            .ok_or(SystemUpdateError::NotInitialized)?;
-        if mutation(&mut snapshot)? {
-            validate_snapshot(&snapshot)?;
-            self.append_unlocked(&snapshot)?;
+        match self.transition_position_unlocked(protected_state)? {
+            TransitionPosition::Exact(Some(mut loaded)) => {
+                if path_exists(&self.temp_path())? {
+                    self.recover_temp_unlocked()?;
+                    loaded = match self.transition_position_unlocked(protected_state)? {
+                        TransitionPosition::Exact(Some(loaded)) => loaded,
+                        _ => return Err(SystemUpdateError::RecoveryRequired),
+                    };
+                }
+                let mut snapshot = loaded.snapshot;
+                let mut next_protected_state = protected_state.clone();
+                if mutation(&mut snapshot)? {
+                    validate_snapshot(&snapshot)?;
+                    next_protected_state = self.append_unlocked(&snapshot)?;
+                }
+                Ok(SystemUpdateTransition {
+                    outcome: snapshot,
+                    protected_state: next_protected_state,
+                })
+            }
+            TransitionPosition::OneAhead {
+                previous: Some(previous),
+                latest,
+            } => {
+                let mut snapshot = previous.snapshot.clone();
+                if !mutation(&mut snapshot)? {
+                    return Err(SystemUpdateError::ProtectionCommitRequired {
+                        protected_sequence: protected_state.sequence,
+                        journal_sequence: latest.sequence,
+                    });
+                }
+                validate_snapshot(&snapshot)?;
+                let expected = expected_next_protected_state(Some(&previous), &snapshot)?;
+                if expected != latest.protected_state() {
+                    return Err(SystemUpdateError::ProtectionCommitRequired {
+                        protected_sequence: protected_state.sequence,
+                        journal_sequence: latest.sequence,
+                    });
+                }
+                if path_exists(&self.temp_path())? {
+                    self.recover_temp_unlocked()?;
+                }
+                Ok(SystemUpdateTransition {
+                    outcome: snapshot,
+                    protected_state: expected,
+                })
+            }
+            TransitionPosition::Exact(None) => Err(SystemUpdateError::NotInitialized),
+            TransitionPosition::OneAhead {
+                previous: None,
+                latest,
+            } => Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: latest.sequence,
+            }),
         }
-        Ok(snapshot)
     }
 
-    fn load_unlocked(&self) -> Result<Option<SystemUpdateSnapshot>, SystemUpdateError> {
+    fn load_protected_unlocked(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<Option<LoadedJournal>, SystemUpdateError> {
+        protected_state.validate()?;
+        let loaded = self.load_unlocked()?;
+        let Some(loaded) = loaded else {
+            return if protected_state.sequence == 0 {
+                Ok(None)
+            } else {
+                Err(SystemUpdateError::ProtectedJournalRollback {
+                    protected_sequence: protected_state.sequence,
+                    journal_sequence: 0,
+                })
+            };
+        };
+        if loaded.snapshot.active.channel != protected_state.channel {
+            return Err(SystemUpdateError::ProtectedChannelMismatch {
+                expected: protected_state.channel.clone(),
+                actual: loaded.snapshot.active.channel.clone(),
+            });
+        }
+        if loaded.snapshot.active.target != protected_state.target {
+            return Err(SystemUpdateError::ProtectedTargetMismatch {
+                expected: protected_state.target.clone(),
+                actual: loaded.snapshot.active.target.clone(),
+            });
+        }
+        if loaded.sequence < protected_state.sequence {
+            return Err(SystemUpdateError::ProtectedJournalRollback {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: loaded.sequence,
+            });
+        }
+        if loaded.sequence > protected_state.sequence {
+            return Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: loaded.sequence,
+            });
+        }
+        if protected_state.record_sha256.as_deref() != Some(loaded.record_sha256.as_str()) {
+            return Err(SystemUpdateError::ProtectedJournalSubstitution {
+                sequence: loaded.sequence,
+            });
+        }
+        Ok(Some(loaded))
+    }
+
+    fn transition_position_unlocked(
+        &self,
+        protected_state: &ProtectedSystemUpdateState,
+    ) -> Result<TransitionPosition, SystemUpdateError> {
+        protected_state.validate()?;
+        let Some(latest) = self.load_unlocked()? else {
+            return if protected_state.sequence == 0 {
+                Ok(TransitionPosition::Exact(None))
+            } else {
+                Err(SystemUpdateError::ProtectedJournalRollback {
+                    protected_sequence: protected_state.sequence,
+                    journal_sequence: 0,
+                })
+            };
+        };
+        if latest.snapshot.active.channel != protected_state.channel {
+            return Err(SystemUpdateError::ProtectedChannelMismatch {
+                expected: protected_state.channel.clone(),
+                actual: latest.snapshot.active.channel.clone(),
+            });
+        }
+        if latest.snapshot.active.target != protected_state.target {
+            return Err(SystemUpdateError::ProtectedTargetMismatch {
+                expected: protected_state.target.clone(),
+                actual: latest.snapshot.active.target.clone(),
+            });
+        }
+        if latest.sequence < protected_state.sequence {
+            return Err(SystemUpdateError::ProtectedJournalRollback {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: latest.sequence,
+            });
+        }
+        if latest.sequence == protected_state.sequence {
+            if latest.protected_state() != *protected_state {
+                return Err(SystemUpdateError::ProtectedJournalSubstitution {
+                    sequence: latest.sequence,
+                });
+            }
+            return Ok(TransitionPosition::Exact(Some(latest)));
+        }
+        if latest.sequence != protected_state.sequence.saturating_add(1) {
+            return Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: protected_state.sequence,
+                journal_sequence: latest.sequence,
+            });
+        }
+        let previous = if protected_state.sequence == 0 {
+            None
+        } else {
+            let previous = self.read_record_unlocked(protected_state.sequence)?;
+            if previous.snapshot.active.channel != protected_state.channel {
+                return Err(SystemUpdateError::ProtectedChannelMismatch {
+                    expected: protected_state.channel.clone(),
+                    actual: previous.snapshot.active.channel.clone(),
+                });
+            }
+            if previous.snapshot.active.target != protected_state.target {
+                return Err(SystemUpdateError::ProtectedTargetMismatch {
+                    expected: protected_state.target.clone(),
+                    actual: previous.snapshot.active.target.clone(),
+                });
+            }
+            if previous.protected_state() != *protected_state {
+                return Err(SystemUpdateError::ProtectedJournalSubstitution {
+                    sequence: previous.sequence,
+                });
+            }
+            Some(previous)
+        };
+        Ok(TransitionPosition::OneAhead {
+            previous,
+            latest: Box::new(latest),
+        })
+    }
+
+    fn read_record_unlocked(&self, sequence: u64) -> Result<LoadedJournal, SystemUpdateError> {
+        let path = self.records.join(format!("{sequence:020}.json"));
+        require_regular_file(&path, "system update record")?;
+        let bytes = read_bounded(&path)?;
+        let record: JournalRecord = serde_json::from_slice(&bytes).map_err(|error| {
+            SystemUpdateError::InvalidJournal(format!("record {sequence} is malformed: {error}"))
+        })?;
+        if record.schema_version != JOURNAL_SCHEMA_VERSION || record.sequence != sequence {
+            return Err(SystemUpdateError::InvalidJournal(format!(
+                "record {sequence} metadata is invalid"
+            )));
+        }
+        validate_snapshot(&record.snapshot)?;
+        Ok(LoadedJournal {
+            sequence,
+            record_sha256: sha256_bytes(&bytes),
+            snapshot: record.snapshot,
+        })
+    }
+
+    fn load_unlocked(&self) -> Result<Option<LoadedJournal>, SystemUpdateError> {
         let mut paths = Vec::new();
         for entry in fs::read_dir(&self.records).map_err(|source| SystemUpdateError::Io {
             operation: "list system update records",
@@ -784,6 +1274,7 @@ impl SystemUpdateJournal {
             }
         }
         paths.sort_by_key(|(sequence, _)| *sequence);
+        let record_count = paths.len();
 
         let mut previous_hash = None;
         let mut latest: Option<SystemUpdateSnapshot> = None;
@@ -820,41 +1311,32 @@ impl SystemUpdateJournal {
             previous_hash = Some(sha256_bytes(&bytes));
             latest = Some(record.snapshot);
         }
-        Ok(latest)
+        let Some(snapshot) = latest else {
+            return Ok(None);
+        };
+        let sequence = u64::try_from(record_count)
+            .map_err(|_| SystemUpdateError::InvalidJournal("record count overflow".to_owned()))?;
+        let record_sha256 = previous_hash.ok_or_else(|| {
+            SystemUpdateError::InvalidJournal("latest record digest is missing".to_owned())
+        })?;
+        Ok(Some(LoadedJournal {
+            sequence,
+            record_sha256,
+            snapshot,
+        }))
     }
 
-    fn append_unlocked(&self, snapshot: &SystemUpdateSnapshot) -> Result<(), SystemUpdateError> {
-        if let Some(previous) = self.load_unlocked()? {
-            validate_snapshot_transition(&previous, snapshot)?;
+    fn append_unlocked(
+        &self,
+        snapshot: &SystemUpdateSnapshot,
+    ) -> Result<ProtectedSystemUpdateState, SystemUpdateError> {
+        let previous = self.load_unlocked()?;
+        if let Some(previous) = &previous {
+            validate_snapshot_transition(&previous.snapshot, snapshot)?;
         } else {
             validate_initial_snapshot(snapshot)?;
         }
-        let paths = record_paths(&self.records)?;
-        if paths.len() >= MAX_RECORDS {
-            return Err(SystemUpdateError::InvalidJournal(format!(
-                "journal reached {MAX_RECORDS} records"
-            )));
-        }
-        let sequence = u64::try_from(paths.len())
-            .map_err(|_| SystemUpdateError::InvalidJournal("record index overflow".to_owned()))?
-            + 1;
-        let previous_record_sha256 = paths
-            .last()
-            .map(|(_, path)| read_bounded(path).map(|bytes| sha256_bytes(&bytes)))
-            .transpose()?;
-        let record = JournalRecord {
-            schema_version: JOURNAL_SCHEMA_VERSION,
-            sequence,
-            previous_record_sha256,
-            snapshot: snapshot.clone(),
-        };
-        let bytes = serde_json::to_vec(&record)
-            .map_err(|error| SystemUpdateError::InvalidState(error.to_string()))?;
-        if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_RECORD_BYTES {
-            return Err(SystemUpdateError::InvalidState(
-                "serialized state exceeds record limit".to_owned(),
-            ));
-        }
+        let (sequence, bytes, protected_state) = next_record_bytes(previous.as_ref(), snapshot)?;
         let temporary = self.temp_path();
         if path_exists(&temporary)? {
             return Err(SystemUpdateError::RecoveryRequired);
@@ -878,7 +1360,8 @@ impl SystemUpdateJournal {
             path: temporary,
             source,
         })?;
-        sync_directory(&self.records)
+        sync_directory(&self.records)?;
+        Ok(protected_state)
     }
 
     fn recover_temp_unlocked(&self) -> Result<JournalRecovery, SystemUpdateError> {
@@ -934,7 +1417,7 @@ impl SystemUpdateJournal {
                 source,
             })?;
         match fs4::FileExt::try_lock(&file) {
-            Ok(()) => Ok(SystemUpdateLock { _file: file }),
+            Ok(()) => Ok(SystemUpdateLock { file }),
             Err(TryLockError::WouldBlock) => Err(SystemUpdateError::Busy),
             Err(TryLockError::Error(source)) => Err(SystemUpdateError::Io {
                 operation: "lock system update journal",
@@ -946,7 +1429,13 @@ impl SystemUpdateJournal {
 }
 
 struct SystemUpdateLock {
-    _file: File,
+    file: File,
+}
+
+impl Drop for SystemUpdateLock {
+    fn drop(&mut self) {
+        let _ = fs4::FileExt::unlock(&self.file);
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -956,6 +1445,50 @@ struct JournalRecord {
     sequence: u64,
     previous_record_sha256: Option<String>,
     snapshot: SystemUpdateSnapshot,
+}
+
+fn next_record_bytes(
+    previous: Option<&LoadedJournal>,
+    snapshot: &SystemUpdateSnapshot,
+) -> Result<(u64, Vec<u8>, ProtectedSystemUpdateState), SystemUpdateError> {
+    let previous_sequence = previous.map_or(0, |loaded| loaded.sequence);
+    if previous_sequence
+        >= u64::try_from(MAX_RECORDS).expect("bounded system update record count fits in u64")
+    {
+        return Err(SystemUpdateError::InvalidJournal(format!(
+            "journal reached {MAX_RECORDS} records"
+        )));
+    }
+    let sequence = previous_sequence
+        .checked_add(1)
+        .ok_or_else(|| SystemUpdateError::InvalidJournal("record sequence overflow".to_owned()))?;
+    let record = JournalRecord {
+        schema_version: JOURNAL_SCHEMA_VERSION,
+        sequence,
+        previous_record_sha256: previous.map(|loaded| loaded.record_sha256.clone()),
+        snapshot: snapshot.clone(),
+    };
+    let bytes = serde_json::to_vec(&record)
+        .map_err(|error| SystemUpdateError::InvalidState(error.to_string()))?;
+    if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_RECORD_BYTES {
+        return Err(SystemUpdateError::InvalidState(
+            "serialized state exceeds record limit".to_owned(),
+        ));
+    }
+    let protected_state = ProtectedSystemUpdateState::for_record(
+        &snapshot.active.channel,
+        &snapshot.active.target,
+        sequence,
+        sha256_bytes(&bytes),
+    );
+    Ok((sequence, bytes, protected_state))
+}
+
+fn expected_next_protected_state(
+    previous: Option<&LoadedJournal>,
+    snapshot: &SystemUpdateSnapshot,
+) -> Result<ProtectedSystemUpdateState, SystemUpdateError> {
+    next_record_bytes(previous, snapshot).map(|(_, _, state)| state)
 }
 
 fn rollback(
@@ -987,12 +1520,13 @@ fn validate_snapshot(snapshot: &SystemUpdateSnapshot) -> Result<(), SystemUpdate
     if let Some(pending) = &snapshot.pending {
         validate_image(&pending.image)?;
         if pending.image.slot != snapshot.active.slot.other()
+            || pending.image.channel != snapshot.active.channel
             || pending.image.target != snapshot.active.target
             || pending.image.generation != snapshot.highest_seen_generation
             || pending.image.generation <= snapshot.active.generation
         {
             return Err(SystemUpdateError::InvalidState(
-                "pending image violates slot, target, or generation invariants".to_owned(),
+                "pending image violates slot, channel, target, or generation invariants".to_owned(),
             ));
         }
         match &pending.phase {
@@ -1058,6 +1592,7 @@ fn validate_snapshot_transition(
         )
     };
     if current.highest_seen_generation < previous.highest_seen_generation
+        || current.active.channel != previous.active.channel
         || current.active.target != previous.active.target
         || current.last_attempt_id < previous.last_attempt_id
     {
@@ -1191,6 +1726,7 @@ fn validate_image(image: &SystemImage) -> Result<(), SystemUpdateError> {
         )));
     }
     validate_identifier("release ID", &image.release_id, 128)?;
+    validate_identifier("channel", &image.channel, 64)?;
     validate_identifier("target", &image.target, 64)?;
     validate_sha256("manifest SHA-256", &image.manifest_sha256)?;
     validate_sha256("image SHA-256", &image.image_sha256)
@@ -1223,33 +1759,25 @@ fn validate_sha256(kind: &str, value: &str) -> Result<(), SystemUpdateError> {
     Ok(())
 }
 
-fn record_paths(records: &Path) -> Result<Vec<(u64, PathBuf)>, SystemUpdateError> {
-    let mut paths = Vec::new();
-    for entry in fs::read_dir(records).map_err(|source| SystemUpdateError::Io {
-        operation: "list system update records",
-        path: records.to_owned(),
-        source,
-    })? {
-        let entry = entry.map_err(|source| SystemUpdateError::Io {
-            operation: "read system update record entry",
-            path: records.to_owned(),
-            source,
-        })?;
-        let name = entry.file_name().into_string().map_err(|_| {
-            SystemUpdateError::InvalidJournal("record name is not UTF-8".to_owned())
-        })?;
-        if name == TEMP_RECORD_FILE {
-            continue;
-        }
-        paths.push((parse_record_name(&name)?, entry.path()));
-        if paths.len() > MAX_RECORDS {
-            return Err(SystemUpdateError::InvalidJournal(format!(
-                "journal exceeds {MAX_RECORDS} records"
-            )));
-        }
+fn validate_protected_scope(kind: &str, value: &str) -> Result<(), SystemUpdateError> {
+    if value.is_empty()
+        || value.len() > 64
+        || !value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || b"._-".contains(&byte))
+    {
+        return Err(SystemUpdateError::InvalidProtectedState(format!(
+            "{kind} must be 1..=64 ASCII letters, digits, dot, underscore, or hyphen"
+        )));
     }
-    paths.sort_by_key(|(sequence, _)| *sequence);
-    Ok(paths)
+    Ok(())
+}
+
+fn is_canonical_sha256(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
 fn parse_record_name(name: &str) -> Result<u64, SystemUpdateError> {
@@ -1433,6 +1961,26 @@ pub enum SystemUpdateError {
     InvalidImage(String),
     InvalidState(String),
     InvalidJournal(String),
+    InvalidProtectedState(String),
+    ProtectedChannelMismatch {
+        expected: String,
+        actual: String,
+    },
+    ProtectedTargetMismatch {
+        expected: String,
+        actual: String,
+    },
+    ProtectedJournalRollback {
+        protected_sequence: u64,
+        journal_sequence: u64,
+    },
+    ProtectedJournalSubstitution {
+        sequence: u64,
+    },
+    ProtectionCommitRequired {
+        protected_sequence: u64,
+        journal_sequence: u64,
+    },
     AlreadyInitialized,
     NotInitialized,
     Busy,
@@ -1441,6 +1989,10 @@ pub enum SystemUpdateError {
     NoPendingUpdate,
     CandidateIsNotInactive,
     TargetMismatch {
+        active: String,
+        candidate: String,
+    },
+    ChannelMismatch {
         active: String,
         candidate: String,
     },
@@ -1456,6 +2008,44 @@ pub enum SystemUpdateError {
     },
     InvalidTransition(&'static str),
     InterruptedBootRequiresRecovery,
+}
+
+impl SystemUpdateError {
+    fn fmt_protection(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidProtectedState(error) => write!(
+                formatter,
+                "system update protected state is invalid: {error}"
+            ),
+            Self::ProtectedChannelMismatch { expected, actual } => write!(
+                formatter,
+                "system update protected channel is {expected}, but journal channel is {actual}"
+            ),
+            Self::ProtectedTargetMismatch { expected, actual } => write!(
+                formatter,
+                "system update protected target is {expected}, but journal target is {actual}"
+            ),
+            Self::ProtectedJournalRollback {
+                protected_sequence,
+                journal_sequence,
+            } => write!(
+                formatter,
+                "system update journal ends at sequence {journal_sequence}, below protected sequence {protected_sequence}"
+            ),
+            Self::ProtectedJournalSubstitution { sequence } => write!(
+                formatter,
+                "system update journal record {sequence} does not match its protected digest"
+            ),
+            Self::ProtectionCommitRequired {
+                protected_sequence,
+                journal_sequence,
+            } => write!(
+                formatter,
+                "system update journal sequence {journal_sequence} is ahead of protected sequence {protected_sequence}; an authenticated operation result must be committed"
+            ),
+            _ => unreachable!("only system-update protection errors use this formatter"),
+        }
+    }
 }
 
 impl fmt::Display for SystemUpdateError {
@@ -1482,6 +2072,12 @@ impl fmt::Display for SystemUpdateError {
             Self::InvalidJournal(error) => {
                 write!(formatter, "system update journal is invalid: {error}")
             }
+            Self::InvalidProtectedState(_)
+            | Self::ProtectedChannelMismatch { .. }
+            | Self::ProtectedTargetMismatch { .. }
+            | Self::ProtectedJournalRollback { .. }
+            | Self::ProtectedJournalSubstitution { .. }
+            | Self::ProtectionCommitRequired { .. } => self.fmt_protection(formatter),
             Self::AlreadyInitialized => {
                 formatter.write_str("system update journal is already initialized")
             }
@@ -1501,6 +2097,10 @@ impl fmt::Display for SystemUpdateError {
                     "candidate target {candidate} does not match active target {active}"
                 )
             }
+            Self::ChannelMismatch { active, candidate } => write!(
+                formatter,
+                "candidate channel {candidate} does not match active channel {active}"
+            ),
             Self::GenerationRollback { highest, candidate } => write!(
                 formatter,
                 "candidate generation {candidate} does not advance highest seen generation {highest}"
@@ -1540,13 +2140,132 @@ impl std::error::Error for SystemUpdateError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::cell::RefCell;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     static NEXT_FIXTURE: AtomicU64 = AtomicU64::new(1);
 
     struct Fixture {
         root: PathBuf,
-        journal: SystemUpdateJournal,
+        journal: TestJournal,
+    }
+
+    struct TestJournal {
+        inner: SystemUpdateJournal,
+        protected_state: RefCell<ProtectedSystemUpdateState>,
+    }
+
+    impl TestJournal {
+        fn new(inner: SystemUpdateJournal) -> Self {
+            Self {
+                inner,
+                protected_state: RefCell::new(
+                    ProtectedSystemUpdateState::initial("stable", "raspberry-pi-5")
+                        .expect("initial protected state"),
+                ),
+            }
+        }
+
+        fn protected_state(&self) -> ProtectedSystemUpdateState {
+            self.protected_state.borrow().clone()
+        }
+
+        fn set_protected_state(&self, state: ProtectedSystemUpdateState) {
+            *self.protected_state.borrow_mut() = state;
+        }
+
+        fn commit<T>(&self, transition: SystemUpdateTransition<T>) -> T {
+            *self.protected_state.borrow_mut() = transition.protected_state;
+            transition.outcome
+        }
+
+        fn initialize(
+            &self,
+            active: VerifiedSystemImageEvidence,
+        ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .initialize(active, &state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn snapshot(&self) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            self.inner.snapshot(&self.protected_state())
+        }
+
+        fn recover(&self) -> Result<JournalRecovery, SystemUpdateError> {
+            self.inner.recover(&self.protected_state())
+        }
+
+        fn stage_verified_update(
+            &self,
+            image: VerifiedSystemImageEvidence,
+        ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .stage_verified_update(image, &state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn arm_staged_update(
+            &self,
+            max_attempts: u8,
+        ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .arm_staged_update(max_attempts, &state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn boot_selection(&self) -> Result<SystemSlot, SystemUpdateError> {
+            self.inner.boot_selection(&self.protected_state())
+        }
+
+        fn claim_pending_boot(&self) -> Result<PendingBootClaim, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .claim_pending_boot(&state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn recover_interrupted_boot(&self) -> Result<InterruptedBootRecovery, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .recover_interrupted_boot(&state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn pass_health_check(
+            &self,
+            attempt_id: u64,
+            check: SystemHealthCheck,
+        ) -> Result<HealthProgress, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .pass_health_check(attempt_id, check, &state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn fail_health_check(
+            &self,
+            attempt_id: u64,
+            check: SystemHealthCheck,
+        ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .fail_health_check(attempt_id, check, &state)
+                .map(|transition| self.commit(transition))
+        }
+
+        fn expire_health_window(
+            &self,
+            attempt_id: u64,
+        ) -> Result<SystemUpdateSnapshot, SystemUpdateError> {
+            let state = self.protected_state();
+            self.inner
+                .expire_health_window(attempt_id, &state)
+                .map(|transition| self.commit(transition))
+        }
     }
 
     impl Fixture {
@@ -1557,7 +2276,7 @@ mod tests {
             fs::create_dir(&root).expect("create fixture root");
             fs::create_dir(root.join(RECORDS_DIRECTORY)).expect("create records");
             File::create(root.join(OPERATION_LOCK_FILE)).expect("create lock");
-            let journal = SystemUpdateJournal::open(&root).expect("open journal");
+            let journal = TestJournal::new(SystemUpdateJournal::open(&root).expect("open journal"));
             Self { root, journal }
         }
 
@@ -1591,15 +2310,15 @@ mod tests {
             slot,
             generation,
             release,
+            "stable",
             "raspberry-pi-5",
             1_024,
-            "1".repeat(64),
-            "2".repeat(64),
+            ("1".repeat(64), "2".repeat(64)),
         )
         .expect("valid image")
     }
 
-    fn all_health(journal: &SystemUpdateJournal, attempt_id: u64) -> HealthProgress {
+    fn all_health(journal: &TestJournal, attempt_id: u64) -> HealthProgress {
         let mut result = None;
         for check in REQUIRED_HEALTH_CHECKS {
             result = Some(
@@ -1622,6 +2341,401 @@ mod tests {
                     .is_some_and(|value| value == "json")
             })
             .count()
+    }
+
+    #[test]
+    fn protected_state_is_strict_bounded_and_scope_bound() {
+        let initial = ProtectedSystemUpdateState::initial("stable", "raspberry-pi-5")
+            .expect("initial protected state");
+        assert_eq!(
+            ProtectedSystemUpdateState::from_json_bytes(
+                &initial.to_json_bytes().expect("state serializes")
+            )
+            .expect("state parses"),
+            initial
+        );
+        for invalid in [
+            r#"{"schemaVersion":2,"channel":"stable","target":"raspberry-pi-5","sequence":0,"recordSha256":null}"#
+                .to_owned(),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"raspberry-pi-5","sequence":0,"recordSha256":"{}"}}"#,
+                "00".repeat(32)
+            ),
+            r#"{"schemaVersion":1,"channel":"stable","target":"raspberry-pi-5","sequence":1,"recordSha256":null}"#
+                .to_owned(),
+            format!(
+                r#"{{"schemaVersion":1,"channel":"stable","target":"raspberry-pi-5","sequence":1,"recordSha256":"{}"}}"#,
+                "AA".repeat(32)
+            ),
+            r#"{"schemaVersion":1,"channel":"stable","target":"raspberry-pi-5","sequence":0,"recordSha256":null,"path":"journal"}"#
+                .to_owned(),
+        ] {
+            assert!(
+                ProtectedSystemUpdateState::from_json_bytes(invalid.as_bytes()).is_err(),
+                "invalid state unexpectedly parsed: {invalid}"
+            );
+        }
+        assert!(ProtectedSystemUpdateState::from_json_bytes(&[]).is_err());
+        assert!(
+            ProtectedSystemUpdateState::from_json_bytes(&vec![
+                b' ';
+                MAX_PROTECTED_SYSTEM_UPDATE_STATE_BYTES
+                    + 1
+            ])
+            .is_err()
+        );
+
+        let fixture = Fixture::new();
+        let wrong_target =
+            ProtectedSystemUpdateState::initial("stable", "other-target").expect("alternate state");
+        assert!(matches!(
+            fixture
+                .journal
+                .inner
+                .initialize(image(SystemSlot::A, 1, "release-1"), &wrong_target),
+            Err(SystemUpdateError::ProtectedTargetMismatch { .. })
+        ));
+        let wrong_channel = ProtectedSystemUpdateState::initial("recovery", "raspberry-pi-5")
+            .expect("alternate channel state");
+        assert!(matches!(
+            fixture
+                .journal
+                .inner
+                .initialize(image(SystemSlot::A, 1, "release-1"), &wrong_channel),
+            Err(SystemUpdateError::ProtectedChannelMismatch { .. })
+        ));
+        assert_eq!(record_count(&fixture), 0);
+    }
+
+    #[test]
+    fn initialization_and_staging_require_exact_protected_commits() {
+        let fixture = Fixture::new();
+        let initial = fixture.journal.protected_state();
+        let initialized = fixture
+            .journal
+            .inner
+            .initialize(image(SystemSlot::A, 1, "release-1"), &initial)
+            .expect("initialize publishes");
+        assert_eq!(initialized.protected_state.sequence(), 1);
+        assert!(initialized.protected_state.record_sha256().is_some());
+        let initialize_retry = fixture
+            .journal
+            .inner
+            .initialize(image(SystemSlot::A, 1, "release-1"), &initial)
+            .expect("exact initialization retry recovers");
+        assert_eq!(
+            initialize_retry.protected_state,
+            initialized.protected_state
+        );
+        assert!(matches!(
+            fixture
+                .journal
+                .inner
+                .initialize(image(SystemSlot::A, 1, "release-other"), &initial),
+            Err(SystemUpdateError::ProtectionCommitRequired { .. })
+        ));
+        assert!(matches!(
+            fixture.journal.inner.snapshot(&initial),
+            Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: 0,
+                journal_sequence: 1,
+            })
+        ));
+        assert!(matches!(
+            fixture
+                .journal
+                .inner
+                .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &initial),
+            Err(SystemUpdateError::ProtectionCommitRequired { .. })
+        ));
+
+        let initialized_state = initialized.protected_state;
+        assert_eq!(
+            fixture
+                .journal
+                .inner
+                .snapshot(&initialized_state)
+                .expect("committed initialization loads")
+                .active()
+                .slot(),
+            SystemSlot::A
+        );
+        let staged = fixture
+            .journal
+            .inner
+            .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &initialized_state)
+            .expect("stage publishes");
+        assert_eq!(staged.protected_state.sequence(), 2);
+        let stage_retry = fixture
+            .journal
+            .inner
+            .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &initialized_state)
+            .expect("exact stage retry recovers");
+        assert_eq!(stage_retry.protected_state, staged.protected_state);
+        assert!(matches!(
+            fixture.journal.inner.stage_verified_update(
+                image(SystemSlot::B, 3, "release-other"),
+                &initialized_state
+            ),
+            Err(SystemUpdateError::ProtectionCommitRequired { .. })
+        ));
+        assert!(matches!(
+            fixture.journal.inner.boot_selection(&initialized_state),
+            Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: 1,
+                journal_sequence: 2,
+            })
+        ));
+        assert_eq!(record_count(&fixture), 2);
+
+        let multi = Fixture::initialized();
+        let first_state = multi.journal.protected_state();
+        let staged = multi
+            .journal
+            .inner
+            .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &first_state)
+            .expect("stage first uncommitted record");
+        multi
+            .journal
+            .inner
+            .arm_staged_update(2, &staged.protected_state)
+            .expect("publish second uncommitted record");
+        assert!(matches!(
+            multi
+                .journal
+                .inner
+                .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &first_state),
+            Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: 1,
+                journal_sequence: 3,
+            })
+        ));
+    }
+
+    #[test]
+    fn arming_claim_and_health_require_exact_protected_commits() {
+        let fixture = Fixture::initialized();
+        let initialized_state = fixture.journal.protected_state();
+        let staged_state = fixture
+            .journal
+            .inner
+            .stage_verified_update(image(SystemSlot::B, 2, "release-2"), &initialized_state)
+            .expect("stage publishes")
+            .protected_state;
+        let armed = fixture
+            .journal
+            .inner
+            .arm_staged_update(2, &staged_state)
+            .expect("arm publishes");
+        assert_eq!(armed.protected_state.sequence(), 3);
+        let arm_retry = fixture
+            .journal
+            .inner
+            .arm_staged_update(2, &staged_state)
+            .expect("exact arm retry recovers");
+        assert_eq!(arm_retry.protected_state, armed.protected_state);
+        let armed_state = armed.protected_state;
+        let claim = fixture
+            .journal
+            .inner
+            .claim_pending_boot(&armed_state)
+            .expect("claim publishes");
+        assert_eq!(claim.outcome.attempt_id(), 1);
+        assert_eq!(claim.protected_state.sequence(), 4);
+        let claim_retry = fixture
+            .journal
+            .inner
+            .claim_pending_boot(&armed_state)
+            .expect("exact claim retry recovers");
+        assert_eq!(claim_retry, claim);
+        let claim_state = claim.protected_state.clone();
+        let first_health = fixture
+            .journal
+            .inner
+            .pass_health_check(
+                claim.outcome.attempt_id(),
+                SystemHealthCheck::Launcher,
+                &claim_state,
+            )
+            .expect("health publishes");
+        assert_eq!(first_health.protected_state.sequence(), 5);
+        let health_retry = fixture
+            .journal
+            .inner
+            .pass_health_check(
+                claim.outcome.attempt_id(),
+                SystemHealthCheck::Launcher,
+                &claim_state,
+            )
+            .expect("exact health retry recovers");
+        assert_eq!(health_retry, first_health);
+        assert!(matches!(
+            fixture.journal.inner.pass_health_check(
+                claim.outcome.attempt_id(),
+                SystemHealthCheck::Tracker,
+                &claim_state,
+            ),
+            Err(SystemUpdateError::ProtectionCommitRequired { .. })
+        ));
+        let duplicate = fixture
+            .journal
+            .inner
+            .pass_health_check(
+                claim.outcome.attempt_id(),
+                SystemHealthCheck::Launcher,
+                &first_health.protected_state,
+            )
+            .expect("duplicate is idempotent");
+        assert_eq!(duplicate.protected_state, first_health.protected_state);
+        assert_eq!(record_count(&fixture), 5);
+    }
+
+    #[test]
+    fn interrupted_recovery_and_failure_retries_require_exact_commits() {
+        let fixture = Fixture::initialized();
+        fixture.stage_and_arm(2);
+        let armed_state = fixture.journal.protected_state();
+        let claim = fixture
+            .journal
+            .inner
+            .claim_pending_boot(&armed_state)
+            .expect("claim publishes");
+        let first_health = fixture
+            .journal
+            .inner
+            .pass_health_check(
+                claim.outcome.attempt_id(),
+                SystemHealthCheck::Launcher,
+                &claim.protected_state,
+            )
+            .expect("health publishes");
+        let recovered = fixture
+            .journal
+            .inner
+            .recover_interrupted_boot(&first_health.protected_state)
+            .expect("interrupted boot recovery publishes");
+        assert!(matches!(
+            recovered.outcome,
+            InterruptedBootRecovery::RetryPending { .. }
+        ));
+        let recovery_retry = fixture
+            .journal
+            .inner
+            .recover_interrupted_boot(&first_health.protected_state)
+            .expect("exact recovery retry recovers");
+        assert_eq!(recovery_retry, recovered);
+        let second_claim = fixture
+            .journal
+            .inner
+            .claim_pending_boot(&recovered.protected_state)
+            .expect("second claim publishes");
+        let failed = fixture
+            .journal
+            .inner
+            .fail_health_check(
+                second_claim.outcome.attempt_id(),
+                SystemHealthCheck::Camera,
+                &second_claim.protected_state,
+            )
+            .expect("health failure publishes");
+        let failure_retry = fixture
+            .journal
+            .inner
+            .fail_health_check(
+                second_claim.outcome.attempt_id(),
+                SystemHealthCheck::Camera,
+                &second_claim.protected_state,
+            )
+            .expect("exact failure retry recovers");
+        assert_eq!(failure_retry, failed);
+        assert_eq!(record_count(&fixture), 8);
+
+        let timeout = Fixture::initialized();
+        timeout.stage_and_arm(1);
+        let claim_state = timeout.journal.protected_state();
+        let claim = timeout
+            .journal
+            .inner
+            .claim_pending_boot(&claim_state)
+            .expect("timeout claim publishes");
+        let expired = timeout
+            .journal
+            .inner
+            .expire_health_window(claim.outcome.attempt_id(), &claim.protected_state)
+            .expect("timeout publishes");
+        let retry = timeout
+            .journal
+            .inner
+            .expire_health_window(claim.outcome.attempt_id(), &claim.protected_state)
+            .expect("exact timeout retry recovers");
+        assert_eq!(retry, expired);
+    }
+
+    #[test]
+    fn protected_journal_rejects_deletion_substitution_and_target_drift() {
+        let fixture = Fixture::initialized();
+        fixture
+            .journal
+            .stage_verified_update(image(SystemSlot::B, 2, "release-2"))
+            .expect("stage");
+        let protected = fixture.journal.protected_state();
+        let second = fixture.root.join("records/00000000000000000002.json");
+        let original = fs::read(&second).expect("read second record");
+
+        fs::remove_file(&second).expect("remove protected record");
+        assert!(matches!(
+            fixture.journal.inner.snapshot(&protected),
+            Err(SystemUpdateError::ProtectedJournalRollback {
+                protected_sequence: 2,
+                journal_sequence: 1,
+            })
+        ));
+
+        fs::write(&second, &original).expect("restore protected record");
+        let substituted = String::from_utf8(original.clone())
+            .expect("record is UTF-8")
+            .replace("release-2", "release-x");
+        fs::write(&second, substituted).expect("substitute record");
+        assert!(matches!(
+            fixture.journal.inner.snapshot(&protected),
+            Err(SystemUpdateError::ProtectedJournalSubstitution { sequence: 2 })
+        ));
+
+        fs::write(&second, original).expect("restore protected record again");
+        let mut wrong_channel = protected.clone();
+        wrong_channel.channel = "recovery".to_owned();
+        assert!(matches!(
+            fixture.journal.inner.snapshot(&wrong_channel),
+            Err(SystemUpdateError::ProtectedChannelMismatch { .. })
+        ));
+        let mut wrong_target = protected;
+        wrong_target.target = "other-target".to_owned();
+        assert!(matches!(
+            fixture.journal.inner.snapshot(&wrong_target),
+            Err(SystemUpdateError::ProtectedTargetMismatch { .. })
+        ));
+    }
+
+    #[test]
+    fn exact_retry_recovers_published_temp_before_state_commit() {
+        let fixture = Fixture::initialized();
+        let initial = ProtectedSystemUpdateState::initial("stable", "raspberry-pi-5")
+            .expect("initial protected state");
+        fixture.journal.set_protected_state(initial.clone());
+        fs::hard_link(
+            fixture.root.join("records/00000000000000000001.json"),
+            fixture.root.join("records").join(TEMP_RECORD_FILE),
+        )
+        .expect("restore published temp name");
+
+        let retry = fixture
+            .journal
+            .inner
+            .initialize(image(SystemSlot::A, 1, "release-1"), &initial)
+            .expect("exact retry authenticates published record");
+        assert_eq!(retry.protected_state.sequence(), 1);
+        assert!(!fixture.root.join("records").join(TEMP_RECORD_FILE).exists());
+        assert_eq!(record_count(&fixture), 1);
     }
 
     #[test]
@@ -1669,15 +2783,29 @@ mod tests {
             SystemSlot::B,
             2,
             "release-2",
+            "stable",
             "other-target",
             1_024,
-            "1".repeat(64),
-            "2".repeat(64),
+            ("1".repeat(64), "2".repeat(64)),
         )
         .expect("valid shape");
         assert!(matches!(
             fixture.journal.stage_verified_update(wrong_target),
             Err(SystemUpdateError::TargetMismatch { .. })
+        ));
+        let wrong_channel = VerifiedSystemImageEvidence::new(
+            SystemSlot::B,
+            2,
+            "release-2",
+            "recovery",
+            "raspberry-pi-5",
+            1_024,
+            ("1".repeat(64), "2".repeat(64)),
+        )
+        .expect("valid shape");
+        assert!(matches!(
+            fixture.journal.stage_verified_update(wrong_channel),
+            Err(SystemUpdateError::ChannelMismatch { .. })
         ));
         assert!(matches!(
             fixture
@@ -1978,6 +3106,17 @@ mod tests {
             fixture.journal.snapshot(),
             Err(SystemUpdateError::InvalidJournal(_))
         ));
+
+        let fixture = Fixture::initialized();
+        let first = fixture.root.join("records/00000000000000000001.json");
+        let legacy = String::from_utf8(fs::read(&first).expect("read first record"))
+            .expect("record is UTF-8")
+            .replace("\"schemaVersion\":2", "\"schemaVersion\":1");
+        fs::write(first, legacy).expect("write legacy-version record");
+        assert!(matches!(
+            fixture.journal.snapshot(),
+            Err(SystemUpdateError::InvalidJournal(_))
+        ));
     }
 
     #[test]
@@ -2068,6 +3207,28 @@ mod tests {
             fixture.root.join("records/00000000000000000002.json"),
         )
         .expect("publish duplicate");
+        assert!(matches!(
+            fixture.journal.recover(),
+            Err(SystemUpdateError::ProtectionCommitRequired {
+                protected_sequence: 1,
+                journal_sequence: 2,
+            })
+        ));
+        assert!(
+            fixture
+                .root
+                .join("records")
+                .join(TEMP_RECORD_FILE)
+                .is_file()
+        );
+        fixture
+            .journal
+            .set_protected_state(ProtectedSystemUpdateState::for_record(
+                "stable",
+                "raspberry-pi-5",
+                2,
+                sha256_bytes(&bytes),
+            ));
         assert_eq!(
             fixture.journal.recover().expect("recover"),
             JournalRecovery::RemovedPublishedDuplicate
@@ -2104,10 +3265,10 @@ mod tests {
                 SystemSlot::A,
                 0,
                 "release",
+                "stable",
                 "target",
                 1,
-                "1".repeat(64),
-                "2".repeat(64)
+                ("1".repeat(64), "2".repeat(64))
             )
             .is_err()
         );
@@ -2116,10 +3277,10 @@ mod tests {
                 SystemSlot::A,
                 1,
                 "../release",
+                "stable",
                 "target",
                 1,
-                "1".repeat(64),
-                "2".repeat(64)
+                ("1".repeat(64), "2".repeat(64))
             )
             .is_err()
         );
@@ -2128,10 +3289,10 @@ mod tests {
                 SystemSlot::A,
                 1,
                 "release",
+                "stable",
                 "target",
                 1,
-                "A".repeat(64),
-                "2".repeat(64)
+                ("A".repeat(64), "2".repeat(64))
             )
             .is_err()
         );

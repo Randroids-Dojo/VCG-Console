@@ -1,6 +1,9 @@
 # Signed System Image Manifest
 
-Status: delegated-role verification, crash-recoverable accepted-root replay, and exact protected-state binding implemented; protected state/time provenance, acquisition, block-device writer, boot control, and target qualification remain open.
+Status: delegated-role verification, crash-recoverable accepted-root replay,
+sealed channel-preserving read-back evidence, and exact protected root/journal
+protocols implemented; protected state/time provenance, acquisition,
+block-device writer, boot control, and target qualification remain open.
 
 ## Purpose
 
@@ -61,17 +64,27 @@ The manifest file is bounded to 64 KiB. Detached role signatures are canonical l
 
 `VerifiedSystemImageRelease::load_with_update_role` establishes threshold-signed release authority without opening the image and retains the accepted root generation, channel, target, artifact family, and signer key IDs. `verify_image` then binds the signed facts to the complete regular file and returns `VerifiedSystemImageFile`, which owns the still-open verified handle. `into_rewound_parts` consumes that result and returns the release authority plus the exact handle at byte zero. The former direct single-key loader is compiled only for focused test fixtures.
 
-After writing and synchronizing the inactive partition, the platform adapter passes its trusted read-back stream and host-selected slot to `verify_inactive_readback`. Only a matching signed-length prefix produces `VerifiedSystemImageEvidence`. Journal initialization and staging accept that sealed, non-deserializable type; deserialized `SystemImage` snapshot facts cannot be replayed as mutation authority. The adapter still owns proof that its reader actually names the synchronized inactive slot.
+After writing and synchronizing the inactive partition, the platform adapter
+passes its trusted read-back stream and host-selected slot to
+`verify_inactive_readback`. Only a matching signed-length prefix produces
+`VerifiedSystemImageEvidence`. Production evidence retains the exact delegated
+channel from `VerifiedUpdateRole`; the direct single-key test path is explicitly
+labeled `development`. Journal initialization and staging accept that sealed,
+non-deserializable type, so deserialized `SystemImage` snapshot facts cannot be
+replayed as mutation authority. The adapter still owns proof that its reader
+actually names the synchronized inactive slot.
 
 The journal separately enforces:
 
-- exact target continuity with the active image;
+- exact delegated-channel and target continuity with the active image;
 - inactive-slot selection;
 - strict generation advancement;
 - one pending update;
 - bounded globally unique attempts;
 - same-attempt six-gate health confirmation;
 - automatic rollback metadata.
+- exact externally protected channel/target/latest-record identity before
+  every use, with a required protected commit after every mutation.
 
 Manifest or source-file validity never stages a candidate, makes it active, or changes boot selection.
 
@@ -83,7 +96,8 @@ Eleven focused Rust tests cover:
 - rejection of a valid Ed25519 signature made without the system-image domain;
 - delegated channel/system-image/target authority before manifest parsing;
 - exact generation, release, target, manifest hash, image hash, and size binding;
-- complete image verification, retained release authority, rewind of the exact handle, and sealed matching read-back evidence;
+- complete image verification, retained release authority and delegated
+  channel, rewind of the exact handle, and sealed matching read-back evidence;
 - resistance to source-path replacement after verification;
 - short and changed inactive-slot read-back rejection;
 - same-size changed image and truncated image rejection;
@@ -96,8 +110,11 @@ Eleven focused Rust tests cover:
 
 This is a signed-file verifier, not a production update service.
 
-- The root primitives now model threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, revocation by omission, delegated package/catalog admission, crash-recoverable exact-chain persistence/replay, and exact generation/digest binding before use. Anchor and protected-state provenance, trusted-time production, threshold selection, operator ceremony, and physical recovery remain Q-069/I-112/I-141.
-- The writable journal remains an unprotected high-water mark. A TPM/secure element/verified boot or another qualified monotonic anchor is still required.
+- The root and journal primitives now model exact two-phase protected-state
+  binding, but their JSON adapter documents are not self-protecting. Qualified
+  platform integrity, anti-rollback, exact compare-and-swap, trusted-time
+  production, threshold selection, operator ceremony, channel/target
+  migration, reset authority, and physical recovery remain Q-069/I-112/I-141.
 - No downloader, TLS metadata policy, resumable transfer, capacity reservation, or partial cleanup exists.
 - The verified source is a regular file. No raw block device is opened, erased, partitioned, written, or synchronized by this module.
 - The exact verified source handle is retained and path replacement cannot redirect it. Concurrent in-place writes through another handle remain possible, so the privileged writer must reverify during copy and hash the complete inactive partition after synchronization.

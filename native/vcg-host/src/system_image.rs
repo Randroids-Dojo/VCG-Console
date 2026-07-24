@@ -400,14 +400,21 @@ impl VerifiedSystemImageRelease {
         if actual != self.image_sha256 {
             return Err(SystemImageError::ImageHashMismatch);
         }
+        let channel = self
+            .update_authority
+            .as_ref()
+            .map_or("development", |authority| authority.channel());
         VerifiedSystemImageEvidence::new(
             slot,
             self.generation,
             self.release_id.clone(),
+            channel,
             self.target.clone(),
             self.image_size_bytes,
-            encode_hex(&self.manifest_sha256),
-            encode_hex(&self.image_sha256),
+            (
+                encode_hex(&self.manifest_sha256),
+                encode_hex(&self.image_sha256),
+            ),
         )
         .map_err(|error| SystemImageError::InvalidEvidence(error.to_string()))
     }
@@ -858,6 +865,11 @@ mod tests {
         assert_eq!(authority.root_generation(), 4);
         assert_eq!(authority.channel(), "stable");
         assert_eq!(authority.signing_key_ids(), ["system-stable"]);
+        let image_bytes = fs::read(&fixture.image).expect("read image");
+        let evidence = release
+            .verify_inactive_readback(Cursor::new(image_bytes), SystemSlot::B)
+            .expect("verify delegated readback");
+        assert_eq!(evidence.image().channel(), "stable");
 
         let mut tampered = manifest;
         tampered[0] = b'[';
@@ -909,6 +921,7 @@ mod tests {
             .verify_inactive_readback(Cursor::new(&bytes), SystemSlot::B)
             .expect("verify inactive readback");
         assert_eq!(evidence.image().slot(), SystemSlot::B);
+        assert_eq!(evidence.image().channel(), "development");
         assert_eq!(evidence.image().image_size_bytes(), bytes.len() as u64);
     }
 

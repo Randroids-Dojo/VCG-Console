@@ -8,9 +8,27 @@ Which release channels exist, which offline root authorizes each online signing 
 
 Safe default: ship one stable production channel; keep the root offline; use a separately scoped online image-signing key; require threshold-authorized root metadata for rotation/revocation; reject expired, unknown-target, and non-advancing metadata; and make offline recovery independently verifiable. Do not treat the writable local journal as the protected anti-rollback anchor.
 
-Current reversible primitive: D-154 accepts a bounded threshold-signed root policy, requires exact next-generation old-and-new-threshold rotation, scopes non-reused delegated keys to one channel/artifact/target, checks expiration against caller-supplied trusted time, and revokes omitted role keys. D-156/D-157 persist and replay the accepted chain before launcher package admission, and D-158 binds usable authority to an exact external generation/digest state through a two-phase commit. D-152's public system-image path requires delegated authority before parsing, retains the completely hashed source handle, and issues sealed journal authority only after an adapter-owned inactive-slot read-back stream matches. Production threshold counts, signer custody, secure time, protected-state provenance, repository metadata, reader provenance, and physical recovery remain undecided.
+Current reversible primitive: D-154 accepts a bounded threshold-signed root
+policy, requires exact next-generation old-and-new-threshold rotation, scopes
+non-reused delegated keys to one channel/artifact/target, checks expiration
+against caller-supplied trusted time, and revokes omitted role keys.
+D-156/D-157 persist and replay the accepted chain before launcher package
+admission, and D-158 binds usable authority to an exact external
+generation/digest state through a two-phase commit. D-152's public system-image
+path requires delegated authority before parsing, retains the completely
+hashed source handle, and issues sealed journal authority only after an
+adapter-owned inactive-slot read-back stream matches. The journal now retains
+that delegated channel and requires exact external
+channel/target/record-sequence/record-digest state before every transition;
+each mutation returns the next state for platform compare-and-swap. Production
+threshold counts, signer custody, secure time, protected-state mechanism and
+provenance, repository metadata, reader provenance, and physical recovery
+remain undecided.
 
 This remains the owner/security decision tracked by Q-069 and I-112/I-141.
+The journal-specific mechanism, boot handoff, migration/reset, and incident
+questions are recorded as Q-140 through Q-143 in
+`OWNER_QUESTIONS_SYSTEM_UPDATE_PROTECTION_2026-07-24.md`.
 
 ## 2. Qualified attempt and health-window policy
 
@@ -24,7 +42,12 @@ The exact values should be selected from measured cold boots, camera/controller 
 
 Which qualified boot-control mechanism will atomically consume a pending attempt and select A or B on the exact Raspberry Pi image: firmware `tryboot`, U-Boot environment, RAUC-compatible boot state, or another reviewed adapter?
 
-Safe default: choose only after a disposable-card abuse campaign proves no torn state can make both slots unbootable, every candidate boot consumes its counter before transfer, and automatic fallback works without household intervention. Keep the Rust journal as policy/evidence state; do not claim it alone controls firmware boot selection.
+Safe default: choose only after a disposable-card abuse campaign proves no
+torn state can make both slots unbootable, every candidate boot consumes its
+counter and commits the claim's exact protected record state before transfer,
+and automatic fallback works without household intervention. Keep the Rust
+journal as policy/evidence state; do not claim it alone controls firmware boot
+selection or implements the protected platform slot.
 
 ## 4. System/data migration compatibility
 

@@ -1857,3 +1857,61 @@ lifecycle service, deliberate controller/motion confirmation, safe Back,
 runtime quiescence, browser/native confinement, quota coordination, durable
 unlink/claim/migration, hostile-writer resistance, and native x86-64/Pi
 power-loss/full-disk/corruption evidence remain I-189 through I-191 and I-209.
+
+## 2026-07-24: exact protected system-update journal state
+
+### Delivered
+
+- Added a strict, closed 1 KiB v1 state document binding the delegated update
+  channel, platform target, journal record sequence, and complete canonical
+  latest-record SHA-256.
+- Preserved the delegated channel through sealed inactive-slot read-back
+  evidence and every persisted system image, advancing the internal journal
+  record schema to v2 instead of silently redefining v1.
+- Required exact protected state for initialization, snapshots, recovery,
+  staging, arming, boot selection and claim, health transitions, interrupted
+  boot recovery, confirmation, and rollback.
+- Made every mutation a two-phase transaction that durably publishes one
+  record and returns its exact next protected state without committing it.
+  Candidate transfer requires the boot-claim state to be committed first.
+- Added authenticated idempotent retry for exactly one record ahead. Only
+  reconstructing the identical operation and canonical record returns pending
+  commit state; ordinary reads and nonmatching retries disclose sequence
+  diagnostics only.
+- Added rollback, same-sequence substitution, scope-drift, stale-state,
+  multiple-record-ahead, and ambiguous-temp refusal while preserving
+  deterministic temporary publication recovery.
+- Explicitly released the operation advisory lock before closing its handle,
+  matching the native store portability discipline across concurrent Unix
+  forks.
+- Documented the adapter transaction in
+  `SYSTEM_UPDATE_PROTECTED_STATE.md`, recorded D-162, and deferred the actual
+  storage/CAS, firmware handoff, migration/reset, and incident response as
+  Q-140 through Q-143.
+
+### Verification evidence
+
+Twenty-seven focused system-update tests cover strict protected-state intake,
+two-phase behavior for every mutation, exact and nonmatching retry,
+record deletion/substitution, channel and target drift, attempt/health
+isolation, rollback, and temporary publication recovery. Eleven system-image
+tests cover delegated channel retention together with signature-first source
+and inactive-slot read-back verification. The storage-layout composition test
+also passes against the channel-bearing evidence.
+
+Strict all-target Clippy, warning-denied Rustdoc, 261 complete native library
+tests with five intentional helpers ignored, all nineteen native CLI tests,
+workspace formatting, 221 TypeScript/Svelte tests, typecheck, production
+build, schema/manifest/benchmark/transport/Godot/compliance validation,
+dependency audit, and all twenty-four browser E2E flows pass on Windows.
+Release-mode compliance remains blocked only by the seven existing project
+license entries and one pose-model redistribution decision.
+
+### Remaining boundary
+
+The bounded JSON state is an adapter contract, not protected storage.
+Qualified integrity and anti-rollback storage, exact durable compare-and-swap,
+secure write-rate/endurance evidence, Raspberry Pi bootloader coordination,
+trusted health producers and deadlines, authorized migration/reset, audit
+handling, reader/block-writer provenance, and target power-loss/full-disk
+qualification remain open.

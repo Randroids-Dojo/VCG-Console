@@ -901,10 +901,10 @@ mod tests {
             slot,
             2,
             "release-2",
+            "stable",
             "raspberry-pi-5",
             image_size_bytes,
-            "1".repeat(64),
-            "2".repeat(64),
+            ("1".repeat(64), "2".repeat(64)),
         )
         .expect("valid image evidence")
     }

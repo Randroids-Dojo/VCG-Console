@@ -128,7 +128,22 @@ recovery ceremonies do not exist.
 
 The system-image manifest then binds a safe release ID, exact privileged target, generation, raw file length, and SHA-256 through closed JSON. The complete bounded regular file is opened once, length-checked before/after streaming, hashed, retained, and rewound for a future privileged writer. Changed/truncated images, wrong target/role/signature/schema/format, unknown fields, unsafe identifiers, and oversized inputs fail. Source verification creates no slot/journal evidence; only a complete matching read-back can create sealed evidence for a host-selected inactive slot. Retaining the handle prevents path replacement from redirecting the copy but does not stop concurrent in-place writes; writer-side reverify and synchronized inactive-partition read-back remain mandatory. This does not write a partition, choose which slot is inactive, or verify firmware.
 
-System-image state has a separate hash-linked, consecutive, append-only two-slot journal. It accepts only exact-target strictly advancing evidence for the inactive slot, keeps staged images out of boot selection, consumes a bounded globally unique attempt before candidate transfer, isolates health passes to one attempt, and records confirmation or automatic rollback without any user-data or arbitrary-path field. Temp publication before/after the no-replace final link recovers deterministically; malformed, gapped, stale-attempt, changed-history, and rehashed impossible-transition cases fail closed. This does not drive Raspberry Pi firmware, protect the writable high-water mark from privileged deletion, authenticate health producers, or prove target filesystem power-loss behavior.
+System-image state has a separate hash-linked, consecutive, append-only two-slot
+journal. It accepts only delegated-channel/exact-target strictly advancing
+evidence for the inactive slot, keeps staged images out of boot selection,
+consumes a bounded globally unique attempt before candidate transfer, isolates
+health passes to one attempt, and records confirmation or automatic rollback
+without any user-data or arbitrary-path field. Every read and transition now
+requires an externally protected exact channel/target/latest-record identity;
+every mutation publishes first and returns the next identity, and candidate
+transfer requires the boot-claim identity to be committed first. Exact
+operation retry can authenticate one record ahead without trusting unexplained
+writable history. Temp publication before/after the no-replace final link
+recovers deterministically; malformed, gapped, stale-attempt, rollback,
+substitution, scope-drift, changed-history, and rehashed impossible-transition
+cases fail closed. The JSON adapter is not itself protected, and this does not
+drive Raspberry Pi firmware, supply qualified compare-and-swap storage,
+authenticate health producers, or prove target filesystem power-loss behavior.
 
 An explicit host-only save-reset primitive now consumes the bounded
 `SaveStoragePlan` identity, publishes a strict path-free durable intent under a
@@ -141,8 +156,8 @@ same-account hostile-writer/link-swap resistance, sandbox/mount enforcement,
 confirmation UX, and target power-loss evidence remain unproven.
 
 The trust chain is still incomplete: network discovery/TLS/range behavior does
-not exist; root anchors, exact accepted-root/package-state provenance and
-compare-and-swap, system activation history, and time are not protected;
+not exist; root anchors, exact accepted-root/package/system-update state
+provenance and compare-and-swap, and time are not protected;
 timestamp/snapshot/mirror/freeze defenses are absent; capacity is checked
 rather than reserved; compressed extraction does not exist; an ordinary child
 can self-assert ready until producers are qualified; post-activation package
