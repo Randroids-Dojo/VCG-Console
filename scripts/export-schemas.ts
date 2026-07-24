@@ -2,6 +2,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { gameManifestJsonSchema } from "@vcg/game-manifest";
 import {
+  bodyProfileConfirmedSelectionJsonSchema,
+  bodyProfilePredictionJsonSchema,
+  bodyProfileProbeJsonSchema,
+  bodyProfileTemplateJsonSchema,
   motionFrameJsonSchema,
   motionGamepadOutputJsonSchema,
   motionGamepadSampleJsonSchema,
@@ -22,6 +26,13 @@ import { bridgeClientMessageJsonSchema, bridgeServerMessageJsonSchema } from "@v
 async function main(): Promise<void> {
   const outputDirectory = resolve("schemas");
   const artifacts = [
+    ["body-profile-template.schema.json", bodyProfileTemplateJsonSchema],
+    ["body-profile-probe.schema.json", bodyProfileProbeJsonSchema],
+    ["body-profile-prediction.schema.json", bodyProfilePredictionJsonSchema],
+    [
+      "body-profile-confirmed-selection.schema.json",
+      bodyProfileConfirmedSelectionJsonSchema,
+    ],
     ["motion-frame.schema.json", motionFrameJsonSchema],
     ["motion-gamepad-sample.schema.json", motionGamepadSampleJsonSchema],
     ["motion-gamepad-output.schema.json", motionGamepadOutputJsonSchema],

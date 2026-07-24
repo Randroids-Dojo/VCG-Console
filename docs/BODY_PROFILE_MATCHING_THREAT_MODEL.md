@@ -1,6 +1,7 @@
 # Automatic body-profile matching threat model
 
-Status: design review; feature not implemented or approved for household beta
+Status: camera-free research contract implemented; product feature not
+implemented or approved for household beta
 
 Last reviewed: 2026-07-24
 
@@ -19,8 +20,15 @@ This document is a feature-specific companion to
 [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md). It does not replace that
 repository-wide model, prove that a mitigation exists, qualify a vault, or
 provide legal advice. The current browser prototype does not implement
-persistent body-profile matching. All controls marked "required" are release
-gates rather than present-tense claims.
+persistent body-profile matching. A separate strict TypeScript research
+contract now exercises a fixed synthetic body-ratio vector, conservative
+prediction/abstention, exact one-shot confirmation, correction, New Player,
+and opt-out while granting no downstream authority. Its ten camera-free
+scenarios use no people, images, vault, extractor, or persistence and do not
+qualify the feature. See
+[BODY_PROFILE_PREDICTION_EVIDENCE_2026-07-24.md](BODY_PROFILE_PREDICTION_EVIDENCE_2026-07-24.md).
+All controls marked "required" remain release gates rather than present-tense
+product claims.
 
 The acceptable product result is deliberately narrow:
 

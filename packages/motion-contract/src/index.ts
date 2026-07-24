@@ -1,4 +1,5 @@
 export * from "./actions";
+export * from "./body-profile-prediction";
 export * from "./coordinates";
 export * from "./gamepad-emulation";
 export * from "./identity-benchmark";

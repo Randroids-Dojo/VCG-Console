@@ -1,0 +1,383 @@
+{
+  "format": "vcg-body-profile-prediction-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "camera-free-synthetic-contract-exercise",
+  "qualification": "not-product-or-identity-qualification",
+  "policy": {
+    "matchingIsAuthentication": false,
+    "predictionGrantsAuthority": false,
+    "explicitConfirmationRequired": true,
+    "matchingOptOutAvailable": true,
+    "portraitInputAccepted": false,
+    "facialInputAccepted": false,
+    "exactScoresExposedToUi": false,
+    "productMatchingEnabled": false,
+    "persistentEncryptedStoreImplemented": false,
+    "realCameraOrParticipantUsed": false,
+    "networkUsed": false
+  },
+  "featureInventory": {
+    "schemaId": "core17-body-ratios-v1",
+    "extractorId": "camera-free-synthetic-core17-ratios-v1",
+    "allowedRatioFields": [
+      "shoulderWidthOverTorso",
+      "hipWidthOverTorso",
+      "upperArmOverTorso",
+      "forearmOverTorso",
+      "thighOverTorso",
+      "shinOverTorso"
+    ],
+    "forbiddenInputKeys": [
+      "portraitPixels",
+      "portraitHandle",
+      "faceEmbedding",
+      "noseCoordinate",
+      "displayName",
+      "email"
+    ],
+    "portraitRecordDisposition": "separate-not-provided-to-matcher",
+    "facialOrAppearanceFeatureCount": 0
+  },
+  "predictionScenarios": [
+    {
+      "scenarioId": "separated-candidate",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-separated",
+        "attemptId": "attempt-separated",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "predicted",
+        "reason": "candidate-separated",
+        "predictedProfileId": "profile-a",
+        "confidenceBand": "candidate-high",
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "lookalike-ambiguity",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-ambiguous",
+        "attemptId": "attempt-ambiguous",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "ambiguous",
+        "reason": "separation-threshold",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "distant-body-vector",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-distant",
+        "attemptId": "attempt-distant",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "no-match",
+        "reason": "distance-threshold",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "matching-disabled",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-disabled",
+        "attemptId": "attempt-disabled",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "unavailable",
+        "reason": "matching-disabled",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "tracker-degraded",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-degraded",
+        "attemptId": "attempt-degraded",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "unavailable",
+        "reason": "tracker-not-ready",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "multiple-people-visible",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-multiple",
+        "attemptId": "attempt-multiple",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "unavailable",
+        "reason": "not-single-player",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "calibration-context-changed",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-context",
+        "attemptId": "attempt-context",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "unavailable",
+        "reason": "calibration-context-mismatch",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "opted-out-and-invalidated-only",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-inactive",
+        "attemptId": "attempt-inactive",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "no-match",
+        "reason": "no-eligible-templates",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "vault-or-factory-loss-empty",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-after-loss",
+        "attemptId": "attempt-after-loss",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "no-match",
+        "reason": "no-eligible-templates",
+        "predictedProfileId": null,
+        "confidenceBand": null,
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    },
+    {
+      "scenarioId": "fresh-profile-after-loss",
+      "prediction": {
+        "schemaVersion": 1,
+        "predictionId": "prediction-fresh",
+        "attemptId": "attempt-fresh",
+        "epochId": "evidence-epoch",
+        "occurredAtMs": 1000,
+        "expiresAtMs": 21000,
+        "state": "predicted",
+        "reason": "candidate-separated",
+        "predictedProfileId": "fresh-profile",
+        "confidenceBand": "candidate-high",
+        "requiresExplicitConfirmation": true,
+        "grantsProfileAuthority": false,
+        "portraitInputUsed": false,
+        "facialInputUsed": false
+      }
+    }
+  ],
+  "confirmationResults": [
+    {
+      "confirmationId": "accept-separated-candidate",
+      "result": {
+        "schemaVersion": 1,
+        "predictionId": "confirm-accept",
+        "attemptId": "attempt-confirm-accept",
+        "epochId": "evidence-epoch",
+        "confirmedAtMs": 1100,
+        "disposition": "accepted-prediction",
+        "selectedProfileId": "profile-a",
+        "matchingPreference": "unchanged",
+        "advisorySelectionOnly": true,
+        "grantsProfileAuthority": false,
+        "grantsCalibrationAuthority": false,
+        "grantsSaveAuthority": false
+      }
+    },
+    {
+      "confirmationId": "correct-to-visible-profile",
+      "result": {
+        "schemaVersion": 1,
+        "predictionId": "confirm-correct",
+        "attemptId": "attempt-confirm-correct",
+        "epochId": "evidence-epoch",
+        "confirmedAtMs": 1100,
+        "disposition": "corrected-profile",
+        "selectedProfileId": "profile-b",
+        "matchingPreference": "unchanged",
+        "advisorySelectionOnly": true,
+        "grantsProfileAuthority": false,
+        "grantsCalibrationAuthority": false,
+        "grantsSaveAuthority": false
+      }
+    },
+    {
+      "confirmationId": "choose-new-player",
+      "result": {
+        "schemaVersion": 1,
+        "predictionId": "confirm-new",
+        "attemptId": "attempt-confirm-new",
+        "epochId": "evidence-epoch",
+        "confirmedAtMs": 1100,
+        "disposition": "new-player",
+        "selectedProfileId": null,
+        "matchingPreference": "unchanged",
+        "advisorySelectionOnly": true,
+        "grantsProfileAuthority": false,
+        "grantsCalibrationAuthority": false,
+        "grantsSaveAuthority": false
+      }
+    },
+    {
+      "confirmationId": "disable-future-matching",
+      "result": {
+        "schemaVersion": 1,
+        "predictionId": "confirm-opt-out",
+        "attemptId": "attempt-confirm-opt-out",
+        "epochId": "evidence-epoch",
+        "confirmedAtMs": 1100,
+        "disposition": "matching-opt-out",
+        "selectedProfileId": null,
+        "matchingPreference": "disabled",
+        "advisorySelectionOnly": true,
+        "grantsProfileAuthority": false,
+        "grantsCalibrationAuthority": false,
+        "grantsSaveAuthority": false
+      }
+    }
+  ],
+  "guardChecks": [
+    {
+      "checkId": "portrait-face-name-canaries-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "cloned-prediction-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "cross-controller-prediction-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "expired-confirmation-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "unsupported-schema-version-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "duplicate-profile-template-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "inactive-correction-rejected",
+      "passed": true
+    },
+    {
+      "checkId": "prediction-output-excludes-vector-and-scores",
+      "passed": true
+    },
+    {
+      "checkId": "confirmation-grants-no-downstream-authority",
+      "passed": true
+    }
+  ],
+  "lifecycleDisposition": {
+    "optOutTemplateExcluded": true,
+    "invalidatedTemplateExcluded": true,
+    "calibrationContextMismatchUnavailable": true,
+    "emptyVaultProducesNoMatch": true,
+    "freshRecreationUsesNewProfileOnly": true,
+    "unsupportedSchemaMigrationRejected": true,
+    "encryptedPersistenceImplemented": false,
+    "factoryResetTransactionTested": false
+  },
+  "summary": {
+    "predictionScenarioCount": 10,
+    "predictedCount": 2,
+    "ambiguousCount": 1,
+    "noMatchCount": 3,
+    "unavailableCount": 4,
+    "explicitConfirmationCount": 4,
+    "guardCheckCount": 9,
+    "passedGuardCheckCount": 9,
+    "participantCount": 0,
+    "realImageCount": 0,
+    "measuredFalseAcceptRate": null,
+    "measuredFalseRejectRate": null
+  },
+  "provenance": {
+    "implementationPath": "packages/motion-contract/src/body-profile-prediction.ts",
+    "contractTestPath": "packages/motion-contract/tests/body-profile-prediction.test.ts",
+    "generatorPath": "scripts/generate-body-profile-prediction-evidence.mjs",
+    "validatorPath": "scripts/validate-body-profile-prediction-evidence.mjs",
+    "implementationSha256": "6be330b4eccb1b3b3e87cce4a4cde1b661019260f2b429a0b50b4d00cd37843b",
+    "contractTestSha256": "c584f1969761965d61853ad96eb21ff2078b761fc8be2aff86d17551964df9f0",
+    "generatorSha256": "8c0cae80f2e23ca3e0b2ea5c10c57640abb9a47d9e47ddbc91605b8abf50d917",
+    "validatorSha256": "f5978a998db985a6afcced22b6ea063ccd7c984afac3f5ab02b2a5cc2dd1a91e"
+  },
+  "claimBoundary": "Deterministic camera-free contract evidence only. It proves strict input/output shape, conservative abstention, exact one-shot confirmation, correction/New Player/opt-out routes, inactive-template exclusion, and rejection of authored portrait/face/name canaries. It does not prove identity, recognition accuracy, privacy, encryption, persistence, usability, accessibility, safety, legal compliance, or target behavior.",
+  "limitations": [
+    "No person, camera, tracker backend, portrait, face embedding, target console, game, room, or network was used.",
+    "The fixed synthetic ratio vector is not an approved feature extractor, biometric design, model selection, or evidence that these ratios are appropriate.",
+    "No encrypted vault, protected-state commit, deletion transaction, factory-reset implementation, backup exclusion, migration, memory clearing, or forensic test ran.",
+    "No false-accept, false-reject, abstention, correction, demographic, child, seated, disability, clothing, room-change, or household-observation rate was measured.",
+    "A confirmed result remains advisory and grants no profile, calibration, save, game, launch, mutation, or security authority."
+  ]
+}

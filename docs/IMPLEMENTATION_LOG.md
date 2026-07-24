@@ -3613,3 +3613,54 @@ scanned ARM64/x86-64 artifacts, open-crash reproduction or closure,
 TV-distance legibility, one-action startup, runtime behavior, and target
 package lifecycle evidence remain. The public candidate manifest stays
 `unverified`; this source-candidate SBOM cannot promote it.
+
+## 2026-07-24: bounded body-profile prediction and confirmation contract
+
+### Delivered
+
+- Advanced I-072 from open to active with a strict research-only,
+  camera-free body-profile predictor and exact confirmation controller.
+- Froze a closed six-ratio synthetic feature inventory with exact
+  feature/extractor IDs, bounded sample count, opaque profile ID, template and
+  calibration revisions, calibration-context digest, and explicit active,
+  opted-out, or invalidated state.
+- Added conservative standardized-distance and candidate-separation gates.
+  Matching-disabled, tracker-not-ready, multiple-person, context-mismatch,
+  no-template, distance, and ambiguity cases abstain without exposing vectors,
+  distances, ranks, or exact scores.
+- Required the exact controller-issued prediction object within 20 seconds.
+  Acceptance, deliberate correction, New Player, and opt-out remain advisory;
+  every result grants zero profile, calibration, and save authority.
+- Added strict portrait/face/name exclusion canaries and four generated Draft
+  2020-12 schemas for template, probe, prediction, and confirmed selection.
+- Added a hash-bound 10-scenario evidence artifact, deterministic generator,
+  128 KiB strict validator, mutation suite, evidence report, and Q-240.
+
+### Verification evidence
+
+- Sixteen focused contract cases cover separated candidates, ambiguity and
+  distance abstention, policy/health/multi-person/context gates,
+  opted-out/invalidated exclusion, exact issuance/replay/expiry, correction,
+  New Player, opt-out, inactive correction, version/duplicate refusal,
+  portrait/face/name canaries, loss/recreation modeling, authority denial, and
+  closed schema export.
+- The tracked artifact contains 10 prediction scenarios: 2 predicted, 1
+  ambiguous, 3 no-match, and 4 unavailable. Four deliberate confirmation
+  routes and 9/9 guard checks pass; participant and real-image counts remain
+  zero and error rates remain null.
+- Ten artifact-validator cases reject fabricated authority, weakened
+  confirmation/correction, portrait/face/score use, product/persistence or
+  participant/rate claims, ambiguity or inactive-template promotion, removed
+  canaries/checks, factory-reset claims, stale provenance, and undeclared
+  identity qualification.
+
+### Remaining boundary
+
+I-072 remains active. The fixed vector is not an approved extractor, model, or
+biometric design. No person, camera, tracker backend, encrypted vault, broker,
+protected-state commit, persistence, schema migration, crash-recoverable
+invalidation/deletion/reset, backup/export/recovery exclusion, memory
+clearing, privacy/legal review, household/accessibility study, false-rate
+campaign, or target appliance was exercised. Matching remains absent from
+product builds pending Q-240 and the complete I-067/I-072/I-184/I-186/I-187
+release gates.
