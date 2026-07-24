@@ -1,6 +1,6 @@
 # Signed System Image Manifest
 
-Status: Rust verification primitive implemented; key hierarchy, acquisition, block-device writer, boot control, and target qualification remain open.
+Status: delegated-role verification primitive implemented; protected root persistence/time, acquisition, block-device writer, boot control, and target qualification remain open.
 
 ## Purpose
 
@@ -8,9 +8,9 @@ Status: Rust verification primitive implemented; key hierarchy, acquisition, blo
 
 The boundary is intentionally ordered:
 
-1. bound and read the manifest, signature text, and public-key text;
-2. decode only canonical lowercase hexadecimal key/signature material;
-3. verify Ed25519 over the exact domain-separated manifest bytes;
+1. bound and read the manifest;
+2. select only the exact privileged channel/system-image/target role from a current threshold-verified root;
+3. verify the role's distinct Ed25519 threshold over the exact domain-separated manifest bytes;
 4. only then parse the closed JSON document;
 5. validate schema, identifiers, exact configured target, format, size, and SHA-256;
 6. open the raw image once, require its exact signed length, stream every byte through SHA-256, and recheck the opened handle's length;
@@ -19,7 +19,7 @@ The boundary is intentionally ordered:
 9. hash the signed-length prefix from the adapter's trusted inactive-slot read-back stream; and
 10. only then construct sealed, non-deserializable journal evidence.
 
-No launcher, game, browser origin, manifest field, or image file selects the trusted public key, expected target, or A/B slot.
+No launcher, game, browser origin, manifest field, or image file selects the trusted root, channel, expected target, trusted time, or A/B slot.
 
 ## Manifest v1
 
@@ -55,11 +55,11 @@ The parser rejects unknown fields. Meanings are:
 - `image.sha256`: exactly 64 canonical lowercase hexadecimal characters;
 - `image.sizeBytes`: 1 through 64 GiB.
 
-The manifest file is bounded to 64 KiB. Signature and public key files are single-line canonical lowercase hexadecimal, optionally ending in one LF, and bounded to 256 and 128 bytes respectively.
+The manifest file is bounded to 64 KiB. Detached role signatures are canonical lowercase hexadecimal and key-ID labeled through the bounded root/signature types in `UPDATE_TRUST_ROOT.md`.
 
 ## Evidence handoff
 
-`VerifiedSystemImageRelease::load` establishes signed release authority without opening the image. `verify_image` then binds the signed facts to the complete regular file and returns `VerifiedSystemImageFile`, which owns the still-open verified handle. `into_rewound_parts` consumes that result and returns the release authority plus the exact handle at byte zero.
+`VerifiedSystemImageRelease::load_with_update_role` establishes threshold-signed release authority without opening the image and retains the accepted root generation, channel, target, artifact family, and signer key IDs. `verify_image` then binds the signed facts to the complete regular file and returns `VerifiedSystemImageFile`, which owns the still-open verified handle. `into_rewound_parts` consumes that result and returns the release authority plus the exact handle at byte zero. The former direct single-key loader is compiled only for focused test fixtures.
 
 After writing and synchronizing the inactive partition, the platform adapter passes its trusted read-back stream and host-selected slot to `verify_inactive_readback`. Only a matching signed-length prefix produces `VerifiedSystemImageEvidence`. Journal initialization and staging accept that sealed, non-deserializable type; deserialized `SystemImage` snapshot facts cannot be replayed as mutation authority. The adapter still owns proof that its reader actually names the synchronized inactive slot.
 
@@ -77,10 +77,11 @@ Manifest or source-file validity never stages a candidate, makes it active, or c
 
 ## Automated evidence
 
-Ten focused Rust tests cover:
+Eleven focused Rust tests cover:
 
 - signature verification before JSON parsing;
 - rejection of a valid Ed25519 signature made without the system-image domain;
+- delegated channel/system-image/target authority before manifest parsing;
 - exact generation, release, target, manifest hash, image hash, and size binding;
 - complete image verification, retained release authority, rewind of the exact handle, and sealed matching read-back evidence;
 - resistance to source-path replacement after verification;
@@ -95,7 +96,7 @@ Ten focused Rust tests cover:
 
 This is a signed-file verifier, not a production update service.
 
-- The public key is supplied as host configuration. Offline root roles, online delegation, expiration, threshold policy, rotation, revocation, and recovery are still Q-069/I-112/I-141.
+- The root primitive now models threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, and revocation by omission. Its anchors, trusted time, accepted-root persistence, threshold selection, operator ceremony, package-role integration, and recovery are still Q-069/I-112/I-141.
 - The writable journal remains an unprotected high-water mark. A TPM/secure element/verified boot or another qualified monotonic anchor is still required.
 - No downloader, TLS metadata policy, resumable transfer, capacity reservation, or partial cleanup exists.
 - The verified source is a regular file. No raw block device is opened, erased, partitioned, written, or synchronized by this module.

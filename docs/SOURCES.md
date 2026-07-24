@@ -1,6 +1,6 @@
 # Research source ledger
 
-Last verified: 2026-07-21
+Last updated: 2026-07-24
 
 Prefer primary project repositories, official documentation, standards, and official lifecycle notices. Product claims are candidates for local measurement, not substitutes for it.
 
@@ -94,6 +94,14 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 | [Steam Hardware Windows resources](https://help.steampowered.com/en/faqs/view/6121-ECCD-D643-BAA8) | Valve publishes Steam Machine Windows drivers and states that Steam Machine is dual-boot capable, while the supported SteamOS dual-boot installer wizard is not ready and installing Windows currently wipes SteamOS. |
 | [Bazzite installation guide](https://docs.bazzite.gg/General/Installation_Guide/install-guide/) | The Bazzite project's current x86 installation, Steam Gaming Mode, Windows dual-boot, separate-drive, Secure Boot, and recovery guidance for evaluating a lower-cost AMD mini-PC lane. This does not establish support on Valve's Steam Machine. |
 | [Flatpak sandbox permissions](https://docs.flatpak.org/en/latest/sandbox-permissions.html) | Sandboxes begin without device access; input and raw USB grants exist in newer Flatpak, while webcam access may require broad device access. Exact V4L2 camera behavior still needs SteamOS testing. |
+
+## Update trust and recovery
+
+| Source | Relevant evidence |
+|---|---|
+| [The Update Framework specification 1.0.35](https://theupdateframework.github.io/specification/v1.0.35/) | Primary specification for offline root authority, distinct metadata roles, threshold signatures, expiry, rollback/freeze protection, and exact next-version root rotation signed under both the old and new root thresholds. |
+| [Uptane Standard 2.0.0](https://uptane.org/docs/2.0.0/standard/uptane-standard) | Primary software-image update standard covering root/targets/snapshot/timestamp roles, secure time, hardware/image binding, release counters, complete image length/hash verification, and full versus partial verification. VCG is not claiming Uptane conformance. |
+| [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032) | IETF specification for Ed25519/EdDSA used by the current local signing primitives. |
 
 ## Brand and typography
 

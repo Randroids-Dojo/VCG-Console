@@ -1398,7 +1398,7 @@ Ten focused tests cover signature-before-parse ordering, cross-domain signature 
 
 ### Remaining boundary
 
-This verifies one regular file under one provisioned key, retains its exact handle, and mechanically verifies a supplied read-back stream; it is not a downloader or block-device update transaction. Offline-root/online roles, expiration/rotation/revocation, protected anti-rollback, TLS/resume/capacity/cleanup, concurrent-write exclusion or copy-time reverify, actual synchronized reader provenance, compression, signed migrations, bootloader selection, trustworthy health, target Linux, and power-loss campaigns remain open. The public key path, expected target, slot, and reader are privileged configuration, but none is yet protected by verified boot or qualified provisioning.
+At this checkpoint the primitive verified one regular file under one provisioned key, retained its exact handle, and mechanically verified a supplied read-back stream; it was not a downloader or block-device update transaction. The later threshold-root tranche supersedes the public single-key admission path, while protected anti-rollback/time, TLS/resume/capacity/cleanup, concurrent-write exclusion or copy-time reverify, actual synchronized reader provenance, compression, signed migrations, bootloader selection, trustworthy health, target Linux, and power-loss campaigns remain open. The expected target, slot, reader, and root inputs are privileged configuration, but none is yet protected by verified boot or qualified provisioning.
 
 ## 2026-07-24: bounded storage layout and capacity boundary
 
@@ -1420,3 +1420,26 @@ Twelve focused Rust tests cover aligned contiguous derivation, equal read-only s
 ### Remaining boundary
 
 This code changes no disk. Exact card identity/capacity, final sizes, partition table, firmware compatibility, filesystems, runtime mount enforcement, real reservations/quotas, full-disk/corruption/update/reset/garbage-collection behavior, whole-card failure, computer-assisted reflash, endurance, write amplification, and sudden-power evidence remain open. The fixture's 512 MiB boot, 16 GiB slots, and 8 GiB reserve are illustrative qualification inputs only.
+
+## 2026-07-24: threshold update root and delegated roles
+
+### Delivered
+
+- Added a bounded closed v1 root document with configurable out-of-band Ed25519 anchor and candidate-root thresholds.
+- Verified bootstrap root bytes before parsing, then required the document to meet its own root threshold, a caller-supplied persisted generation floor, and caller-supplied trusted time.
+- Required every rotation to advance exactly one generation and meet both current and candidate root thresholds over the same exact bytes.
+- Added distinct channel/artifact/target roles for system images, installed catalogs, package releases, and an independently keyed offline recovery lane while retaining existing protocol domains and payload limits.
+- Rejected root/role key-ID reuse, public-key reuse, impossible thresholds, duplicate roles/signatures, unknown fields, unsafe identifiers, noncanonical encodings, oversized payloads, rollback, generation skips, expiry, and cross-protocol signatures.
+- Modeled delegated revocation by omission from the next authenticated root generation.
+- Made delegated role authority the public system-image admission path before manifest parsing and retained the accepted root generation, role identity, and signer key IDs.
+- Added `UPDATE_TRUST_ROOT.md`, a dedicated update-trust owner-question document, D-154, and updated I-110/I-112/I-141, offline/time behavior, native boundaries, and the threat model.
+
+### Verification evidence
+
+Fourteen focused root-policy tests cover signature-before-parse bootstrap, separate anchor/candidate thresholds, exact dual-threshold rotation, old-only/new-only denial, rollback/skip/expiry, persisted floor, exact role thresholds, domain/channel confusion, bootstrap/current-root-to-role reassignment denial during acceptance, independent recovery authority, revocation, duplicates/key reuse, malformed metadata, canonical encoding, and size bounds. One system-image integration test proves delegated authority precedes manifest parsing and is retained on the release. Final native verification passes 211 library tests with five intentional subprocess helpers ignored and all fourteen CLI tests; formatting and strict Clippy are clean.
+
+The design is informed by TUF 1.0.35 root/role/rotation rules, Uptane 2.0.0 secure-time and image-verification requirements, and RFC 8032 Ed25519. It deliberately claims only the implemented subset, not framework conformance.
+
+### Remaining boundary
+
+This is an in-memory verification primitive. It does not choose production thresholds, provision anchors, establish trusted time, persist accepted roots/high-water state, acquire signatures or repository metadata, implement timestamp/snapshot/mirror/freeze defenses, wire installed-catalog/package-release loaders, protect artifact generation floors, or execute rotation/revocation/lost-quorum/recovery drills. An expired root blocks new artifact authority but does not define target long-offline UX. A maintained conformant update client should replace this subset if the complete repository workflow is required.

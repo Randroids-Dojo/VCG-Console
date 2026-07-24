@@ -8,7 +8,7 @@ Which release channels exist, which offline root authorizes each online signing 
 
 Safe default: ship one stable production channel; keep the root offline; use a separately scoped online image-signing key; require threshold-authorized root metadata for rotation/revocation; reject expired, unknown-target, and non-advancing metadata; and make offline recovery independently verifiable. Do not treat the writable local journal as the protected anti-rollback anchor.
 
-Current reversible primitive: D-152 accepts one host-provisioned Ed25519 public-key path, verifies a domain-separated exact-target image manifest before parsing, retains the completely hashed source handle, and issues sealed journal authority only after an adapter-owned inactive-slot read-back stream matches. That proves the cryptographic/content mechanics without deciding root delegation, channel roles, expiration, rotation, revocation, reader provenance, or recovery.
+Current reversible primitive: D-154 accepts a bounded threshold-signed root policy, requires exact next-generation old-and-new-threshold rotation, scopes non-reused delegated keys to one channel/artifact/target, checks expiration against caller-supplied trusted time, and revokes omitted role keys. D-152's public system-image path now requires that authority before parsing, retains the completely hashed source handle, and issues sealed journal authority only after an adapter-owned inactive-slot read-back stream matches. Production threshold counts, signer custody, secure time, protected root persistence, package-role wiring, repository metadata, reader provenance, and recovery remain undecided.
 
 This remains the owner/security decision tracked by Q-069 and I-112/I-141.
 

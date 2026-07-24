@@ -11,16 +11,23 @@ use std::fs::{self, File};
 use std::io::{self, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 
+#[cfg(test)]
 use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
 use crate::system_update::{MAX_SYSTEM_IMAGE_BYTES, SystemSlot, VerifiedSystemImageEvidence};
+use crate::update_trust::{
+    DetachedUpdateSignatures, TrustedUpdateRoot, UpdateArtifactKind, VerifiedUpdateRole,
+};
 
 const MANIFEST_SCHEMA_VERSION: u32 = 1;
+#[cfg(test)]
 const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-SYSTEM-IMAGE-MANIFEST-V1\0";
 const MAX_MANIFEST_BYTES: u64 = 64 * 1_024;
+#[cfg(test)]
 const MAX_SIGNATURE_TEXT_BYTES: u64 = 256;
+#[cfg(test)]
 const MAX_PUBLIC_KEY_TEXT_BYTES: u64 = 128;
 
 /// Signature-verified authority for one target-specific raw system image.
@@ -32,6 +39,7 @@ pub struct VerifiedSystemImageRelease {
     image_size_bytes: u64,
     image_sha256: [u8; 32],
     manifest_sha256: [u8; 32],
+    update_authority: Option<VerifiedUpdateRole>,
 }
 
 /// One completely verified source image and its exact still-open file handle.
@@ -73,6 +81,47 @@ impl VerifiedSystemImageFile {
 }
 
 impl VerifiedSystemImageRelease {
+    /// Loads one image manifest through current delegated update-role authority.
+    ///
+    /// Exact channel/system-image/target threshold verification precedes JSON
+    /// parsing. The caller supplies trusted time and a root policy that was
+    /// bootstrapped or rotated through `update_trust`.
+    ///
+    /// # Errors
+    ///
+    /// Rejects unsafe/oversized input, missing/expired role authority,
+    /// insufficient signatures, malformed or unknown JSON, wrong
+    /// schema/target, unsafe identifiers, and invalid image bounds.
+    pub fn load_with_update_role(
+        manifest_path: &Path,
+        signatures: &DetachedUpdateSignatures,
+        trusted_root: &TrustedUpdateRoot,
+        channel: &str,
+        expected_target: &str,
+        trusted_unix_seconds: u64,
+    ) -> Result<Self, SystemImageError> {
+        validate_identifier("expected target", expected_target, 64)?;
+        require_absolute_regular_file("system image manifest", manifest_path)?;
+        let manifest_bytes =
+            read_bounded(manifest_path, MAX_MANIFEST_BYTES, "system image manifest")?;
+        let update_authority = trusted_root
+            .verify_role(
+                channel,
+                UpdateArtifactKind::SystemImage,
+                expected_target,
+                &manifest_bytes,
+                signatures,
+                trusted_unix_seconds,
+            )
+            .map_err(|error| SystemImageError::UpdateAuthority(error.to_string()))?;
+        let manifest_sha256 = Sha256::digest(&manifest_bytes).into();
+        let document: SystemImageManifestDocument = serde_json::from_slice(&manifest_bytes)
+            .map_err(|error| SystemImageError::InvalidDocument(error.to_string()))?;
+        let mut release = Self::from_document(document, expected_target, manifest_sha256)?;
+        release.update_authority = Some(update_authority);
+        Ok(release)
+    }
+
     /// Loads and verifies one bounded detached-signed image manifest.
     ///
     /// Signature verification precedes JSON parsing. All three paths and the
@@ -83,7 +132,8 @@ impl VerifiedSystemImageRelease {
     /// Rejects relative or non-regular paths, oversized inputs, noncanonical
     /// key/signature encodings, invalid signatures, malformed or unknown JSON,
     /// wrong schema/target, unsafe identifiers, and invalid image bounds.
-    pub fn load(
+    #[cfg(test)]
+    fn load(
         manifest_path: &Path,
         signature_path: &Path,
         public_key_path: &Path,
@@ -173,6 +223,7 @@ impl VerifiedSystemImageRelease {
             image_size_bytes: document.image.size_bytes,
             image_sha256,
             manifest_sha256,
+            update_authority: None,
         })
     }
 
@@ -204,6 +255,11 @@ impl VerifiedSystemImageRelease {
     #[must_use]
     pub const fn manifest_sha256(&self) -> [u8; 32] {
         self.manifest_sha256
+    }
+
+    #[must_use]
+    pub const fn update_authority(&self) -> Option<&VerifiedUpdateRole> {
+        self.update_authority.as_ref()
     }
 
     /// Completely reads and verifies one bounded regular image file while
@@ -464,6 +520,7 @@ fn read_bounded(
     Ok(bytes)
 }
 
+#[cfg(test)]
 fn trim_single_line<'a>(bytes: &'a [u8], kind: &'static str) -> Result<&'a [u8], SystemImageError> {
     let trimmed = bytes.strip_suffix(b"\n").unwrap_or(bytes);
     if trimmed.contains(&b'\n') || trimmed.contains(&b'\r') {
@@ -537,6 +594,7 @@ pub enum SystemImageError {
     ImageHashMismatch,
     ReadbackIo(io::Error),
     InvalidEvidence(String),
+    UpdateAuthority(String),
 }
 
 impl fmt::Display for SystemImageError {
@@ -603,6 +661,9 @@ impl fmt::Display for SystemImageError {
                     "verified system image evidence is invalid: {error}"
                 )
             }
+            Self::UpdateAuthority(error) => {
+                write!(formatter, "system image update authority rejected: {error}")
+            }
         }
     }
 }
@@ -619,6 +680,7 @@ impl std::error::Error for SystemImageError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::update_trust::{DetachedUpdateSignature, RootTrustAnchor, RootTrustAnchorSet};
     use ed25519_dalek::{Signer, SigningKey};
     use std::io::Cursor;
     use std::sync::atomic::{AtomicU64, Ordering};
@@ -715,6 +777,7 @@ mod tests {
         let expected_manifest: [u8; 32] =
             Sha256::digest(fs::read(&fixture.manifest).expect("read manifest")).into();
         assert_eq!(release.manifest_sha256(), expected_manifest);
+        assert!(release.update_authority().is_none());
 
         let mut manifest = fs::read(&fixture.manifest).expect("read manifest");
         manifest[0] = b'[';
@@ -722,6 +785,93 @@ mod tests {
         assert!(matches!(
             fixture.load(),
             Err(SystemImageError::SignatureRejected)
+        ));
+    }
+
+    #[test]
+    fn delegated_role_authority_precedes_manifest_parsing() {
+        const NOW: u64 = 2_000_000_000;
+        let fixture = Fixture::new();
+        fixture.write_valid(9, "pi-release-9", b"delegated image");
+        let manifest = fs::read(&fixture.manifest).expect("read manifest");
+        let root_key = SigningKey::from_bytes(&[33; 32]);
+        let root_document = format!(
+            concat!(
+                "{{\"schemaVersion\":1,\"generation\":4,",
+                "\"expiresUnixSeconds\":{},\"rootThreshold\":1,",
+                "\"rootKeys\":[{{\"keyId\":\"offline-root\",",
+                "\"publicKey\":\"{}\"}}],\"roles\":[{{",
+                "\"channel\":\"stable\",\"artifact\":\"system-image\",",
+                "\"target\":\"{}\",\"threshold\":1,\"keys\":[{{",
+                "\"keyId\":\"system-stable\",\"publicKey\":\"{}\"}}]}}]}}"
+            ),
+            NOW + 10_000,
+            encode_hex(root_key.verifying_key().as_bytes()),
+            TARGET,
+            encode_hex(fixture.signing_key.verifying_key().as_bytes())
+        )
+        .into_bytes();
+        let root_signature = {
+            let mut message = Vec::from(b"VCG-UPDATE-TRUST-ROOT-V1\0".as_slice());
+            message.extend_from_slice(&root_document);
+            root_key.sign(&message)
+        };
+        let root_signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "offline-root",
+            &encode_hex(&root_signature.to_bytes()),
+        )
+        .expect("root signature")])
+        .expect("root signature set");
+        let anchors = RootTrustAnchorSet::new(
+            1,
+            [
+                RootTrustAnchor::new("offline-root", *root_key.verifying_key().as_bytes())
+                    .expect("root anchor"),
+            ],
+        )
+        .expect("anchors");
+        let trusted_root =
+            TrustedUpdateRoot::bootstrap(&root_document, &root_signatures, &anchors, 4, NOW)
+                .expect("trusted root");
+        let role_signature = {
+            let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+            message.extend_from_slice(&manifest);
+            fixture.signing_key.sign(&message)
+        };
+        let role_signatures = DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "system-stable",
+            &encode_hex(&role_signature.to_bytes()),
+        )
+        .expect("role signature")])
+        .expect("role signature set");
+
+        let release = VerifiedSystemImageRelease::load_with_update_role(
+            &fixture.manifest,
+            &role_signatures,
+            &trusted_root,
+            "stable",
+            TARGET,
+            NOW,
+        )
+        .expect("delegated release");
+        let authority = release.update_authority().expect("authority");
+        assert_eq!(authority.root_generation(), 4);
+        assert_eq!(authority.channel(), "stable");
+        assert_eq!(authority.signing_key_ids(), ["system-stable"]);
+
+        let mut tampered = manifest;
+        tampered[0] = b'[';
+        fs::write(&fixture.manifest, tampered).expect("tamper manifest");
+        assert!(matches!(
+            VerifiedSystemImageRelease::load_with_update_role(
+                &fixture.manifest,
+                &role_signatures,
+                &trusted_root,
+                "stable",
+                TARGET,
+                NOW
+            ),
+            Err(SystemImageError::UpdateAuthority(_))
         ));
     }
 

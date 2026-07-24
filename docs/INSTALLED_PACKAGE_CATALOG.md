@@ -40,7 +40,7 @@ Without `--profile-id`, the API exposes metadata only. With one or more unique b
 
 An optional watchdog game must name a package in the verified installed catalog. It is privileged host configuration, not browser or public-manifest metadata, and means that game's exact qualified runtime producer must satisfy the bounded heartbeat contract for every player profile.
 
-The public-key file is currently a host-configured path. Target images still need to pin that key in a verified read-only system slot and define rotation/revocation under I-112/I-141. A writable key path beside a writable catalog is not a production trust root.
+The public-key file is currently a host-configured path. `UPDATE_TRUST_ROOT.md` now defines bounded delegated catalog roles and root rotation, but this catalog loader is not wired to them. Target images still need verified anchor/root-history/time provisioning and protected per-channel anti-rollback state under I-112/I-141. A writable key path beside a writable catalog is not a production trust root.
 
 ## Signature envelope
 

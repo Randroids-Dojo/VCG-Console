@@ -16,3 +16,4 @@ pub mod save_lifecycle;
 pub mod storage_layout;
 pub mod system_image;
 pub mod system_update;
+pub mod update_trust;
