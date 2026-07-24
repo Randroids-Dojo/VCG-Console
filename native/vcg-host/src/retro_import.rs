@@ -22,6 +22,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use unicode_normalization::is_nfc;
 
+use crate::storage_layout::{StorageNamespacePlan, WritableDataClass};
+
 /// Preprovisioned lock file required in the dedicated staging root.
 pub const RETRO_IMPORT_LOCK_FILE: &str = "retro-import.lock";
 /// Required direct child of the console-managed retro-content root.
@@ -51,6 +53,22 @@ pub struct RetroImportStoreConfig {
     pub staging_root: PathBuf,
     pub content_root: PathBuf,
     pub reserve_bytes: u64,
+}
+
+impl RetroImportStoreConfig {
+    /// Derives the dedicated roots from the shared writable namespace plan.
+    ///
+    /// The returned configuration does not provision directories. A trusted
+    /// image/install step must create the roots, fixed children, initial
+    /// library generation, and operation lock before [`RetroImportStore::open`].
+    #[must_use]
+    pub fn from_storage_namespace(storage: &StorageNamespacePlan, reserve_bytes: u64) -> Self {
+        Self {
+            staging_root: storage.retro_import_staging_root().to_owned(),
+            content_root: storage.root_for(WritableDataClass::RetroContent).to_owned(),
+            reserve_bytes,
+        }
+    }
 }
 
 /// Release-bound system mapping used to revalidate a terminal intent.
@@ -636,6 +654,28 @@ impl RetroImportStore {
     pub fn recovery_required(&self) -> Result<bool, RetroImportError> {
         let _operation = self.acquire_operation_lock()?;
         self.state_present()
+    }
+
+    /// Returns the strict current installed-library document without paths.
+    ///
+    /// A pending or unpublished transaction blocks the snapshot so a planner
+    /// cannot issue new work from a generation that first requires recovery.
+    ///
+    /// # Errors
+    ///
+    /// Rejects lock contention, pending recovery, malformed generation
+    /// history, unsafe filesystem state, oversized output, or I/O failure.
+    pub fn current_library_json(&self) -> Result<Vec<u8>, RetroImportError> {
+        let _operation = self.acquire_operation_lock()?;
+        if self.state_present()? {
+            return Err(RetroImportError::RecoveryRequired);
+        }
+        let library = self.current_library()?;
+        serialized_bounded(
+            &library,
+            MAX_LIBRARY_DOCUMENT_BYTES,
+            "retro installed library",
+        )
     }
 
     fn validate_preconditions(
@@ -3778,6 +3818,53 @@ mod tests {
             fixture.store.recovery_required(),
             Err(RetroImportError::Busy)
         ));
+    }
+
+    #[test]
+    fn derives_shared_storage_roots_and_exports_only_a_stable_library_snapshot() {
+        let fixture = Fixture::new();
+        let namespace =
+            StorageNamespacePlan::new(fixture.root.join("writable")).expect("plan namespaces");
+        let config = RetroImportStoreConfig::from_storage_namespace(&namespace, 4_096);
+        assert_eq!(
+            config.staging_root,
+            fixture
+                .root
+                .join("writable")
+                .join("staging")
+                .join("retro-imports")
+        );
+        assert_eq!(
+            config.content_root,
+            fixture.root.join("writable").join("retro")
+        );
+        assert_eq!(config.reserve_bytes, 4_096);
+
+        let snapshot = fixture
+            .store
+            .current_library_json()
+            .expect("read empty library snapshot");
+        let document: Value = serde_json::from_slice(&snapshot).expect("parse library snapshot");
+        assert_eq!(document["schemaVersion"], 1);
+        assert_eq!(document["generation"], 1);
+        assert_eq!(document["entries"], json!([]));
+        let text = String::from_utf8(snapshot).expect("snapshot is UTF-8");
+        assert!(!text.contains(&fixture.root.display().to_string()));
+        assert!(!text.contains("staging"));
+        assert!(!text.contains("objects"));
+
+        let pending = pending_for(&fixture, b"snapshot barrier", 1, "snapshot");
+        assert!(matches!(
+            fixture.store.current_library_json(),
+            Err(RetroImportError::RecoveryRequired)
+        ));
+        assert!(
+            fixture
+                .store
+                .cancel_pending(&pending.intent.plan_id)
+                .expect("cancel snapshot fixture")
+        );
+        assert!(fixture.store.current_library_json().is_ok());
     }
 
     #[test]

@@ -113,6 +113,12 @@ published content, and writes an idempotent `retro-import-cancelled` record.
 An exact retry returns the original audit generation even if unrelated
 imports have since advanced the library.
 
+Store configuration can derive its exact `retro` and
+`staging/retro-imports` roots from `StorageNamespacePlan`; it does not accept
+browser-selected roots. A public bounded `current_library_json()` snapshot
+returns only the closed installed-library document and refuses to serve a
+planner while authoritative or unpublished recovery state exists.
+
 ## Closed policy
 
 The package contains no product system allowlist. Tests use a synthetic
@@ -274,7 +280,7 @@ Twenty-four focused tests cover:
   expiry/revocation, and cleanup cancellation; and
 - exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds thirteen Windows library tests and fourteen Linux tests.
+The native module adds fourteen Windows library tests and fifteen Linux tests.
 One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
 authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
@@ -285,8 +291,9 @@ and exact cancellation, incomplete-copy cleanup, recovery after source
 removal, recovery across object/library publication windows, replacement
 ordering, duplicate reuse with full object revalidation, cancellation after
 expiry/revocation and after an unrelated generation advance, path-free audit
-persistence, and Linux symlink refusal. Strict Clippy and Rustdoc pass on the
-module; physical power removal has not been tested.
+persistence, shared storage-namespace derivation, recovery-aware path-free
+library snapshots, and Linux symlink refusal. Strict Clippy and Rustdoc pass
+on the module; physical power removal has not been tested.
 
 ## Remaining implementation and evidence
 

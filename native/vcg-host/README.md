@@ -147,7 +147,8 @@ modes cannot be combined. See the
   same-filesystem no-replace content publication, append-only installed-library
   generations, path-free install/reuse/cancel audit records, exact object
   revalidation, replacement cleanup, post-expiry cancellation, nonblocking
-  serialization, and deterministic interruption recovery. It implements
+  serialization, storage-namespace-derived roots, recovery-aware path-free
+  library snapshots, and deterministic interruption recovery. It implements
   neither USB/LAN acquisition nor a scanner or archive decoder.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
