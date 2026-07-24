@@ -3911,6 +3911,55 @@ mod tests {
     }
 
     #[test]
+    fn reported_free_space_refusal_precedes_import_mutation() {
+        const TEST_RESERVE_MARGIN_BYTES: u64 = 64 * 1024 * 1024 * 1024;
+
+        let fixture = Fixture::new();
+        let reported_before =
+            fs4::available_space(&fixture.staging).expect("read test filesystem capacity");
+        let reserve_bytes = reported_before
+            .checked_add(TEST_RESERVE_MARGIN_BYTES)
+            .expect("test filesystem capacity fits u64");
+        let store = RetroImportStore::open(&RetroImportStoreConfig {
+            staging_root: fixture.staging.clone(),
+            content_root: fixture.content.clone(),
+            reserve_bytes,
+        })
+        .expect("reopen store with unavailable reserve");
+        let bytes = b"capacity refusal";
+        let intent = intent_bytes(bytes, 1, "usb", "insufficient-capacity", None);
+        let mut source = fixture.source("insufficient-capacity.gb", bytes);
+
+        let error = store
+            .install_plain(
+                &intent,
+                &context(&intent),
+                &mut source,
+                &mut FakeScanner::clean(),
+                1_000,
+            )
+            .expect_err("reported free-space shortfall must reject import");
+        let RetroImportError::InsufficientCapacity {
+            required_bytes,
+            available_bytes,
+        } = error
+        else {
+            panic!("expected insufficient-capacity error");
+        };
+        assert!(required_bytes > available_bytes);
+        assert!(fixture.pending().is_none());
+        assert!(fixture.object_files().is_empty());
+        assert!(fixture.audit_files().is_empty());
+        assert_eq!(fixture.library().generation, 1);
+        assert!(
+            fs::read_dir(&fixture.staging)
+                .expect("read staging root")
+                .all(|entry| entry.expect("read staging entry").file_name()
+                    == RETRO_IMPORT_LOCK_FILE)
+        );
+    }
+
+    #[test]
     fn bounds_intent_capacity_library_and_filesystem_shapes() {
         let fixture = Fixture::new();
         let oversized_intent =

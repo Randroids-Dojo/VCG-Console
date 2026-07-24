@@ -280,21 +280,22 @@ Twenty-four focused tests cover:
   expiry/revocation, and cleanup cancellation; and
 - exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds fifteen Windows library tests and sixteen Linux tests.
+The native module adds sixteen Windows library tests and seventeen Linux tests.
 One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
 authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
 exact-intent authorization, expiry/revocation/policy/generation checks before
 mutation, source length/hash change, opened-source path replacement,
 clean/blocked/error/unavailable/misbound scanner behavior, capacity overflow,
-library history shape, nonblocking lock and exact cancellation,
-incomplete-copy cleanup, recovery after source removal, recovery across
-object/library publication windows, replacement ordering, duplicate reuse
-with full object revalidation, cancellation after expiry/revocation and after
-an unrelated generation advance, path-free audit persistence, shared
-storage-namespace derivation, recovery-aware path-free library snapshots, and
-Linux symlink refusal. Strict Clippy and Rustdoc pass on the module; physical
-power removal has not been tested.
+reported-free-space refusal before mutation, library history shape,
+nonblocking lock and exact cancellation, incomplete-copy cleanup, recovery
+after source removal, recovery across object/library publication windows,
+replacement ordering, duplicate reuse with full object revalidation,
+cancellation after expiry/revocation and after an unrelated generation
+advance, path-free audit persistence, shared storage-namespace derivation,
+recovery-aware path-free library snapshots, and Linux symlink refusal. Strict
+Clippy and Rustdoc pass on the module; physical power removal has not been
+tested.
 
 ## Remaining implementation and evidence
 
