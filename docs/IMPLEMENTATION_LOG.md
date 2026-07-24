@@ -3970,10 +3970,15 @@ stall and process evidence remains I-084.
   installed-library generations, path-free audits, exact replacement cleanup,
   cancellation, and deterministic recovery across copy, scan, object, library,
   audit, and cleanup interruption windows.
-- Added terminal reuse without copying, full managed-object revalidation,
-  cancellation after expiry or revocation, idempotent retry after unrelated
-  library advancement, storage-namespace derivation, and a recovery-aware
-  path-free current-library snapshot.
+- Added terminal reuse without copying, full managed-object revalidation
+  against the current native policy, refusal of same-revision mapping
+  substitution and missing or tampered managed objects, idempotent retry after
+  unrelated library advancement, storage-namespace derivation, and a
+  recovery-aware path-free current-library snapshot.
+- Bound cancellation to every exact pending-intent field, retained
+  cancellation after expiry or revocation, refused eight same-plan
+  substitutions without removing pending state, and kept the plan-ID-only
+  cancellation helper private to native tests.
 - Added a checked-in TypeScript/Rust interoperability fixture and an
   adversarial proof that replacing a source path after the capability is
   opened cannot redirect the imported bytes. Follow-on proofs reject a
@@ -3989,14 +3994,15 @@ stall and process evidence remains I-084.
 
 - All 24 TypeScript retro-contract tests pass, including exact emission of the
   checked-in native interoperability fixture.
-- All 17 Windows and 18 Linux native retro-import tests pass. They cover strict
+- All 18 Windows and 19 Linux native retro-import tests pass. They cover strict
   parsing and authority binding, source mutation and path replacement,
   clean/rejected/unavailable/misbound scans, capacity overflow and reported
-  free-space admission, history bounds, operation locking, cancellation,
-  publication recovery, replacement, reuse, derived namespace isolation,
-  path-free snapshots/audits, and Linux symlink refusal.
+  free-space admission, history bounds, operation locking, exact pending-intent
+  cancellation and substitution refusal, publication recovery, replacement,
+  reuse with current-policy mapping and managed-object revalidation, derived
+  namespace isolation, path-free snapshots/audits, and Linux symlink refusal.
 - Windows workspace compilation, formatting, strict Clippy, and Rustdoc pass.
-  The final complete Ubuntu/WSL workspace run passes 287 library tests with
+  The final complete Ubuntu/WSL workspace run passes 288 library tests with
   five intentional helper ignores plus all 19 CLI tests and Rustdoc tests.
 - Root tests, workspace typechecking, production build, and every ordinary
   checked-in validation command pass. Compliance inventory contains 137
