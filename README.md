@@ -36,7 +36,7 @@ cargo run -p vcg-host -- help
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, and contained RetroArch launch planning with per-profile storage. Actual RetroArch artifacts, one-action 2048 startup, window readiness, Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
+The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, and contained RetroArch launch planning with manifest SHA-256 enforcement and per-profile storage. Actual RetroArch artifacts, one-action 2048 startup, window readiness, Linux GPU/OOM detectors, compositor containment, and target-hardware behavior remain unqualified.
 
 ## Research workspace
 

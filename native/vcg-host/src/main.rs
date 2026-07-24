@@ -5,7 +5,7 @@ use std::process::ExitCode;
 use std::time::Duration;
 
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
-use vcg_host::retroarch::{RetroArchRequest, plan as plan_retroarch};
+use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 
 fn main() -> ExitCode {
     let arguments = env::args_os().skip(1).collect::<Vec<_>>();
@@ -30,6 +30,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("process-supervision: available");
             println!("game-watchdog: heartbeat-and-bounded-restart");
             println!("retroarch-adapter: plan-and-direct-launch");
+            println!("retroarch-integrity: sha256-required");
             println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
             println!("sdl3-input: adapter pending target-Linux qualification");
@@ -96,8 +97,11 @@ struct RetroArchOptions {
     runtime_root: Option<PathBuf>,
     data_root: Option<PathBuf>,
     frontend: Option<PathBuf>,
+    frontend_sha256: Option<ExpectedSha256>,
     core: Option<PathBuf>,
+    core_sha256: Option<ExpectedSha256>,
     content: Option<PathBuf>,
+    content_sha256: Option<ExpectedSha256>,
     base_config: Option<PathBuf>,
     profile_id: Option<String>,
     game_id: Option<String>,
@@ -131,10 +135,17 @@ fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest),
             frontend: options
                 .frontend
                 .ok_or_else(|| "retroarch requires --frontend".to_owned())?,
+            frontend_sha256: options
+                .frontend_sha256
+                .ok_or_else(|| "retroarch requires --frontend-sha256".to_owned())?,
             core: options
                 .core
                 .ok_or_else(|| "retroarch requires --core".to_owned())?,
+            core_sha256: options
+                .core_sha256
+                .ok_or_else(|| "retroarch requires --core-sha256".to_owned())?,
             content: options.content,
+            content_sha256: options.content_sha256,
             base_config: options
                 .base_config
                 .ok_or_else(|| "retroarch requires --base-config".to_owned())?,
@@ -185,14 +196,29 @@ fn parse_retroarch_option(
             required_path(arguments, *cursor, option)?,
             option,
         ),
+        "--frontend-sha256" => set_hash_option(
+            &mut output.frontend_sha256,
+            &required_text(arguments, *cursor, option)?,
+            option,
+        ),
         "--core" => set_path_option(
             &mut output.core,
             required_path(arguments, *cursor, option)?,
             option,
         ),
+        "--core-sha256" => set_hash_option(
+            &mut output.core_sha256,
+            &required_text(arguments, *cursor, option)?,
+            option,
+        ),
         "--content" => set_path_option(
             &mut output.content,
             required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--content-sha256" => set_hash_option(
+            &mut output.content_sha256,
+            &required_text(arguments, *cursor, option)?,
             option,
         ),
         "--base-config" => set_path_option(
@@ -223,6 +249,21 @@ fn set_path_option(slot: &mut Option<PathBuf>, value: PathBuf, option: &str) -> 
 }
 
 fn set_text_option(slot: &mut Option<String>, value: String, option: &str) -> Result<(), String> {
+    if slot.replace(value).is_some() {
+        Err(format!("{option} may only be supplied once"))
+    } else {
+        Ok(())
+    }
+}
+
+fn set_hash_option(
+    slot: &mut Option<ExpectedSha256>,
+    value: &str,
+    option: &str,
+) -> Result<(), String> {
+    let value = value
+        .parse()
+        .map_err(|error| format!("{option}: {error}"))?;
     if slot.replace(value).is_some() {
         Err(format!("{option} may only be supplied once"))
     } else {
@@ -428,7 +469,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --core <path> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path>]"
+    "usage:\n  vcg-host doctor\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -541,6 +582,45 @@ mod tests {
                 .is_err()
         );
         assert!(retroarch_request(&args(&["--surprise"])).is_err());
+        assert!(
+            retroarch_request(&args(&[
+                "--frontend-sha256",
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            ]))
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn retroarch_parser_accepts_exact_manifest_hashes() {
+        let hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        let (_, request) = retroarch_request(&args(&[
+            "--dry-run",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+            "--frontend",
+            "/installed/retroarch",
+            "--frontend-sha256",
+            hash,
+            "--core",
+            "/installed/core.so",
+            "--core-sha256",
+            hash,
+            "--base-config",
+            "/installed/base.cfg",
+            "--profile",
+            "player-one",
+            "--game",
+            "retro-2048",
+        ]))
+        .expect("complete request parses");
+        assert_eq!(request.frontend_sha256.to_string(), hash);
+        assert_eq!(request.core_sha256.to_string(), hash);
+        assert!(request.content_sha256.is_none());
     }
 
     #[test]

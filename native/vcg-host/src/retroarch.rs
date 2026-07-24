@@ -2,11 +2,64 @@
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
-use std::fs;
-use std::io;
+use std::fs::{self, File};
+use std::io::{self, Read};
 use std::path::{Component, Path, PathBuf};
+use std::str::FromStr;
+
+use sha2::{Digest, Sha256};
 
 use crate::process::LaunchSpec;
+
+/// Exact SHA-256 value supplied by the validated game manifest.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ExpectedSha256([u8; 32]);
+
+impl fmt::Display for ExpectedSha256 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for byte in self.0 {
+            write!(formatter, "{byte:02x}")?;
+        }
+        Ok(())
+    }
+}
+
+impl FromStr for ExpectedSha256 {
+    type Err = ExpectedSha256Error;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        if value.len() != 64 {
+            return Err(ExpectedSha256Error);
+        }
+        let mut bytes = [0_u8; 32];
+        for (index, pair) in value.as_bytes().chunks_exact(2).enumerate() {
+            let high = decode_hex(pair[0]).ok_or(ExpectedSha256Error)?;
+            let low = decode_hex(pair[1]).ok_or(ExpectedSha256Error)?;
+            bytes[index] = (high << 4) | low;
+        }
+        Ok(Self(bytes))
+    }
+}
+
+fn decode_hex(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        _ => None,
+    }
+}
+
+/// Invalid lowercase SHA-256 text.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ExpectedSha256Error;
+
+impl fmt::Display for ExpectedSha256Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("SHA-256 must be 64 lowercase hexadecimal characters")
+    }
+}
+
+impl std::error::Error for ExpectedSha256Error {}
 
 /// Trusted inputs resolved from an installed libretro manifest.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -16,8 +69,11 @@ pub struct RetroArchRequest {
     pub runtime_root: PathBuf,
     pub data_root: PathBuf,
     pub frontend: PathBuf,
+    pub frontend_sha256: ExpectedSha256,
     pub core: PathBuf,
+    pub core_sha256: ExpectedSha256,
     pub content: Option<PathBuf>,
+    pub content_sha256: Option<ExpectedSha256>,
     pub base_config: PathBuf,
     pub profile_id: String,
     pub game_id: String,
@@ -135,13 +191,23 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
     let core = canonical_package_file("core", &request.core, &install_root)?;
     let base_config =
         canonical_package_file("base configuration", &request.base_config, &install_root)?;
-    let content = match (&request.content, &request.content_root) {
-        (Some(path), Some(root)) => {
+    verify_file_hash("frontend", &frontend, &request.frontend_sha256)?;
+    verify_file_hash("core", &core, &request.core_sha256)?;
+    let content = match (
+        &request.content,
+        &request.content_root,
+        &request.content_sha256,
+    ) {
+        (Some(path), Some(root), Some(expected)) => {
             let root = canonical_directory("content root", root)?;
-            Some(canonical_managed_file("content", path, &root)?)
+            let path = canonical_managed_file("content", path, &root)?;
+            verify_file_hash("content", &path, expected)?;
+            Some(path)
         }
-        (Some(_), None) => return Err(RetroArchError::MissingContentRoot),
-        (None, _) => None,
+        (Some(_), None, _) => return Err(RetroArchError::MissingContentRoot),
+        (Some(_), Some(_), None) => return Err(RetroArchError::MissingContentHash),
+        (None, _, Some(_)) => return Err(RetroArchError::UnexpectedContentHash),
+        (None, _, None) => None,
     };
 
     let session = request
@@ -289,6 +355,48 @@ fn canonical_managed_file(
     Ok(canonical)
 }
 
+fn verify_file_hash(
+    kind: &'static str,
+    path: &Path,
+    expected: &ExpectedSha256,
+) -> Result<(), RetroArchError> {
+    let actual = digest_file(path)?;
+    if actual == *expected {
+        Ok(())
+    } else {
+        Err(RetroArchError::HashMismatch {
+            kind,
+            path: path.to_owned(),
+            expected: *expected,
+            actual,
+        })
+    }
+}
+
+fn digest_file(path: &Path) -> Result<ExpectedSha256, RetroArchError> {
+    let mut file = File::open(path).map_err(|source| RetroArchError::Io {
+        operation: "open artifact for SHA-256 verification",
+        path: path.to_owned(),
+        source,
+    })?;
+    let mut digest = Sha256::new();
+    let mut buffer = [0_u8; 16 * 1024];
+    loop {
+        let count = file
+            .read(&mut buffer)
+            .map_err(|source| RetroArchError::Io {
+                operation: "read artifact for SHA-256 verification",
+                path: path.to_owned(),
+                source,
+            })?;
+        if count == 0 {
+            break;
+        }
+        digest.update(&buffer[..count]);
+    }
+    Ok(ExpectedSha256(digest.finalize().into()))
+}
+
 fn storage_paths(storage: &RetroArchStorage) -> [&Path; 11] {
     [
         &storage.session,
@@ -427,6 +535,14 @@ pub enum RetroArchError {
         root: PathBuf,
     },
     MissingContentRoot,
+    MissingContentHash,
+    UnexpectedContentHash,
+    HashMismatch {
+        kind: &'static str,
+        path: PathBuf,
+        expected: ExpectedSha256,
+        actual: ExpectedSha256,
+    },
     UnsafeConfigPath(PathBuf),
     LaunchPlan(String),
     Io {
@@ -471,6 +587,22 @@ impl fmt::Display for RetroArchError {
             Self::MissingContentRoot => {
                 formatter.write_str("managed content requires an explicit content root")
             }
+            Self::MissingContentHash => {
+                formatter.write_str("managed content requires an expected SHA-256")
+            }
+            Self::UnexpectedContentHash => {
+                formatter.write_str("contentless launch cannot declare a content SHA-256")
+            }
+            Self::HashMismatch {
+                kind,
+                path,
+                expected,
+                actual,
+            } => write!(
+                formatter,
+                "{kind} SHA-256 mismatch at {}: expected {expected}, got {actual}",
+                path.display()
+            ),
             Self::UnsafeConfigPath(path) => write!(
                 formatter,
                 "path cannot be represented safely in RetroArch configuration: {}",
@@ -502,7 +634,7 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use super::{RetroArchError, RetroArchRequest, plan};
+    use super::{ExpectedSha256, RetroArchError, RetroArchRequest, digest_file, plan};
 
     struct Fixture {
         root: PathBuf,
@@ -559,8 +691,11 @@ mod tests {
                 runtime_root: self.runtime.clone(),
                 data_root: self.data.clone(),
                 frontend: self.frontend.clone(),
+                frontend_sha256: digest_file(&self.frontend).expect("hash frontend"),
                 core: self.core.clone(),
+                core_sha256: digest_file(&self.core).expect("hash core"),
                 content: Some(self.content.clone()),
+                content_sha256: Some(digest_file(&self.content).expect("hash content")),
                 base_config: self.config.clone(),
                 profile_id: "player-one".to_owned(),
                 game_id: "test-game".to_owned(),
@@ -631,6 +766,7 @@ mod tests {
         let fixture = Fixture::new();
         let mut request = fixture.request();
         request.content = None;
+        request.content_sha256 = None;
         request.content_root = None;
         let plan = plan(&request).expect("contentless plan");
         assert!(plan.contentless());
@@ -703,5 +839,49 @@ mod tests {
             plan(&request),
             Err(RetroArchError::MissingContentRoot)
         ));
+    }
+
+    #[test]
+    fn rejects_an_artifact_that_does_not_match_the_manifest_hash() {
+        let fixture = Fixture::new();
+        let mut request = fixture.request();
+        request.core_sha256 = ExpectedSha256([0; 32]);
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::HashMismatch { kind: "core", .. })
+        ));
+    }
+
+    #[test]
+    fn rejects_missing_or_unexpected_content_hashes() {
+        let fixture = Fixture::new();
+        let mut request = fixture.request();
+        request.content_sha256 = None;
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::MissingContentHash)
+        ));
+
+        let mut request = fixture.request();
+        request.content = None;
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::UnexpectedContentHash)
+        ));
+    }
+
+    #[test]
+    fn parses_only_canonical_lowercase_sha256_text() {
+        let valid = "ab".repeat(32);
+        assert_eq!(
+            valid
+                .parse::<ExpectedSha256>()
+                .expect("valid hash")
+                .to_string(),
+            valid
+        );
+        assert!("AB".repeat(32).parse::<ExpectedSha256>().is_err());
+        assert!("a".repeat(63).parse::<ExpectedSha256>().is_err());
+        assert!("g0".repeat(32).parse::<ExpectedSha256>().is_err());
     }
 }

@@ -20,7 +20,7 @@ A `runtime: "libretro"` game must include a `libretro` contract:
 
 The entrypoint is `libretro:<core-id>` and must match the selected core. A contentless candidate must explicitly declare a core that supports no-game startup. These cross-field constraints are enforced by the runtime parser; representable constraints are also exported to `schemas/game-manifest.schema.json`.
 
-`catalog/retro-2048.vcg-game.json` is deliberately `unverified`. It records the rights-simple candidate while omitting artifact hashes and qualification claims until exact builds exist.
+`catalog/retro-2048.vcg-game.json` is deliberately `unverified`. It records the rights-simple candidate while omitting artifact hashes and qualification claims until exact builds exist. Because the native adapter requires hashes, placing arbitrary files at the expected paths cannot make this candidate launchable.
 
 ## Native invocation
 
@@ -32,7 +32,9 @@ vcg-host retroarch --dry-run \
   --runtime-root /run/vcg \
   --data-root /var/lib/vcg \
   --frontend /var/lib/vcg/packages/retroarch/retroarch \
+  --frontend-sha256 <64-lowercase-hex> \
   --core /var/lib/vcg/packages/cores/2048_libretro.so \
+  --core-sha256 <64-lowercase-hex> \
   --base-config /var/lib/vcg/packages/retroarch/vcg-base.cfg \
   --profile player-one \
   --game retro-2048
@@ -43,9 +45,14 @@ For games with content, both arguments are required:
 ```text
 --content-root /var/lib/vcg/retro-content
 --content /var/lib/vcg/retro-content/<managed-id>/game.rom
+--content-sha256 <64-lowercase-hex>
 ```
 
 The frontend, core, and base configuration must resolve to regular files beneath `--install-root`. Content must resolve beneath `--content-root`. Symlink resolution occurs before containment checks, so a link cannot escape either root. Profile/game identifiers use a bounded lowercase package-ID grammar and cannot add path segments.
+
+The host streams each frontend, core, and managed content file through SHA-256 before it creates runtime state or launches a process. Expected values must use the manifest's canonical 64-character lowercase hexadecimal form. Missing content hashes, hashes supplied for contentless launches, and mismatches fail closed with the artifact role, path, expected digest, and actual digest. The base configuration remains covered by the installed package/signature boundary rather than a separate game-manifest field.
+
+Package and content storage must be immutable to the launched runtime account between verification and use. File-descriptor-bound execution/content handoff or an equivalent target-Linux mount/package guarantee remains required to close the verification-to-use race under a compromised local account.
 
 The launch is a direct `Command`; no string is interpreted by a shell. The generated RetroArch arguments use an explicit base config, a console-generated append config, verbose diagnostics, exact core, and optional exact content. Contentless launch adds `--menu` because the official CLI requires a menu when no content is passed. One-action `Start Core` remains a qualification gate rather than an assumed behavior.
 
@@ -107,6 +114,7 @@ Native tests cover:
 
 - direct content and contentless argument construction;
 - package and imported-content root escapes;
+- missing, unexpected, malformed, and mismatched artifact hashes;
 - path traversal and relative host-root rejection;
 - missing content authority;
 - private directory/config preparation;
@@ -117,7 +125,7 @@ Manifest tests cover runtime/entrypoint identity, architecture parity, qualifica
 Still required:
 
 - signed, pinned frontend/core artifacts on ARM64 and x86-64;
-- hash verification during manifest resolution, before this adapter is called;
+- signature verification and trusted manifest-to-host IPC before this adapter is called;
 - native launcher IPC and event mapping;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
