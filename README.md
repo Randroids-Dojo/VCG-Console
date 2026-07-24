@@ -56,6 +56,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)
 - [First living-room prototype success criteria](docs/PROTOTYPE_SUCCESS_CRITERIA.md)
+- [Player personas and evidence matrix](docs/PLAYER_PERSONAS.md)
 - [Online and offline service matrix](docs/ONLINE_OFFLINE_SERVICE_MATRIX.md)
 - [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)

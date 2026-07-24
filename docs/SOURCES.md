@@ -100,6 +100,7 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 | Source | Relevant evidence |
 |---|---|
 | [OCR-A font project](https://sourceforge.net/projects/ocr-a-font/) and [1.0 files](https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/) | SourceForge describes an ANSI X3.17-1977-conformant font with sources and labels it Public Domain. The exact 24,316-byte `OCRA.ttf` is reproducibly staged under a pinned SHA-256 with source links and a notice. Glyph coverage, accessibility, and TV testing remain. |
+| [CDC clinical growth charts](https://www.cdc.gov/growthcharts/cdc-charts.htm), [stature data](https://www.cdc.gov/growthcharts/cdc-data-files.htm), and [child activity overview](https://www.cdc.gov/physical-activity-basics/guidelines/children.html) | Context for the child persona matrix: stature varies across childhood and active play must remain age-appropriate. These sources are not used as a clinical screen or as proof that VCG movements are safe or qualified. |
 
 ## Retro and content rights
 

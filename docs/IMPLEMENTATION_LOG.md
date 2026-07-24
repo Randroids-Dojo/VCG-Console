@@ -957,3 +957,24 @@ This is the admission policy, not an implemented admission database or review se
 ### Remaining boundary
 
 This is a source-snapshot compatibility matrix, not evidence from externally released clients. Hailo fixtures, a released old/new matrix, broader browser-policy combinations, separate-process transport, native integration, and measured ARM64/x86-64 latency remain under I-073 through I-076.
+
+## 2026-07-24: blocking and exploratory player personas
+
+### Delivered
+
+- Turned D-105 into a versioned participant/evidence contract rather than leaving “child” and “adult” as unmeasured labels.
+- Defined separate school-age-child and adult standing blocking classes with broad engineering height bands, actual measurement and comfortable-range fields, identical action/recovery gates, and results that cannot be rescued through aggregate averaging.
+- Defined instruction demonstration, teach-back, visible cancellation, independent controller escape, and controller-familiarity recording without assuming comprehension from age.
+- Defined informed adult consent plus child assent where applicable, opaque participant codes, raw-video-off evidence, separate consent records, and explicit exclusions for names, portraits, voices, exact birth dates, addresses, and diagnoses.
+- Kept seated and limited-range sessions in two explicit exploratory matrices with safe prompt limits, exact adaptation recording, and claim language that cannot be confused with qualified support.
+- Linked the persona contract into the pre-registered prototype criteria and contextualized the child height band with official CDC growth-chart sources without using those charts as a clinical screen.
+
+### Verification evidence
+
+- Every blocking benchmark field maps to the existing `school-age-child-standing` or `adult-standing` result classes and preserves per-persona scoring.
+- The document supplies the required height, proportion/range, comprehension, privacy, controller-familiarity, environment, outcome, and stop/deviation fields.
+- I-008 closes as definition work. No owner choice was required because the blocking/exploratory split was already fixed by D-105.
+
+### Remaining boundary
+
+No participant has been tested by this slice. Consent materials still need household review, and actual child/adult/seated/limited-range tracking, safety, comprehension, action accuracy, TV distance, clothing/lighting, and placement evidence remain under I-035, I-037, I-041, I-053, I-068, I-147, I-155, I-194, and I-210. Networked family beta and automatic identity/portrait features retain their separate privacy and legal gates.

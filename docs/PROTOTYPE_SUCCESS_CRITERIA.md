@@ -38,6 +38,7 @@ The 20-trial and action-score thresholds are reversible working gates under D-13
 - [ ] The primary-room evidence is complete and the marked 8 x 8 ft zone is physically clear, not merely visible to the camera.
 - [ ] The below-TV prototype, camera, cables, power, and enclosure are stable and cannot enter the play zone during the run.
 - [ ] A school-age child and an adult primarily playing standing each complete the blocking script with informed household consent. Seated and limited-range cases are reported as exploratory and are not represented as qualified.
+- [ ] Each session follows the versioned participant, comprehension, privacy, and claim-boundary contract in `PLAYER_PERSONAS.md`; each persona result remains separate rather than being rescued by an aggregate average.
 - [ ] The UI identifies unsafe or incomplete placement/calibration and offers a controller- and motion-accessible correction or cancellation path.
 
 Evidence: I-001, I-002, I-037, I-059, I-194.
