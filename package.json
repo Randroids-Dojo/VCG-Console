@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "benchmark:transports": "node scripts/benchmark-motion-transports.mjs",
+    "benchmark:transports": "tsx scripts/benchmark-motion-transports.mjs",
     "build": "pnpm -r build",
     "dev": "pnpm --filter @vcg/console-lab dev",
     "prepare:assets": "node scripts/prepare-assets.mjs",
@@ -29,7 +29,7 @@
     "validate:manifests": "tsx scripts/validate-game-manifests.ts",
     "validate:release-compliance": "node scripts/generate-compliance.mjs --check --release",
     "validate:schemas": "tsx scripts/export-schemas.ts --check",
-    "validate:transport-benchmarks": "node scripts/validate-motion-transport-benchmarks.mjs"
+    "validate:transport-benchmarks": "tsx --test scripts/motion-transport-payload.test.mjs && node scripts/validate-motion-transport-benchmarks.mjs"
   },
   "devDependencies": {
     "@vcg/game-manifest": "workspace:*",

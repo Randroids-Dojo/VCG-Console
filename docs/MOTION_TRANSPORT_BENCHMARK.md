@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Status: same-process and child-process Windows development runs recorded; no production transport selected
+Status: opaque and Motion-JSON child-process Windows development runs recorded; no production transport selected
 
 Authority: D-004, I-074, I-084
 
@@ -29,8 +29,13 @@ payload through five paths:
 Every measured request waits for its response, so there is never more than one
 benchmark RTT in flight. Warmups are excluded. The report records p50, p95,
 p99, maximum RTT, aggregate process CPU, elapsed throughput, queue model, and a
-separate stalled-reader probe. Schema parsing and JSON serialization are
-deliberately excluded so the first run isolates the transport layer.
+separate stalled-reader probe. The default `opaque-bytes` mode excludes schema
+parsing and JSON serialization so it isolates the transport layer. The
+`motion-json` mode validates one representative `body.core17` frame with the
+authoritative Motion `0.3.0` schema, encodes it as UTF-8 JSON, sends it through
+the selected path, decodes the echoed bytes, and validates them again. Those
+producer and consumer operations occur inside every measured round trip for
+all five candidates.
 
 Run the default harness:
 
@@ -50,10 +55,19 @@ Run socket and WebSocket echo servers in separate child processes:
 pnpm benchmark:transports -- --iterations 5000 --warmup 500 --payload-bytes 4096 --server-layout child-process --output benchmarks/transport/<target>.json
 ```
 
+Measure the canonical Motion JSON path. Its fixed frame determines the encoded
+size, so `--payload-bytes` is deliberately rejected in this mode:
+
+```powershell
+pnpm benchmark:transports -- --iterations 5000 --warmup 500 --payload-mode motion-json --server-layout child-process --output benchmarks/transport/<target>-motion-json.json
+```
+
 Arguments are bounded to 100–100,000 measured iterations, 0–10,000 warmups,
 and 256 bytes–1 MiB per payload. `--server-layout` accepts only
-`same-process` or `child-process`. Checked-in reports are structurally checked
-by `pnpm validate:transport-benchmarks`.
+`same-process` or `child-process`; `--payload-mode` accepts `opaque-bytes` or
+`motion-json`. Checked-in reports are structurally checked by
+`pnpm validate:transport-benchmarks`, which also exercises deterministic,
+malformed, and schema-invalid payload cases.
 
 ## First Windows x64 result
 
@@ -93,6 +107,34 @@ The result is in
 Direct copy remains a same-process baseline and shared memory still uses one
 worker thread; neither is mislabeled as a child-process transport.
 
+## Motion JSON Windows x64 result
+
+The paired checked-in runs use the same child-process layout, host, Node
+version, 500 warmups, 5,000 measured round trips, and exact 2,010-byte payload
+size. The opaque run isolates transport behavior. The Motion run adds
+producer-side Zod validation and JSON encoding plus consumer-side JSON decoding
+and Zod validation to every candidate:
+
+| Transport | Opaque p50 µs | Motion p50 µs | Motion p95 µs | Motion p99 µs | Motion client CPU ms |
+|---|---:|---:|---:|---:|---:|
+| Direct library copy | 0.6 | 36.0 | 53.5 | 85.3 | 250 |
+| One-slot worker shared memory | 2.9 | 59.9 | 100.3 | 174.5 | 343 |
+| Windows named pipe | 35.5 | 82.3 | 160.3 | 248.6 | 453 |
+| TCP loopback | 58.8 | 118.7 | 200.2 | 271.5 | 609 |
+| WebSocket loopback | 85.6 | 140.6 | 259.0 | 327.1 | 578 |
+
+The reports are:
+
+- `benchmarks/transport/windows-x64-node24-opaque-2010-child-process-2026-07-24.json`
+- `benchmarks/transport/windows-x64-node24-motion-json-child-process-2026-07-24.json`
+
+The paired observation shows that a real small Motion frame's validation and
+serialization cost is material and must be included in transport selection.
+It does not establish a portable budget: the frame is synthetic, carries one
+core-landmark player and no actions, and both schema operations run in the
+client process. Rich landmarks, action-heavy frames, other implementations,
+and target Linux remain unmeasured.
+
 ## Backpressure observations
 
 - Direct calls are synchronous and retain no transport queue.
@@ -127,7 +169,7 @@ Before a decision:
 
 - rerun the unchanged harness on target Linux x86-64 and ARM64;
 - implement a bounded cross-process shared-memory ownership/recovery design;
-- add identical Motion serialization/schema validation to every candidate;
+- measure rich-profile and action-heavy frames with the same validation path;
 - run wall-clock process-isolated CPU/RSS soaks and suspend, kill, reconnect,
   and churn game and tracker processes;
 - bind admission to signed host-owned permission grants; and

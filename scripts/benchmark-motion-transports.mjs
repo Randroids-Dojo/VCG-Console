@@ -7,21 +7,24 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { WebSocket, WebSocketServer } from "ws";
 
+import { createTransportPayloadCodec } from "./motion-transport-payload.mjs";
+
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const transportServerScript = fileURLToPath(
   new URL("./benchmark-motion-transport-server.mjs", import.meta.url),
 );
 const options = parseOptions(process.argv.slice(2));
-const payload = deterministicPayload(options.payloadBytes);
+const payloadCodec = createTransportPayloadCodec(options.payloadMode, options.payloadBytes);
+const payload = payloadCodec.referencePayload;
 const results = [];
 
-await record("direct-library", benchmarkDirect(payload, options));
-await record("shared-memory-slot", benchmarkSharedMemory(payload, options));
+await record("direct-library", benchmarkDirect(payloadCodec, options));
+await record("shared-memory-slot", benchmarkSharedMemory(payloadCodec, options));
 await record(
   "tcp-loopback",
   options.serverLayout === "child-process"
-    ? benchmarkIsolatedStream("tcp-loopback", "tcp", payload, options)
-    : benchmarkStream("tcp-loopback", payload, options, { host: "127.0.0.1", port: 0 }),
+    ? benchmarkIsolatedStream("tcp-loopback", "tcp", payloadCodec, options)
+    : benchmarkStream("tcp-loopback", payloadCodec, options, { host: "127.0.0.1", port: 0 }),
 );
 
 const localEndpoint =
@@ -32,8 +35,14 @@ try {
   await record(
     "local-socket",
     options.serverLayout === "child-process"
-      ? benchmarkIsolatedStream("local-socket", "local-socket", payload, options, localEndpoint)
-      : benchmarkStream("local-socket", payload, options, localEndpoint),
+      ? benchmarkIsolatedStream(
+          "local-socket",
+          "local-socket",
+          payloadCodec,
+          options,
+          localEndpoint,
+        )
+      : benchmarkStream("local-socket", payloadCodec, options, localEndpoint),
   );
 } finally {
   if (process.platform !== "win32") await rm(localEndpoint, { force: true });
@@ -41,13 +50,13 @@ try {
 await record(
   "websocket-loopback",
   options.serverLayout === "child-process"
-    ? benchmarkIsolatedWebSocket(payload, options)
-    : benchmarkWebSocket(payload, options),
+    ? benchmarkIsolatedWebSocket(payloadCodec, options)
+    : benchmarkWebSocket(payloadCodec, options),
 );
 
 const report = {
   format: "vcg-motion-transport-benchmark",
-  formatVersion: 1,
+  formatVersion: 2,
   createdAt: new Date().toISOString(),
   environment: {
     platform: process.platform,
@@ -62,7 +71,7 @@ const report = {
     payloadBytes: payload.byteLength,
     pattern: "sequential request/echo round trip",
     compression: false,
-    schemaValidation: false,
+    ...payloadCodec.metadata,
     processLayout:
       options.serverLayout === "child-process"
         ? "socket and WebSocket echo servers run in separate child processes; client, direct baseline, and shared-memory worker orchestration run in the parent"
@@ -76,6 +85,9 @@ const report = {
       : "Same-process socket servers understate scheduler and process-isolation costs.",
     "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
     "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
+    options.payloadMode === "motion-json"
+      ? "The representative frame is synthetic body.core17 data; richer profiles and action-heavy frames require separate measurements."
+      : "Opaque-byte mode excludes Motion serialization and schema validation.",
     "No result grants authority or selects the production transport.",
   ],
 };
@@ -100,12 +112,10 @@ async function record(name, pendingResult) {
   console.error(`completed ${result.transport}`);
 }
 
-async function benchmarkDirect(payload, { iterations, warmup }) {
+async function benchmarkDirect(codec, { iterations, warmup }) {
   const invoke = () => {
-    const response = Buffer.from(payload);
-    if (response[0] !== payload[0] || response.at(-1) !== payload.at(-1)) {
-      throw new Error("direct response mismatch");
-    }
+    const response = Buffer.from(codec.encode());
+    codec.verify(response);
   };
   return measureSync("direct-library", invoke, iterations, warmup, {
     queueModel: "synchronous call; no retained queue",
@@ -113,7 +123,8 @@ async function benchmarkDirect(payload, { iterations, warmup }) {
   });
 }
 
-async function benchmarkSharedMemory(payload, { iterations, warmup }) {
+async function benchmarkSharedMemory(codec, { iterations, warmup }) {
+  const payload = codec.referencePayload;
   const controlBytes = Int32Array.BYTES_PER_ELEMENT * 4;
   const shared = new SharedArrayBuffer(controlBytes + payload.byteLength * 2);
   const control = new Int32Array(shared, 0, 4);
@@ -155,7 +166,11 @@ async function benchmarkSharedMemory(payload, { iterations, warmup }) {
   });
   let sequence = 0;
   const invoke = () => {
-    request.set(payload);
+    const encoded = codec.encode();
+    if (encoded.byteLength !== payload.byteLength) {
+      throw new Error("encoded payload length changed during benchmark");
+    }
+    request.set(encoded);
     sequence += 1;
     Atomics.store(control, 0, sequence);
     Atomics.notify(control, 0);
@@ -163,9 +178,7 @@ async function benchmarkSharedMemory(payload, { iterations, warmup }) {
       const wait = Atomics.wait(control, 1, Atomics.load(control, 1), 5_000);
       if (wait === "timed-out") throw new Error("shared-memory worker timed out");
     }
-    if (response[0] !== payload[0] || response.at(-1) !== payload.at(-1)) {
-      throw new Error("shared-memory response mismatch");
-    }
+    codec.verify(response);
   };
   try {
     return measureSync("shared-memory-slot", invoke, iterations, warmup, {
@@ -179,7 +192,7 @@ async function benchmarkSharedMemory(payload, { iterations, warmup }) {
   }
 }
 
-async function benchmarkStream(name, payload, { iterations, warmup }, endpoint) {
+async function benchmarkStream(name, codec, { iterations, warmup }, endpoint) {
   const server = createServer((socket) => socket.pipe(socket));
   await listen(server, endpoint);
   const address = server.address();
@@ -188,11 +201,14 @@ async function benchmarkStream(name, payload, { iterations, warmup }, endpoint) 
   const socket = createConnection(connectionOptions);
   await once(socket, "connect");
   socket.setNoDelay?.(true);
-  const invoke = createFixedEchoInvoker(socket, payload);
+  const invoke = createFixedEchoInvoker(socket, codec);
   try {
     const result = await measureAsync(name, invoke, iterations, warmup);
     result.queueModel = "Node stream high-water mark plus kernel buffers; publisher must stop when write returns false";
-    result.stallCapacityFrames = await probeStreamBackpressure(connectionOptions, payload);
+    result.stallCapacityFrames = await probeStreamBackpressure(
+      connectionOptions,
+      codec.referencePayload,
+    );
     return result;
   } finally {
     socket.destroy();
@@ -203,7 +219,7 @@ async function benchmarkStream(name, payload, { iterations, warmup }, endpoint) 
 async function benchmarkIsolatedStream(
   name,
   childTransport,
-  payload,
+  codec,
   { iterations, warmup },
   endpoint,
 ) {
@@ -213,7 +229,7 @@ async function benchmarkIsolatedStream(
   try {
     await once(socket, "connect");
     socket.setNoDelay?.(true);
-    const invoke = createFixedEchoInvoker(socket, payload);
+    const invoke = createFixedEchoInvoker(socket, codec);
     await commandTransportChild(childState.child, { kind: "begin" }, "begun");
     const clientRssStartBytes = process.memoryUsage().rss;
     const result = await measureAsync(name, invoke, iterations, warmup);
@@ -236,7 +252,7 @@ async function benchmarkIsolatedStream(
     forceStop = true;
     result.stallCapacityFrames = await probeStreamBackpressureClient(
       childState.connectionOptions,
-      payload,
+      codec.referencePayload,
     );
     return result;
   } finally {
@@ -245,7 +261,7 @@ async function benchmarkIsolatedStream(
   }
 }
 
-async function benchmarkWebSocket(payload, { iterations, warmup }) {
+async function benchmarkWebSocket(codec, { iterations, warmup }) {
   const server = new WebSocketServer({
     host: "127.0.0.1",
     port: 0,
@@ -263,29 +279,14 @@ async function benchmarkWebSocket(payload, { iterations, warmup }) {
     perMessageDeflate: false,
   });
   await once(client, "open");
-  const invoke = () =>
-    new Promise((resolveEcho, reject) => {
-      const onError = (error) => {
-        client.off("message", onMessage);
-        reject(error);
-      };
-      const onMessage = (data) => {
-        client.off("error", onError);
-        const response = Buffer.from(data);
-        if (response[0] !== payload[0] || response.at(-1) !== payload.at(-1)) {
-          reject(new Error("WebSocket response mismatch"));
-        } else {
-          resolveEcho();
-        }
-      };
-      client.once("error", onError);
-      client.once("message", onMessage);
-      client.send(payload, { binary: true, compress: false });
-    });
+  const invoke = createWebSocketEchoInvoker(client, codec);
   try {
     const result = await measureAsync("websocket-loopback", invoke, iterations, warmup);
     result.queueModel = "WebSocket bufferedAmount; publisher must enforce an application-level frame bound";
-    result.stallCapacityFrames = await probeWebSocketBackpressure(server, payload);
+    result.stallCapacityFrames = await probeWebSocketBackpressure(
+      server,
+      codec.referencePayload,
+    );
     return result;
   } finally {
     client.close();
@@ -294,14 +295,14 @@ async function benchmarkWebSocket(payload, { iterations, warmup }) {
   }
 }
 
-async function benchmarkIsolatedWebSocket(payload, { iterations, warmup }) {
+async function benchmarkIsolatedWebSocket(codec, { iterations, warmup }) {
   const childState = await startTransportChild("websocket");
   const url = `ws://${childState.connectionOptions.host}:${childState.connectionOptions.port}`;
   const client = new WebSocket(url, { perMessageDeflate: false });
   let forceStop = false;
   try {
     await once(client, "open");
-    const invoke = createWebSocketEchoInvoker(client, payload);
+    const invoke = createWebSocketEchoInvoker(client, codec);
     await commandTransportChild(childState.child, { kind: "begin" }, "begun");
     const clientRssStartBytes = process.memoryUsage().rss;
     const result = await measureAsync("websocket-loopback", invoke, iterations, warmup);
@@ -324,7 +325,10 @@ async function benchmarkIsolatedWebSocket(payload, { iterations, warmup }) {
       "mode-set",
     );
     forceStop = true;
-    result.stallCapacityFrames = await probeWebSocketBackpressureEndpoint(url, payload);
+    result.stallCapacityFrames = await probeWebSocketBackpressureEndpoint(
+      url,
+      codec.referencePayload,
+    );
     return result;
   } finally {
     if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
@@ -379,16 +383,24 @@ function summarize(name, samples, cpuStart, wallStart, extra = {}) {
   };
 }
 
-function createFixedEchoInvoker(socket, payload) {
+function createFixedEchoInvoker(socket, codec) {
   let waiting;
   let received = 0;
   socket.on("data", (chunk) => {
+    if (waiting?.response) {
+      chunk.copy(waiting.response, received);
+    }
     received += chunk.byteLength;
-    if (received < payload.byteLength) return;
-    if (received !== payload.byteLength || !waiting) {
+    if (received < codec.referencePayload.byteLength) return;
+    if (received !== codec.referencePayload.byteLength || !waiting) {
       waiting?.reject(new Error("stream response framing mismatch"));
     } else {
-      waiting.resolve();
+      try {
+        codec.verify(waiting.response ?? codec.referencePayload);
+        waiting.resolve();
+      } catch (error) {
+        waiting.reject(error);
+      }
     }
     waiting = undefined;
     received = 0;
@@ -400,12 +412,21 @@ function createFixedEchoInvoker(socket, payload) {
         reject(new Error("stream benchmark permits only one pending frame"));
         return;
       }
-      waiting = { resolve: resolveEcho, reject };
+      const payload = codec.encode();
+      if (payload.byteLength !== codec.referencePayload.byteLength) {
+        reject(new Error("encoded payload length changed during benchmark"));
+        return;
+      }
+      waiting = {
+        resolve: resolveEcho,
+        reject,
+        response: Buffer.allocUnsafe(codec.referencePayload.byteLength),
+      };
       socket.write(payload);
     });
 }
 
-function createWebSocketEchoInvoker(client, payload) {
+function createWebSocketEchoInvoker(client, codec) {
   return () =>
     new Promise((resolveEcho, reject) => {
       const onError = (error) => {
@@ -415,12 +436,18 @@ function createWebSocketEchoInvoker(client, payload) {
       const onMessage = (data) => {
         client.off("error", onError);
         const response = Buffer.from(data);
-        if (response[0] !== payload[0] || response.at(-1) !== payload.at(-1)) {
-          reject(new Error("WebSocket response mismatch"));
-        } else {
+        try {
+          codec.verify(response);
           resolveEcho();
+        } catch (error) {
+          reject(error);
         }
       };
+      const payload = codec.encode();
+      if (payload.byteLength !== codec.referencePayload.byteLength) {
+        reject(new Error("encoded payload length changed during benchmark"));
+        return;
+      }
       client.once("error", onError);
       client.once("message", onMessage);
       client.send(payload, { binary: true, compress: false });
@@ -608,12 +635,6 @@ function once(emitter, event) {
   });
 }
 
-function deterministicPayload(size) {
-  const value = Buffer.allocUnsafe(size);
-  for (let index = 0; index < size; index += 1) value[index] = (index * 31 + 17) & 0xff;
-  return value;
-}
-
 function percentile(sorted, quantile) {
   return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * quantile))];
 }
@@ -629,7 +650,9 @@ function parseOptions(arguments_) {
     const name = arguments_[index];
     const value = arguments_[index + 1];
     if (!name?.startsWith("--") || value === undefined) {
-      throw new Error("Expected --iterations, --warmup, --payload-bytes, or --output with a value");
+      throw new Error(
+        "Expected --iterations, --warmup, --payload-bytes, --payload-mode, --server-layout, or --output with a value",
+      );
     }
     values.set(name, value);
   }
@@ -643,8 +666,17 @@ function parseOptions(arguments_) {
   );
   const output = values.get("--output");
   const serverLayout = values.get("--server-layout") ?? "same-process";
+  const payloadMode = values.get("--payload-mode") ?? "opaque-bytes";
   if (!["same-process", "child-process"].includes(serverLayout)) {
     throw new Error("server-layout must be same-process or child-process");
+  }
+  if (!["opaque-bytes", "motion-json"].includes(payloadMode)) {
+    throw new Error("payload-mode must be opaque-bytes or motion-json");
+  }
+  if (payloadMode === "motion-json" && values.has("--payload-bytes")) {
+    throw new Error(
+      "payload-bytes cannot be set with motion-json; the canonical frame determines its encoded size",
+    );
   }
   for (const name of values.keys()) {
     if (
@@ -654,12 +686,13 @@ function parseOptions(arguments_) {
         "--payload-bytes",
         "--output",
         "--server-layout",
+        "--payload-mode",
       ].includes(name)
     ) {
       throw new Error(`Unknown option ${name}`);
     }
   }
-  return { iterations, warmup, payloadBytes, output, serverLayout };
+  return { iterations, warmup, payloadBytes, output, serverLayout, payloadMode };
 }
 
 function boundedInteger(value, minimum, maximum, name) {

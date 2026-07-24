@@ -35,7 +35,9 @@ if (failures > 0) process.exitCode = 1;
 function validateReport(report) {
   requireRecord(report, "report");
   requireEqual(report.format, "vcg-motion-transport-benchmark", "format");
-  requireEqual(report.formatVersion, 1, "formatVersion");
+  if (![1, 2].includes(report.formatVersion)) {
+    throw new Error("formatVersion must equal 1 or 2");
+  }
   requireString(report.createdAt, "createdAt");
   if (!Number.isFinite(Date.parse(report.createdAt))) throw new Error("createdAt must be ISO date text");
 
@@ -51,7 +53,21 @@ function validateReport(report) {
   requireInteger(report.method.payloadBytes, 256, 1_048_576, "method.payloadBytes");
   requireEqual(report.method.pattern, "sequential request/echo round trip", "method.pattern");
   requireEqual(report.method.compression, false, "method.compression");
-  requireEqual(report.method.schemaValidation, false, "method.schemaValidation");
+  if (report.formatVersion === 1) {
+    requireEqual(report.method.schemaValidation, false, "method.schemaValidation");
+    for (const field of [
+      "payloadMode",
+      "serialization",
+      "producerSchemaValidation",
+      "consumerSchemaValidation",
+      "motionApiVersion",
+      "frameShape",
+    ]) {
+      if (field in report.method) throw new Error(`method.${field} is unexpected in format v1`);
+    }
+  } else {
+    validatePayloadMethod(report.method);
+  }
   requireString(report.method.processLayout, "method.processLayout");
   const isolated = report.method.processLayout.includes("separate child processes");
 
@@ -66,6 +82,39 @@ function validateReport(report) {
     throw new Error("limitations must contain at least four explicit entries");
   }
   report.limitations.forEach((value, index) => requireString(value, `limitations[${index}]`));
+}
+
+function validatePayloadMethod(method) {
+  if (!["opaque-bytes", "motion-json"].includes(method.payloadMode)) {
+    throw new Error("method.payloadMode must equal opaque-bytes or motion-json");
+  }
+  if (method.payloadMode === "opaque-bytes") {
+    requireEqual(method.serialization, "none", "method.serialization");
+    requireEqual(method.schemaValidation, false, "method.schemaValidation");
+    requireEqual(
+      method.producerSchemaValidation,
+      false,
+      "method.producerSchemaValidation",
+    );
+    requireEqual(
+      method.consumerSchemaValidation,
+      false,
+      "method.consumerSchemaValidation",
+    );
+    for (const field of ["motionApiVersion", "frameShape"]) {
+      if (field in method) {
+        throw new Error(`method.${field} is unexpected for opaque-byte payloads`);
+      }
+    }
+    return;
+  }
+
+  requireEqual(method.serialization, "json-utf8", "method.serialization");
+  requireEqual(method.schemaValidation, true, "method.schemaValidation");
+  requireEqual(method.producerSchemaValidation, true, "method.producerSchemaValidation");
+  requireEqual(method.consumerSchemaValidation, true, "method.consumerSchemaValidation");
+  requireEqual(method.motionApiVersion, "0.3.0", "method.motionApiVersion");
+  requireString(method.frameShape, "method.frameShape");
 }
 
 function validateResult(result, expectedTransport, isolated) {
