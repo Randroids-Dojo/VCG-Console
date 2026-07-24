@@ -19,7 +19,7 @@ interface Baseline {
   shoulderWidth: number;
 }
 
-type SustainedActionName = "player_join" | "menu_select" | "menu_back" | "pause";
+export type SustainedActionName = "player_join" | "menu_select" | "menu_back" | "pause";
 
 interface HoldState {
   name: SustainedActionName;
@@ -28,9 +28,12 @@ interface HoldState {
   lastConfidence: number;
 }
 
-const HOLD_SELECT_MS = 450;
-const HOLD_BACK_MS = 650;
-const HOLD_PAUSE_MS = 1_100;
+export const ACTION_HOLD_THRESHOLDS_MS = {
+  player_join: 450,
+  menu_select: 450,
+  menu_back: 650,
+  pause: 1_100,
+} as const satisfies Readonly<Record<SustainedActionName, number>>;
 const ACTION_COOLDOWN_MS = 650;
 
 export type ActionContext = "shell" | "game" | "overlay";
@@ -186,7 +189,7 @@ export class ActionEngine {
         this.#handsHold,
         together && enabled,
         name,
-        HOLD_SELECT_MS,
+        ACTION_HOLD_THRESHOLDS_MS[name],
         confidence,
         now,
         false,
@@ -199,7 +202,9 @@ export class ActionEngine {
         this.#handsHold,
         false,
         this.#handsHold?.name ?? (this.#joined ? "menu_select" : "player_join"),
-        HOLD_SELECT_MS,
+        ACTION_HOLD_THRESHOLDS_MS[
+          this.#handsHold?.name ?? (this.#joined ? "menu_select" : "player_join")
+        ],
         0,
         now,
         false,
@@ -211,7 +216,7 @@ export class ActionEngine {
     if (leftWrist && rightWrist && leftElbow && rightElbow) {
       const crossed = leftWrist.x > rightElbow.x && rightWrist.x < leftElbow.x && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
       const name = context === "game" ? "pause" : "menu_back";
-      const thresholdMs = context === "game" ? HOLD_PAUSE_MS : HOLD_BACK_MS;
+      const thresholdMs = ACTION_HOLD_THRESHOLDS_MS[name];
       const update = this.#advanceHold(this.#armsHold, crossed, name, thresholdMs, crossed ? 0.9 : 0, now, true);
       this.#armsHold = update.state;
       actions.push(...update.actions);
@@ -221,7 +226,7 @@ export class ActionEngine {
         this.#armsHold,
         false,
         fallbackName,
-        fallbackName === "pause" ? HOLD_PAUSE_MS : HOLD_BACK_MS,
+        ACTION_HOLD_THRESHOLDS_MS[fallbackName],
         0,
         now,
         true,

@@ -1,4 +1,5 @@
 import type { MotionAction, MotionFrame } from "@vcg/motion-contract";
+import { actionFeedback } from "./action-feedback";
 import { ActionEngine } from "./action-engine";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { LauncherController, launcherMarkup } from "./launcher";
@@ -92,6 +93,23 @@ app.innerHTML = `
           <div><dt>DROPPED FRAMES</dt><dd id="metric-dropped">0</dd></div>
           <div><dt>TRACE FRAMES</dt><dd id="metric-trace">0</dd></div>
         </dl>
+        <section class="gesture-feedback" id="gesture-feedback" data-state="idle" aria-live="polite">
+          <div class="gesture-feedback-heading">
+            <span id="gesture-action">GESTURE FEEDBACK</span>
+            <strong id="gesture-phase">WAITING</strong>
+          </div>
+          <div
+            class="gesture-progress"
+            id="gesture-progress"
+            role="progressbar"
+            aria-label="Gesture hold progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-valuetext="Waiting for a gesture"
+          ><span id="gesture-progress-fill"></span></div>
+          <p id="gesture-detail">Hold progress, acceptance, cancellation, and release appear here.</p>
+        </section>
         <p class="measurement-note">* Browser prototype uses capture-arrival time, not a camera exposure timestamp. It cannot qualify the 120 ms product gate.</p>
         <div class="controls">
           <button id="join-button" class="primary-control" type="button">JOIN PLAYER 1</button>
@@ -142,6 +160,12 @@ const replayButton = required<HTMLButtonElement>("#replay-button");
 const joinButton = required<HTMLButtonElement>("#join-button");
 const exportButton = required<HTMLButtonElement>("#export-button");
 const statusDetail = required<HTMLElement>("#status-detail");
+const gestureFeedback = required<HTMLElement>("#gesture-feedback");
+const gestureAction = required<HTMLElement>("#gesture-action");
+const gesturePhase = required<HTMLElement>("#gesture-phase");
+const gestureProgress = required<HTMLElement>("#gesture-progress");
+const gestureProgressFill = required<HTMLElement>("#gesture-progress-fill");
+const gestureDetail = required<HTMLElement>("#gesture-detail");
 const systemState = required<HTMLElement>("#system-state");
 const healthBadge = required<HTMLElement>("#health-badge");
 const sourceBadge = required<HTMLElement>("#source-badge");
@@ -241,6 +265,7 @@ function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
 function handleAction(action: MotionAction): void {
   required<HTMLElement>("#metric-action").textContent =
     `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
+  paintActionFeedback(action);
   if (action.phase !== "triggered") return;
   if (action.name === "player_join") joinPlayer();
   if (["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)) obstacle.handleAction(action.name);
@@ -404,6 +429,18 @@ function chooseOverlayAction(action: "resume" | "exit"): void {
     }
   }
   closeOverlay(true);
+}
+
+function paintActionFeedback(action: MotionAction): void {
+  const feedback = actionFeedback(action);
+  const percent = Math.round(feedback.progress * 100);
+  gestureFeedback.dataset.state = feedback.phase;
+  gestureAction.textContent = feedback.actionLabel.toUpperCase();
+  gesturePhase.textContent = feedback.phaseLabel.toUpperCase();
+  gestureProgress.setAttribute("aria-valuenow", String(percent));
+  gestureProgress.setAttribute("aria-valuetext", `${feedback.actionLabel}: ${feedback.phaseLabel}`);
+  gestureProgressFill.style.width = `${percent}%`;
+  gestureDetail.textContent = feedback.detail;
 }
 
 function resetPlayerSession(): void {

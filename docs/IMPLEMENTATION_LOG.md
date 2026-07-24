@@ -885,6 +885,25 @@ This is adapter-independent state, not SDL3 or Steam Input qualification. Exact 
 
 No household benchmark has been run. I-053 and I-210 still require consented real-room ground truth, exact environment/configuration evidence, skeleton-only trace capture, concurrent workload, trustworthy exposure timestamps, latency distributions, threshold qualification, every failure, and per-persona/placement pass or fail.
 
+## 2026-07-24: visible standardized-action lifecycle feedback
+
+### Delivered
+
+- Added a pure action-feedback model that consumes the Motion API lifecycle without authorizing behavior.
+- Sustained join/select, Back, and Pause progress uses the same exported 450, 650, and 1,100 ms thresholds as the recognizer.
+- The Motion Lab now presents gesture name, sampled hold percentage, accepted, cancelled, and released copy, an accessible progressbar, and redundant text/border/pattern state.
+- Discrete actions become Accepted without fabricated duration. Terminal feedback remains visible until the next event rather than disappearing on an unrelated wall timer.
+
+### Verification evidence
+
+- Three focused tests cover threshold-derived progress, accepted/cancelled/released sustained states, and discrete acceptance without invented hold progress.
+- The browser flow verifies the feedback card and named progressbar render in the real Motion Lab.
+- The console-lab suite passes 69 unit tests with zero Svelte/TypeScript diagnostics.
+
+### Remaining boundary
+
+This is deterministic synthetic/UI evidence. Real-player comprehension, TV-distance visibility, threshold tuning, stable focus, one-handed and limited-range alternatives, feedback sound, accessibility review, false privileged actions, and cross-backend behavior remain under I-060, I-183, and I-210.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

@@ -431,6 +431,11 @@ test("console lab preserves navigation and overlay focus contracts", async ({ pa
   await openMotionLab(page);
   await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
   await expect(page.getByText("RAW VIDEO", { exact: false })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Gesture hold progress" })).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  await expect(page.getByText("Hold progress, acceptance, cancellation, and release appear here.")).toBeVisible();
 
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
   await expect(page.getByRole("heading", { name: "MOVE BEFORE IT HITS." })).toBeVisible();

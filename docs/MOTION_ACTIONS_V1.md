@@ -82,6 +82,12 @@ The desk defaults retain the existing 650 ms per-action cooldown. Cooldown is ke
 
 Array order is deterministic feedback order, not permission to process non-trigger phases as commands. Replay expectation scoring also matches only `triggered`.
 
+## Visible desk feedback
+
+The Motion Lab renders every lifecycle phase through a dedicated live feedback card while retaining `triggered` as the only side-effecting phase. It uses the recognizer's shared 450 ms join/select, 650 ms Back, and 1,100 ms Pause thresholds to show sampled hold percentage. Accepted, cancelled, and released states use explicit text plus border/pattern changes; color is never the sole signal. Discrete actions move directly to Accepted without inventing hold duration.
+
+Terminal feedback remains visible until the next action event so a cancellation or release is not erased by a timer. This is deterministic desk feedback, not evidence that real players can perceive, understand, or complete the gestures at TV distance.
+
 ## Remaining qualification boundary
 
-This closes temporal semantics for the prototype contract, not action accuracy. Exact v1 threshold/calibration tables, one-handed and limited-range alternatives, real-player precision/recall, cross-backend conformance traces, multi-player ownership, tracker-loss delivery, and privileged compositor enforcement remain under I-056, I-060, I-161, I-183, and I-210.
+This closes temporal semantics for the prototype contract, not action accuracy. Exact v1 threshold/calibration tables, one-handed and limited-range alternatives, real-player precision/recall and feedback comprehension, cross-backend conformance traces, multi-player ownership, tracker-loss delivery, and privileged compositor enforcement remain under I-056, I-060, I-161, I-183, and I-210.
