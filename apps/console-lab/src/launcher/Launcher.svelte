@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
   import {
     cancelNativeLaunch,
@@ -12,6 +12,11 @@
     type NativePackageInventory,
   } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
+  import {
+    applyAccessibilityPreferences,
+    type AccessibilityPreferenceChange,
+    type AccessibilityPreferenceSnapshot,
+  } from "./accessibility-preferences";
   import { launcherCatalog } from "./catalog.generated";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
@@ -25,7 +30,7 @@
   import SettingsView from "./SettingsView.svelte";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, SearchItem, SettingsPanel } from "./types";
 
-  let { openMotionLab }: LauncherOptions = $props();
+  let { accessibilityPreferences, openMotionLab }: LauncherOptions = $props();
   let launcher: HTMLElement;
   let search: SearchOverlay;
   let settings: SettingsView;
@@ -50,6 +55,9 @@
   let nativePackageInventory = $state<NativePackageInventory | undefined>();
   let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
   let nativePackageInventoryRefresh: Promise<void> | undefined;
+  let accessibilitySnapshot = $state<AccessibilityPreferenceSnapshot>(
+    untrack(() => accessibilityPreferences.snapshot()),
+  );
   const localDiagnostics = new LocalDiagnosticBuffer();
 
   type CatalogLaunchExpectation = {
@@ -79,6 +87,7 @@
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
+    { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
     { title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") },
@@ -93,6 +102,43 @@
     window.addEventListener("focus", refreshNativePackageInventory);
     document.addEventListener("visibilitychange", refreshVisibleNativePackageInventory);
   });
+
+  $effect(() => {
+    applyAccessibilityPreferences(document.documentElement, accessibilitySnapshot);
+  });
+
+  function changeAccessibility(change: AccessibilityPreferenceChange): void {
+    accessibilitySnapshot = accessibilityPreferences.update(change);
+  }
+
+  function resetAccessibility(): void {
+    accessibilitySnapshot = accessibilityPreferences.reset();
+  }
+
+  function previewAudioCue(): void {
+    if (accessibilitySnapshot.preferences.audioCues === "off") {
+      toast("Audio cues are off.");
+      return;
+    }
+    try {
+      const context = new AudioContext();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = 660;
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.09);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.addEventListener("ended", () => void context.close(), { once: true });
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.1);
+      toast("Audio cue played locally.");
+    } catch {
+      toast("Audio cue unavailable on this browser.");
+    }
+  }
 
   onDestroy(() => {
     if (clockTimer !== undefined) window.clearInterval(clockTimer);
@@ -731,7 +777,19 @@
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
-        <SettingsView bind:this={settings} {openMotionLab} {activeProfileId} {localDiagnostics} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
+        <SettingsView
+          bind:this={settings}
+          {openMotionLab}
+          {activeProfileId}
+          {localDiagnostics}
+          accessibility={accessibilitySnapshot}
+          onaccessibilitychange={changeAccessibility}
+          onaccessibilityreset={resetAccessibility}
+          onpreviewaudiocue={previewAudioCue}
+          onpreviewlaunch={previewLaunch}
+          onpreviewfault={previewFault}
+          ontoast={toast}
+        />
       </div>
     </section>
   </div>

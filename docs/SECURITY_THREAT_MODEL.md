@@ -59,6 +59,7 @@ The highest-level security objectives are to keep games from becoming console au
 - Child processes and descendants cannot outlive ownership, evade cancellation, impersonate readiness, or inherit more device/filesystem/network authority than declared.
 - Offline-required features do not gain undeclared WAN dependencies or leak data when the network becomes available.
 - Profile deletion, factory reset, uninstall, rollback, update, diagnostics, and import cleanup affect only their documented scope and do not silently reassociate sensitive identity.
+- Accessibility preferences are bounded non-sensitive presentation/input hints; they cannot grant privilege, select identity, enable device/game permissions, or remap reserved recovery actions.
 - Ordinary writes cannot consume declared recovery headroom; only an explicit privileged recovery-workspace operation may use it, and admission alone is not a physical reservation.
 - Protocols, parsers, queues, traces, logs, lifecycle histories, retries, and health checks are bounded and fail closed under malformed or stalled input.
 - Compatibility, rights, permission, health, and readiness states are truthful. A valid public manifest or started process is not represented as installed, qualified, visible, responsive, or safe.

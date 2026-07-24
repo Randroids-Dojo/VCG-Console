@@ -1,6 +1,8 @@
+import type { AccessibilityPreferenceController } from "./accessibility-preferences";
+
 export type LauncherView = "home" | "motion" | "museum" | "retro" | "profiles" | "settings";
 export type LabMode = "tracker" | "obstacle" | "shell";
-export type SettingsPanel = "system" | "network" | "storage" | "developer";
+export type SettingsPanel = "system" | "accessibility" | "network" | "storage" | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
 export type LaunchFaultPreview = "slow" | "offline" | "hung" | "crashed" | "recovered";
 export type LaunchStatus = "loading" | "slow" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";
@@ -37,6 +39,7 @@ export interface LaunchSession {
 }
 
 export interface LauncherOptions {
+  accessibilityPreferences: AccessibilityPreferenceController;
   openMotionLab: (mode?: LabMode) => void;
 }
 

@@ -23,6 +23,10 @@ import {
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { LauncherController, launcherMarkup } from "./launcher";
 import {
+  AccessibilityPreferenceController,
+  applyAccessibilityPreferences,
+} from "./launcher/accessibility-preferences";
+import {
   LocalObstacleLeaderboard,
   OBSTACLE_GAME_VERSION,
   OBSTACLE_RULES_VERSION,
@@ -66,6 +70,11 @@ const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string 
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Application root is missing");
+const accessibilityPreferences = new AccessibilityPreferenceController(localStorage);
+applyAccessibilityPreferences(
+  document.documentElement,
+  accessibilityPreferences.snapshot(),
+);
 
 app.innerHTML = `
   ${launcherMarkup}
@@ -335,6 +344,7 @@ let obstacleRunRecorded = false;
 let leaderboardResetArmed = false;
 
 const launcher = new LauncherController({
+  accessibilityPreferences,
   openMotionLab(mode = "tracker") {
     launcher.hide();
     motionLab.hidden = false;

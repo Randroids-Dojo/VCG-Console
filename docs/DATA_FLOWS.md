@@ -1,7 +1,7 @@
 # VCG Console data flows
 
 Status: browser prototype implemented; native appliance boundaries planned  
-Last audited: 2026-07-22
+Last audited: 2026-07-24
 
 This document maps camera frames, skeletons, profiles, saves, logs, and network calls across the current prototype and the selected appliance design. “Planned” is not an implementation claim. Every raw-frame guarantee must be requalified when the native tracker or another capture backend is added.
 
@@ -32,6 +32,7 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Skeleton trace export | Bounded `MotionTrace` with `containsRawFrames: false` | Written only when the user activates Export; ordinary browser download retention then applies | User-selected local download | Explicit export action | Implemented |
 | Profile name/selection | Launcher profile component | Svelte session memory only; lost on reload | Launcher shell | Create, rename, select | Prototype only |
 | Console operating mode | Local launcher confirmation flow | Volatile fail-closed family/admin/developer state; boot/reload starts in family mode and no credential or pairing secret exists | Launcher policy only; no native service consumes it | Separate admin/developer confirmations, cancel, end developer mode, family lock | Browser policy/UX prototype only |
+| Accessibility preferences | Settings / Access closed v1 document | At most 1,024 bytes under `vcg.accessibility.v1`; device-wide prototype state only; invalid state defaults in full | Trusted shell presentation only; posture/remap are not sent to tracker, input host, profiles, or games | Pre-profile edit, local cue preview, complete reset | Browser prototype; native settings service not implemented |
 | Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
 | Game saves | Individual game runtime | Native planner derives bounded device-local per-game/owner/runtime save and cache namespaces, quotas, reset scope, migration staging, and profile-to-unassigned transitions; a separate host-only durable transaction can now execute/recover one exact confirmed save/cache reset | Owning game through a future sandbox/mount adapter and console lifecycle service | Per-game reset still needs deliberate controller/motion UI; factory reset remains planned | Contract and reset primitive implemented; storage broker/confinement not implemented |
 | Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI plus a newest-256 closed-code browser record are volatile. Exact reviewed bytes can be downloaded only after local admin confirmation; native logs remain planned. | Local player/admin screen and one deliberate local JSON download | Review, separate prepare/confirm export, admin-gated clear | Browser record/export implemented; native store not implemented |
@@ -71,6 +72,13 @@ confirmations; lock, reload, and identity change return to family mode. This is
 volatile UX evidence only: a future native coordinator must authenticate local
 administration and reserved-input confirmation before opening any paired-LAN
 listener.
+
+The accessibility prototype is deliberately separate from profile identity
+and sensitive calibration. It stores only six closed preferences, applies
+text/contrast/motion to the trusted shell, and labels posture/remap as
+unconnected previews. Storage failure leaves session-only controls available.
+No preference can enable admin/developer/native authority or change the
+reserved-action router.
 
 ### Saves
 

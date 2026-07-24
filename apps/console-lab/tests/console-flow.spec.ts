@@ -102,6 +102,141 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(operatingMode).toHaveAttribute("data-operating-mode", "family");
 });
 
+test("accessibility preferences apply, persist, disclose gaps, and reset", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setAccessibilityGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright accessibility controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+  });
+  await page.goto("/?skipBoot=1");
+  const root = page.locator("html");
+  const standardFontSize = await root.evaluate((element) =>
+    Number.parseFloat(getComputedStyle(element).fontSize),
+  );
+  await expect(root).toHaveAttribute("data-vcg-text-scale", "standard");
+  await expect(root).toHaveAttribute("data-vcg-contrast", "standard");
+  await expect(root).toHaveAttribute("data-vcg-motion", "system");
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Access", exact: true }).click();
+  const accessibilityPanel = page.locator(
+    '[data-settings-panel="accessibility"]',
+  );
+  await expect(
+    accessibilityPanel.getByText("Using defaults · nothing stored yet"),
+  ).toBeVisible();
+  await expect(
+    accessibilityPanel.getByText(
+      /Seated play and confirm-button\s+remapping are saved demonstrations/,
+    ),
+  ).toBeVisible();
+  await expect(
+    accessibilityPanel.getByText(/browser input router still uses its canonical mapping/),
+  ).toBeVisible();
+
+  await accessibilityPanel.getByRole("button", { name: "Large" }).focus();
+  await pressSyntheticGamepadButton(page, "__setAccessibilityGamepad", 0);
+  await expect(root).toHaveAttribute("data-vcg-text-scale", "large");
+  expect(
+    await root.evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).fontSize),
+    ),
+  ).toBeGreaterThan(standardFontSize);
+
+  await accessibilityPanel.getByRole("button", { name: "High" }).click();
+  await expect(root).toHaveAttribute("data-vcg-contrast", "high");
+  await accessibilityPanel.getByRole("button", { name: "Reduced" }).click();
+  await expect(root).toHaveAttribute("data-vcg-motion", "reduced");
+  expect(
+    await page.locator(".launcher").evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).transitionDuration),
+    ),
+  ).toBeLessThanOrEqual(0.00002);
+
+  await accessibilityPanel.getByRole("button", { name: "Seated preferred" }).click();
+  await expect(root).toHaveAttribute("data-vcg-seated-play", "preferred");
+  await accessibilityPanel.getByRole("button", { name: "West / X" }).click();
+  await expect(root).toHaveAttribute("data-vcg-confirm-button", "west");
+  await accessibilityPanel.getByRole("button", { name: "Off" }).click();
+  await expect(root).toHaveAttribute("data-vcg-audio-cues", "off");
+  await accessibilityPanel.getByRole("button", { name: "Play cue" }).click();
+  await expect(page.locator("#launcher-toast")).toHaveText("Audio cues are off.");
+
+  await accessibilityPanel.getByRole("button", { name: "On" }).click();
+  await accessibilityPanel.getByRole("button", { name: "Play cue" }).click();
+  await expect(page.locator("#launcher-toast")).toHaveText("Audio cue played locally.");
+  await expect(
+    accessibilityPanel.getByText("Saved locally on this console"),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "../../test-results/console-lab/accessibility-settings.png",
+  });
+
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("vcg.accessibility.v1") ?? "null"),
+    ),
+  ).toEqual({
+    schemaVersion: 1,
+    textScale: "large",
+    contrast: "high",
+    motion: "reduced",
+    seatedPlay: "preferred",
+    confirmButton: "west",
+    audioCues: "on",
+  });
+
+  await page.reload();
+  await expect(root).toHaveAttribute("data-vcg-text-scale", "large");
+  await expect(root).toHaveAttribute("data-vcg-contrast", "high");
+  await expect(root).toHaveAttribute("data-vcg-motion", "reduced");
+  await expect(root).toHaveAttribute("data-vcg-seated-play", "preferred");
+  await expect(root).toHaveAttribute("data-vcg-confirm-button", "west");
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Access", exact: true }).click();
+  await accessibilityPanel
+    .getByRole("button", { name: "Reset accessibility settings" })
+    .focus();
+  await pressSyntheticGamepadButton(page, "__setAccessibilityGamepad", 0);
+  await expect(root).toHaveAttribute("data-vcg-text-scale", "standard");
+  await expect(root).toHaveAttribute("data-vcg-contrast", "standard");
+  await expect(root).toHaveAttribute("data-vcg-motion", "system");
+  await expect(root).toHaveAttribute("data-vcg-seated-play", "standard");
+  await expect(root).toHaveAttribute("data-vcg-confirm-button", "south");
+  await expect(
+    accessibilityPanel.getByText("Using defaults · nothing stored yet"),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => localStorage.getItem("vcg.accessibility.v1")),
+  ).toBeNull();
+  await pressSyntheticGamepadButton(page, "__setAccessibilityGamepad", 1);
+  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+});
+
 test("one launch screen represents every adapter without inventing progress", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Settings", exact: true }).click();

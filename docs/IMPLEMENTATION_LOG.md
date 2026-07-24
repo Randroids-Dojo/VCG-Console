@@ -2085,6 +2085,49 @@ resource ceilings, crash/hang cleanup, compositor ownership, global
 Home/Back/Pause, and both Linux targets remain under I-136, I-150, I-180, and
 I-209.
 
+## 2026-07-24: console-level accessibility preference prototype
+
+### Delivered
+
+- Added one closed, versioned, at-most-1-KiB device-wide accessibility
+  document with conservative no-write defaults and complete reset.
+- Added standard/large text, standard/high contrast, system/explicit reduced
+  motion, posture, confirm-button preview, and local audio-cue On/Off controls
+  under the new pre-profile Settings / Access panel.
+- Applied text, contrast, and motion to the root shell contract, including
+  redundant high-contrast focus outline/spacing/underline.
+- Kept seated posture and remapping visibly preview-only; selecting West/X
+  cannot change the canonical browser router, and Home/Back/Pause remain
+  outside remapping.
+- Reported saved/default/volatile state and retained usable session controls
+  when browser storage fails.
+- Added `ACCESSIBILITY_PREFERENCES.md`, Q-159 through Q-161, and D-164;
+  advanced I-119 to `active`.
+
+### Verification evidence
+
+Six unit tests cover strict defaults, exact round-trip, the byte cap, malformed/
+oversized/unknown/wrong-version/unknown-value denial, storage failures,
+runtime-change validation, root application, and complete reset.
+
+The real Chrome flow proves computed large text, high contrast, reduced motion,
+seated/remap disclosures, local audio Off/On, exact bytes, reload restoration,
+controller Select and Back, canonical South/A behavior after choosing the
+West/X preview, and key removal on reset. Visual review of
+`test-results/console-lab/accessibility-settings.png` confirms readable
+hierarchy, redundant selected state, and the remap boundary at 1440x1000.
+The complete Windows pass includes all 233 TypeScript/Svelte tests,
+zero-warning typecheck, production build, schema/manifest/benchmark/transport/
+Godot/device-data/compliance gates, and all 27 Chrome flows.
+
+### Remaining boundary
+
+Browser local storage is not the native settings service. Final device/profile
+scope, migrations/update/rollback, SDL3 remapping and recovery, tracker/game
+propagation, qualified seated play, assistive technology and audio design,
+target-TV scaling/safe area, both hardware tiers, and household testing remain
+under I-068, I-098, I-119, I-147, I-152, I-155, and I-206.
+
 ## 2026-07-24: device-only player-data exclusion verifier
 
 ### Delivered

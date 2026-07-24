@@ -101,6 +101,12 @@ operations behind a privileged native coordinator:
 No browser flag, local storage value, query parameter, profile field, or
 hosted-game response may enable the native transport.
 
+Non-privileged accessibility preferences remain available in family mode and
+before profile selection. Their bounded local prototype document changes only
+shell presentation and cue preview; it cannot grant management/developer
+authority, and posture/remap values are not yet connected to games or native
+input.
+
 ## Automated evidence
 
 Six unit tests cover:

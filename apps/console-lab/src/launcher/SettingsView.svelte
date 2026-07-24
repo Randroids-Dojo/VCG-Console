@@ -10,6 +10,10 @@
     type LocalDiagnosticBuffer,
     type PreparedLocalDiagnosticExport,
   } from "./local-diagnostics";
+  import type {
+    AccessibilityPreferenceChange,
+    AccessibilityPreferenceSnapshot,
+  } from "./accessibility-preferences";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, SettingsPanel } from "./types";
 
   let {
@@ -19,6 +23,10 @@
     ontoast,
     activeProfileId,
     localDiagnostics,
+    accessibility,
+    onaccessibilitychange,
+    onaccessibilityreset,
+    onpreviewaudiocue,
   }: {
     openMotionLab: (mode?: LabMode) => void;
     onpreviewlaunch: (adapter: LaunchAdapter) => void;
@@ -26,8 +34,34 @@
     ontoast: (message: string) => void;
     activeProfileId: string;
     localDiagnostics: LocalDiagnosticBuffer;
+    accessibility: AccessibilityPreferenceSnapshot;
+    onaccessibilitychange: (change: AccessibilityPreferenceChange) => void;
+    onaccessibilityreset: () => void;
+    onpreviewaudiocue: () => void;
   } = $props();
   let panel = $state<SettingsPanel>("system");
+  const panelPresentation: Record<SettingsPanel, { title: string; detail: string }> = {
+    system: {
+      title: "System.",
+      detail: "Only controls that belong on the television.",
+    },
+    accessibility: {
+      title: "Access.",
+      detail: "Readable, calm, and recoverable before a game begins.",
+    },
+    network: {
+      title: "Wi-Fi.",
+      detail: "Online play is optional. Local play stays available.",
+    },
+    storage: {
+      title: "Storage.",
+      detail: "Capacity stays separate from recovery headroom.",
+    },
+    developer: {
+      title: "Developer.",
+      detail: "Privileged tools stay explicit and visibly separate.",
+    },
+  };
   let scanning = $state(false);
   let scanComplete = $state(false);
   let diagnostics = $state(false);
@@ -185,24 +219,96 @@
 </script>
 
 <header class="view-header">
-  <div><p class="view-kicker">CONSOLE SETTINGS</p><h1>System.</h1></div>
-  <p>Only controls that belong on the television.</p>
+  <div><p class="view-kicker">CONSOLE SETTINGS</p><h1>{panelPresentation[panel].title}</h1></div>
+  <p>{panelPresentation[panel].detail}</p>
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">
-    {#each ["system", "network", "storage", "developer"] as target}
+    {#each ["system", "accessibility", "network", "storage", "developer"] as target}
       <button
         class:active={panel === target}
         type="button"
         data-settings-target={target}
         onclick={() => (panel = target as SettingsPanel)}
-      >{target === "network" ? "Wi-Fi" : target === "developer" ? "Developer" : target[0]?.toUpperCase() + target.slice(1)}</button>
+      >{target === "network" ? "Wi-Fi" : target === "accessibility" ? "Access" : target === "developer" ? "Developer" : target[0]?.toUpperCase() + target.slice(1)}</button>
     {/each}
   </nav>
   <div class="settings-panels">
     <section data-settings-panel="system" hidden={panel !== "system"}>
       <dl><div><dt>VCG Console</dt><dd>Prototype 0.0.1</dd></div><div><dt>Motion API</dt><dd>0.2.0</dd></div><div><dt>Update channel</dt><dd>Development</dd></div></dl>
       <button type="button" onclick={() => ontoast("No console update service is connected in this prototype.")}>Check for updates</button>
+    </section>
+    <section data-settings-panel="accessibility" hidden={panel !== "accessibility"}>
+      <div class="accessibility-summary" aria-live="polite">
+        <span>DEVICE-WIDE PROTOTYPE</span>
+        <strong>One readable shell preference set</strong>
+        <p>
+          Text, contrast, and reduced motion apply now. Seated play and confirm-button
+          remapping are saved demonstrations until the tracker and native input host
+          consume them.
+        </p>
+        <small data-accessibility-persistence={accessibility.persistence}>
+          {accessibility.persistence === "saved"
+            ? "Saved locally on this console"
+            : accessibility.persistence === "volatile"
+              ? "Storage unavailable · changes last only for this session"
+              : accessibility.persistence === "rejected"
+                ? "Stored settings rejected · safe defaults are active"
+              : "Using defaults · nothing stored yet"}
+        </small>
+      </div>
+
+      <div class="accessibility-setting">
+        <div><strong>Text scale</strong><small>Scales the console shell, dialogs, and status copy</small></div>
+        <div role="group" aria-label="Text scale">
+          <button type="button" aria-pressed={accessibility.preferences.textScale === "standard"} onclick={() => onaccessibilitychange({ textScale: "standard" })}>Standard</button>
+          <button type="button" aria-pressed={accessibility.preferences.textScale === "large"} onclick={() => onaccessibilitychange({ textScale: "large" })}>Large</button>
+        </div>
+      </div>
+
+      <div class="accessibility-setting">
+        <div><strong>Contrast</strong><small>Focus keeps outline, copy, and shape cues instead of color alone</small></div>
+        <div role="group" aria-label="Contrast">
+          <button type="button" aria-pressed={accessibility.preferences.contrast === "standard"} onclick={() => onaccessibilitychange({ contrast: "standard" })}>Standard</button>
+          <button type="button" aria-pressed={accessibility.preferences.contrast === "high"} onclick={() => onaccessibilitychange({ contrast: "high" })}>High</button>
+        </div>
+      </div>
+
+      <div class="accessibility-setting">
+        <div><strong>Motion</strong><small>System follows the OS preference; Reduced suppresses nonessential motion</small></div>
+        <div role="group" aria-label="Motion">
+          <button type="button" aria-pressed={accessibility.preferences.motion === "system"} onclick={() => onaccessibilitychange({ motion: "system" })}>System</button>
+          <button type="button" aria-pressed={accessibility.preferences.motion === "reduced"} onclick={() => onaccessibilitychange({ motion: "reduced" })}>Reduced</button>
+        </div>
+      </div>
+
+      <div class="accessibility-setting">
+        <div><strong>Play posture</strong><small>Preference only · seated body-play support is not yet qualified</small></div>
+        <div role="group" aria-label="Play posture">
+          <button type="button" aria-pressed={accessibility.preferences.seatedPlay === "standard"} onclick={() => onaccessibilitychange({ seatedPlay: "standard" })}>Standard</button>
+          <button type="button" aria-pressed={accessibility.preferences.seatedPlay === "preferred"} onclick={() => onaccessibilitychange({ seatedPlay: "preferred" })}>Seated preferred</button>
+        </div>
+      </div>
+
+      <div class="accessibility-setting">
+        <div><strong>Confirm-button preview</strong><small>Ordinary confirm only · reserved Home and Back cannot be remapped</small></div>
+        <div role="group" aria-label="Confirm-button preview">
+          <button type="button" aria-pressed={accessibility.preferences.confirmButton === "south"} onclick={() => onaccessibilitychange({ confirmButton: "south" })}>South / A</button>
+          <button type="button" aria-pressed={accessibility.preferences.confirmButton === "west"} onclick={() => onaccessibilitychange({ confirmButton: "west" })}>West / X</button>
+        </div>
+      </div>
+      <p class="accessibility-boundary">Preview only: the browser input router still uses its canonical mapping. No game receives this preference yet.</p>
+
+      <div class="accessibility-setting">
+        <div><strong>Audio cues</strong><small>Local UI confirmation cue · no speech or network service</small></div>
+        <div role="group" aria-label="Audio cues">
+          <button type="button" aria-pressed={accessibility.preferences.audioCues === "on"} onclick={() => onaccessibilitychange({ audioCues: "on" })}>On</button>
+          <button type="button" aria-pressed={accessibility.preferences.audioCues === "off"} onclick={() => onaccessibilitychange({ audioCues: "off" })}>Off</button>
+          <button type="button" onclick={onpreviewaudiocue}>Play cue</button>
+        </div>
+      </div>
+
+      <button class="accessibility-reset" type="button" onclick={onaccessibilityreset}>Reset accessibility settings</button>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
       <div class="setting-callout"><span>OFFLINE</span><strong>Wi-Fi is not configured</strong><p>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning…" : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
