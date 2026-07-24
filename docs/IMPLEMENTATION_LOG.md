@@ -2634,3 +2634,57 @@ exposure-to-action latency, representative concurrent load, native Linux and
 Rust-host integration, and distribution review remain. GPU is explicitly
 unqualified because the local CUDA/cuDNN runtime is absent; a provider-name
 attempt that fell back to CPU was discarded.
+
+## 2026-07-24: appearance-free identity assignment baselines
+
+### Delivered
+
+- Advanced I-057 to `active` with five bounded skeleton-only identity
+  baselines: nearest centroid, constant-velocity Kalman centroid, COCO-style
+  OKS, Kalman+OKS, and a ByteTrack-inspired two-stage Kalman/IoU association.
+- Kept the final baseline explicitly distinct from upstream ByteTrack: it
+  borrows high-/low-confidence association structure but does not claim the
+  detector, lifecycle, or exact implementation from the paper.
+- Added global one-to-one assignment, exact input/threshold/time bounds,
+  four-track capacity, six-frame expiry, non-reused opaque IDs, confidence
+  recovery, and no appearance/name/profile/biometric inputs.
+- Added six deterministic 30 FPS skeleton scenarios totaling 428 frames and
+  899 truth observations: linear crossing, short central occlusion, crossing
+  confidence loss, fast reversal, long exit/re-entry, and a three-player
+  braided crossing. Truth IDs remain evaluator-only and are stripped before
+  every tracker call.
+- Added exact ID precision/recall/F1, switch, false-transfer, fragmentation,
+  miss, and track-count scoring plus per-update latency measurement.
+- Recorded the two-stage baseline as the synthetic leader at IDF1 `0.972191`,
+  one switch, zero false transfers, 5.9 µs p50, and 15.5 µs p95. Every
+  baseline deliberately starts a new opaque identity after the long
+  post-expiry absence.
+- Added a strict report validator binding tracker/suite/benchmark SHA-256
+  values, Motion `0.4.0`, source revision, exact scenarios/method, derived
+  arithmetic, timing distributions, no-raw-frame policy, and honest claim
+  limits.
+- Added D-169, reserved Q-215 for the consented paired physical session, and
+  reserved Q-216 for the appearance-derived re-identification boundary.
+
+### Verification evidence
+
+- The Motion package passes 84 tests, including strict tracker validation,
+  every baseline's basic order invariance, global assignment, expiry/no-ID
+  reuse, low-confidence second-stage recovery, exact scenario coverage,
+  deterministic generation, known crossing failure, and comparative scoring.
+- TypeScript checking passes.
+- Nine adversarial report tests cover raw-frame claims, truth leakage, suite
+  and implementation substitution, impossible identity arithmetic, false
+  upstream ByteTrack claims, non-monotonic latency, and undeclared fields.
+- The tracked Windows x86 report passes its real hash/arithmetic validator;
+  Git whitespace checks pass.
+
+### Remaining boundary
+
+Generated poses are method and regression evidence, not player qualification.
+I-057 remains active pending paired MediaPipe/RTMO detector output from
+consented people, independent identity/visibility annotations, duplicates and
+misses, held-out parameter selection, one-player gates before multiplayer
+authority, faithful/upstream ByteTrack if still relevant, full-workload native
+Linux/Rust timing, and an explicit owner decision before any appearance data
+is prototyped.

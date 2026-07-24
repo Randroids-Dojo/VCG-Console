@@ -1,5 +1,7 @@
 export * from "./actions";
 export * from "./coordinates";
+export * from "./identity-benchmark";
+export * from "./identity-tracking";
 export * from "./landmarks";
 export * from "./optional-capabilities";
 export * from "./player-availability";
