@@ -528,7 +528,7 @@ impl UpdateRootStore {
                 source,
             })?;
         match fs4::FileExt::try_lock(&file) {
-            Ok(()) => Ok(UpdateRootOperationLock { _file: file }),
+            Ok(()) => Ok(UpdateRootOperationLock { file }),
             Err(TryLockError::WouldBlock) => Err(UpdateRootStoreError::Busy),
             Err(TryLockError::Error(source)) => Err(UpdateRootStoreError::Io {
                 operation: "lock update root store",
@@ -540,7 +540,13 @@ impl UpdateRootStore {
 }
 
 struct UpdateRootOperationLock {
-    _file: File,
+    file: File,
+}
+
+impl Drop for UpdateRootOperationLock {
+    fn drop(&mut self) {
+        let _ = fs4::FileExt::unlock(&self.file);
+    }
 }
 
 struct ReplayedRoot {

@@ -1717,7 +1717,7 @@ impl PackageGenerationStore {
             });
         }
         match fs4::FileExt::try_lock(&file) {
-            Ok(()) => Ok(PackageStoreOperationLock { _file: file }),
+            Ok(()) => Ok(PackageStoreOperationLock { file }),
             Err(TryLockError::WouldBlock) => Err(GenerationError::Busy),
             Err(TryLockError::Error(source)) => Err(GenerationError::Io {
                 operation: "lock package store operation",
@@ -1729,7 +1729,13 @@ impl PackageGenerationStore {
 }
 
 struct PackageStoreOperationLock {
-    _file: File,
+    file: File,
+}
+
+impl Drop for PackageStoreOperationLock {
+    fn drop(&mut self) {
+        let _ = fs4::FileExt::unlock(&self.file);
+    }
 }
 
 struct VerifiedRelease {
@@ -2591,7 +2597,7 @@ mod tests {
     use ed25519_dalek::{Signer, SigningKey};
     use serde_json::json;
     use sha2::{Digest, Sha256};
-    use tar::Builder;
+    use tar::{Builder, EntryType, Header};
 
     use super::{
         ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, CLEANUP_INTENT_FILE,
@@ -2908,9 +2914,15 @@ mod tests {
                 Builder::new(File::create(&archive).expect("package archive creates"));
             for relative in relative_files {
                 let path = source.join(relative);
-                expanded_bytes += fs::metadata(&path).expect("artifact inspects").len();
+                let bytes = fs::read(&path).expect("artifact reads");
+                expanded_bytes += u64::try_from(bytes.len()).expect("artifact length converts");
+                let mut header = Header::new_gnu();
+                header.set_entry_type(EntryType::Regular);
+                header.set_mode(0o644);
+                header.set_size(u64::try_from(bytes.len()).expect("artifact length converts"));
+                header.set_cksum();
                 builder
-                    .append_path_with_name(&path, relative)
+                    .append_data(&mut header, relative, bytes.as_slice())
                     .expect("artifact appends");
             }
             builder.finish().expect("package archive finishes");

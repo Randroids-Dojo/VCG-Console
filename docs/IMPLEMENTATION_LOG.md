@@ -1730,3 +1730,87 @@ audit/product response, trusted refreshed time, hostile-writer qualification,
 and physical power-loss campaigns remain Q-136 through Q-139 and
 I-101/I-141/I-209 work. Loose-catalog mode remains development-only and has no
 persistent package-generation anti-rollback history.
+
+## 2026-07-24: Motion transport serialization and WSL2 evidence
+
+### Delivered
+
+- Added an explicit `opaque-bytes` versus `motion-json` benchmark mode. Every
+  measured Motion round trip performs producer-side Motion `0.3.0` validation,
+  UTF-8 JSON encoding, transport, consumer-side JSON decoding, and the same
+  schema validation.
+- Added fixed schema-valid core-17, ten-action, and
+  MediaPipe-33-with-provider-world frame shapes. The harness rejects a caller
+  byte size for Motion JSON and rejects a frame-shape selector for opaque
+  bytes, so reported pairs cannot silently use different payload sizes.
+- Recorded size-matched 5,000-round child-process Windows controls at 2,010,
+  2,919, and 8,353 bytes. Validation and serialization are material across
+  every candidate and scale with actual Motion shape; opaque transport numbers
+  alone are no longer used as selection evidence.
+- Versioned report provenance to record OS release plus an explicit WSL2 or
+  native/unknown environment classification. Platform-specific limitations
+  distinguish Windows named pipes, WSL2 Unix-domain sockets, and native Linux.
+- Ran core and rich size-paired reports from a fresh frozen Ubuntu WSL2 install
+  under kernel `6.6.87.2-microsoft-standard-WSL2`. Unix-domain sockets beat TCP
+  and WebSocket at p50 in those runs, while rich-frame p99 spikes prevent a
+  stability or production-selection claim.
+- Expanded `MOTION_TRANSPORT_BENCHMARK.md` with exact commands, results,
+  artifact names, comparison boundaries, and the remaining decision gates.
+
+### Verification evidence
+
+Five payload tests cover deterministic opaque bytes, stable full Motion round
+trips, core/rich/action shape separation, malformed JSON, schema-invalid
+landmarks, and unsupported modes/shapes. The structural validator accepts the
+two historical v1 reports, six Windows v2 reports, and four
+provenance-bearing WSL2 v3 reports while enforcing version-specific fields and
+exact supported frame descriptions.
+
+The full shared gate set passes 215 TypeScript/Svelte tests, clean typecheck,
+the production build, schema and manifest validation, motion benchmark
+validation, all twelve transport reports, and the deterministic 133-component
+compliance inventory with the unchanged seven project-license and one
+pose-model-license release blockers.
+
+### Remaining boundary
+
+WSL2 is Linux-kernel development evidence, not the ordinary native x86-64
+reference and not ARM64 qualification. Shared memory still crosses only a
+worker thread; safe cross-process ownership, permissions, crash/stale-reader
+recovery, wall-clock CPU/RSS and scheduler soaks, live multi-player and
+worst-case backend distributions, renderer/tracker suspend/kill/reconnect,
+signed permission admission, and exposure-to-action latency remain. I-074
+stays active and D-004 remains unchanged.
+
+## 2026-07-24: Linux-native package fixture and advisory-lock portability
+
+### Delivered
+
+- Replaced host-metadata-derived package TAR fixture entries with explicit
+  portable regular-file headers. Linux no longer copies the filesystem file
+  type bits into the archive permission field, while production intake keeps
+  rejecting non-portable modes.
+- Explicitly unlock package-generation, package-transfer, update-root, and
+  native-launch-replay advisory locks before their owning handles close. This
+  prevents a concurrent Unix `fork` from briefly retaining a completed
+  operation's lock through an inherited open-file description.
+
+### Verification evidence
+
+The original isolated Ubuntu WSL2 workspace reproduced four deterministic
+`UnsafeMode` intake failures and three parallel-suite `Busy` failures. The TAR
+failure reproduced alone; the lock failures appeared only beside subprocess
+tests and disappeared with one test thread, separating archive construction
+from Unix lock lifetime.
+
+After the fixes, strict all-target Clippy, 246 library tests with five
+intentional helpers ignored, all nineteen CLI tests, and warning-denied
+Rustdoc pass in the isolated WSL2 workspace. The same library suite passes on
+Windows.
+
+### Remaining boundary
+
+This is Linux-kernel development coverage, not the ordinary native x86-64
+appliance qualification required by I-209. Physical power loss, hostile
+writers, real service/process-tree behavior, filesystem/mount policy, and the
+currently separate system-update tranche remain outside this result.

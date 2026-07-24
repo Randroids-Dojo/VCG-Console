@@ -130,7 +130,13 @@ pub(crate) struct LaunchReplayJournal {
     active: PathBuf,
     retired: PathBuf,
     next_ordinal: u64,
-    _lock: File,
+    lock: File,
+}
+
+impl Drop for LaunchReplayJournal {
+    fn drop(&mut self) {
+        let _ = fs4::FileExt::unlock(&self.lock);
+    }
 }
 
 impl LaunchReplayJournal {
@@ -189,7 +195,7 @@ impl LaunchReplayJournal {
             active,
             retired,
             next_ordinal,
-            _lock: lock,
+            lock,
         };
         let recovered_nonterminal = records.iter().any(DurableLaunchRecord::active);
         let cleanup_required = journal.cleanup_required()? || recovered_nonterminal;

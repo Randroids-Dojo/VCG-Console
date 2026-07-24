@@ -96,7 +96,13 @@ pub struct PackageArchiveTransfer {
     cleanup_path: PathBuf,
     release: VerifiedPackageRelease,
     reserve_bytes: u64,
-    _lock: File,
+    lock: File,
+}
+
+impl Drop for PackageArchiveTransfer {
+    fn drop(&mut self) {
+        let _ = fs4::FileExt::unlock(&self.lock);
+    }
 }
 
 impl PackageArchiveTransfer {
@@ -155,7 +161,7 @@ impl PackageArchiveTransfer {
             cleanup_path,
             release: release.clone(),
             reserve_bytes,
-            _lock: lock,
+            lock,
         };
         if receiver.recover_cleanup()?.is_some() {
             return Err(PackageTransferError::CleanupRecovered(
