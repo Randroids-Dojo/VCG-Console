@@ -1,0 +1,358 @@
+{
+  "format": "vcg-community-admission-exercise/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "deterministic-isolated-community-admission-desk-exercise",
+  "qualification": "workflow-exercise-only-not-game-or-product-approval",
+  "generatedAtUtc": "2026-07-24T21:54:35.376Z",
+  "policy": {
+    "testNamespace": "isolated-community-review-exercise",
+    "familyModeAdmission": false,
+    "developerNamespaceAdmission": false,
+    "productionCatalogMutation": false,
+    "productionPackageInstallation": false,
+    "reviewCategories": [
+      "submission-authority",
+      "content",
+      "controller-and-reserved-actions",
+      "permissions",
+      "privacy",
+      "loading-and-offline",
+      "security",
+      "update-owner",
+      "emergency-removal"
+    ],
+    "eventOrder": [
+      "submission-received",
+      "review-completed",
+      "test-decision-issued",
+      "test-catalog-published",
+      "emergency-disabled",
+      "revocation-published",
+      "user-data-disposition-recorded"
+    ]
+  },
+  "submissions": [
+    {
+      "caseId": "hosted-test-submission",
+      "source": {
+        "manifestPath": "catalog/determined.vcg-game.json",
+        "manifestBytes": 1015,
+        "manifestSha256": "c4c1632b8226889a471763a42308f0ae48927d694fd9823040dd0420290eadc6",
+        "gameId": "determined",
+        "version": "hosted-7d9a38dc-2026-07-19",
+        "runtime": "remote-web",
+        "entrypointScope": "https://determined-khaki.vercel.app"
+      },
+      "submission": {
+        "kind": "synthetic-test-submission",
+        "authorityEvidence": "test-fixture-only-not-publisher-authority",
+        "developerSideload": false,
+        "personalDataIncluded": false
+      },
+      "review": {
+        "categories": [
+          {
+            "category": "submission-authority",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "content",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "controller-and-reserved-actions",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "permissions",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "privacy",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "loading-and-offline",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "security",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "update-owner",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "emergency-removal",
+            "result": "exercise-recorded-no-product-proof"
+          }
+        ],
+        "blockingProductionFacts": [
+          "publisher-authority-unverified",
+          "controller-exit-unverified",
+          "privacy-review-unverified",
+          "update-owner-unverified",
+          "reserved-home-back-unverified"
+        ],
+        "recommendation": "block-production-admission"
+      },
+      "decision": {
+        "scope": {
+          "gameId": "determined",
+          "version": "hosted-7d9a38dc-2026-07-19",
+          "runtime": "remote-web",
+          "entrypointScope": "https://determined-khaki.vercel.app",
+          "manifestSha256": "c4c1632b8226889a471763a42308f0ae48927d694fd9823040dd0420290eadc6"
+        },
+        "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+        "outcome": "test-workflow-only",
+        "productionAuthority": false,
+        "familyModeAuthority": false
+      },
+      "publication": {
+        "namespace": "isolated-community-review-exercise",
+        "testCatalogPublished": true,
+        "productionCatalogChanged": false,
+        "familyModeVisible": false,
+        "developerNamespacePromoted": false
+      },
+      "emergencyRemoval": {
+        "testDisableApplied": true,
+        "testRevocationApplied": true,
+        "newTestLaunchDenied": true,
+        "testCatalogEntryRemoved": true,
+        "runtimeProcessTerminationTested": false,
+        "productionStateChanged": false
+      },
+      "userData": {
+        "policy": "no-console-managed-data-in-test-exercise",
+        "result": "no-production-data-observed-or-mutated",
+        "productionFilesMutated": false
+      },
+      "audit": {
+        "containsPersonalData": false,
+        "containsFreeText": false,
+        "events": [
+          {
+            "sequence": 1,
+            "code": "submission-received",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 2,
+            "code": "review-completed",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 3,
+            "code": "test-decision-issued",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 4,
+            "code": "test-catalog-published",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 5,
+            "code": "emergency-disabled",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 6,
+            "code": "revocation-published",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          },
+          {
+            "sequence": 7,
+            "code": "user-data-disposition-recorded",
+            "scopeDigest": "9fe5121443a841d45973c44c268f35ff843e096ee6ab9f0b0c12f84791a9732a",
+            "testOnly": true
+          }
+        ]
+      },
+      "finalDisposition": "test-exercise-complete-not-product-approved"
+    },
+    {
+      "caseId": "local-test-submission",
+      "source": {
+        "manifestPath": "packages/game-manifest/fixtures/v1/valid/local-web.vcg-game.json",
+        "manifestBytes": 720,
+        "manifestSha256": "565d99edb8e2a9a49f04da3acdb2a4e677d44214bd9b953631245b844818f50a",
+        "gameId": "fixture-local-web",
+        "version": "1.0.0",
+        "runtime": "local-web",
+        "entrypointScope": "manifest-sha256:565d99edb8e2a9a49f04da3acdb2a4e677d44214bd9b953631245b844818f50a"
+      },
+      "submission": {
+        "kind": "synthetic-test-submission",
+        "authorityEvidence": "test-fixture-only-not-publisher-authority",
+        "developerSideload": false,
+        "personalDataIncluded": false
+      },
+      "review": {
+        "categories": [
+          {
+            "category": "submission-authority",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "content",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "controller-and-reserved-actions",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "permissions",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "privacy",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "loading-and-offline",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "security",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "update-owner",
+            "result": "exercise-recorded-no-product-proof"
+          },
+          {
+            "category": "emergency-removal",
+            "result": "exercise-recorded-no-product-proof"
+          }
+        ],
+        "blockingProductionFacts": [
+          "package-signature-unavailable",
+          "payload-artifact-unavailable",
+          "sandbox-unqualified",
+          "controller-exit-unverified",
+          "update-owner-unverified"
+        ],
+        "recommendation": "block-production-admission"
+      },
+      "decision": {
+        "scope": {
+          "gameId": "fixture-local-web",
+          "version": "1.0.0",
+          "runtime": "local-web",
+          "entrypointScope": "manifest-sha256:565d99edb8e2a9a49f04da3acdb2a4e677d44214bd9b953631245b844818f50a",
+          "manifestSha256": "565d99edb8e2a9a49f04da3acdb2a4e677d44214bd9b953631245b844818f50a"
+        },
+        "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+        "outcome": "test-workflow-only",
+        "productionAuthority": false,
+        "familyModeAuthority": false
+      },
+      "publication": {
+        "namespace": "isolated-community-review-exercise",
+        "testCatalogPublished": true,
+        "productionCatalogChanged": false,
+        "familyModeVisible": false,
+        "developerNamespacePromoted": false
+      },
+      "emergencyRemoval": {
+        "testDisableApplied": true,
+        "testRevocationApplied": true,
+        "newTestLaunchDenied": true,
+        "testCatalogEntryRemoved": true,
+        "runtimeProcessTerminationTested": false,
+        "productionStateChanged": false
+      },
+      "userData": {
+        "policy": "remove-test-package-preserve-user-data-pending-owner-policy",
+        "result": "state-transition-recorded-no-files-mutated",
+        "productionFilesMutated": false
+      },
+      "audit": {
+        "containsPersonalData": false,
+        "containsFreeText": false,
+        "events": [
+          {
+            "sequence": 1,
+            "code": "submission-received",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 2,
+            "code": "review-completed",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 3,
+            "code": "test-decision-issued",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 4,
+            "code": "test-catalog-published",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 5,
+            "code": "emergency-disabled",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 6,
+            "code": "revocation-published",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          },
+          {
+            "sequence": 7,
+            "code": "user-data-disposition-recorded",
+            "scopeDigest": "eecf172e1032e6f9df09b89a3a2e4a3320cc06e71010a2e7209b400d6e0d8fec",
+            "testOnly": true
+          }
+        ]
+      },
+      "finalDisposition": "test-exercise-complete-not-product-approved"
+    }
+  ],
+  "summary": {
+    "submissionCount": 2,
+    "hostedSubmissionCount": 1,
+    "localSubmissionCount": 1,
+    "completedTestWorkflowCount": 2,
+    "productApprovedCount": 0,
+    "familyVisibleCount": 0,
+    "productionCatalogMutationCount": 0,
+    "productionPackageMutationCount": 0,
+    "realRuntimeTerminationCount": 0
+  },
+  "provenance": {
+    "contractPath": "docs/COMMUNITY_GAME_ADMISSION.md",
+    "contractPathSha256": "bb3b8603902176e7afb9e995b9d01bee9774f447aedf8893c11cff7511457ead",
+    "generatorPath": "scripts/generate-community-admission-evidence.mjs",
+    "generatorPathSha256": "9cf5a7513b77647332b46cd3c9fa385abdb353f5dbb163c7b0f726e7faff3b2a",
+    "validatorPath": "scripts/validate-community-admission-evidence.mjs",
+    "validatorPathSha256": "f6dd9d439d479c91fb556acb8fbd4c27e9021b8ba9322f7099b5b2e3db1bd4ed"
+  },
+  "claimBoundary": "This deterministic desk exercise binds one hosted and one local-web test submission to exact checked-in manifest identities, records every required manual-review category, issues version-and-entrypoint-scoped test decisions, publishes only into an isolated test namespace, exercises emergency disable and revocation state transitions, records user-data dispositions, and retains path-free ordered audit events. It grants no production authority, changes no production catalog or package state, makes nothing visible in family mode, proves no submitter rights, terminates no real runtime process, and does not qualify either game.",
+  "limitations": [
+    "The checked-in manifests are review fixtures, not verified submissions from authorized publishers or production package artifacts.",
+    "Checklist results prove the workflow can retain required review categories and blockers; they do not prove content, rights, privacy, security, accessibility, controller behavior, offline behavior, or update ownership.",
+    "Catalog publication, emergency disable, revocation, and user-data handling are isolated state-transition records. No production catalog, installed package, save, active process, or external service was changed.",
+    "A product workflow still needs authenticated reviewer and submitter identities, approval thresholds, durable signing and anti-rollback authority, active-session enforcement, notices, appeal or reinstatement rules, and target-system evidence."
+  ]
+}

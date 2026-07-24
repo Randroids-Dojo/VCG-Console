@@ -4098,3 +4098,49 @@ audio, frame pacing, concurrent tracking load, and ARM64/x86-64 Linux remain
 unproven. Q-242 and Q-243 select the final visual and output/performance
 policies; until then 5% / 24 CSS px / 48 CSS px is only a conservative
 automated authoring floor.
+
+## 2026-07-24: isolated community admission and removal exercise
+
+### Delivered
+
+- Added `COMMUNITY_GAME_ADMISSION.md`, defining exact release-scope review,
+  mandatory authority/content/controller/permission/privacy/loading/security/
+  update/removal categories, separate signed publication authority, monotonic
+  revocation, and an explicit user-data disposition boundary.
+- Added a deterministic evidence generator over one checked-in hosted manifest
+  and one strict local-web fixture. Both remain synthetic test submissions
+  with explicit production blockers and zero publisher-authority claim.
+- Exercised test-only scoped decisions, isolated catalog publication,
+  emergency disable, revocation, new-launch denial, user-data disposition, and
+  seven ordered path-free audit events for each case without changing a
+  production catalog, package, save, process, or external service.
+- Added a bounded canonical-JSON validator that recomputes both manifest
+  identities and all source provenance. Eleven adversarial tests reject
+  identity/scope substitution, missing/reordered review categories, family or
+  production promotion, incomplete disable/revocation, fabricated runtime
+  termination, production file mutation, audit tampering, stale provenance,
+  weakened boundaries, and unknown claims.
+- Recorded CA-001 through CA-008 for submitter authority, reviewer thresholds,
+  family content policy, update ownership, active-session removal, user-data
+  disposition, audit privacy/retention, and reinstatement.
+
+### Verification evidence
+
+- `pnpm validate:community-admission` passes the tracked canonical artifact and
+  all 11 mutation tests.
+- The artifact contains exactly one `remote-web` and one `local-web` case, two
+  completed isolated workflow exercises, zero product approvals, zero family
+  visibility, zero production catalog/package mutations, and zero claimed
+  real-runtime terminations.
+- The ordinary root test command now includes the mutation suite.
+
+### Remaining boundary
+
+I-205 is active, not closed. Production still requires authenticated submitter
+and publisher authority; reviewer identities, separation of duties, and
+approval thresholds; final content/privacy/accessibility policy; signed
+catalog/package publication and anti-rollback; real hosted and local package
+review; emergency-disable delivery to discovery and launch authority;
+active-session termination behavior; durable save/data disposition; appeal or
+reinstatement; target compositor/input/sandbox evidence; and a complete audit
+retention and privacy policy.
