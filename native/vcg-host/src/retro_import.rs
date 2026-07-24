@@ -2923,30 +2923,11 @@ mod tests {
             ));
             let staging = root.join("staging");
             let content = root.join("retro");
-            fs::create_dir_all(&staging).expect("create staging");
-            fs::create_dir_all(content.join(RETRO_CONTENT_OBJECTS_DIRECTORY))
-                .expect("create objects");
-            fs::create_dir_all(content.join(RETRO_LIBRARY_DIRECTORY)).expect("create libraries");
-            fs::create_dir_all(content.join(RETRO_AUDIT_DIRECTORY)).expect("create audit");
-            File::create(staging.join(RETRO_IMPORT_LOCK_FILE)).expect("create lock");
-            let initial = RetroInstalledLibrary {
-                schema_version: SCHEMA_VERSION,
-                generation: 1,
-                entries: Vec::new(),
-            };
-            fs::write(
-                content
-                    .join(RETRO_LIBRARY_DIRECTORY)
-                    .join("generation-00000000000000000001.json"),
-                serde_json::to_vec(&initial).expect("serialize initial library"),
-            )
-            .expect("write initial library");
-            let store = RetroImportStore::open(&RetroImportStoreConfig {
+            let store = provision_test_store(&RetroImportStoreConfig {
                 staging_root: staging.clone(),
                 content_root: content.clone(),
                 reserve_bytes,
-            })
-            .expect("open retro import store");
+            });
             Self {
                 root,
                 staging,
@@ -2998,6 +2979,99 @@ mod tests {
                 let _ = fs::remove_dir_all(&self.root);
             }
         }
+    }
+
+    fn provision_test_store(config: &RetroImportStoreConfig) -> RetroImportStore {
+        fs::create_dir_all(&config.staging_root).expect("create staging");
+        fs::create_dir_all(config.content_root.join(RETRO_CONTENT_OBJECTS_DIRECTORY))
+            .expect("create objects");
+        fs::create_dir_all(config.content_root.join(RETRO_LIBRARY_DIRECTORY))
+            .expect("create libraries");
+        fs::create_dir_all(config.content_root.join(RETRO_AUDIT_DIRECTORY)).expect("create audit");
+        File::create(config.staging_root.join(RETRO_IMPORT_LOCK_FILE)).expect("create lock");
+        let initial = RetroInstalledLibrary {
+            schema_version: SCHEMA_VERSION,
+            generation: 1,
+            entries: Vec::new(),
+        };
+        fs::write(
+            config
+                .content_root
+                .join(RETRO_LIBRARY_DIRECTORY)
+                .join("generation-00000000000000000001.json"),
+            serde_json::to_vec(&initial).expect("serialize initial library"),
+        )
+        .expect("write initial library");
+        RetroImportStore::open(config).expect("open retro import store")
+    }
+
+    fn protected_namespace_sentinels(
+        namespace: &StorageNamespacePlan,
+    ) -> Vec<(PathBuf, &'static [u8])> {
+        vec![
+            (
+                namespace
+                    .root_for(WritableDataClass::SystemMetadata)
+                    .join("system.json"),
+                b"system state",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::ProductionPackages)
+                    .join("frontend.pkg"),
+                b"production frontend",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::ProductionPackages)
+                    .join("core.pkg"),
+                b"curated core",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::DeveloperPackages)
+                    .join("developer.pkg"),
+                b"developer package",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::Saves)
+                    .join("save.bin"),
+                b"save bytes",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::Saves)
+                    .join("state.bin"),
+                b"state bytes",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::Saves)
+                    .join("remap.json"),
+                b"remap bytes",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::Profiles)
+                    .join("profile.vault"),
+                b"profile bytes",
+            ),
+            (
+                namespace.root_for(WritableDataClass::Logs).join("host.log"),
+                b"log bytes",
+            ),
+            (
+                namespace
+                    .root_for(WritableDataClass::Cache)
+                    .join("cache.bin"),
+                b"cache bytes",
+            ),
+            (
+                namespace.package_staging_root().join("package.partial"),
+                b"package staging bytes",
+            ),
+        ]
     }
 
     #[derive(Clone)]
@@ -3908,6 +3982,75 @@ mod tests {
                 .expect("cancel snapshot fixture")
         );
         assert!(fixture.store.current_library_json().is_ok());
+    }
+
+    #[test]
+    fn derived_retro_transaction_preserves_other_storage_namespaces() {
+        let fixture = Fixture::new();
+        let namespace =
+            StorageNamespacePlan::new(fixture.root.join("isolated-writable")).expect("namespaces");
+        let protected_files = protected_namespace_sentinels(&namespace);
+        for (path, bytes) in &protected_files {
+            fs::create_dir_all(path.parent().expect("protected parent"))
+                .expect("create protected namespace");
+            fs::write(path, bytes).expect("write protected sentinel");
+        }
+        let protected_parent_counts = [
+            (namespace.root_for(WritableDataClass::SystemMetadata), 1),
+            (namespace.root_for(WritableDataClass::ProductionPackages), 2),
+            (namespace.root_for(WritableDataClass::DeveloperPackages), 1),
+            (namespace.root_for(WritableDataClass::Saves), 3),
+            (namespace.root_for(WritableDataClass::Profiles), 1),
+            (namespace.root_for(WritableDataClass::Logs), 1),
+            (namespace.root_for(WritableDataClass::Cache), 1),
+            (namespace.package_staging_root(), 1),
+        ];
+
+        let config = RetroImportStoreConfig::from_storage_namespace(&namespace, 1);
+        let store = provision_test_store(&config);
+
+        let bytes = b"isolated retro content";
+        let intent = intent_bytes(bytes, 1, "usb", "namespace-isolation", None);
+        let mut source = fixture.source("namespace-isolation.gb", bytes);
+        store
+            .install_plain(
+                &intent,
+                &context(&intent),
+                &mut source,
+                &mut FakeScanner::clean(),
+                1_000,
+            )
+            .expect("install into derived retro namespace");
+
+        for (path, expected) in protected_files {
+            assert_eq!(
+                fs::read(&path).expect("read protected sentinel"),
+                expected,
+                "changed protected sentinel {}",
+                path.display()
+            );
+        }
+        for (parent, expected_count) in protected_parent_counts {
+            assert_eq!(
+                fs::read_dir(parent)
+                    .expect("read protected namespace")
+                    .count(),
+                expected_count
+            );
+        }
+        assert_eq!(
+            store
+                .current_library()
+                .expect("read derived library")
+                .generation,
+            2
+        );
+        assert_eq!(
+            fs::read_dir(config.content_root.join(RETRO_CONTENT_OBJECTS_DIRECTORY))
+                .expect("read derived objects")
+                .count(),
+            1
+        );
     }
 
     #[test]

@@ -280,7 +280,7 @@ Twenty-four focused tests cover:
   expiry/revocation, and cleanup cancellation; and
 - exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds sixteen Windows library tests and seventeen Linux tests.
+The native module adds seventeen Windows library tests and eighteen Linux tests.
 One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
 authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
@@ -293,9 +293,10 @@ after source removal, recovery across object/library publication windows,
 replacement ordering, duplicate reuse with full object revalidation,
 cancellation after expiry/revocation and after an unrelated generation
 advance, path-free audit persistence, shared storage-namespace derivation,
-recovery-aware path-free library snapshots, and Linux symlink refusal. Strict
-Clippy and Rustdoc pass on the module; physical power removal has not been
-tested.
+an actual derived-root import that preserves package/core/save/state/remap/
+profile/log/cache/package-staging sentinels, recovery-aware path-free library
+snapshots, and Linux symlink refusal. Strict Clippy and Rustdoc pass on the
+module; physical power removal has not been tested.
 
 ## Remaining implementation and evidence
 
@@ -317,8 +318,10 @@ I-199 remains active. Product activation still requires:
 7. library-history compaction, explicit deletion, and physical fault
    campaigns; append-only generation commits, exact replacement,
    duplicate reuse/cancel auditing, entry/byte quotas, and recovery now exist;
-8. isolation from packages, cores, BIOS, saves, states, remaps, profiles,
-   updates, and source media;
+8. mount/sandbox and physical-fault qualification of the logical isolation
+   from packages, cores, BIOS, saves, states, remaps, profiles, updates, and
+   source media; the derived-root transaction now preserves seeded
+   non-retro namespace sentinels;
 9. family-mode/controller-accessible disclosure, progress, conflict,
    cancellation, and error UX; and
 10. legal review, real entitled fixtures, both target architectures, hostile
