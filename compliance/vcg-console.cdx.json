@@ -2,7 +2,7 @@
   "$schema": "https://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:41ed50b8-f291-552e-9c22-3ff8573da34e",
+  "serialNumber": "urn:uuid:cdb90b24-0ecb-5694-b2ad-98d78b5a42a1",
   "version": 1,
   "metadata": {
     "component": {
@@ -2239,6 +2239,27 @@
       ]
     },
     {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
+      "name": "@vcg/retro-performance-contract",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
       "type": "library",
       "bom-ref": "pkg:npm/%40vitest/expect@4.1.10",
       "name": "@vitest/expect",
@@ -4213,6 +4234,7 @@
         "pkg:npm/%40vcg/motion-web-bridge@0.0.1",
         "pkg:npm/%40vcg/retro-firmware-contract@0.0.1",
         "pkg:npm/%40vcg/retro-import-contract@0.0.1",
+        "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
         "pkg:npm/%40vitest/expect@4.1.10",
         "pkg:npm/%40vitest/mocker@4.1.10",
         "pkg:npm/%40vitest/pretty-format@4.1.10",
