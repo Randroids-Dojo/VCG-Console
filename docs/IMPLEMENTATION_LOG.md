@@ -2084,3 +2084,62 @@ schemes/`file:`, service workers/storage, browser-profile destruction,
 resource ceilings, crash/hang cleanup, compositor ownership, global
 Home/Back/Pause, and both Linux targets remain under I-136, I-150, I-180, and
 I-209.
+
+## 2026-07-24: device-only player-data exclusion verifier
+
+### Delivered
+
+- Added a strict 64-KiB v1 scan manifest with exact artifact, synthetic
+  canary, forbidden path-segment, forbidden source-digest, and global limit
+  fields.
+- Required one through sixty-four disjoint materialized artifact directories
+  from a closed backup/cloud/developer/diagnostics/export/factory-reset/game-
+  storage/recovery/support/system-slot vocabulary.
+- Accepted only synthetic `VCG-CANARY-*` values and detected literal UTF-8,
+  lowercase, UTF-16LE/BE, Base64/Base64URL, and lower/uppercase hexadecimal,
+  including matches divided across 64-KiB stream chunks.
+- Added fixed path-segment and exact source-file SHA-256 signals so a copied
+  encrypted or renamed vault cannot pass merely because plaintext canaries are
+  hidden.
+- Enforced manifest-relative containment, no symlinks or overlapping roots,
+  regular-file/directory-only inventory, deterministic traversal, global
+  entry/file/byte/finding caps, file identity checks, and post-scan
+  reinventory.
+- Refused recognized archive, compression, PDF, database, and disk/filesystem
+  containers by extension or common magic instead of claiming absence over
+  opaque bytes.
+- Emitted no canary, snippet, input path, filename, or exception. Findings use
+  only artifact ID, entry ordinal, signal ID/type, location, and encoding; each
+  artifact also receives a path-free ordered content-tree commitment.
+- Gave the CLI distinct exit states for pass (`0`), finding (`1`), and
+  invalid/incomplete/no-claim (`2`).
+- Added the complete producer/materialization/positive-control procedure,
+  I-186 coverage ledger, explicit limits, and Q-155 through Q-158.
+
+### Verification evidence
+
+Ten focused tests cover strict manifests and synthetic values, deterministic
+clean evidence, all eight encodings and stream-boundary overlap, filename
+redaction, fixed path/source-digest signals, bounded finding truncation,
+extension and magic refusal, cross-root global limits, overlap/symlink denial,
+content-tree change detection, and closed CLI output/exit behavior. Node syntax
+checks and the named `pnpm validate:data-exclusion` gate pass.
+
+The complete Windows verification also passes 227 TypeScript/Svelte tests,
+zero-warning typecheck, the production build, all 26 browser flows, schema/
+manifest/benchmark/transport/Godot/compliance freshness, dependency audit,
+native formatting, strict all-target Clippy, 261 native library tests with five
+intentional helpers ignored, all 19 native CLI tests, and warning-denied
+Rustdoc. Release compliance remains blocked only by the seven known project-
+license entries and one pose-model redistribution decision.
+
+### Remaining boundary
+
+This is a verifier primitive, not proof that any production artifact is clean.
+No profile vault, portrait store, body template, producer-specific injection,
+positive-control harness, trusted archive/image/database materializer, raw-
+artifact evidence binding, or target artifact inventory exists. RAM, swap,
+crash capture, network traffic, filesystem slack, flash remanence, alternate
+streams, and hostile-filesystem snapshots need separate evidence. Every I-186
+path on Raspberry Pi and the premium PC target remains open until Q-155
+through Q-158 are resolved and exact production artifacts pass.

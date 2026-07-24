@@ -25,6 +25,7 @@
     "typecheck": "pnpm -r typecheck",
     "validate:benchmarks": "tsx scripts/validate-motion-benchmarks.ts",
     "validate:compliance": "node scripts/generate-compliance.mjs --check",
+    "validate:data-exclusion": "node --test scripts/device-only-data-exclusion.test.mjs",
     "validate:godot": "node scripts/validate-godot-motion-sample.mjs",
     "validate:manifests": "tsx scripts/validate-game-manifests.ts",
     "validate:release-compliance": "node scripts/generate-compliance.mjs --check --release",
