@@ -22,7 +22,17 @@ function calibrated(engine: ActionEngine): number {
 }
 
 describe("ActionEngine", () => {
-  it("recognizes a mirrored screen-left dodge after calibration", () => {
+  it("advertises both action profiles on every enriched frame", () => {
+    const engine = new ActionEngine();
+    const enriched = engine.enrich({ ...syntheticFrame(1, 0), players: [] });
+    expect(enriched.capabilities.profiles).toEqual([
+      "body.core17",
+      "actions.obstacle.v1",
+      "actions.shell.v1",
+    ]);
+  });
+
+  it("recognizes a mirrored screen-left dodge once until the release threshold rearms it", () => {
     const engine = new ActionEngine();
     const now = calibrated(engine);
     const base = syntheticFrame(31, now);
@@ -30,16 +40,34 @@ describe("ActionEngine", () => {
       left_hip: { x: 0.66 },
       right_hip: { x: 0.76 },
     });
-    expect(engine.enrich(shifted).players[0]?.actions.map((action) => action.name)).toContain("dodge_left");
+    expect(engine.enrich(shifted, "game").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "dodge_left", phase: "triggered" }),
+    ]);
+    expect(engine.enrich(alter(shifted, {}), "game").players[0]?.actions).toEqual([]);
+    engine.enrich(syntheticFrame(32, now + 800), "game");
+    expect(engine.enrich(alter(syntheticFrame(33, now + 1_500), {
+      left_hip: { x: 0.66 },
+      right_hip: { x: 0.76 },
+    }), "game").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "dodge_left", phase: "triggered" }),
+    ]);
   });
 
-  it("requires a sustained hands-together gesture to join", () => {
+  it("publishes a complete sustained join lifecycle with one trigger", () => {
     const engine = new ActionEngine();
     const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
     const first = engine.enrich(alter(syntheticFrame(1, 0), hands));
     const held = engine.enrich(alter(syntheticFrame(2, 500), hands));
-    expect(first.players[0]?.actions).toEqual([]);
-    expect(held.players[0]?.actions.map((action) => action.name)).toContain("player_join");
+    const stillHeld = engine.enrich(alter(syntheticFrame(3, 1_200), hands));
+    const released = engine.enrich(syntheticFrame(4, 1_300));
+    expect(first.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started", durationMs: 0 }),
+    ]);
+    expect(held.players[0]?.actions.map((action) => action.phase)).toEqual(["held", "triggered"]);
+    expect(stillHeld.players[0]?.actions.map((action) => action.phase)).toEqual(["held"]);
+    expect(released.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "ended" }),
+    ]);
     expect(held.players[0]?.state).toBe("joined");
   });
 
@@ -56,9 +84,28 @@ describe("ActionEngine", () => {
       right_wrist: { x: 0.3, y: 0.45 },
     };
     engine.enrich(alter(syntheticFrame(1, 100), crossed), "game");
-    expect(engine.enrich(alter(syntheticFrame(2, 850), crossed), "game").players[0]?.actions).toEqual([]);
-    expect(engine.enrich(alter(syntheticFrame(3, 1_250), crossed), "game").players[0]?.actions.map((action) => action.name)).toEqual([
-      "pause",
+    expect(engine.enrich(alter(syntheticFrame(2, 850), crossed), "game").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "pause", phase: "held" }),
+    ]);
+    expect(engine.enrich(alter(syntheticFrame(3, 1_250), crossed), "game").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "pause", phase: "held" }),
+      expect.objectContaining({ name: "pause", phase: "triggered" }),
+    ]);
+  });
+
+  it("context-gates game actions and shell selection progress", () => {
+    const engine = new ActionEngine();
+    const now = calibrated(engine);
+    const shifted = alter(syntheticFrame(31, now), {
+      left_hip: { x: 0.66 },
+      right_hip: { x: 0.76 },
+    });
+    expect(engine.enrich(shifted, "shell").players[0]?.actions).toEqual([]);
+
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    expect(engine.enrich(alter(syntheticFrame(32, now + 100), hands), "game").players[0]?.actions).toEqual([]);
+    expect(engine.enrich(alter(syntheticFrame(33, now + 200), hands), "overlay").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "menu_select", phase: "started" }),
     ]);
   });
 
@@ -69,12 +116,13 @@ describe("ActionEngine", () => {
       right_wrist: { x: 0.3, y: 0.45 },
     };
     engine.enrich(alter(syntheticFrame(1, 100), crossed), "shell");
-    expect(engine.enrich(alter(syntheticFrame(2, 800), crossed), "shell").players[0]?.actions.map((action) => action.name)).toEqual([
-      "menu_back",
+    expect(engine.enrich(alter(syntheticFrame(2, 800), crossed), "shell").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "menu_back", phase: "held" }),
+      expect.objectContaining({ name: "menu_back", phase: "triggered" }),
     ]);
   });
 
-  it("restarts hold timing after the player disappears", () => {
+  it("restarts hold timing after the player disappears without fabricating a delayed cancellation", () => {
     const engine = new ActionEngine();
     const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
     engine.enrich(alter(syntheticFrame(1, 0), hands));
@@ -82,20 +130,62 @@ describe("ActionEngine", () => {
     const returned = engine.enrich(alter(syntheticFrame(3, 1_000), hands));
     const heldAgain = engine.enrich(alter(syntheticFrame(4, 1_451), hands));
 
-    expect(returned.players[0]?.actions).toEqual([]);
-    expect(heldAgain.players[0]?.actions.map((action) => action.name)).toContain("player_join");
+    expect(returned.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started" }),
+    ]);
+    expect(heldAgain.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "held" }),
+      expect.objectContaining({ name: "player_join", phase: "triggered" }),
+    ]);
   });
 
-  it("restarts hold timing when required body measurements disappear", () => {
+  it("cancels progress and restarts timing when required body measurements disappear", () => {
     const engine = new ActionEngine();
     const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
     engine.enrich(alter(syntheticFrame(1, 0), hands));
     const incomplete = alter(syntheticFrame(2, 500), hands);
     const leftAnkle = incomplete.players[0]?.coreLandmarks.find((landmark) => landmark.name === "left_ankle");
     if (leftAnkle) leftAnkle.observed = false;
-    engine.enrich(incomplete);
+    const cancelled = engine.enrich(incomplete);
     const returned = engine.enrich(alter(syntheticFrame(3, 1_000), hands));
 
-    expect(returned.players[0]?.actions).toEqual([]);
+    expect(cancelled.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "cancelled", confidence: 0 }),
+    ]);
+    expect(returned.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started" }),
+    ]);
+  });
+
+  it("cancels a context-specific hold before starting the replacement timer", () => {
+    const engine = new ActionEngine();
+    const crossed = {
+      left_wrist: { x: 0.7, y: 0.45 },
+      right_wrist: { x: 0.3, y: 0.45 },
+    };
+    engine.enrich(alter(syntheticFrame(1, 100), crossed), "game");
+    const changed = engine.enrich(alter(syntheticFrame(2, 700), crossed), "shell");
+    const completed = engine.enrich(alter(syntheticFrame(3, 1_400), crossed), "shell");
+
+    expect(changed.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "pause", phase: "cancelled" }),
+      expect.objectContaining({ name: "menu_back", phase: "started" }),
+    ]);
+    expect(completed.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "menu_back", phase: "held" }),
+      expect.objectContaining({ name: "menu_back", phase: "triggered" }),
+    ]);
+  });
+
+  it("fails closed into a new candidate epoch when frame time regresses", () => {
+    const engine = new ActionEngine();
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    engine.enrich(alter(syntheticFrame(1, 1_000), hands));
+    const restarted = engine.enrich(alter(syntheticFrame(2, 100), hands));
+
+    expect(restarted.players[0]?.state).toBe("candidate");
+    expect(restarted.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started", durationMs: 0 }),
+    ]);
   });
 });

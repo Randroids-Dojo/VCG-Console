@@ -9,7 +9,7 @@ This file records what has actually been built and verified. It does not convert
 ### Delivered
 
 - pnpm workspace with independent Motion API, game-manifest, console-lab, asset-preparation, schema-export, catalog-validation, and hosted-process supervision surfaces.
-- Motion API `0.1.0`: exact 17-point core, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, tracker health, standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schema, and explicit required/optional capability negotiation.
+- Motion API `0.2.0`: exact 17-point core, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, tracker health, temporal standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schema, and explicit required/optional capability negotiation.
 - Local MediaPipe Pose Landmarker Lite pipeline with GPU-first and WASM CPU fallback, hidden raw video, 17/33 mapping, synthetic replay, bounded 600-frame trace buffer, and latency/FPS diagnostics that clearly label capture-arrival timing.
 - Minimal OCR-A television shell with charcoal, off-white, and cyan tokens; visible focus; Tracker, Obstacle, and Shell Lab surfaces; keyboard/controller recovery; and reduced-motion support.
 - Prototype join, jump, duck, dodge, swipe, two-hands select, crossed-arm Back/pause, 300 ms tracking-loss confirmation, and two-second silent reacquisition logic.
@@ -457,6 +457,31 @@ This is process lifecycle, not a qualified playable handoff. Request records are
 ### Remaining boundary
 
 Manifest validity is not qualification, redistribution authority, installation approval, signature verification, artifact integrity, origin containment, storage isolation, or a working launch adapter. Those remain enforced or investigated separately under I-094, I-095, I-096, I-101, I-104, I-105, I-136, and I-141.
+
+## 2026-07-23: Motion standardized action lifecycle
+
+### Delivered
+
+- Motion API `0.2.0` adds an explicit `cancelled` phase and makes `triggered` the only phase that may cause navigation or gameplay. The version bump is deliberate because strict `0.1.0` consumers would reject the new phase.
+- Every standardized action now belongs to exactly one negotiated obstacle or shell profile. The cooperative bridge uses the shared ownership table rather than maintaining a second name list.
+- Enriched frames consistently advertise both recognizer-owned action profiles. Runtime and generated wire schemas reject actions whose owning profile is absent and reject contradictory discrete/sustained phase, duration, or cancellation-confidence shapes.
+- Sustained gestures publish deterministic started, held, triggered, ended, or cancelled lifecycles with sampled duration and confidence. A hold triggers at most once before release.
+- Discrete jump, duck, dodge, and swipe gestures use entry/release hysteresis and remain latched until the signal returns through the release band, so a held pose does not repeat after cooldown.
+- Shell, game, and console-overlay contexts gate eligible actions. Changing context closes the old hold before starting a new timer, and an uninterrupted join hold cannot silently become selection.
+- Per-action cooldown, publication-time regression reset, and normative within-frame sorting fail closed. Terminal feedback precedes new progress; privileged Pause/Back triggers precede gameplay triggers.
+- The console lab displays lifecycle feedback but dispatches behavior only for `triggered`. Replay expectation scoring likewise ignores started, held, ended, and cancelled events.
+- `MOTION_ACTIONS_V1.md` records profile ownership, phase grammar, context, hysteresis/cooldown, confidence/time, ordering, and the remaining qualification boundary. D-134 records the reversible schema change.
+
+### Verification evidence
+
+- Motion-contract tests cover cancellation parsing, exclusive profile ownership, deterministic phase/action ordering, explicit `0.2.0` rejection of old frame versions, and triggered-only replay scoring.
+- Console-lab tests cover full join progress/trigger/end, pre-trigger cancellation, landmark-loss cancellation, context restart, no delayed cancellation after player loss, game/shell gating, release hysteresis/rearm, and timestamp-epoch reset.
+- Bridge projection tests continue to prove negotiated action-family filtering through the shared contract.
+- Generated schemas are fresh; all 104 workspace tests, workspace type checking, the production build, all four manifest validations, and all 18 Playwright flows pass. The pnpm audit reports no known vulnerabilities.
+
+### Remaining boundary
+
+This is deterministic temporal behavior on synthetic desk frames, not proof that the gestures are safe or usable. Exact calibrated v1 movement thresholds, stable-focus rules, smoothing, one-handed and limited-range alternatives, two-player ownership, backend parity, real-room traces, precision/recall, false privileged actions, compositor enforcement, and target-hardware latency remain open under I-056, I-060, I-161, I-183, and I-210.
 
 ## 2026-07-23: repository security threat model
 

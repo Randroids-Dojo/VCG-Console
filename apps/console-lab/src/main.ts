@@ -202,7 +202,10 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
-  const frame = actionEngine.enrich(rawFrame, currentMode === "obstacle" ? "game" : "shell");
+  const frame = actionEngine.enrich(
+    rawFrame,
+    overlayKind ? "overlay" : currentMode === "obstacle" ? "game" : "shell",
+  );
   latestFrame = frame;
   trace.push(frame);
   metrics.push(frame);
@@ -227,7 +230,9 @@ function acceptFrame(rawFrame: MotionFrame): void {
 }
 
 function handleAction(action: MotionAction): void {
-  required<HTMLElement>("#metric-action").textContent = action.name.replaceAll("_", " ").toUpperCase();
+  required<HTMLElement>("#metric-action").textContent =
+    `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
+  if (action.phase !== "triggered") return;
   if (action.name === "player_join") joinPlayer();
   if (["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)) obstacle.handleAction(action.name);
   if (action.name === "pause" && currentMode === "obstacle") showOverlay("manual");

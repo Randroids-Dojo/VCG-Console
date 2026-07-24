@@ -89,7 +89,7 @@ function frame(sequence = 1) {
         bounds: { left: 0.2, top: 0.1, right: 0.8, bottom: 0.9 },
         actions: [
           { name: "jump", phase: "triggered", confidence: 1, occurredAtMs: sequence },
-          { name: "menu_back", phase: "triggered", confidence: 1, occurredAtMs: sequence },
+          { name: "menu_back", phase: "triggered", confidence: 1, occurredAtMs: sequence, durationMs: 450 },
         ],
       },
     ],

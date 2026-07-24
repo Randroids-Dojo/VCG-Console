@@ -1,4 +1,5 @@
 import {
+  actionBelongsToProfile,
   MotionFrameSchema,
   MotionCapabilitiesSchema,
   negotiateCapabilities,
@@ -37,9 +38,6 @@ export interface MotionBridgeHostOptions {
   sessionTtlMs?: number;
   now?: () => number;
 }
-
-const OBSTACLE_ACTIONS = new Set(["jump", "duck", "dodge_left", "dodge_right"]);
-const SHELL_ACTIONS = new Set(["player_join", "menu_swipe_left", "menu_swipe_right", "menu_select", "menu_back", "pause"]);
 
 function exactOrigin(value: string): string {
   const url = new URL(value);
@@ -230,7 +228,9 @@ export function projectFrame(frame: MotionFrame, profiles: readonly MotionProfil
           ? { richLandmarks: richLandmarks.map((landmark) => (includeWorld ? landmark : withoutWorldPosition(landmark))) }
           : {}),
         actions: player.actions.filter(
-          (action) => (includeObstacle && OBSTACLE_ACTIONS.has(action.name)) || (includeShell && SHELL_ACTIONS.has(action.name)),
+          (action) =>
+            (includeObstacle && actionBelongsToProfile(action.name, "actions.obstacle.v1")) ||
+            (includeShell && actionBelongsToProfile(action.name, "actions.shell.v1")),
         ),
       };
     }),

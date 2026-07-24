@@ -55,7 +55,7 @@
   </nav>
   <div class="settings-panels">
     <section data-settings-panel="system" hidden={panel !== "system"}>
-      <dl><div><dt>VCG Console</dt><dd>Prototype 0.0.1</dd></div><div><dt>Motion API</dt><dd>0.1.0</dd></div><div><dt>Update channel</dt><dd>Development</dd></div></dl>
+      <dl><div><dt>VCG Console</dt><dd>Prototype 0.0.1</dd></div><div><dt>Motion API</dt><dd>0.2.0</dd></div><div><dt>Update channel</dt><dd>Development</dd></div></dl>
       <button type="button" onclick={() => ontoast("No console update service is connected in this prototype.")}>Check for updates</button>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>

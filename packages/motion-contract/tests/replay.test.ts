@@ -85,6 +85,34 @@ describe("MotionTracePlayer", () => {
     ]);
   });
 
+  it("does not score lifecycle feedback as an action trigger", () => {
+    const lifecycleOnly = frame(1, 100);
+    lifecycleOnly.capabilities.profiles.push("actions.shell.v1");
+    const player = lifecycleOnly.players[0];
+    if (!player) throw new Error("fixture player missing");
+    player.actions = [
+      { name: "menu_select", phase: "started", confidence: 0.9, occurredAtMs: 90, durationMs: 0 },
+      { name: "menu_select", phase: "held", confidence: 0.9, occurredAtMs: 100, durationMs: 10 },
+      { name: "menu_select", phase: "cancelled", confidence: 0, occurredAtMs: 110, durationMs: 20 },
+    ];
+    const replay = new MotionTracePlayer(
+      {
+        format: "vcg-motion-trace",
+        formatVersion: 1,
+        createdAt: "2026-07-23T00:00:00.000Z",
+        containsRawFrames: false,
+        frames: [lifecycleOnly],
+      },
+      { expectations: [{ atMs: 0, action: "menu_select" }], onFrame: () => undefined },
+    );
+    replay.play();
+    replay.advance(0);
+
+    expect(replay.expectationResults()).toEqual([
+      expect.objectContaining({ action: "menu_select", matched: false }),
+    ]);
+  });
+
   it("rejects out-of-order traces", () => {
     const invalid = trace();
     invalid.frames[1]!.sourceTimestampMs = 999;

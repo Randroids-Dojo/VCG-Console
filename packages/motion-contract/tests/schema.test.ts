@@ -48,8 +48,36 @@ const validFrame = {
 const availableCapabilities = MotionCapabilitiesSchema.parse(validFrame.capabilities);
 
 describe("MotionFrameSchema", () => {
+  it("requires the explicit temporal-action schema version", () => {
+    expect(MOTION_API_SCHEMA_VERSION).toBe("0.2.0");
+    expect(MotionFrameSchema.safeParse({ ...validFrame, schemaVersion: "0.1.0" }).success).toBe(false);
+  });
+
   it("accepts a complete portable core frame", () => {
     expect(MotionFrameSchema.parse(validFrame).players[0]?.coreLandmarks).toHaveLength(17);
+  });
+
+  it("requires emitted action families to be advertised", () => {
+    const action = {
+      name: "menu_select",
+      phase: "triggered",
+      confidence: 0.9,
+      occurredAtMs: 13,
+      durationMs: 450,
+    };
+    const invalid = {
+      ...structuredClone(validFrame),
+      players: validFrame.players.map((player) => ({ ...player, actions: [action] })),
+    };
+    expect(MotionFrameSchema.safeParse(invalid).success).toBe(false);
+    const valid = {
+      ...invalid,
+      capabilities: {
+        ...invalid.capabilities,
+        profiles: [...invalid.capabilities.profiles, "actions.shell.v1"],
+      },
+    };
+    expect(MotionFrameSchema.safeParse(valid).success).toBe(true);
   });
 
   it("rejects fabricated or incomplete core arrays", () => {
@@ -84,6 +112,16 @@ describe("MotionFrameSchema", () => {
       minContains: 1,
       maxContains: 1,
     });
+  });
+
+  it("exports representable action lifecycle and capability constraints", () => {
+    const properties = motionFrameJsonSchema.properties as Record<string, Record<string, unknown>>;
+    const player = properties.players as unknown as {
+      items: { properties: Record<string, { items: Record<string, unknown> }> };
+    };
+    const action = player.items.properties.actions!.items;
+    expect(action.allOf).toHaveLength(3);
+    expect(motionFrameJsonSchema.allOf).toHaveLength(2);
   });
 
   it("requires explicit world-frame semantics exactly when world data is advertised", () => {

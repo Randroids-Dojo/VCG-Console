@@ -25,6 +25,7 @@ Unknown fields are ignored on otherwise valid messages so a newer sender can add
 - Clients receive only negotiated profiles. Rich landmarks, world coordinates, and action families are removed unless granted.
 - Publication is bounded per session and drops excess frames rather than accumulating a latency-producing queue.
 - The bridge carries Motion API frames only. Raw camera images, `ImageBitmap` objects, audio, and camera controls are outside the wire schema.
+- Action projection follows [the standardized action contract](MOTION_ACTIONS_V1.md): each action belongs to exactly one granted profile, and only `triggered` is side-effecting. Lifecycle feedback remains visible to a client only when that action family was negotiated.
 
 The allowlist identifies an approved web origin; it does not make all code at that origin safe. Package/release authority, content review, CSP, navigation containment, browser permissions, and native Home/Back controls remain separate gates.
 

@@ -290,7 +290,7 @@
           "properties": {
             "schemaVersion": {
               "type": "string",
-              "const": "0.1.0"
+              "const": "0.2.0"
             },
             "sequence": {
               "type": "integer",
@@ -675,8 +675,9 @@
                           "enum": [
                             "started",
                             "held",
+                            "triggered",
                             "ended",
-                            "triggered"
+                            "cancelled"
                           ]
                         },
                         "confidence": {
@@ -698,6 +699,91 @@
                         "phase",
                         "confidence",
                         "occurredAtMs"
+                      ],
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "name": {
+                                "enum": [
+                                  "jump",
+                                  "duck",
+                                  "dodge_left",
+                                  "dodge_right",
+                                  "menu_swipe_left",
+                                  "menu_swipe_right"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ]
+                          },
+                          "then": {
+                            "properties": {
+                              "phase": {
+                                "const": "triggered"
+                              }
+                            },
+                            "required": [
+                              "phase"
+                            ],
+                            "not": {
+                              "required": [
+                                "durationMs"
+                              ]
+                            }
+                          },
+                          "else": {
+                            "required": [
+                              "durationMs"
+                            ]
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "phase": {
+                                "const": "started"
+                              }
+                            },
+                            "required": [
+                              "phase"
+                            ]
+                          },
+                          "then": {
+                            "properties": {
+                              "durationMs": {
+                                "const": 0
+                              }
+                            },
+                            "required": [
+                              "durationMs"
+                            ]
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "phase": {
+                                "const": "cancelled"
+                              }
+                            },
+                            "required": [
+                              "phase"
+                            ]
+                          },
+                          "then": {
+                            "properties": {
+                              "confidence": {
+                                "const": 0
+                              }
+                            },
+                            "required": [
+                              "confidence"
+                            ]
+                          }
+                        }
                       ]
                     }
                   }
@@ -725,6 +811,120 @@
             "health",
             "capabilities",
             "players"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "capabilities": {
+                    "properties": {
+                      "profiles": {
+                        "not": {
+                          "contains": {
+                            "const": "actions.obstacle.v1"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "profiles"
+                    ]
+                  }
+                },
+                "required": [
+                  "capabilities"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "players": {
+                    "items": {
+                      "properties": {
+                        "actions": {
+                          "items": {
+                            "properties": {
+                              "name": {
+                                "not": {
+                                  "enum": [
+                                    "jump",
+                                    "duck",
+                                    "dodge_left",
+                                    "dodge_right"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "actions"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "capabilities": {
+                    "properties": {
+                      "profiles": {
+                        "not": {
+                          "contains": {
+                            "const": "actions.shell.v1"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "profiles"
+                    ]
+                  }
+                },
+                "required": [
+                  "capabilities"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "players": {
+                    "items": {
+                      "properties": {
+                        "actions": {
+                          "items": {
+                            "properties": {
+                              "name": {
+                                "not": {
+                                  "enum": [
+                                    "player_join",
+                                    "menu_swipe_left",
+                                    "menu_swipe_right",
+                                    "menu_select",
+                                    "menu_back",
+                                    "pause"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "actions"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           ]
         }
       },
