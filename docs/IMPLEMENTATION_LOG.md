@@ -1814,3 +1814,46 @@ This is Linux-kernel development coverage, not the ordinary native x86-64
 appliance qualification required by I-209. Physical power loss, hostile
 writers, real service/process-tree behavior, filesystem/mount policy, and the
 currently separate system-update tranche remain outside this result.
+
+## 2026-07-24: explicit crash-recoverable save reset
+
+### Delivered
+
+- Added a host-only `SaveResetExecutor` over preprovisioned, canonical,
+  mutually disjoint transaction/data/cache roots and one inert nonblocking
+  operation lock.
+- Consumed the existing `SaveStoragePlan` identity instead of accepting a
+  caller path. The executor reconstructs and checks the exact
+  game/owner/runtime save and cache targets.
+- Published a strict bounded path-free intent before mutation, synchronized
+  Unix directory boundaries, removed save then cache, and retained the intent
+  until both targets were absent.
+- Added recovery for unpublished temporary state, either deletion boundary,
+  and already-absent targets. Malformed/oversized state, foreign roots,
+  non-directory substitution, or lock contention fail closed.
+- Kept the primitive out of browser and CLI surfaces. It cannot choose reset
+  timing, uninstall packages, claim progress, export/upload payloads, delete
+  hosted-service data, or touch profile-vault fields.
+- Added `SAVE_RESET.md` and advanced I-191 from open to active without claiming
+  reference-platform qualification.
+
+### Verification evidence
+
+Nine focused tests cover exact-scope deletion; preservation of other owners,
+games, and package bytes; first-target interruption; idempotence; unpublished
+temporary cleanup; strict/oversized intent; foreign roots; unsafe target
+substitution; nonblocking contention; required preprovisioning; disjoint roots;
+and absence of export/profile-claim authority.
+
+The isolated Ubuntu WSL2 development workspace passes formatting, strict
+all-target Clippy, the complete native workspace tests, and warning-denied
+Rustdoc with this module. Focused and full native library tests pass on
+Windows.
+
+### Remaining boundary
+
+There is intentionally no automatic or browser reset caller. A trusted
+lifecycle service, deliberate controller/motion confirmation, safe Back,
+runtime quiescence, browser/native confinement, quota coordination, durable
+unlink/claim/migration, hostile-writer resistance, and native x86-64/Pi
+power-loss/full-disk/corruption evidence remain I-189 through I-191 and I-209.

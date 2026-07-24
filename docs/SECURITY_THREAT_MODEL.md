@@ -130,6 +130,16 @@ The system-image manifest then binds a safe release ID, exact privileged target,
 
 System-image state has a separate hash-linked, consecutive, append-only two-slot journal. It accepts only exact-target strictly advancing evidence for the inactive slot, keeps staged images out of boot selection, consumes a bounded globally unique attempt before candidate transfer, isolates health passes to one attempt, and records confirmation or automatic rollback without any user-data or arbitrary-path field. Temp publication before/after the no-replace final link recovers deterministically; malformed, gapped, stale-attempt, changed-history, and rehashed impossible-transition cases fail closed. This does not drive Raspberry Pi firmware, protect the writable high-water mark from privileged deletion, authenticate health producers, or prove target filesystem power-loss behavior.
 
+An explicit host-only save-reset primitive now consumes the bounded
+`SaveStoragePlan` identity, publishes a strict path-free durable intent under a
+nonblocking lock, and deletes only the exact canonical save/cache targets.
+Interrupted deletion resumes idempotently; unpublished temporary state deletes
+nothing; malformed state or target substitution fails closed. No browser/CLI
+path invokes it, and its intent contains no payload, export, network,
+profile-vault, portrait, or calibration authority. Runtime quiescence,
+same-account hostile-writer/link-swap resistance, sandbox/mount enforcement,
+confirmation UX, and target power-loss evidence remain unproven.
+
 The trust chain is still incomplete: network discovery/TLS/range behavior does
 not exist; root anchors, exact accepted-root/package-state provenance and
 compare-and-swap, system activation history, and time are not protected;

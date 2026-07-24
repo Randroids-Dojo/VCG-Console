@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Status: software contract and path planner implemented; filesystem enforcement and target qualification remain
+Status: software contract, path planner, and explicit durable reset primitive implemented; broader filesystem enforcement and target qualification remain
 
 Authority: D-050, D-051, D-084, D-087, D-088, D-089, I-100, I-189, I-191
 
@@ -16,8 +16,10 @@ updates preserve the writable data partition; storage loss, destructive
 reflash, factory reset, or console replacement permanently destroys it.
 
 The Rust `save_lifecycle` module is a pure, bounded planner for this boundary.
-It does not yet create directories, mount sandboxes, move a save, persist an
-unlink transaction, or enforce a filesystem quota. Those mutations remain
+The separate host-only `save_reset` executor now persists and recovers one
+explicitly confirmed exact-scope save/cache deletion. It does not yet create
+ordinary runtime directories, mount sandboxes, move a save, persist profile
+unlink/claim/migration, or enforce a filesystem quota. Those mutations remain
 native-host and target-filesystem work.
 
 ## Namespace
@@ -96,10 +98,13 @@ deletion, and the controller/motion UX remain I-188 through I-191.
 
 ## Reset and no-egress rules
 
-A reset plan names exactly one save root and its separate cache root. It never
-targets the game-data root, another owner, package files, managed retro content,
-the profile vault, or hosted-service state. Remote-web reset copy must state
-that a hosted service may retain its own account data.
+A reset plan names exactly one save root and its separate cache root. The
+host-only executor requires preprovisioned disjoint roots, publishes a strict
+path-free durable intent, removes only those exact canonical directories, and
+recovers idempotently after either deletion. It never targets the game-data
+root, another owner, package files, managed retro content, the profile vault,
+or hosted-service state. Remote-web reset copy must state that a hosted service
+may retain its own account data.
 
 The contract contains no network destination, recovery archive, export file,
 cloud account, profile-vault field, portrait, calibration value, or save
@@ -117,8 +122,8 @@ Required follow-up includes:
 - signed per-release quota and save-format policy without changing manifest v1
   authority silently;
 - browser profile isolation and OS/native mount confinement;
-- durable atomic writes, migration, unlink, claim, reset, and delete under
-  interruption;
+- durable atomic writes plus migration, unlink, claim, and unassigned delete
+  under interruption; explicit exact-scope reset now has a durable primitive;
 - actual filesystem quota and concurrent-writer accounting;
 - low-space, full-disk, corruption, rollback, reinstall, and uninstall tests;
 - sanitized game-authored metadata and hostile save formats;
