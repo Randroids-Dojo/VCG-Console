@@ -4615,3 +4615,67 @@ and ages, lawful basis, parent/age verification, notices/consent/rights flows,
 provider roles/contracts/transfers, production local deletion/non-egress
 evidence, child/parent usability, institutional-use policy, operational
 security/incident response, and dated qualified counsel approval remain.
+
+## 2026-07-24: launcher Search television evidence
+
+### Delivered
+
+- Applied the candidate five-percent safe inset, 24 CSS-pixel marked critical
+  text floor, and 48 CSS-pixel marked action floor to the Search overlay.
+- Added exact keyboard focus evidence for initial input focus, ArrowDown into
+  results, Tab wrapping, Escape closure, and opener-focus restoration.
+- Captured the exact five-result `motion` query and fixed no-result query at
+  1280x720, 1920x1080, and 3840x2160 in the production build.
+- Added six pixel-bound screenshots, one strict evidence artifact, a generator,
+  validator, and eleven adversarial mutation tests.
+
+### Verification evidence
+
+- All six observations stayed inside the candidate safe area with zero marked
+  critical-text overlap, zero overlay overflow, and no browser page, console,
+  or request failures.
+- The result state exposed five results and six actions; the empty state
+  exposed zero results and one action.
+- Artifact provenance binds the exact launcher/Search/styles/test sources,
+  production source tree, representative-surface base evidence, requests, and
+  screenshots.
+
+### Remaining boundary
+
+I-098 remains active. Only two exact Search queries were exercised on one
+Windows x64 Chrome 150 desk host. Arbitrary text, empty query, scrolling result
+sets, activation, localization, voice input, physical TV/controller, target
+Linux/compositor, overscan, seating-distance comprehension, output modes, and
+frame pacing remain unqualified.
+
+## 2026-07-24: bounded OCR-A structural inventory
+
+### Delivered
+
+- Added a dependency-free bounded TrueType parser for table directories,
+  Unicode cmap format 4/12, names, selected metrics, and glyph bounds.
+- Generated a strict artifact for the exact 24,316-byte OCR-A 1.0 font with 13
+  sfnt tables, 117 glyphs, and 114 mapped Unicode code points.
+- Scanned 83 production CSS/Svelte/TypeScript files under explicit file and
+  byte limits, recording every non-ASCII code point and occurrence.
+- Published OF-001 through OF-006 for deterministic fallback, text-vs-icon
+  policy, language scope, legacy metrics, physical-TV review, and release
+  approval.
+
+### Verification evidence
+
+- OCR-A maps all 95 printable ASCII code points.
+- It maps only `U+00B7 MIDDLE DOT` among 16 distinct non-ASCII code points in
+  current production source. Fifteen arrows, punctuation marks, geometric
+  symbols, Search/status markers, and check marks require fallback.
+- Eleven tests accept the exact artifact and reject sfnt/source/provenance/
+  claim mutations, truncation, oversize input, duplicate tables, escaped table
+  ranges, and unsupported sfnt versions.
+
+### Remaining boundary
+
+I-147/Q-077 remain active. This is structural inventory, not raster or
+legibility evidence. The current platform-selected CSS fallback is not
+deterministic. Glyph shape, the unusual zero horizontal-header ascent/descent,
+target rendering, TV seating distance, visually similar characters,
+localization, accessibility, and final redistribution approval remain.
