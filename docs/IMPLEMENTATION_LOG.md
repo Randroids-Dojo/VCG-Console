@@ -2926,3 +2926,87 @@ label swaps, rotation/foreshortening, crossing, self-occlusion, varied bodies
 and clothing, seated/limited-range motion, and backend/platform parity. The
 guard is not a production identity, multiplayer, or anatomy reassignment
 authority.
+
+## 2026-07-24: fail-closed profile progress disposition
+
+### Delivered
+
+- Advanced I-188/Q-189 so local profile deletion no longer treats an opaque
+  ownership unlink as sufficient sanitization. Every preserved link requires
+  one exact closed qualification bound to profile, progress, game, slot,
+  runtime, hosted boundary, sanitizer ID, and positive sanitizer revision.
+- Caps the independent qualification fixture at 256 records, rejects unknown
+  fields, duplicate IDs, multiple qualifications per progress record, unsafe
+  IDs, invalid runtime boundaries, and scope substitutions, and supports exact
+  revocation.
+- Binds the sorted qualification-ID set into the destructive plan and resolves
+  it again at commit. Missing or revoked evidence blocks the complete deletion
+  before portrait, profile, or progress mutation.
+- Adds the safe alternative required by Q-189: every unqualified
+  game/slot/runtime starts unchecked and must be explicitly selected for
+  permanent deletion. The plan binds a disjoint sorted exact progress-ID set;
+  cancel or any intervening model revision clears the choices.
+- Accepts only the exact frozen destructive plan object issued by the
+  controller, preventing otherwise valid-looking cloned plans from widening
+  irreversible scope. Svelte retains that object through raw state.
+- Keeps Randy's two qualified records on the unassigned path and exposes the
+  Guest native campaign as an executable blocked/opt-in fixture with exact
+  disclosure, safe initial focus, cancellation, and focus recovery.
+
+### Verification evidence
+
+- Sixteen focused profile-management cases cover bounded/closed qualification
+  records, exact planning and revocation, mixed unlink/delete disposition,
+  outside/duplicate/non-delete refusal, immutable scope, issued-plan identity,
+  no reassociation, and no mutation on failure.
+- All 209 console unit tests, console typecheck/build, repository-wide
+  JavaScript tests/typecheck/build, and all 33 real-Chrome flows pass.
+- Chrome proves default-disabled Guest deletion, explicit exact-record opt-in,
+  permanent-loss modal copy, safe cancel, cleared opt-in, and restored focus.
+
+### Remaining boundary
+
+This is volatile browser policy evidence, not a sanitizer registry or save
+transaction. I-188/I-189 still require host-protected qualification
+provenance, real reviewed per-runtime/title sanitizers, durable exact save
+deletion, one crash-safe registry/vault/progress commit, target fault
+injection, forensic revocation, and household/accessibility/privacy/legal
+qualification under Q-103 and Q-188 through Q-192.
+
+## 2026-07-24: exact-issued Unassigned mutation plans
+
+### Delivered
+
+- Hardened I-189/I-190 claim and permanent-delete mutations so commit accepts
+  only the exact frozen plan object issued by the same
+  `UnassignedProgressController`.
+- Rejects identical clones, valid-looking game/slot or claim-destination
+  substitutions, cross-controller plans, unknown fields, stale revisions, and
+  unknown operation kinds before mutation.
+- Preserves exact plan identity through Svelte raw modal state while retaining
+  the existing controller, motion, keyboard-focus, conflict, and destructive
+  disclosure flow.
+- Makes the browser-model split explicit: profile deletion changes only its
+  isolated link fixture and does not synthesize entries in the independent
+  Unassigned sample list. The profile store lacks the package version,
+  compatibility, byte count, summary, recency, and opaque launch-owner
+  projection required by that list, and two sequential browser commits would
+  not satisfy Q-191 atomicity.
+
+### Verification evidence
+
+- All eight focused Unassigned controller cases pass, including cloned,
+  substituted, cross-controller, stale, and unknown-authority refusal.
+- Both affected Chrome flows pass independently, then all 33 Chrome flows pass
+  together.
+- All 209 console unit tests and the complete workspace JavaScript
+  test/typecheck/build gates pass alongside the concurrent Motion changes.
+
+### Remaining boundary
+
+Reference identity is an in-memory regression guard, not a durable native
+capability. A privileged broker must atomically publish trusted sanitized
+metadata, unlink or delete exact saves, update the profile registry/vault,
+preserve stable unassigned launch ownership, recover after interruption, and
+prove the result on both target tiers before the two browser rehearsals can be
+wired together.
