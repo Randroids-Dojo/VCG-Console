@@ -14,6 +14,7 @@ use serde::Deserialize;
 const ROOT_SCHEMA_VERSION: u32 = 1;
 const ROOT_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-UPDATE-TRUST-ROOT-V1\0";
 const SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-SYSTEM-IMAGE-MANIFEST-V1\0";
+const RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-RECOVERY-IMAGE-MANIFEST-V1\0";
 const INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
 const PACKAGE_RELEASE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
 /// Maximum accepted root-metadata payload before signature verification.
@@ -31,6 +32,7 @@ const MAX_SIGNATURES: usize = 32;
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum UpdateArtifactKind {
     SystemImage,
+    RecoveryImage,
     InstalledCatalog,
     PackageRelease,
 }
@@ -39,6 +41,7 @@ impl UpdateArtifactKind {
     const fn signed_message_prefix(self) -> &'static [u8] {
         match self {
             Self::SystemImage => SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX,
+            Self::RecoveryImage => RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX,
             Self::InstalledCatalog => INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX,
             Self::PackageRelease => PACKAGE_RELEASE_SIGNED_MESSAGE_PREFIX,
         }
@@ -46,7 +49,7 @@ impl UpdateArtifactKind {
 
     const fn maximum_payload_bytes(self) -> usize {
         match self {
-            Self::SystemImage | Self::PackageRelease => 64 * 1_024,
+            Self::SystemImage | Self::RecoveryImage | Self::PackageRelease => 64 * 1_024,
             Self::InstalledCatalog => 1_048_576,
         }
     }
@@ -798,6 +801,7 @@ struct RoleDocument {
 #[serde(rename_all = "kebab-case")]
 enum ArtifactDocument {
     SystemImage,
+    RecoveryImage,
     InstalledCatalog,
     PackageRelease,
 }
@@ -806,6 +810,7 @@ impl From<ArtifactDocument> for UpdateArtifactKind {
     fn from(value: ArtifactDocument) -> Self {
         match value {
             ArtifactDocument::SystemImage => Self::SystemImage,
+            ArtifactDocument::RecoveryImage => Self::RecoveryImage,
             ArtifactDocument::InstalledCatalog => Self::InstalledCatalog,
             ArtifactDocument::PackageRelease => Self::PackageRelease,
         }
@@ -1611,10 +1616,10 @@ mod tests {
                 ),
                 role_document(
                     "recovery",
-                    "system-image",
+                    "recovery-image",
                     TARGET,
                     1,
-                    &[("system-recovery", &recovery_key)],
+                    &[("recovery-image", &recovery_key)],
                 ),
             ],
         );
@@ -1636,13 +1641,13 @@ mod tests {
         let stable_signature = signatures(vec![sign(
             "system-stable",
             &stable_key,
-            SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX,
+            RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX,
             recovery_manifest,
         )]);
         assert!(matches!(
             root.verify_role(
                 "recovery",
-                UpdateArtifactKind::SystemImage,
+                UpdateArtifactKind::RecoveryImage,
                 TARGET,
                 recovery_manifest,
                 &stable_signature,
@@ -1651,15 +1656,15 @@ mod tests {
             Err(UpdateTrustError::RoleThresholdNotMet { valid: 0, .. })
         ));
         let recovery_signature = signatures(vec![sign(
-            "system-recovery",
+            "recovery-image",
             &recovery_key,
-            SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX,
+            RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX,
             recovery_manifest,
         )]);
         let authority = root
             .verify_role(
                 "recovery",
-                UpdateArtifactKind::SystemImage,
+                UpdateArtifactKind::RecoveryImage,
                 TARGET,
                 recovery_manifest,
                 &recovery_signature,
@@ -1667,7 +1672,7 @@ mod tests {
             )
             .expect("independent recovery authority");
         assert_eq!(authority.channel(), "recovery");
-        assert_eq!(authority.signing_key_ids(), ["system-recovery"]);
+        assert_eq!(authority.signing_key_ids(), ["recovery-image"]);
     }
 
     #[test]

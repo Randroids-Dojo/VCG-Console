@@ -1,6 +1,6 @@
 # Update Trust Root and Delegated Roles
 
-Status: bounded root/role verification, system-image/package integration, and
+Status: bounded root/role verification, system/recovery-image/package integration, and
 launcher-integrated crash-recoverable accepted-root history implemented;
 protected-state provenance, secure time, repository metadata, operator
 ceremony, and recovery drills remain open.
@@ -17,11 +17,11 @@ The primitive provides:
 - distinct root and delegated keys with no key ID or public-key reuse across roles;
 - exact channel, artifact family, and hardware-target roles;
 - root expiration checked against caller-supplied trusted Unix time;
-- fixed cross-protocol domains for system images, installed catalogs, and package releases;
+- fixed cross-protocol domains for system images, recovery images, installed catalogs, and package releases;
 - threshold authorization of exact bounded artifact bytes before their semantic parser runs; and
 - immediate role-key revocation by omission from the next authenticated root generation.
 
-The public system-image, installed-catalog, and package-release loaders now require this delegated role authority. Their previous direct single-key loaders exist only in test builds.
+The public system-image, recovery-image, installed-catalog, and package-release loaders now require this delegated role authority. Previous direct single-key loaders remain test-only where they still exist.
 
 ## Root document v1
 
@@ -112,6 +112,7 @@ Artifact roles reuse the existing exact domains and payload limits:
 | Artifact | Signed domain | Maximum payload |
 |---|---|---:|
 | System image manifest | `VCG-SYSTEM-IMAGE-MANIFEST-V1\0` | 64 KiB |
+| Recovery image manifest | `VCG-RECOVERY-IMAGE-MANIFEST-V1\0` | 64 KiB |
 | Installed package catalog | `VCG-INSTALLED-CATALOG-V1\0` | 1 MiB |
 | Package release descriptor | `VCG-PACKAGE-RELEASE-V1\0` | 64 KiB |
 
@@ -171,6 +172,14 @@ The manifest parser still independently checks its internal target, generation, 
 
 `VerifiedPackageRelease::load_with_update_role` and `TrustedPackageCatalog::load_with_update_role` apply the same signature-before-parse rule for exact package-release and installed-catalog roles. Both retain `VerifiedUpdateRole` evidence. `PackageGenerationStore` carries one `TrustedUpdatePolicy` snapshot through descriptor intake, catalog verification before inert publication, health/promotion, recovery, and active-generation reload. Catalog and release signature files are bounded key-ID-labeled bundles, so thresholds larger than one remain representable.
 
+`VerifiedRecoveryImageRelease::load` requires the policy's exact
+`recovery-image` role before parsing, independently checks target and compatible
+hardware, and binds both downloaded-archive and expanded raw-image identities.
+It retains the completely hashed archive handle and can verify the exact
+expanded read-back prefix, but neither a role signature nor byte match proves
+removable-media selection, write, synchronization, read-back provenance, or
+permission for destructive recovery. See `RECOVERY_IMAGE_BUNDLE.md`.
+
 The launcher no longer accepts `--catalog-public-key` or loose root candidate
 files. Catalog-backed startup requires `--update-root-store`,
 `--update-root-anchors`, `--update-root-protected-state`, `--update-channel`,
@@ -182,15 +191,16 @@ trusted-time snapshot for later update admission.
 
 ## Offline recovery drill design
 
-The focused suite models a separately keyed `recovery/system-image/target`
-role and proves a stable-channel key cannot authorize it. A real operator drill
+The focused suite models a separately keyed
+`recovery/recovery-image/target` role and proves a stable system-image key
+cannot authorize it. A real operator drill
 still requires all of the following:
 
 1. Start from a clean, independently verified computer and recovery-writing tool.
 2. Obtain immutable bootstrap anchors from a second trusted source and record their hashes and custodians.
 3. Read the console's exact protected root generation and digest without lowering or replacing it.
 4. Verify every exact root generation needed to reach that protected identity; never jump directly to an unrelated latest root.
-5. Verify the recovery-channel system-image manifest under its separate threshold, then verify the complete image length and hash.
+5. Verify the recovery-image manifest under its separate threshold, then verify the complete archive and expanded-image length/hash identities.
 6. Write only the operator-selected replacement card or inactive recovery target, synchronize it, and read back the complete signed image bytes.
 7. Boot without network, validate target identity and all required health gates, and prove injected candidate failure still selects a known-good image.
 8. Apply the separately selected writable-data policy. Never imply that reflashing preserves local saves, profiles, retro content, or packages unless the physical procedure proves it.

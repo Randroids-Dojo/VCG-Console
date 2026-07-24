@@ -2326,3 +2326,53 @@ native/Godot, Libretro and hosted-title local data, package lifecycle,
 simultaneous-player behavior, target hardware, household, TV-distance,
 accessibility, privacy, legal, low-space, fault, and power-loss evidence remain
 under I-189 through I-191 and Q-170 through Q-174.
+
+## 2026-07-24: verifiable recovery-image bundle
+
+### Delivered
+
+- Added a distinct `RecoveryImage` delegated artifact family and fixed
+  `VCG-RECOVERY-IMAGE-MANIFEST-V1\0` signature domain rather than reusing
+  ordinary system-image authority.
+- Added a strict bounded v1 recovery manifest for exact generation, release ID,
+  target, sorted compatible hardware IDs, archive format/size/SHA-256,
+  expanded raw-image size/SHA-256, and minimum media size.
+- Required signature and exact role/target verification before parsing,
+  nonzero bounded sizes, canonical lowercase hashes, safe identifiers, and
+  coherent identity for uncompressed raw images.
+- Completely hashed one absolute regular archive through a retained open
+  handle, detecting length/hash changes while preventing later path
+  replacement from redirecting the verified source.
+- Added sealed expanded-image read-back evidence while leaving reader
+  provenance explicitly to a future privileged synchronized writer.
+- Documented a draft Raspberry Pi Imager workflow for Windows, macOS, and
+  Linux; exact verification/writer handoff; blank-card scope; first-boot and
+  failure evidence; device-only-data exclusions; and current non-claims.
+- Added D-167, advanced I-113 to `active`, and recorded Q-175 through Q-178.
+
+### Verification evidence
+
+Eight focused tests cover correct delegated verification, threshold evidence,
+cross-role and cross-domain denial, signature-before-parse tamper rejection,
+exact target and hardware binding, sorted/unique/bounded compatibility,
+raw-versus-ZIP identities, schema/size/hash/identifier/unknown-field failures,
+changed/truncated/replaced archives, exact expanded read-back, and unsafe or
+oversized inputs. Native formatting, both focused recovery/update-trust suites,
+and strict all-target Clippy pass.
+
+The complete Windows native workspace passes 269 library tests with five
+intentional subprocess helpers ignored plus all 19 CLI tests. Workspace
+formatting, strict all-target Clippy, warning-denied Rustdoc, and the same eight
+focused recovery tests under WSL Ubuntu also pass.
+
+### Remaining boundary
+
+This is verification policy, not a recovery product. No production image,
+publisher, download/repository client, ZIP decoder, removable-media
+enumerator/writer/synchronizer, device-reader provenance, destructive consent,
+bootloader repair, first-boot health path, or household support flow exists.
+The exact Pi assembly ID, signing custody, tool boundary, and recovery contents
+remain Q-175 through Q-178. Real Windows/macOS/Linux household restores,
+I-186 canary exclusion, hostile media/archive/fault testing, blank/replacement
+card trials, and measured restore times are still required before I-113 can
+close.
