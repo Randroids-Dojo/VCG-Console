@@ -136,4 +136,7 @@ Still required:
 - save/load UI and allowed per-game override UX;
 - target audio/video/latency/shader/suspend testing;
 - package update, rollback, uninstall, and no-leftovers proof;
-- shared USB/LAN importer and capacity/failure campaign.
+- product wiring from the shared USB/LAN planner and native plain-file
+  transaction into this launch path, plus USB/LAN acquisition, scanner,
+  reservation, deletion/compaction, capacity/failure, and source-path
+  exclusion campaigns.
