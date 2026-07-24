@@ -83,8 +83,9 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 - `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
-- `installed_catalog`: signature-first installed metadata validation and host-owned package resolution from fixed game/profile IDs.
-- `package_generation`: verify-before-intent and verify-after-move signed generation activation with deterministic interrupted-promotion recovery.
+- `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.
+- `package_health`: save-isolated signed process/explicit-ready candidate execution with direct-child reaping and no compositor-readiness claim.
+- `package_generation`: verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and path-free read-only retention planning.
 - `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.

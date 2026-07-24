@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the implemented host-owned staging, verification, monotonic activation, interruption recovery, and launcher-startup boundary for production game packages. It composes with the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not an update downloader, health-check service, uninstall UI, or target-hardware qualification result.
+This document defines the implemented host-owned staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, and launcher-startup boundary for production game packages. It composes with the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not an update downloader, uninstall UI, live-runtime qualification, or target-hardware result.
 
 ## Store layout
 
@@ -49,6 +49,26 @@ An equal or lower signed generation is rejected while the activation history rem
 
 This is crash-monotonic selection, not tamper-resistant anti-rollback. The current history lives in the writable store; protected per-channel state, deletion resistance, and authenticated recovery remain open under I-141.
 
+## Health-gated promotion
+
+The production promotion entry point is `promote_health_checked`. Artifact-only activation is private to generation-state tests and cannot be called by another host module.
+
+Before health execution, the native catalog authority re-hashes the bound manifest and extracts only:
+
+- `launch.timeoutMs`, bounded to 1,000–120,000 milliseconds; and
+- `healthCheck.type`, currently `process` or `explicit-ready` for the implemented local Libretro lane.
+
+No browser value or unsigned host default may select this policy. HTTP health remains a hosted/local-web service concern and is rejected for the current installed Libretro runtime.
+
+Each candidate package resolves through the same signed catalog and adapter as a real launch, but the host replaces its runtime and data roots with transaction/game-specific paths beneath the configured ephemeral runtime root. It never passes a player profile or persistent save root.
+
+- `process` health requires the direct child to remain alive for the complete signed window. The host then terminates and reaps it. This is compatibility smoke evidence only.
+- `explicit-ready` adds only a host-derived `VCG_READY_FILE`. A bounded non-empty UTF-8 token must appear before the signed timeout; the host then terminates and reaps the child. A missing, oversized, invalid, or non-regular token fails.
+
+Every health failure occurs before `promotion.intent`, so the previous active generation remains authoritative. After every package passes, promotion re-loads the stage and requires the exact catalog digest observed by health before publishing intent. This prevents health evidence from being reused after candidate catalog replacement.
+
+Neither policy proves a visible, focused, responsive, or contained compositor window. Exact producer authority remains [Q-115 and Q-116](OWNER_QUESTIONS_PACKAGE_HEALTH_2026-07-23.md); target qualification still needs real wrappers, compositor observation, hostile-child tests, and measured startup behavior.
+
 ## Launcher startup integration
 
 The native launcher accepts the generation store as an alternative to loose catalog, signature, and install-root paths:
@@ -94,6 +114,9 @@ Rust tests cover:
 
 - first install and higher-generation update;
 - signature/catalog verification plus every referenced artifact, including managed content;
+- signed process/explicit-ready policy parsing with timeout bounds;
+- process survival, early-exit failure, explicit-ready success, invalid token failure, and child reaping;
+- health failure before durable intent, exact catalog-digest binding, and save preservation;
 - tamper rejection before durable intent publication;
 - tamper rejection after the generation move but before activation;
 - equal-generation rollback rejection;
@@ -102,10 +125,21 @@ Rust tests cover:
 - fail-closed malformed newest activation state;
 - preservation of data-root save bytes.
 
+## Retention planning
+
+`plan_cleanup(retain_count)` is a read-only host primitive. It accepts only a bounded count of at least two, refuses pending recovery, validates every activation marker and generation-directory name, requires every activated marker to retain a matching directory, and re-verifies the active generation.
+
+The result exposes generation numbers only:
+
+- `retained_generations`: the newest requested activated snapshots, always including the active generation;
+- `retired_generations`: older activated snapshots that a future coordinator may consider;
+- `orphan_generations`: versioned directories with no activation marker.
+
+Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. Actual deletion remains disabled until the native coordinator can prove no running or restartable child references a candidate and the owner selects the count/byte policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md).
+
 Still required:
 
 - update download/intake, archive safety, capacity reservation, and low-space cleanup;
-- per-game health checks and promotion only after usable readiness;
 - automatic bad-release rollback expressed as a new signed generation;
 - bounded retention, uninstall, and garbage collection;
 - offline-root delegation, key rotation/revocation, and per-channel monotonic state;

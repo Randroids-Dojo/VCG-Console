@@ -6,6 +6,7 @@ use std::fs::{self, File};
 use std::io::{self, Read};
 use std::path::{Component, Path, PathBuf};
 use std::str::FromStr;
+use std::time::Duration;
 
 use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
@@ -261,6 +262,58 @@ impl TrustedPackageCatalog {
         Ok(())
     }
 
+    /// Returns the signed launch-health policy for one verified package.
+    ///
+    /// The manifest hash and identity are checked before its health fields are
+    /// interpreted. This policy is native authority; public/browser parsing
+    /// cannot select a timeout or readiness mechanism.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid IDs, missing packages, changed/misbound manifests, and
+    /// unsupported or out-of-range health policies.
+    pub fn package_health_policy(
+        &self,
+        game_id: &str,
+    ) -> Result<PackageHealthPolicy, CatalogError> {
+        validate_intent_id("game", game_id)?;
+        let package = self
+            .packages
+            .iter()
+            .find(|package| package.id == game_id)
+            .ok_or_else(|| CatalogError::PackageNotFound(game_id.to_owned()))?;
+        let manifest =
+            resolve_managed_file("manifest", &self.roots.install_root, &package.manifest.path)?;
+        verify_sha256("manifest", &manifest, &package.manifest.sha256)?;
+        verify_bound_manifest(&manifest, package)
+    }
+
+    /// Returns every package's signed health policy after verifying each bound
+    /// manifest.
+    ///
+    /// # Errors
+    ///
+    /// Rejects any changed, misbound, or unsupported package manifest.
+    pub fn package_health_policies(
+        &self,
+    ) -> Result<Vec<VerifiedPackageHealthPolicy>, CatalogError> {
+        self.packages
+            .iter()
+            .map(|package| {
+                let manifest = resolve_managed_file(
+                    "manifest",
+                    &self.roots.install_root,
+                    &package.manifest.path,
+                )?;
+                verify_sha256("manifest", &manifest, &package.manifest.sha256)?;
+                Ok(VerifiedPackageHealthPolicy {
+                    game_id: package.id.clone(),
+                    policy: verify_bound_manifest(&manifest, package)?,
+                })
+            })
+            .collect()
+    }
+
     /// Returns signed, non-path package metadata for launcher presentation.
     ///
     /// # Errors
@@ -369,6 +422,30 @@ pub struct PackageSummary<'a> {
     pub generation: u64,
 }
 
+/// Native launch-health mechanism bound by a signed package manifest.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PackageHealthCheck {
+    /// Compatibility smoke check: the direct child must remain running for the
+    /// signed observation window. It does not prove visible readiness.
+    Process,
+    /// A qualified trusted producer must explicitly signal readiness.
+    ExplicitReady,
+}
+
+/// Bounded launch-health policy from one verified signed manifest.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PackageHealthPolicy {
+    pub timeout: Duration,
+    pub check: PackageHealthCheck,
+}
+
+/// One verified package identity and its signed health policy.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct VerifiedPackageHealthPolicy {
+    pub game_id: String,
+    pub policy: PackageHealthPolicy,
+}
+
 #[derive(Clone, Debug)]
 struct InstalledPackage {
     id: String,
@@ -465,9 +542,30 @@ struct BoundManifest {
     version: String,
     runtime: String,
     compatibility_status: String,
+    launch: BoundLaunchPolicy,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BoundLaunchPolicy {
+    timeout_ms: u64,
+    health_check: BoundHealthCheck,
+}
+
+#[derive(Debug, Deserialize)]
+struct BoundHealthCheck {
+    #[serde(rename = "type")]
+    kind: String,
 }
 
 fn verify_manifest_identity(path: &Path, package: &InstalledPackage) -> Result<(), CatalogError> {
+    verify_bound_manifest(path, package).map(|_| ())
+}
+
+fn verify_bound_manifest(
+    path: &Path,
+    package: &InstalledPackage,
+) -> Result<PackageHealthPolicy, CatalogError> {
     let bytes = read_bounded(path, MAX_CATALOG_BYTES, "bound game manifest")?;
     let manifest: BoundManifest = serde_json::from_slice(&bytes)
         .map_err(|error| CatalogError::InvalidBoundManifest(error.to_string()))?;
@@ -482,7 +580,26 @@ fn verify_manifest_identity(path: &Path, package: &InstalledPackage) -> Result<(
             package.id
         )));
     }
-    Ok(())
+    if !(1_000..=120_000).contains(&manifest.launch.timeout_ms) {
+        return Err(CatalogError::InvalidBoundManifest(format!(
+            "manifest launch timeout for {} must be 1000-120000 milliseconds",
+            package.id
+        )));
+    }
+    let check = match manifest.launch.health_check.kind.as_str() {
+        "process" => PackageHealthCheck::Process,
+        "explicit-ready" => PackageHealthCheck::ExplicitReady,
+        health_check => {
+            return Err(CatalogError::InvalidBoundManifest(format!(
+                "manifest health check {health_check} is unsupported for installed package {}",
+                package.id
+            )));
+        }
+    };
+    Ok(PackageHealthPolicy {
+        timeout: Duration::from_millis(manifest.launch.timeout_ms),
+        check,
+    })
 }
 
 fn current_target() -> String {
@@ -804,14 +921,14 @@ impl std::error::Error for CatalogError {
 pub(crate) mod tests {
     use std::fs;
     use std::path::{Path, PathBuf};
-    use std::time::{SystemTime, UNIX_EPOCH};
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     use ed25519_dalek::{Signer, SigningKey};
     use sha2::{Digest, Sha256};
 
     use super::{
-        CatalogError, CatalogRoots, MAX_CATALOG_BYTES, ResolvedPackage, SIGNED_MESSAGE_PREFIX,
-        TrustedPackageCatalog, current_target,
+        CatalogError, CatalogRoots, MAX_CATALOG_BYTES, PackageHealthCheck, PackageHealthPolicy,
+        ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog, current_target,
     };
     use crate::retroarch::{RetroArchError, plan as plan_retroarch};
 
@@ -856,7 +973,7 @@ pub(crate) mod tests {
             let base_config = retroarch.join("vcg-base.cfg");
             fs::write(
                 &manifest,
-                br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified"}"#,
+                br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
             )
             .expect("write manifest");
             fs::write(&frontend, b"frontend fixture").expect("write frontend");
@@ -1010,6 +1127,15 @@ pub(crate) mod tests {
         let catalog = fixture.load().expect("catalog loads");
         assert_eq!(catalog.generation(), 7);
         assert_eq!(catalog.target(), current_target());
+        assert_eq!(
+            catalog
+                .package_health_policy("retro-2048")
+                .expect("signed health policy resolves"),
+            PackageHealthPolicy {
+                timeout: Duration::from_secs(15),
+                check: PackageHealthCheck::Process,
+            }
+        );
 
         let ResolvedPackage::Libretro(request) = catalog
             .resolve("retro-2048", "player-one")
@@ -1105,6 +1231,59 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn rejects_unsigned_defaults_and_unsupported_local_health_policies() {
+        let fixture = Fixture::new();
+        fs::write(
+            &fixture.manifest,
+            br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":8000,"healthCheck":{"type":"explicit-ready"}}}"#,
+        )
+        .expect("replace signed health policy");
+        fixture.sign_catalog(
+            &fixture.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+        );
+        let catalog = fixture.load().expect("catalog with ready policy loads");
+        assert_eq!(
+            catalog
+                .package_health_policy("retro-2048")
+                .expect("explicit-ready policy resolves"),
+            PackageHealthPolicy {
+                timeout: Duration::from_secs(8),
+                check: PackageHealthCheck::ExplicitReady,
+            }
+        );
+
+        for launch in [
+            r#""timeoutMs":999,"healthCheck":{"type":"process"}"#,
+            r#""timeoutMs":15000,"healthCheck":{"type":"http","path":"/"}"#,
+        ] {
+            let fixture = Fixture::new();
+            fs::write(
+                &fixture.manifest,
+                format!(
+                    "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\
+                     \"runtime\":\"libretro\",\"compatibilityStatus\":\"qualified\",\
+                     \"launch\":{{{launch}}}}}"
+                ),
+            )
+            .expect("replace invalid health policy");
+            fixture.sign_catalog(
+                &fixture.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+            );
+            let catalog = fixture
+                .load()
+                .expect("catalog signature remains independently valid");
+            assert!(matches!(
+                catalog.package_health_policy("retro-2048"),
+                Err(CatalogError::InvalidBoundManifest(_))
+            ));
+            assert!(matches!(
+                catalog.verify_all_artifacts(),
+                Err(CatalogError::InvalidBoundManifest(_))
+            ));
+        }
+    }
+
+    #[test]
     fn rejects_invalid_browser_intents_and_bound_manifest_identity() {
         let fixture = Fixture::new();
         let catalog = fixture.load().expect("catalog loads");
@@ -1124,7 +1303,7 @@ pub(crate) mod tests {
         let fixture = Fixture::new();
         fs::write(
             &fixture.manifest,
-            br#"{"schemaVersion":1,"id":"another-game","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified"}"#,
+            br#"{"schemaVersion":1,"id":"another-game","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
         )
         .expect("replace manifest identity");
         fixture.sign_catalog(
@@ -1523,6 +1702,10 @@ mod more_tests {
             "version": version,
             "runtime": "libretro",
             "compatibilityStatus": status,
+            "launch": {
+                "timeoutMs": 15000,
+                "healthCheck": { "type": "process" },
+            },
         }))
         .expect("manifest fixture serializes")
     }

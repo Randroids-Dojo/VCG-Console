@@ -8,7 +8,11 @@ use std::path::{Component, Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::installed_catalog::{CatalogError, CatalogRoots, TrustedPackageCatalog};
+use crate::installed_catalog::{
+    CatalogError, CatalogRoots, ResolvedPackage, TrustedPackageCatalog,
+};
+use crate::package_health::{CandidateHealthChecker, CandidateHealthError, CandidateHealthRequest};
+use crate::retroarch::plan as plan_retroarch;
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
 const MAX_MARKER_BYTES: u64 = 1_024;
@@ -17,6 +21,8 @@ const STAGED_INTENT_FILE: &str = ".vcg-promotion-intent";
 const CATALOG_FILE: &str = "installed-catalog.json";
 const CATALOG_SIGNATURE_FILE: &str = "installed-catalog.sig";
 const INSTALL_DIRECTORY: &str = "install";
+const MAX_GENERATION_ENTRIES: usize = 4_096;
+const MIN_RETAINED_GENERATIONS: usize = 2;
 
 /// Host-owned paths for a package generation store.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -48,6 +54,19 @@ pub enum RecoveryOutcome {
 pub struct PromotionOutcome {
     pub previous_generation: Option<u64>,
     pub active_generation: u64,
+}
+
+/// Read-only classification of package generations for a future cleanup
+/// coordinator.
+///
+/// Generation numbers are safe host metadata. Paths remain private to the
+/// store, and producing this plan never removes or rewrites package state.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct GenerationCleanupPlan {
+    pub active_generation: Option<u64>,
+    pub retained_generations: Vec<u64>,
+    pub retired_generations: Vec<u64>,
+    pub orphan_generations: Vec<u64>,
 }
 
 /// Host-owned signed package generation storage.
@@ -114,15 +133,74 @@ impl PackageGenerationStore {
     ///
     /// Rejects malformed markers and any changed signed catalog or artifact.
     pub fn load_active(&self) -> Result<Option<ActiveGeneration>, GenerationError> {
-        let mut highest = None;
-        let mut count = 0_usize;
+        self.activation_generations()?
+            .last()
+            .copied()
+            .map(|generation| self.load_committed_generation(generation))
+            .transpose()
+    }
+
+    /// Classifies retained, retired, and unreferenced package generations
+    /// without changing the store.
+    ///
+    /// At least two newest activated generations must be retained so cleanup
+    /// planning cannot discard the immediate local rollback source by default.
+    /// A durable promotion intent blocks planning. Unexpected entries, missing
+    /// activated snapshots, or invalid markers fail closed.
+    ///
+    /// # Errors
+    ///
+    /// Rejects retention counts outside `2..=4096`, recovery-required state,
+    /// malformed history, and unsafe generation directories.
+    pub fn plan_cleanup(
+        &self,
+        retain_count: usize,
+    ) -> Result<GenerationCleanupPlan, GenerationError> {
+        if !(MIN_RETAINED_GENERATIONS..=MAX_GENERATION_ENTRIES).contains(&retain_count) {
+            return Err(GenerationError::InvalidRetentionCount(retain_count));
+        }
+        if self.recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+
+        let activated = self.activation_generations()?;
+        let installed = self.generation_directories()?;
+        for generation in &activated {
+            if installed.binary_search(generation).is_err() {
+                return Err(GenerationError::InvalidLayout(format!(
+                    "activation marker {generation} has no generation directory"
+                )));
+            }
+        }
+
+        let active_generation = activated.last().copied();
+        if let Some(active) = active_generation {
+            self.load_committed_generation(active)?;
+        }
+        let retained_start = activated.len().saturating_sub(retain_count);
+        let retired_generations = activated[..retained_start].to_vec();
+        let retained_generations = activated[retained_start..].to_vec();
+        let orphan_generations = installed
+            .into_iter()
+            .filter(|generation| activated.binary_search(generation).is_err())
+            .collect();
+
+        Ok(GenerationCleanupPlan {
+            active_generation,
+            retained_generations,
+            retired_generations,
+            orphan_generations,
+        })
+    }
+
+    fn activation_generations(&self) -> Result<Vec<u64>, GenerationError> {
+        let mut generations = Vec::new();
         for entry in fs::read_dir(&self.activations).map_err(|source| GenerationError::Io {
             operation: "read activation directory",
             path: self.activations.clone(),
             source,
         })? {
-            count += 1;
-            if count > 4_096 {
+            if generations.len() >= MAX_GENERATION_ENTRIES {
                 return Err(GenerationError::InvalidLayout(
                     "activation marker limit exceeded".to_owned(),
                 ));
@@ -150,14 +228,50 @@ impl PackageGenerationStore {
             let generation = generation_from_marker_name(&entry.file_name())?;
             let marker = read_marker(&path)?;
             validate_marker(&marker, generation)?;
-            if highest.is_none_or(|current| generation > current) {
-                highest = Some(generation);
-            }
+            generations.push(generation);
         }
+        generations.sort_unstable();
+        Ok(generations)
+    }
 
-        highest
-            .map(|generation| self.load_committed_generation(generation))
-            .transpose()
+    fn generation_directories(&self) -> Result<Vec<u64>, GenerationError> {
+        let mut generations = Vec::new();
+        for entry in fs::read_dir(&self.generations).map_err(|source| GenerationError::Io {
+            operation: "read generation directory",
+            path: self.generations.clone(),
+            source,
+        })? {
+            if generations.len() >= MAX_GENERATION_ENTRIES {
+                return Err(GenerationError::InvalidLayout(
+                    "generation directory limit exceeded".to_owned(),
+                ));
+            }
+            let entry = entry.map_err(|source| GenerationError::Io {
+                operation: "read generation entry",
+                path: self.generations.clone(),
+                source,
+            })?;
+            let path = entry.path();
+            if !entry
+                .file_type()
+                .map_err(|source| GenerationError::Io {
+                    operation: "inspect generation entry",
+                    path: path.clone(),
+                    source,
+                })?
+                .is_dir()
+            {
+                return Err(GenerationError::InvalidLayout(format!(
+                    "generation entry is not a directory: {}",
+                    path.display()
+                )));
+            }
+            let generation = generation_from_directory_name(&entry.file_name())?;
+            canonical_direct_child("package generation", &self.generations, &path)?;
+            generations.push(generation);
+        }
+        generations.sort_unstable();
+        Ok(generations)
     }
 
     /// Reports whether a valid durable promotion intent requires recovery.
@@ -186,7 +300,65 @@ impl PackageGenerationStore {
         }
     }
 
-    /// Promotes one fully populated `staging/<transaction-id>` snapshot.
+    /// Health-checks and promotes one fully populated
+    /// `staging/<transaction-id>` snapshot.
+    ///
+    /// Every package runs under the health mechanism and timeout bound by its
+    /// verified signed manifest. Runtime and data roots are redirected beneath
+    /// the host's ephemeral runtime root so a candidate cannot mutate player
+    /// saves during qualification. The exact catalog digest checked by health
+    /// must still match when durable promotion begins.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid candidate state, unsupported health policy, plan or
+    /// health execution failure, or any later promotion failure.
+    pub fn promote_health_checked(
+        &self,
+        transaction_id: &str,
+        checker: &CandidateHealthChecker,
+    ) -> Result<PromotionOutcome, GenerationError> {
+        self.promote_health_checked_with(transaction_id, |request| checker.check(request))
+    }
+
+    fn promote_health_checked_with<F>(
+        &self,
+        transaction_id: &str,
+        mut check: F,
+    ) -> Result<PromotionOutcome, GenerationError>
+    where
+        F: FnMut(&CandidateHealthRequest) -> Result<(), CandidateHealthError>,
+    {
+        validate_transaction_id(transaction_id)?;
+        if self.recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        let stage = self.canonical_stage(transaction_id)?;
+        let candidate = self.load_release(&stage)?;
+        let expected_catalog_sha256 = candidate.catalog_sha256.clone();
+        for package in candidate.catalog.package_health_policies()? {
+            let ResolvedPackage::Libretro(mut request) = candidate
+                .catalog
+                .resolve(&package.game_id, "package-health")?;
+            let health_root = self
+                .runtime_root
+                .join("package-health")
+                .join(transaction_id)
+                .join(&package.game_id);
+            request.runtime_root = health_root.join("runtime");
+            request.data_root = health_root.join("data");
+            let plan = plan_retroarch(&request).map_err(CandidateHealthError::Prepare)?;
+            check(&CandidateHealthRequest {
+                game_id: package.game_id,
+                policy: package.policy,
+                plan,
+            })?;
+        }
+        self.activate_verified(transaction_id, Some(&expected_catalog_sha256))
+    }
+
+    /// Promotes one fully populated `staging/<transaction-id>` snapshot after
+    /// any required candidate health checks have succeeded.
     ///
     /// The candidate catalog signature and every referenced artifact are
     /// verified before a durable intent is published. The candidate then moves
@@ -199,7 +371,11 @@ impl PackageGenerationStore {
     ///
     /// Rejects invalid transaction IDs, pending recovery, downgrade/equal
     /// generations, signature or artifact failures, and unsafe layouts.
-    pub fn promote(&self, transaction_id: &str) -> Result<PromotionOutcome, GenerationError> {
+    fn activate_verified(
+        &self,
+        transaction_id: &str,
+        expected_catalog_sha256: Option<&str>,
+    ) -> Result<PromotionOutcome, GenerationError> {
         validate_transaction_id(transaction_id)?;
         let global_intent = self.root.join(INTENT_FILE);
         if global_intent.exists() {
@@ -208,6 +384,9 @@ impl PackageGenerationStore {
 
         let stage = self.canonical_stage(transaction_id)?;
         let candidate = self.load_release(&stage)?;
+        if expected_catalog_sha256.is_some_and(|expected| expected != candidate.catalog_sha256) {
+            return Err(GenerationError::CandidateChangedAfterHealth);
+        }
         let generation = candidate.generation;
         let marker = ActivationMarker {
             schema_version: ACTIVATION_SCHEMA_VERSION,
@@ -263,6 +442,14 @@ impl PackageGenerationStore {
             previous_generation,
             active_generation: generation,
         })
+    }
+
+    #[cfg(test)]
+    fn promote_without_health(
+        &self,
+        transaction_id: &str,
+    ) -> Result<PromotionOutcome, GenerationError> {
+        self.activate_verified(transaction_id, None)
     }
 
     /// Completes an interrupted promotion after its durable intent exists.
@@ -622,6 +809,20 @@ fn generation_from_marker_name(name: &std::ffi::OsStr) -> Result<u64, Generation
         .map_err(|_| GenerationError::InvalidLayout(format!("invalid generation marker: {text}")))
 }
 
+fn generation_from_directory_name(name: &std::ffi::OsStr) -> Result<u64, GenerationError> {
+    let text = name.to_str().ok_or_else(|| {
+        GenerationError::InvalidLayout("generation directory name is not UTF-8".to_owned())
+    })?;
+    if text.len() != 20 || !text.bytes().all(|byte| byte.is_ascii_digit()) {
+        return Err(GenerationError::InvalidLayout(format!(
+            "unexpected generation directory: {text}"
+        )));
+    }
+    text.parse().map_err(|_| {
+        GenerationError::InvalidLayout(format!("invalid generation directory: {text}"))
+    })
+}
+
 fn validate_transaction_id(value: &str) -> Result<(), GenerationError> {
     let valid = !value.is_empty()
         && value.len() <= 80
@@ -797,11 +998,13 @@ pub enum GenerationError {
         source: io::Error,
     },
     Catalog(CatalogError),
+    Health(CandidateHealthError),
     UnsafePath {
         kind: &'static str,
         path: PathBuf,
     },
     InvalidLayout(String),
+    InvalidRetentionCount(usize),
     InvalidTransactionId(String),
     MarkerMismatch(String),
     RecoveryRequired,
@@ -810,6 +1013,7 @@ pub enum GenerationError {
         candidate: u64,
     },
     GenerationExists(u64),
+    CandidateChangedAfterHealth,
 }
 
 impl fmt::Display for GenerationError {
@@ -825,10 +1029,15 @@ impl fmt::Display for GenerationError {
                 path.display()
             ),
             Self::Catalog(error) => write!(formatter, "{error}"),
+            Self::Health(error) => write!(formatter, "{error}"),
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
             Self::InvalidLayout(error) => write!(formatter, "package store is invalid: {error}"),
+            Self::InvalidRetentionCount(count) => write!(
+                formatter,
+                "package retention count {count} is outside {MIN_RETAINED_GENERATIONS}..={MAX_GENERATION_ENTRIES}"
+            ),
             Self::InvalidTransactionId(value) => {
                 write!(formatter, "package transaction id is invalid: {value}")
             }
@@ -843,6 +1052,9 @@ impl fmt::Display for GenerationError {
             Self::GenerationExists(generation) => {
                 write!(formatter, "package generation {generation} already exists")
             }
+            Self::CandidateChangedAfterHealth => {
+                formatter.write_str("candidate catalog changed after health verification")
+            }
         }
     }
 }
@@ -852,6 +1064,7 @@ impl std::error::Error for GenerationError {
         match self {
             Self::Io { source, .. } => Some(source),
             Self::Catalog(error) => Some(error),
+            Self::Health(error) => Some(error),
             _ => None,
         }
     }
@@ -860,6 +1073,12 @@ impl std::error::Error for GenerationError {
 impl From<CatalogError> for GenerationError {
     fn from(error: CatalogError) -> Self {
         Self::Catalog(error)
+    }
+}
+
+impl From<CandidateHealthError> for GenerationError {
+    fn from(error: CandidateHealthError) -> Self {
+        Self::Health(error)
     }
 }
 
@@ -878,6 +1097,8 @@ mod tests {
         PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
         STAGED_INTENT_FILE, prepare_staged_marker, publish_intent, read_marker,
     };
+    use crate::installed_catalog::PackageHealthCheck;
+    use crate::package_health::CandidateHealthChecker;
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
     const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
@@ -954,7 +1175,8 @@ mod tests {
                 &manifest,
                 format!(
                     "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"{version}\",\
-                     \"runtime\":\"libretro\",\"compatibilityStatus\":\"qualified\"}}"
+                     \"runtime\":\"libretro\",\"compatibilityStatus\":\"qualified\",\
+                     \"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
                 ),
             )
             .expect("manifest writes");
@@ -1048,7 +1270,9 @@ mod tests {
         let store = fixture.store();
 
         assert_eq!(
-            store.promote("install-seven").expect("generation promotes"),
+            store
+                .promote_without_health("install-seven")
+                .expect("generation promotes"),
             PromotionOutcome {
                 previous_generation: None,
                 active_generation: 7,
@@ -1074,7 +1298,9 @@ mod tests {
 
         fixture.stage("update-eight", 8, "1.1.0");
         assert_eq!(
-            store.promote("update-eight").expect("update promotes"),
+            store
+                .promote_without_health("update-eight")
+                .expect("update promotes"),
             PromotionOutcome {
                 previous_generation: Some(7),
                 active_generation: 8,
@@ -1095,7 +1321,7 @@ mod tests {
 
         fixture.stage("repeat-eight", 8, "1.1.1");
         assert!(matches!(
-            store.promote("repeat-eight"),
+            store.promote_without_health("repeat-eight"),
             Err(GenerationError::RollbackRejected {
                 current: 8,
                 candidate: 8
@@ -1112,7 +1338,7 @@ mod tests {
         let store = fixture.store();
 
         assert!(matches!(
-            store.promote("tampered-seven"),
+            store.promote_without_health("tampered-seven"),
             Err(GenerationError::Catalog(_))
         ));
         assert!(!fixture.root.join(INTENT_FILE).exists());
@@ -1123,6 +1349,123 @@ mod tests {
                 .exists()
         );
         assert!(stage.is_dir());
+    }
+
+    #[test]
+    fn health_gate_uses_signed_policy_and_ephemeral_candidate_storage() {
+        let fixture = Fixture::new();
+        fixture.stage("health-seven", 7, "1.0.0");
+        let store = fixture.store();
+        let mut checks = 0;
+
+        let outcome = store
+            .promote_health_checked_with("health-seven", |request| {
+                checks += 1;
+                assert_eq!(request.game_id, "retro-2048");
+                assert_eq!(request.policy.check, PackageHealthCheck::Process);
+                assert!(
+                    request
+                        .plan
+                        .storage()
+                        .saves
+                        .starts_with(fixture.runtime.join("package-health/health-seven"))
+                );
+                assert!(
+                    !request.plan.storage().saves.starts_with(&fixture.data),
+                    "candidate health must not use player save storage"
+                );
+                Ok(())
+            })
+            .expect("successful signed health gate promotes");
+
+        assert_eq!(checks, 1);
+        assert_eq!(outcome.active_generation, 7);
+    }
+
+    #[test]
+    fn health_gate_rejects_a_resigned_catalog_changed_after_checks() {
+        let fixture = Fixture::new();
+        let stage = fixture.stage("health-seven", 7, "1.0.0");
+        let store = fixture.store();
+
+        assert!(matches!(
+            store.promote_health_checked_with("health-seven", |_| {
+                let catalog_path = stage.join("installed-catalog.json");
+                let mut document: serde_json::Value = serde_json::from_slice(
+                    &fs::read(&catalog_path).expect("candidate catalog reads"),
+                )
+                .expect("candidate catalog parses");
+                document["generation"] = json!(8);
+                let catalog =
+                    serde_json::to_vec(&document).expect("changed candidate catalog serializes");
+                fs::write(&catalog_path, &catalog).expect("changed candidate catalog writes");
+                let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+                message.extend_from_slice(&catalog);
+                let signature = fixture.signing_key.sign(&message);
+                fs::write(
+                    stage.join("installed-catalog.sig"),
+                    hex(&signature.to_bytes()),
+                )
+                .expect("changed candidate signature writes");
+                Ok(())
+            }),
+            Err(GenerationError::CandidateChangedAfterHealth)
+        ));
+        assert!(!fixture.root.join(INTENT_FILE).exists());
+        assert!(stage.is_dir());
+    }
+
+    #[test]
+    fn failed_candidate_health_never_publishes_or_touches_saves() {
+        let fixture = Fixture::new();
+        let stage = fixture.stage("health-seven", 7, "1.0.0");
+        let save = fixture
+            .data
+            .join("profiles/player-one/games/retro-2048/save");
+        fs::create_dir_all(save.parent().expect("save has parent"))
+            .expect("save directory creates");
+        fs::write(&save, b"existing progress").expect("save writes");
+        let store = fixture.store();
+
+        assert!(matches!(
+            store.promote_health_checked(
+                "health-seven",
+                &CandidateHealthChecker::new(std::time::Duration::from_millis(5))
+                    .expect("health checker creates")
+            ),
+            Err(GenerationError::Health(_))
+        ));
+        assert!(!fixture.root.join(INTENT_FILE).exists());
+        assert!(
+            !fixture
+                .root
+                .join("activations/00000000000000000007.json")
+                .exists()
+        );
+        assert!(stage.is_dir());
+        assert_eq!(
+            fs::read(save).expect("save remains readable"),
+            b"existing progress"
+        );
+    }
+
+    #[test]
+    fn health_evidence_is_bound_to_the_exact_candidate_catalog() {
+        let fixture = Fixture::new();
+        fixture.stage("health-seven", 7, "1.0.0");
+        let store = fixture.store();
+
+        assert!(matches!(
+            store.activate_verified("health-seven", Some(&"00".repeat(32))),
+            Err(GenerationError::CandidateChangedAfterHealth)
+        ));
+        assert!(!fixture.root.join(INTENT_FILE).exists());
+        assert!(
+            !fixture
+                .root
+                .join("activations/00000000000000000007.json")
+                .exists()
+        );
     }
 
     #[test]
@@ -1262,11 +1605,85 @@ mod tests {
     }
 
     #[test]
+    fn cleanup_plan_retains_two_newest_and_classifies_only_inert_history() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+        fs::create_dir(fixture.root.join("generations/00000000000000000010"))
+            .expect("orphan generation directory creates");
+
+        assert_eq!(
+            store.plan_cleanup(2).expect("cleanup plan classifies"),
+            super::GenerationCleanupPlan {
+                active_generation: Some(9),
+                retained_generations: vec![8, 9],
+                retired_generations: vec![7],
+                orphan_generations: vec![10],
+            }
+        );
+        assert!(
+            fixture
+                .root
+                .join("generations/00000000000000000007")
+                .is_dir(),
+            "planning must not remove retired data"
+        );
+        assert!(
+            fixture
+                .root
+                .join("generations/00000000000000000010")
+                .is_dir(),
+            "planning must not remove orphan data"
+        );
+    }
+
+    #[test]
+    fn cleanup_plan_fails_closed_on_recovery_and_inconsistent_history() {
+        let fixture = Fixture::new();
+        let stage = fixture.stage("install-seven", 7, "1.0.0");
+        let store = fixture.store();
+        fixture.publish_intent(&store, "install-seven");
+        assert!(matches!(
+            store.plan_cleanup(2),
+            Err(GenerationError::RecoveryRequired)
+        ));
+        fs::remove_file(fixture.root.join(INTENT_FILE)).expect("test intent removes");
+        fs::remove_dir_all(stage).expect("test stage removes");
+
+        assert!(matches!(
+            store.plan_cleanup(1),
+            Err(GenerationError::InvalidRetentionCount(1))
+        ));
+
+        fixture.stage("install-eight", 8, "1.1.0");
+        store
+            .promote_without_health("install-eight")
+            .expect("generation promotes");
+        fs::remove_dir_all(fixture.root.join("generations/00000000000000000008"))
+            .expect("test generation removes");
+        assert!(matches!(
+            store.plan_cleanup(2),
+            Err(GenerationError::InvalidLayout(_))
+        ));
+    }
+
+    #[test]
     fn malformed_newest_marker_fails_closed_instead_of_falling_back() {
         let fixture = Fixture::new();
         fixture.stage("install-seven", 7, "1.0.0");
         let store = fixture.store();
-        store.promote("install-seven").expect("generation promotes");
+        store
+            .promote_without_health("install-seven")
+            .expect("generation promotes");
         fs::write(
             fixture.root.join("activations/00000000000000000008.json"),
             b"not a valid marker",

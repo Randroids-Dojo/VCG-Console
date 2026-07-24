@@ -587,6 +587,47 @@ This is a package-state primitive, not an update service. It does not download o
 
 The launcher takes one verified startup snapshot; it does not hot-reload package state. Package download/intake, health-gated promotion, protected per-channel anti-rollback state, update progress UI, uninstall/garbage collection, key lifecycle, read-only mounts, service-manager policy, and target-Linux power-loss evidence remain open.
 
+## 2026-07-23: read-only package retention planning
+
+### Delivered
+
+- Added a path-free cleanup plan that retains at least the two newest activated generations and classifies older activated snapshots separately from unreferenced generation directories.
+- Planning refuses durable promotion intent, malformed markers, unsafe or unexpected generation entries, and activated markers whose generation directory is missing.
+- The active generation is re-verified before a plan is returned. Staging, markers, package files, managed content, and saves remain untouched.
+- Q-113 and Q-114 preserve the owner choices for the exact count/byte budget and cleanup while a child may still reference an older generation.
+
+### Verification evidence
+
+- New Rust tests cover deterministic retained/retired/orphan classification, minimum-retention rejection, pending-recovery refusal, inconsistent-history refusal, and proof that planning removes nothing.
+- The Rust workspace passes 67 active library tests with four subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+
+### Remaining boundary
+
+This is classification, not garbage collection. Marker or directory deletion stays disabled until native process coordination proves no active or restartable child references a candidate, the owner selects retention policy, low-space behavior is qualified, and interruption tests cover each deletion boundary.
+
+## 2026-07-23: signed candidate health gate
+
+### Delivered
+
+- The Rust installed-catalog authority now re-hashes each bound manifest before extracting its 1-120 second launch timeout and local `process` or `explicit-ready` health kind.
+- The only public generation-promotion entry point runs every package through that exact signed policy. Artifact-only activation remains private to generation-state tests.
+- Candidate plans resolve through the signed catalog and RetroArch adapter, then replace runtime and data roots with transaction/game-specific ephemeral paths. No player profile or persistent save root is used.
+- Process health requires the direct child to survive the entire signed window. Explicit-ready supplies one host-derived `VCG_READY_FILE` and accepts only a bounded non-empty UTF-8 regular file before timeout.
+- Success, invalid token, timeout, and other failure paths terminate and reap the candidate child. Failure occurs before durable intent and leaves the old generation authoritative.
+- Promotion re-loads the candidate and requires the exact catalog digest observed by health before publishing intent.
+- D-138 records the mechanism and its non-readiness meaning. Q-115 and Q-116 preserve the process-window and exact producer-qualification choices.
+
+### Verification evidence
+
+- Signed-catalog tests cover process and explicit-ready extraction, exact timeout, HTTP/unknown rejection for installed Libretro, missing/out-of-range policy failure, and health-policy tamper binding.
+- Health-runner subprocess tests cover process survival, early exit, explicit-ready success, invalid token rejection, timeout behavior, bounded polling, and child reaping.
+- Generation tests prove failed health publishes no intent/activation, preserves existing save bytes, and cannot reuse health evidence after catalog-digest change.
+- The Rust workspace passes 76 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+
+### Remaining boundary
+
+This is pre-promotion candidate health, not live or post-activation qualification. Process survival is weak compatibility evidence. Explicit-ready remains self-asserted until the exact signed wrapper/observer is qualified, and neither mechanism proves a visible/focused compositor window. Hosted/local-web HTTP health, update-service wiring, post-activation rollback, runtime-root cleanup, hostile descendant containment, and target measurements remain open.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

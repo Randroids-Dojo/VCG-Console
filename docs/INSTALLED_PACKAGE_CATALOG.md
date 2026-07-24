@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) now supplies signed staging, monotonic activation, interruption recovery, and the preferred launcher startup source; downloader, health, uninstall, and target qualification remain separate.
+This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) supplies signed staging, candidate health gating, monotonic activation, interruption recovery, and the preferred launcher startup source; downloader, uninstall, and target qualification remain separate.
 
 The implemented slice can:
 
@@ -129,6 +129,8 @@ Rules:
 6. lets the RetroArch adapter canonicalize and verify frontend, core, base configuration, and managed content immediately before it creates runtime state.
 
 The base-configuration digest is now required by the direct `vcg-host retroarch` CLI as well as by catalog resolution.
+
+The native authority also re-hashes the bound manifest before interpreting its 1,000–120,000 ms launch timeout and local `process` or `explicit-ready` health kind. It rejects HTTP/unknown health for the currently implemented installed Libretro lane. These signed fields drive candidate promotion health; they remain distinct from watchdog heartbeat and compositor/window readiness.
 
 Path canonicalization and repeated hashes narrow substitution risk, but target qualification still requires immutable package/content mounts or file-descriptor-bound execution and handoff. A compromised account able to rewrite artifacts between verification and process use can otherwise race path-based verification.
 

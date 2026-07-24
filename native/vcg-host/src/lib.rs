@@ -6,5 +6,6 @@ pub mod installed_catalog;
 pub mod launcher;
 pub mod native_launch;
 pub mod package_generation;
+pub mod package_health;
 pub mod process;
 pub mod retroarch;
