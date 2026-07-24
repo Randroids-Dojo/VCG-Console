@@ -65,6 +65,13 @@ that game for every player profile. Other games remain process-only when they
 do not have a qualified heartbeat producer. A heartbeat still does not prove a
 visible or usable window.
 
+`--package-store-root <absolute-path>` may replace the loose `--catalog`,
+`--catalog-signature`, and `--install-root` inputs. Normal startup completes a
+valid interrupted promotion and re-verifies the active generation before the
+API or browser starts. `--dry-run` never mutates package state and fails if
+recovery is pending. The store and loose source modes cannot be combined. See
+the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
+
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
 `watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.

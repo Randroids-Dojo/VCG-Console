@@ -160,6 +160,32 @@ impl PackageGenerationStore {
             .transpose()
     }
 
+    /// Reports whether a valid durable promotion intent requires recovery.
+    ///
+    /// This read-only check exists so dry-run service validation never mutates
+    /// package state. A malformed or non-regular intent fails closed.
+    ///
+    /// # Errors
+    ///
+    /// Rejects malformed, oversized, symlinked, or otherwise unsafe intent
+    /// state.
+    pub fn recovery_required(&self) -> Result<bool, GenerationError> {
+        let intent_path = self.root.join(INTENT_FILE);
+        match fs::symlink_metadata(&intent_path) {
+            Ok(_) => {
+                let marker = read_marker(&intent_path)?;
+                validate_marker(&marker, marker.generation)?;
+                Ok(true)
+            }
+            Err(source) if source.kind() == io::ErrorKind::NotFound => Ok(false),
+            Err(source) => Err(GenerationError::Io {
+                operation: "inspect package promotion intent",
+                path: intent_path,
+                source,
+            }),
+        }
+    }
+
     /// Promotes one fully populated `staging/<transaction-id>` snapshot.
     ///
     /// The candidate catalog signature and every referenced artifact are
@@ -1105,7 +1131,17 @@ mod tests {
             let fixture = Fixture::new();
             let stage = fixture.stage("recover-seven", 7, "1.0.0");
             let store = fixture.store();
+            assert!(
+                !store
+                    .recovery_required()
+                    .expect("clean store inspection succeeds")
+            );
             let marker = fixture.publish_intent(&store, "recover-seven");
+            assert!(
+                store
+                    .recovery_required()
+                    .expect("durable intent is detected")
+            );
             if move_before_recovery {
                 fs::rename(
                     &stage,
@@ -1129,6 +1165,11 @@ mod tests {
             assert_eq!(
                 store.recover().expect("second recovery is clean"),
                 RecoveryOutcome::Clean
+            );
+            assert!(
+                !store
+                    .recovery_required()
+                    .expect("completed store inspection succeeds")
             );
         }
     }

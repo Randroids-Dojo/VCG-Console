@@ -565,7 +565,27 @@ This is a reusable threat model, not a vulnerability scan or proof that every mi
 
 ### Remaining boundary
 
-This is a library primitive, not an update service. It does not download or extract packages, reserve disk headroom, synchronize producer-written candidate files, launch provisional releases for health checks, connect the launcher to the active-generation resolver, automate bad-release rollback, rotate/revoke keys, garbage-collect old snapshots, uninstall packages, or implement the developer namespace. Unix builds synchronize marker and rename-parent directories; Windows proves only logical recovery. Real filesystem, low-space, sudden-power, immutable-mount, hostile-concurrency, and target-Linux qualification remain open.
+This is a package-state primitive, not an update service. It does not download or extract packages, reserve disk headroom, synchronize producer-written candidate files, launch provisional releases for health checks, automate bad-release rollback, rotate/revoke keys, garbage-collect old snapshots, uninstall packages, or implement the developer namespace. Unix builds synchronize marker and rename-parent directories; Windows proves only logical recovery. Real filesystem, low-space, sudden-power, immutable-mount, hostile-concurrency, and target-Linux qualification remain open.
+
+## 2026-07-23: active-generation launcher bootstrap
+
+### Delivered
+
+- Added `--package-store-root` as a mutually exclusive alternative to loose catalog/signature/install-root launcher configuration.
+- Normal startup first validates the browser request, then opens the host-owned store, completes any valid durable promotion intent, re-verifies the greatest active signed generation and every artifact, and creates the launcher API and browser process.
+- Empty stores, invalid recovery state, changed artifacts, or invalid active markers prevent startup rather than falling back or launching loose paths.
+- Dry-run remains read-only: it validates pending-intent state, refuses to recover it, and otherwise reports only catalog source, generation, target, and configured allowlist counts.
+- Store-backed and loose-catalog modes preserve the same host-owned profile and watchdog-game allowlists; neither changes the browser's fixed-intent authority.
+
+### Verification evidence
+
+- Strict launcher parsing tests accept a complete store configuration and reject partial or mixed store/loose sources.
+- Generation-store tests detect valid pending recovery before and after the generation move and confirm clean state after completion.
+- The Rust workspace passes 65 active library tests plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+
+### Remaining boundary
+
+The launcher takes one verified startup snapshot; it does not hot-reload package state. Package download/intake, health-gated promotion, protected per-channel anti-rollback state, update progress UI, uninstall/garbage collection, key lifecycle, read-only mounts, service-manager policy, and target-Linux power-loss evidence remain open.
 
 ## 2026-07-23: game trust tiers and admission lifecycle
 

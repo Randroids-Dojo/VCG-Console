@@ -9,6 +9,9 @@ use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
 use vcg_host::installed_catalog::{CatalogRoots, TrustedPackageCatalog};
 use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
 use vcg_host::native_launch::NativeLaunchService;
+use vcg_host::package_generation::{
+    PackageGenerationConfig, PackageGenerationStore, RecoveryOutcome,
+};
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 
@@ -38,6 +41,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("retroarch-adapter: plan-and-direct-launch");
             println!("retroarch-integrity: sha256-required");
             println!("installed-catalog: ed25519-signed-target-qualified");
+            println!("package-generations: crash-recoverable-active-store");
             println!("native-launch: fixed-intent-process-lifecycle");
             println!("native-launch-watchdog: host-game-opt-in");
             println!("native-launch-replay: in-memory-bounded");
@@ -68,6 +72,7 @@ struct LauncherOptions {
     catalog: Option<PathBuf>,
     catalog_signature: Option<PathBuf>,
     catalog_public_key: Option<PathBuf>,
+    package_store_root: Option<PathBuf>,
     install_root: Option<PathBuf>,
     content_root: Option<PathBuf>,
     runtime_root: Option<PathBuf>,
@@ -77,59 +82,88 @@ struct LauncherOptions {
 }
 
 struct LauncherCatalogOptions {
-    catalog: PathBuf,
-    signature: PathBuf,
-    public_key: PathBuf,
-    roots: CatalogRoots,
+    source: LauncherCatalogSourceOptions,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
 }
 
+enum LauncherCatalogSourceOptions {
+    Loose {
+        catalog: PathBuf,
+        signature: PathBuf,
+        public_key: PathBuf,
+        roots: CatalogRoots,
+    },
+    GenerationStore(PackageGenerationConfig),
+}
+
+struct LauncherCatalogConfiguration {
+    catalog: TrustedPackageCatalog,
+    profile_ids: Vec<String>,
+    watchdog_game_ids: Vec<String>,
+    source: &'static str,
+    recovery: Option<RecoveryOutcome>,
+}
+
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     let (dry_run, request, catalog_options) = launcher_request(arguments)?;
+    // Validate the browser request before a real launcher startup is allowed
+    // to recover or otherwise mutate package-store state.
+    let initial_spec = plan_launcher(&request).map_err(|error| error.to_string())?;
+    let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
     let catalog_configuration = catalog_options
-        .map(LauncherCatalogOptions::load)
+        .map(|options| options.load(!dry_run))
         .transpose()?;
     if dry_run {
-        let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
         println!("launcher:plan mode=dry-run");
-        if let Some((catalog, profile_ids, watchdog_game_ids)) = &catalog_configuration {
+        if let Some(configuration) = &catalog_configuration {
             println!(
-                "launcher:catalog generation={} target={}",
-                catalog.generation(),
-                catalog.target()
+                "launcher:catalog source={} generation={} target={}",
+                configuration.source,
+                configuration.catalog.generation(),
+                configuration.catalog.target()
             );
-            println!("launcher:profiles count={}", profile_ids.len());
-            println!("launcher:watchdog-games count={}", watchdog_game_ids.len());
-            if !profile_ids.is_empty() {
+            println!(
+                "launcher:profiles count={}",
+                configuration.profile_ids.len()
+            );
+            println!(
+                "launcher:watchdog-games count={}",
+                configuration.watchdog_game_ids.len()
+            );
+            if !configuration.profile_ids.is_empty() {
                 NativeLaunchService::with_watchdog_games(
-                    std::sync::Arc::new(catalog.clone()),
-                    profile_ids.clone(),
-                    watchdog_game_ids.clone(),
+                    std::sync::Arc::new(configuration.catalog.clone()),
+                    configuration.profile_ids.clone(),
+                    configuration.watchdog_game_ids.clone(),
                     WatchdogPolicy::local_game_defaults(),
                 )
                 .map_err(|error| error.to_string())?;
             }
         }
-        println!("program: {}", spec.program().display());
-        for argument in spec.arguments() {
+        println!("program: {}", initial_spec.program().display());
+        for argument in initial_spec.arguments() {
             println!("argument: {}", argument.to_string_lossy());
         }
         return Ok(ExitCode::SUCCESS);
     }
 
-    let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
-    let host_api = if let Some((catalog, profile_ids, watchdog_game_ids)) = catalog_configuration {
-        if profile_ids.is_empty() {
-            HostStatusServer::start_with_catalog(origin, catalog)
-        } else if watchdog_game_ids.is_empty() {
-            HostStatusServer::start_with_launch_service(origin, catalog, profile_ids)
+    let host_api = if let Some(configuration) = catalog_configuration {
+        report_package_recovery(configuration.recovery);
+        if configuration.profile_ids.is_empty() {
+            HostStatusServer::start_with_catalog(origin, configuration.catalog)
+        } else if configuration.watchdog_game_ids.is_empty() {
+            HostStatusServer::start_with_launch_service(
+                origin,
+                configuration.catalog,
+                configuration.profile_ids,
+            )
         } else {
             HostStatusServer::start_with_watchdog_launch_service(
                 origin,
-                catalog,
-                profile_ids,
-                watchdog_game_ids,
+                configuration.catalog,
+                configuration.profile_ids,
+                configuration.watchdog_game_ids,
                 WatchdogPolicy::local_game_defaults(),
             )
         }
@@ -171,16 +205,64 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     })
 }
 
+fn report_package_recovery(recovery: Option<RecoveryOutcome>) {
+    if let Some(recovery) = recovery {
+        match recovery {
+            RecoveryOutcome::Clean => println!("launcher:package-recovery state=clean"),
+            RecoveryOutcome::Activated { generation } => {
+                println!("launcher:package-recovery state=activated generation={generation}");
+            }
+        }
+    }
+}
+
 impl LauncherCatalogOptions {
-    fn load(self) -> Result<(TrustedPackageCatalog, Vec<String>, Vec<String>), String> {
-        let catalog = TrustedPackageCatalog::load(
-            &self.catalog,
-            &self.signature,
-            &self.public_key,
-            self.roots,
-        )
-        .map_err(|error| error.to_string())?;
-        Ok((catalog, self.profile_ids, self.watchdog_game_ids))
+    fn load(self, recover: bool) -> Result<LauncherCatalogConfiguration, String> {
+        let (catalog, source, recovery) = match self.source {
+            LauncherCatalogSourceOptions::Loose {
+                catalog,
+                signature,
+                public_key,
+                roots,
+            } => (
+                TrustedPackageCatalog::load(&catalog, &signature, &public_key, roots)
+                    .map_err(|error| error.to_string())?,
+                "loose-catalog",
+                None,
+            ),
+            LauncherCatalogSourceOptions::GenerationStore(config) => {
+                let store =
+                    PackageGenerationStore::open(config).map_err(|error| error.to_string())?;
+                let recovery = if recover {
+                    Some(store.recover().map_err(|error| error.to_string())?)
+                } else {
+                    if store
+                        .recovery_required()
+                        .map_err(|error| error.to_string())?
+                    {
+                        return Err(
+                            "package generation recovery is required; dry-run does not mutate state"
+                                .to_owned(),
+                        );
+                    }
+                    None
+                };
+                let active = store
+                    .load_active()
+                    .map_err(|error| error.to_string())?
+                    .ok_or_else(|| {
+                        "package generation store has no active generation".to_owned()
+                    })?;
+                (active.catalog, "generation-store", recovery)
+            }
+        };
+        Ok(LauncherCatalogConfiguration {
+            catalog,
+            profile_ids: self.profile_ids,
+            watchdog_game_ids: self.watchdog_game_ids,
+            source,
+            recovery,
+        })
     }
 }
 
@@ -211,10 +293,19 @@ fn launcher_request(
     if options.windowed {
         request = request.windowed();
     }
-    let catalog_requested = options.catalog.is_some()
+    let loose_requested = options.catalog.is_some()
         || options.catalog_signature.is_some()
+        || options.install_root.is_some();
+    let store_requested = options.package_store_root.is_some();
+    if loose_requested && store_requested {
+        return Err(
+            "launcher accepts either --package-store-root or loose catalog paths, not both"
+                .to_owned(),
+        );
+    }
+    let catalog_requested = loose_requested
+        || store_requested
         || options.catalog_public_key.is_some()
-        || options.install_root.is_some()
         || options.content_root.is_some()
         || options.runtime_root.is_some()
         || options.data_root.is_some()
@@ -224,28 +315,44 @@ fn launcher_request(
         return Err("--watchdog-game-id requires at least one --profile-id".to_owned());
     }
     let catalog = if catalog_requested {
-        Some(LauncherCatalogOptions {
-            catalog: options
-                .catalog
-                .ok_or_else(|| "launcher catalog requires --catalog".to_owned())?,
-            signature: options
-                .catalog_signature
-                .ok_or_else(|| "launcher catalog requires --catalog-signature".to_owned())?,
-            public_key: options
-                .catalog_public_key
-                .ok_or_else(|| "launcher catalog requires --catalog-public-key".to_owned())?,
-            roots: CatalogRoots {
-                install_root: options
-                    .install_root
-                    .ok_or_else(|| "launcher catalog requires --install-root".to_owned())?,
+        let public_key = options
+            .catalog_public_key
+            .ok_or_else(|| "launcher catalog requires --catalog-public-key".to_owned())?;
+        let runtime_root = options
+            .runtime_root
+            .ok_or_else(|| "launcher catalog requires --runtime-root".to_owned())?;
+        let data_root = options
+            .data_root
+            .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?;
+        let source = if let Some(store_root) = options.package_store_root {
+            LauncherCatalogSourceOptions::GenerationStore(PackageGenerationConfig {
+                store_root,
+                public_key_path: public_key,
                 content_root: options.content_root,
-                runtime_root: options
-                    .runtime_root
-                    .ok_or_else(|| "launcher catalog requires --runtime-root".to_owned())?,
-                data_root: options
-                    .data_root
-                    .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?,
-            },
+                runtime_root,
+                data_root,
+            })
+        } else {
+            LauncherCatalogSourceOptions::Loose {
+                catalog: options
+                    .catalog
+                    .ok_or_else(|| "launcher catalog requires --catalog".to_owned())?,
+                signature: options
+                    .catalog_signature
+                    .ok_or_else(|| "launcher catalog requires --catalog-signature".to_owned())?,
+                public_key,
+                roots: CatalogRoots {
+                    install_root: options
+                        .install_root
+                        .ok_or_else(|| "launcher catalog requires --install-root".to_owned())?,
+                    content_root: options.content_root,
+                    runtime_root,
+                    data_root,
+                },
+            }
+        };
+        Some(LauncherCatalogOptions {
+            source,
             profile_ids: options.profile_ids,
             watchdog_game_ids: options.watchdog_game_ids,
         })
@@ -323,6 +430,7 @@ fn parse_launcher_catalog_option(
         "--catalog" => &mut output.catalog,
         "--catalog-signature" => &mut output.catalog_signature,
         "--catalog-public-key" => &mut output.catalog_public_key,
+        "--package-store-root" => &mut output.package_store_root,
         "--install-root" => &mut output.install_root,
         "--content-root" => &mut output.content_root,
         "--runtime-root" => &mut output.runtime_root,
@@ -781,15 +889,15 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]... [--watchdog-game-id <id>]...]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --catalog-public-key <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]... [--watchdog-game-id <id>]...\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        launcher_request, plan_launcher, retroarch_request, supervise, supervise_plan,
-        watchdog_plan,
+        LauncherCatalogSourceOptions, launcher_request, plan_launcher, retroarch_request,
+        supervise, supervise_plan, watchdog_plan,
     };
     use std::ffi::OsString;
 
@@ -932,6 +1040,66 @@ mod tests {
             "retro-2048",
         ]);
         assert!(launcher_request(&args(&duplicate_watchdog_game)).is_err());
+    }
+
+    #[test]
+    fn launcher_generation_store_is_explicit_and_mutually_exclusive() {
+        let base = [
+            "--browser",
+            "/browser",
+            "--profile-dir",
+            "/profile",
+            "--url",
+            "http://127.0.0.1:5173/",
+        ];
+        let mut complete = base.to_vec();
+        complete.extend([
+            "--package-store-root",
+            "/package-store",
+            "--catalog-public-key",
+            "/metadata/catalog.pub",
+            "--content-root",
+            "/content",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+            "--profile-id",
+            "profile-randy",
+        ]);
+        let (_, _, catalog) =
+            launcher_request(&args(&complete)).expect("generation store configuration parses");
+        let catalog = catalog.expect("catalog options exist");
+        let LauncherCatalogSourceOptions::GenerationStore(config) = catalog.source else {
+            panic!("generation store source expected");
+        };
+        assert_eq!(config.store_root, std::path::Path::new("/package-store"));
+        assert_eq!(
+            config.content_root.as_deref(),
+            Some(std::path::Path::new("/content"))
+        );
+
+        let mut mixed = complete;
+        mixed.extend([
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--install-root",
+            "/installed",
+        ]);
+        assert!(launcher_request(&args(&mixed)).is_err());
+
+        let mut missing_key = base.to_vec();
+        missing_key.extend([
+            "--package-store-root",
+            "/package-store",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+        ]);
+        assert!(launcher_request(&args(&missing_key)).is_err());
     }
 
     #[test]

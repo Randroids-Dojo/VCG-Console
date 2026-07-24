@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) now supplies a library-level signed staging, monotonic activation, and interruption-recovery primitive; downloader, health, uninstall, service integration, and target qualification remain separate.
+This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) now supplies signed staging, monotonic activation, interruption recovery, and the preferred launcher startup source; downloader, health, uninstall, and target qualification remain separate.
 
 The implemented slice can:
 
@@ -31,6 +31,8 @@ The launcher CLI cannot yet download, install, update, revoke, roll back, or uni
 [--profile-id <host-owned-profile-id>]...
 [--watchdog-game-id <installed-game-id>]...
 ```
+
+As an alternative to `--catalog`, `--catalog-signature`, and `--install-root`, the launcher accepts `--package-store-root <absolute-root>` with the same public-key, runtime, data, optional content, profile, and watchdog options. The two source modes cannot be mixed. Normal store-backed startup completes valid interrupted promotion before loading the active signed catalog; dry-run never performs recovery and fails if recovery is pending. See [the generation-store contract](PACKAGE_GENERATION_STORE.md).
 
 The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
 
@@ -156,7 +158,6 @@ Native tests cover valid signed resolution, signature-before-parse failure, wron
 Still required:
 
 - verified read-only public-key provisioning, rotation, and revocation;
-- launcher/service integration with the implemented generation store;
 - per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
 - immutable or descriptor-bound artifact use;
 - persistent replay/idempotency policy across host restart;

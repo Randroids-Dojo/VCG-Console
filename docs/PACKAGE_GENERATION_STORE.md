@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the implemented host-owned staging, verification, monotonic activation, and interruption-recovery boundary for production game packages. It composes with the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not an update downloader, health-check service, uninstall UI, or target-hardware qualification result.
+This document defines the implemented host-owned staging, verification, monotonic activation, interruption recovery, and launcher-startup boundary for production game packages. It composes with the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not an update downloader, health-check service, uninstall UI, or target-hardware qualification result.
 
 ## Store layout
 
@@ -49,6 +49,24 @@ An equal or lower signed generation is rejected while the activation history rem
 
 This is crash-monotonic selection, not tamper-resistant anti-rollback. The current history lives in the writable store; protected per-channel state, deletion resistance, and authenticated recovery remain open under I-141.
 
+## Launcher startup integration
+
+The native launcher accepts the generation store as an alternative to loose catalog, signature, and install-root paths:
+
+```text
+--package-store-root <absolute-store-root>
+--catalog-public-key <absolute-public-key-path>
+--runtime-root <absolute-runtime-root>
+--data-root <absolute-data-root>
+[--content-root <absolute-managed-content-root>]
+```
+
+Loose catalog options and `--package-store-root` are mutually exclusive. Profile and watchdog-game allowlists retain the same host-owned semantics in either mode.
+
+Normal launcher startup opens the store, recovers a valid durable intent, loads and re-verifies the greatest active generation, then creates the authenticated API and browser process. An empty store or invalid recovery/activation state prevents launcher startup. A recovery result is written only to the host log as `clean` or `activated` plus generation; it is not browser authority.
+
+`--dry-run` remains read-only. It validates whether a durable intent exists and fails with recovery-required state rather than moving a generation or committing an activation. With no pending recovery it re-verifies the active generation and prints only source, generation, target, and configured allowlist counts.
+
 ## Interruption recovery
 
 The durable intent is published before the staged directory moves. Recovery has three stable cases:
@@ -87,7 +105,6 @@ Rust tests cover:
 Still required:
 
 - update download/intake, archive safety, capacity reservation, and low-space cleanup;
-- a service/CLI integration that opens the active generation for the launcher;
 - per-game health checks and promotion only after usable readiness;
 - automatic bad-release rollback expressed as a new signed generation;
 - bounded retention, uninstall, and garbage collection;
