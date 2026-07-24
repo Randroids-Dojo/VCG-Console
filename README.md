@@ -64,6 +64,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
 - [Release compliance and CycloneDX SBOM](docs/RELEASE_COMPLIANCE.md)
 - [Console-managed game save lifecycle](docs/GAME_SAVE_LIFECYCLE.md)
+- [Atomic A/B system-update state](docs/SYSTEM_AB_UPDATE_STATE.md)
 - [Motion service and bridge security review](docs/MOTION_SECURITY_REVIEW.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Motion local-transport benchmark](docs/MOTION_TRANSPORT_BENCHMARK.md)
@@ -93,6 +94,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Deferred owner questions from the native-launch tranche](docs/OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md)
 - [Deferred owner question from the launcher-catalog tranche](docs/OWNER_QUESTIONS_LAUNCHER_CATALOG_2026-07-24.md)
 - [Deferred owner questions from the package-watchdog tranche](docs/OWNER_QUESTIONS_WATCHDOG_2026-07-23.md)
+- [Deferred owner questions from the system-update tranche](docs/OWNER_QUESTIONS_SYSTEM_UPDATE_2026-07-24.md)
 - [Source ledger](docs/SOURCES.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 

@@ -1358,3 +1358,23 @@ Ten focused native tests cover all four runtimes, managed-root and identifier tr
 ### Remaining boundary
 
 I-100 closes as a design artifact, not a storage implementation claim. No directory, mount, quota, save, move, migration, unlink, claim, reset, or delete is performed. Signed release policy, browser/native/Libretro sandbox enforcement, atomic/power-loss-safe mutation, low/full-space behavior, hostile formats, metadata sanitation, Unassigned Progress UX, permanent-loss evidence, and proof on both reference platforms remain under I-022, I-162, I-188 through I-191, and I-209.
+
+## 2026-07-24: crash-recoverable A/B system-update state
+
+### Delivered
+
+- Added a pre-provisioned, host-owned system-update journal over exactly two read-only slot identities with immutable, consecutive, SHA-256-linked complete records.
+- Kept verified staging separate from boot selection; required the inactive slot, exact active target, canonical image/manifest hashes, and a strictly advancing generation.
+- Added explicit arming with a bounded 1 through 10 attempt budget and a durable claim that consumes an attempt before a privileged boot coordinator transfers control.
+- Required launcher, tracker, camera, controller, network, and storage health to pass in the same claimed attempt before the candidate becomes active.
+- Rejected stale attempt reports, rolled back immediately on an unhealthy gate or watchdog deadline, retried an interrupted boot only while attempts remain, and rolled back automatically at exhaustion.
+- Published records through a synchronized create-new temp file and no-replace hard link; recovery either discards an unpublished temp or removes a byte-identical duplicate temp after publication.
+- Added `SYSTEM_AB_UPDATE_STATE.md`, D-151, an active I-110 evidence row, threat-model coverage, and deferred owner questions for trust roles, attempt/deadline policy, boot control, and migrations.
+
+### Verification evidence
+
+Twenty-one focused Rust tests cover initialization/reload, inactive staging, slot/target/generation denial, arming and globally monotonic claims, interruption retry/exhaustion, six-gate confirmation, missing-gate denial, failed health and timeout rollback, stale cross-update attempts, per-attempt health isolation, duplicate-health idempotency, failed-generation replay, alternating slots, bounds/conflicts, history tamper, rehashed impossible transitions, malformed/gapped/unknown records, both temporary-publication phases, and malformed evidence/temp state. Full native verification passes 174 library tests with five intentional helpers ignored and all fourteen CLI tests; formatting and strict Clippy are clean. The unchanged shared stack also passes 215 unit tests, typecheck, production build, schema/manifest/Motion/transport/Godot validation, the 133-component compliance freshness check, and a high-severity dependency audit with no known vulnerabilities. The first audit request received npm HTTP 503 after built-in retries; an immediate bounded retry succeeded.
+
+### Remaining boundary
+
+This is metadata policy and crash-recovery logic, not a working Raspberry Pi updater. It does not download or sign-verify an image, reserve capacity, write/read back a partition, drive firmware or a bootloader, establish a protected monotonic anchor, authenticate health producers, perform migrations, compact the bounded journal, or touch writable content. Target-Linux filesystem semantics, exact firmware selection, partition isolation, timed boots, update/write-volume measurements, hostile writers, and sudden-power injection across hundreds of qualified microSD cycles remain open under I-022, I-110 through I-114, I-141, I-202, and I-209.

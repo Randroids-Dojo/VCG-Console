@@ -13,3 +13,4 @@ pub mod package_transfer;
 pub mod process;
 pub mod retroarch;
 pub mod save_lifecycle;
+pub mod system_update;

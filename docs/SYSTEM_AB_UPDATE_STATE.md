@@ -1,0 +1,134 @@
+# Atomic A/B System Update State
+
+Status: implemented metadata primitive; Raspberry Pi image writer, bootloader, and target qualification remain open.
+
+## Scope
+
+`native/vcg-host/src/system_update.rs` implements the crash-recoverable host state needed to coordinate two read-only system slots. It does not download an image, verify a release signature, write a partition, alter a bootloader, run migrations, or touch game packages, saves, profiles, logs, imports, or other writable content.
+
+The privileged image service must:
+
+1. download a target-specific signed manifest and image;
+2. verify the signature before trusting either;
+3. write only the inactive system slot;
+4. read back and hash the complete written image;
+5. construct `SystemImage` from the exact release ID, target, generation, manifest SHA-256, image SHA-256, and inactive slot;
+6. stage and arm the verified evidence;
+7. let the boot coordinator durably claim the attempt before transferring control.
+
+Treating caller-supplied strings as proof of verification is forbidden. The Rust constructor validates evidence shape, not signatures or partition bytes.
+
+## State flow
+
+```text
+healthy A
+   |
+   | verified bytes written to inactive B
+   v
+staged B  -- ordinary boot still selects A
+   |
+   | arm with 1..=10 attempts
+   v
+armed B   -- eligible only through a durable claim
+   |
+   | durable claim consumes one attempt
+   v
+booting B
+   | \
+   |  \ restart before confirmation
+   |   +--> retry B while attempts remain
+   |   +--> rollback to A when exhausted
+   |
+   +--> any failed gate / health deadline --> rollback to A
+   |
+   +--> launcher + tracker + camera + controller
+        + network + storage all pass in one attempt
+        |
+        v
+      healthy B
+```
+
+A staged image never changes boot selection. An armed candidate becomes bootable only after its attempt claim is durably appended. A `booting` record found after restart requires explicit recovery; it cannot silently select another candidate boot.
+
+## Journal layout
+
+The pre-provisioned host-owned metadata root contains:
+
+```text
+<system-update-root>/
+  .vcg-system-update.lock
+  records/
+    00000000000000000001.json
+    00000000000000000002.json
+    ...
+```
+
+Each immutable record contains the complete bounded snapshot, a strictly consecutive sequence, and the SHA-256 of the exact previous record bytes. Publishing uses a synchronized create-new temporary file and a no-replace hard link. The Linux target synchronizes the records directory before and after removing the temporary name. Non-Unix builds validate logical recovery but do not claim portable directory durability.
+
+Recovery has two unambiguous temporary-file outcomes:
+
+- no published final link: discard the unpublished record and keep the prior state;
+- byte-identical final link exists: retain the committed record and remove only the duplicate temporary name.
+
+A conflicting link, malformed record, unknown entry, noncanonical name, gap, changed hash link, unsafe path, oversized record, or invalid state fails closed.
+
+## Safety invariants
+
+- Exactly one active system image exists after initialization.
+- A candidate must use the other slot, match the exact active target, and strictly advance the highest generation ever observed in retained journal history.
+- Failed generation numbers cannot be replayed. A deliberate content rollback must be published as a newly signed higher generation.
+- Only one update can be pending.
+- Attempt budgets are bounded to 1 through 10.
+- Boot attempt IDs strictly increase across every retained update, not merely within one candidate. A delayed health or timeout report from an older release cannot collide with a later update's first attempt.
+- Health confirmation requires all six D-050 gates in the same claimed attempt.
+- Gate producers must report subsystem health, not household peripheral presence or internet reachability. In particular, the network gate must be able to pass while intentionally offline under D-034; the camera and controller gates must distinguish a healthy service that truthfully represents an allowed absent/disconnected device from a broken service. The production policy for required-at-boot hardware is not selected here.
+- Any reported unhealthy gate or watchdog deadline expiry immediately returns selection to the prior healthy slot.
+- An interrupted boot consumes an attempt before it can retry.
+- System-update records contain release metadata and hashes, never image bytes, signing keys, user data, profile data, save paths, package paths, or arbitrary filesystem targets.
+- All cooperating mutations use one nonblocking host lock.
+
+## Automated evidence
+
+The focused Rust suite covers:
+
+- initialization and reload of the hash-linked journal;
+- inactive-slot staging without boot-selection change;
+- active-slot, target-drift, and generation-rollback rejection;
+- bounded arm and durable attempt claim;
+- retry after interruption and automatic rollback at exhaustion;
+- confirmation only after all six selected health gates;
+- refusal to confirm when one gate is missing;
+- immediate rollback on camera/network failures and health timeout;
+- stale-attempt rejection;
+- cross-update attempt-ID collision rejection and per-attempt health isolation;
+- failed-generation replay rejection while history remains;
+- rehashed but semantically impossible transition rejection;
+- idempotent duplicate health without journal growth;
+- malformed, gapped, and unexpected journal state failing closed;
+- unpublished and already-published temporary-record recovery;
+- malformed image evidence rejection.
+
+Run:
+
+```powershell
+$env:PATH = "C:\Users\randr\.cargo\bin;" + $env:PATH
+cargo test -p vcg-host system_update --lib
+cargo clippy -p vcg-host --all-targets -- -D warnings
+```
+
+## Explicitly unproven
+
+This primitive advances I-110 but does not close it. The following still require target implementation or evidence:
+
+- signed image manifest, offline-root/online-key hierarchy, rotation, revocation, and protected anti-rollback anchor;
+- resumable download, capacity reservation, inactive-partition writer, complete read-back verification, and update/write-volume measurement;
+- exact Raspberry Pi bootloader adapter and atomic selection semantics;
+- watchdog timing, service identity, and trustworthy health producers;
+- system/data migration compatibility and rollback behavior;
+- target-Linux directory/filesystem durability and hostile same-account writer containment;
+- journal checkpoint/retention after the bounded 16,384-record limit;
+- sudden-power injection at every write, selection, boot, health, confirmation, migration, and rollback phase;
+- preservation of game packages, saves, profiles, logs, and imports on the final partition layout;
+- boot time and hundreds-cycle microSD qualification.
+
+Until those rows pass, this code is a reviewable update-state boundary, not evidence that a Raspberry Pi console can safely self-update.
