@@ -1,7 +1,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { gameManifestJsonSchema } from "@vcg/game-manifest";
-import { motionFrameJsonSchema, trackerHealthEventJsonSchema } from "@vcg/motion-contract";
+import {
+  motionFrameJsonSchema,
+  optionalMotionCapabilityInventoryJsonSchema,
+  optionalMotionCapabilityNegotiationJsonSchema,
+  optionalMotionCapabilityQueryJsonSchema,
+  trackerHealthEventJsonSchema,
+} from "@vcg/motion-contract";
 import {
   motionBenchmarkPlanJsonSchema,
   motionBenchmarkResultJsonSchema,
@@ -13,6 +19,9 @@ async function main(): Promise<void> {
   const artifacts = [
     ["motion-frame.schema.json", motionFrameJsonSchema],
     ["tracker-health-event.schema.json", trackerHealthEventJsonSchema],
+    ["motion-capability-inventory.schema.json", optionalMotionCapabilityInventoryJsonSchema],
+    ["motion-capability-query.schema.json", optionalMotionCapabilityQueryJsonSchema],
+    ["motion-capability-negotiation.schema.json", optionalMotionCapabilityNegotiationJsonSchema],
     ["motion-benchmark-plan.schema.json", motionBenchmarkPlanJsonSchema],
     ["motion-benchmark-result.schema.json", motionBenchmarkResultJsonSchema],
     ["game-manifest.schema.json", gameManifestJsonSchema],

@@ -1130,3 +1130,24 @@ The public manifest is not signed launch authority by itself. Production still n
 ### Remaining boundary
 
 Browser local storage is not the final console-managed per-game writable mount. Package isolation, quotas, low-space behavior, healthy update/rollback preservation, sudden-power durability, factory reset, profile lifecycle integration, and hostile-package access remain under I-189, I-191, I-202, and I-209. No public, remote, prize-bearing, or anti-cheat leaderboard is authorized by this work.
+
+## 2026-07-24: forward-compatible optional Motion capability query
+
+### Delivered
+
+- Added a separately versioned optional-feature inventory, query, and negotiation result rather than expanding the exact Motion `0.3.0` frame profile enum.
+- Defined bounded open namespaced IDs with known authoring constants for depth, segmentation, and hands; future exact IDs require no v1 schema change.
+- Added positive integer revisions, required-versus-optional requests, deterministic request-order results, complete missing-required rejection, optional degradation, and duplicate/overlap/malformed-input denial.
+- Kept the inventory non-authoritative: advertised data-profile names do not grant manifest permission, add frame fields, or authorize bridge transport.
+- Published three checked-in Draft 2020-12 schemas with open ID patterns and forward-compatible unknown-field behavior.
+- Documented provider-advertisement rules, privacy minimization, authority separation, and non-implementation boundaries in `MOTION_OPTIONAL_CAPABILITIES.md`; I-085 closes.
+
+### Verification evidence
+
+- Fifty-five Motion contract tests pass. Five focused query tests cover known capabilities, minimum revisions, missing required features, optional degradation, unknown future IDs and fields, duplicate/overlap denial, malformed IDs, wrong schema version, and generated open-pattern schemas.
+- Schema freshness, full workspace diagnostics/tests, production build, all twenty-two real-Chrome flows, benchmark/manifest validation, and the high-severity dependency audit pass.
+- Native formatting and lint are clean; 136 Rust library tests and fourteen CLI tests pass, with five intentional subprocess helpers ignored in the primary library run.
+
+### Remaining boundary
+
+No depth, segmentation, or hand provider is implemented or qualified by this contract. Motion/manifest profile versions, permission review, provider adapters, bridge/native transport, hardware identity and privacy handling, real-room accuracy/latency, and cross-backend conformance still require separate evidence.

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "required": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+          },
+          "minimumVersion": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "minimumVersion"
+        ]
+      }
+    },
+    "optional": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+          },
+          "minimumVersion": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "minimumVersion"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "required",
+    "optional"
+  ],
+  "$id": "urn:vcg:schema:motion-capability-query:1",
+  "title": "VCG optional Motion capability query v1",
+  "$comment": "Capability IDs are intentionally open namespaced strings. Availability does not grant game permission or define a data profile."
+}
