@@ -27,6 +27,7 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:e2e
+pnpm validate:benchmarks
 pnpm validate:manifests
 pnpm supervise:game catalog/determined.vcg-game.json --dry-run
 pnpm native:verify
@@ -59,6 +60,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
 - [Motion standardized action semantics](docs/MOTION_ACTIONS_V1.md)
+- [Household motion benchmark protocol](docs/MOTION_BENCHMARK_PROTOCOL.md)
 - [Player session and recovery state machine](docs/PLAYER_SESSION_STATE_MACHINE.md)
 - [Controller input prototype contract](docs/CONTROLLER_INPUT.md)
 - [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)

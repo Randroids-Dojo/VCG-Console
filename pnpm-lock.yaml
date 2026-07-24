@@ -14,6 +14,9 @@ importers:
       '@vcg/launcher-catalog':
         specifier: workspace:*
         version: link:packages/launcher-catalog
+      '@vcg/motion-contract':
+        specifier: workspace:*
+        version: link:packages/motion-contract
       '@vcg/motion-web-bridge':
         specifier: workspace:*
         version: link:packages/motion-web-bridge

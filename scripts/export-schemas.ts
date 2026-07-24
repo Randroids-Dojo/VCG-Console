@@ -2,6 +2,10 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { gameManifestJsonSchema } from "@vcg/game-manifest";
 import { motionFrameJsonSchema } from "@vcg/motion-contract";
+import {
+  motionBenchmarkPlanJsonSchema,
+  motionBenchmarkResultJsonSchema,
+} from "@vcg/motion-contract/benchmark";
 import { bridgeClientMessageJsonSchema, bridgeServerMessageJsonSchema } from "@vcg/motion-web-bridge";
 
 async function main(): Promise<void> {
@@ -9,11 +13,15 @@ async function main(): Promise<void> {
   await mkdir(outputDirectory, { recursive: true });
   await Promise.all([
     writeFile(resolve(outputDirectory, "motion-frame.schema.json"), `${JSON.stringify(motionFrameJsonSchema, null, 2)}\n`),
+    writeFile(resolve(outputDirectory, "motion-benchmark-plan.schema.json"), `${JSON.stringify(motionBenchmarkPlanJsonSchema, null, 2)}\n`),
+    writeFile(resolve(outputDirectory, "motion-benchmark-result.schema.json"), `${JSON.stringify(motionBenchmarkResultJsonSchema, null, 2)}\n`),
     writeFile(resolve(outputDirectory, "game-manifest.schema.json"), `${JSON.stringify(gameManifestJsonSchema, null, 2)}\n`),
     writeFile(resolve(outputDirectory, "motion-bridge-client.schema.json"), `${JSON.stringify(bridgeClientMessageJsonSchema, null, 2)}\n`),
     writeFile(resolve(outputDirectory, "motion-bridge-server.schema.json"), `${JSON.stringify(bridgeServerMessageJsonSchema, null, 2)}\n`),
   ]);
   console.log("exported schemas/motion-frame.schema.json");
+  console.log("exported schemas/motion-benchmark-plan.schema.json");
+  console.log("exported schemas/motion-benchmark-result.schema.json");
   console.log("exported schemas/game-manifest.schema.json");
   console.log("exported schemas/motion-bridge-client.schema.json");
   console.log("exported schemas/motion-bridge-server.schema.json");

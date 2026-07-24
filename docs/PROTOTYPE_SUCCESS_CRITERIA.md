@@ -24,7 +24,7 @@ Complete this before testing:
 1. Use a monotonic clock for durations. Start at the deliberate user action or power application named by the row and stop only when its stated usable condition is true.
 2. Run at least 20 complete trials per launch/resume path and per required motion action for each blocking persona. Publish every attempt, failure, retry, p50, p95, and worst value; do not discard warm-up or failed runs after testing begins.
 3. Run the representative game/tracker workload concurrently. A benchmark-only or inference-only path cannot pass an end-to-end gate.
-4. Label intended action start/end and received events before calculating motion scores. Precision is true events divided by all emitted events; recall is detected intended events divided by all intended events.
+4. Use the validated `household-one-player-v1` plan, label intended action start/end and received events before calculating motion scores, and bind the result to its skeleton-only trace digest. Precision is true events divided by all emitted events; recall is detected intended events divided by all intended events.
 5. A required action passes the first working gate at precision >= 95% and recall >= 90% for each blocking persona and tested placement. Privileged Back, Pause, Home, Resume, and Exit flows additionally require zero unintended activations during the negative-action and idle run.
 6. Measure camera-to-action latency from a trustworthy camera exposure timestamp to recognized-action receipt at the game API. Capture-arrival, callback, inference-only, animation, or display timestamps must be labeled separately and cannot prove the 120 ms gate.
 7. Record failures as failures. Re-running a failed trial may demonstrate recovery but does not replace the original result.

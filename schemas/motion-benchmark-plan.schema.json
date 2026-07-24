@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "vcg-motion-benchmark-plan"
+    },
+    "formatVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "protocolId": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+    },
+    "motionApiSchemaVersion": {
+      "type": "string",
+      "const": "0.2.0"
+    },
+    "containsRawFrames": {
+      "type": "boolean",
+      "const": false
+    },
+    "rawVideoDefault": {
+      "type": "boolean",
+      "const": false
+    },
+    "trials": {
+      "minItems": 1,
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+          },
+          "movement": {
+            "type": "string",
+            "enum": [
+              "rest",
+              "stand",
+              "join",
+              "squat",
+              "jump",
+              "punch_left",
+              "punch_right",
+              "step_left",
+              "step_right",
+              "cross_arms",
+              "occlude",
+              "exit_frame",
+              "reenter_frame"
+            ]
+          },
+          "context": {
+            "type": "string",
+            "enum": [
+              "shell",
+              "game",
+              "overlay",
+              "session"
+            ]
+          },
+          "repetitions": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "durationMs": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 60000
+          },
+          "instruction": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "expectation": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "trigger"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "player_join",
+                      "jump",
+                      "duck",
+                      "dodge_left",
+                      "dodge_right",
+                      "menu_swipe_left",
+                      "menu_swipe_right",
+                      "menu_select",
+                      "menu_back",
+                      "pause"
+                    ]
+                  },
+                  "window": {
+                    "type": "object",
+                    "properties": {
+                      "earliestMs": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "latestMs": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "earliestMs",
+                      "latestMs"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "kind",
+                  "action",
+                  "window"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "no-trigger"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "landmark-only"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "session-transition"
+                  },
+                  "transition": {
+                    "type": "string",
+                    "enum": [
+                      "freeze",
+                      "silent-recovery",
+                      "show-recovery",
+                      "recovery-resumed"
+                    ]
+                  },
+                  "window": {
+                    "type": "object",
+                    "properties": {
+                      "earliestMs": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "latestMs": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "earliestMs",
+                      "latestMs"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "kind",
+                  "transition",
+                  "window"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "movement",
+          "context",
+          "repetitions",
+          "durationMs",
+          "instruction",
+          "expectation"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "formatVersion",
+    "protocolId",
+    "createdAt",
+    "motionApiSchemaVersion",
+    "containsRawFrames",
+    "rawVideoDefault",
+    "trials"
+  ],
+  "additionalProperties": false
+}

@@ -843,6 +843,27 @@ This fixture does not prove every CSP/sandbox/browser combination or trust arbit
 
 Browser input is still cooperative page input. Native SDL3 discovery/mapping, real controllers/transports, player assignment, glyphs, ambiguity UI, battery and sleep/wake behavior, compositor-owned Home/Back, hostile focus/fullscreen tests, and both target tiers remain open under I-150 through I-152.
 
+## 2026-07-24: pre-registered household motion benchmark
+
+### Delivered
+
+- Added a strict versioned benchmark plan/result contract to `@vcg/motion-contract`.
+- Added the canonical `household-one-player-v1` plan with 14 blocks and 280 required attempts covering rest, stand, join, squat, jump, left/right punch, left/right step, shell Back, game Pause, occlusion, exit, and re-entry.
+- Every trial fixes context, duration, repetition count, instruction, and a timed trigger, no-trigger, landmark-only, or session-transition expectation. Punch remains honestly landmark-only under Motion API `0.2.0`.
+- Result files bind the exact protocol, skeleton-trace SHA-256, timestamp quality, configuration, placement, persona class, concurrent workload, and every planned repetition.
+- Scoring reports trigger and session-transition true positives, false positives, false negatives, precision, and recall. Invalid attempts remain visible and make the result incomplete.
+- Added `pnpm validate:benchmarks`; I-052 closes without representing synthetic contract tests as player evidence.
+
+### Verification evidence
+
+- Four contract tests validate full canonical coverage, reject missing/duplicate/incoherent plans, prove timed trigger and transition arithmetic including false events and invalid attempts, and refuse omitted or duplicate results.
+- The canonical plan validates as 14 trial blocks and 280 attempts.
+- The motion-contract package passes 36 tests and typechecks without errors.
+
+### Remaining boundary
+
+No household benchmark has been run. I-053 and I-210 still require consented real-room ground truth, exact environment/configuration evidence, skeleton-only trace capture, concurrent workload, trustworthy exposure timestamps, latency distributions, threshold qualification, every failure, and per-persona/placement pass or fail.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered
