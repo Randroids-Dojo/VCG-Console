@@ -1,5 +1,6 @@
 import {
   actionBelongsToProfile,
+  MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
   MotionCapabilitiesSchema,
   negotiateCapabilities,
@@ -186,6 +187,7 @@ export class MotionBridgeHost {
     this.#send(event.source, event.origin, {
       type: "vcg.motion.welcome",
       protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+      motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
       sessionId: session.id,
       capabilities: this.#capabilities,
       negotiation,

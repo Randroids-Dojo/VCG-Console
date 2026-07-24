@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import {
   bridgeClientMessageJsonSchema,
   bridgeServerMessageJsonSchema,
+  MOTION_BRIDGE_PROTOCOL_VERSION,
   MotionBridgeClient,
   MotionBridgeHost,
   projectFrame,
@@ -138,6 +139,113 @@ describe("Motion web bridge", () => {
     expect(received[0]?.players[0]?.actions.map((action) => action.name)).toEqual(["jump"]);
   });
 
+  it("rejects bridge v1 and mismatched Motion schemas before creating a session", () => {
+    const link = fakeLink();
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+    });
+    const replies: unknown[] = [];
+    const clientTarget: BridgePostTarget = {
+      postMessage: (message, targetOrigin) => {
+        expect(targetOrigin).toBe(link.gameOrigin);
+        replies.push(message);
+      },
+    };
+    host.start();
+
+    for (const data of [
+      {
+        type: "vcg.motion.hello",
+        protocolVersion: 1,
+        motionApiSchemaVersion: "0.1.0",
+        clientId: "legacy-client",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+      {
+        type: "vcg.motion.hello",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: "0.1.0",
+        clientId: "wrong-schema-client",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+    ]) {
+      link.hostReceiver.dispatch({ origin: link.gameOrigin, source: clientTarget, data });
+      expect(host.publish(frame())).toBe(0);
+    }
+
+    expect(replies).toEqual([
+      {
+        type: "vcg.motion.error",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        code: "invalid-message",
+      },
+      {
+        type: "vcg.motion.error",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        code: "invalid-message",
+      },
+    ]);
+    expect(host.stats()).toMatchObject({ acceptedConnections: 0, invalidMessages: 2 });
+  });
+
+  it("keeps retrying until a welcome binds bridge v2 to the exact Motion schema", () => {
+    const link = fakeLink();
+    const scheduled = new Set<() => void>();
+    const client = new MotionBridgeClient({
+      receiver: link.gameReceiver,
+      target: link.hostTarget,
+      targetOrigin: link.consoleOrigin,
+      clientId: "compatibility-client",
+      request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      onFrame: () => undefined,
+      schedule: (callback) => {
+        scheduled.add(callback);
+        return callback;
+      },
+      cancelScheduled: (handle) => scheduled.delete(handle as () => void),
+    });
+    const welcome = {
+      type: "vcg.motion.welcome",
+      sessionId: "compatible-session",
+      capabilities,
+      negotiation: { accepted: true, activeProfiles: ["body.core17"], unavailableOptionalProfiles: [] },
+    };
+    client.start();
+
+    link.gameReceiver.dispatch({
+      origin: link.consoleOrigin,
+      source: link.hostTarget,
+      data: { ...welcome, protocolVersion: 1, motionApiSchemaVersion: "0.1.0" },
+    });
+    link.gameReceiver.dispatch({
+      origin: link.consoleOrigin,
+      source: link.hostTarget,
+      data: {
+        ...welcome,
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: "0.1.0",
+      },
+    });
+    expect(client.state).toBe("connecting");
+    expect(client.sessionId).toBeUndefined();
+    expect(scheduled.size).toBe(1);
+
+    link.gameReceiver.dispatch({
+      origin: link.consoleOrigin,
+      source: link.hostTarget,
+      data: {
+        ...welcome,
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
+      },
+    });
+    expect(client.state).toBe("connected");
+    expect(client.sessionId).toBe("compatible-session");
+    expect(scheduled.size).toBe(0);
+  });
+
   it("removes world data when only the request advertises the world profile", () => {
     const source = frame();
     const { worldCoordinateSystem: _worldCoordinateSystem, ...nonWorldCapabilities } = source.capabilities;
@@ -163,7 +271,8 @@ describe("Motion web bridge", () => {
       source: hostileTarget,
       data: {
         type: "vcg.motion.hello",
-        protocolVersion: 1,
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
         clientId: "hostile",
         request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
       },
@@ -258,7 +367,8 @@ describe("Motion web bridge", () => {
       source: deadTarget,
       data: {
         type: "vcg.motion.hello",
-        protocolVersion: 1,
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
         clientId: "dead-client",
         request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
       },
@@ -315,7 +425,8 @@ describe("Motion web bridge", () => {
       source: hostTarget,
       data: {
         type: "vcg.motion.welcome",
-        protocolVersion: 1,
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
         sessionId: "future-session",
         capabilities,
         negotiation: { accepted: true, activeProfiles: ["body.core17"], unavailableOptionalProfiles: [] },

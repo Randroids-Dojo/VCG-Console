@@ -1,17 +1,19 @@
 import {
   CapabilityNegotiationSchema,
   CapabilityRequestSchema,
+  MOTION_API_SCHEMA_VERSION,
   MotionCapabilitiesSchema,
   MotionFrameSchema,
   addMotionContractJsonConstraints,
 } from "@vcg/motion-contract";
 import { z } from "zod";
 
-export const MOTION_BRIDGE_PROTOCOL_VERSION = 1 as const;
+export const MOTION_BRIDGE_PROTOCOL_VERSION = 2 as const;
 
 export const BridgeClientHelloSchema = z.object({
   type: z.literal("vcg.motion.hello"),
   protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+  motionApiSchemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
   clientId: z.string().regex(/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/).max(80),
   request: CapabilityRequestSchema,
 });
@@ -35,6 +37,7 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("vcg.motion.welcome"),
     protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+    motionApiSchemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
     sessionId: z.string().min(1),
     capabilities: MotionCapabilitiesSchema,
     negotiation: CapabilityNegotiationSchema,

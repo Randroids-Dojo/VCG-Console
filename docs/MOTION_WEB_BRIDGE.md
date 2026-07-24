@@ -8,14 +8,16 @@ It does not make an arbitrary separately launched hosted page motion-capable. D-
 
 ## Protocol
 
-1. The game sends `vcg.motion.hello` with protocol version 1, a stable client ID, and required/optional capability profiles.
+1. The game sends `vcg.motion.hello` with bridge protocol version 2, exact Motion API schema version `0.2.0`, a stable client ID, and required/optional capability profiles.
 2. The host checks the exact event origin and source before parsing the message.
-3. The host replies with `vcg.motion.welcome` and the negotiated profiles, or `vcg.motion.rejected` when a required profile is missing.
+3. The host creates a session only for that exact bridge/schema pair and replies with `vcg.motion.welcome`, repeating the bound Motion API version and negotiated profiles, or `vcg.motion.rejected` when a required profile is missing.
 4. Every `vcg.motion.frame` is validated against the Motion API schema and projected to the profiles granted to that session.
 5. A repeated hello replaces the prior session for that window. The sample client retries an unanswered handshake and exposes an explicit reconnect operation.
 6. A clean client shutdown sends `vcg.motion.goodbye`, allowing the host to discard the session immediately; the console lifecycle must still remove sessions after crashes or navigation.
 
 Unknown fields are ignored on otherwise valid messages so a newer sender can add data without breaking an older receiver. Known fields, message discriminators, and protocol/schema versions remain validated. Unsupported profiles and values are never fabricated.
+
+Bridge protocol v1 and Motion API `0.1.0` are incompatible with this source snapshot. A v2 host rejects either a legacy hello or a v2 hello naming another Motion schema before it creates a session. A v2 client ignores a legacy welcome or a v2 welcome naming another Motion schema and continues its bounded retry loop. This is exact-version binding, not multi-version negotiation or an implicit migration.
 
 ## Security and privacy boundary
 
@@ -56,6 +58,6 @@ A complete typed example lives in `packages/motion-web-bridge/examples/sample-cl
 
 ## Verification scope
 
-Automated tests cover successful and rejected negotiation, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive frames, reconnect after reload, deny an origin-drift handshake and publication, then renegotiate when the allowlisted game returns.
+Automated tests cover successful and rejected negotiation, legacy bridge and mismatched Motion-schema refusal before session creation, exact-version client retry, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive frames, reconnect after reload, deny an origin-drift handshake and publication, then renegotiate when the allowlisted game returns.
 
 Still required: broader CSP/sandbox/browser-policy combinations, redirects and hostile same-origin code, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.

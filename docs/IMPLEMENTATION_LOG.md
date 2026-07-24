@@ -937,3 +937,23 @@ This is artifact provenance, not font qualification or a complete release notice
 ### Remaining boundary
 
 This is the admission policy, not an implemented admission database or review service. Per-game evidence, signed installation/update, paired deployment, curated discovery, console mode UX, emergency-disable distribution, browser containment, sandboxing, and rollback qualification remain open under I-095, I-096, I-101, I-102, I-106, I-115, I-136, and I-141.
+
+## 2026-07-24: exact Motion bridge schema binding
+
+### Delivered
+
+- Advanced the cooperative browser bridge from protocol v1 to v2.
+- Every hello now names exact Motion API schema `0.2.0`; every accepted welcome repeats that binding before either side treats the session as connected.
+- A v2 host refuses bridge v1 and mismatched Motion-schema hellos before session creation or frame publication. A v2 client ignores legacy or mismatched welcomes and keeps its bounded retry active.
+- Unknown fields remain ignored on otherwise valid wire objects, while known protocol and schema versions remain exact.
+- Regenerated both checked-in bridge JSON Schemas and updated the hostile-origin browser fixture to send a current, otherwise valid hello.
+- D-147 records the compatibility boundary without claiming a released-client migration matrix.
+
+### Verification evidence
+
+- Fifteen focused bridge tests pass, including legacy host/client snapshots, mismatched schema peers, current exact binding, unknown-field compatibility, capability projection, reconnect, bounded acknowledgement flow, and burst dropping.
+- The bridge and console-lab packages typecheck with zero diagnostics.
+
+### Remaining boundary
+
+This is a source-snapshot compatibility matrix, not evidence from externally released clients. Hailo fixtures, a released old/new matrix, broader browser-policy combinations, separate-process transport, native integration, and measured ARM64/x86-64 latency remain under I-073 through I-076.

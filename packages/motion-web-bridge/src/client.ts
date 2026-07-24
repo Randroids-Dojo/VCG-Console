@@ -1,4 +1,4 @@
-import type { CapabilityRequest, MotionFrame } from "@vcg/motion-contract";
+import { MOTION_API_SCHEMA_VERSION, type CapabilityRequest, type MotionFrame } from "@vcg/motion-contract";
 import { BridgeServerMessageSchema, MOTION_BRIDGE_PROTOCOL_VERSION } from "./protocol";
 import type { BridgeMessageEvent, BridgeMessageListener, BridgeMessageReceiver, BridgePostTarget } from "./window-types";
 
@@ -88,6 +88,7 @@ export class MotionBridgeClient {
       {
         type: "vcg.motion.hello",
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
         clientId: this.#options.clientId,
         request: this.#options.request,
       },
