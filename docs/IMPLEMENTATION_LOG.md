@@ -3976,7 +3976,10 @@ stall and process evidence remains I-084.
   path-free current-library snapshot.
 - Added a checked-in TypeScript/Rust interoperability fixture and an
   adversarial proof that replacing a source path after the capability is
-  opened cannot redirect the imported bytes.
+  opened cannot redirect the imported bytes. Follow-on proofs reject a
+  reported free-space shortfall before mutation and preserve seeded
+  package/core/save/state/remap/profile/log/cache/package-staging namespaces
+  through a real derived-root import.
 - Pinned Unicode normalization, regenerated the Cargo/npm/asset compliance
   inventory, and recorded RI-001 through RI-009 for production mappings,
   content shape, conflict UX, legal wording, LAN authority, scanner policy,
@@ -3986,13 +3989,14 @@ stall and process evidence remains I-084.
 
 - All 24 TypeScript retro-contract tests pass, including exact emission of the
   checked-in native interoperability fixture.
-- All 15 Windows and 16 Linux native retro-import tests pass. They cover strict
+- All 17 Windows and 18 Linux native retro-import tests pass. They cover strict
   parsing and authority binding, source mutation and path replacement,
-  clean/rejected/unavailable/misbound scans, capacity and history bounds,
-  operation locking, cancellation, publication recovery, replacement, reuse,
-  storage derivation, path-free snapshots/audits, and Linux symlink refusal.
+  clean/rejected/unavailable/misbound scans, capacity overflow and reported
+  free-space admission, history bounds, operation locking, cancellation,
+  publication recovery, replacement, reuse, derived namespace isolation,
+  path-free snapshots/audits, and Linux symlink refusal.
 - Windows workspace compilation, formatting, strict Clippy, and Rustdoc pass.
-  The final complete Ubuntu/WSL workspace run passes 285 library tests with
+  The final complete Ubuntu/WSL workspace run passes 287 library tests with
   five intentional helper ignores plus all 19 CLI tests and Rustdoc tests.
 - Root tests, workspace typechecking, production build, and every ordinary
   checked-in validation command pass. Compliance inventory contains 137
