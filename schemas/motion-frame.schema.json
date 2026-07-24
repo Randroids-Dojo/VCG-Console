@@ -4,7 +4,7 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "0.2.0"
+      "const": "0.3.0"
     },
     "sequence": {
       "type": "integer",
@@ -1394,6 +1394,58 @@
                       "name"
                     ]
                   }
+                }
+              },
+              "required": [
+                "actions"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "health": {
+            "enum": [
+              "starting",
+              "fault"
+            ]
+          }
+        },
+        "required": [
+          "health"
+        ]
+      },
+      "then": {
+        "properties": {
+          "players": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "health": {
+            "not": {
+              "const": "ready"
+            }
+          }
+        },
+        "required": [
+          "health"
+        ]
+      },
+      "then": {
+        "properties": {
+          "players": {
+            "items": {
+              "properties": {
+                "actions": {
+                  "maxItems": 0
                 }
               },
               "required": [

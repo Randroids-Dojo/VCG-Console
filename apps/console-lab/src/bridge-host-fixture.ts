@@ -1,4 +1,4 @@
-import { COORDINATE_SPEC_VERSION } from "@vcg/motion-contract";
+import { COORDINATE_SPEC_VERSION, MOTION_API_SCHEMA_VERSION } from "@vcg/motion-contract";
 import { MotionBridgeHost, type BridgeMessageReceiver } from "@vcg/motion-web-bridge";
 import { syntheticFrame } from "./synthetic";
 
@@ -15,6 +15,15 @@ const host = new MotionBridgeHost({
     coordinateSpecVersion: COORDINATE_SPEC_VERSION,
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
+  },
+  initialHealth: {
+    schemaVersion: MOTION_API_SCHEMA_VERSION,
+    sequence: 0,
+    source: "synthetic",
+    occurredAtMs: 0,
+    status: "ready",
+    reason: "healthy",
+    controlAvailability: "full",
   },
 });
 host.start();

@@ -3,10 +3,12 @@ import {
   MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
   MotionCapabilitiesSchema,
+  TrackerHealthEventSchema,
   negotiateCapabilities,
   type MotionCapabilities,
   type MotionFrame,
   type MotionProfile,
+  type TrackerHealthEvent,
 } from "@vcg/motion-contract";
 import { BridgeClientMessageSchema, MOTION_BRIDGE_PROTOCOL_VERSION, type BridgeServerMessage } from "./protocol";
 import type { BridgeMessageEvent, BridgeMessageListener, BridgeMessageReceiver, BridgePostTarget } from "./window-types";
@@ -28,6 +30,7 @@ export interface MotionBridgeHostStats {
   invalidMessages: number;
   publishedFrames: number;
   rateLimitedFrames: number;
+  publishedHealthEvents: number;
   expiredSessions: number;
 }
 
@@ -35,6 +38,7 @@ export interface MotionBridgeHostOptions {
   receiver: BridgeMessageReceiver;
   allowedOrigins: readonly string[];
   capabilities: MotionCapabilities;
+  initialHealth: TrackerHealthEvent;
   maximumFramesPerSecond?: number;
   sessionTtlMs?: number;
   now?: () => number;
@@ -50,6 +54,7 @@ export class MotionBridgeHost {
   readonly #receiver: BridgeMessageReceiver;
   readonly #allowedOrigins: Set<string>;
   readonly #capabilities: MotionCapabilities;
+  #currentHealth: TrackerHealthEvent;
   readonly #minimumFrameIntervalMs: number;
   readonly #sessionTtlMs: number;
   readonly #now: () => number;
@@ -61,6 +66,7 @@ export class MotionBridgeHost {
     invalidMessages: 0,
     publishedFrames: 0,
     rateLimitedFrames: 0,
+    publishedHealthEvents: 0,
     expiredSessions: 0,
   };
   #started = false;
@@ -73,6 +79,7 @@ export class MotionBridgeHost {
     this.#allowedOrigins = new Set(options.allowedOrigins.map(exactOrigin));
     if (this.#allowedOrigins.size === 0) throw new Error("Motion bridge requires at least one allowed origin");
     this.#capabilities = MotionCapabilitiesSchema.parse(options.capabilities);
+    this.#currentHealth = TrackerHealthEventSchema.parse(options.initialHealth);
     const maximumFramesPerSecond = options.maximumFramesPerSecond ?? 60;
     if (!Number.isFinite(maximumFramesPerSecond) || maximumFramesPerSecond <= 0 || maximumFramesPerSecond > 240) {
       throw new Error("maximumFramesPerSecond must be between 0 and 240");
@@ -104,6 +111,11 @@ export class MotionBridgeHost {
 
   publish(value: MotionFrame): number {
     const frame = MotionFrameSchema.parse(value);
+    if (frame.source !== this.#currentHealth.source || frame.health !== this.#currentHealth.status) {
+      throw new Error(
+        `Motion frame source/health ${frame.source}/${frame.health} does not match current tracker health ${this.#currentHealth.source}/${this.#currentHealth.status}`,
+      );
+    }
     const now = this.#now();
     let recipients = 0;
     for (const [target, session] of this.#sessions) {
@@ -132,6 +144,27 @@ export class MotionBridgeHost {
       this.#stats.publishedFrames += 1;
     }
     return recipients;
+  }
+
+  publishHealth(value: TrackerHealthEvent): number {
+    const event = TrackerHealthEventSchema.parse(value);
+    if (event.sequence <= this.#currentHealth.sequence) {
+      throw new Error("Tracker health sequence must increase");
+    }
+    if (event.occurredAtMs < this.#currentHealth.occurredAtMs) {
+      throw new Error("Tracker health time cannot move backwards");
+    }
+    this.#currentHealth = event;
+    for (const session of this.#sessions.values()) {
+      this.#send(session.target, session.origin, {
+        type: "vcg.motion.health",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId: session.id,
+        event,
+      });
+    }
+    this.#stats.publishedHealthEvents += this.#sessions.size;
+    return this.#sessions.size;
   }
 
   #receive(event: BridgeMessageEvent): void {
@@ -191,6 +224,7 @@ export class MotionBridgeHost {
       sessionId: session.id,
       capabilities: this.#capabilities,
       negotiation,
+      health: this.#currentHealth,
     });
   }
 

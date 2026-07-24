@@ -22,7 +22,8 @@
     "test:e2e": "pnpm --filter @vcg/console-lab test:e2e",
     "typecheck": "pnpm -r typecheck",
     "validate:benchmarks": "tsx scripts/validate-motion-benchmarks.ts",
-    "validate:manifests": "tsx scripts/validate-game-manifests.ts"
+    "validate:manifests": "tsx scripts/validate-game-manifests.ts",
+    "validate:schemas": "tsx scripts/export-schemas.ts --check"
   },
   "devDependencies": {
     "@vcg/game-manifest": "workspace:*",

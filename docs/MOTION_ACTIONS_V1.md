@@ -2,9 +2,9 @@
 
 Last updated: 2026-07-23
 
-Motion API `0.2.0` defines the temporal contract for `actions.obstacle.v1` and `actions.shell.v1`. This contract separates player feedback from side effects: clients may animate `started`, `held`, `ended`, and `cancelled`, but they act only on `triggered`.
+Motion API `0.2.0` introduced the temporal contract for `actions.obstacle.v1` and `actions.shell.v1`; current Motion API `0.3.0` retains it unchanged while adding out-of-band tracker health. This contract separates player feedback from side effects: clients may animate `started`, `held`, `ended`, and `cancelled`, but they act only on `triggered`.
 
-The Motion API version, coordinate specification version, and cooperative bridge protocol version are independent. Motion frames use `0.2.0`; the unchanged coordinate specification and current bridge protocol remain `0.1.0`.
+The Motion API version, coordinate specification version, and cooperative bridge protocol version are independent. Motion frames use `0.3.0`, the coordinate specification remains `0.1.0`, and the cooperative bridge protocol is version 2.
 
 ## Profile ownership
 
@@ -45,6 +45,8 @@ started → held* → cancelled
 The threshold-crossing sample contains `held` before `triggered`. A sustained gesture cannot trigger again until it releases and rearms. A new attempt may accumulate held duration during cooldown, but `triggered` cannot occur before the cooldown expires.
 
 If a tracked player remains in the frame but required landmarks disappear, the recognizer emits the appropriate terminal phase and clears progress. If the player itself disappears, no player action array exists in which to fabricate a terminal event; player `lost` state, tracker health, and the multiplayer recovery state machine are the cancellation authority. A later reappearance starts a new hold.
+
+Any non-`ready` frame has an empty action array. A degraded or blocked health transition clears recognizer continuity, so returning to `ready` begins a new hold rather than inheriting pre-degradation progress.
 
 ## Context
 

@@ -26,9 +26,9 @@ The canonical plan contains 14 trial blocks and 280 required attempts: 20 repeti
 | `exit_frame` | session | `show-recovery` after the reacquisition window expires |
 | `reenter_frame` | session | `silent-recovery` before that window expires |
 
-Every plan trial declares a bounded duration, instruction, context, repetition count, and one strict expectation: timed trigger, no trigger, landmark-only, or timed session transition. Trigger/context mismatches, duplicate trial IDs, unknown fields, invalid windows, missing movement classes, raw-frame claims, and non-`0.2.0` Motion contracts fail validation.
+Every plan trial declares a bounded duration, instruction, context, repetition count, and one strict expectation: timed trigger, no trigger, landmark-only, or timed session transition. Trigger/context mismatches, duplicate trial IDs, unknown fields, invalid windows, missing movement classes, raw-frame claims, and non-`0.3.0` Motion contracts fail validation.
 
-Punches deliberately remain landmark-only because Motion API `0.2.0` does not standardize punch actions. The protocol preserves those labeled movements for I-061 without inventing an action or silently treating another gesture as a punch.
+Punches deliberately remain landmark-only because Motion API `0.3.0` does not standardize punch actions. The protocol preserves those labeled movements for I-061 without inventing an action or silently treating another gesture as a punch.
 
 ## Result binding
 

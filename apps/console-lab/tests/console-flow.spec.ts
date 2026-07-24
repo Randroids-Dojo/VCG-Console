@@ -466,13 +466,40 @@ test("Escape always walks back toward the tracker", async ({ page }) => {
 
 test("captures the reviewed tracker surface", async ({ page }) => {
   await openMotionLab(page);
+  await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await page.waitForTimeout(220);
   await page.screenshot({ path: "../../test-results/console-lab/tracker-surface.png", fullPage: true });
+});
+
+test("shows deterministic tracker health and degraded-control fixtures", async ({ page }) => {
+  await openMotionLab(page);
+
+  await page.getByRole("button", { name: "LOW CONF" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("LOW CONF");
+  await expect(page.locator("#tracker-health-title")).toHaveText("Tracking confidence is low");
+  await expect(page.locator("#tracker-control")).toHaveText("LANDMARKS ONLY");
+
+  await page.getByRole("button", { name: "OVERLOAD" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("OVERLOAD");
+  await expect(page.locator("#tracker-health-detail")).toContainText("Frames may be dropped");
+
+  await page.getByRole("button", { name: "RESTART" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("RESTARTING");
+  await expect(page.locator("#tracker-control")).toHaveText("CONTROLLER ONLY");
+
+  await page.getByRole("button", { name: "DISCONNECT" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("CAMERA LOST");
+  await expect(page.locator("#tracker-health-detail")).toContainText("controller and keyboard");
+
+  await page.getByRole("button", { name: "READY" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("READY");
+  await expect(page.locator("#tracker-control")).toHaveText("FULL");
 });
 
 test("loads the pinned local model and starts a camera pipeline", async ({ page }) => {
   await openMotionLab(page);
   await page.getByRole("button", { name: "START CAMERA" }).click();
-  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
   await expect(page.locator("#source-badge")).toHaveText("MEDIAPIPE / LOCAL");
   await expect
     .poll(async () => `${await page.locator("#metric-tracker").textContent()} / ${await page.locator("#status-detail").textContent()}`, { timeout: 15_000 })
@@ -480,7 +507,7 @@ test("loads the pinned local model and starts a camera pipeline", async ({ page 
 
   await page.getByRole("button", { name: "STOP CAMERA" }).click();
   await page.getByRole("button", { name: "START CAMERA" }).click();
-  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
   await expect(page.locator("#metric-tracker")).toContainText("WORKER", { timeout: 15_000 });
 });
 
@@ -492,7 +519,7 @@ test("normal camera mode stores and transmits no raw frames", async ({ page }) =
 
   await openMotionLab(page);
   await page.getByRole("button", { name: "START CAMERA" }).click();
-  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
   await expect(page.locator("#metric-trace")).not.toHaveText("0", { timeout: 15_000 });
   await page.getByRole("button", { name: "STOP CAMERA" }).click();
 
@@ -525,7 +552,7 @@ test("reports and survives an unavailable worker with the explicit fallback", as
   await page.route("**/tracker-worker-*.js", (route) => route.abort());
   await openMotionLab(page);
   await page.getByRole("button", { name: "START CAMERA" }).click();
-  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#health-badge")).toHaveText("FALLBACK", { timeout: 15_000 });
   await expect(page.locator("#metric-tracker")).toContainText("MAIN", { timeout: 15_000 });
   await expect(page.locator("#status-detail")).toContainText("Worker initialization failed");
 });

@@ -1,4 +1,9 @@
-import { MOTION_API_SCHEMA_VERSION, type CapabilityRequest, type MotionFrame } from "@vcg/motion-contract";
+import {
+  MOTION_API_SCHEMA_VERSION,
+  type CapabilityRequest,
+  type MotionFrame,
+  type TrackerHealthEvent,
+} from "@vcg/motion-contract";
 import { BridgeServerMessageSchema, MOTION_BRIDGE_PROTOCOL_VERSION } from "./protocol";
 import type { BridgeMessageEvent, BridgeMessageListener, BridgeMessageReceiver, BridgePostTarget } from "./window-types";
 
@@ -12,6 +17,7 @@ export interface MotionBridgeClientOptions {
   request: CapabilityRequest;
   retryMs?: number;
   onFrame: (frame: MotionFrame) => void;
+  onHealth?: (event: TrackerHealthEvent) => void;
   onStateChange?: (state: MotionBridgeClientState, detail?: string) => void;
   schedule?: (callback: () => void, delayMs: number) => unknown;
   cancelScheduled?: (handle: unknown) => void;
@@ -106,6 +112,7 @@ export class MotionBridgeClient {
       this.#cancelRetry();
       this.#sessionId = message.sessionId;
       this.#setState("connected");
+      this.#options.onHealth?.(message.health);
       return;
     }
     if (message.type === "vcg.motion.rejected") {
@@ -116,6 +123,12 @@ export class MotionBridgeClient {
     }
     if (message.type === "vcg.motion.error") {
       this.#options.onStateChange?.(this.#state, message.code);
+      return;
+    }
+    if (message.type === "vcg.motion.health") {
+      if (this.#state === "connected" && message.sessionId === this.#sessionId) {
+        this.#options.onHealth?.(message.event);
+      }
       return;
     }
     if (this.#state === "connected" && message.sessionId === this.#sessionId) {

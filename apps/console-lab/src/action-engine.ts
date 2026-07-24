@@ -81,6 +81,13 @@ export class ActionEngine {
         ],
       },
     };
+    if (enrichedFrame.health !== "ready") {
+      this.#resetGestureContinuity();
+      return {
+        ...enrichedFrame,
+        players: enrichedFrame.players.map((player) => ({ ...player, actions: [] })),
+      };
+    }
     const player = enrichedFrame.players[0];
     if (!player) {
       this.#resetGestureContinuity();
@@ -114,6 +121,10 @@ export class ActionEngine {
 
   join(): void {
     this.#joined = true;
+  }
+
+  suspend(): void {
+    this.#resetGestureContinuity();
   }
 
   reset(): void {

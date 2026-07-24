@@ -77,6 +77,21 @@ describe("ActionEngine", () => {
     expect(engine.enrich(early).players[0]?.actions).toEqual([]);
   });
 
+  it("suppresses actions and clears hold continuity while tracker health is degraded", () => {
+    const engine = new ActionEngine();
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    expect(engine.enrich(alter(syntheticFrame(1, 0), hands)).players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started" }),
+    ]);
+
+    const degraded = alter(syntheticFrame(2, 500), hands);
+    degraded.health = "degraded";
+    expect(engine.enrich(degraded).players[0]?.actions).toEqual([]);
+    expect(engine.enrich(alter(syntheticFrame(3, 1_000), hands)).players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "started" }),
+    ]);
+  });
+
   it("does not fire shell Back before a longer in-game pause hold completes", () => {
     const engine = new ActionEngine();
     const crossed = {

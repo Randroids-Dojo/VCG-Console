@@ -5,6 +5,7 @@ import {
   MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
   type MotionCapabilities,
+  type TrackerHealthEvent,
 } from "@vcg/motion-contract";
 import { describe, expect, it } from "vitest";
 import {
@@ -97,17 +98,31 @@ function frame(sequence = 1) {
   });
 }
 
+function readyHealth(sequence = 0, occurredAtMs = 0): TrackerHealthEvent {
+  return {
+    schemaVersion: MOTION_API_SCHEMA_VERSION,
+    sequence,
+    source: "synthetic",
+    occurredAtMs,
+    status: "ready",
+    reason: "healthy",
+    controlAvailability: "full",
+  };
+}
+
 function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?: number; now?: () => number } = {}) {
   const link = fakeLink();
   const host = new MotionBridgeHost({
     receiver: link.hostReceiver,
     allowedOrigins: [link.gameOrigin],
     capabilities,
+    initialHealth: readyHealth(),
     ...(options.maximumFramesPerSecond === undefined ? {} : { maximumFramesPerSecond: options.maximumFramesPerSecond }),
     ...(options.sessionTtlMs === undefined ? {} : { sessionTtlMs: options.sessionTtlMs }),
     ...(options.now === undefined ? {} : { now: options.now }),
   });
   const received: ReturnType<typeof frame>[] = [];
+  const receivedHealth: TrackerHealthEvent[] = [];
   const scheduled = new Set<unknown>();
   const client = new MotionBridgeClient({
     receiver: link.gameReceiver,
@@ -116,6 +131,7 @@ function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?
     clientId: "sample-game",
     request: { requiredProfiles: ["body.core17", "actions.obstacle.v1"], optionalProfiles: [] },
     onFrame: (value) => received.push(value),
+    onHealth: (value) => receivedHealth.push(value),
     schedule: (callback) => {
       scheduled.add(callback);
       return callback;
@@ -124,13 +140,14 @@ function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?
   });
   host.start();
   client.start();
-  return { ...link, host, client, received, scheduled };
+  return { ...link, host, client, received, receivedHealth, scheduled };
 }
 
 describe("Motion web bridge", () => {
   it("negotiates capabilities and projects frames to the granted profiles", () => {
-    const { client, host, received } = connectedPair();
+    const { client, host, received, receivedHealth } = connectedPair();
     expect(client.state).toBe("connected");
+    expect(receivedHealth).toEqual([readyHealth()]);
     expect(host.publish(frame())).toBe(1);
     expect(received).toHaveLength(1);
     expect(received[0]?.capabilities.profiles).toEqual(["body.core17", "actions.obstacle.v1"]);
@@ -139,12 +156,64 @@ describe("Motion web bridge", () => {
     expect(received[0]?.players[0]?.actions.map((action) => action.name)).toEqual(["jump"]);
   });
 
+  it("delivers ordered health transitions outside the frame stream", () => {
+    const { client, host, received, receivedHealth } = connectedPair();
+    const overloaded: TrackerHealthEvent = {
+      schemaVersion: MOTION_API_SCHEMA_VERSION,
+      sequence: 1,
+      source: "synthetic",
+      occurredAtMs: 10,
+      status: "degraded",
+      reason: "overload",
+      controlAvailability: "landmarks-only",
+    };
+    expect(host.publishHealth(overloaded)).toBe(1);
+    expect(receivedHealth).toEqual([readyHealth(), overloaded]);
+    expect(() => host.publish(frame())).toThrow(/does not match/);
+
+    const degradedFrame = frame();
+    degradedFrame.health = "degraded";
+    degradedFrame.players = degradedFrame.players.map((player) => ({ ...player, actions: [] }));
+    const wrongSourceFrame = structuredClone(degradedFrame);
+    wrongSourceFrame.source = "replay";
+    expect(() => host.publish(wrongSourceFrame)).toThrow(/source\/health replay\/degraded/);
+    expect(host.publish(degradedFrame)).toBe(1);
+    expect(received).toHaveLength(1);
+    expect(received[0]?.health).toBe("degraded");
+    expect(received[0]?.players[0]?.actions).toEqual([]);
+    expect(() => host.publish({ ...degradedFrame, source: "replay" })).toThrow(/does not match/);
+    expect(() => host.publishHealth(overloaded)).toThrow(/sequence must increase/);
+    expect(() =>
+      host.publishHealth({
+        ...overloaded,
+        sequence: 2,
+        occurredAtMs: 9,
+      }),
+    ).toThrow(/time cannot move backwards/);
+
+    const restarting: TrackerHealthEvent = {
+      schemaVersion: MOTION_API_SCHEMA_VERSION,
+      sequence: 2,
+      source: "synthetic",
+      occurredAtMs: 11,
+      status: "starting",
+      reason: "restarting",
+      controlAvailability: "blocked",
+    };
+    expect(host.publishHealth(restarting)).toBe(1);
+    expect(receivedHealth.at(-1)).toEqual(restarting);
+    client.reconnect();
+    expect(receivedHealth.at(-1)).toEqual(restarting);
+    expect(host.stats().publishedHealthEvents).toBe(2);
+  });
+
   it("rejects bridge v1 and mismatched Motion schemas before creating a session", () => {
     const link = fakeLink();
     const host = new MotionBridgeHost({
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      initialHealth: readyHealth(),
     });
     const replies: unknown[] = [];
     const clientTarget: BridgePostTarget = {
@@ -159,14 +228,14 @@ describe("Motion web bridge", () => {
       {
         type: "vcg.motion.hello",
         protocolVersion: 1,
-        motionApiSchemaVersion: "0.1.0",
+        motionApiSchemaVersion: "0.2.0",
         clientId: "legacy-client",
         request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
       },
       {
         type: "vcg.motion.hello",
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
-        motionApiSchemaVersion: "0.1.0",
+        motionApiSchemaVersion: "0.2.0",
         clientId: "wrong-schema-client",
         request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
       },
@@ -211,13 +280,14 @@ describe("Motion web bridge", () => {
       sessionId: "compatible-session",
       capabilities,
       negotiation: { accepted: true, activeProfiles: ["body.core17"], unavailableOptionalProfiles: [] },
+      health: readyHealth(),
     };
     client.start();
 
     link.gameReceiver.dispatch({
       origin: link.consoleOrigin,
       source: link.hostTarget,
-      data: { ...welcome, protocolVersion: 1, motionApiSchemaVersion: "0.1.0" },
+      data: { ...welcome, protocolVersion: 1, motionApiSchemaVersion: "0.2.0" },
     });
     link.gameReceiver.dispatch({
       origin: link.consoleOrigin,
@@ -225,7 +295,7 @@ describe("Motion web bridge", () => {
       data: {
         ...welcome,
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
-        motionApiSchemaVersion: "0.1.0",
+        motionApiSchemaVersion: "0.2.0",
       },
     });
     expect(client.state).toBe("connecting");
@@ -262,7 +332,12 @@ describe("Motion web bridge", () => {
 
   it("silently ignores hostile origins and rejects missing capabilities", () => {
     const link = fakeLink();
-    const host = new MotionBridgeHost({ receiver: link.hostReceiver, allowedOrigins: [link.gameOrigin], capabilities });
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+      initialHealth: readyHealth(),
+    });
     const hostileReplies: unknown[] = [];
     const hostileTarget: BridgePostTarget = { postMessage: (message) => hostileReplies.push(message) };
     host.start();
@@ -302,6 +377,7 @@ describe("Motion web bridge", () => {
         coordinateSystem: capabilities.coordinateSystem,
         timestampQuality: capabilities.timestampQuality,
       },
+      initialHealth: readyHealth(),
     });
     host.stop();
     limitedHost.start();
@@ -357,6 +433,7 @@ describe("Motion web bridge", () => {
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      initialHealth: readyHealth(),
       now: () => now,
       sessionTtlMs: 1_000,
     });
@@ -402,7 +479,12 @@ describe("Motion web bridge", () => {
     expect(client.state).toBe("connecting");
     expect(scheduled.size).toBe(1);
 
-    const host = new MotionBridgeHost({ receiver: link.hostReceiver, allowedOrigins: [link.gameOrigin], capabilities });
+    const host = new MotionBridgeHost({
+      receiver: link.hostReceiver,
+      allowedOrigins: [link.gameOrigin],
+      capabilities,
+      initialHealth: readyHealth(),
+    });
     host.start();
     const retry = [...scheduled][0]!;
     scheduled.delete(retry);
@@ -430,6 +512,7 @@ describe("Motion web bridge", () => {
         sessionId: "future-session",
         capabilities,
         negotiation: { accepted: true, activeProfiles: ["body.core17"], unavailableOptionalProfiles: [] },
+        health: readyHealth(),
         futureField: "ignored",
       },
     });

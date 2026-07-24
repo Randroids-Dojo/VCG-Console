@@ -1713,6 +1713,11 @@ h1 {
   color: var(--fault);
 }
 
+.health-badge[data-state="starting"],
+.health-badge[data-state="degraded"] {
+  border-style: dashed;
+}
+
 .metrics {
   margin: 0;
 }
@@ -1739,6 +1744,93 @@ h1 {
 .metrics dd {
   color: var(--paper);
   text-align: right;
+}
+
+.tracker-health-card {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--accent);
+  background: var(--ink);
+}
+
+.tracker-health-card[data-state="degraded"] {
+  border-style: dashed;
+}
+
+.tracker-health-card[data-state="fault"] {
+  border-color: var(--fault);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--fault), transparent 84%) 8px 9px
+    ),
+    var(--ink);
+}
+
+.tracker-health-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+}
+
+.tracker-health-heading strong {
+  color: var(--paper);
+  font-weight: 400;
+}
+
+.tracker-health-card h2,
+.tracker-health-card p {
+  margin: 0;
+}
+
+.tracker-health-card h2 {
+  color: var(--paper);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tracker-health-card p {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+
+.health-fixtures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding-top: 3px;
+}
+
+.health-fixtures button {
+  min-height: 34px;
+  padding: 7px 6px 5px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.54rem;
+  letter-spacing: 0.04em;
+}
+
+.health-fixtures button:hover:not(:disabled),
+.health-fixtures button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.health-fixtures button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .gesture-feedback {

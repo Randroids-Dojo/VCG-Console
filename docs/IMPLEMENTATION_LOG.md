@@ -9,7 +9,7 @@ This file records what has actually been built and verified. It does not convert
 ### Delivered
 
 - pnpm workspace with independent Motion API, game-manifest, console-lab, asset-preparation, schema-export, catalog-validation, and hosted-process supervision surfaces.
-- Motion API `0.2.0`: exact 17-point core, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, tracker health, temporal standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schema, and explicit required/optional capability negotiation.
+- Motion API `0.3.0`: exact 17-point core, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, ordered out-of-band tracker health, temporal standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schemas, and explicit required/optional capability negotiation.
 - Local MediaPipe Pose Landmarker Lite pipeline with GPU-first and WASM CPU fallback, hidden raw video, 17/33 mapping, synthetic replay, bounded 600-frame trace buffer, and latency/FPS diagnostics that clearly label capture-arrival timing.
 - Minimal OCR-A television shell with charcoal, off-white, and cyan tokens; visible focus; Tracker, Obstacle, and Shell Lab surfaces; keyboard/controller recovery; and reduced-motion support.
 - Prototype join, jump, duck, dodge, swipe, two-hands select, crossed-arm Back/pause, 300 ms tracking-loss confirmation, and two-second silent reacquisition logic.
@@ -870,7 +870,7 @@ This is adapter-independent state, not SDL3 or Steam Input qualification. Exact 
 
 - Added a strict versioned benchmark plan/result contract to `@vcg/motion-contract`.
 - Added the canonical `household-one-player-v1` plan with 14 blocks and 280 required attempts covering rest, stand, join, squat, jump, left/right punch, left/right step, shell Back, game Pause, occlusion, exit, and re-entry.
-- Every trial fixes context, duration, repetition count, instruction, and a timed trigger, no-trigger, landmark-only, or session-transition expectation. Punch remains honestly landmark-only under Motion API `0.2.0`.
+- Every trial fixes context, duration, repetition count, instruction, and a timed trigger, no-trigger, landmark-only, or session-transition expectation. Punch remains honestly landmark-only under current Motion API `0.3.0`.
 - Result files bind the exact protocol, skeleton-trace SHA-256, timestamp quality, configuration, placement, persona class, concurrent workload, and every planned repetition.
 - Scoring reports trigger and session-transition true positives, false positives, false negatives, precision, and recall. Invalid attempts remain visible and make the result incomplete.
 - Added `pnpm validate:benchmarks`; I-052 closes without representing synthetic contract tests as player evidence.
@@ -999,3 +999,27 @@ No participant has been tested by this slice. Consent materials still need house
 ### Remaining boundary
 
 The selected living room still needs its exact survey and marked zone. Anchor suitability, floor/cable installation, electrical/thermal/enclosure safety, break cadence, child comprehension, physical stop, and every abuse scenario require qualified hands-on review under I-001, I-002, I-037, I-046, I-140, I-143, I-144, I-192, I-194, I-195, and I-196.
+
+## 2026-07-24: out-of-band tracker health and degraded control
+
+### Delivered
+
+- Advanced Motion API from `0.2.0` to `0.3.0` rather than changing exact-version health semantics silently.
+- Added nine closed-vocabulary initializing, restarting, healthy, low-confidence, overload, fallback-backend, camera-unavailable, camera-disconnected, and backend-fault fixtures with coherent full, landmarks-only, or blocked control.
+- Starting/fault frames cannot expose players. Every non-ready frame has no standardized actions, and degradation clears partial action holds before later recovery.
+- Bridge v2 welcome now carries current health; ordered `vcg.motion.health` transitions remain deliverable without frames. The host binds each frame's source/status to current health and rejects stale sequence or regressing time.
+- The browser tracker emits lifecycle events for initialization, retry, healthy worker, main-thread fallback, unavailable/ended camera, and backend failure without placing provider exception text on the game wire.
+- The Motion Lab visibly demonstrates Ready, Low confidence, Overload, Restart, and Disconnect with redundant badge/title/detail/border/control-availability cues.
+- Added a checked-in Draft 2020-12 health schema, regenerated all Motion/bridge/benchmark schemas, advanced the canonical benchmark binding, and documented D-149.
+- I-081 closes; Q-039/I-063 remain for real per-limb thresholds and game pause-versus-landmarks-only qualification.
+
+### Verification evidence
+
+- Motion-contract tests cover every valid health tuple, reject incoherent tuples, enforce start/fault player denial and non-ready action denial, and pass the updated `0.3.0` benchmark contract.
+- Bridge tests cover welcome health, ordered out-of-band overload/restart delivery, late reconnect state, stale-event refusal, health/frame mismatch refusal, and degraded profile projection.
+- Console unit tests cover all visible copies/control modes and prove degradation suppresses actions and resets hold timing.
+- Real Chrome exercises the five visible health fixtures plus healthy worker and explicit fallback-backend status.
+
+### Remaining boundary
+
+The low-confidence and overload states are contract/UI fixtures, not measured thresholds. Real camera disconnect/reconnect, sustained overload, fallback qualification, per-limb loss, freeze/pause behavior, accessibility comprehension, and ARM64/x86-64 timing remain under I-063, I-134, I-161, I-208, I-210, and Q-039.

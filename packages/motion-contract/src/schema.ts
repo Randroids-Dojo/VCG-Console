@@ -7,7 +7,7 @@ import {
 import { COORDINATE_SPEC_VERSION, IMAGE_COORDINATE_SYSTEM, PROVIDER_WORLD_COORDINATE_SYSTEM } from "./coordinates";
 import { CORE_LANDMARK_NAMES, MEDIAPIPE_LANDMARK_NAMES } from "./landmarks";
 
-export const MOTION_API_SCHEMA_VERSION = "0.2.0" as const;
+export const MOTION_API_SCHEMA_VERSION = "0.3.0" as const;
 
 const NormalizedPointSchema = z.object({
   x: z.number().finite(),
@@ -153,6 +153,52 @@ export const CapabilityNegotiationSchema = z.discriminatedUnion("accepted", [
   }),
 ]);
 
+export const TRACKER_HEALTH_REASONS = [
+  "initializing",
+  "restarting",
+  "healthy",
+  "low-confidence",
+  "overload",
+  "fallback-backend",
+  "camera-unavailable",
+  "camera-disconnected",
+  "backend-fault",
+] as const;
+
+export const TrackerHealthStatusSchema = z.enum(["starting", "ready", "degraded", "fault"]);
+export const TrackerHealthReasonSchema = z.enum(TRACKER_HEALTH_REASONS);
+export const MotionSourceSchema = z.enum(["mediapipe-web", "replay", "synthetic"]);
+
+const TrackerHealthEventBaseSchema = z.object({
+  schemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
+  sequence: z.number().int().nonnegative(),
+  source: MotionSourceSchema,
+  occurredAtMs: z.number().nonnegative(),
+});
+
+export const TrackerHealthEventSchema = z.discriminatedUnion("status", [
+  TrackerHealthEventBaseSchema.extend({
+    status: z.literal("starting"),
+    reason: z.enum(["initializing", "restarting"]),
+    controlAvailability: z.literal("blocked"),
+  }),
+  TrackerHealthEventBaseSchema.extend({
+    status: z.literal("ready"),
+    reason: z.literal("healthy"),
+    controlAvailability: z.literal("full"),
+  }),
+  TrackerHealthEventBaseSchema.extend({
+    status: z.literal("degraded"),
+    reason: z.enum(["low-confidence", "overload", "fallback-backend"]),
+    controlAvailability: z.literal("landmarks-only"),
+  }),
+  TrackerHealthEventBaseSchema.extend({
+    status: z.literal("fault"),
+    reason: z.enum(["camera-unavailable", "camera-disconnected", "backend-fault"]),
+    controlAvailability: z.literal("blocked"),
+  }),
+]);
+
 function hasEveryLandmark<T extends string>(landmarks: ReadonlyArray<{ name: T }>, expected: ReadonlyArray<T>): boolean {
   const names = new Set(landmarks.map((landmark) => landmark.name));
   return names.size === expected.length && expected.every((name) => names.has(name));
@@ -187,16 +233,34 @@ export const MotionFrameSchema = z
   .object({
     schemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
     sequence: z.number().int().nonnegative(),
-    source: z.enum(["mediapipe-web", "replay", "synthetic"]),
+    source: MotionSourceSchema,
     sourceTimestampMs: z.number().nonnegative(),
     inferenceStartedAtMs: z.number().nonnegative(),
     inferenceCompletedAtMs: z.number().nonnegative(),
     publishedAtMs: z.number().nonnegative(),
-    health: z.enum(["starting", "ready", "degraded", "fault"]),
+    health: TrackerHealthStatusSchema,
     capabilities: MotionCapabilitiesSchema,
     players: z.array(PlayerMotionSchema),
   })
   .superRefine((frame, context) => {
+    if ((frame.health === "starting" || frame.health === "fault") && frame.players.length > 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["players"],
+        message: `${frame.health} frames cannot expose player data`,
+      });
+    }
+    if (frame.health !== "ready") {
+      frame.players.forEach((player, playerIndex) => {
+        if (player.actions.length > 0) {
+          context.addIssue({
+            code: "custom",
+            path: ["players", playerIndex, "actions"],
+            message: `${frame.health} frames cannot authorize standardized actions`,
+          });
+        }
+      });
+    }
     const activeProfiles = new Set(frame.capabilities.profiles);
     frame.players.forEach((player, playerIndex) => {
       player.actions.forEach((action, actionIndex) => {
@@ -232,8 +296,14 @@ export type MotionCapabilities = z.infer<typeof MotionCapabilitiesSchema>;
 export type MotionProfile = z.infer<typeof MotionProfileSchema>;
 export type CapabilityRequest = z.infer<typeof CapabilityRequestSchema>;
 export type CapabilityNegotiation = z.infer<typeof CapabilityNegotiationSchema>;
+export type TrackerHealthStatus = z.infer<typeof TrackerHealthStatusSchema>;
+export type TrackerHealthReason = z.infer<typeof TrackerHealthReasonSchema>;
+export type TrackerHealthEvent = z.infer<typeof TrackerHealthEventSchema>;
 
 export const motionFrameJsonSchema = z.toJSONSchema(MotionFrameSchema, {
+  target: "draft-2020-12",
+}) as Record<string, unknown>;
+export const trackerHealthEventJsonSchema = z.toJSONSchema(TrackerHealthEventSchema, {
   target: "draft-2020-12",
 }) as Record<string, unknown>;
 
@@ -304,6 +374,29 @@ export function addMotionContractJsonConstraints<T extends Record<string, unknow
         node.allOf = [
           actionProfileJsonConstraint("actions.obstacle.v1", OBSTACLE_ACTION_NAMES),
           actionProfileJsonConstraint("actions.shell.v1", SHELL_ACTION_NAMES),
+          {
+            if: {
+              properties: { health: { enum: ["starting", "fault"] } },
+              required: ["health"],
+            },
+            then: { properties: { players: { maxItems: 0 } } },
+          },
+          {
+            if: {
+              properties: { health: { not: { const: "ready" } } },
+              required: ["health"],
+            },
+            then: {
+              properties: {
+                players: {
+                  items: {
+                    properties: { actions: { maxItems: 0 } },
+                    required: ["actions"],
+                  },
+                },
+              },
+            },
+          },
         ];
       }
     }
@@ -364,6 +457,10 @@ playerProperties.richLandmarks!.allOf = exactNameConstraints(MEDIAPIPE_LANDMARK_
 
 export function parseMotionFrame(value: unknown): MotionFrame {
   return MotionFrameSchema.parse(value);
+}
+
+export function parseTrackerHealthEvent(value: unknown): TrackerHealthEvent {
+  return TrackerHealthEventSchema.parse(value);
 }
 
 export function parseMotionTrace(value: unknown): MotionTrace {

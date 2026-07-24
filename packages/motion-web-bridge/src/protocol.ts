@@ -4,6 +4,7 @@ import {
   MOTION_API_SCHEMA_VERSION,
   MotionCapabilitiesSchema,
   MotionFrameSchema,
+  TrackerHealthEventSchema,
   addMotionContractJsonConstraints,
 } from "@vcg/motion-contract";
 import { z } from "zod";
@@ -41,6 +42,7 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
     sessionId: z.string().min(1),
     capabilities: MotionCapabilitiesSchema,
     negotiation: CapabilityNegotiationSchema,
+    health: TrackerHealthEventSchema,
   }),
   z.object({
     type: z.literal("vcg.motion.rejected"),
@@ -53,6 +55,12 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
     protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
     sessionId: z.string().min(1),
     frame: MotionFrameSchema,
+  }),
+  z.object({
+    type: z.literal("vcg.motion.health"),
+    protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+    sessionId: z.string().min(1),
+    event: TrackerHealthEventSchema,
   }),
   z.object({
     type: z.literal("vcg.motion.error"),

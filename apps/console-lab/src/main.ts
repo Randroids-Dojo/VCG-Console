@@ -1,4 +1,9 @@
-import type { MotionAction, MotionFrame } from "@vcg/motion-contract";
+import type {
+  MotionAction,
+  MotionFrame,
+  TrackerHealthEvent,
+  TrackerHealthReason,
+} from "@vcg/motion-contract";
 import { actionFeedback } from "./action-feedback";
 import { ActionEngine } from "./action-engine";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
@@ -11,6 +16,7 @@ import "./styles.css";
 import { syntheticFrame } from "./synthetic";
 import { TraceBuffer } from "./trace-buffer";
 import { MediaPipeTracker, type TrackerStatus } from "./tracker";
+import { trackerHealthFixture, trackerHealthPresentation } from "./tracker-health";
 
 type AppMode = "tracker" | "obstacle" | "shell";
 type OverlayKind = "manual" | "recovery";
@@ -93,6 +99,21 @@ app.innerHTML = `
           <div><dt>DROPPED FRAMES</dt><dd id="metric-dropped">0</dd></div>
           <div><dt>TRACE FRAMES</dt><dd id="metric-trace">0</dd></div>
         </dl>
+        <section class="tracker-health-card" id="tracker-health-card" data-state="ready" aria-live="polite">
+          <div class="tracker-health-heading">
+            <span>MOTION CONTROL</span>
+            <strong id="tracker-control">FULL</strong>
+          </div>
+          <h2 id="tracker-health-title">Tracker is ready</h2>
+          <p id="tracker-health-detail">Landmarks and standardized actions are available from the active local source.</p>
+          <div class="health-fixtures" aria-label="Tracker health message fixtures">
+            <button type="button" data-health-fixture="healthy">READY</button>
+            <button type="button" data-health-fixture="low-confidence">LOW CONF</button>
+            <button type="button" data-health-fixture="overload">OVERLOAD</button>
+            <button type="button" data-health-fixture="restarting">RESTART</button>
+            <button type="button" data-health-fixture="camera-disconnected">DISCONNECT</button>
+          </div>
+        </section>
         <section class="gesture-feedback" id="gesture-feedback" data-state="idle" aria-live="polite">
           <div class="gesture-feedback-heading">
             <span id="gesture-action">GESTURE FEEDBACK</span>
@@ -168,6 +189,11 @@ const gestureProgressFill = required<HTMLElement>("#gesture-progress-fill");
 const gestureDetail = required<HTMLElement>("#gesture-detail");
 const systemState = required<HTMLElement>("#system-state");
 const healthBadge = required<HTMLElement>("#health-badge");
+const trackerHealthCard = required<HTMLElement>("#tracker-health-card");
+const trackerHealthTitle = required<HTMLElement>("#tracker-health-title");
+const trackerHealthDetail = required<HTMLElement>("#tracker-health-detail");
+const trackerControl = required<HTMLElement>("#tracker-control");
+const healthFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-health-fixture]")];
 const sourceBadge = required<HTMLElement>("#source-badge");
 const overlay = required<HTMLElement>("#console-overlay");
 const modeButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
@@ -182,6 +208,8 @@ let currentMode: AppMode = "tracker";
 let focusedModeIndex = 0;
 let overlayKind: OverlayKind | undefined;
 let overlayFocus: "resume" | "exit" = "resume";
+let healthSequence = 1;
+let activeHealth = trackerHealthFixture("healthy", 0, 0);
 
 const launcher = new LauncherController({
   openMotionLab(mode = "tracker") {
@@ -214,6 +242,9 @@ const tracker = new MediaPipeTracker({
   onStatus(status, detail) {
     updateStatus(status, detail);
   },
+  onHealth(event) {
+    applyTrackerHealth(event);
+  },
 });
 
 const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
@@ -225,8 +256,20 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
+  const governedHealth = rawFrame.source === activeHealth.source ? activeHealth.status : rawFrame.health;
+  const governedFrame: MotionFrame = {
+    ...rawFrame,
+    health: governedHealth,
+    players:
+      governedHealth === "starting" || governedHealth === "fault"
+        ? []
+        : rawFrame.players.map((player) => ({
+            ...player,
+            actions: governedHealth === "ready" ? player.actions : [],
+          })),
+  };
   const frame = actionEngine.enrich(
-    rawFrame,
+    governedFrame,
     overlayKind ? "overlay" : currentMode === "obstacle" ? "game" : "shell",
   );
   latestFrame = frame;
@@ -347,13 +390,42 @@ function paintMetrics(frame: MotionFrame): void {
 
 function updateStatus(status: TrackerStatus, detail: string): void {
   statusDetail.textContent = detail;
-  healthBadge.textContent = status === "running" ? "LIVE" : status.toUpperCase();
-  healthBadge.dataset.state = status;
-  systemState.textContent = status === "running" ? "CAMERA ACTIVE" : status === "fault" ? "TRACKER FAULT" : "REPLAY READY";
   cameraButton.disabled = status === "loading" || status === "requesting-camera";
   cameraButton.textContent = status === "running" ? "STOP CAMERA" : "START CAMERA";
   replayButton.disabled = replayRunning;
   sourceBadge.textContent = status === "running" ? "MEDIAPIPE / LOCAL" : "SYNTHETIC REPLAY";
+  for (const button of healthFixtureButtons) button.disabled = !replayRunning;
+}
+
+function applyTrackerHealth(event: TrackerHealthEvent): void {
+  activeHealth = event;
+  const presentation = trackerHealthPresentation(event);
+  healthBadge.textContent = presentation.badge;
+  healthBadge.dataset.state = event.status;
+  trackerHealthCard.dataset.state = event.status;
+  trackerHealthTitle.textContent = presentation.title;
+  trackerHealthDetail.textContent = presentation.detail;
+  trackerControl.textContent =
+    event.controlAvailability === "full"
+      ? "FULL"
+      : event.controlAvailability === "landmarks-only"
+        ? "LANDMARKS ONLY"
+        : "CONTROLLER ONLY";
+  systemState.textContent =
+    event.status === "ready"
+      ? event.source === "mediapipe-web" ? "CAMERA ACTIVE" : "REPLAY READY"
+      : event.status === "degraded"
+        ? "TRACKER DEGRADED"
+        : event.status === "starting"
+          ? "TRACKER STARTING"
+          : "TRACKER FAULT";
+  if (event.status !== "ready") actionEngine.suspend();
+  if (event.controlAvailability === "blocked") {
+    obstacle.setPaused(true);
+    for (const sessionEvent of playerSession.observe(event.occurredAtMs, [], { hardFault: true })) {
+      handlePlayerSessionEvent(sessionEvent);
+    }
+  }
 }
 
 function setMode(mode: AppMode): void {
@@ -470,9 +542,11 @@ function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input i
   replayRunning = true;
   metrics.reset();
   trace.clear();
+  resetPlayerSession();
   replayButton.disabled = true;
   cameraButton.textContent = "START CAMERA";
   sourceBadge.textContent = "SYNTHETIC REPLAY";
+  applyTrackerHealth(trackerHealthFixture("healthy", healthSequence++, performance.now()));
   updateStatus(status, detail);
 }
 
@@ -489,6 +563,7 @@ cameraButton.addEventListener("click", async () => {
   replayRunning = false;
   metrics.reset();
   trace.clear();
+  resetPlayerSession();
   try {
     await tracker.start();
     replayButton.disabled = false;
@@ -504,6 +579,13 @@ required<HTMLButtonElement>("#home-button").addEventListener("click", showLaunch
 for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode));
 for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode));
 for (const button of overlayButtons) button.addEventListener("click", () => chooseOverlayAction(button.dataset.overlayAction as "resume" | "exit"));
+for (const button of healthFixtureButtons) {
+  button.addEventListener("click", () => {
+    if (!replayRunning) return;
+    const reason = button.dataset.healthFixture as TrackerHealthReason;
+    applyTrackerHealth(trackerHealthFixture(reason, healthSequence++, performance.now()));
+  });
+}
 required<HTMLButtonElement>("#manual-pause-button").addEventListener("click", () => showOverlay("manual"));
 required<HTMLButtonElement>("#tracking-loss-button").addEventListener("click", () => {
   obstacle.setPaused(true);
