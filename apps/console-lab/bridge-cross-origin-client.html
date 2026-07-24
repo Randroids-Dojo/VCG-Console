@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; connect-src 'none'; img-src 'none'; media-src 'none'; style-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+    />
+    <meta name="vcg-console-origin" content="http://127.0.0.1:4173" />
+    <title>VCG Cross-Origin Bridge Client Fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>SANDBOXED COOPERATIVE GAME</h1>
+      <p id="client-status" role="status">STARTING</p>
+      <output id="client-origin">UNKNOWN ORIGIN</output>
+      <output id="frame-sequence">NO FRAME</output>
+    </main>
+    <script type="module" src="/src/bridge-cross-origin-client-fixture.ts"></script>
+  </body>
+</html>

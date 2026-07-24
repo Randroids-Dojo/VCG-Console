@@ -539,3 +539,30 @@ test("cooperative web game negotiates, receives a frame, and reconnects after re
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 1");
 });
+
+test("cross-origin motion bridge survives sandboxing and rejects navigation origin drift", async ({ page }) => {
+  await page.goto("/bridge-cross-origin-host.html");
+  const game = page.frameLocator("#game");
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await expect(game.locator("#client-origin")).toHaveText("http://localhost:4173");
+  await expect(page.locator("#host-status")).toHaveText("CONNECTED");
+
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#frame-sequence")).toHaveText("FRAME 0");
+
+  await page.locator("#game").evaluate((element: HTMLIFrameElement) => {
+    element.src = "/bridge-hostile-client.html";
+  });
+  await expect(game.locator("#hostile-status")).toHaveText("NO RESPONSE");
+  await expect(page.locator("#hostile-count")).toHaveText("1");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(page.locator("#host-status")).toHaveText("PUBLISHED 1 TO 1");
+  await expect(game.locator("#hostile-status")).toHaveText("NO RESPONSE");
+
+  await page.locator("#game").evaluate((element: HTMLIFrameElement) => {
+    element.src = "http://localhost:4173/bridge-cross-origin-client.html";
+  });
+  await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
+  await expect(game.locator("#frame-sequence")).toHaveText("FRAME 2");
+});

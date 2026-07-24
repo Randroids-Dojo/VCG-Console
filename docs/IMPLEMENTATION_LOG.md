@@ -782,6 +782,26 @@ Catalog membership is availability metadata, not proof that artifacts remain exe
 
 The cleanup mechanism does not decide retention. No automatic age/space policy, low-space coordinator, network client, transfer scheduler, or generation deletion is enabled. Target-Linux directory synchronization/lock behavior, sudden-power removal, hostile noncooperating writers, service serialization, and operator-visible recovery still require qualification.
 
+## 2026-07-24: cross-origin Motion bridge browser boundary
+
+### Delivered
+
+- Added a real cross-origin cooperative-game fixture with distinct exact console and game origins.
+- The console fixture applies restrictive script/frame CSP; the game fixture denies all resource classes except its same-origin module and runs inside `sandbox="allow-scripts allow-same-origin"`.
+- A narrowly scoped development/preview response lets only the cross-origin fixture document opt into embedding under the console's existing `COEP: require-corp` isolation.
+- Navigation of the established game `WindowProxy` to an unapproved origin is ignored without a reply. Exact outbound `targetOrigin` also prevents the old session's publication from reaching that document.
+- Returning to the allowlisted origin performs a new handshake and replaces the prior session before the cooperative client accepts another frame.
+
+### Verification evidence
+
+- The new Playwright flow proves cross-origin negotiation, frame receipt, the actual game origin, hostile-origin counting without reply or delivery, and successful renegotiation after returning.
+- Svelte/TypeScript diagnostics report zero errors and warnings.
+- No owner choice was required; this implements more of D-018's existing exact-origin cooperative bridge while preserving D-055's separate top-level hosted-game boundary.
+
+### Remaining boundary
+
+This fixture does not prove every CSP/sandbox/browser combination or trust arbitrary code sharing an allowlisted origin. Redirect chains, hostile same-origin code, game stalls, native cross-process transport, privileged Home/Back, target-Linux browser containment, and measured ARM64/x86-64 latency remain open.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

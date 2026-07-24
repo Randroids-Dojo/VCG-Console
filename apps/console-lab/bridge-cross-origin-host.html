@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; frame-src 'self' http://localhost:4173; base-uri 'none'; form-action 'none'; object-src 'none'"
+    />
+    <meta name="vcg-game-origin" content="http://localhost:4173" />
+    <title>VCG Cross-Origin Bridge Host Fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>VCG CROSS-ORIGIN BRIDGE HOST</h1>
+      <p id="host-status" role="status">WAITING</p>
+      <p>HOSTILE ORIGIN MESSAGES <output id="hostile-count">0</output></p>
+      <button id="publish" type="button">PUBLISH FRAME</button>
+      <iframe
+        id="game"
+        title="Sandboxed cooperative motion game"
+        sandbox="allow-scripts allow-same-origin"
+        src="http://localhost:4173/bridge-cross-origin-client.html"
+      ></iframe>
+    </main>
+    <script type="module" src="/src/bridge-cross-origin-host-fixture.ts"></script>
+  </body>
+</html>

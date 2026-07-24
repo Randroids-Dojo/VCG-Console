@@ -1,6 +1,6 @@
 # Motion web bridge
 
-Last updated: 2026-07-19
+Last updated: 2026-07-24
 
 `@vcg/motion-web-bridge` is the first cooperative browser transport for the VCG Motion API. It implements D-018 as a reversible `postMessage` boundary for reviewed web games that retain a messaging relationship with the console shell.
 
@@ -29,6 +29,8 @@ Unknown fields are ignored on otherwise valid messages so a newer sender can add
 
 The allowlist identifies an approved web origin; it does not make all code at that origin safe. Package/release authority, content review, CSP, navigation containment, browser permissions, and native Home/Back controls remain separate gates.
 
+The real-browser cross-origin fixture keeps the console and game on distinct exact origins. The console page restricts scripts and frames with CSP; the game page denies every resource class except its same-origin module script and opts into cross-origin embedding with a fixture-scoped `Cross-Origin-Resource-Policy` response. Its iframe grants only `allow-scripts allow-same-origin`. Navigating that same `WindowProxy` to an unapproved origin produces no handshake reply or frame delivery because both inbound origin checks and outbound exact `targetOrigin` remain in force. Returning to the approved origin performs a new hello and replaces the old session before the cooperative client accepts frames.
+
 ## Game integration
 
 The game must receive the exact console window and console origin from its reviewed launch configuration. It must not infer a target origin from an untrusted query parameter or use `"*"`.
@@ -54,6 +56,6 @@ A complete typed example lives in `packages/motion-web-bridge/examples/sample-cl
 
 ## Verification scope
 
-Automated tests cover successful and rejected negotiation, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. A real Chrome fixture also negotiates through an iframe, receives a frame, reloads the game document, reconnects, and receives the next frame.
+Automated tests cover successful and rejected negotiation, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive frames, reconnect after reload, deny an origin-drift handshake and publication, then renegotiate when the allowlisted game returns.
 
-Still required: cross-origin CSP and sandbox combinations, hostile navigation, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.
+Still required: broader CSP/sandbox/browser-policy combinations, redirects and hostile same-origin code, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.
