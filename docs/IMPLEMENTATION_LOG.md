@@ -4401,3 +4401,217 @@ controller, reserved Home, native supervision, target Linux display output,
 overscan, seating-distance comprehension, localization/accessibility, audio,
 concurrent tracking load, or frame timing. Q-242/Q-243 and LTV-001 through
 LTV-004 retain those decisions and evidence needs.
+
+## 2026-07-24: retro target performance authority
+
+### Delivered
+
+- Added a separate strict performance package requiring one 8-bit, 16-bit,
+  32-bit, 64-bit, and arcade run for every declared target.
+- Bound each target to exact architecture, hardware-inventory and OS hashes,
+  frontend identity, output mode, four probe IDs, and instrumentation-policy
+  hash. Each case binds exact system, core/version/hash, content/hash, and
+  thresholds selected before results.
+- Added physical-target versus development-dry-run results with calibration
+  and raw-telemetry hashes, frame distributions/misses, audio latency and
+  underruns, power, temperature, throttle, crash, hang, and known-limit
+  evidence.
+- Added exact identity matching, full-matrix refusal, stable failure codes,
+  safe-integer missed-frame arithmetic, conflicting known-limit refusal, and
+  exact parsed-object authority.
+- Published `RETRO_PERFORMANCE_BENCHMARK_CONTRACT.md` and RP-001 through
+  RP-008 for systems/content, targets, thresholds, instrumentation, soak, and
+  known-limit policy.
+
+### Verification evidence
+
+- All 17 focused tests pass with strict TypeScript checking.
+- Recursive workspace tests, root typechecking, production build, and
+  compliance pass. The regenerated inventory has 139 components; the added
+  first-party package joins the existing unresolved project-license class and
+  adds no third-party version.
+- The full root test reached only an in-progress stale launcher-TV artifact
+  before the concurrent TV tranche landed; that unrelated mismatch is
+  superseded by the later landed TV evidence and final combined gates.
+
+### Remaining boundary
+
+I-130 is active, not closed. No emulator, physical target, controller,
+display, audio loopback, power meter, thermal probe, or rights-cleared content
+was measured. Exact representative cases, target identities, limits,
+instrument methods/calibration, raw-evidence retention, one-hour and
+four-hour campaign requirements, and complete physical ARM64/x86-64 results
+remain.
+
+## 2026-07-24: fail-closed retro starter candidate screen
+
+### Delivered
+
+- Captured six exact upstream heads: Dinothawr, libretro 2048, libretro
+  samples, two Lutro demos, and Mr.Boom.
+- Recorded separate code/content status, runtime shape, artifact/dependency,
+  trademark, architecture, required gates, pinned evidence URLs, and exact
+  blockers for every candidate.
+- Preserved zero admissions, zero package/catalog mutations, and zero
+  downloaded artifacts. “Homebrew,” “public domain,” “open source,” sample,
+  or download availability grant no authority.
+- Published the source-backed candidate report and SC-001 through SC-007 for
+  noncommercial terms, first deep-review target, catalog size, trademark,
+  content notes, ownership, and developer fixtures.
+- Added an offline exact validator and root gate for the bounded canonical
+  artifact.
+
+### Verification evidence
+
+- The exact six-candidate artifact validates with all candidates blocked.
+- Eight test groups reject admission/mutation promotion, revision/source
+  substitution, weakened rights or trademark findings, hidden artifact/
+  dependency/architecture gaps, removed gates/blockers, summary/date/
+  limitation drift, unknown claims, and noncanonical/oversized/invalid JSON.
+- All six source heads were observed with `git ls-remote`; 2048 matches its
+  separately pinned source-candidate SBOM revision.
+
+### Remaining boundary
+
+I-131 is active, not closed. This is a metadata screen, not legal approval or
+a starter catalog. No source archive or binary was downloaded by the screen.
+No complete asset authorship/trademark review, artifact hash, dependency
+closure, content/age review, controller/reserved-action test, signed
+reproducible ARM64/x86-64 package, update owner, removal path, or admitted
+title exists.
+
+## 2026-07-24: conservative retro experience baseline
+
+### Delivered
+
+- Added an explicit generated-config baseline disabling shaders, run-ahead,
+  preemptive frames, rewind, frame delay/automatic frame delay, hard GPU sync,
+  and threaded video. Package or frontend defaults can no longer silently
+  enable those features in a VCG session.
+- Published `RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md` with current
+  upstream constraints, exact target/core/content/display authority,
+  one-change-at-a-time qualification, state-replay mutual exclusions,
+  ARM64/x86-64 starting points, and a no-shader reduced-effects fallback.
+- Published RX-001 through RX-008 for the visual default, first low-cost
+  shader, performance priority, state-replay engine, rewind semantics,
+  accessibility ownership, advanced controls, and the first physical matrix.
+
+### Verification evidence
+
+- The focused RetroArch config test requires every conservative setting.
+- Source review used current official Libretro/RetroArch run-ahead, VSync,
+  troubleshooting, shader, CRT preset, FBNeo, and configuration-default
+  documentation. It does not treat upstream recommendations as VCG target
+  evidence.
+
+### Remaining boundary
+
+I-132 is active, not closed. No physical Raspberry Pi 5 or x86-64 target,
+frontend/core/content combination, renderer, display mode, shader artifact,
+frame count, rewind buffer, controller, save-state determinism, audio/frame
+timing, power/thermal result, photosensitivity review, or signed installed
+profile was qualified. The implementation is the safe baseline only.
+
+## 2026-07-24: unified data-retention register
+
+### Delivered
+
+- Published `DATA_RETENTION_AND_DELETION_POLICY.md` as one current-state
+  register for raw/current Motion data, bounded skeleton traces and exports,
+  local diagnostics and exports, accessibility state, profile identity and
+  sensitive records, console saves/cache, and separately hosted data.
+- Separated volatile, bounded volatile, device-local persistent,
+  user-managed export, separately hosted, and not-implemented states so
+  browser rehearsals cannot be mistaken for durable deletion.
+- Defined exact profile-delete ordering, save/reset behavior, failure rules,
+  and the boundary that elapsed time never silently deletes a profile/save
+  while local deletion never claims hosted-service deletion.
+- Published DR-001 through DR-009 for native logs, crash evidence, trace
+  export, sanitizer admission, erasure standard, saves, factory reset,
+  hosted guidance, and support transfer.
+
+### Existing evidence consolidated
+
+- Motion trace bounds/exclusions and active camera no-egress observation.
+- Bounded closed-code diagnostics with exact reviewed export and clear.
+- Revision/scope-bound profile reset/delete rehearsal with qualified
+  unassignment or explicit exact-record deletion.
+- Fixed save namespaces, quotas, preservation, migration staging, and the
+  crash-recoverable exact save/cache reset primitive.
+
+### Remaining boundary
+
+I-139 is active, not closed. No unified native lifecycle service, persistent
+native diagnostic store, native tracker/crash/swap non-retention proof,
+protected cross-store profile-delete transaction, real identity-stripping
+sanitizer, durable unassignment/claim/permanent-delete broker, final
+factory-reset scope, target fault/forensic campaign, or privacy/legal/support
+approval exists.
+
+## 2026-07-24: fail-closed game and asset redistribution register
+
+### Delivered
+
+- Published `REDISTRIBUTION_REGISTER.md` covering every checked-in catalog
+  game, built-in first-party experience, OCR-A, the MediaPipe model, copied
+  MediaPipe JS/WASM runtime, and launcher-authored presentation output.
+- Retained zero offline approvals. Determined, Mi Casa Es Su Casa, and
+  VibeBots remain remote-only with `NOASSERTION`; 2048 remains a blocked
+  metadata-only candidate; the repository license and pose-model terms remain
+  release blockers.
+- Separated exact strong evidence from approval: OCR-A's pinned Public Domain
+  provenance and the npm runtime's Apache-2.0 metadata are candidates pending
+  their complete target release/notice review.
+- Defined one ten-part admission floor and explicit absence rules for
+  emulator/core/ROM/BIOS, starter candidates, offline hosted-game copies,
+  shaders, and unselected system/runtime artifacts.
+- Published RR-001 through RR-009 for project licensing, hosted-game
+  authority/local editions, the model/runtime, OCR-A, 2048 font,
+  title/trademark review, and final release authority.
+
+### Existing enforcement consolidated
+
+- Public manifests retain distribution/license/review status.
+- Remote entries stay on exact HTTPS origins.
+- Signed installed authority requires target-specific hashes.
+- Compliance rejects new unlicensed third-party components and release
+  compliance fails closed on known project/model blockers.
+- Retro SBOM and candidate screens retain their exact rights/artifact gaps.
+
+### Remaining boundary
+
+I-138 is active, not closed. The project license, owner/title/code/content
+authority, pose-model terms, copied MediaPipe file/NOTICE closure, 2048 font,
+exact target browser/OS/native/GPU/AI/emulator inventories, audited-local
+manifest cross-field gate, independent target SBOMs, complete notice/source
+bundle, and final qualified release review remain unresolved.
+
+## 2026-07-24: child and family privacy counsel brief
+
+### Delivered
+
+- Published `CHILD_PRIVACY_REVIEW_BRIEF.md` with frozen product facts for the
+  intended school-age/adult audience, shared appliance, accountless core,
+  camera/Motion, portraits/body matching, profiles, saves, diagnostics,
+  hosted games, network, providers, and support.
+- Used current official FTC COPPA/final-rule, UK ICO Children's Code, and
+  European Commission children's-data guidance only as issue spotters; the
+  brief makes no jurisdiction or legal conclusion.
+- Defined a conservative networked-beta boundary that disables portraits,
+  persistent automatic body matching, child accounts/social identity,
+  ads/analytics/training, telemetry/support upload, and unreviewed hosted
+  titles while preserving meaningful offline local use.
+- Added exact counsel fact requests, engineering evidence, and requalification
+  triggers for every new account/cloud/social/ad/notification/portrait/body/
+  recording/support/market/provider/retention change.
+- Published CP-001 through CP-013 for operator, markets, age, parent role,
+  sensitive identity, hosted services, public identity, data uses, notices,
+  rights operations, schools/research, providers/transfers, and claims.
+
+### Remaining boundary
+
+I-140 is active, not closed. The operator, business model, intended markets
+and ages, lawful basis, parent/age verification, notices/consent/rights flows,
+provider roles/contracts/transfers, production local deletion/non-egress
+evidence, child/parent usability, institutional-use policy, operational
+security/incident response, and dated qualified counsel approval remain.
