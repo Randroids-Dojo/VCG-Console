@@ -101,7 +101,10 @@ native sanitizer registry.
 Create and rename use closed, revision-bound plans. The synthetic allocator
 issues a fresh opaque fixture ID for creation. Production must use the
 privileged authority selected under Q-132; the browser must not choose a real
-profile ID.
+profile ID. Create, rename, calibration application, and destructive commit
+all accept only the exact frozen plan object issued by the same controller;
+identical clones, field substitutions, and cross-controller plans fail before
+mutation.
 
 Recalibration, reset, and deletion use a closed plan bound to:
 
@@ -125,11 +128,9 @@ rollback, or mismatched arrays fail closed. Plans contain no unassigned owner
 ID, path, pixel, body feature, password, credential, export destination, or
 network instruction.
 
-The in-memory controller accepts only the exact frozen destructive plan object
-it issued. A cloned plan with otherwise valid substituted scope is rejected
-before commit. This reference-bound rehearsal is not a durable native
-capability format; Q-191 still requires a protected, restart-safe transaction
-and authority design.
+This reference-bound rehearsal is not a durable native capability format;
+Q-191 still requires a protected, restart-safe transaction and authority
+design.
 
 Synthetic calibration application additionally requires an exact result
 issued by the active calibration controller into a shared at-most-64-entry
@@ -287,11 +288,13 @@ Sixteen focused profile-management unit cases prove:
 - unknown-field, path-like ID, orphan, owner, runtime, and hosted-boundary
   rejection;
 - duplicate display names without ownership movement;
+- cloned or cross-controller create refusal and cloned rename-scope refusal;
 - fresh opaque IDs and no same-name reassociation;
 - elapsed review delay, bounded expiry, and monotonic time;
 - recalibration clearing calibration/body state only;
 - exact issued synthetic calibration-result application advancing the
   calibration revision without creating body-match authority;
+- cloned calibration-plan refusal without consuming the exact result;
 - unissued, cross-profile, limited-field-substituted, externally consumed, and
   replayed calibration-result refusal without mutation;
 - calibration-result expiry refusal both before planning and between planning

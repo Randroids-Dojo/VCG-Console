@@ -324,8 +324,7 @@ export class ProfileManagementController {
   readonly #portraits: AcceptedPortraitCollection;
   readonly #calibrationResults: AcceptedCalibrationResultCollection;
   readonly #unlinkQualifications: QualifiedProgressUnlinkCollection;
-  readonly #issuedDestructivePlans =
-    new WeakSet<DestructiveProfilePlan>();
+  readonly #issuedPlans = new WeakSet<ProfileManagementPlan>();
 
   constructor(
     profiles: readonly ManagedProfileSeed[],
@@ -430,24 +429,28 @@ export class ProfileManagementController {
       }
       profileId = `profile-local-${this.#nextProfileOrdinal++}`;
     } while (this.#profiles.has(profileId));
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "create-profile",
       expectedRevision: this.#revision,
       profileId,
       name: normalizedName,
       detail: "Local player",
     });
+    this.#issuedPlans.add(plan);
+    return plan;
   }
 
   planRename(profileId: string, name: string): RenameProfilePlan {
     const profile = this.#requireProfile(profileId);
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "rename-profile",
       expectedRevision: this.#revision,
       profileId: profile.id,
       expectedName: profile.name,
       name: validateName(name),
     });
+    this.#issuedPlans.add(plan);
+    return plan;
   }
 
   planApplyCalibration(
@@ -462,7 +465,7 @@ export class ProfileManagementController {
       );
     }
     const profile = this.#requireProfile(result.profileId);
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "apply-calibration",
       expectedRevision: this.#revision,
       profileId: profile.id,
@@ -472,6 +475,8 @@ export class ProfileManagementController {
       resultAttempt: result.attempt,
       limited: result.limited,
     });
+    this.#issuedPlans.add(plan);
+    return plan;
   }
 
   planDestructive(
@@ -549,7 +554,7 @@ export class ProfileManagementController {
       expiresAtMs:
         confirmAfterMs + PROFILE_MANAGEMENT_CONFIRMATION_TTL_MS,
     });
-    this.#issuedDestructivePlans.add(plan);
+    this.#issuedPlans.add(plan);
     return plan;
   }
 
@@ -562,6 +567,11 @@ export class ProfileManagementController {
     if (plan.expectedRevision !== this.#revision) {
       throw new ProfileManagementError("profile confirmation is stale");
     }
+    if (!this.#issuedPlans.has(plan)) {
+      throw new ProfileManagementError(
+        "profile plan was not issued by this controller",
+      );
+    }
     if (plan.kind === "create-profile") {
       return this.#commitCreate(plan);
     }
@@ -570,11 +580,6 @@ export class ProfileManagementController {
     }
     if (plan.kind === "apply-calibration") {
       return this.#commitApplyCalibration(plan, nowMs);
-    }
-    if (!this.#issuedDestructivePlans.has(plan)) {
-      throw new ProfileManagementError(
-        "destructive profile plan was not issued by this controller",
-      );
     }
     return this.#commitDestructive(plan, nowMs);
   }

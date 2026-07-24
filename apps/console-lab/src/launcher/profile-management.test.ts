@@ -127,12 +127,27 @@ describe("ProfileManagementController", () => {
       profileId: "profile-local-3",
       name: "Randy",
     });
+    expect(() =>
+      manager.commit({
+        ...create,
+        profileId: "profile-forged",
+      }, 0),
+    ).toThrow("was not issued by this controller");
+    expect(() =>
+      controller().commit(create, 0),
+    ).toThrow("was not issued by this controller");
     const created = manager.commit(create, 0);
     expect(created.snapshot.profiles.filter(
       (profile) => profile.name === "Randy",
     )).toHaveLength(2);
 
     const rename = manager.planRename("profile-guest", "Randy");
+    expect(() =>
+      manager.commit({
+        ...rename,
+        name: "Visitor",
+      }, 1),
+    ).toThrow("was not issued by this controller");
     const renamed = manager.commit(rename, 1);
     expect(renamed.snapshot.profiles.filter(
       (profile) => profile.name === "Randy",
@@ -232,6 +247,9 @@ describe("ProfileManagementController", () => {
     calibrationResults.issue(issued, 0, 100);
     const manager = controller(portraits, calibrationResults);
     const plan = manager.planApplyCalibration(issued, 0);
+    expect(() =>
+      manager.commit({ ...plan }, 0),
+    ).toThrow("was not issued by this controller");
     const result = manager.commit(plan, 0);
     const profile = result.snapshot.profiles.find(
       (candidate) => candidate.id === "profile-randy",
