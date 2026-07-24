@@ -16,7 +16,22 @@ The adapter interprets the browser's standard mapping as follows:
 | Pause | Start button 9 |
 | Home | Home button 16 when the browser exposes it |
 
-Console actions are edge-triggered. Holding a button or axis emits one action until it returns through neutral; reconnecting after an observed absence starts a new edge epoch. The router also publishes the union of currently held semantic actions on every poll to the explicitly enabled camera-free pose simulator. That observation path changes only simulator landmarks: Home and Back continue through the edge-triggered console path and are never converted to poses. Direction repeat, ambiguous-device mapping, controller glyphs, haptics, battery, and per-player ownership are not implemented.
+Console actions are edge-triggered. Holding a button or axis emits one action
+until it returns through neutral; reconnecting after an observed absence
+starts a new edge epoch. The router also publishes the union of currently held
+semantic actions on every valid poll to the explicitly enabled camera-free
+pose simulator. That observation path changes only simulator landmarks: Home
+and Back continue through the edge-triggered console path and are never
+converted to poses.
+
+Only a browser device whose mapping is exactly `standard` may emit these
+semantic actions. An empty or `xr-standard` mapping remains visible as a
+connected but ambiguous device and emits no directions, Select, Back, Home, or
+Pause. The browser adapter does not guess button positions for an unknown
+layout.
+
+Direction repeat, guided ambiguity mapping, controller glyphs, haptics,
+battery, and per-player ownership are not implemented.
 
 ## Connection lifecycle
 
@@ -27,9 +42,33 @@ Polling is authoritative because browser connection events are not sufficient by
 - A polled slot that disappears is announced as disconnected even if the browser event was missed.
 - A different ID or mapping at an occupied index disconnects the old device before connecting the replacement.
 - Disconnect clears held-action state, so a replacement controller can emit a fresh edge.
-- Stopping removes listeners, cancels the outstanding animation frame, and clears session-local state without pretending the hardware disconnected.
+- Every complete poll is validated before connection, held-state, or action
+  mutation. It admits at most 64 browser slots and 16 connected devices;
+  requires unique safe indexes, bounded non-control-character IDs, known
+  mapping vocabulary, finite timestamps, at most eight finite normalized axes,
+  and at most 32 finite normalized buttons.
+- Simultaneous devices are reconciled and emit edges in ascending browser
+  index order rather than browser-array order.
+- A malformed, duplicate, excessive, or unavailable poll publishes an empty
+  held-state observation and one closed fault code while preserving the last
+  established connection/edge epoch. The next valid poll resumes observation
+  without converting a continuously held button into a new edge. The lab
+  presents that closed code and keeps motion/keyboard recovery visible; it
+  never renders provider exception text.
+- A disconnect immediately republishes held state without that device rather
+  than waiting for another frame.
+- Stopping removes listeners, cancels the outstanding animation frame, clears
+  session-local state, and publishes an empty held state without pretending
+  the hardware disconnected.
 
 The prototype identity is the browser session's index plus ID and mapping. It is not a durable controller identity and must not be used to associate a person, profile, save, or trusted workstation.
+
+Fifteen deterministic unit tests cover the standard mapping, dead zone,
+ambiguous mapping denial, invalid axes/buttons, held-state publication,
+pre-attached discovery, event/poll deduplication, missed disconnect, same-ID
+reconnect, same-index replacement, deterministic simultaneous devices,
+transactional invalid-poll rejection, observation exceptions, slot/device
+bounds, malformed events, stop cleanup, and rearmed input edges.
 
 ## Native qualification boundary
 
@@ -69,3 +108,10 @@ This is the native lifecycle and routing policy state machine, not an SDL3 adapt
 - battery, transport, and controller-specific limitations reported without narrowing the standards-conformant compatibility promise.
 
 Until those gates pass, browser Home/Back and Rust registry/router events are contract evidence only, not proof of unstealable system controls.
+
+The full physical matrix, evidence fields, zero-tolerance failures, privacy
+boundary, and abort/claim rules are pre-registered in
+[`CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md`](CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md).
+Unresolved sample, mapping, assignment, response-budget, battery, and
+repetition choices are isolated in
+[`OWNER_QUESTIONS_CONTROLLER_QUALIFICATION_2026-07-24.md`](OWNER_QUESTIONS_CONTROLLER_QUALIFICATION_2026-07-24.md).

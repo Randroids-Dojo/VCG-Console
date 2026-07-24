@@ -2,14 +2,22 @@ import { describe, expect, it } from "vitest";
 import {
   activeActions,
   GamepadRouter,
+  MAX_BROWSER_GAMEPADS,
+  MAX_BROWSER_GAMEPAD_SLOTS,
   type ConsoleInputAction,
+  type GamepadObservationFault,
   type GamepadRouterEnvironment,
   type GamepadSnapshot,
 } from "./gamepad-router";
 
-function gamepad(buttons: number[] = [], axes: number[] = [0, 0]): GamepadSnapshot {
+function gamepad(
+  buttons: number[] = [],
+  axes: number[] = [0, 0],
+  mapping = "standard",
+): GamepadSnapshot {
   return {
     axes,
+    mapping,
     buttons: Array.from({ length: 17 }, (_, index) => ({ pressed: buttons.includes(index), value: buttons.includes(index) ? 1 : 0 })),
   };
 }
@@ -19,13 +27,13 @@ function browserGamepad(
   id: string,
   buttons: number[] = [],
   axes: number[] = [0, 0],
+  mapping = "standard",
 ): Gamepad {
   return {
-    ...gamepad(buttons, axes),
+    ...gamepad(buttons, axes, mapping),
     connected: true,
     id,
     index,
-    mapping: "standard",
     timestamp: 1,
     vibrationActuator: null,
   } as unknown as Gamepad;
@@ -38,9 +46,14 @@ class FakeGamepadEnvironment implements GamepadRouterEnvironment {
   };
   readonly frames = new Map<number, FrameRequestCallback>();
   gamepads: Array<Gamepad | null> = [];
+  throwOnNextPoll = false;
   #nextFrame = 1;
 
   getGamepads(): readonly (Gamepad | null)[] {
+    if (this.throwOnNextPoll) {
+      this.throwOnNextPoll = false;
+      throw new Error("synthetic browser observation failure");
+    }
     return this.gamepads;
   }
 
@@ -90,6 +103,21 @@ describe("activeActions", () => {
     expect(activeActions(gamepad([14]))).toContain("left");
     expect(activeActions(gamepad([], [0.8, -0.7]))).toEqual(new Set(["right", "up"]));
     expect(activeActions(gamepad([], [0.3, -0.2]))).toEqual(new Set());
+  });
+
+  it("denies semantic actions to ambiguous mappings and malformed controls", () => {
+    expect(activeActions(gamepad([0, 1, 9, 16], [0.9, -0.9], ""))).toEqual(
+      new Set(),
+    );
+    expect(() =>
+      activeActions(gamepad([], [Number.NaN, 0])),
+    ).toThrow("invalid-controls");
+    expect(() =>
+      activeActions({
+        ...gamepad(),
+        buttons: [{ pressed: true, value: 2 }],
+      }),
+    ).toThrow("invalid-controls");
   });
 });
 
@@ -198,13 +226,206 @@ describe("GamepadRouter", () => {
     ]);
   });
 
-  it("cancels polling and ignores connection events after stop", () => {
+  it("processes simultaneous devices in deterministic index order", () => {
+    const environment = new FakeGamepadEnvironment();
+    environment.gamepads = [
+      browserGamepad(4, "four", [1]),
+      browserGamepad(1, "one", [0]),
+      browserGamepad(3, "three", [9]),
+    ];
+    const connections: number[] = [];
+    const actions: string[] = [];
+    const router = new GamepadRouter(
+      (action, value) => actions.push(`${value.index}:${action}`),
+      (value, connected) => {
+        if (connected) connections.push(value.index);
+      },
+      environment,
+    );
+
+    router.start();
+    environment.step();
+
+    expect(connections).toEqual([1, 3, 4]);
+    expect(actions).toEqual(["1:select", "3:pause", "4:back"]);
+  });
+
+  it("keeps ambiguous devices visible but denies their semantic actions", () => {
+    const environment = new FakeGamepadEnvironment();
+    environment.gamepads = [
+      browserGamepad(0, "unknown-layout", [0, 1, 9, 16], [0.9, -0.9], ""),
+    ];
+    const connections: string[] = [];
+    const actions: ConsoleInputAction[] = [];
+    const states: string[][] = [];
+    const router = new GamepadRouter(
+      (action) => actions.push(action),
+      (value, connected) =>
+        connections.push(`${value.mapping || "ambiguous"}:${connected}`),
+      environment,
+      (held) => states.push([...held]),
+    );
+
+    router.start();
+    environment.step();
+
+    expect(connections).toEqual(["ambiguous:true"]);
+    expect(actions).toEqual([]);
+    expect(states).toEqual([[]]);
+  });
+
+  it("rejects a malformed complete poll without mutating established state", () => {
+    const environment = new FakeGamepadEnvironment();
+    const controller = browserGamepad(0, "stable", [0]);
+    environment.gamepads = [controller];
+    const connections: boolean[] = [];
+    const actions: ConsoleInputAction[] = [];
+    const states: string[][] = [];
+    const faults: GamepadObservationFault[] = [];
+    const router = new GamepadRouter(
+      (action) => actions.push(action),
+      (_value, connected) => connections.push(connected),
+      environment,
+      (held) => states.push([...held]),
+      (fault) => faults.push(fault),
+    );
+
+    router.start();
+    environment.step();
+    environment.gamepads = [controller, controller];
+    environment.step();
+    environment.gamepads = [browserGamepad(0, "stable", [0])];
+    environment.step();
+    environment.gamepads = [browserGamepad(0, "stable")];
+    environment.step();
+    environment.gamepads = [browserGamepad(0, "stable", [0])];
+    environment.step();
+
+    expect(faults).toEqual(["duplicate-index"]);
+    expect(connections).toEqual([true]);
+    expect(actions).toEqual(["select", "select"]);
+    expect(states[1]).toEqual([]);
+  });
+
+  it("fails a thrown browser observation closed and resumes polling", () => {
+    const environment = new FakeGamepadEnvironment();
+    environment.gamepads = [browserGamepad(0, "stable", [0])];
+    const actions: ConsoleInputAction[] = [];
+    const states: string[][] = [];
+    const faults: GamepadObservationFault[] = [];
+    const router = new GamepadRouter(
+      (action) => actions.push(action),
+      () => undefined,
+      environment,
+      (held) => states.push([...held]),
+      (fault) => faults.push(fault),
+    );
+
+    router.start();
+    environment.step();
+    environment.throwOnNextPoll = true;
+    environment.step();
+    expect(environment.frames.size).toBe(1);
+    environment.step();
+
+    expect(faults).toEqual(["observation-unavailable"]);
+    expect(actions).toEqual(["select"]);
+    expect(states).toEqual([["select"], [], ["select"]]);
+  });
+
+  it("bounds slot and connected-device observations before mutation", () => {
+    const tooManySlots = new FakeGamepadEnvironment();
+    tooManySlots.gamepads = Array.from(
+      { length: MAX_BROWSER_GAMEPAD_SLOTS + 1 },
+      () => null,
+    );
+    const slotFaults: GamepadObservationFault[] = [];
+    const slotRouter = new GamepadRouter(
+      () => undefined,
+      () => undefined,
+      tooManySlots,
+      undefined,
+      (fault) => slotFaults.push(fault),
+    );
+    slotRouter.start();
+    tooManySlots.step();
+    expect(slotFaults).toEqual(["too-many-slots"]);
+
+    const tooManyDevices = new FakeGamepadEnvironment();
+    tooManyDevices.gamepads = Array.from(
+      { length: MAX_BROWSER_GAMEPADS + 1 },
+      (_, index) => browserGamepad(index, `controller-${index}`),
+    );
+    const deviceFaults: GamepadObservationFault[] = [];
+    const connections: boolean[] = [];
+    const deviceRouter = new GamepadRouter(
+      () => undefined,
+      (_value, connected) => connections.push(connected),
+      tooManyDevices,
+      undefined,
+      (fault) => deviceFaults.push(fault),
+    );
+    deviceRouter.start();
+    tooManyDevices.step();
+    expect(deviceFaults).toEqual(["too-many-gamepads"]);
+    expect(connections).toEqual([]);
+
+    const eventEnvironment = new FakeGamepadEnvironment();
+    const eventFaults: GamepadObservationFault[] = [];
+    const eventConnections: number[] = [];
+    const eventRouter = new GamepadRouter(
+      () => undefined,
+      (value, connected) => {
+        if (connected) eventConnections.push(value.index);
+      },
+      eventEnvironment,
+      undefined,
+      (fault) => eventFaults.push(fault),
+    );
+    eventRouter.start();
+    for (let index = 0; index <= MAX_BROWSER_GAMEPADS; index += 1) {
+      eventEnvironment.dispatch(
+        "gamepadconnected",
+        browserGamepad(index, `event-controller-${index}`),
+      );
+    }
+    expect(eventConnections).toHaveLength(MAX_BROWSER_GAMEPADS);
+    expect(eventFaults).toEqual(["too-many-gamepads"]);
+  });
+
+  it("ignores malformed connection events with a closed fault code", () => {
     const environment = new FakeGamepadEnvironment();
     const connections: boolean[] = [];
+    const faults: GamepadObservationFault[] = [];
     const router = new GamepadRouter(
       () => undefined,
       (_value, connected) => connections.push(connected),
       environment,
+      undefined,
+      (fault) => faults.push(fault),
+    );
+    router.start();
+    environment.dispatch(
+      "gamepadconnected",
+      {
+        ...browserGamepad(0, "bad-controls"),
+        axes: [2],
+      } as unknown as Gamepad,
+    );
+
+    expect(faults).toEqual(["invalid-controls"]);
+    expect(connections).toEqual([]);
+  });
+
+  it("cancels polling and ignores connection events after stop", () => {
+    const environment = new FakeGamepadEnvironment();
+    const connections: boolean[] = [];
+    const states: string[][] = [];
+    const router = new GamepadRouter(
+      () => undefined,
+      (_value, connected) => connections.push(connected),
+      environment,
+      (held) => states.push([...held]),
     );
 
     router.start();
@@ -214,5 +435,6 @@ describe("GamepadRouter", () => {
 
     expect(environment.frames.size).toBe(0);
     expect(connections).toEqual([]);
+    expect(states).toEqual([[]]);
   });
 });

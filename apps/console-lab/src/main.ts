@@ -398,7 +398,10 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
   statusDetail.textContent = connected
     ? `Controller connected: ${gamepad.id} (${mapping}). Browser input is a prototype adapter; native SDL3 qualification remains pending.`
     : `Controller disconnected: ${gamepad.id}. Motion and keyboard recovery remain available.`;
-}, undefined, handleSimulatorGamepadState);
+}, undefined, handleSimulatorGamepadState, (fault) => {
+  statusDetail.textContent =
+    `Controller input paused (${fault}). Motion and keyboard recovery remain available while the next bounded observation is checked.`;
+});
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
