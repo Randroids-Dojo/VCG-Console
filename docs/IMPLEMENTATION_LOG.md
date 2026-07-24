@@ -3664,3 +3664,60 @@ clearing, privacy/legal review, household/accessibility study, false-rate
 campaign, or target appliance was exercised. Matching remains absent from
 product builds pending Q-240 and the complete I-067/I-072/I-184/I-186/I-187
 release gates.
+
+## 2026-07-24: libretro 2048 source closure and build observation
+
+### Delivered
+
+- Extended the I-124 source-candidate SBOM with Git tree
+  `5b8bcab69dc90185f10356b5780bf9d827684474` and a revision-archive SHA-256
+  of `e60494b1b9b5483227c1f1c3cc06bddba256e9f82c9d6fa7abb1e7b31239f554`
+  over 2,761,393 bytes.
+- Downloaded the archive twice through the GitHub archive route and once
+  through codeload. All three were byte-identical. The extracted 475 files
+  matched all 475 pinned Git blobs with no missing, changed, or extra file,
+  and all 22 executable modes matched.
+- Enumerated the upstream Unix non-Cairo path as 16 translation units and 39
+  total tracked compiler/build inputs, bound by an exact closure digest.
+- Confirmed that all 31 selected libretro-common inputs contain the exact MIT
+  grant. Kept the upstream top-level Unlicense claim under legal review.
+- Identified `noncairo/font2.c` as compiled bitmap data labeled “Apple IIgs
+  Original fonts” without an in-file license or provenance statement. Added a
+  separate `NOASSERTION` component that blocks distribution qualification.
+- Built two independent source extractions with the existing WSL2 Ubuntu
+  26.04 / GCC 15.2.0 environment. Both ephemeral 90,864-byte x86-64 ELF
+  outputs were byte-identical at SHA-256
+  `0f5c3a9b12dbe013da4e2cc29a01f41efd2186cce40bd7463cb8ad5bfabd0a9d`.
+- Recorded the exact observed packages, flags, source epoch, inputs, linked
+  libraries, glibc symbol versions, build ID, and limitations. The output was
+  not retained, signed, scanned, frontend-loaded, executed, or target-tested,
+  so x86-64 is only `software-build-observed-unqualified`; ARM64 remains
+  `unverified`.
+
+### Verification evidence
+
+- Fifteen focused SBOM tests now cover archive tree-equivalence counts,
+  revision/tree/hash/length substitution, exact architecture status, the
+  selected MIT closure, embedded-font uncertainty, full build-input closure,
+  two-build identity, ephemeral-output non-promotion, and all prior strict
+  parsing, rights, BIOS, issue, and crash-blocker cases.
+- `pnpm validate:retro-core-sbom` verifies the 10,875-byte tracked artifact
+  byte for byte and passes the complete adversarial suite.
+- The combined root gate passes 459 workspace package tests, 15 hosted-browser
+  tests, 15 SBOM tests, and 10 body-profile evidence tests: 499 tests total.
+- Workspace TypeScript/Svelte checking reports zero diagnostics and the
+  production build succeeds.
+- Schema freshness, manifest/catalog validation, compliance inventory,
+  benchmark and transport validation, Godot 4.7, and device-only data
+  exclusion all pass.
+
+### Remaining boundary
+
+I-124 remains active. This is a same-host WSL software observation, not a
+hermetic or independent release build. Compiler binaries, package-repository
+snapshot, sysroot contents, native dependency hashes, and target image remain
+unpinned. The Apple IIgs font bitmap provenance and redistribution rights,
+complete legal approval and notice/source bundle, independent reproduction,
+signed/scanned/frontend-loaded ARM64 and x86-64 target artifacts, open-crash
+disposition, one-action startup, legibility, runtime behavior, and package
+lifecycle evidence remain. The public manifest stays `unverified`.

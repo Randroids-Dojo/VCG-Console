@@ -100,11 +100,14 @@ test("closed objects reject unknown and missing fields", () => {
   );
 });
 
-test("source revision, archive, hash, and release boundaries are locked", () => {
+test("source revision, tree, archive hash, and release boundaries are locked", () => {
   rejectMutation((candidate) => {
     candidate.source.revision = "a".repeat(40);
     candidate.source.sourceArchive =
       `https://github.com/libretro/libretro-2048/archive/${candidate.source.revision}.tar.gz`;
+  });
+  rejectMutation((candidate) => {
+    candidate.source.gitTree = "a".repeat(40);
   });
   rejectMutation((candidate) => {
     candidate.source.sourceArchive =
@@ -112,9 +115,15 @@ test("source revision, archive, hash, and release boundaries are locked", () => 
   });
   rejectMutation(
     (candidate) => {
-      candidate.source.sourceArchiveSha256 = "0".repeat(64);
+      candidate.source.sourceArchiveSha256 = null;
     },
-    /unhashed revision archive/,
+    /hashed revision archive/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.source.sourceArchiveByteLength += 1;
+    },
+    /reviewed source candidate evidence/,
   );
   rejectMutation(
     (candidate) => {
@@ -122,6 +131,34 @@ test("source revision, archive, hash, and release boundaries are locked", () => 
         "https://github.com/libretro/libretro-2048/releases/tag/v1";
     },
     /no-release boundary/,
+  );
+});
+
+test("archive audit cannot hide download or tree-equivalence failures", () => {
+  rejectMutation(
+    (candidate) => {
+      candidate.source.archiveAudit.independentDownloadCount = 1;
+    },
+    /must prove exact tree equivalence/,
+  );
+  for (const field of [
+    "missingFileCount",
+    "mismatchedBlobCount",
+    "extraFileCount",
+    "executableModeDifferenceCount",
+  ]) {
+    rejectMutation(
+      (candidate) => {
+        candidate.source.archiveAudit[field] = 1;
+      },
+      /must prove exact tree equivalence/,
+    );
+  }
+  rejectMutation(
+    (candidate) => {
+      candidate.source.archiveAudit.committedBlobCount -= 1;
+    },
+    /must prove exact tree equivalence/,
   );
 });
 
@@ -149,18 +186,18 @@ test("unqualified candidate cannot claim recipes, artifacts, or qualification", 
   );
 });
 
-test("architecture entries remain unique and explicitly unverified", () => {
+test("architecture entries remain unique and explicitly unqualified", () => {
   rejectMutation(
     (candidate) => {
       candidate.build.requestedArchitectures[0].status = "qualified";
     },
-    /unique and unverified/,
+    /retain unqualified status/,
   );
   rejectMutation(
     (candidate) => {
       candidate.build.requestedArchitectures[1].architecture = "aarch64";
     },
-    /unique and unverified/,
+    /retain unqualified status/,
   );
   rejectMutation(
     (candidate) => {
@@ -203,25 +240,111 @@ test("license review, notice, and source retention remain pending and exact", ()
   });
 });
 
-test("vendored dependency uncertainty cannot be removed or duplicated", () => {
+test("selected MIT closure and embedded-font uncertainty cannot be weakened", () => {
   rejectMutation(
     (candidate) => {
-      candidate.build.sourceDependencies[1].license = "MIT";
+      candidate.build.sourceDependencies[1].license = "NOASSERTION";
     },
-    /license uncertainty must remain explicit/,
+    /selected libretro-common MIT closure must remain explicit/,
   );
   rejectMutation(
     (candidate) => {
       candidate.build.sourceDependencies[1].reviewStatus = "complete";
     },
-    /license uncertainty must remain explicit/,
+    /selected libretro-common MIT closure must remain explicit/,
   );
   rejectMutation(
     (candidate) => {
-      candidate.build.sourceDependencies[1].id =
+      candidate.build.sourceDependencies[2].id =
         candidate.build.sourceDependencies[0].id;
     },
     /IDs must be unique/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.sourceDependencies[2].license = "MIT";
+    },
+    /embedded Apple IIgs font rights uncertainty must remain explicit/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.sourceDependencies =
+        candidate.build.sourceDependencies.slice(0, 2);
+    },
+    /source dependencies must be a bounded array/,
+  );
+});
+
+test("ephemeral x86-64 build observation cannot become qualification", () => {
+  for (const field of [
+    "executed",
+    "loaded",
+    "retained",
+    "scanned",
+    "signed",
+    "temporaryPathLeakObserved",
+  ]) {
+    rejectMutation(
+      (candidate) => {
+        candidate.build.softwareBuildObservations[0].result[field] = true;
+      },
+      new RegExp(`build result ${field} is invalid`),
+    );
+  }
+  rejectMutation(
+    (candidate) => {
+      candidate.build.softwareBuildObservations[0]
+        .result.independentBuildCount = 1;
+    },
+    /software build result identity is invalid/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.softwareBuildObservations[0].result.byteIdentical =
+        false;
+    },
+    /software build result identity is invalid/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.softwareBuildObservations[0].result.artifactSha256 =
+        "0".repeat(64);
+    },
+    /reviewed source candidate evidence/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.softwareBuildObservations[0].recipe
+        .trackedBuildInputCount = 15;
+    },
+    /software build recipe closure is invalid/,
+  );
+  rejectMutation(
+    (candidate) => {
+      const recipe =
+        candidate.build.softwareBuildObservations[0].recipe;
+      recipe.trackedBuildInputs =
+        recipe.trackedBuildInputs.filter(
+          (path) => path !== "noncairo/font2.c",
+        );
+      recipe.trackedBuildInputCount = recipe.trackedBuildInputs.length;
+    },
+    /software build recipe input closure is invalid/,
+  );
+  rejectMutation(
+    (candidate) => {
+      const recipe =
+        candidate.build.softwareBuildObservations[0].recipe;
+      recipe.trackedBuildInputs[1] = recipe.trackedBuildInputs[0];
+    },
+    /tracked build inputs must be unique/,
+  );
+  rejectMutation(
+    (candidate) => {
+      candidate.build.softwareBuildObservations[0].recipe.closureSha256 =
+        "0".repeat(64);
+    },
+    /reviewed source candidate evidence/,
   );
 });
 
