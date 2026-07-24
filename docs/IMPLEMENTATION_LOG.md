@@ -1187,6 +1187,26 @@ No depth, segmentation, or hand provider is implemented or qualified by this con
 
 - Twenty-two focused bridge tests pass, including exact ACK binding, explicit expiry, healthy-client isolation, churn, soak, and the existing 10,000-frame burst.
 - The focused Chrome stall/recovery flow, bridge/console TypeScript diagnostics, and production console build pass.
+- Full workspace tests, diagnostics, build, all twenty-three Chrome flows, schemas, manifests, benchmarks, compliance freshness, dependency audit, and native regressions pass.
+
+### Remaining boundary
+
+I-084 stays active. The virtual soak measures protocol-state bounds rather than wall-clock RSS or scheduler behavior, and the browser fixture withholds ACKs without suspending an OS renderer. Multi-process memory telemetry, renderer kill/suspend, tracker-process isolation, and selected native IPC backpressure still require target-system evidence.
+
+## 2026-07-24: bounded Motion bridge stalls and reconnect churn
+
+### Delivered
+
+- Bound each session to one exact pending frame sequence; stale or mismatched acknowledgements no longer release publication backpressure.
+- Added timer-independent stale-session collection plus bounded active, peak, pending, expiry, and invalid-acknowledgement telemetry.
+- Proved that a non-acknowledging session neither queues frames nor blocks a healthy neighboring session.
+- Added 1,000 same-window reconnects and a five-minute virtual-time 100 Hz producer soak without retained frame history or session growth.
+- Added a real-Chrome fixture that deliberately withholds acknowledgements, is collected after TTL, and is replaced by a healthy cooperative client.
+
+### Verification evidence
+
+- Twenty-two focused bridge tests pass, including exact ACK binding, explicit expiry, healthy-client isolation, churn, soak, and the existing 10,000-frame burst.
+- The focused Chrome stall/recovery flow, bridge/console TypeScript diagnostics, and production console build pass.
 
 ### Remaining boundary
 
