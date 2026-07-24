@@ -341,3 +341,25 @@ I-198 is active, not closed. No RetroArch or 2048 binary was downloaded or bundl
 ### Remaining boundary
 
 The host enforces integrity values but does not decide which manifest is trusted. Signed package/manifest verification, rollback/revocation policy, authenticated launcher-to-host IPC, and an immutable or file-descriptor-bound verification-to-use path must bind these expected hashes to the approved catalog before target qualification.
+
+## 2026-07-23: authenticated native-host discovery
+
+### Delivered
+
+- A real `vcg-host launcher` run now starts an ephemeral status listener on IPv4 loopback before launching Chromium and keeps it scoped to the browser lifecycle.
+- Each launch receives a fresh 256-bit operating-system-random bearer capability. The port and capability travel in the app URL fragment rather than the query, server request, or referrer.
+- The Rust endpoint implements protocol `0.1.0`, exact-origin CORS/preflight, constant-time token comparison, no-store responses, bounded request parsing and I/O deadlines, and rejection of unsafe configured origins or ambiguous security headers.
+- The Svelte launcher strictly parses the fragment, sends no cookies or referrer, applies one deadline through response-body consumption, validates the status document and protocol, and distinguishes missing, invalid, unreachable, rejected, incompatible, and malformed hosts.
+- Native and RetroArch previews now verify the host before reporting the still-honest `PACKAGE_NOT_INSTALLED` boundary. A connected host alone does not fabricate package availability or readiness.
+- `NATIVE_HOST_API.md` records the protocol and non-negotiable rule that future browser requests provide only high-level intent while the Rust host resolves signed manifests, artifacts, permissions, paths, and adapters.
+
+### Verification evidence
+
+- The console lab has 31 passing unit tests, including strict authority parsing, all host error classes, malformed status, protocol mismatch, and a response body that stalls beyond the request deadline.
+- The Rust library has direct coverage for authenticated status, browser preflight, wrong token/origin, per-launch token uniqueness, fragment placement, unsafe allowed origins, and duplicate security headers.
+- All 17 Playwright flows pass; the native flow observes the exact bearer authorization and distinguishes a compatible host from a missing trusted package.
+- Svelte diagnostics, strict Rust formatting, Clippy, and the complete native test suite pass on the x86-64 Windows compatibility workstation.
+
+### Remaining boundary
+
+This closes only authenticated discovery, not privileged launch IPC or target qualification. Signed installed-manifest resolution, narrow launch requests, event delivery and replay policy, response-size limits, navigation/process-inspection threat tests, compositor readiness, reserved Home/Back, target-Linux sandboxing, and service-manager recovery remain open under I-109 and I-209. D-129 is deliberately working and reversible.

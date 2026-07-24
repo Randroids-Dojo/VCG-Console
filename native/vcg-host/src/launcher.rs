@@ -37,6 +37,12 @@ impl LauncherRequest {
     }
 
     #[must_use]
+    pub fn with_url(mut self, url: impl Into<String>) -> Self {
+        self.url = url.into();
+        self
+    }
+
+    #[must_use]
     pub fn profile_dir(&self) -> &Path {
         &self.profile_dir
     }
@@ -68,7 +74,7 @@ pub fn plan(request: &LauncherRequest) -> Result<LaunchSpec, LauncherError> {
         .profile_dir
         .to_str()
         .ok_or(LauncherError::ProfilePathNotUtf8)?;
-    validate_loopback_url(&request.url)?;
+    loopback_origin(&request.url)?;
 
     let mut arguments = vec![
         format!("--app={}", request.url),
@@ -86,7 +92,13 @@ pub fn plan(request: &LauncherRequest) -> Result<LaunchSpec, LauncherError> {
         .map_err(LauncherError::Launch)
 }
 
-fn validate_loopback_url(url: &str) -> Result<(), LauncherError> {
+/// Returns the validated launcher origin for exact-origin host API checks.
+///
+/// # Errors
+///
+/// Returns an error unless the URL uses HTTP, an explicit port, and a
+/// loopback-only host.
+pub fn loopback_origin(url: &str) -> Result<String, LauncherError> {
     let remainder = url
         .strip_prefix("http://")
         .ok_or(LauncherError::UnsafeUrl)?;
@@ -100,8 +112,7 @@ fn validate_loopback_url(url: &str) -> Result<(), LauncherError> {
     }
 
     let (host, port) = authority.rsplit_once(':').ok_or(LauncherError::UnsafeUrl)?;
-    let port = port
-        .parse::<u16>()
+    port.parse::<u16>()
         .ok()
         .filter(|value| *value > 0)
         .ok_or(LauncherError::UnsafeUrl)?;
@@ -109,10 +120,10 @@ fn validate_loopback_url(url: &str) -> Result<(), LauncherError> {
         || host
             .parse::<IpAddr>()
             .is_ok_and(|address| address.is_loopback());
-    if !loopback || port == 0 {
+    if !loopback {
         return Err(LauncherError::UnsafeUrl);
     }
-    Ok(())
+    Ok(format!("http://{authority}"))
 }
 
 #[derive(Debug)]

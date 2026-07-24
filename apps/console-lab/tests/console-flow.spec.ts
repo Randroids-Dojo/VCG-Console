@@ -97,6 +97,50 @@ test("one launch screen represents every adapter without inventing progress", as
   await retroLaunch.getByRole("button", { name: /Exit/ }).click();
 });
 
+test("native launch authenticates to the Rust host before checking installed packages", async ({ page }) => {
+  const token = "b".repeat(64);
+  let authorization: string | undefined;
+  await page.route("http://127.0.0.1:43123/v1/status", async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Authorization",
+        },
+      });
+      return;
+    }
+    authorization = route.request().headers().authorization;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+      },
+      body: JSON.stringify({
+        protocolVersion: "0.1.0",
+        hostVersion: "0.1.0",
+        target: "x86_64-windows",
+        capabilities: ["launcher-shell", "process-supervision", "game-watchdog", "retroarch-plan"],
+      }),
+    });
+  });
+  await page.goto(`/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${token}`);
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  await page.locator(".launch-preview").getByRole("button", { name: "Native", exact: true }).click();
+
+  const launch = page.getByRole("dialog", { name: "Native game" });
+  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(launch.getByText(/Rust host connected.*no trusted installed package/)).toBeVisible();
+  await launch.getByRole("button", { name: /Details/ }).click();
+  await expect(launch.getByText("PACKAGE_NOT_INSTALLED")).toBeVisible();
+  expect(authorization).toBe(`Bearer ${token}`);
+});
+
 test("launch supervision distinguishes faults and recovers through retry", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Settings", exact: true }).click();

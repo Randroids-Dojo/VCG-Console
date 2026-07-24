@@ -6,6 +6,7 @@ rust-version.workspace = true
 version.workspace = true
 
 [dependencies]
+getrandom = { version = "=0.4.3", default-features = false }
 sha2 = { version = "=0.11.0", default-features = false }
 
 [lints]

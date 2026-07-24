@@ -5,7 +5,8 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Duration;
 
-use vcg_host::launcher::{LauncherRequest, plan as plan_launcher};
+use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
+use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
 
@@ -62,8 +63,8 @@ struct LauncherOptions {
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     let (dry_run, request) = launcher_request(arguments)?;
-    let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
     if dry_run {
+        let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
         println!("launcher:plan mode=dry-run");
         println!("program: {}", spec.program().display());
         for argument in spec.arguments() {
@@ -72,12 +73,28 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
+    let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
+    let host_api = HostStatusServer::start(origin).map_err(|error| error.to_string())?;
+    let launcher_url = host_api
+        .launcher_url(request.url())
+        .map_err(|error| error.to_string())?;
+    let request = request.with_url(launcher_url);
+    let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
     fs::create_dir_all(request.profile_dir())
         .map_err(|error| format!("failed to create launcher profile directory: {error}"))?;
+    println!(
+        "launcher:host-api address={} protocol={}",
+        host_api.address(),
+        HOST_API_PROTOCOL_VERSION
+    );
     let child = ProcessSupervisor
         .launch(&spec)
         .map_err(|error| error.to_string())?;
-    println!("launcher:started pid={} url={}", child.id(), request.url());
+    println!(
+        "launcher:started pid={} origin={}",
+        child.id(),
+        host_api.allowed_origin()
+    );
     let status = child.wait().map_err(|error| error.to_string())?;
     println!(
         "launcher:completed exit_code={}",

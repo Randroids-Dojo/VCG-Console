@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
+  import { checkNativeHost } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
@@ -246,13 +247,20 @@
     const title = requestedTitle ?? (adapter === "retro" ? "RetroArch" : "Native game");
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
     const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
-    launchRetryOperation = () => runHostedAttempt(supervisor);
-    runHostedAttempt(supervisor);
+    launchRetryOperation = () => void runHostedAttempt(supervisor);
+    void runHostedAttempt(supervisor);
   }
 
-  function runHostedAttempt(supervisor: LaunchSupervisor): void {
+  async function runHostedAttempt(supervisor: LaunchSupervisor): Promise<void> {
     supervisor.advance(1, "Requesting the Rust console host");
-    supervisor.unavailable("Rust console host is not connected in this browser prototype");
+    const result = await checkNativeHost();
+    if (launchSupervisor !== supervisor) return;
+    if (!result.ok) {
+      supervisor.unavailable(result.detail, result.code);
+      return;
+    }
+    supervisor.advance(2, `Rust host ${result.status.hostVersion} connected on ${result.status.target}`);
+    supervisor.unavailable("Rust host connected · no trusted installed package is available for this launch", "PACKAGE_NOT_INSTALLED");
   }
 
   function previewLaunch(adapter: LaunchAdapter): void {

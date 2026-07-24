@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor, origin-containment, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher-status channel, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor, navigation containment, trusted package launch over IPC, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -35,7 +35,12 @@ cargo run -p vcg-host -- retroarch --dry-run \
 surface. It accepts only an explicit loopback HTTP URL, uses a dedicated
 Chromium profile, launches app mode directly without shell interpretation, and
 keeps the Rust host attached to the browser lifecycle. Start the local Vite
-server first during desk development. Omit `--windowed` for fullscreen.
+server first during desk development. Omit `--windowed` for fullscreen. For a
+real launch, the host also binds an ephemeral IPv4-loopback status endpoint,
+mints a 256-bit per-launch bearer capability, and passes only its port and token
+in the app URL fragment. The launcher checks the protocol and host capabilities
+before attempting a native or RetroArch handoff. See the
+[native launcher-host API contract](../../docs/NATIVE_HOST_API.md).
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
@@ -47,6 +52,7 @@ server first during desk development. Omit `--windowed` for fullscreen.
 
 - `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
+- `host_api`: per-launch authenticated loopback status, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 
