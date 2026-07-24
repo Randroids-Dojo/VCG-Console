@@ -3302,6 +3302,49 @@ mod tests {
     }
 
     #[test]
+    fn opened_source_capability_is_not_redirected_by_path_replacement() {
+        let fixture = Fixture::new();
+        let source_path = fixture.root.join("replaceable-source.gb");
+        let detached_path = fixture.root.join("detached-open-source.gb");
+        let authorized_bytes = b"authorized opened source";
+        let replacement_bytes = b"untrusted replacement path bytes";
+        fs::write(&source_path, authorized_bytes).expect("write authorized source");
+        let mut source = OpenOptions::new()
+            .read(true)
+            .open(&source_path)
+            .expect("open authorized source capability");
+
+        fs::rename(&source_path, &detached_path).expect("detach opened source path");
+        fs::write(&source_path, replacement_bytes).expect("replace visible source path");
+
+        let intent = intent_bytes(authorized_bytes, 1, "usb", "opened-capability", None);
+        let outcome = fixture
+            .store
+            .install_plain(
+                &intent,
+                &context(&intent),
+                &mut source,
+                &mut FakeScanner::clean(),
+                1_000,
+            )
+            .expect("install from retained opened capability");
+
+        assert_eq!(outcome.library_generation(), 2);
+        assert_eq!(
+            fs::read(&fixture.object_files()[0]).expect("read installed object"),
+            authorized_bytes
+        );
+        assert_eq!(
+            fs::read(&source_path).expect("read replacement path"),
+            replacement_bytes
+        );
+        assert_eq!(
+            fs::read(&detached_path).expect("read detached source"),
+            authorized_bytes
+        );
+    }
+
+    #[test]
     #[allow(clippy::too_many_lines)]
     fn validates_intent_session_policy_and_generation_before_mutation() {
         let fixture = Fixture::new();
