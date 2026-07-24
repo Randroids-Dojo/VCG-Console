@@ -3,10 +3,10 @@
   "evidenceDate": "2026-07-24",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-07-24T23:02:30.491Z",
+  "retrievedAtUtc": "2026-07-24T23:16:20.728Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "bb89c948ab9bf68fe24582bf98c074f423f29f945947718fb1113c3b13a4d71f"
+    "sha256": "ba8de84a83e85c23ed2be9040e7cfe68948631ec4c9028fad94393a6d8690c0e"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -448,7 +448,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "ad208b3c8f3797aede956d92b7053cda6c86c8eea3a6fd40f8f1bd316104186e",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "bb89c948ab9bf68fe24582bf98c074f423f29f945947718fb1113c3b13a4d71f",
+    "homeEvidencePathSha256": "ba8de84a83e85c23ed2be9040e7cfe68948631ec4c9028fad94393a6d8690c0e",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
@@ -472,7 +472,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 125,
-      "sha256": "04c71d4f50fef00087e5691c35b29b6cb151abfda50fbeb77910b533d7811902"
+      "sha256": "27b41bd87ca02d867f5110ed87cd8647d2306c4ae6e285c2eacd0db04f158b06"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

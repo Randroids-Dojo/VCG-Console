@@ -1,0 +1,362 @@
+{
+  "format": "vcg-ocra-platform-fallback-observation/v1",
+  "evidenceDate": "2026-07-24",
+  "environment": {
+    "platform": "windows-x64",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "node": "v24.18.0",
+    "headless": true,
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "baseStructuralEvidence": {
+    "path": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
+    "format": "vcg-ocra-font-structural-evidence/v1",
+    "fontPath": "apps/console-lab/public/fonts/OCRA.ttf",
+    "fontBytes": 24316,
+    "fontSha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
+    "productionSourceNonAsciiCodePointCount": 16,
+    "productionSourceNonAsciiMissingCount": 15
+  },
+  "probe": {
+    "cssFontFamily": "OCRA, ui-monospace, SFMono-Regular, monospace",
+    "cssFontSizePx": 88,
+    "observationCount": 17,
+    "observations": [
+      {
+        "id": "ascii-a",
+        "codePoint": "U+0041",
+        "character": "A",
+        "role": "OCR-A baseline",
+        "fonts": [
+          {
+            "familyName": "OCRA",
+            "postScriptName": "OCRA",
+            "customFont": true,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "middle-dot",
+        "codePoint": "U+00B7",
+        "character": "·",
+        "role": "covered separator",
+        "fonts": [
+          {
+            "familyName": "OCRA",
+            "postScriptName": "OCRA",
+            "customFont": true,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "multiplication",
+        "codePoint": "U+00D7",
+        "character": "×",
+        "role": "status marker",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "em-dash",
+        "codePoint": "U+2014",
+        "character": "—",
+        "role": "separator/error copy",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "smart-apostrophe",
+        "codePoint": "U+2019",
+        "character": "’",
+        "role": "possessive copy",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "ellipsis",
+        "codePoint": "U+2026",
+        "character": "…",
+        "role": "scanning status",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "left-arrow",
+        "codePoint": "U+2190",
+        "character": "←",
+        "role": "back action",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "right-arrow",
+        "codePoint": "U+2192",
+        "character": "→",
+        "role": "continue/open action",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "north-east-arrow",
+        "codePoint": "U+2197",
+        "character": "↗",
+        "role": "external navigation",
+        "fonts": [
+          {
+            "familyName": "Segoe UI Symbol",
+            "postScriptName": "SegoeUISymbol",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "clockwise-open-circle-arrow",
+        "codePoint": "U+21BB",
+        "character": "↻",
+        "role": "retry action",
+        "fonts": [
+          {
+            "familyName": "Cambria Math",
+            "postScriptName": "CambriaMath",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "telephone-recorder",
+        "codePoint": "U+2315",
+        "character": "⌕",
+        "role": "Search decoration",
+        "fonts": [
+          {
+            "familyName": "Cambria Math",
+            "postScriptName": "CambriaMath",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "white-up-triangle",
+        "codePoint": "U+25B3",
+        "character": "△",
+        "role": "controller/status marker",
+        "fonts": [
+          {
+            "familyName": "Cambria Math",
+            "postScriptName": "CambriaMath",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "black-diamond",
+        "codePoint": "U+25C6",
+        "character": "◆",
+        "role": "profile marker",
+        "fonts": [
+          {
+            "familyName": "Cambria Math",
+            "postScriptName": "CambriaMath",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "white-diamond",
+        "codePoint": "U+25C7",
+        "character": "◇",
+        "role": "status marker",
+        "fonts": [
+          {
+            "familyName": "Cambria Math",
+            "postScriptName": "CambriaMath",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "white-circle",
+        "codePoint": "U+25CB",
+        "character": "○",
+        "role": "empty/unassigned marker",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "black-circle",
+        "codePoint": "U+25CF",
+        "character": "●",
+        "role": "status marker",
+        "fonts": [
+          {
+            "familyName": "Consolas",
+            "postScriptName": "Consolas",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "check-mark",
+        "codePoint": "U+2713",
+        "character": "✓",
+        "role": "passed check",
+        "fonts": [
+          {
+            "familyName": "Segoe UI Symbol",
+            "postScriptName": "SegoeUISymbol",
+            "customFont": false,
+            "glyphCount": 1
+          }
+        ]
+      }
+    ],
+    "overflowCssPx": {
+      "horizontal": 0,
+      "vertical": 0
+    }
+  },
+  "browser": {
+    "documentReadyState": "complete",
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "consoleErrors": [],
+    "requestCounts": {
+      "/": 1,
+      "/assets/main-MHSNT7it.js": 1,
+      "/assets/main-s9TqATqG.css": 1,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
+      "/assets/src-EbToTsJV.js": 1,
+      "/assets/synthetic-BTWSnpMo.js": 1,
+      "/assets/tracker-health--oynSZbv.js": 1,
+      "/fonts/OCRA.ttf": 1
+    }
+  },
+  "screenshot": {
+    "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
+    "bytes": 88842,
+    "sha256": "0c0fbf368507588a628c8433773a01d618c479d2c9ca2a8ac18f4d9fbb62ce6c"
+  },
+  "summary": {
+    "probeCodePointCount": 17,
+    "customFontObservationCount": 2,
+    "platformFallbackObservationCount": 15,
+    "distinctFamilyNames": [
+      "Cambria Math",
+      "Consolas",
+      "OCRA",
+      "Segoe UI Symbol"
+    ],
+    "distinctPostScriptNames": [
+      "CambriaMath",
+      "Consolas",
+      "OCRA",
+      "SegoeUISymbol"
+    ]
+  },
+  "provenance": {
+    "stylePath": "apps/console-lab/src/styles.css",
+    "stylePathSha256": "2e949301bee564580b22ea774492d177fee800ebaffccffe37688c9c72884fca",
+    "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
+    "baseEvidencePathSha256": "a66e954987797ee7e15395099bec579061859fbfca3ca6bf1b5a3d275e2c6749",
+    "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
+    "generatorPathSha256": "a8a4f8106cf5d66ecf2378cde7a8f523eb070028bf5c23871719dab8f07b08cc",
+    "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
+    "validatorPathSha256": "03174e402a6ff3e98acc2e46721c7621113b49e040422ffee03d41620c2429c0",
+    "baseEvidenceBytes": 45974,
+    "baseEvidenceSha256": "a66e954987797ee7e15395099bec579061859fbfca3ca6bf1b5a3d275e2c6749",
+    "productionSourceTree": {
+      "roots": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "apps/console-lab/package.json",
+        "apps/console-lab/index.html",
+        "apps/console-lab/vite.config.ts",
+        "apps/console-lab/src",
+        "packages/game-manifest/src",
+        "packages/launcher-catalog/src",
+        "packages/motion-contract/src",
+        "packages/motion-web-bridge/src",
+        "packages/retro-firmware-contract/src",
+        "packages/retro-import-contract/src"
+      ],
+      "fileCount": 125,
+      "sha256": "27b41bd87ca02d867f5110ed87cd8647d2306c4ae6e285c2eacd0db04f158b06"
+    }
+  },
+  "disposition": {
+    "exactWindowsChromeObservationVerified": true,
+    "productionCssStackUsed": true,
+    "diagnosticGridOnly": true,
+    "deterministicCrossPlatformFallbackVerified": false,
+    "fallbackSelected": false,
+    "glyphShapesVerified": false,
+    "tvLegibilityVerified": false,
+    "localizationQualified": false,
+    "accessibilityQualified": false,
+    "redistributionApproved": false,
+    "productionReady": false
+  },
+  "claimBoundary": "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 15 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.",
+  "limitations": [
+    "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
+    "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
+    "The observation covers one installed Chrome version and one Windows x64 font environment. OS updates, installed-font changes, browser engines, target Linux images, and compositor stacks may choose different fallback fonts.",
+    "No observed platform font is approved for bundling or redistribution by this artifact; deterministic fallback selection remains an explicit owner/release decision."
+  ]
+}

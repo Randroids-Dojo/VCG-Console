@@ -4679,3 +4679,64 @@ legibility evidence. The current platform-selected CSS fallback is not
 deterministic. Glyph shape, the unusual zero horizontal-header ascent/descent,
 target rendering, TV seating distance, visually similar characters,
 localization, accessibility, and final redistribution approval remain.
+
+## 2026-07-24: Windows OCR-A platform fallback observation
+
+### Delivered
+
+- Built the production app and injected a diagnostic-only 1920x1080 grid for
+  the exact 17-code-point structural inventory.
+- Queried installed Chrome's platform-font report per single-character node
+  after the production `OCRA.ttf` and CSS stack loaded.
+- Bound the exact environment, base structural evidence, production source
+  tree, resource requests, resolved font resources, zero-overflow capture, and
+  screenshot in a strict artifact.
+- Published PFO-001 through PFO-005 for mixed appearance, font-vs-icon policy,
+  target-image dependency, first comparison candidates, and Search-symbol
+  semantics.
+
+### Verification evidence
+
+- OCR-A rendered only the `A` baseline and `U+00B7 MIDDLE DOT`.
+- Windows Chrome selected Consolas for eight missing characters, Cambria Math
+  for five, and Segoe UI Symbol for two.
+- Eleven adversarial tests reject environment/base/probe/font/request/
+  screenshot/provenance/claim substitutions.
+
+### Remaining boundary
+
+I-147/Q-077 remain active. This is one Windows Chrome diagnostic injection,
+not a user-facing route, target-Linux/native-renderer result, deterministic
+fallback selection, glyph-shape or TV-legibility result, accessibility/
+localization qualification, bundling authority, or release approval.
+
+## 2026-07-24: catalog-wide remote-game offline observation
+
+### Delivered
+
+- Preserved a bounded live Chrome observation over all 26 entries in the
+  2026-07-19 catalog snapshot using a fresh anonymous context per title.
+- Recorded two online loads, manifest/worker endpoint identity, active worker
+  registrations, explicit update attempts, storage container/key names
+  without values, offline reload, and exact environment.
+- Added a canonical bounded validator, eight adversarial test groups, and
+  RGO-001 through RGO-009 owner questions.
+- Registered deterministic validation in the root gate while keeping live
+  network regeneration behind the explicit `refresh:remote-game-offline`
+  command.
+
+### Verification evidence
+
+- All 26 titles completed both online loads.
+- VibeBots, Asymptotic Bitrot, and Block-You exposed parseable manifests.
+- Only Block-You had an active service worker and loaded a document after the
+  context went offline; gameplay was not exercised.
+- The artifact derives and requires `offlinePackageQualifiedCount: 0`.
+
+### Remaining boundary
+
+I-096/Q-051 remain active. No title has complete offline gameplay, assets,
+cold restart, save/reset, update/rollback, source/deploy identity,
+installability, hosted-service, controller/recovery, target Linux/architecture,
+or rights evidence. A successful cached document is not an admitted signed
+offline package.
