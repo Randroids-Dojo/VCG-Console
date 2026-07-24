@@ -65,7 +65,7 @@ Invariant: profile UI copy must not imply durable encrypted storage until the na
 
 ### Saves
 
-No mutating console save broker exists yet. `save_lifecycle` now derives isolated host-owned paths, separate save/cache quotas, exact local reset scope, version-independent save namespaces, bounded migration staging, and explicit profile-to-unassigned/claim transitions for remote web, local web, native/Godot, and Libretro. Healthy updates and rollbacks preserve the namespace. Remote-web reset explicitly cannot affect hosted-service data. There is no console backup, export, migration to another console, or cloud sync. Storage loss and factory reset permanently remove saves.
+No general mutating console save broker exists yet. `save_lifecycle` derives isolated host-owned paths, separate save/cache quotas, exact local reset scope, version-independent save namespaces, bounded migration staging, and explicit profile-to-unassigned/claim transitions for remote web, local web, native/Godot, and Libretro. The host-only `save_reset` transaction executes and recovers one exact confirmed save/cache deletion without becoming a runtime storage broker. Healthy updates and rollbacks preserve the namespace. Remote-web reset explicitly cannot affect hosted-service data. There is no console backup, export, migration to another console, or cloud sync. Storage loss and factory reset permanently remove saves.
 
 Invariant: future save work must not reuse the profile vault or create a hidden network backup path.
 

@@ -25,7 +25,7 @@ schema version.
 | `motion.core17` | Session-local player presence plus the portable 17-landmark skeleton | Maps exactly to Motion profile `body.core17` |
 | `motion.actions.obstacle` | Standardized jump, duck, and dodge events | Maps exactly to `actions.obstacle.v1`; also requires `motion.core17` and input profile `motion.obstacle.v1` |
 | `network` | Game network access consistent with its declared required/optional network class | Offline manifests are rejected if present; non-offline launch grants fail if absent |
-| `persistent-storage` | Game/profile-scoped durable storage | Bounded native namespace/quota/reset/unlink planning exists; filesystem/mount enforcement remains future host work |
+| `persistent-storage` | Game/profile-scoped durable storage | Bounded native namespace/quota/unlink planning and an explicit durable exact-scope reset primitive exist; ordinary runtime broker and filesystem/mount enforcement remain future host work |
 
 There is no implicit permission. Unknown extension fields remain advisory and
 cannot add authority. Duplicate manifest values do not multiply a grant.
