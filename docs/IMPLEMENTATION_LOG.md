@@ -4846,3 +4846,44 @@ localization, low-vision, or accessibility qualification. Ten current
 punctuation/status/profile/controller characters still require a selected,
 rights-reviewed deterministic fallback or first-party treatment. OF-001
 through OF-006 and PFO-001 through PFO-005 retain the owner decisions.
+
+## 2026-07-24: catalog service and candidate evidence gates
+
+### Delivered
+
+- Registered the already recorded 26-title game-service dependency screen and
+  full-catalog candidate ledger in the deterministic root unit gate.
+- Added named offline validation commands for both artifacts, an explicit live
+  refresh command for the bounded source/browser service screen, and a
+  deterministic local refresh command for the derived candidate ledger.
+- Advanced I-097 from a three-title compatibility note to the exact
+  23-source/three-source-gap catalog-wide signal screen without promoting a
+  signal into service necessity, privacy approval, or degradation support.
+- Advanced I-104 from four checked-in examples to a strict non-authoritative
+  26-entry ledger while preserving zero admission, zero host authority, and
+  zero production catalog mutation.
+
+### Verification evidence
+
+- The game-service artifact validates 26 games, 23 exact source screens, and
+  zero degradation/offline qualifications; all nine adversarial test groups
+  pass.
+- The candidate ledger validates 26 entries, the three existing public
+  manifest/launcher facts, and zero admissions/host grants/mutations; all
+  eight adversarial test groups pass.
+- Both validators are network-free. Only
+  `refresh:game-service-dependencies` performs the documented bounded live
+  source/archive and browser refresh.
+- The first root-gate run rejected stale launcher evidence because the new
+  package commands changed the bound production-source commitment. Home,
+  representative-surface, Search, and OCR-A fallback records were regenerated
+  in dependency order; the complete root unit gate, workspace typecheck, and
+  production build then pass.
+
+### Remaining boundary
+
+I-097/I-104 remain active. Static names and anonymous route observations are
+not a complete service/data-flow inventory, and candidate metadata is not a
+manifest, signed catalog, permission grant, package descriptor, admission
+record, or owner authorization. The isolated owner questions and exact
+promotion gates in the two dedicated evidence documents remain authoritative.
