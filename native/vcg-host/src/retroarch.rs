@@ -15,6 +15,13 @@ use crate::process::LaunchSpec;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ExpectedSha256([u8; 32]);
 
+impl ExpectedSha256 {
+    #[must_use]
+    pub(crate) fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
 impl fmt::Display for ExpectedSha256 {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
@@ -75,6 +82,7 @@ pub struct RetroArchRequest {
     pub content: Option<PathBuf>,
     pub content_sha256: Option<ExpectedSha256>,
     pub base_config: PathBuf,
+    pub base_config_sha256: ExpectedSha256,
     pub profile_id: String,
     pub game_id: String,
 }
@@ -193,6 +201,11 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         canonical_package_file("base configuration", &request.base_config, &install_root)?;
     verify_file_hash("frontend", &frontend, &request.frontend_sha256)?;
     verify_file_hash("core", &core, &request.core_sha256)?;
+    verify_file_hash(
+        "base configuration",
+        &base_config,
+        &request.base_config_sha256,
+    )?;
     let content = match (
         &request.content,
         &request.content_root,
@@ -699,6 +712,7 @@ mod tests {
                 content: Some(self.content.clone()),
                 content_sha256: Some(digest_file(&self.content).expect("hash content")),
                 base_config: self.config.clone(),
+                base_config_sha256: digest_file(&self.config).expect("hash base configuration"),
                 profile_id: "player-one".to_owned(),
                 game_id: "test-game".to_owned(),
             }
@@ -851,6 +865,16 @@ mod tests {
         assert!(matches!(
             plan(&request),
             Err(RetroArchError::HashMismatch { kind: "core", .. })
+        ));
+
+        let mut request = fixture.request();
+        request.base_config_sha256 = ExpectedSha256([0; 32]);
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::HashMismatch {
+                kind: "base configuration",
+                ..
+            })
         ));
     }
 

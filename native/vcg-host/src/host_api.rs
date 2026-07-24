@@ -9,6 +9,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
+use crate::installed_catalog::{CatalogError, TrustedPackageCatalog};
+
 const MAX_REQUEST_BYTES: usize = 8_192;
 const READ_TIMEOUT: Duration = Duration::from_millis(500);
 const ACCEPT_POLL_INTERVAL: Duration = Duration::from_millis(10);
@@ -32,7 +34,26 @@ impl HostStatusServer {
     /// Returns an error when the listener, operating-system random source, or
     /// worker thread cannot be created.
     pub fn start(allowed_origin: impl Into<String>) -> Result<Self, HostApiError> {
-        let allowed_origin = allowed_origin.into();
+        Self::start_internal(allowed_origin.into(), None)
+    }
+
+    /// Starts the status API with a signature-verified installed catalog.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the listener, operating-system random source, or
+    /// worker thread cannot be created.
+    pub fn start_with_catalog(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+    ) -> Result<Self, HostApiError> {
+        Self::start_internal(allowed_origin.into(), Some(Arc::new(catalog)))
+    }
+
+    fn start_internal(
+        allowed_origin: String,
+        catalog: Option<Arc<TrustedPackageCatalog>>,
+    ) -> Result<Self, HostApiError> {
         let valid_origin = crate::launcher::loopback_origin(&allowed_origin)
             .is_ok_and(|origin| origin == allowed_origin);
         if !valid_origin {
@@ -49,7 +70,13 @@ impl HostStatusServer {
         let worker = thread::Builder::new()
             .name("vcg-host-status".to_owned())
             .spawn(move || {
-                serve(&listener, &worker_origin, &worker_token, &worker_stop);
+                serve(
+                    &listener,
+                    &worker_origin,
+                    &worker_token,
+                    catalog.as_deref(),
+                    &worker_stop,
+                );
             })
             .map_err(HostApiError::Io)?;
 
@@ -113,11 +140,17 @@ fn generate_token() -> Result<String, HostApiError> {
     Ok(output)
 }
 
-fn serve(listener: &TcpListener, allowed_origin: &str, token: &str, stop: &AtomicBool) {
+fn serve(
+    listener: &TcpListener,
+    allowed_origin: &str,
+    token: &str,
+    catalog: Option<&TrustedPackageCatalog>,
+    stop: &AtomicBool,
+) {
     while !stop.load(Ordering::Acquire) {
         match listener.accept() {
             Ok((mut stream, _)) => {
-                let _ = handle_connection(&mut stream, allowed_origin, token);
+                let _ = handle_connection(&mut stream, allowed_origin, token, catalog);
             }
             Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
                 thread::sleep(ACCEPT_POLL_INTERVAL);
@@ -127,7 +160,12 @@ fn serve(listener: &TcpListener, allowed_origin: &str, token: &str, stop: &Atomi
     }
 }
 
-fn handle_connection(stream: &mut TcpStream, allowed_origin: &str, token: &str) -> io::Result<()> {
+fn handle_connection(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    token: &str,
+    catalog: Option<&TrustedPackageCatalog>,
+) -> io::Result<()> {
     stream.set_read_timeout(Some(READ_TIMEOUT))?;
     stream.set_write_timeout(Some(READ_TIMEOUT))?;
     let request = match read_request(stream) {
@@ -141,9 +179,6 @@ fn handle_connection(stream: &mut TcpStream, allowed_origin: &str, token: &str) 
         Err(RequestReadError::Io(error)) => return Err(error),
     };
 
-    if request.path != "/v1/status" {
-        return write_response(stream, 404, "Not Found", allowed_origin, "");
-    }
     if request.origin.as_deref() != Some(allowed_origin) {
         return write_response(stream, 403, "Forbidden", allowed_origin, "");
     }
@@ -171,28 +206,77 @@ fn handle_connection(stream: &mut TcpStream, allowed_origin: &str, token: &str) 
             {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
-            let body = format!(
-                concat!(
-                    "{{",
-                    "\"protocolVersion\":\"{}\",",
-                    "\"hostVersion\":\"{}\",",
-                    "\"target\":\"{}-{}\",",
-                    "\"capabilities\":[",
-                    "\"launcher-shell\",",
-                    "\"process-supervision\",",
-                    "\"game-watchdog\",",
-                    "\"retroarch-plan\"",
-                    "]",
-                    "}}"
-                ),
-                HOST_API_PROTOCOL_VERSION,
-                env!("CARGO_PKG_VERSION"),
-                std::env::consts::ARCH,
-                std::env::consts::OS,
-            );
-            write_response(stream, 200, "OK", allowed_origin, &body)
+            if request.path == "/v1/status" {
+                return write_response(stream, 200, "OK", allowed_origin, &status_body(catalog));
+            }
+            if let Some(game_id) = request.path.strip_prefix("/v1/packages/") {
+                return write_package_response(stream, allowed_origin, catalog, game_id);
+            }
+            write_response(stream, 404, "Not Found", allowed_origin, "")
         }
         _ => write_response(stream, 405, "Method Not Allowed", allowed_origin, ""),
+    }
+}
+
+fn status_body(catalog: Option<&TrustedPackageCatalog>) -> String {
+    let mut capabilities = vec![
+        "launcher-shell",
+        "process-supervision",
+        "game-watchdog",
+        "retroarch-plan",
+    ];
+    if catalog.is_some() {
+        capabilities.push("trusted-package-catalog");
+    }
+    serde_json::json!({
+        "protocolVersion": HOST_API_PROTOCOL_VERSION,
+        "hostVersion": env!("CARGO_PKG_VERSION"),
+        "target": format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS),
+        "capabilities": capabilities,
+    })
+    .to_string()
+}
+
+fn write_package_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    catalog: Option<&TrustedPackageCatalog>,
+    game_id: &str,
+) -> io::Result<()> {
+    let Some(catalog) = catalog else {
+        return write_response(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            r#"{"code":"PACKAGE_NOT_INSTALLED"}"#,
+        );
+    };
+    match catalog.package_summary(game_id) {
+        Ok(package) => {
+            let body = serde_json::json!({
+                "id": package.id,
+                "version": package.version,
+                "runtime": package.runtime,
+                "catalogGeneration": package.generation,
+            })
+            .to_string();
+            write_response(stream, 200, "OK", allowed_origin, &body)
+        }
+        Err(CatalogError::PackageNotFound(_)) => write_response(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            r#"{"code":"PACKAGE_NOT_INSTALLED"}"#,
+        ),
+        Err(_) => write_response(
+            stream,
+            400,
+            "Bad Request",
+            allowed_origin,
+            r#"{"code":"PACKAGE_ID_INVALID"}"#,
+        ),
     }
 }
 
@@ -368,6 +452,7 @@ impl std::error::Error for HostApiError {
 #[cfg(test)]
 mod tests {
     use super::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
+    use crate::installed_catalog::tests::signed_catalog;
     use std::io::{Read, Write};
     use std::net::TcpStream;
 
@@ -496,5 +581,48 @@ mod tests {
                 .launcher_url("http://127.0.0.1:5173/#existing")
                 .is_err()
         );
+    }
+
+    #[test]
+    fn discloses_only_signed_package_metadata_by_game_id() {
+        let (_fixture, catalog) = signed_catalog();
+        let server =
+            HostStatusServer::start_with_catalog(ORIGIN, catalog).expect("catalog server starts");
+        let token = token_from(&server);
+        let status = request(
+            &server,
+            &format!(
+                "GET /v1/status HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        let installed = request(
+            &server,
+            &format!(
+                "GET /v1/packages/retro-2048 HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        let missing = request(
+            &server,
+            &format!(
+                "GET /v1/packages/not-installed HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        let invalid = request(
+            &server,
+            &format!(
+                "GET /v1/packages/../escape HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+
+        assert!(status.contains("\"trusted-package-catalog\""));
+        assert!(installed.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert!(installed.contains("\"id\":\"retro-2048\""));
+        assert!(installed.contains("\"runtime\":\"libretro\""));
+        assert!(!installed.contains("frontend"));
+        assert!(!installed.contains("sha256"));
+        assert!(missing.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(missing.contains("PACKAGE_NOT_INSTALLED"));
+        assert!(invalid.starts_with("HTTP/1.1 400 Bad Request\r\n"));
+        assert!(invalid.contains("PACKAGE_ID_INVALID"));
     }
 }

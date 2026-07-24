@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { checkNativeHost, parseNativeHostBridge } from "./native-host-client";
+import { checkNativeHost, checkNativePackage, parseNativeHostBridge } from "./native-host-client";
 
 const TOKEN = "a".repeat(64);
 const HOST_URL = `http://127.0.0.1:5173/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${TOKEN}`;
@@ -160,6 +160,104 @@ describe("native host status", () => {
     await expect(checkNativeHost(HOST_URL, fetcher, 5)).resolves.toMatchObject({
       ok: false,
       code: "HOST_UNREACHABLE",
+    });
+  });
+});
+
+describe("trusted native package catalog", () => {
+  const catalogStatus = {
+    ...STATUS,
+    capabilities: [...STATUS.capabilities, "trusted-package-catalog"],
+  };
+
+  it("queries a signed package by fixed game id without sending paths or hashes", async () => {
+    const requests: Array<{ url: string; authorization: string | null }> = [];
+    const fetcher = vi.fn<typeof fetch>(async (input, init) => {
+      const url = String(input);
+      requests.push({
+        url,
+        authorization: new Headers(init?.headers).get("authorization"),
+      });
+      if (url.endsWith("/v1/status")) {
+        return new Response(JSON.stringify(catalogStatus), { status: 200 });
+      }
+      return new Response(
+        JSON.stringify({
+          id: "retro-2048",
+          version: "1.0.0",
+          runtime: "libretro",
+          catalogGeneration: 7,
+        }),
+        { status: 200 },
+      );
+    });
+
+    await expect(checkNativePackage("retro-2048", HOST_URL, fetcher)).resolves.toEqual({
+      ok: true,
+      status: catalogStatus,
+      package: {
+        id: "retro-2048",
+        version: "1.0.0",
+        runtime: "libretro",
+        catalogGeneration: 7,
+      },
+    });
+    expect(requests).toEqual([
+      {
+        url: "http://127.0.0.1:43123/v1/status",
+        authorization: `Bearer ${TOKEN}`,
+      },
+      {
+        url: "http://127.0.0.1:43123/v1/packages/retro-2048",
+        authorization: `Bearer ${TOKEN}`,
+      },
+    ]);
+    expect(JSON.stringify(requests)).not.toMatch(/path|sha256|program|command/i);
+  });
+
+  it("fails closed when the catalog is absent or the package is not installed", async () => {
+    const noCatalog = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify(STATUS), { status: 200 }),
+    );
+    await expect(checkNativePackage("retro-2048", HOST_URL, noCatalog)).resolves.toMatchObject({
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+    });
+    expect(noCatalog).toHaveBeenCalledOnce();
+
+    const missing = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+      .mockResolvedValueOnce(new Response('{"code":"PACKAGE_NOT_INSTALLED"}', { status: 404 }));
+    await expect(checkNativePackage("retro-2048", HOST_URL, missing)).resolves.toMatchObject({
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+    });
+  });
+
+  it("rejects invalid intents and mismatched package documents", async () => {
+    const unused = vi.fn<typeof fetch>();
+    await expect(checkNativePackage("../escape", HOST_URL, unused)).resolves.toMatchObject({
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+    });
+    expect(unused).not.toHaveBeenCalled();
+
+    const mismatched = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            id: "another-game",
+            version: "1.0.0",
+            runtime: "libretro",
+            catalogGeneration: 7,
+          }),
+          { status: 200 },
+        ),
+      );
+    await expect(checkNativePackage("retro-2048", HOST_URL, mismatched)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
     });
   });
 });

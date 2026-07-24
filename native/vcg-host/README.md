@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher-status channel, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor, navigation containment, trusted package launch over IPC, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, strict signed installed-package resolution, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor, navigation containment, trusted package execution over IPC, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -27,6 +27,7 @@ cargo run -p vcg-host -- retroarch --dry-run \
   --core /var/lib/vcg/packages/cores/2048_libretro.so \
   --core-sha256 <manifest-sha256> \
   --base-config /var/lib/vcg/packages/retroarch/vcg-base.cfg \
+  --base-config-sha256 <manifest-sha256> \
   --profile player-one \
   --game retro-2048
 ```
@@ -42,6 +43,13 @@ in the app URL fragment. The launcher checks the protocol and host capabilities
 before attempting a native or RetroArch handoff. See the
 [native launcher-host API contract](../../docs/NATIVE_HOST_API.md).
 
+Add the all-or-nothing `--catalog`, `--catalog-signature`,
+`--catalog-public-key`, `--install-root`, `--runtime-root`, and `--data-root`
+launcher options (plus `--content-root` when needed) to expose signed
+installed-package metadata. These paths are privileged service configuration,
+not launcher input. See the
+[signed installed-package catalog contract](../../docs/INSTALLED_PACKAGE_CATALOG.md).
+
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
 `watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.
@@ -52,7 +60,8 @@ before attempting a native or RetroArch handoff. See the
 
 - `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
-- `host_api`: per-launch authenticated loopback status, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
+- `host_api`: per-launch authenticated loopback status and package lookup, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
+- `installed_catalog`: signature-first installed metadata validation and host-owned package resolution from fixed game/profile IDs.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 

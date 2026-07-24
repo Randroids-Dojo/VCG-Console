@@ -6,6 +6,7 @@ use std::process::ExitCode;
 use std::time::Duration;
 
 use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
+use vcg_host::installed_catalog::{CatalogRoots, TrustedPackageCatalog};
 use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
@@ -59,13 +60,37 @@ struct LauncherOptions {
     browser: Option<PathBuf>,
     profile_dir: Option<PathBuf>,
     url: Option<String>,
+    catalog: Option<PathBuf>,
+    catalog_signature: Option<PathBuf>,
+    catalog_public_key: Option<PathBuf>,
+    install_root: Option<PathBuf>,
+    content_root: Option<PathBuf>,
+    runtime_root: Option<PathBuf>,
+    data_root: Option<PathBuf>,
+}
+
+struct LauncherCatalogOptions {
+    catalog: PathBuf,
+    signature: PathBuf,
+    public_key: PathBuf,
+    roots: CatalogRoots,
 }
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
-    let (dry_run, request) = launcher_request(arguments)?;
+    let (dry_run, request, catalog_options) = launcher_request(arguments)?;
+    let catalog = catalog_options
+        .map(LauncherCatalogOptions::load)
+        .transpose()?;
     if dry_run {
         let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
         println!("launcher:plan mode=dry-run");
+        if let Some(catalog) = &catalog {
+            println!(
+                "launcher:catalog generation={} target={}",
+                catalog.generation(),
+                catalog.target()
+            );
+        }
         println!("program: {}", spec.program().display());
         for argument in spec.arguments() {
             println!("argument: {}", argument.to_string_lossy());
@@ -74,7 +99,12 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     }
 
     let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
-    let host_api = HostStatusServer::start(origin).map_err(|error| error.to_string())?;
+    let host_api = if let Some(catalog) = catalog {
+        HostStatusServer::start_with_catalog(origin, catalog)
+    } else {
+        HostStatusServer::start(origin)
+    }
+    .map_err(|error| error.to_string())?;
     let launcher_url = host_api
         .launcher_url(request.url())
         .map_err(|error| error.to_string())?;
@@ -109,42 +139,23 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     })
 }
 
-fn launcher_request(arguments: &[OsString]) -> Result<(bool, LauncherRequest), String> {
+impl LauncherCatalogOptions {
+    fn load(self) -> Result<TrustedPackageCatalog, String> {
+        TrustedPackageCatalog::load(&self.catalog, &self.signature, &self.public_key, self.roots)
+            .map_err(|error| error.to_string())
+    }
+}
+
+fn launcher_request(
+    arguments: &[OsString],
+) -> Result<(bool, LauncherRequest, Option<LauncherCatalogOptions>), String> {
     let mut options = LauncherOptions::default();
     let mut cursor = 0;
     while let Some(argument) = arguments.get(cursor) {
         let option = argument
             .to_str()
             .ok_or_else(|| "launcher options must be UTF-8".to_owned())?;
-        match option {
-            "--dry-run" => options.dry_run = true,
-            "--windowed" => options.windowed = true,
-            "--browser" => {
-                cursor += 1;
-                set_path_option(
-                    &mut options.browser,
-                    required_path(arguments, cursor, option)?,
-                    option,
-                )?;
-            }
-            "--profile-dir" => {
-                cursor += 1;
-                set_path_option(
-                    &mut options.profile_dir,
-                    required_path(arguments, cursor, option)?,
-                    option,
-                )?;
-            }
-            "--url" => {
-                cursor += 1;
-                set_text_option(
-                    &mut options.url,
-                    required_text(arguments, cursor, option)?,
-                    option,
-                )?;
-            }
-            value => return Err(format!("unknown launcher option: {value}")),
-        }
+        parse_launcher_option(arguments, &mut cursor, option, &mut options)?;
         cursor += 1;
     }
 
@@ -162,7 +173,112 @@ fn launcher_request(arguments: &[OsString]) -> Result<(bool, LauncherRequest), S
     if options.windowed {
         request = request.windowed();
     }
-    Ok((options.dry_run, request))
+    let catalog_requested = options.catalog.is_some()
+        || options.catalog_signature.is_some()
+        || options.catalog_public_key.is_some()
+        || options.install_root.is_some()
+        || options.content_root.is_some()
+        || options.runtime_root.is_some()
+        || options.data_root.is_some();
+    let catalog = if catalog_requested {
+        Some(LauncherCatalogOptions {
+            catalog: options
+                .catalog
+                .ok_or_else(|| "launcher catalog requires --catalog".to_owned())?,
+            signature: options
+                .catalog_signature
+                .ok_or_else(|| "launcher catalog requires --catalog-signature".to_owned())?,
+            public_key: options
+                .catalog_public_key
+                .ok_or_else(|| "launcher catalog requires --catalog-public-key".to_owned())?,
+            roots: CatalogRoots {
+                install_root: options
+                    .install_root
+                    .ok_or_else(|| "launcher catalog requires --install-root".to_owned())?,
+                content_root: options.content_root,
+                runtime_root: options
+                    .runtime_root
+                    .ok_or_else(|| "launcher catalog requires --runtime-root".to_owned())?,
+                data_root: options
+                    .data_root
+                    .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?,
+            },
+        })
+    } else {
+        None
+    };
+    Ok((options.dry_run, request, catalog))
+}
+
+fn parse_launcher_option(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+    output: &mut LauncherOptions,
+) -> Result<(), String> {
+    match option {
+        "--dry-run" => {
+            output.dry_run = true;
+            Ok(())
+        }
+        "--windowed" => {
+            output.windowed = true;
+            Ok(())
+        }
+        "--browser" => set_path_option(
+            &mut output.browser,
+            required_next_path(arguments, cursor, option)?,
+            option,
+        ),
+        "--profile-dir" => set_path_option(
+            &mut output.profile_dir,
+            required_next_path(arguments, cursor, option)?,
+            option,
+        ),
+        "--url" => set_text_option(
+            &mut output.url,
+            required_next_text(arguments, cursor, option)?,
+            option,
+        ),
+        _ => parse_launcher_catalog_option(arguments, cursor, option, output),
+    }
+}
+
+fn parse_launcher_catalog_option(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+    output: &mut LauncherOptions,
+) -> Result<(), String> {
+    let slot = match option {
+        "--catalog" => &mut output.catalog,
+        "--catalog-signature" => &mut output.catalog_signature,
+        "--catalog-public-key" => &mut output.catalog_public_key,
+        "--install-root" => &mut output.install_root,
+        "--content-root" => &mut output.content_root,
+        "--runtime-root" => &mut output.runtime_root,
+        "--data-root" => &mut output.data_root,
+        value => return Err(format!("unknown launcher option: {value}")),
+    };
+    set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
+}
+
+fn required_next_path(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+) -> Result<PathBuf, String> {
+    *cursor += 1;
+    required_path(arguments, *cursor, option)
+}
+
+fn required_next_text(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+) -> Result<String, String> {
+    *cursor += 1;
+    required_text(arguments, *cursor, option)
 }
 
 fn retroarch(arguments: &[OsString]) -> Result<ExitCode, String> {
@@ -221,6 +337,7 @@ struct RetroArchOptions {
     content: Option<PathBuf>,
     content_sha256: Option<ExpectedSha256>,
     base_config: Option<PathBuf>,
+    base_config_sha256: Option<ExpectedSha256>,
     profile_id: Option<String>,
     game_id: Option<String>,
 }
@@ -267,6 +384,9 @@ fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest),
             base_config: options
                 .base_config
                 .ok_or_else(|| "retroarch requires --base-config".to_owned())?,
+            base_config_sha256: options
+                .base_config_sha256
+                .ok_or_else(|| "retroarch requires --base-config-sha256".to_owned())?,
             profile_id: options
                 .profile_id
                 .ok_or_else(|| "retroarch requires --profile".to_owned())?,
@@ -342,6 +462,11 @@ fn parse_retroarch_option(
         "--base-config" => set_path_option(
             &mut output.base_config,
             required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--base-config-sha256" => set_hash_option(
+            &mut output.base_config_sha256,
+            &required_text(arguments, *cursor, option)?,
             option,
         ),
         "--profile" => set_text_option(
@@ -587,7 +712,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>]]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -627,9 +752,11 @@ mod tests {
             OsString::from("--url"),
             OsString::from("http://127.0.0.1:5173/"),
         ];
-        let (dry_run, request) = launcher_request(&arguments).expect("launcher request parses");
+        let (dry_run, request, catalog) =
+            launcher_request(&arguments).expect("launcher request parses");
 
         assert!(dry_run);
+        assert!(catalog.is_none());
         let spec = plan_launcher(&request).expect("launcher request plans");
         assert!(
             !spec
@@ -645,6 +772,40 @@ mod tests {
         assert!(
             launcher_request(&args(&["--browser", "browser", "--profile-dir", "profile"])).is_err()
         );
+    }
+
+    #[test]
+    fn launcher_catalog_configuration_is_all_or_nothing() {
+        let base = [
+            "--browser",
+            "/browser",
+            "--profile-dir",
+            "/profile",
+            "--url",
+            "http://127.0.0.1:5173/",
+        ];
+        let mut complete = base.to_vec();
+        complete.extend([
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--catalog-public-key",
+            "/metadata/catalog.pub",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+        ]);
+        let (_, _, catalog) =
+            launcher_request(&args(&complete)).expect("complete catalog configuration parses");
+        assert!(catalog.is_some());
+
+        let mut partial = base.to_vec();
+        partial.extend(["--catalog", "/metadata/catalog.json"]);
+        assert!(launcher_request(&args(&partial)).is_err());
     }
 
     #[test]
@@ -771,6 +932,8 @@ mod tests {
             hash,
             "--base-config",
             "/installed/base.cfg",
+            "--base-config-sha256",
+            hash,
             "--profile",
             "player-one",
             "--game",
@@ -779,6 +942,7 @@ mod tests {
         .expect("complete request parses");
         assert_eq!(request.frontend_sha256.to_string(), hash);
         assert_eq!(request.core_sha256.to_string(), hash);
+        assert_eq!(request.base_config_sha256.to_string(), hash);
         assert!(request.content_sha256.is_none());
     }
 

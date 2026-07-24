@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
-  import { checkNativeHost } from "../native-host-client";
+  import { checkNativeHost, checkNativePackage } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
@@ -243,23 +243,38 @@
     supervisor.ready("Browser handoff ready · reachability is checked by the native host");
   }
 
-  function launchHostedAdapter(adapter: "native" | "retro", requestedTitle?: string): void {
+  function launchHostedAdapter(adapter: "native" | "retro", requestedTitle?: string, gameId?: string): void {
     const title = requestedTitle ?? (adapter === "retro" ? "RetroArch" : "Native game");
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
     const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
-    launchRetryOperation = () => void runHostedAttempt(supervisor);
-    void runHostedAttempt(supervisor);
+    launchRetryOperation = () => void runHostedAttempt(supervisor, gameId);
+    void runHostedAttempt(supervisor, gameId);
   }
 
-  async function runHostedAttempt(supervisor: LaunchSupervisor): Promise<void> {
+  async function runHostedAttempt(supervisor: LaunchSupervisor, gameId?: string): Promise<void> {
     supervisor.advance(1, "Requesting the Rust console host");
-    const result = await checkNativeHost();
-    if (launchSupervisor !== supervisor) return;
-    if (!result.ok) {
-      supervisor.unavailable(result.detail, result.code);
+    if (gameId) {
+      const packageResult = await checkNativePackage(gameId);
+      if (launchSupervisor !== supervisor) return;
+      if (!packageResult.ok) {
+        supervisor.unavailable(packageResult.detail, packageResult.code);
+        return;
+      }
+      supervisor.advance(2, `Rust host ${packageResult.status.hostVersion} connected on ${packageResult.status.target}`);
+      supervisor.unavailable(
+        `Signed catalog entry ${packageResult.package.version} found in generation ${packageResult.package.catalogGeneration} · artifact resolution and privileged launch execution are not connected yet`,
+        "PACKAGE_LAUNCH_PENDING",
+      );
       return;
     }
-    supervisor.advance(2, `Rust host ${result.status.hostVersion} connected on ${result.status.target}`);
+
+    const hostResult = await checkNativeHost();
+    if (launchSupervisor !== supervisor) return;
+    if (!hostResult.ok) {
+      supervisor.unavailable(hostResult.detail, hostResult.code);
+      return;
+    }
+    supervisor.advance(2, `Rust host ${hostResult.status.hostVersion} connected on ${hostResult.status.target}`);
     supervisor.unavailable("Rust host connected · no trusted installed package is available for this launch", "PACKAGE_NOT_INSTALLED");
   }
 
@@ -437,7 +452,7 @@
           <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
         </div>
         <div class="library-list">
-          <button type="button" onclick={() => launchHostedAdapter("retro", "2048")}>
+          <button type="button" onclick={() => launchHostedAdapter("retro", "2048", "retro-2048")}>
             <span>Q1</span><strong>2048</strong><small>Contentless public-domain core · artifact qualification pending</small><b>Candidate</b>
           </button>
         </div>

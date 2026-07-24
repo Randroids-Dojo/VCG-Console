@@ -392,3 +392,26 @@ I-007 closes because the acceptance criteria and evidence rules now exist. No cu
 ### Evidence boundary
 
 I-009 closes as a contract task. Native network containment, optional-service inventory, installed-local enforcement, signed manifest resolution, update/import services, target offline runs, and the hosted game compatibility matrix remain open under their existing investigations. A cached page, Steam Offline Mode, or a LAN development server cannot satisfy the offline qualification claim.
+
+## 2026-07-23: signed installed-package resolution
+
+### Delivered
+
+- The Rust host now loads a bounded detached Ed25519-signed installed catalog, verifies the signature before JSON parsing, rejects unknown fields, and requires schema version 1, a positive generation, the exact compiled architecture/OS target, unique bounded IDs, and `qualified` entries.
+- Signed relative paths and SHA-256 values bind the exact public game manifest, RetroArch frontend, core, base configuration, and optional managed content. Host-configured canonical install/content/runtime/data roots remain outside browser authority.
+- Manifest resolution verifies the signed digest and exact ID/version/runtime/qualification identity. RetroArch planning re-verifies every launch artifact before creating runtime state, including the newly required base-configuration hash.
+- The authenticated host API advertises `trusted-package-catalog` only when configured and exposes a read-only `GET /v1/packages/<game-id>` endpoint containing only ID, version, runtime, and catalog generation.
+- Svelte sends only the fixed catalog game ID, rejects missing capability, malformed/mismatched metadata, and absent packages, and reports `PACKAGE_LAUNCH_PENDING` honestly because privileged execution is not connected.
+- D-131 records the reversible trust boundary; `INSTALLED_PACKAGE_CATALOG.md` records the envelope, schema, host configuration, security invariants, and remaining gates. A new owner-question document preserves key hierarchy, rollback scope, and profile-identity choices without blocking safe implementation.
+
+### Verification evidence
+
+- Rust catalog tests cover valid signed resolution, signature-before-parse rejection, tamper, wrong target, unknown fields, duplicate IDs, unsafe paths, noncanonical key material, size limits, invalid browser intent, absent packages, manifest tamper/misbinding, changed base configuration, and final RetroArch-plan acceptance.
+- Host-API tests cover conditional capability discovery, metadata-only package lookup, invalid IDs, and missing packages without disclosing signed paths or hashes.
+- TypeScript tests cover fixed-ID-only requests, capability gating, 404 fail-closed behavior, invalid intent, mismatched returned identity, and the absence of browser-supplied path/hash/program/command authority.
+- Playwright covers the Svelte Retro lookup end to end and proves that a resolved signed package still stops before execution.
+- Strict Rust formatting and Clippy pass; 42 Rust library tests and 12 CLI tests pass with four helper entrypoints intentionally ignored. All workspace unit suites pass, including 36 console-lab tests; Svelte reports zero errors and warnings; the production build and all four manifest validations pass; and all 18 Playwright flows pass.
+
+### Remaining boundary
+
+This is package authority and safe discovery, not a production package lifecycle or game launch. Offline-root delegation, immutable public-key provisioning, key rotation/revocation, persisted channel-scoped anti-rollback, signed installation and atomic promotion, immutable verification-to-child binding, stable host profile IDs, launch replay/idempotency policy, lifecycle events, cancellation, visible readiness, reserved Home/Back, sandboxing, update/removal cleanup, and target-Linux evidence remain open under I-101, I-109, I-141, I-198, and I-209.

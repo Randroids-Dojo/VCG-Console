@@ -6,9 +6,9 @@ This document defines the first reversible transport between the local Svelte la
 
 ## Scope
 
-The implemented `0.1.0` surface answers one question: is the Rust host instance that launched this browser still present, compatible, and able to name its compiled capabilities?
+The implemented `0.1.0` surface answers two read-only questions: is the Rust host instance that launched this browser still present and compatible, and does its signature-verified installed catalog contain one fixed game ID?
 
-It does not yet launch a game, accept a manifest, expose filesystem paths, return logs, change settings, or grant a web game any host access. Native and RetroArch UI paths remain unavailable after a successful status check until a trusted installed-package operation exists.
+It does not yet launch a game, accept a browser-provided manifest, expose filesystem paths, return logs, change settings, or grant a web game any host access. A found catalog entry ends in `PACKAGE_LAUNCH_PENDING` until a privileged launch operation and readiness stream exist.
 
 ## Launch and authority flow
 
@@ -24,7 +24,7 @@ The fragment is not sent to the launcher HTTP server and is not included in ordi
 
 ## Protocol `0.1.0`
 
-The endpoint is `GET /v1/status`. Cross-origin browser use performs an `OPTIONS` preflight for `GET` plus the `Authorization` header.
+The status endpoint is `GET /v1/status`. Cross-origin browser use performs an `OPTIONS` preflight for `GET` plus the `Authorization` header.
 
 A successful response is JSON with:
 
@@ -36,6 +36,8 @@ A successful response is JSON with:
 Responses are non-cacheable, close the connection, and disclose no status body on a rejected token or origin. The server caps request headers at 8 KiB, applies bounded read/write timeouts, rejects ambiguous duplicate Origin/Authorization/preflight-method headers, and handles one request per connection.
 
 The launcher rejects malformed or oversized `Content-Length` declarations and streams at most 16 KiB for the response document. It distinguishes absent or malformed fragment authority, unreachable/timed-out host, rejected authority, malformed or oversized status, protocol mismatch, and a valid host with no trusted installed package. A host connection alone never makes a game appear installed or launchable.
+
+When the host has loaded a signature-verified installed catalog, status includes the `trusted-package-catalog` capability. `GET /v1/packages/<game-id>` accepts only the bounded package-ID grammar and returns id, version, `libretro` runtime, and catalog generation. It returns stable missing/invalid codes and never exposes paths, hashes, keys, permissions, commands, environment, or writable roots. See [the signed installed-package catalog contract](INSTALLED_PACKAGE_CATALOG.md).
 
 ## Security invariants for future endpoints
 
@@ -51,6 +53,6 @@ The launcher rejects malformed or oversized `Content-Length` declarations and st
 
 ## Evidence and remaining boundary
 
-Rust tests cover authenticated status, exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security headers, per-launch token uniqueness, and fragment rather than query placement. TypeScript tests cover strict fragment parsing, request options, host error classes, protocol validation, malformed status, and a body that stalls past the deadline. Playwright proves the real Svelte native-launch flow sends the bearer token and reports a connected host separately from an unavailable package.
+Rust tests cover authenticated status, exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security headers, per-launch token uniqueness, fragment rather than query placement, signed-catalog capability discovery, and metadata-only package lookup. TypeScript tests cover strict fragment parsing, request options, host error classes, protocol validation, malformed status, bounded bodies, fixed package IDs, absent catalogs, missing packages, and mismatched metadata. Playwright proves the Svelte flow sends the bearer token and only the package ID.
 
-Still required are a hostile-navigation and process-inspection threat test, signed installed-manifest resolution, privileged launch requests, event delivery, request replay policy, compositor readiness, global recovery controls, target-Linux sandboxing, and service-manager restart evidence. D-129 remains a working transport decision until those tests justify retaining it.
+Still required are a hostile-navigation and process-inspection threat test, privileged launch requests, event delivery, replay and idempotency policy, anti-rollback state, immutable-key and artifact provisioning, compositor readiness, global recovery controls, target-Linux sandboxing, and service-manager restart evidence. D-129 remains a working transport decision until those tests justify retaining it.

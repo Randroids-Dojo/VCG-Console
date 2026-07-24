@@ -141,6 +141,72 @@ test("native launch authenticates to the Rust host before checking installed pac
   expect(authorization).toBe(`Bearer ${token}`);
 });
 
+test("retro launch resolves only signed package metadata by game id", async ({ page }) => {
+  const token = "c".repeat(64);
+  const observed: Array<{ url: string; authorization: string | undefined }> = [];
+  await page.route("http://127.0.0.1:43124/v1/**", async (route) => {
+    const request = route.request();
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Authorization",
+        },
+      });
+      return;
+    }
+    observed.push({
+      url: request.url(),
+      authorization: request.headers().authorization,
+    });
+    const body = request.url().endsWith("/v1/status")
+      ? {
+          protocolVersion: "0.1.0",
+          hostVersion: "0.1.0",
+          target: "x86_64-windows",
+          capabilities: ["launcher-shell", "retroarch-plan", "trusted-package-catalog"],
+        }
+      : {
+          id: "retro-2048",
+          version: "1.0.0",
+          runtime: "libretro",
+          catalogGeneration: 7,
+        };
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+      },
+      body: JSON.stringify(body),
+    });
+  });
+
+  await page.goto(`/?skipBoot=1#vcg-host-port=43124&vcg-host-token=${token}`);
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
+
+  const launch = page.getByRole("dialog", { name: "2048" });
+  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(launch.getByText(/Signed catalog entry 1.0.0 found in generation 7/)).toBeVisible();
+  await launch.getByRole("button", { name: /Details/ }).click();
+  await expect(launch.getByText("PACKAGE_LAUNCH_PENDING")).toBeVisible();
+  expect(observed).toEqual([
+    {
+      url: "http://127.0.0.1:43124/v1/status",
+      authorization: `Bearer ${token}`,
+    },
+    {
+      url: "http://127.0.0.1:43124/v1/packages/retro-2048",
+      authorization: `Bearer ${token}`,
+    },
+  ]);
+  expect(JSON.stringify(observed)).not.toMatch(/sha256|frontend|core|config|path/i);
+});
+
 test("launch supervision distinguishes faults and recovers through retry", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Settings", exact: true }).click();

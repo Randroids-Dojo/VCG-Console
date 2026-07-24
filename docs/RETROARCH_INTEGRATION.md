@@ -36,6 +36,7 @@ vcg-host retroarch --dry-run \
   --core /var/lib/vcg/packages/cores/2048_libretro.so \
   --core-sha256 <64-lowercase-hex> \
   --base-config /var/lib/vcg/packages/retroarch/vcg-base.cfg \
+  --base-config-sha256 <64-lowercase-hex> \
   --profile player-one \
   --game retro-2048
 ```
@@ -50,7 +51,9 @@ For games with content, both arguments are required:
 
 The frontend, core, and base configuration must resolve to regular files beneath `--install-root`. Content must resolve beneath `--content-root`. Symlink resolution occurs before containment checks, so a link cannot escape either root. Profile/game identifiers use a bounded lowercase package-ID grammar and cannot add path segments.
 
-The host streams each frontend, core, and managed content file through SHA-256 before it creates runtime state or launches a process. Expected values must use the manifest's canonical 64-character lowercase hexadecimal form. Missing content hashes, hashes supplied for contentless launches, and mismatches fail closed with the artifact role, path, expected digest, and actual digest. The base configuration remains covered by the installed package/signature boundary rather than a separate game-manifest field.
+The host streams each frontend, core, base configuration, and managed content file through SHA-256 before it creates runtime state or launches a process. Expected values must use the manifest's canonical 64-character lowercase hexadecimal form. Missing content hashes, hashes supplied for contentless launches, and mismatches fail closed with the artifact role, path, expected digest, and actual digest. The signed installed catalog binds the base-configuration digest even though the public game manifest has no separate field for it.
+
+The direct command is a diagnostic adapter boundary. Normal launcher discovery begins from the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md), which accepts only a fixed game/profile intent and resolves these paths and hashes inside Rust.
 
 Package and content storage must be immutable to the launched runtime account between verification and use. File-descriptor-bound execution/content handoff or an equivalent target-Linux mount/package guarantee remains required to close the verification-to-use race under a compromised local account.
 
@@ -125,8 +128,8 @@ Manifest tests cover runtime/entrypoint identity, architecture parity, qualifica
 Still required:
 
 - signed, pinned frontend/core artifacts on ARM64 and x86-64;
-- signature verification and trusted manifest-to-host IPC before this adapter is called;
-- native launcher IPC and event mapping;
+- production key rotation, catalog anti-rollback, and immutable verification-to-child binding;
+- native launch IPC, stable profile identity, and event mapping;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
 - SDL3 mapping, player assignment, and compositor-reserved Home/Back;

@@ -11,19 +11,30 @@ export interface NativeHostStatus {
   capabilities: string[];
 }
 
-export type NativeHostResult =
-  | { ok: true; status: NativeHostStatus }
-  | {
-      ok: false;
-      code:
-        | "HOST_NOT_CONNECTED"
-        | "HOST_CONFIG_INVALID"
-        | "HOST_UNREACHABLE"
-        | "HOST_REJECTED"
-        | "HOST_PROTOCOL_INVALID"
-        | "HOST_PROTOCOL_MISMATCH";
-      detail: string;
-    };
+export interface NativeInstalledPackage {
+  id: string;
+  version: string;
+  runtime: "libretro";
+  catalogGeneration: number;
+}
+
+type NativeHostFailure = {
+  ok: false;
+  code:
+    | "HOST_NOT_CONNECTED"
+    | "HOST_CONFIG_INVALID"
+    | "HOST_UNREACHABLE"
+    | "HOST_REJECTED"
+    | "HOST_PROTOCOL_INVALID"
+    | "HOST_PROTOCOL_MISMATCH"
+    | "PACKAGE_NOT_INSTALLED";
+  detail: string;
+};
+
+export type NativeHostResult = { ok: true; status: NativeHostStatus } | NativeHostFailure;
+export type NativePackageResult =
+  | { ok: true; status: NativeHostStatus; package: NativeInstalledPackage }
+  | NativeHostFailure;
 
 interface HostBridge {
   endpoint: string;
@@ -153,7 +164,101 @@ export async function checkNativeHost(
   }
 }
 
-function unreachableHost(): NativeHostResult {
+export async function checkNativePackage(
+  gameId: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_REQUEST_TIMEOUT_MS,
+): Promise<NativePackageResult> {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(gameId) || gameId.length > 80) {
+    return {
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+      detail: "Requested package identifier is invalid",
+    };
+  }
+  const host = await checkNativeHost(href, fetcher, timeoutMs);
+  if (!host.ok) return host;
+  if (!host.status.capabilities.includes("trusted-package-catalog")) {
+    return {
+      ok: false,
+      code: "PACKAGE_NOT_INSTALLED",
+      detail: "Rust host connected · no trusted installed package catalog is configured",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: "HOST_CONFIG_INVALID",
+      detail: "Rust console host launch capability is invalid",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    let response: Response;
+    try {
+      response = await fetcher(`${parsed.bridge.endpoint}/v1/packages/${gameId}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${parsed.bridge.token}` },
+        cache: "no-store",
+        credentials: "omit",
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        signal: controller.signal,
+      });
+    } catch {
+      return unreachableHost();
+    }
+    if (response.status === 401 || response.status === 403) {
+      return {
+        ok: false,
+        code: "HOST_REJECTED",
+        detail: "Rust console host rejected this launcher session",
+      };
+    }
+    if (response.status === 404) {
+      return {
+        ok: false,
+        code: "PACKAGE_NOT_INSTALLED",
+        detail: `No trusted installed package is available for ${gameId}`,
+      };
+    }
+    if (!response.ok) {
+      return {
+        ok: false,
+        code: "HOST_UNREACHABLE",
+        detail: `Rust console host returned status ${response.status}`,
+      };
+    }
+
+    let body: unknown;
+    try {
+      body = await readBoundedJson(response);
+    } catch {
+      if (controller.signal.aborted) return unreachableHost();
+      return {
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+        detail: "Rust console host returned an invalid package document",
+      };
+    }
+    if (!isNativeInstalledPackage(body) || body.id !== gameId) {
+      return {
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+        detail: "Rust console host returned an invalid package document",
+      };
+    }
+    return { ok: true, status: host.status, package: body };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function unreachableHost(): NativeHostFailure {
   return {
     ok: false,
     code: "HOST_UNREACHABLE",
@@ -220,5 +325,23 @@ function isNativeHostStatus(value: unknown): value is Omit<NativeHostStatus, "pr
     candidate.target.length > 0 &&
     Array.isArray(candidate.capabilities) &&
     candidate.capabilities.every((capability) => typeof capability === "string")
+  );
+}
+
+function isNativeInstalledPackage(value: unknown): value is NativeInstalledPackage {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.id === "string" &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) &&
+    typeof candidate.version === "string" &&
+    candidate.version.length > 0 &&
+    candidate.version.length <= 128 &&
+    candidate.runtime === "libretro" &&
+    Number.isSafeInteger(candidate.catalogGeneration) &&
+    (candidate.catalogGeneration as number) > 0 &&
+    Object.keys(candidate).every((key) =>
+      ["id", "version", "runtime", "catalogGeneration"].includes(key),
+    )
   );
 }
