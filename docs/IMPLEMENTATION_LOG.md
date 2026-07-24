@@ -802,6 +802,27 @@ The cleanup mechanism does not decide retention. No automatic age/space policy, 
 
 This fixture does not prove every CSP/sandbox/browser combination or trust arbitrary code sharing an allowlisted origin. Redirect chains, hostile same-origin code, game stalls, native cross-process transport, privileged Home/Back, target-Linux browser containment, and measured ARM64/x86-64 latency remain open.
 
+## 2026-07-24: browser controller discovery and reconnect
+
+### Delivered
+
+- Made the browser Gamepad poll authoritative while retaining connection events as low-latency hints.
+- Controllers attached before adapter startup are now announced on their first poll. Duplicate poll/event observations do not repeat connection notices.
+- A missing polled index recovers from a missed disconnect event, clears held-action edges, and permits the replacement controller to emit a fresh action.
+- A different browser ID or mapping at the same index produces an ordered disconnect/connect transition.
+- Adapter shutdown removes both listeners and cancels its outstanding animation frame.
+- Added `CONTROLLER_INPUT.md` with the exact browser mapping, edge and lifecycle semantics, session-only identity boundary, and remaining SDL3/product gates.
+
+### Verification evidence
+
+- Five new deterministic tests cover pre-attached discovery with single-edge input, event/poll deduplication, silent disconnect plus reconnect rearming, ordered same-index replacement, and clean stop.
+- The console-lab suite now passes 66 unit tests with zero Svelte/TypeScript diagnostics.
+- No owner choice was required; this strengthens the D-123 prototype without claiming the D-116 compatibility promise is qualified.
+
+### Remaining boundary
+
+Browser input is still cooperative page input. Native SDL3 discovery/mapping, real controllers/transports, player assignment, glyphs, ambiguity UI, battery and sleep/wake behavior, compositor-owned Home/Back, hostile focus/fullscreen tests, and both target tiers remain open under I-150 through I-152.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered
