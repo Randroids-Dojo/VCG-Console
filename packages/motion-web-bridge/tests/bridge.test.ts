@@ -4,7 +4,9 @@ import {
   MEDIAPIPE_LANDMARK_NAMES,
   MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
+  type CapabilityRequest,
   type MotionCapabilities,
+  type MotionProfile,
   type TrackerHealthEvent,
 } from "@vcg/motion-contract";
 import { describe, expect, it } from "vitest";
@@ -111,8 +113,10 @@ function readyHealth(sequence = 0, occurredAtMs = 0): TrackerHealthEvent {
 }
 
 function connectedPair(options: {
+  authorizedProfiles?: readonly MotionProfile[];
   maximumFramesPerSecond?: number;
   maximumSessions?: number;
+  request?: CapabilityRequest;
   sessionTtlMs?: number;
   now?: () => number;
 } = {}) {
@@ -121,6 +125,7 @@ function connectedPair(options: {
     receiver: link.hostReceiver,
     allowedOrigins: [link.gameOrigin],
     capabilities,
+    authorizedProfiles: options.authorizedProfiles ?? capabilities.profiles,
     initialHealth: readyHealth(),
     ...(options.maximumFramesPerSecond === undefined ? {} : { maximumFramesPerSecond: options.maximumFramesPerSecond }),
     ...(options.maximumSessions === undefined ? {} : { maximumSessions: options.maximumSessions }),
@@ -135,7 +140,10 @@ function connectedPair(options: {
     target: link.hostTarget,
     targetOrigin: link.consoleOrigin,
     clientId: "sample-game",
-    request: { requiredProfiles: ["body.core17", "actions.obstacle.v1"], optionalProfiles: [] },
+    request: options.request ?? {
+      requiredProfiles: ["body.core17", "actions.obstacle.v1"],
+      optionalProfiles: [],
+    },
     onFrame: (value) => received.push(value),
     onHealth: (value) => receivedHealth.push(value),
     schedule: (callback) => {
@@ -160,6 +168,48 @@ describe("Motion web bridge", () => {
     expect(received[0]?.players[0]?.richLandmarks).toBeUndefined();
     expect(received[0]?.players[0]?.coreLandmarks[0]?.worldPosition).toBeUndefined();
     expect(received[0]?.players[0]?.actions.map((action) => action.name)).toEqual(["jump"]);
+  });
+
+  it("cannot negotiate or publish profiles outside the host permission grant", () => {
+    const landmarkOnly = connectedPair({
+      authorizedProfiles: ["body.core17"],
+      request: {
+        requiredProfiles: ["body.core17"],
+        optionalProfiles: [
+          "body.mediapipe33",
+          "body.world3d",
+          "actions.obstacle.v1",
+          "actions.shell.v1",
+        ],
+      },
+    });
+    expect(landmarkOnly.client.state).toBe("connected");
+    expect(landmarkOnly.host.publish(frame())).toBe(1);
+    expect(landmarkOnly.received[0]?.capabilities.profiles).toEqual(["body.core17"]);
+    expect(landmarkOnly.received[0]?.players[0]?.richLandmarks).toBeUndefined();
+    expect(landmarkOnly.received[0]?.players[0]?.coreLandmarks[0]?.worldPosition).toBeUndefined();
+    expect(landmarkOnly.received[0]?.players[0]?.actions).toEqual([]);
+
+    const actionEscalation = connectedPair({
+      authorizedProfiles: ["body.core17"],
+      request: {
+        requiredProfiles: ["body.core17", "actions.obstacle.v1"],
+        optionalProfiles: [],
+      },
+    });
+    expect(actionEscalation.client.state).toBe("rejected");
+    expect(actionEscalation.host.stats()).toMatchObject({ acceptedConnections: 0, rejectedConnections: 1 });
+
+    const link = fakeLink();
+    expect(() =>
+      new MotionBridgeHost({
+        receiver: link.hostReceiver,
+        allowedOrigins: [link.gameOrigin],
+        capabilities,
+        authorizedProfiles: ["actions.obstacle.v1"],
+        initialHealth: readyHealth(),
+      }),
+    ).toThrow(/requires body\.core17/);
   });
 
   it("delivers ordered health transitions outside the frame stream", () => {
@@ -268,6 +318,7 @@ describe("Motion web bridge", () => {
           receiver: invalidLink.hostReceiver,
           allowedOrigins: [invalidLink.gameOrigin],
           capabilities,
+          authorizedProfiles: capabilities.profiles,
           initialHealth: readyHealth(),
           maximumSessions,
         }),
@@ -309,6 +360,7 @@ describe("Motion web bridge", () => {
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      authorizedProfiles: capabilities.profiles,
       initialHealth: readyHealth(),
     });
     const replies: unknown[] = [];
@@ -432,6 +484,7 @@ describe("Motion web bridge", () => {
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      authorizedProfiles: capabilities.profiles,
       initialHealth: readyHealth(),
     });
     const hostileReplies: unknown[] = [];
@@ -473,6 +526,7 @@ describe("Motion web bridge", () => {
         coordinateSystem: capabilities.coordinateSystem,
         timestampQuality: capabilities.timestampQuality,
       },
+      authorizedProfiles: ["body.core17"],
       initialHealth: readyHealth(),
     });
     host.stop();
@@ -529,6 +583,7 @@ describe("Motion web bridge", () => {
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      authorizedProfiles: capabilities.profiles,
       initialHealth: readyHealth(),
       now: () => now,
       sessionTtlMs: 1_000,
@@ -579,6 +634,7 @@ describe("Motion web bridge", () => {
       receiver: link.hostReceiver,
       allowedOrigins: [link.gameOrigin],
       capabilities,
+      authorizedProfiles: capabilities.profiles,
       initialHealth: readyHealth(),
     });
     host.start();

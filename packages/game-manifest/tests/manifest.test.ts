@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  deriveGamePermissionGrant,
   formatGameManifestIssues,
+  GAME_PERMISSION_VALUES,
   GAME_MANIFEST_SCHEMA_ID,
   GAME_MANIFEST_SCHEMA_VERSION,
   gameManifestJsonSchema,
   GameManifestSchema,
+  motionProfilesForPermissions,
 } from "../src";
 import offlineNetworkErrors from "../fixtures/v1/invalid/offline-network.errors.json";
 import offlineNetworkFixture from "../fixtures/v1/invalid/offline-network.vcg-game.json";
@@ -110,6 +113,79 @@ describe("GameManifestSchema", () => {
     expect(GameManifestSchema.safeParse({ ...valid, runtime: "local-web", network: "offline" }).success).toBe(false);
   });
 
+  it("binds the existing v1 motion permissions to exact bridge profiles", () => {
+    expect(GAME_PERMISSION_VALUES).toContain("motion.core17");
+    expect(
+      motionProfilesForPermissions([
+        "gamepad",
+        "motion.core17",
+        "motion.actions.obstacle",
+      ]),
+    ).toEqual(["body.core17", "actions.obstacle.v1"]);
+    expect(
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["gamepad", "network", "motion.core17", "motion.actions.obstacle"],
+          inputProfiles: ["gamepad", "motion.obstacle.v1"],
+        }),
+      ),
+    ).toMatchObject({
+      network: true,
+      motionProfiles: ["body.core17", "actions.obstacle.v1"],
+    });
+  });
+
+  it("rejects action/profile escalation without the matching permission set", () => {
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.actions.obstacle"],
+          inputProfiles: ["motion.obstacle.v1"],
+        }),
+      ),
+    ).toThrow(/requires motion\.core17/);
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.core17", "motion.actions.obstacle"],
+          inputProfiles: [],
+        }),
+      ),
+    ).toThrow(/requires the motion\.obstacle\.v1/);
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.core17"],
+          inputProfiles: ["motion.obstacle.v1"],
+        }),
+      ),
+    ).toThrow(/requires the motion\.actions\.obstacle/);
+  });
+
+  it("denies raw video, microphone, and undeclared network authority in v1", () => {
+    for (const unavailable of ["camera.raw-video", "microphone"]) {
+      expect(
+        GameManifestSchema.safeParse({
+          ...valid,
+          permissions: ["network", unavailable],
+        }).success,
+        unavailable,
+      ).toBe(false);
+    }
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["gamepad"],
+        }),
+      ),
+    ).toThrow(/requires the network permission/);
+  });
+
   it("preserves extension fields in runtime parsing and exported schema", () => {
     const parsed = GameManifestSchema.parse({ ...valid, futureField: { enabled: true } });
     expect(parsed.futureField).toEqual({ enabled: true });
@@ -188,7 +264,9 @@ describe("GameManifestSchema", () => {
       "remote-web.vcg-game.json": validRemoteWebFixture,
     };
     for (const [name, value] of Object.entries(fixtures)) {
-      expect(GameManifestSchema.safeParse(value), name).toMatchObject({ success: true });
+      const parsed = GameManifestSchema.safeParse(value);
+      expect(parsed, name).toMatchObject({ success: true });
+      if (parsed.success) expect(() => deriveGamePermissionGrant(parsed.data), name).not.toThrow();
     }
   });
 

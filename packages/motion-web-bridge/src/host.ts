@@ -3,6 +3,7 @@ import {
   MOTION_API_SCHEMA_VERSION,
   MotionFrameSchema,
   MotionCapabilitiesSchema,
+  MotionProfileSchema,
   TrackerHealthEventSchema,
   negotiateCapabilities,
   type MotionCapabilities,
@@ -41,6 +42,7 @@ export interface MotionBridgeHostOptions {
   receiver: BridgeMessageReceiver;
   allowedOrigins: readonly string[];
   capabilities: MotionCapabilities;
+  authorizedProfiles: readonly MotionProfile[];
   initialHealth: TrackerHealthEvent;
   maximumSessions?: number;
   maximumFramesPerSecond?: number;
@@ -83,7 +85,25 @@ export class MotionBridgeHost {
     this.#receiver = options.receiver;
     this.#allowedOrigins = new Set(options.allowedOrigins.map(exactOrigin));
     if (this.#allowedOrigins.size === 0) throw new Error("Motion bridge requires at least one allowed origin");
-    this.#capabilities = MotionCapabilitiesSchema.parse(options.capabilities);
+    const sourceCapabilities = MotionCapabilitiesSchema.parse(options.capabilities);
+    const authorizedProfiles = new Set(
+      options.authorizedProfiles.map((profile) => MotionProfileSchema.parse(profile)),
+    );
+    if (!authorizedProfiles.has("body.core17")) {
+      throw new Error("Motion bridge authorization requires body.core17");
+    }
+    const { worldCoordinateSystem, ...portableCapabilities } = sourceCapabilities;
+    const profiles = sourceCapabilities.profiles.filter((profile) => authorizedProfiles.has(profile));
+    if (!profiles.includes("body.core17")) {
+      throw new Error("Motion bridge source and authorization must both provide body.core17");
+    }
+    this.#capabilities = MotionCapabilitiesSchema.parse({
+      ...portableCapabilities,
+      profiles,
+      ...(profiles.includes("body.world3d") && worldCoordinateSystem
+        ? { worldCoordinateSystem }
+        : {}),
+    });
     this.#currentHealth = TrackerHealthEventSchema.parse(options.initialHealth);
     this.#maximumSessions = options.maximumSessions ?? DEFAULT_MAXIMUM_BRIDGE_SESSIONS;
     if (

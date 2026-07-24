@@ -1088,3 +1088,25 @@ This is a design-and-desk-test review, not production browser or native isolatio
 ### Remaining boundary
 
 The simulator is developer/test evidence, not a camera benchmark or accessibility substitute. It does not qualify real-room motion accuracy, child/adult/seated/limited-range behavior, physical controller mappings, native SDL3, compositor enforcement, target Linux, or LAN deployment security. Those remain under I-053, I-102, I-161, I-183, I-209, and I-210.
+
+## 2026-07-24: deny-by-default game permission grants
+
+### Delivered
+
+- Exported the exact `vcg-game.json` v1 permission/input vocabularies and a permission-grant derivation boundary without tightening or silently reinterpreting the published v1 parser.
+- Mapped `motion.core17` only to `body.core17` and `motion.actions.obstacle` only to `actions.obstacle.v1`; action authority also requires the core skeleton and matching input profile.
+- Made non-offline network mode without `network` fail grant derivation. The existing parser continues rejecting `network` on offline manifests.
+- Kept presence-only, rich/world skeletons, raw camera data, microphone, identity/profile data, and console-owned shell actions unavailable in v1. Unknown extension fields remain non-authoritative.
+- Required every Motion bridge host to receive an explicit profile grant and intersected source capabilities with it before welcome, negotiation, or publication. Ungranted required profiles reject; optional ones degrade; richer tracker output cannot self-authorize.
+- Updated same-origin and sandboxed cross-origin browser fixtures to use explicit core-only grants and documented the disclosure, versioning, and residual native enforcement boundary in `GAME_PERMISSION_MODEL.md`.
+- I-079 closes as vocabulary and cooperative-boundary enforcement. Q-055 remains for signed install/launch disclosure and product-wide OS/runtime enforcement.
+
+### Verification evidence
+
+- Eighteen manifest tests cover exact vocabulary, grant mapping, network disagreement, obstacle/profile dependency, raw-video/microphone denial, and all prior v1 fixtures and diagnostics.
+- Nineteen bridge tests cover explicit grant intersection, optional profile removal, required action escalation rejection, core authorization, existing projection, origin/source checks, health, backpressure, bounds, and reconnect behavior.
+- TypeScript/Svelte package typechecks pass after making `authorizedProfiles` mandatory at every host construction site.
+
+### Remaining boundary
+
+The public manifest is not signed launch authority by itself. Production still needs the native host to derive grants from signature-verified installed package evidence, render a controller-accessible permission review, enforce network/storage/input/device isolation for every runtime lane, support revocation/family policy, and prove that top-level hosted or native games cannot obtain undeclared OS/browser capabilities.

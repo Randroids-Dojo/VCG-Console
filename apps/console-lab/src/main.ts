@@ -13,6 +13,12 @@ import { actionFeedback } from "./action-feedback";
 import { ActionEngine } from "./action-engine";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { LauncherController, launcherMarkup } from "./launcher";
+import {
+  LocalObstacleLeaderboard,
+  OBSTACLE_GAME_VERSION,
+  OBSTACLE_RULES_VERSION,
+  type LeaderboardInputMode,
+} from "./local-leaderboard";
 import { Metrics } from "./metrics";
 import { ObstacleGame } from "./obstacle-game";
 import { PlayerSessionController, type PlayerSessionEvent } from "./player-session";
@@ -85,6 +91,23 @@ app.innerHTML = `
             <div class="stage-corners" aria-hidden="true"></div>
             <div class="game-score"><span>SCORE <strong id="game-score">000000</strong></span><span>LIVES <strong id="game-lives">3</strong></span></div>
             <div class="source-badge" id="game-status">READY</div>
+            <section class="leaderboard-card" aria-labelledby="leaderboard-title">
+              <div class="leaderboard-heading">
+                <div>
+                  <p>HOUSEHOLD LOCAL</p>
+                  <h2 id="leaderboard-title">UNVERIFIED RUNS</h2>
+                </div>
+                <span>NO UPLOAD</span>
+              </div>
+              <p class="leaderboard-disclosure">Casual scores on this device only. They are not anti-cheat protected or comparable across households.</p>
+              <ol id="leaderboard-list" class="leaderboard-list"></ol>
+              <p id="leaderboard-storage-status" class="leaderboard-storage-status"></p>
+              <div class="leaderboard-actions">
+                <button id="new-run-button" type="button">NEW RUN</button>
+                <button id="reset-board-button" type="button">RESET LOCAL BOARD</button>
+              </div>
+              <p class="leaderboard-build-note">DEVELOPER SAMPLE · GAME ${OBSTACLE_GAME_VERSION} / RULES ${OBSTACLE_RULES_VERSION} · SCORES CAN BE MODIFIED</p>
+            </section>
           </div>
         </div>
 
@@ -248,6 +271,7 @@ const modeButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode
 const shellCards = [...document.querySelectorAll<HTMLButtonElement>("[data-shell-target]")];
 const overlayButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-overlay-action]")];
 const poseSimulator = new MotionPoseSimulator();
+const obstacleLeaderboard = new LocalObstacleLeaderboard(localStorage);
 
 let latestFrame: MotionFrame | undefined;
 let replayRunning = true;
@@ -263,6 +287,10 @@ let overlayKind: OverlayKind | undefined;
 let overlayFocus: "resume" | "exit" = "resume";
 let healthSequence = 1;
 let activeHealth = trackerHealthFixture("healthy", 0, 0);
+let obstacleRunPauseCount = 0;
+let obstacleRunTrackingDropoutCount = 0;
+let obstacleRunRecorded = false;
+let leaderboardResetArmed = false;
 
 const launcher = new LauncherController({
   openMotionLab(mode = "tracker") {
@@ -284,8 +312,20 @@ const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"
   required<HTMLElement>("#game-score").textContent = String(score).padStart(6, "0");
   required<HTMLElement>("#game-lives").textContent = String(lives);
   required<HTMLElement>("#game-status").textContent = status;
+  if (status === "RUN ENDED" && !obstacleRunRecorded) {
+    obstacleRunRecorded = true;
+    obstacleLeaderboard.record({
+      score,
+      inputMode: currentLeaderboardInputMode(),
+      pauseCount: obstacleRunPauseCount,
+      trackingDropoutCount: obstacleRunTrackingDropoutCount,
+    });
+    paintLeaderboard();
+  }
 });
 obstacle.start();
+obstacle.setPaused(true);
+paintLeaderboard();
 
 const tracker = new MediaPipeTracker({
   onFrame(frame) {
@@ -345,6 +385,9 @@ function acceptFrame(rawFrame: MotionFrame): void {
 
 function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
   if (event.type === "freeze") {
+    if (currentMode === "obstacle" && event.reason === "tracking-loss") {
+      obstacleRunTrackingDropoutCount += 1;
+    }
     obstacle.setPaused(true);
     statusDetail.textContent =
       event.reason === "tracking-loss"
@@ -582,6 +625,7 @@ function setMode(mode: AppMode): void {
   required<HTMLElement>("#lab-title").textContent = copy.title;
   required<HTMLElement>("#stage-note").innerHTML = copy.note;
   obstacle.setPaused(mode !== "obstacle" || Boolean(overlayKind));
+  if (mode !== "obstacle") disarmLeaderboardReset();
 }
 
 function moveFocus(direction: -1 | 1): void {
@@ -604,6 +648,8 @@ function selectFocused(): void {
 }
 
 function showOverlay(kind: OverlayKind): void {
+  if (overlayKind) return;
+  if (kind === "manual" && currentMode === "obstacle") obstacleRunPauseCount += 1;
   overlayKind = kind;
   overlay.hidden = false;
   obstacle.setPaused(true);
@@ -693,6 +739,60 @@ function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input i
   updateStatus(status, detail);
 }
 
+function currentLeaderboardInputMode(): LeaderboardInputMode {
+  if (!replayRunning) return "camera";
+  return simulatorEnabled ? "simulator" : "replay";
+}
+
+function resetObstacleRun(): void {
+  obstacleRunPauseCount = 0;
+  obstacleRunTrackingDropoutCount = 0;
+  obstacleRunRecorded = false;
+  obstacle.reset();
+  obstacle.setPaused(currentMode !== "obstacle" || Boolean(overlayKind));
+  statusDetail.textContent = "A new unverified local run is ready.";
+}
+
+function paintLeaderboard(): void {
+  const list = required<HTMLOListElement>("#leaderboard-list");
+  const storageStatus = required<HTMLElement>("#leaderboard-storage-status");
+  const snapshot = obstacleLeaderboard.snapshot();
+  list.replaceChildren();
+  if (snapshot.entries.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "leaderboard-empty";
+    empty.textContent = "NO COMPLETED RUNS";
+    list.append(empty);
+  } else {
+    for (const [index, entry] of snapshot.entries.slice(0, 5).entries()) {
+      const item = document.createElement("li");
+      const rank = document.createElement("span");
+      const score = document.createElement("strong");
+      const context = document.createElement("small");
+      rank.textContent = String(index + 1).padStart(2, "0");
+      score.textContent = `${String(entry.score).padStart(6, "0")} · ${
+        entry.player.kind === "local-profile" ? entry.player.label : "UNASSIGNED"
+      }`;
+      context.textContent =
+        `${entry.inputMode.toUpperCase()} · P${entry.pauseCount} · DROP ${entry.trackingDropoutCount}`;
+      item.append(rank, score, context);
+      list.append(item);
+    }
+  }
+  storageStatus.textContent = !snapshot.persistenceAvailable
+    ? "LOCAL STORAGE UNAVAILABLE — THIS SESSION'S SCORES WILL NOT SURVIVE RELOAD."
+    : snapshot.recoveredMalformedData
+      ? "MALFORMED LOCAL SCORE DATA WAS REMOVED. THE BOARD RECOVERED EMPTY."
+      : `${snapshot.entries.length} OF 20 LOCAL RUNS RETAINED.`;
+  storageStatus.dataset.state =
+    !snapshot.persistenceAvailable || snapshot.recoveredMalformedData ? "warning" : "ready";
+}
+
+function disarmLeaderboardReset(): void {
+  leaderboardResetArmed = false;
+  required<HTMLButtonElement>("#reset-board-button").textContent = "RESET LOCAL BOARD";
+}
+
 function replayLoop(now: number): void {
   if (replayRunning) {
     acceptFrame(
@@ -747,6 +847,7 @@ for (const button of healthFixtureButtons) {
 }
 required<HTMLButtonElement>("#manual-pause-button").addEventListener("click", () => showOverlay("manual"));
 required<HTMLButtonElement>("#tracking-loss-button").addEventListener("click", () => {
+  if (currentMode === "obstacle") obstacleRunTrackingDropoutCount += 1;
   obstacle.setPaused(true);
   statusDetail.textContent = "Test loss confirmed. Waiting through the two-second reacquisition window.";
   setTimeout(() => showOverlay("recovery"), 2_000);
@@ -819,6 +920,19 @@ function handleSimulatorKeyUp(event: KeyboardEvent): void {
 window.addEventListener("beforeunload", () => {
   gamepads.stop();
   void tracker.close();
+});
+required<HTMLButtonElement>("#new-run-button").addEventListener("click", resetObstacleRun);
+required<HTMLButtonElement>("#reset-board-button").addEventListener("click", () => {
+  if (!leaderboardResetArmed) {
+    leaderboardResetArmed = true;
+    required<HTMLButtonElement>("#reset-board-button").textContent = "CONFIRM RESET";
+    statusDetail.textContent = "Press Confirm Reset to permanently clear this device's local obstacle board.";
+    return;
+  }
+  obstacleLeaderboard.reset();
+  paintLeaderboard();
+  disarmLeaderboardReset();
+  statusDetail.textContent = "The unverified local obstacle board was reset.";
 });
 window.addEventListener("keyup", handleSimulatorKeyUp);
 document.addEventListener("keydown", (event) => {

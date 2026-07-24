@@ -45,7 +45,9 @@ Raw images terminate inside the tracker boundary. The bridge accepts and emits s
 1. A non-allowlisted origin receives no reply, including no capability oracle.
 2. Both origin and source-window identity must match; knowing a session ID is insufficient.
 3. Hello binds bridge v2 and exact Motion API `0.3.0` before a session exists.
-4. Missing required profiles reject the session; optional profiles may degrade explicitly.
+4. The host intersects source capabilities with an explicit manifest-derived
+   profile grant before negotiation. Missing required profiles reject the
+   session; optional profiles may degrade explicitly.
 5. Frames are projected to granted profiles without fabricating landmarks, world data, or actions.
 6. Current ordered health is sent at welcome and outside the frame stream; frame source/status must match it.
 7. Health uses a closed reason/control vocabulary and carries no provider exception text.
@@ -64,7 +66,7 @@ Raw images terminate inside the tracker boundary. The bridge accepts and emits s
 | Sibling window steals session ID and sends goodbye | Host session remains because source does not match | stolen-goodbye test | Compromised original source window |
 | Navigation changes an approved `WindowProxy` to a hostile origin | Inbound message is silent; exact outbound `targetOrigin` prevents delivery | real Chrome origin-drift test | Approved origin may later serve compromised code |
 | Legacy/downgrade hello or welcome | Rejected/ignored before connection | bridge v1 and Motion `0.2.0` matrix | Actually released compatibility policy remains untested |
-| Client requests richer profiles | Missing required profiles reject; optional profiles degrade | negotiation tests | Admission policy must decide which requests may be attempted |
+| Client requests richer profiles | Host capabilities are pre-filtered by an explicit grant; missing required profiles reject and optional profiles degrade | permission-grant and negotiation tests | Native/top-level launch still needs to construct this grant from signed package evidence |
 | Rich/world/action data crosses an ungranted session | Frame projection removes it | projection and world-profile tests | New profiles need explicit projection review |
 | Health spoof, stale sequence, or time regression | Exact source/session plus increasing sequence and non-regressing time | health-order tests | Host publisher compromise |
 | Frame contradicts current tracker source or health | Host rejects before publication | source/status mismatch tests | Multiple future backends need an explicit multiplexing design |

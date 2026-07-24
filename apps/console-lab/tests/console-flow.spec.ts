@@ -496,6 +496,41 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
   await expect(page.locator("#tracker-control")).toHaveText("FULL");
 });
 
+test("keeps obstacle scores local, unverified, persistent, and deliberately resettable", async ({ page }) => {
+  await openMotionLab(page);
+  await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
+
+  const board = page.getByRole("region", { name: "UNVERIFIED RUNS" });
+  await expect(board.getByText("NO UPLOAD")).toBeVisible();
+  await expect(board.getByText(/not anti-cheat protected or comparable across households/)).toBeVisible();
+  await expect(board.getByText("NO COMPLETED RUNS")).toBeVisible();
+  await expect(board.getByText(/SCORES CAN BE MODIFIED/)).toBeVisible();
+
+  await board.getByRole("button", { name: "NEW RUN" }).click();
+  await expect(page.locator("#game-status")).toHaveText("RUN ENDED", { timeout: 12_000 });
+  await expect(board.getByText(/\d{6} · UNASSIGNED/)).toBeVisible();
+  await expect(board.getByText(/REPLAY · P0 · DROP 0/)).toBeVisible();
+  await expect(board.getByText("1 OF 20 LOCAL RUNS RETAINED.")).toBeVisible();
+  await page.screenshot({ path: "../../test-results/console-lab/local-leaderboard.png", fullPage: true });
+  await expect
+    .poll(() =>
+      page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v1")),
+    )
+    .not.toBeNull();
+
+  await page.reload();
+  await page.getByRole("button", { name: "Motion", exact: true }).click();
+  await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
+  await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
+  await expect(page.getByRole("region", { name: "UNVERIFIED RUNS" }).getByText(/\d{6} · UNASSIGNED/)).toBeVisible();
+
+  await page.getByRole("button", { name: "RESET LOCAL BOARD" }).click();
+  await expect(board.getByText(/\d{6} · UNASSIGNED/)).toBeVisible();
+  await board.getByRole("button", { name: "CONFIRM RESET" }).click();
+  await expect(board.getByText("NO COMPLETED RUNS")).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v1"))).toBeNull();
+});
+
 test("drives the camera-free pose simulator through UI, keyboard, controller, and test hooks", async ({ page }) => {
   await page.addInitScript(() => {
     let gamepad: Gamepad | null = null;

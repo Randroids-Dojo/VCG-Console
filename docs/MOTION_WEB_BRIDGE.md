@@ -26,6 +26,10 @@ Bridge protocol v1 and Motion API `0.2.0` or earlier are incompatible with this 
 - Messages from a non-allowlisted origin are ignored without a response, avoiding a capability oracle for unrelated pages.
 - The host verifies both `event.origin` and the source window. The client likewise verifies its configured console origin and target window.
 - Clients receive only negotiated profiles. Rich landmarks, world coordinates, and action families are removed unless granted.
+- Host construction requires an explicit authorized-profile set, normally
+  derived from the parsed game manifest. Tracker capabilities are intersected
+  with that set before welcome or negotiation; a richer source cannot
+  self-authorize richer game data.
 - Publication is bounded per session and drops excess frames rather than accumulating a latency-producing queue.
 - Distinct source-window sessions default to a maximum of 16 and may be configured only from 1 through 64. A reconnect may replace its own source session at the bound; another window receives an explicit rejection.
 - Health delivery is out of band from frame acknowledgements, uses a closed reason/control vocabulary, and carries no arbitrary provider error text.
@@ -61,6 +65,9 @@ client.start();
 ```
 
 A complete typed example lives in `packages/motion-web-bridge/examples/sample-client.ts`.
+Host-side setup must pass `authorizedProfiles` from the reviewed permission
+grant; the client request is never authority. See the
+[game permission model](GAME_PERMISSION_MODEL.md).
 
 ## Verification scope
 

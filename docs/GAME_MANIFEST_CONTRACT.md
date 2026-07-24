@@ -35,6 +35,16 @@ Cross-field rules enforced by the parser include:
 - Libretro entrypoint, selected core, architecture coverage, content mode, and no-game support agree; and
 - a `qualified` Libretro manifest includes frontend and core hashes.
 
+Permission values are a closed v1 enum. Raw camera video, microphone, identity,
+presence-only Motion, rich/world Motion, and console-owned shell actions are not
+requestable. `deriveGamePermissionGrant` is the separate authority boundary:
+after parsing, it rejects non-offline network modes without `network` and
+requires `motion.core17`, `motion.actions.obstacle`, and
+`motion.obstacle.v1` to agree before returning exact bridge profiles. These
+launch-time checks preserve the already-published v1 parser acceptance contract
+instead of silently tightening it. See the
+[game permission model](GAME_PERMISSION_MODEL.md).
+
 Standard JSON Schema cannot compare normalized URL origins or two arbitrary property values. The exported schema includes every representable rule and carries a comment identifying the parser-only checks. Passing only a generic JSON Schema validator is therefore insufficient for admission.
 
 ## Validation and diagnostics
@@ -78,4 +88,4 @@ A migration may populate a safe default only when the new-version contract defin
 
 A valid public manifest is necessary but not sufficient for installation or launch. It is not a signature, entitlement record, qualification result, installed-path authority, or artifact-integrity envelope.
 
-The Rust installed catalog separately verifies a detached signature, target, generation, qualification state, exact manifest hash and identity, and runtime artifact hashes. The browser may request a game by ID; it cannot turn advisory or unknown manifest fields into native authority.
+The Rust installed catalog separately verifies a detached signature, target, generation, qualification state, exact manifest hash and identity, and runtime artifact hashes. The browser may request a game by ID; it cannot turn advisory or unknown manifest fields into native authority. Likewise, a parsed permission array is not authority until the host derives and enforces the bounded grant.

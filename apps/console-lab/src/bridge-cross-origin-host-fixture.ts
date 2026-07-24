@@ -23,6 +23,7 @@ const host = new MotionBridgeHost({
     coordinateSystem: "image.normalized.top-left",
     timestampQuality: "replay",
   },
+  authorizedProfiles: ["body.core17"],
   initialHealth: {
     schemaVersion: MOTION_API_SCHEMA_VERSION,
     sequence: 0,
