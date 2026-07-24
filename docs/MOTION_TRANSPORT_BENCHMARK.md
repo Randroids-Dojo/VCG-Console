@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Status: size-paired core, action-heavy, and rich-world Motion-JSON child-process Windows development runs recorded; no production transport selected
+Status: size-paired Windows and WSL2 Linux-kernel child-process development runs recorded; no production transport selected
 
 Authority: D-004, I-074, I-084
 
@@ -158,6 +158,37 @@ is synthetic, both schema operations run in the client process, and live
 backend distributions, multiple players, worst-case action lifecycles, other
 implementations, and target Linux remain unmeasured.
 
+## WSL2 Linux-kernel development result
+
+The unchanged child-process harness also ran from a fresh frozen install inside
+Ubuntu WSL2 on the same physical workstation. Report v3 records
+`environmentKind: "wsl2"` and kernel
+`6.6.87.2-microsoft-standard-WSL2`; Node is 22.22.1. Local-socket measurements
+therefore exercise a Unix-domain socket, but this remains a virtualized
+development environment, not the ordinary native x86-64 Linux reference and
+not ARM64 evidence.
+
+Each cell is Motion p50 / size-matched opaque p50 in microseconds:
+
+| Frame shape | Bytes | Direct | Shared slot | Unix socket | TCP | WebSocket |
+|---|---:|---:|---:|---:|---:|---:|
+| Core 17, no actions | 2,010 | 36.77 / 0.66 | 95.39 / 38.25 | 150.41 / 99.74 | 329.16 / 262.61 | 386.80 / 296.46 |
+| MediaPipe 33 + world | 8,353 | 146.90 / 5.22 | 202.58 / 39.21 | 294.33 / 104.30 | 531.43 / 332.33 | 563.03 / 445.42 |
+
+The reports are:
+
+- `benchmarks/transport/wsl2-ubuntu-x64-node22-opaque-2010-child-process-2026-07-24.json`
+- `benchmarks/transport/wsl2-ubuntu-x64-node22-motion-json-child-process-2026-07-24.json`
+- `benchmarks/transport/wsl2-ubuntu-x64-node22-opaque-8353-child-process-2026-07-24.json`
+- `benchmarks/transport/wsl2-ubuntu-x64-node22-motion-json-mediapipe33-world-child-process-2026-07-24.json`
+
+Unix-domain sockets had lower p50 than TCP and WebSocket for both shapes in
+this WSL2 run. The rich-frame p99 values for the worker, socket, TCP, and
+WebSocket paths ranged from 1.75 to 1.96 ms, so short p50 ordering is not a
+stability result. WSL virtualization, a different Node major, process
+scheduling, garbage collection, and the development host all prevent direct
+platform conclusions.
+
 ## Backpressure observations
 
 - Direct calls are synchronous and retain no transport queue.
@@ -184,13 +215,14 @@ bridge. A transport's default buffering must never become Motion latency.
 The socket and WebSocket paths now have separate-process Windows evidence.
 Shared memory crosses only to a worker thread and does not solve cross-process
 lifetime, ownership, crash recovery, permissions, or stale-reader reclamation.
-Windows named pipes are not evidence for Linux Unix-domain sockets. Short
-development runs do not establish wall-clock stability, scheduler isolation,
-or an acceptable memory budget.
+WSL2 exercises a Unix-domain socket but is not native target-Linux evidence.
+Short development runs do not establish wall-clock stability, scheduler
+isolation, or an acceptable memory budget.
 
 Before a decision:
 
-- rerun the unchanged harness on target Linux x86-64 and ARM64;
+- rerun the unchanged harness on native target Linux x86-64 and ARM64; WSL2
+  does not satisfy either qualification row;
 - implement a bounded cross-process shared-memory ownership/recovery design;
 - measure live multi-player and worst-case backend frame distributions with
   the same validation path;
