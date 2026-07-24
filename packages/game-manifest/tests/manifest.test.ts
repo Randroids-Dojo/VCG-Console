@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { gameManifestJsonSchema, GameManifestSchema } from "../src";
+import {
+  formatGameManifestIssues,
+  GAME_MANIFEST_SCHEMA_ID,
+  GAME_MANIFEST_SCHEMA_VERSION,
+  gameManifestJsonSchema,
+  GameManifestSchema,
+} from "../src";
+import offlineNetworkErrors from "../fixtures/v1/invalid/offline-network.errors.json";
+import offlineNetworkFixture from "../fixtures/v1/invalid/offline-network.vcg-game.json";
+import qualifiedLibretroErrors from "../fixtures/v1/invalid/qualified-libretro-without-hashes.errors.json";
+import qualifiedLibretroFixture from "../fixtures/v1/invalid/qualified-libretro-without-hashes.vcg-game.json";
+import remoteOriginErrors from "../fixtures/v1/invalid/remote-origin.errors.json";
+import remoteOriginFixture from "../fixtures/v1/invalid/remote-origin.vcg-game.json";
+import unknownVersionErrors from "../fixtures/v1/invalid/unknown-version.errors.json";
+import unknownVersionFixture from "../fixtures/v1/invalid/unknown-version.vcg-game.json";
+import validLibretroFixture from "../fixtures/v1/valid/libretro.vcg-game.json";
+import validLocalWebFixture from "../fixtures/v1/valid/local-web.vcg-game.json";
+import validNativeFixture from "../fixtures/v1/valid/native.vcg-game.json";
+import validRemoteWebFixture from "../fixtures/v1/valid/remote-web.vcg-game.json";
 
 const valid = {
   schemaVersion: 1,
@@ -65,6 +83,17 @@ const validLibretro = {
 };
 
 describe("GameManifestSchema", () => {
+  it("exports the one supported schema version", () => {
+    expect(GAME_MANIFEST_SCHEMA_VERSION).toBe(1);
+    expect(gameManifestJsonSchema).toMatchObject({
+      $id: GAME_MANIFEST_SCHEMA_ID,
+      title: "VCG game manifest v1",
+    });
+    expect((gameManifestJsonSchema.properties as Record<string, unknown>)).toMatchObject({
+      schemaVersion: { const: GAME_MANIFEST_SCHEMA_VERSION },
+    });
+  });
+
   it("accepts an explicit unverified remote manifest", () => {
     expect(GameManifestSchema.parse(valid).compatibilityStatus).toBe("unverified");
   });
@@ -149,5 +178,37 @@ describe("GameManifestSchema", () => {
         expect.objectContaining({ if: { properties: { runtime: { const: "libretro" } }, required: ["runtime"] } }),
       ]),
     );
+  });
+
+  it("accepts every canonical v1 valid fixture", () => {
+    const fixtures: Record<string, unknown> = {
+      "libretro.vcg-game.json": validLibretroFixture,
+      "local-web.vcg-game.json": validLocalWebFixture,
+      "native.vcg-game.json": validNativeFixture,
+      "remote-web.vcg-game.json": validRemoteWebFixture,
+    };
+    for (const [name, value] of Object.entries(fixtures)) {
+      expect(GameManifestSchema.safeParse(value), name).toMatchObject({ success: true });
+    }
+  });
+
+  it("rejects every canonical v1 invalid fixture with stable diagnostics", () => {
+    const fixtures: Record<string, Readonly<{ value: unknown; errors: readonly string[] }>> = {
+      "offline-network.vcg-game.json": { value: offlineNetworkFixture, errors: offlineNetworkErrors },
+      "qualified-libretro-without-hashes.vcg-game.json": {
+        value: qualifiedLibretroFixture,
+        errors: qualifiedLibretroErrors,
+      },
+      "remote-origin.vcg-game.json": { value: remoteOriginFixture, errors: remoteOriginErrors },
+      "unknown-version.vcg-game.json": { value: unknownVersionFixture, errors: unknownVersionErrors },
+    };
+    for (const [name, fixture] of Object.entries(fixtures)) {
+      const { value, errors } = fixture;
+      const parsed = GameManifestSchema.safeParse(value);
+      expect(parsed.success, name).toBe(false);
+      if (!parsed.success) {
+        expect(formatGameManifestIssues(parsed.error.issues), name).toEqual(errors);
+      }
+    }
   });
 });

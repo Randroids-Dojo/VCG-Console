@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-qualified-libretro",
+  "version": "1.0.0",
+  "title": "Qualified Libretro Fixture",
+  "publisher": "VCG Fixtures",
+  "runtime": "libretro",
+  "entrypoint": "libretro:fixture-core",
+  "architectures": ["aarch64", "x86_64"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "qualified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "rights": {
+    "distribution": "redistributable",
+    "codeLicense": "GPL-3.0-only",
+    "contentLicense": "NONE",
+    "reviewStatus": "audited"
+  },
+  "libretro": {
+    "frontend": {
+      "id": "retroarch",
+      "version": "1.0.0",
+      "license": "GPL-3.0-only",
+      "source": "https://github.com/libretro/RetroArch"
+    },
+    "core": {
+      "id": "fixture-core",
+      "version": "1.0.0",
+      "license": "LicenseRef-Fixture",
+      "source": "https://example.test/fixture-core",
+      "architectures": ["aarch64", "x86_64"],
+      "supportsNoGame": true
+    },
+    "content": {
+      "mode": "none"
+    },
+    "controllerProfile": "retropad-standard-v1",
+    "saveNamespace": "fixture-qualified-libretro",
+    "bios": []
+  },
+  "notes": []
+}

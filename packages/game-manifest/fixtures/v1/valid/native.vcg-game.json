@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-native",
+  "version": "1.0.0",
+  "title": "Native Fixture",
+  "publisher": "VCG Fixtures",
+  "runtime": "native",
+  "entrypoint": "bin/fixture-game",
+  "architectures": ["aarch64", "x86_64"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "owner-confirmed"
+  },
+  "notes": []
+}

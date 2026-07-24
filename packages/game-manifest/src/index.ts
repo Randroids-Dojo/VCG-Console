@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const GAME_MANIFEST_SCHEMA_VERSION = 1 as const;
+export const GAME_MANIFEST_SCHEMA_ID = "urn:vcg:schema:game-manifest:1" as const;
+
 const HttpsUrlSchema = z.url().refine((value) => value.startsWith("https://"), "remote entrypoints and origins must use HTTPS");
 const PackageIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/, "SHA-256 values must be 64 lowercase hexadecimal characters");
@@ -49,7 +52,7 @@ const LibretroManifestSchema = z
 
 export const GameManifestSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(GAME_MANIFEST_SCHEMA_VERSION),
     id: PackageIdSchema,
     version: z.string().min(1),
     title: z.string().min(1),
@@ -147,7 +150,11 @@ export const GameManifestSchema = z
   });
 
 export type GameManifest = z.infer<typeof GameManifestSchema>;
-export const gameManifestJsonSchema = z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>;
+export const gameManifestJsonSchema: Record<string, unknown> = {
+  $id: GAME_MANIFEST_SCHEMA_ID,
+  title: "VCG game manifest v1",
+  ...(z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>),
+};
 gameManifestJsonSchema.allOf = [
   {
     if: { properties: { runtime: { const: "remote-web" } }, required: ["runtime"] },
@@ -176,4 +183,26 @@ gameManifestJsonSchema.$comment =
 
 export function parseGameManifest(value: unknown): GameManifest {
   return GameManifestSchema.parse(value);
+}
+
+type ManifestIssue = Readonly<{
+  code: string;
+  path: readonly PropertyKey[];
+  message: string;
+}>;
+
+/**
+ * Produces stable, sorted CLI diagnostics from Zod issues.
+ *
+ * The path and issue code are part of the author-facing validation contract.
+ * Human-readable Zod messages remain useful context but are not intended as
+ * machine-readable identifiers.
+ */
+export function formatGameManifestIssues(issues: readonly ManifestIssue[]): string[] {
+  return issues
+    .map((issue) => {
+      const path = issue.path.length === 0 ? "manifest" : issue.path.map(String).join(".");
+      return `${path}: [${issue.code}] ${issue.message}`;
+    })
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 }

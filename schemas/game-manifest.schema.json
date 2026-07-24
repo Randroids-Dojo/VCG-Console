@@ -1,4 +1,6 @@
 {
+  "$id": "urn:vcg:schema:game-manifest:1",
+  "title": "VCG game manifest v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {

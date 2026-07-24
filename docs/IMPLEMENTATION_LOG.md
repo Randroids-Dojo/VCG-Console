@@ -438,3 +438,22 @@ This is package authority and safe discovery, not a production package lifecycle
 ### Remaining boundary
 
 This is process lifecycle, not a qualified playable handoff. Request records are not persistent across host restart; the Svelte profile list is not a native persistent registry; polling is not a measured event transport; API-launched children do not yet use the heartbeat/restart watchdog; descendant process groups are not contained; cancellation is not yet proven under hostile children; no compositor window identity/readiness exists; and reserved Home/Back, re-entry, immutable artifact handoff, target-Linux sandboxing, service-manager recovery, and hardware evidence remain open.
+
+## 2026-07-23: canonical game manifest v1
+
+### Delivered
+
+- `GAME_MANIFEST_CONTRACT.md` defines the public manifest's exact v1 compatibility rule, runtime cross-field requirements, diagnostic surface, generated-schema relationship, migration procedure, and separation from signed installed-package authority.
+- The package exports one schema-version constant, the canonical `urn:vcg:schema:game-manifest:1` identifier, and stable code-unit-sorted `path: [issue-code] message` formatting for author tooling.
+- Canonical fixtures cover remote web, local web, native, and Libretro manifests. Invalid fixtures lock unknown-version, offline-network, origin-binding, and qualified-artifact-hash failures to expected diagnostics.
+- `pnpm validate:manifests` now rejects a missing or byte-stale checked-in game-manifest JSON Schema before validating the catalog.
+- D-133 records the reversible compatibility policy. I-093 and Q-045 close; packaged adapters, installation lifecycle, and runtime enforcement remain in their own investigations.
+
+### Verification evidence
+
+- The game-manifest package passes 15 tests, including all canonical fixture pairs and exported-schema rules. All 93 workspace unit tests pass.
+- Every workspace typecheck and the production build pass; the checked-in schema matches the runtime export, and all four catalog manifests validate.
+
+### Remaining boundary
+
+Manifest validity is not qualification, redistribution authority, installation approval, signature verification, artifact integrity, origin containment, storage isolation, or a working launch adapter. Those remain enforced or investigated separately under I-094, I-095, I-096, I-101, I-104, I-105, I-136, and I-141.

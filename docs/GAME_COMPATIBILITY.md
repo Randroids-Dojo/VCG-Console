@@ -68,9 +68,11 @@ Each game receives a dated record with exact browser, console OS, hardware, comm
 | Appliance | crash, hang, out-of-memory, update during downtime | Watchdog returns to launcher and preserves other games' data |
 | Licensing | code, fonts, music, images, models, service data, redistribution permission | Remote-only or local package classification is documented |
 
-## Proposed game manifest contract
+## Canonical manifest contract and planned extensions
 
-Required fields:
+The implemented v1 fields and compatibility policy are authoritative in [the game manifest contract](GAME_MANIFEST_CONTRACT.md). The broader inventory below remains a roadmap for later schema versions and package services. A listed field that is absent from v1 is not accepted as permission or native authority, and adding an authority-affecting field requires a new schema version.
+
+The current and planned vocabulary covers:
 
 - identity: schema version, stable ID, title, semantic version, publisher;
 - runtime: remote web, local web, native, or libretro plus entrypoint and architectures;
