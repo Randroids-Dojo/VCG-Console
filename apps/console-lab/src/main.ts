@@ -1,16 +1,25 @@
 import type {
+  PlayerControlAvailability,
+  PlayerControlGroup,
   MotionAction,
   MotionFrame,
   TrackerHealthEvent,
   TrackerHealthReason,
 } from "@vcg/motion-contract";
 import {
+  assessPlayerControlAvailability,
   MOTION_SIMULATOR_POSES,
   MotionPoseSimulator,
+  PLAYER_BODY_REGIONS,
+  PLAYER_CONTROL_GROUPS,
   type MotionSimulatorPose,
 } from "@vcg/motion-contract";
 import { actionFeedback } from "./action-feedback";
 import { ActionEngine } from "./action-engine";
+import {
+  applyBodyVisibilityFixture,
+  type BodyVisibilityFixture,
+} from "./body-visibility-fixture";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { LauncherController, launcherMarkup } from "./launcher";
 import {
@@ -159,6 +168,29 @@ app.innerHTML = `
             <button type="button" data-health-fixture="camera-disconnected">DISCONNECT</button>
           </div>
         </section>
+        <section class="player-availability-card" id="player-availability-card" data-state="full" aria-labelledby="player-control-title" aria-live="polite">
+          <div class="player-availability-heading">
+            <span>BODY SIGNAL</span>
+            <strong id="player-control-state">FULL</strong>
+          </div>
+          <h2 id="player-control-title">All tracked regions observed</h2>
+          <div class="body-region-grid" aria-label="Observed body regions">
+            <span data-player-region="head">HEAD</span>
+            <span data-player-region="torso">TORSO</span>
+            <span data-player-region="leftArm">L ARM</span>
+            <span data-player-region="rightArm">R ARM</span>
+            <span data-player-region="leftLeg">L LEG</span>
+            <span data-player-region="rightLeg">R LEG</span>
+          </div>
+          <p id="player-control-detail">All six control groups have their required observed landmarks.</p>
+          <p id="player-unavailable-controls"><strong>UNAVAILABLE</strong> NONE</p>
+          <div class="body-fixtures" aria-label="Missing landmark replay fixtures">
+            <button type="button" data-body-fixture="full">FULL</button>
+            <button type="button" data-body-fixture="left-arm">LEFT ARM</button>
+            <button type="button" data-body-fixture="legs">LEGS</button>
+            <button type="button" data-body-fixture="half-body">HALF BODY</button>
+          </div>
+        </section>
         <section class="simulator-card" id="simulator-card" data-enabled="false">
           <div class="simulator-heading">
             <span>CAMERA-FREE SDK INPUT</span>
@@ -260,6 +292,15 @@ const trackerHealthTitle = required<HTMLElement>("#tracker-health-title");
 const trackerHealthDetail = required<HTMLElement>("#tracker-health-detail");
 const trackerControl = required<HTMLElement>("#tracker-control");
 const healthFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-health-fixture]")];
+const playerAvailabilityCard = required<HTMLElement>("#player-availability-card");
+const playerControlState = required<HTMLElement>("#player-control-state");
+const playerControlTitle = required<HTMLElement>("#player-control-title");
+const playerControlDetail = required<HTMLElement>("#player-control-detail");
+const playerUnavailableControls = required<HTMLElement>("#player-unavailable-controls");
+const playerRegionIndicators = [
+  ...document.querySelectorAll<HTMLElement>("[data-player-region]"),
+];
+const bodyFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-body-fixture]")];
 const simulatorCard = required<HTMLElement>("#simulator-card");
 const simulatorState = required<HTMLElement>("#simulator-state");
 const simulatorToggle = required<HTMLButtonElement>("#simulator-toggle");
@@ -276,6 +317,7 @@ const obstacleLeaderboard = new LocalObstacleLeaderboard(localStorage);
 let latestFrame: MotionFrame | undefined;
 let replayRunning = true;
 let replaySequence = 0;
+let bodyVisibilityFixture: BodyVisibilityFixture = "full";
 let simulatorEnabled = false;
 let simulatorLatchedPose: MotionSimulatorPose = "neutral";
 let simulatorControllerPose: MotionSimulatorPose | undefined;
@@ -349,14 +391,18 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
 gamepads.start();
 
 function acceptFrame(rawFrame: MotionFrame): void {
-  const governedHealth = rawFrame.source === activeHealth.source ? activeHealth.status : rawFrame.health;
+  const fixtureFrame = replayRunning
+    ? applyBodyVisibilityFixture(rawFrame, bodyVisibilityFixture)
+    : rawFrame;
+  const governedHealth =
+    fixtureFrame.source === activeHealth.source ? activeHealth.status : fixtureFrame.health;
   const governedFrame: MotionFrame = {
-    ...rawFrame,
+    ...fixtureFrame,
     health: governedHealth,
     players:
       governedHealth === "starting" || governedHealth === "fault"
         ? []
-        : rawFrame.players.map((player) => ({
+        : fixtureFrame.players.map((player) => ({
             ...player,
             actions: governedHealth === "ready" ? player.actions : [],
           })),
@@ -488,6 +534,61 @@ function paintMetrics(frame: MotionFrame): void {
   required<HTMLElement>("#metric-pipeline-p95").textContent = `${snapshot.pipelineP95.toFixed(1)} MS*`;
   required<HTMLElement>("#metric-dropped").textContent = String(tracker.droppedFrames);
   required<HTMLElement>("#metric-trace").textContent = String(trace.size);
+  paintPlayerControlAvailability(
+    assessPlayerControlAvailability(frame.players[0], frame.health),
+  );
+}
+
+const CONTROL_LABELS = {
+  menuSelect: "SELECT",
+  menuBackPause: "BACK / PAUSE",
+  menuSwipe: "SWIPE",
+  gameDodge: "DODGE",
+  gameDuck: "DUCK",
+  gameJump: "JUMP",
+} as const satisfies Readonly<Record<PlayerControlGroup, string>>;
+
+function paintPlayerControlAvailability(availability: PlayerControlAvailability): void {
+  playerAvailabilityCard.dataset.state = availability.state;
+  playerControlState.textContent = availability.state.toUpperCase();
+  playerControlTitle.textContent =
+    availability.reason === "tracker-not-ready"
+      ? "Tracker health blocks motion control"
+      : availability.reason === "player-missing"
+        ? "No player body is available"
+        : availability.state === "full"
+          ? "All tracked regions observed"
+          : availability.state === "partial"
+            ? "Some controls remain available"
+            : "Required control landmarks are missing";
+  playerControlDetail.textContent =
+    availability.reason === "tracker-not-ready"
+      ? "Global tracker health remains authoritative. Use controller or keyboard until it recovers."
+      : availability.reason === "player-missing"
+        ? "Re-enter the tracking area or use controller or keyboard recovery."
+        : availability.state === "full"
+          ? "All six control groups have their required observed landmarks."
+          : `${availability.missingLandmarks.length} of 17 core landmarks are not observed. Unrelated controls remain active.`;
+  const unavailable = PLAYER_CONTROL_GROUPS.filter(
+    (control) => !availability.controls[control],
+  ).map((control) => CONTROL_LABELS[control]);
+  playerUnavailableControls.replaceChildren();
+  const label = document.createElement("strong");
+  label.textContent = "UNAVAILABLE";
+  playerUnavailableControls.append(label, ` ${unavailable.join(" · ") || "NONE"}`);
+  for (const indicator of playerRegionIndicators) {
+    const region = indicator.dataset.playerRegion as (typeof PLAYER_BODY_REGIONS)[number];
+    indicator.dataset.state = availability.regions[region];
+  }
+}
+
+function setBodyVisibilityFixture(fixture: BodyVisibilityFixture): void {
+  bodyVisibilityFixture = fixture;
+  for (const button of bodyFixtureButtons) {
+    const active = button.dataset.bodyFixture === fixture;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  }
 }
 
 function updateStatus(status: TrackerStatus, detail: string): void {
@@ -502,6 +603,7 @@ function updateStatus(status: TrackerStatus, detail: string): void {
         ? `POSE SIMULATOR / ${poseSimulator.snapshot.pose.replaceAll("-", " ").toUpperCase()}`
         : "SYNTHETIC REPLAY";
   for (const button of healthFixtureButtons) button.disabled = !replayRunning;
+  for (const button of bodyFixtureButtons) button.disabled = !replayRunning;
 }
 
 function applyTrackerHealth(event: TrackerHealthEvent): void {
@@ -810,6 +912,7 @@ cameraButton.addEventListener("click", async () => {
     return;
   }
   setSimulatorEnabled(false, false);
+  setBodyVisibilityFixture("full");
   replayRunning = false;
   metrics.reset();
   trace.clear();
@@ -843,6 +946,13 @@ for (const button of healthFixtureButtons) {
     if (!replayRunning) return;
     const reason = button.dataset.healthFixture as TrackerHealthReason;
     applyTrackerHealth(trackerHealthFixture(reason, healthSequence++, performance.now()));
+  });
+}
+for (const button of bodyFixtureButtons) {
+  button.addEventListener("click", () => {
+    if (replayRunning) {
+      setBodyVisibilityFixture(button.dataset.bodyFixture as BodyVisibilityFixture);
+    }
   });
 }
 required<HTMLButtonElement>("#manual-pause-button").addEventListener("click", () => showOverlay("manual"));
@@ -986,6 +1096,7 @@ if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "
   });
 }
 
+setBodyVisibilityFixture("full");
 paintSimulator();
 paintClock();
 setInterval(paintClock, 15_000);

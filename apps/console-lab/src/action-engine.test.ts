@@ -15,6 +15,16 @@ function alter(frame: MotionFrame, changes: Partial<Record<CoreLandmarkName, { x
   return clone;
 }
 
+function hide(frame: MotionFrame, names: readonly CoreLandmarkName[]): MotionFrame {
+  const clone = structuredClone(frame);
+  const player = clone.players[0];
+  if (!player) throw new Error("fixture player missing");
+  for (const landmark of player.coreLandmarks) {
+    if (names.includes(landmark.name)) landmark.observed = false;
+  }
+  return clone;
+}
+
 function calibrated(engine: ActionEngine): number {
   for (let sequence = 0; sequence < 30; sequence += 1) engine.enrich(syntheticFrame(sequence, sequence * 20));
   engine.join();
@@ -154,13 +164,24 @@ describe("ActionEngine", () => {
     ]);
   });
 
-  it("cancels progress and restarts timing when required body measurements disappear", () => {
+  it("keeps an unrelated hands hold running when an ankle disappears", () => {
     const engine = new ActionEngine();
     const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
     engine.enrich(alter(syntheticFrame(1, 0), hands));
-    const incomplete = alter(syntheticFrame(2, 500), hands);
-    const leftAnkle = incomplete.players[0]?.coreLandmarks.find((landmark) => landmark.name === "left_ankle");
-    if (leftAnkle) leftAnkle.observed = false;
+    const incomplete = hide(alter(syntheticFrame(2, 500), hands), ["left_ankle"]);
+    const continued = engine.enrich(incomplete);
+
+    expect(continued.players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "player_join", phase: "held" }),
+      expect.objectContaining({ name: "player_join", phase: "triggered" }),
+    ]);
+  });
+
+  it("cancels and restarts a hands hold when a required wrist disappears", () => {
+    const engine = new ActionEngine();
+    const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
+    engine.enrich(alter(syntheticFrame(1, 0), hands));
+    const incomplete = hide(alter(syntheticFrame(2, 300), hands), ["left_wrist"]);
     const cancelled = engine.enrich(incomplete);
     const returned = engine.enrich(alter(syntheticFrame(3, 1_000), hands));
 
@@ -169,6 +190,22 @@ describe("ActionEngine", () => {
     ]);
     expect(returned.players[0]?.actions).toEqual([
       expect.objectContaining({ name: "player_join", phase: "started" }),
+    ]);
+  });
+
+  it("keeps dodge available when an ankle required only by jump disappears", () => {
+    const engine = new ActionEngine();
+    const now = calibrated(engine);
+    const shifted = hide(
+      alter(syntheticFrame(31, now), {
+        left_hip: { x: 0.66 },
+        right_hip: { x: 0.76 },
+      }),
+      ["left_ankle"],
+    );
+
+    expect(engine.enrich(shifted, "game").players[0]?.actions).toEqual([
+      expect.objectContaining({ name: "dodge_left", phase: "triggered" }),
     ]);
   });
 

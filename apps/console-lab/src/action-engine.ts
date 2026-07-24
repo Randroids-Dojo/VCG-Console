@@ -19,6 +19,14 @@ interface Baseline {
   shoulderWidth: number;
 }
 
+interface Measurements {
+  centerX?: number;
+  shoulderY?: number;
+  hipY?: number;
+  ankleY?: number;
+  shoulderWidth?: number;
+}
+
 export type SustainedActionName = "player_join" | "menu_select" | "menu_back" | "pause";
 
 interface HoldState {
@@ -95,18 +103,8 @@ export class ActionEngine {
     }
 
     const measurements = this.#measure(player);
-    if (!measurements) {
-      const actions = this.#terminateHolds(now);
-      this.#resetSpatialContinuity();
-      return {
-        ...enrichedFrame,
-        players: [
-          { ...player, state: this.#joined ? "joined" : "candidate", actions },
-          ...enrichedFrame.players.slice(1),
-        ],
-      };
-    }
-    this.#captureBaseline(measurements);
+    const baselineSample = this.#completeBaseline(measurements);
+    if (baselineSample) this.#captureBaseline(baselineSample);
     const actions = this.#recognize(player, measurements, now, context);
     const enrichedPlayer: PlayerMotion = {
       ...player,
@@ -149,24 +147,45 @@ export class ActionEngine {
     this.#latchedActions.clear();
   }
 
-  #measure(player: PlayerMotion): Baseline | undefined {
+  #measure(player: PlayerMotion): Measurements {
     const leftShoulder = point(player, "left_shoulder");
     const rightShoulder = point(player, "right_shoulder");
     const leftHip = point(player, "left_hip");
     const rightHip = point(player, "right_hip");
     const leftAnkle = point(player, "left_ankle");
     const rightAnkle = point(player, "right_ankle");
-    if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) return undefined;
-    const shoulders = midpoint(leftShoulder, rightShoulder);
-    const hips = midpoint(leftHip, rightHip);
-    const ankles = midpoint(leftAnkle, rightAnkle);
+    const shoulders =
+      leftShoulder && rightShoulder ? midpoint(leftShoulder, rightShoulder) : undefined;
+    const shoulderWidth =
+      leftShoulder && rightShoulder
+        ? Math.max(0.05, distance(leftShoulder, rightShoulder))
+        : undefined;
+    const hips = leftHip && rightHip ? midpoint(leftHip, rightHip) : undefined;
+    const ankles = leftAnkle && rightAnkle ? midpoint(leftAnkle, rightAnkle) : undefined;
     return {
-      centerX: hips.x,
-      shoulderY: shoulders.y,
-      hipY: hips.y,
-      ankleY: ankles.y,
-      shoulderWidth: Math.max(0.05, distance(leftShoulder, rightShoulder)),
+      ...(hips ? { centerX: hips.x, hipY: hips.y } : {}),
+      ...(shoulders && shoulderWidth !== undefined
+        ? {
+            shoulderY: shoulders.y,
+            shoulderWidth,
+          }
+        : {}),
+      ...(ankles ? { ankleY: ankles.y } : {}),
     };
+  }
+
+  #completeBaseline(measurements: Measurements): Baseline | undefined {
+    const { centerX, shoulderY, hipY, ankleY, shoulderWidth } = measurements;
+    if (
+      centerX === undefined ||
+      shoulderY === undefined ||
+      hipY === undefined ||
+      ankleY === undefined ||
+      shoulderWidth === undefined
+    ) {
+      return undefined;
+    }
+    return { centerX, shoulderY, hipY, ankleY, shoulderWidth };
   }
 
   #captureBaseline(sample: Baseline): void {
@@ -183,7 +202,12 @@ export class ActionEngine {
     };
   }
 
-  #recognize(player: PlayerMotion, current: Baseline, now: number, context: ActionContext): MotionAction[] {
+  #recognize(
+    player: PlayerMotion,
+    current: Measurements,
+    now: number,
+    context: ActionContext,
+  ): MotionAction[] {
     const actions: MotionAction[] = [];
     const leftWrist = point(player, "left_wrist");
     const rightWrist = point(player, "right_wrist");
@@ -191,7 +215,7 @@ export class ActionEngine {
     const rightElbow = point(player, "right_elbow");
     const baseline = this.#baseline;
 
-    if (leftWrist && rightWrist) {
+    if (leftWrist && rightWrist && current.shoulderWidth !== undefined) {
       const together = distance(leftWrist, rightWrist) < current.shoulderWidth * 0.52;
       const name = this.#joined ? "menu_select" : "player_join";
       const confidence = Math.max(0, Math.min(1, 1 - distance(leftWrist, rightWrist) / current.shoulderWidth));
@@ -224,7 +248,13 @@ export class ActionEngine {
       actions.push(...update.actions);
     }
 
-    if (leftWrist && rightWrist && leftElbow && rightElbow) {
+    if (
+      leftWrist &&
+      rightWrist &&
+      leftElbow &&
+      rightElbow &&
+      current.shoulderWidth !== undefined
+    ) {
       const crossed = leftWrist.x > rightElbow.x && rightWrist.x < leftElbow.x && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
       const name = context === "game" ? "pause" : "menu_back";
       const thresholdMs = ACTION_HOLD_THRESHOLDS_MS[name];
@@ -247,34 +277,43 @@ export class ActionEngine {
     }
 
     if (this.#joined && baseline && context === "game") {
-      const screenShift = baseline.centerX - current.centerX;
-      const shoulderDrop = current.shoulderY - baseline.shoulderY;
-      const hipRise = baseline.hipY - current.hipY;
-      const ankleRise = baseline.ankleY - current.ankleY;
+      const screenShift =
+        current.centerX === undefined ? undefined : baseline.centerX - current.centerX;
+      const shoulderDrop =
+        current.shoulderY === undefined ? undefined : current.shoulderY - baseline.shoulderY;
+      const hipRise = current.hipY === undefined ? undefined : baseline.hipY - current.hipY;
+      const ankleRise =
+        current.ankleY === undefined ? undefined : baseline.ankleY - current.ankleY;
       this.#updateDiscrete(
         "dodge_left",
-        screenShift < (this.#latchedActions.has("dodge_left") ? -0.08 : -0.12),
+        screenShift !== undefined &&
+          screenShift < (this.#latchedActions.has("dodge_left") ? -0.08 : -0.12),
         now,
         0.8,
         actions,
       );
       this.#updateDiscrete(
         "dodge_right",
-        screenShift > (this.#latchedActions.has("dodge_right") ? 0.08 : 0.12),
+        screenShift !== undefined &&
+          screenShift > (this.#latchedActions.has("dodge_right") ? 0.08 : 0.12),
         now,
         0.8,
         actions,
       );
       this.#updateDiscrete(
         "duck",
-        shoulderDrop > (this.#latchedActions.has("duck") ? 0.07 : 0.105),
+        shoulderDrop !== undefined &&
+          shoulderDrop > (this.#latchedActions.has("duck") ? 0.07 : 0.105),
         now,
         0.8,
         actions,
       );
-      const jumpActive = this.#latchedActions.has("jump")
-        ? hipRise > 0.04 && ankleRise > 0.015
-        : hipRise > 0.075 && ankleRise > 0.035;
+      const jumpActive =
+        hipRise !== undefined &&
+        ankleRise !== undefined &&
+        (this.#latchedActions.has("jump")
+          ? hipRise > 0.04 && ankleRise > 0.015
+          : hipRise > 0.075 && ankleRise > 0.035);
       this.#updateDiscrete("jump", jumpActive, now, 0.78, actions);
     } else {
       for (const name of ["dodge_left", "dodge_right", "duck", "jump"] as const) {
@@ -282,7 +321,14 @@ export class ActionEngine {
       }
     }
 
-    if (this.#joined && context !== "game" && leftWrist && rightWrist && this.#previousAtMs > 0) {
+    if (
+      this.#joined &&
+      context !== "game" &&
+      leftWrist &&
+      rightWrist &&
+      current.shoulderY !== undefined &&
+      this.#previousAtMs > 0
+    ) {
       const elapsed = Math.max(1, now - this.#previousAtMs);
       const leftVelocity = this.#previousLeftWrist ? (this.#previousLeftWrist.x - leftWrist.x) / elapsed : 0;
       const rightVelocity = this.#previousRightWrist ? (this.#previousRightWrist.x - rightWrist.x) / elapsed : 0;
@@ -346,15 +392,6 @@ export class ActionEngine {
       actions.push(this.#action(state.name, "triggered", now, confidence, durationMs));
     }
     return { state, actions: sortMotionActions(actions), triggered };
-  }
-
-  #terminateHolds(now: number): MotionAction[] {
-    const actions: MotionAction[] = [];
-    if (this.#handsHold) actions.push(this.#terminalAction(this.#handsHold, now));
-    if (this.#armsHold) actions.push(this.#terminalAction(this.#armsHold, now));
-    this.#handsHold = undefined;
-    this.#armsHold = undefined;
-    return sortMotionActions(actions);
   }
 
   #terminalAction(state: HoldState, now: number): MotionAction {

@@ -478,6 +478,10 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
   await expect(page.locator("#health-badge")).toHaveText("LOW CONF");
   await expect(page.locator("#tracker-health-title")).toHaveText("Tracking confidence is low");
   await expect(page.locator("#tracker-control")).toHaveText("LANDMARKS ONLY");
+  await expect(page.locator("#player-control-state")).toHaveText("UNAVAILABLE");
+  await expect(page.locator("#player-control-title")).toHaveText(
+    "Tracker health blocks motion control",
+  );
 
   await page.getByRole("button", { name: "OVERLOAD" }).click();
   await expect(page.locator("#health-badge")).toHaveText("OVERLOAD");
@@ -494,6 +498,37 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
   await page.getByRole("button", { name: "READY" }).click();
   await expect(page.locator("#health-badge")).toHaveText("READY");
   await expect(page.locator("#tracker-control")).toHaveText("FULL");
+  await expect(page.locator("#player-control-state")).toHaveText("FULL");
+
+  await page.getByRole("button", { name: "LEGS" }).click();
+  await expect(page.locator("#player-control-state")).toHaveText("PARTIAL");
+  await expect(page.locator("#player-unavailable-controls")).toHaveText("UNAVAILABLE JUMP");
+  await expect(page.locator('[data-player-region="leftLeg"]')).toHaveAttribute(
+    "data-state",
+    "partial",
+  );
+  await expect(page.locator('[data-player-region="rightLeg"]')).toHaveAttribute(
+    "data-state",
+    "partial",
+  );
+
+  await page.getByRole("button", { name: "LEFT ARM" }).click();
+  await expect(page.locator("#player-control-state")).toHaveText("PARTIAL");
+  await expect(page.locator("#player-unavailable-controls")).toContainText(
+    "SELECT · BACK / PAUSE · SWIPE",
+  );
+  await expect(page.locator("#player-unavailable-controls")).not.toContainText("DODGE");
+
+  await page.getByRole("button", { name: "HALF BODY" }).click();
+  await expect(page.locator("#player-control-state")).toHaveText("UNAVAILABLE");
+  await expect(page.locator('[data-player-region="leftArm"]')).toHaveAttribute(
+    "data-state",
+    "missing",
+  );
+
+  await page.getByRole("button", { name: "FULL", exact: true }).click();
+  await expect(page.locator("#player-control-state")).toHaveText("FULL");
+  await expect(page.locator("#player-unavailable-controls")).toHaveText("UNAVAILABLE NONE");
 });
 
 test("keeps obstacle scores local, unverified, persistent, and deliberately resettable", async ({ page }) => {

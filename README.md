@@ -69,6 +69,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Motion SDK web authoring guide](docs/MOTION_SDK_AUTHORING.md)
 - [Camera-free Motion pose simulator](docs/MOTION_SIMULATOR.md)
 - [Optional Motion capability query](docs/MOTION_OPTIONAL_CAPABILITIES.md)
+- [Player control availability and missing-landmark behavior](docs/PLAYER_CONTROL_AVAILABILITY.md)
 - [Casual local obstacle leaderboard](docs/LOCAL_LEADERBOARD.md)
 - [Tracker health and degraded-control contract](docs/TRACKER_HEALTH.md)
 - [Household motion benchmark protocol](docs/MOTION_BENCHMARK_PROTOCOL.md)

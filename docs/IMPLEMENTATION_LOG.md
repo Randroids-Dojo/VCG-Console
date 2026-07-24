@@ -1232,3 +1232,24 @@ At that checkpoint, the Godot quickstart, live/replay Godot adapter, ARM64/x86-6
 ### Remaining boundary
 
 I-077 and I-086 stay active. The web adapter still needs a reviewed live Godot browser-export flow, and ARM64/x86-64/web exports need measured size, tooling, and landmark/action latency. Native live Motion waits on I-074 transport selection; no target-hardware, real-player, or release-package qualification is claimed.
+
+## 2026-07-24: action-specific missing-landmark behavior
+
+### Delivered
+
+- Added player-control availability schema v1 with global state, reason, six body regions, six control groups, exact missing landmarks, deterministic derivation, and a checked-in Draft 2020-12 artifact.
+- Kept global tracker health authoritative while deriving ready-frame availability solely from the existing provider-neutral `observed` flags; no unqualified confidence threshold was added.
+- Split action-engine shoulder, hip, and ankle measurements so a missing ankle suppresses Jump without cancelling hands-together or suppressing Dodge, while missing wrists terminate only their dependent holds.
+- Added a live Body Signal card and Full, Left Arm, Legs, and Half Body replay fixtures that retain schema-complete skeletons and visibly identify unavailable controls.
+- Documented contract, precedence, exact landmark requirements, fixture semantics, and remaining qualification work in `PLAYER_CONTROL_AVAILABILITY.md`; I-063 moves to active.
+
+### Verification evidence
+
+- Sixty-one Motion contract tests cover full, partial, unavailable, global-health, absent-player, exact-requirement, and schema behavior.
+- One hundred five console tests cover schema-valid visibility fixtures, action-specific hold cancellation, unrelated hold continuity, and Dodge remaining available without an ankle.
+- All twenty-three real-Chrome flows pass, including visible global-health denial, Legs-only Jump suppression, Left Arm control isolation, Half Body denial, and Full recovery.
+- Workspace TypeScript/Svelte diagnostics, production build, schema/manifest/benchmark/compliance freshness, and visual review pass.
+
+### Remaining boundary
+
+The deterministic fixtures prove SDK and UI behavior, not tracker quality. Provider-specific confidence-to-observed thresholds and hysteresis, real-player recordings, per-game continuation/pause rules, seated/child/limited-range accessibility, TV-distance feedback comprehension, and cross-backend parity remain required before I-063 can close.

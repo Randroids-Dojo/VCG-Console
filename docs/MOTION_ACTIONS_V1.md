@@ -44,7 +44,7 @@ started → held* → cancelled
 
 The threshold-crossing sample contains `held` before `triggered`. A sustained gesture cannot trigger again until it releases and rearms. A new attempt may accumulate held duration during cooldown, but `triggered` cannot occur before the cooldown expires.
 
-If a tracked player remains in the frame but required landmarks disappear, the recognizer emits the appropriate terminal phase and clears progress. If the player itself disappears, no player action array exists in which to fabricate a terminal event; player `lost` state, tracker health, and the multiplayer recovery state machine are the cancellation authority. A later reappearance starts a new hold.
+If a tracked player remains in the frame but landmarks required by one action disappear, the recognizer terminates that action's progress without suppressing unrelated controls. For example, a missing wrist cancels hands-together progress, while a missing ankle suppresses Jump without cancelling that hold or disabling hip-only Dodge. The separately versioned derivation and exact per-control requirements are documented in `PLAYER_CONTROL_AVAILABILITY.md`. If the player itself disappears, no player action array exists in which to fabricate a terminal event; player `lost` state, tracker health, and the multiplayer recovery state machine are the cancellation authority. A later reappearance starts a new hold.
 
 Any non-`ready` frame has an empty action array. A degraded or blocked health transition clears recognizer continuity, so returning to `ready` begins a new hold rather than inheriting pre-degradation progress.
 
