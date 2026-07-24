@@ -457,3 +457,18 @@ This is process lifecycle, not a qualified playable handoff. Request records are
 ### Remaining boundary
 
 Manifest validity is not qualification, redistribution authority, installation approval, signature verification, artifact integrity, origin containment, storage isolation, or a working launch adapter. Those remain enforced or investigated separately under I-094, I-095, I-096, I-101, I-104, I-105, I-136, and I-141.
+
+## 2026-07-23: repository security threat model
+
+### Delivered
+
+- `SECURITY_THREAT_MODEL.md` covers the complete repository rather than one feature diff: camera/tracking, derived Motion data, web origins, hosted navigation, trusted launcher, authenticated loopback IPC, signed packages, native children, writable state, maintenance, developer mode, and the build supply chain.
+- The model distinguishes normal household users, hostile games/origins, local processes, package/update attackers, untrusted retro content, paired developers, operating-system administrators, and dependency/build compromise.
+- Ten trust boundaries and eleven invariants make native authority, raw-frame privacy, Motion projection, global recovery, path containment, descendant ownership, offline behavior, deletion scope, bounded parsing, and truthful readiness explicit.
+- Each surface records existing controls separately from missing target or future-service controls, then maps realistic attacker stories and required abuse tests.
+- Severity calibration gives repository-specific Critical, High, Medium, and Low examples and explicitly lowers cases that require root, deliberate developer enablement, invasive physical access, or affect only one unapproved build.
+- The threat-model skill cache is keyed to the sanitized repository identity and exact reviewed Git revision for reuse by later security scans. I-135 closes.
+
+### Evidence boundary
+
+This is a reusable threat model, not a vulnerability scan or proof that every mitigation works. I-136 navigation/permission containment, I-141 key/rollback qualification, I-142 fuzzing, I-184 profile privacy review, I-209 target native-host qualification, and installer/update/import/sandbox investigations remain independently open.
