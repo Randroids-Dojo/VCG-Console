@@ -2186,3 +2186,49 @@ crash capture, network traffic, filesystem slack, flash remanence, alternate
 streams, and hostile-filesystem snapshots need separate evidence. Every I-186
 path on Raspberry Pi and the premium PC target remains open until Q-155
 through Q-158 are resolved and exact production artifacts pass.
+
+## 2026-07-24: console-bound profile-vault qualification design
+
+### Delivered
+
+- Selected one common broker-owned envelope-encrypted object-store design
+  under the fixed `profiles/` namespace, without representing a vault as
+  implemented.
+- Defined an on-device random console vault key, independent random
+  per-profile keys, HKDF-SHA-256 subkey separation, and AES-256-GCM-SIV
+  authenticated records with closed bounded associated-data headers.
+- Defined per-profile cryptographic deletion, whole-vault key destruction,
+  manifest-before-protected-state ordering, exact one-step retry, rollback and
+  substitution refusal, and hard failure instead of plaintext fallback.
+- Integrated the design with the existing A/B update attempt and protected
+  state contracts, including simultaneous authorization of the healthy and
+  candidate boot states and a synthetic vault health sentinel.
+- Recorded caller-specific broker projections, developer/root limits,
+  no-dump/no-swap requirements, loss/reset behavior, and a complete target
+  fault, attack, power-loss, performance, and endurance qualification matrix.
+- Reconciled current primary platform evidence: Pi 5 secure boot and
+  device-private-key support do not provide a hardware-protected key store;
+  the Infineon SLB 9672 Raspberry Pi SPI TPM HAT is an evaluation candidate,
+  not qualified product hardware; and Valve does not publish the delivered
+  Steam Machine TPM/measured-boot/custom-policy contract.
+- Added D-165, advanced I-187 to `active`, and recorded Q-162 through Q-166.
+
+### Verification evidence
+
+The two new Markdown artifacts contain no trailing whitespace, tabs, or
+duplicate headings. Their internal repository links resolve, Q-162 through
+Q-166 do not collide with the accessibility tranche's Q-159 through Q-161,
+and the decision/investigation/register references are cross-checked against
+the current tree. Primary claims are linked to current Raspberry Pi, Infineon,
+systemd, Valve, and RFC sources. No executable code or dependency changed, so
+the previously passing build/test gates remain the applicable code evidence.
+
+### Remaining boundary
+
+Neither platform is qualified. The exact Pi protector branch and assembled
+BOM, delivered Steam Machine capabilities, algorithm implementation and
+schema, platform protected-state adapter, native broker/sandbox, encrypted
+journal, profile registry and unassigned-save transaction, factory-reset
+executor, I-186 producer canaries, target power-loss/storage/update campaigns,
+and security review remain open. Persistent encrypted profiles and automatic
+body-profile matching must stay disabled until their respective gates pass.
