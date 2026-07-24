@@ -1336,13 +1336,38 @@ a:focus-visible {
   color: var(--fault);
 }
 
-.profile-delete-blockers ul {
+.profile-delete-blocker-choices {
+  display: grid;
+  gap: 8px;
   margin: 10px 0 0;
-  padding-left: 18px;
+}
+
+.profile-delete-blocker-choices label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 118, 95, 0.28);
+  background: rgba(8, 10, 10, 0.42);
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.56rem;
   line-height: 1.55;
+}
+
+.profile-delete-blocker-choices input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--fault);
+}
+
+.profile-delete-blockers small {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .profile-create-panel {

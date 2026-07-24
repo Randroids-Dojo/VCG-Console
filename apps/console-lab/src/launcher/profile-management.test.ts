@@ -519,6 +519,89 @@ describe("ProfileManagementController", () => {
     ).toBe(false);
   });
 
+  it("permanently deletes only exact opted-in progress when unlink sanitization is unavailable", () => {
+    const qualifications = new QualifiedProgressUnlinkCollection([
+      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS[0]!,
+    ]);
+    const manager = controller(
+      new AcceptedPortraitCollection(),
+      new AcceptedCalibrationResultCollection(),
+      qualifications,
+    );
+
+    expect(manager.deletionBlockers("profile-randy")).toEqual([
+      expect.objectContaining({
+        progressId: "randy-vibebots-local",
+        gameTitle: "VibeBots",
+      }),
+    ]);
+    expect(() =>
+      manager.planDestructive(
+        "delete-profile",
+        "profile-randy",
+        0,
+      ),
+    ).toThrow("1 linked progress item cannot be safely unassigned");
+    expect(() =>
+      manager.planDestructive(
+        "delete-profile",
+        "profile-randy",
+        0,
+        ["progress-outside-profile"],
+      ),
+    ).toThrow("outside the profile scope");
+    expect(() =>
+      manager.planDestructive(
+        "delete-profile",
+        "profile-randy",
+        0,
+        [
+          "randy-vibebots-local",
+          "randy-vibebots-local",
+        ],
+      ),
+    ).toThrow("duplicate permanent progress deletion scope");
+    expect(() =>
+      manager.planDestructive(
+        "reset-profile",
+        "profile-randy",
+        0,
+        ["randy-vibebots-local"],
+      ),
+    ).toThrow("only profile deletion can delete progress");
+
+    const plan = manager.planDestructive(
+      "delete-profile",
+      "profile-randy",
+      0,
+      ["randy-vibebots-local"],
+    );
+    expect(plan.expectedUnlinkQualificationIds).toEqual([
+      "unlink-randy-obstacle-v1",
+    ]);
+    expect(plan.expectedPermanentDeleteProgressIds).toEqual([
+      "randy-vibebots-local",
+    ]);
+    expect(
+      Object.isFrozen(plan.expectedPermanentDeleteProgressIds),
+    ).toBe(true);
+
+    const result = manager.commit(plan, plan.confirmAfterMs);
+    expect(result.disposition).toMatchObject({
+      unassignedProgressCount: 1,
+      permanentlyDeletedProgressCount: 1,
+      preservedLinkedProgressCount: 0,
+      hostedServicesUnaffected: 1,
+    });
+    expect(result.snapshot.unassignedLocalProgressCount).toBe(1);
+    expect(
+      manager.progressOwnerKind("randy-obstacle-main"),
+    ).toEqual({ kind: "unassigned" });
+    expect(() =>
+      manager.progressOwnerKind("randy-vibebots-local"),
+    ).toThrow("not found");
+  });
+
   it("never reattaches unassigned progress when the same display name is recreated", () => {
     const manager = controller();
     const deletion = manager.planDestructive(
@@ -594,6 +677,24 @@ describe("ProfileManagementController", () => {
       } as never, plan.confirmAfterMs),
     ).toThrow("closed schema");
 
+    const substitutedManager = controller();
+    const issued = substitutedManager.planDestructive(
+      "delete-profile",
+      "profile-randy",
+      0,
+    );
+    expect(() =>
+      substitutedManager.commit({
+        ...issued,
+        expectedPermanentDeleteProgressIds: [
+          "randy-obstacle-main",
+        ],
+        expectedUnlinkQualificationIds: [
+          "unlink-randy-vibebots-v1",
+        ],
+      }, issued.confirmAfterMs),
+    ).toThrow("was not issued by this controller");
+
     const portraits = new AcceptedPortraitCollection();
     const changedManager = controller(portraits);
     const changed = changedManager.planDestructive(
@@ -624,8 +725,12 @@ describe("ProfileManagementController", () => {
       "randy-vibebots-local",
     ]);
     expect(plan.hostedServiceGameIds).toEqual(["vibebots"]);
+    expect(plan.expectedPermanentDeleteProgressIds).toEqual([]);
     expect(Object.isFrozen(plan)).toBe(true);
     expect(Object.isFrozen(plan.expectedProgressIds)).toBe(true);
+    expect(
+      Object.isFrozen(plan.expectedPermanentDeleteProgressIds),
+    ).toBe(true);
     expect(JSON.stringify(plan)).not.toMatch(
       /444444|555555|password|credential|path|pixel|imageData|embedding/i,
     );

@@ -594,7 +594,7 @@ test("credential-free profile management gates destructive scope and never reass
   });
   await expect(
     dialog.getByText(
-      "Preserve 2 console-managed progress items as unassigned local data.",
+      "Preserve 2 qualified console-managed progress items as unassigned local data.",
     ),
   ).toBeVisible();
   await expect(
@@ -644,7 +644,10 @@ test("credential-free profile management gates destructive scope and never reass
   await expect(page.locator('[data-profile="Randy"]')).toHaveCount(0);
   await expect(page.locator("#active-profile-name")).toHaveText("Guest");
   await expect(page.locator("#launcher-toast")).toContainText(
-    "2 local progress items are now unassigned; hosted services were not changed",
+    "2 local progress items are now unassigned",
+  );
+  await expect(page.locator("#launcher-toast")).toContainText(
+    "0 explicitly selected items were permanently deleted",
   );
 
   await page.getByRole("button", {
@@ -672,7 +675,7 @@ test("credential-free profile management gates destructive scope and never reass
   ).toBeVisible();
   await expect(
     management.getByText(
-      "Deletion is blocked for this synthetic fixture.",
+      "Safe unlink is unavailable for this synthetic fixture.",
     ),
   ).toBeVisible();
   await expect(
@@ -680,6 +683,50 @@ test("credential-free profile management gates destructive scope and never reass
       "Godot Motion Game / campaign (native)",
     ),
   ).toBeVisible();
+  await expect(
+    management.getByRole("button", {
+      name: /Delete local profile/,
+    }),
+  ).toBeDisabled();
+  const permanentDelete = management.getByRole("checkbox", {
+    name: /Permanently delete Godot Motion Game \/ campaign \(native\)/,
+  });
+  await expect(permanentDelete).not.toBeChecked();
+  await permanentDelete.check();
+  await expect(
+    management.getByText(
+      "Every incompatible item is explicitly marked for permanent deletion.",
+    ),
+  ).toBeVisible();
+  await expect(
+    management.getByRole("button", {
+      name: /Delete local profile/,
+    }),
+  ).toBeEnabled();
+  await management
+    .getByRole("button", { name: /Delete local profile/ })
+    .click();
+  const guestDeleteDialog = page.getByRole("dialog", {
+    name: "Delete this local profile?",
+  });
+  await expect(
+    guestDeleteDialog.getByText(
+      /Permanently delete 1 explicitly selected console-managed progress item/,
+    ),
+  ).toBeVisible();
+  await expect(
+    guestDeleteDialog.getByText(
+      "Godot Motion Game / campaign (native)",
+    ),
+  ).toBeVisible();
+  await guestDeleteDialog.getByRole("button", {
+    name: "Keep profile",
+  }).click();
+  await expect(
+    management.getByRole("heading", { name: "Manage Guest." }),
+  ).toBeVisible();
+  await expect(permanentDelete).not.toBeChecked();
+  await expect(permanentDelete).toBeFocused();
   await expect(
     management.getByRole("button", {
       name: /Delete local profile/,

@@ -120,6 +120,7 @@ export interface DestructiveProfilePlan {
   expectedBodyProfilePresent: boolean;
   expectedProgressIds: readonly string[];
   expectedUnlinkQualificationIds: readonly string[];
+  expectedPermanentDeleteProgressIds: readonly string[];
   hostedServiceGameIds: readonly string[];
   confirmAfterMs: number;
   expiresAtMs: number;
@@ -138,6 +139,7 @@ export interface ProfileManagementDisposition {
   calibrationCleared: boolean;
   bodyProfileRemoved: boolean;
   unassignedProgressCount: number;
+  permanentlyDeletedProgressCount: number;
   preservedLinkedProgressCount: number;
   hostedServicesUnaffected: number;
 }
@@ -208,6 +210,7 @@ const destructivePlanKeys = [
   "expectedBodyProfilePresent",
   "expectedCalibrationRevision",
   "expectedName",
+  "expectedPermanentDeleteProgressIds",
   "expectedPortraitRenderHandle",
   "expectedProgressIds",
   "expectedRevision",
@@ -321,6 +324,8 @@ export class ProfileManagementController {
   readonly #portraits: AcceptedPortraitCollection;
   readonly #calibrationResults: AcceptedCalibrationResultCollection;
   readonly #unlinkQualifications: QualifiedProgressUnlinkCollection;
+  readonly #issuedDestructivePlans =
+    new WeakSet<DestructiveProfilePlan>();
 
   constructor(
     profiles: readonly ManagedProfileSeed[],
@@ -473,17 +478,37 @@ export class ProfileManagementController {
     kind: ProfileManagementDestructiveOperation,
     profileId: string,
     nowMs: number,
+    permanentlyDeleteProgressIds: readonly string[] = [],
   ): DestructiveProfilePlan {
     this.#observeTime(nowMs);
     if (!destructiveOperations.has(kind)) {
       throw new ProfileManagementError("invalid profile operation");
     }
+    if (!Array.isArray(permanentlyDeleteProgressIds)) {
+      throw new ProfileManagementError(
+        "invalid permanent progress deletion scope",
+      );
+    }
+    if (
+      kind !== "delete-profile"
+      && permanentlyDeleteProgressIds.length > 0
+    ) {
+      throw new ProfileManagementError(
+        "only profile deletion can delete progress",
+      );
+    }
     const profile = this.#requireProfile(profileId);
     const linked = this.#linkedProgress(profile.id);
-    const unlinkQualificationIds =
+    const deletionScope =
       kind === "delete-profile"
-        ? this.#requireUnlinkQualifications(linked)
-        : [];
+        ? this.#resolveDeletionScope(
+            linked,
+            permanentlyDeleteProgressIds,
+          )
+        : {
+            unlinkQualificationIds: [] as string[],
+            permanentDeleteProgressIds: [] as string[],
+          };
     if (
       nowMs
       > Number.MAX_SAFE_INTEGER
@@ -496,7 +521,7 @@ export class ProfileManagementController {
     }
     const confirmAfterMs =
       nowMs + PROFILE_MANAGEMENT_CONFIRMATION_DELAY_MS;
-    return Object.freeze({
+    const plan = Object.freeze({
       kind,
       expectedRevision: this.#revision,
       profileId: profile.id,
@@ -509,7 +534,10 @@ export class ProfileManagementController {
         linked.map((record) => record.id).sort(),
       ),
       expectedUnlinkQualificationIds: Object.freeze(
-        unlinkQualificationIds,
+        deletionScope.unlinkQualificationIds,
+      ),
+      expectedPermanentDeleteProgressIds: Object.freeze(
+        deletionScope.permanentDeleteProgressIds,
       ),
       hostedServiceGameIds: Object.freeze(
         linked
@@ -521,6 +549,8 @@ export class ProfileManagementController {
       expiresAtMs:
         confirmAfterMs + PROFILE_MANAGEMENT_CONFIRMATION_TTL_MS,
     });
+    this.#issuedDestructivePlans.add(plan);
+    return plan;
   }
 
   commit(
@@ -540,6 +570,11 @@ export class ProfileManagementController {
     }
     if (plan.kind === "apply-calibration") {
       return this.#commitApplyCalibration(plan, nowMs);
+    }
+    if (!this.#issuedDestructivePlans.has(plan)) {
+      throw new ProfileManagementError(
+        "destructive profile plan was not issued by this controller",
+      );
     }
     return this.#commitDestructive(plan, nowMs);
   }
@@ -582,6 +617,7 @@ export class ProfileManagementController {
       calibrationCleared: false,
       bodyProfileRemoved: false,
       unassignedProgressCount: 0,
+      permanentlyDeletedProgressCount: 0,
       preservedLinkedProgressCount: 0,
       hostedServicesUnaffected: 0,
     });
@@ -600,6 +636,7 @@ export class ProfileManagementController {
       calibrationCleared: false,
       bodyProfileRemoved: false,
       unassignedProgressCount: 0,
+      permanentlyDeletedProgressCount: 0,
       preservedLinkedProgressCount: linked.length,
       hostedServicesUnaffected: linked.filter(
         (record) => record.hostedServiceSeparate,
@@ -646,6 +683,7 @@ export class ProfileManagementController {
       calibrationCleared: false,
       bodyProfileRemoved,
       unassignedProgressCount: 0,
+      permanentlyDeletedProgressCount: 0,
       preservedLinkedProgressCount: linked.length,
       hostedServicesUnaffected: linked.filter(
         (record) => record.hostedServiceSeparate,
@@ -672,10 +710,16 @@ export class ProfileManagementController {
       .filter((record) => record.hostedServiceSeparate)
       .map((record) => record.gameId)
       .sort();
-    const unlinkQualificationIds =
+    const deletionScope =
       plan.kind === "delete-profile"
-        ? this.#requireUnlinkQualifications(linked)
-        : [];
+        ? this.#resolveDeletionScope(
+            linked,
+            plan.expectedPermanentDeleteProgressIds,
+          )
+        : {
+            unlinkQualificationIds: [] as string[],
+            permanentDeleteProgressIds: [] as string[],
+          };
     if (
       profile.name !== plan.expectedName
       || profile.calibrationRevision !== plan.expectedCalibrationRevision
@@ -684,8 +728,12 @@ export class ProfileManagementController {
         !== plan.expectedPortraitRenderHandle
       || !sameStrings(progressIds, plan.expectedProgressIds)
       || !sameStrings(
-        unlinkQualificationIds,
+        deletionScope.unlinkQualificationIds,
         plan.expectedUnlinkQualificationIds,
+      )
+      || !sameStrings(
+        deletionScope.permanentDeleteProgressIds,
+        plan.expectedPermanentDeleteProgressIds,
       )
       || !sameStrings(hostedGameIds, plan.hostedServiceGameIds)
     ) {
@@ -698,6 +746,7 @@ export class ProfileManagementController {
     const bodyProfileRemoved = profile.bodyProfilePresent;
     let removedPortraitRenderHandle: string | null = null;
     let unassignedProgressCount = 0;
+    let permanentlyDeletedProgressCount = 0;
     let preservedLinkedProgressCount = linked.length;
 
     if (plan.kind === "recalibrate-profile") {
@@ -711,8 +760,18 @@ export class ProfileManagementController {
       profile.calibrationRevision = null;
       profile.bodyProfilePresent = false;
       if (plan.kind === "delete-profile") {
-        for (const record of linked) record.profileId = null;
-        unassignedProgressCount = linked.length;
+        const permanentDeleteIds = new Set(
+          plan.expectedPermanentDeleteProgressIds,
+        );
+        for (const record of linked) {
+          if (permanentDeleteIds.has(record.id)) {
+            this.#progress.delete(record.id);
+            permanentlyDeletedProgressCount += 1;
+          } else {
+            record.profileId = null;
+            unassignedProgressCount += 1;
+          }
+        }
         preservedLinkedProgressCount = 0;
         this.#profiles.delete(profile.id);
       }
@@ -724,6 +783,7 @@ export class ProfileManagementController {
       calibrationCleared,
       bodyProfileRemoved,
       unassignedProgressCount,
+      permanentlyDeletedProgressCount,
       preservedLinkedProgressCount,
       hostedServicesUnaffected: hostedGameIds.length,
     });
@@ -769,10 +829,34 @@ export class ProfileManagementController {
     );
   }
 
-  #requireUnlinkQualifications(
+  #resolveDeletionScope(
     linked: readonly ManagedProgressRecord[],
-  ): string[] {
-    const blockers = this.#unlinkBlockers(linked);
+    permanentlyDeleteProgressIds: readonly string[],
+  ): {
+    unlinkQualificationIds: string[];
+    permanentDeleteProgressIds: string[];
+  } {
+    if (!Array.isArray(permanentlyDeleteProgressIds)) {
+      throw new ProfileManagementError(
+        "invalid permanent progress deletion scope",
+      );
+    }
+    const permanentDeleteIds = [...permanentlyDeleteProgressIds].sort();
+    validateIdArray(
+      permanentDeleteIds,
+      "permanent progress deletion scope",
+    );
+    const linkedIds = new Set(linked.map((record) => record.id));
+    if (permanentDeleteIds.some((id) => !linkedIds.has(id))) {
+      throw new ProfileManagementError(
+        "permanent progress deletion is outside the profile scope",
+      );
+    }
+    const permanentDeleteSet = new Set(permanentDeleteIds);
+    const preserved = linked.filter(
+      (record) => !permanentDeleteSet.has(record.id),
+    );
+    const blockers = this.#unlinkBlockers(preserved);
     if (blockers.length > 0) {
       const titles = [...new Set(
         blockers.map((record) => record.gameTitle),
@@ -787,11 +871,14 @@ export class ProfileManagementController {
         }${remainder === 0 ? "" : ` and ${remainder} more`}`,
       );
     }
-    return linked
-      .map((record) =>
-        this.#unlinkQualifications.qualificationFor(record)!.id
-      )
-      .sort();
+    return {
+      unlinkQualificationIds: preserved
+        .map((record) =>
+          this.#unlinkQualifications.qualificationFor(record)!.id
+        )
+        .sort(),
+      permanentDeleteProgressIds: permanentDeleteIds,
+    };
   }
 
   #observeTime(nowMs: number): void {
@@ -1075,12 +1162,19 @@ function validatePlan(plan: ProfileManagementPlan): void {
     plan.expectedUnlinkQualificationIds,
     "progress-unlink qualification scope",
   );
+  validateIdArray(
+    plan.expectedPermanentDeleteProgressIds,
+    "permanent progress deletion scope",
+  );
   if (
     plan.kind !== "delete-profile"
-    && plan.expectedUnlinkQualificationIds.length > 0
+    && (
+      plan.expectedUnlinkQualificationIds.length > 0
+      || plan.expectedPermanentDeleteProgressIds.length > 0
+    )
   ) {
     throw new ProfileManagementError(
-      "non-deletion plan cannot carry unlink qualification scope",
+      "non-deletion plan cannot carry progress deletion scope",
     );
   }
   validateIdArray(plan.hostedServiceGameIds, "hosted-service scope");

@@ -284,8 +284,11 @@
   ): void {
     applyProfileManagementSnapshot(result.snapshot);
     managementProfileId = null;
+    const unassigned = result.disposition.unassignedProgressCount;
+    const permanentlyDeleted =
+      result.disposition.permanentlyDeletedProgressCount;
     toast(
-      `Profile deleted in the rehearsal. ${result.disposition.unassignedProgressCount} local progress items are now unassigned; hosted services were not changed.`,
+      `Profile deleted in the rehearsal. ${unassigned} local progress item${unassigned === 1 ? " is" : "s are"} now unassigned; ${permanentlyDeleted} explicitly selected item${permanentlyDeleted === 1 ? " was" : "s were"} permanently deleted; hosted services were not changed.`,
     );
     void showView("profiles");
     if (profileId === portraitProfileId) portraitProfileId = null;

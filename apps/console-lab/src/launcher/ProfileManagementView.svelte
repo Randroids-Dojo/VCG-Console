@@ -36,7 +36,10 @@
   } = $props();
 
   let name = $state("");
-  let pending = $state<DestructiveProfilePlan | null>(null);
+  let pending = $state.raw<DestructiveProfilePlan | null>(null);
+  let permanentDeleteProgressIds = $state<string[]>([]);
+  let selectionProfileId = $state<string | null>(null);
+  let selectionRevision = $state(-1);
   let confirmationReady = $state(false);
   let secondsRemaining = $state(2);
   let returnFocus = $state<HTMLElement | null>(null);
@@ -52,10 +55,28 @@
       ? []
       : controller.deletionBlockers(profile.id),
   );
+  const unresolvedDeletionBlockers = $derived(
+    deletionBlockers.filter(
+      (blocker) =>
+        !permanentDeleteProgressIds.includes(blocker.progressId),
+    ),
+  );
 
   $effect(() => {
     if (pending === null) {
       name = profile?.name ?? "";
+    }
+  });
+
+  $effect(() => {
+    const nextProfileId = profile?.id ?? null;
+    if (
+      selectionProfileId !== nextProfileId
+      || selectionRevision !== snapshot.revision
+    ) {
+      selectionProfileId = nextProfileId;
+      selectionRevision = snapshot.revision;
+      permanentDeleteProgressIds = [];
     }
   });
 
@@ -101,7 +122,14 @@
         event.currentTarget instanceof HTMLElement
           ? event.currentTarget
           : null;
-      pending = controller.planDestructive(kind, profile.id, now());
+      pending = controller.planDestructive(
+        kind,
+        profile.id,
+        now(),
+        kind === "delete-profile"
+          ? permanentDeleteProgressIds
+          : [],
+      );
       confirmationReady = false;
       updateTimer();
       timer = window.setInterval(updateTimer, 100);
@@ -142,13 +170,42 @@
   }
 
   function closeConfirmation(restoreFocus = true): void {
+    const closedDeletePlan = pending?.kind === "delete-profile";
     pending = null;
     confirmationReady = false;
     stopTimer();
+    if (closedDeletePlan) permanentDeleteProgressIds = [];
     if (restoreFocus) {
       const target = returnFocus;
-      void tick().then(() => target?.focus());
+      void tick().then(() => {
+        if (
+          target instanceof HTMLButtonElement
+          && target.disabled
+        ) {
+          document
+            .querySelector<HTMLInputElement>(
+              '[data-permanent-delete-progress="true"]',
+            )
+            ?.focus();
+          return;
+        }
+        target?.focus();
+      });
     }
+  }
+
+  function setPermanentDelete(
+    progressId: string,
+    selected: boolean,
+  ): void {
+    permanentDeleteProgressIds = selected
+      ? [...new Set([
+          ...permanentDeleteProgressIds,
+          progressId,
+        ])].sort()
+      : permanentDeleteProgressIds.filter(
+          (candidate) => candidate !== progressId,
+        );
   }
 
   function updateTimer(): void {
@@ -209,11 +266,12 @@
     return "Delete this local profile?";
   }
 
-  function confirmationLabel(
-    kind: ProfileManagementDestructiveOperation,
-  ): string {
-    if (kind === "recalibrate-profile") return "Require recalibration";
-    if (kind === "reset-profile") return "Reset identity data";
+  function confirmationLabel(plan: DestructiveProfilePlan): string {
+    if (plan.kind === "recalibrate-profile") return "Require recalibration";
+    if (plan.kind === "reset-profile") return "Reset identity data";
+    if (plan.expectedPermanentDeleteProgressIds.length > 0) {
+      return "Delete profile and selected progress";
+    }
     return "Delete profile";
   }
 
@@ -297,27 +355,55 @@
           <span>Clears portrait, calibration, and body match; keeps the profile and linked progress.</span>
         </button>
         {#if deletionBlockers.length > 0}
-          <div class="profile-delete-blockers" role="status">
-            <strong>Deletion is blocked for this synthetic fixture.</strong>
-            <span>These linked items lack reviewed identity sanitizers:</span>
-            <ul>
+          <div
+            class="profile-delete-blockers"
+            role="group"
+            aria-labelledby="profile-delete-blockers-title"
+          >
+            <strong id="profile-delete-blockers-title">
+              {unresolvedDeletionBlockers.length > 0
+                ? "Safe unlink is unavailable for this synthetic fixture."
+                : "Every incompatible item is explicitly marked for permanent deletion."}
+            </strong>
+            <span>Choose permanent deletion for each item below or keep this profile:</span>
+            <div class="profile-delete-blocker-choices">
               {#each deletionBlockers as blocker}
-                <li>{blocker.gameTitle} / {blocker.slotId} ({blocker.runtime})</li>
+                <label>
+                  <input
+                    type="checkbox"
+                    data-permanent-delete-progress="true"
+                    checked={permanentDeleteProgressIds.includes(
+                      blocker.progressId,
+                    )}
+                    onchange={(event) =>
+                      setPermanentDelete(
+                        blocker.progressId,
+                        event.currentTarget.checked,
+                      )}
+                  />
+                  <span>
+                    Permanently delete {blocker.gameTitle} /
+                    {blocker.slotId} ({blocker.runtime})
+                  </span>
+                </label>
               {/each}
-            </ul>
+            </div>
+            <small>This synthetic progress deletion has no undo. It does not delete a hosted account or service data.</small>
           </div>
         {/if}
         <button
           class="profile-delete-entry"
           type="button"
-          disabled={deletionBlockers.length > 0}
+          disabled={unresolvedDeletionBlockers.length > 0}
           onclick={(event) => begin("delete-profile", event)}
         >
           <strong>Delete local profile</strong>
           <span>
-            {deletionBlockers.length > 0
-              ? "Unavailable until every linked game has an exact reviewed sanitizer."
-              : "Removes identity data and unassigns qualified console-managed progress without deleting it."}
+            {unresolvedDeletionBlockers.length > 0
+              ? "Unavailable until every unqualified item is explicitly selected for permanent deletion."
+              : permanentDeleteProgressIds.length > 0
+                ? `Permanently deletes ${permanentDeleteProgressIds.length} selected item${permanentDeleteProgressIds.length === 1 ? "" : "s"} and unassigns the rest.`
+                : "Removes identity data and unassigns qualified console-managed progress without deleting it."}
           </span>
         </button>
       </div>
@@ -378,11 +464,21 @@
         {:else}
           <ul>
             <li>Remove the profile, portrait, calibration, and body-match fixtures.</li>
-            <li>Preserve {pending.expectedProgressIds.length} console-managed progress item{pending.expectedProgressIds.length === 1 ? "" : "s"} as unassigned local data.</li>
+            {#if pending.expectedPermanentDeleteProgressIds.length > 0}
+              <li>
+                Permanently delete {pending.expectedPermanentDeleteProgressIds.length} explicitly selected console-managed progress item{pending.expectedPermanentDeleteProgressIds.length === 1 ? "" : "s"}:
+                <ul>
+                  {#each deletionBlockers.filter((blocker) => pending?.expectedPermanentDeleteProgressIds.includes(blocker.progressId)) as blocker}
+                    <li>{blocker.gameTitle} / {blocker.slotId} ({blocker.runtime})</li>
+                  {/each}
+                </ul>
+              </li>
+            {/if}
+            <li>Preserve {pending.expectedProgressIds.length - pending.expectedPermanentDeleteProgressIds.length} qualified console-managed progress item{pending.expectedProgressIds.length - pending.expectedPermanentDeleteProgressIds.length === 1 ? "" : "s"} as unassigned local data.</li>
             <li>Do not attach that progress to a later same-name profile.</li>
             <li>{pending.hostedServiceGameIds.length} hosted service{pending.hostedServiceGameIds.length === 1 ? "" : "s"} {pending.hostedServiceGameIds.length === 1 ? "remains" : "remain"} separate and {pending.hostedServiceGameIds.length === 1 ? "is" : "are"} not deleted by VCG.</li>
           </ul>
-          <p class="profile-permanent-warning">Profile deletion has no undo. This prototype does not delete the separately hosted account or service data.</p>
+          <p class="profile-permanent-warning">Profile deletion{pending.expectedPermanentDeleteProgressIds.length > 0 ? " and the selected local progress deletion have" : " has"} no undo. This prototype does not delete the separately hosted account or service data.</p>
         {/if}
       </div>
       <div class="profile-confirmation-status" aria-live="polite">
@@ -402,7 +498,7 @@
           disabled={!confirmationReady}
           onclick={confirm}
         >
-          {confirmationLabel(pending.kind)}
+          {confirmationLabel(pending)}
         </button>
       </div>
       <p class="profile-input-copy">Controller or motion Select activates only the focused choice. Back closes this review without changing anything.</p>

@@ -24,7 +24,8 @@ states that:
 - Back, Home, route change, or the safe focused choice cancels without a
   mutation;
 - profile deletion removes synthetic identity data while changing each exactly
-  sanitizer-qualified console-progress record to unassigned;
+  sanitizer-qualified console-progress record to unassigned or permanently
+  deleting only an exact record the user explicitly selected;
 - a recreated same-name profile receives a different opaque ID and no prior
   progress links; and
 - hosted-service data is separate and is not deleted by the console.
@@ -105,6 +106,8 @@ Recalibration, reset, and deletion use a closed plan bound to:
 - a sorted exact set of linked progress record IDs;
 - for deletion, a sorted exact set of matching progress-unlink qualification
   IDs;
+- for deletion, a disjoint sorted exact set of progress record IDs explicitly
+  selected for permanent deletion;
 - a sorted exact set of separately hosted game IDs;
 - a 1.5-second review deadline; and
 - a 30-second confirmation expiry.
@@ -114,6 +117,12 @@ changed portrait, changed sensitive state, changed progress scope, time
 rollback, or mismatched arrays fail closed. Plans contain no unassigned owner
 ID, path, pixel, body feature, password, credential, export destination, or
 network instruction.
+
+The in-memory controller accepts only the exact frozen destructive plan object
+it issued. A cloned plan with otherwise valid substituted scope is rejected
+before commit. This reference-bound rehearsal is not a durable native
+capability format; Q-191 still requires a protected, restart-safe transaction
+and authority design.
 
 Synthetic calibration application additionally requires an exact result
 issued by the active calibration controller into a shared at-most-64-entry
@@ -125,12 +134,15 @@ rechecks expiry during both planning and commit, so a delayed or missing UI
 cleanup callback cannot extend authority.
 
 Profile deletion is unavailable unless every currently linked progress record
-has one exact qualification. Planning refuses before showing a destructive
-confirmation when any game/slot/runtime is unqualified. Commit resolves every
-qualification again and compares the exact sorted qualification-ID set, so
-revocation, substitution, or scope drift during review fails before portrait,
+either has one exact qualification or is explicitly selected for permanent
+deletion. Planning refuses before showing a destructive confirmation when any
+game/slot/runtime has neither outcome. Commit resolves every retained
+record's qualification again and compares both the exact sorted
+qualification-ID set and exact permanent-delete record-ID set, so revocation,
+substitution, added scope, or scope drift during review fails before portrait,
 profile, or progress mutation. Recalibration and identity reset neither need
-nor accept unlink qualification scope because they retain progress links.
+nor accept unlink or progress-deletion scope because they retain progress
+links.
 
 ## Provisional operation matrix
 
@@ -139,7 +151,7 @@ nor accept unlink qualification scope because they retain progress links.
 | Rename | Keep | Replace display text | Keep | Keep | Keep | Keep linked | No effect |
 | Require recalibration | Keep | Keep | Keep | Clear | Clear | Keep linked | No effect |
 | Reset local identity data | Keep | Keep | Remove | Clear | Clear | Keep linked | No effect |
-| Delete local profile | Remove | Remove with profile | Remove | Clear | Clear | Preserve as unassigned only after exact sanitizer qualification; otherwise block | No effect; show guidance |
+| Delete local profile | Remove | Remove with profile | Remove | Clear | Clear | Preserve as unassigned only after exact sanitizer qualification; permanently delete only exact explicitly selected incompatible records | No effect; show guidance |
 
 The reset row is a safe prototype choice, not a final product definition.
 Exact reset scope remains Q-188. Accessibility preferences are not yet
@@ -148,9 +160,11 @@ profile-scoped in this model and are not silently claimed as deleted.
 Delete changes every qualified selected-profile progress record from that
 opaque profile ID to its already allocated unassigned owner. It does not
 create an owner from a display name, portrait, game string, current player, or
-body signal. An unqualified record blocks the whole operation; the prototype
-does not partially delete identity data or invent a generic save rewrite. A
-later same-name creation gets a new opaque profile ID and zero linked records.
+body signal. An unqualified record blocks the operation until its exact
+game/slot/runtime checkbox is explicitly selected for permanent deletion; the
+prototype does not partially delete identity data or invent a generic save
+rewrite. Cancel clears every destructive selection. A later same-name creation
+gets a new opaque profile ID and zero linked records.
 
 The model records hosted-service count only to show the boundary. It does not
 call, sign out of, delete, or claim authority over a hosted account.
@@ -168,10 +182,14 @@ screen shows:
 - exact-scope modal copy with a visible timing state.
 
 If any linked item lacks an exact qualification, the screen names its bounded
-game title, slot ID, and runtime, explains that the sanitizer is missing, and
-disables profile deletion before a confirmation modal can open. The Randy
-fixture has two exact qualifications; the Guest native campaign deliberately
-has none so the blocked state remains executable in Chrome.
+game title, slot ID, and runtime, explains that safe unlink is unavailable,
+and requires a separate unchecked permanent-delete choice for every affected
+record before a confirmation modal can open. The exact review then separates
+permanently deleted record count and names from qualified unassigned record
+count. Cancel clears those choices and restores focus to the first unchecked
+choice. The Randy fixture has two exact qualifications; the Guest native
+campaign deliberately has none so both the blocked and explicit alternative
+remain executable in Chrome.
 
 The modal initially focuses `Keep profile`. The destructive button is disabled
 until the review delay elapses, and focus does not move automatically when it
@@ -203,14 +221,16 @@ depending on color.
 9. Console-managed progress survives deletion only after one exact reviewed
    sanitizer qualification matches its profile, game, slot, runtime, and
    hosted boundary.
-10. Missing, changed, revoked, duplicate, or substituted qualification
-    evidence blocks the complete deletion before mutation.
-11. Unassigned progress never predicts or attaches to a new profile.
-12. Hosted-service data is disclosed as separate and never represented as
+10. A progress record lacking that qualification is deleted only after an
+    explicit exact-record choice is bound into the review plan.
+11. Missing, changed, revoked, duplicate, substituted, or unreviewed scope
+    blocks the complete deletion before mutation.
+12. Unassigned progress never predicts or attaches to a new profile.
+13. Hosted-service data is disclosed as separate and never represented as
     deleted.
-13. Games, browser code, diagnostics, support, export, recovery, and network
+14. Games, browser code, diagnostics, support, export, recovery, and network
     surfaces receive no management authority or sensitive identity payload.
-14. Production remains disabled until the native transaction, vault,
+15. Production remains disabled until the native transaction, vault,
     exclusion, failure recovery, household, accessibility, privacy, and legal
     gates pass.
 
@@ -232,13 +252,16 @@ all of the following:
    body-profile, and derived keys without exposing bytes or feature values.
 6. Durably unlink sanitized progress without changing its game/slot identity,
    deleting it, or attaching it elsewhere.
-7. Publish the new profile registry and protected manifest state only at the
+7. Durably delete only the exact incompatible progress records the user
+   explicitly selected, without widening scope to sibling slots or hosted
+   service data.
+8. Publish the new profile registry and protected manifest state only at the
    defined commit point.
-8. Recover idempotently after process death, power loss, full disk, rollback,
+9. Recover idempotently after process death, power loss, full disk, rollback,
    update, or restart at every boundary.
-9. Return bounded path-free evidence that lets the launcher display success
+10. Return bounded path-free evidence that lets the launcher display success
    only after the native transaction is durable.
-10. Feed producer canaries into I-186 and inspect every backup, update,
+11. Feed producer canaries into I-186 and inspect every backup, update,
     rollback, recovery, diagnostic, support, export, migration, save, and
     hosted path.
 
@@ -250,7 +273,7 @@ evidence, not inference from this browser controller.
 
 ## Abuse and regression evidence
 
-Fifteen focused profile-management unit cases prove:
+Sixteen focused profile-management unit cases prove:
 
 - immutable, minimized snapshots and defensive copies;
 - closed/bounded profile and progress schemas;
@@ -273,10 +296,14 @@ Fifteen focused profile-management unit cases prove:
 - missing qualification blocking planning, exact qualification IDs entering
   the closed plan, revocation blocking commit without mutation, and unknown,
   duplicate, cross-scope, or changed qualification refusal;
+- exact opt-in permanent deletion of one unqualified record while a qualified
+  sibling record becomes unassigned, plus outside-scope, duplicate, and
+  non-deletion refusal;
 - final-profile deletion into an empty metadata-only state;
 - separately hosted service counts remaining unchanged;
 - stale revision and changed portrait-scope rejection; and
-- forged plan, credential, owner, path, pixel, and feature-field exclusion.
+- unknown-field and valid-looking scope-substituted plan rejection plus
+  credential, owner, path, pixel, and feature-field exclusion.
 
 One Chrome flow proves:
 
@@ -293,9 +320,10 @@ One Chrome flow proves:
   service;
 - deliberate motion confirmation after focus movement;
 - active-profile recovery after deletion;
-- same-name recreation with no portrait or progress links; and
-- visible Guest game/slot/runtime blocker copy plus disabled deletion before
-  confirmation; and
+- same-name recreation with no portrait or progress links;
+- visible Guest game/slot/runtime safe-unlink warning, default-disabled
+  deletion, explicit permanent-delete opt-in, exact modal disclosure, cancel
+  without mutation, cleared opt-in, and safe focus recovery; and
 - no horizontal document overflow.
 
 The reviewed 1440 by 1000 screenshots are
@@ -310,7 +338,8 @@ I-188 remains incomplete. Required evidence includes:
 - integration with the privileged writer selected under Q-132;
 - exact profile-registry/vault/progress journal and protected-state binding;
 - host-protected qualification provenance plus real reviewed per-runtime and
-  per-title sanitizers, permanent-delete alternatives, and blocker recovery;
+  per-title sanitizers, durable permanent-delete execution, and blocker
+  recovery;
 - real portrait, calibration, body-profile, accessibility, achievement,
   leaderboard, diagnostic, and support-data inventory;
 - immediate key/render revocation and forensic deletion evidence;
