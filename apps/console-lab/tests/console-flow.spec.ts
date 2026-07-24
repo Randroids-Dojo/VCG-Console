@@ -149,6 +149,8 @@ test("native launch authenticates to the Rust host before checking installed pac
 test("retro launch submits only signed package and profile intent to the host", async ({ page }) => {
   const token = "c".repeat(64);
   let installedVersion = "0.9.0";
+  let packageVersion = "0.9.0";
+  let packageGeneration = 6;
   const observed: Array<{
     url: string;
     method: string;
@@ -212,9 +214,9 @@ test("retro launch submits only signed package and profile intent to the host", 
     } else if (request.url().includes("/v1/packages/")) {
       body = {
         id: "retro-2048",
-        version: installedVersion,
+        version: packageVersion,
         runtime: "libretro",
-        catalogGeneration: 7,
+        catalogGeneration: packageGeneration,
       };
     } else {
       const intent = request.postDataJSON() as {
@@ -268,15 +270,21 @@ test("retro launch submits only signed package and profile intent to the host", 
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
 
   const launch = page.getByRole("dialog", { name: "2048" });
+  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
+  await launch.getByRole("button", { name: /Details/ }).click();
+  await expect(launch.getByText("PACKAGE_RELEASE_MISMATCH")).toBeVisible();
+  expect(observed.some(({ method }) => method === "POST")).toBe(false);
+
+  packageVersion = "qualification-candidate-2026-07-23";
+  packageGeneration = 7;
+  observed.length = 0;
+  await launch.getByRole("button", { name: /Retry/ }).click();
   await expect(launch.getByText("STOPPED")).toBeVisible();
   await expect(
     launch.getByText("The host could not start the verified package"),
   ).toBeVisible();
-  await launch.getByRole("button", { name: /Details/ }).click();
   await expect(launch.getByText("PROCESS_START_FAILED")).toBeVisible();
   expect(observed.map(({ url, method }) => ({ url, method }))).toEqual([
-    { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
-    { url: "http://127.0.0.1:43124/v1/packages", method: "GET" },
     { url: "http://127.0.0.1:43124/v1/status", method: "GET" },
     {
       url: "http://127.0.0.1:43124/v1/packages/retro-2048",
@@ -378,7 +386,7 @@ test("universal search traps focus and restores its opener", async ({ page }) =>
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
 });
 
-test("retro candidate remains visibly uninstalled and uses the host handoff", async ({ page }) => {
+test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
@@ -386,7 +394,9 @@ test("retro candidate remains visibly uninstalled and uses the host handoff", as
   const launch = page.getByRole("dialog", { name: "2048" });
   await expect(launch).toHaveAttribute("data-launch-adapter", "retro");
   await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
-  await expect(launch.getByText(/Rust console host is not connected/)).toBeVisible();
+  await expect(
+    launch.getByText("The selected release is not present in the current signed package inventory"),
+  ).toBeVisible();
   await launch.getByRole("button", { name: /Exit/ }).click();
 
   await page.getByRole("button", { name: /Search games/ }).click();

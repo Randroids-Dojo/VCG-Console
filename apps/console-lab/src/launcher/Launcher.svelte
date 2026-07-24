@@ -341,6 +341,22 @@
   ): Promise<void> {
     supervisor.advance(1, "Requesting the Rust console host");
     if (expected) {
+      const inventory = nativePackageInventory;
+      const inventoryMatches =
+        nativePackageInventoryState === "available" &&
+        inventory?.packages.some(
+          (installed) =>
+            installed.id === expected.gameId &&
+            installed.version === expected.version &&
+            installed.runtime === expected.runtime,
+        );
+      if (!inventory || !inventoryMatches) {
+        supervisor.unavailable(
+          "The selected release is not present in the current signed package inventory",
+          "PACKAGE_RELEASE_MISMATCH",
+        );
+        return;
+      }
       if (activeNativeRequestId) {
         const previousRequestId = activeNativeRequestId;
         activeNativeRequestId = undefined;
@@ -354,11 +370,12 @@
         return;
       }
       if (
+        packageResult.package.catalogGeneration !== inventory.catalogGeneration ||
         packageResult.package.version !== expected.version ||
         packageResult.package.runtime !== expected.runtime
       ) {
         supervisor.unavailable(
-          `Installed ${packageResult.package.version} ${packageResult.package.runtime} release does not match launcher catalog ${expected.version} ${expected.runtime}`,
+          `Installed generation ${packageResult.package.catalogGeneration} ${packageResult.package.version} ${packageResult.package.runtime} release does not match selected generation ${inventory.catalogGeneration} ${expected.version} ${expected.runtime}`,
           "PACKAGE_RELEASE_MISMATCH",
         );
         return;
