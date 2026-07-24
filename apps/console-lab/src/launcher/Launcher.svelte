@@ -129,6 +129,7 @@
   export function back(): void {
     if (launchSession) closeLaunch();
     else if (search.isOpen()) search.close();
+    else if (view === "settings" && settings.cancelPendingModeConfirmation()) return;
     else if (view !== "home") showView("home");
   }
 

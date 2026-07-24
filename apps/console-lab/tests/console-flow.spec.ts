@@ -6,6 +6,24 @@ async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
 }
 
+async function pressSyntheticGamepadButton(
+  page: Page,
+  setterName: string,
+  button: number,
+): Promise<void> {
+  await page.evaluate(
+    ({ setterName: name, button: pressed }) => {
+      (window as unknown as Record<string, (buttons: number[]) => void>)[name]?.([pressed]);
+    },
+    { setterName, button },
+  );
+  await page.waitForTimeout(50);
+  await page.evaluate((name) => {
+    (window as unknown as Record<string, (buttons: number[]) => void>)[name]?.([]);
+  }, setterName);
+  await page.waitForTimeout(50);
+}
+
 test("boots into a purposeful launcher", async ({ page }) => {
   await page.goto("/?holdBoot=1");
   await expect(page.locator("#boot-screen")).toBeVisible();
@@ -119,6 +137,68 @@ test("one launch screen represents every adapter without inventing progress", as
   await expect(retroLaunch).toHaveAttribute("data-launch-adapter", "retro");
   await expect(retroLaunch.getByText("NOT AVAILABLE")).toBeVisible();
   await retroLaunch.getByRole("button", { name: /Exit/ }).click();
+});
+
+test("controller can confirm or cancel every operating-mode transition", async ({ page }) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (window as unknown as Record<string, (buttons: number[]) => void>).__setModeGamepad = (
+      buttons,
+    ) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright mode controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+  });
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+  const operatingMode = page.locator(".operating-mode");
+  await operatingMode.getByRole("button", { name: "Request admin access" }).focus();
+
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  const confirmAdmin = operatingMode.getByRole("button", { name: "Confirm admin access" });
+  await expect(confirmAdmin).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 1);
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "family");
+
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  await expect(confirmAdmin).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  const enableDeveloper = operatingMode.getByRole("button", { name: "Enable developer mode" });
+  await expect(enableDeveloper).toBeFocused();
+
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  const confirmDeveloper = operatingMode.getByRole("button", {
+    name: "Confirm developer mode",
+  });
+  await expect(confirmDeveloper).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 1);
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "admin");
+
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  await expect(confirmDeveloper).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setModeGamepad", 0);
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "developer");
+  await expect(
+    operatingMode.getByRole("button", { name: "End developer mode" }),
+  ).toBeFocused();
 });
 
 test("native launch authenticates to the Rust host before checking installed packages", async ({ page }) => {

@@ -72,10 +72,12 @@ The Developer settings panel replaces the prior unrestricted switch with:
 4. persistent visible developer-mode styling while active; and
 5. End developer mode and Lock to family mode actions.
 
-All actions are ordinary focusable buttons and therefore use the launcher's
-existing keyboard/controller navigation path. The panel truthfully says that
-the desk browser has no administrator credential or native pairing service.
-It cannot open a listener, pair a workstation, or deploy a build.
+All actions are ordinary focusable buttons and use the launcher's existing
+keyboard/controller navigation path. Each state transition moves focus to its
+first safe action; controller Back cancels a pending confirmation without
+leaving Settings. The panel truthfully says that the desk browser has no
+administrator credential or native pairing service. It cannot open a listener,
+pair a workstation, or deploy a build.
 
 ## Native authority required
 
@@ -110,10 +112,12 @@ Six unit tests cover:
 - guest/local-profile non-authority and identity-change revocation; and
 - malformed time and impossible-transition rejection.
 
-The real-Chrome launcher flow enters Settings with family mode active, confirms
+One real-Chrome launcher flow enters Settings with family mode active, confirms
 admin and developer states separately, verifies that pairing is unavailable,
-then locks back to family mode. Existing generic launcher navigation keeps
-every action controller reachable.
+then revokes elevation on profile change. A second synthetic standard-gamepad
+flow uses only Select and Back after entering the panel: it cancels and retries
+both confirmation stages, verifies transition focus, and reaches visible
+developer mode.
 
 ## Remaining qualification
 

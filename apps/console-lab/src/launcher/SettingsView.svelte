@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, tick } from "svelte";
   import {
     ConsoleOperatingModeController,
     type ConsoleOperatingModeSnapshot,
@@ -26,6 +26,7 @@
   const operatingMode = new ConsoleOperatingModeController();
   let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
   let observedProfileId: string | undefined;
+  let operatingModeElement: HTMLElement;
   let scanTimer: number | undefined;
   let operatingModeTimer: number | undefined;
 
@@ -44,6 +45,12 @@
 
   export function show(target: SettingsPanel): void {
     panel = target;
+  }
+
+  export function cancelPendingModeConfirmation(): boolean {
+    if (operatingModeSnapshot.pendingConfirmation === undefined) return false;
+    cancelOperatingModeConfirmation();
+    return true;
   }
 
   function scanWifi(): void {
@@ -94,6 +101,13 @@
         setOperatingModeSnapshot(operatingMode.snapshot(Date.now()));
       }, Math.max(0, pending.expiresAtMs - Date.now() + 1));
     }
+    void focusFirstOperatingModeAction();
+  }
+
+  async function focusFirstOperatingModeAction(): Promise<void> {
+    await tick();
+    const action = operatingModeElement?.querySelector<HTMLButtonElement>("button");
+    if (action?.offsetParent !== null) action?.focus({ preventScroll: true });
   }
 
   onDestroy(() => {
@@ -133,6 +147,7 @@
     <section data-settings-panel="developer" hidden={panel !== "developer"}>
       <div class="toggle-row"><div><strong>Diagnostic overlay</strong><small>Show performance and tracker health</small></div><button type="button" role="switch" aria-checked={diagnostics} onclick={() => (diagnostics = !diagnostics)}>{diagnostics ? "On" : "Off"}</button></div>
       <div
+        bind:this={operatingModeElement}
         class:mode-active={operatingModeSnapshot.mode === "developer"}
         class="operating-mode"
         data-operating-mode={operatingModeSnapshot.mode}
