@@ -908,6 +908,51 @@ a:focus-visible {
   color: var(--accent);
 }
 
+.operating-mode {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin: 18px 0 20px;
+  padding: 22px;
+  border: 1px solid #343a3c;
+  border-left: 2px solid var(--muted);
+  background: rgba(16, 19, 21, 0.52);
+}
+
+.operating-mode.mode-active {
+  border-left-color: var(--fault);
+}
+
+.operating-mode > span {
+  color: var(--accent);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+}
+
+.operating-mode.mode-active > span {
+  color: var(--fault);
+}
+
+.operating-mode strong {
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.operating-mode p {
+  max-width: 600px;
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.64rem;
+  line-height: 1.6;
+}
+
+.operating-mode > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .launch-preview {
   margin-top: 26px;
   padding-top: 22px;

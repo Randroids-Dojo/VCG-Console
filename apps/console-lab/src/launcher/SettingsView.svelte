@@ -1,5 +1,9 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import {
+    ConsoleOperatingModeController,
+    type ConsoleOperatingModeSnapshot,
+  } from "./operating-mode";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, SettingsPanel } from "./types";
 
   let {
@@ -7,18 +11,36 @@
     onpreviewlaunch,
     onpreviewfault,
     ontoast,
+    activeProfileId,
   }: {
     openMotionLab: (mode?: LabMode) => void;
     onpreviewlaunch: (adapter: LaunchAdapter) => void;
     onpreviewfault: (fault: LaunchFaultPreview) => void;
     ontoast: (message: string) => void;
+    activeProfileId: string;
   } = $props();
   let panel = $state<SettingsPanel>("system");
   let scanning = $state(false);
   let scanComplete = $state(false);
   let diagnostics = $state(false);
-  let developerMode = $state(false);
+  const operatingMode = new ConsoleOperatingModeController();
+  let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
+  let observedProfileId: string | undefined;
   let scanTimer: number | undefined;
+  let operatingModeTimer: number | undefined;
+
+  $effect(() => {
+    if (observedProfileId === undefined) {
+      observedProfileId = activeProfileId;
+    } else if (activeProfileId !== observedProfileId) {
+      observedProfileId = activeProfileId;
+      setOperatingModeSnapshot(
+        operatingMode.changeIdentity(
+          activeProfileId === "profile-guest" ? "guest" : "local-profile",
+        ),
+      );
+    }
+  });
 
   export function show(target: SettingsPanel): void {
     panel = target;
@@ -33,8 +55,50 @@
     }, 900);
   }
 
+  function requestAdminAccess(): void {
+    setOperatingModeSnapshot(operatingMode.requestAdminConfirmation(Date.now()));
+  }
+
+  function requestDeveloperMode(): void {
+    setOperatingModeSnapshot(operatingMode.requestDeveloperConfirmation(Date.now()));
+  }
+
+  function confirmOperatingMode(): void {
+    try {
+      setOperatingModeSnapshot(operatingMode.confirmLocally(Date.now()));
+    } catch {
+      setOperatingModeSnapshot(operatingMode.snapshot(Date.now()));
+      ontoast("Confirmation expired. Start again.");
+    }
+  }
+
+  function cancelOperatingModeConfirmation(): void {
+    setOperatingModeSnapshot(operatingMode.cancelConfirmation());
+  }
+
+  function endDeveloperMode(): void {
+    setOperatingModeSnapshot(operatingMode.endDeveloperMode());
+  }
+
+  function lockToFamily(): void {
+    setOperatingModeSnapshot(operatingMode.lockToFamily());
+  }
+
+  function setOperatingModeSnapshot(snapshot: ConsoleOperatingModeSnapshot): void {
+    operatingModeSnapshot = snapshot;
+    if (operatingModeTimer !== undefined) window.clearTimeout(operatingModeTimer);
+    operatingModeTimer = undefined;
+    const pending = snapshot.pendingConfirmation;
+    if (pending !== undefined) {
+      operatingModeTimer = window.setTimeout(() => {
+        setOperatingModeSnapshot(operatingMode.snapshot(Date.now()));
+      }, Math.max(0, pending.expiresAtMs - Date.now() + 1));
+    }
+  }
+
   onDestroy(() => {
     if (scanTimer !== undefined) window.clearTimeout(scanTimer);
+    if (operatingModeTimer !== undefined) window.clearTimeout(operatingModeTimer);
   });
 </script>
 
@@ -68,7 +132,47 @@
     </section>
     <section data-settings-panel="developer" hidden={panel !== "developer"}>
       <div class="toggle-row"><div><strong>Diagnostic overlay</strong><small>Show performance and tracker health</small></div><button type="button" role="switch" aria-checked={diagnostics} onclick={() => (diagnostics = !diagnostics)}>{diagnostics ? "On" : "Off"}</button></div>
-      <div class="toggle-row"><div><strong>Developer mode</strong><small>Allow paired workstation sessions</small></div><button type="button" role="switch" aria-checked={developerMode} onclick={() => (developerMode = !developerMode)}>{developerMode ? "On" : "Off"}</button></div>
+      <div
+        class:mode-active={operatingModeSnapshot.mode === "developer"}
+        class="operating-mode"
+        data-operating-mode={operatingModeSnapshot.mode}
+        aria-live="polite"
+      >
+        <span>{operatingModeSnapshot.mode.toUpperCase()} MODE</span>
+        {#if operatingModeSnapshot.pendingConfirmation?.action === "enter-admin"}
+          <strong>Confirm local administration</strong>
+          <p>This desk prototype has no administrator credential. Confirmation demonstrates the controller flow but grants no native service authority.</p>
+          <div>
+            <button type="button" onclick={confirmOperatingMode}>Confirm admin access</button>
+            <button type="button" onclick={cancelOperatingModeConfirmation}>Cancel</button>
+          </div>
+        {:else if operatingModeSnapshot.pendingConfirmation?.action === "enable-developer"}
+          <strong>Enable temporary developer mode?</strong>
+          <p>Developer builds must remain visibly separate from signed production games. A paired native service is still required before any deployment.</p>
+          <div>
+            <button type="button" onclick={confirmOperatingMode}>Confirm developer mode</button>
+            <button type="button" onclick={cancelOperatingModeConfirmation}>Cancel</button>
+          </div>
+        {:else if operatingModeSnapshot.mode === "family"}
+          <strong>Developer deployment is blocked</strong>
+          <p>Guest and local-player selection never grants administrative or developer authority.</p>
+          <button type="button" onclick={requestAdminAccess}>Request admin access</button>
+        {:else if operatingModeSnapshot.mode === "admin"}
+          <strong>Console administration preview</strong>
+          <p>Developer transport remains blocked until a second explicit local confirmation.</p>
+          <div>
+            <button type="button" onclick={requestDeveloperMode}>Enable developer mode</button>
+            <button type="button" onclick={lockToFamily}>Lock to family mode</button>
+          </div>
+        {:else}
+          <strong>Developer mode is visibly active</strong>
+          <p>Pairing service not connected. This browser cannot open a listener, pair a workstation, or deploy a build.</p>
+          <div>
+            <button type="button" onclick={endDeveloperMode}>End developer mode</button>
+            <button type="button" onclick={lockToFamily}>Lock to family mode</button>
+          </div>
+        {/if}
+      </div>
       <button type="button" onclick={() => openMotionLab("tracker")}>Open Motion Lab</button>
       <div class="launch-preview">
         <div><strong>Launch-state preview</strong><small>Inspect each adapter without starting a game</small></div>

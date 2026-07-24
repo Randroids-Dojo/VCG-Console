@@ -714,7 +714,7 @@
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
-        <SettingsView bind:this={settings} {openMotionLab} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
+        <SettingsView bind:this={settings} {openMotionLab} {activeProfileId} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
       </div>
     </section>
   </div>

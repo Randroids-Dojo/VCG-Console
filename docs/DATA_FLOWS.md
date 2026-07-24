@@ -31,6 +31,7 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Rich/world skeleton extensions | MediaPipe adapter capability profiles | Same bounded in-memory treatment as the portable frame | No v1 game permission grants these profiles; bridge host also requires an explicit profile grant | A future manifest/Motion version plus reviewed host grant | Denied to games in v1 |
 | Skeleton trace export | Bounded `MotionTrace` with `containsRawFrames: false` | Written only when the user activates Export; ordinary browser download retention then applies | User-selected local download | Explicit export action | Implemented |
 | Profile name/selection | Launcher profile component | Svelte session memory only; lost on reload | Launcher shell | Create, rename, select | Prototype only |
+| Console operating mode | Local launcher confirmation flow | Volatile fail-closed family/admin/developer state; boot/reload starts in family mode and no credential or pairing secret exists | Launcher policy only; no native service consumes it | Separate admin/developer confirmations, cancel, end developer mode, family lock | Browser policy/UX prototype only |
 | Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
 | Game saves | Individual game runtime | Native planner derives bounded device-local per-game/owner/runtime save and cache namespaces, quotas, reset scope, migration staging, and profile-to-unassigned transitions; a separate host-only durable transaction can now execute/recover one exact confirmed save/cache reset | Owning game through a future sandbox/mount adapter and console lifecycle service | Per-game reset still needs deliberate controller/motion UI; factory reset remains planned | Contract and reset primitive implemented; storage broker/confinement not implemented |
 | Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI status is volatile. Browser fault details contain stable codes and timings, not frames or identities. Bounded redacted native logs remain planned. | Local player/developer screen | Details disclosure; any future export requires deliberate consent | Partially implemented |
@@ -62,6 +63,14 @@ Invariant: a cooperative game receives the smallest negotiated skeleton/action p
 Current profile names are prototype session state. Portrait and automatic body-profile matching are intentionally absent. The selected future boundary keeps portrait pixels separate from appearance-free calibration features, requires visible confirmation before applying a predicted profile, and denies games direct vault access. Legal, child/privacy, consent, and real household tests remain explicit gates.
 
 Invariant: profile UI copy must not imply durable encrypted storage until the native vault exists.
+
+The launcher mode prototype treats guest/local identity and privilege as
+orthogonal. A profile selection cannot elevate authority. Family mode denies
+developer transport; admin and developer previews require separate short-lived
+confirmations; lock, reload, and identity change return to family mode. This is
+volatile UX evidence only: a future native coordinator must authenticate local
+administration and reserved-input confirmation before opening any paired-LAN
+listener.
 
 ### Saves
 

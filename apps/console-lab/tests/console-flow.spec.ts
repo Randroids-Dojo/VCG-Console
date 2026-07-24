@@ -62,6 +62,25 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await diagnosticSwitch.click();
   await expect(diagnosticSwitch).toHaveAttribute("aria-checked", "true");
   await expect(diagnosticSwitch).toHaveText("On");
+
+  const operatingMode = page.locator(".operating-mode");
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "family");
+  await expect(operatingMode.getByText("Developer deployment is blocked")).toBeVisible();
+  await operatingMode.getByRole("button", { name: "Request admin access" }).click();
+  await expect(operatingMode.getByText("Confirm local administration")).toBeVisible();
+  await operatingMode.getByRole("button", { name: "Confirm admin access" }).click();
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "admin");
+  await expect(operatingMode.getByText("Developer transport remains blocked")).toBeVisible();
+  await operatingMode.getByRole("button", { name: "Enable developer mode" }).click();
+  await expect(operatingMode.getByText("Enable temporary developer mode?")).toBeVisible();
+  await operatingMode.getByRole("button", { name: "Confirm developer mode" }).click();
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "developer");
+  await expect(operatingMode.getByText("Pairing service not connected")).toBeVisible();
+  await page.screenshot({ path: "../../test-results/console-lab/developer-mode.png" });
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  await page.getByRole("button", { name: /Guest Two Local guest/ }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(operatingMode).toHaveAttribute("data-operating-mode", "family");
 });
 
 test("one launch screen represents every adapter without inventing progress", async ({ page }) => {
