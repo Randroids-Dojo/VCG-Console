@@ -105,9 +105,10 @@ intent as native authority.
 
 The two no-copy terminal actions are native as well. `reuse-existing`
 requires active authority, the exact current library generation and entry,
-and a fresh full-hash check of the console-managed object. It writes an
-idempotent `retro-import-reused` audit record without copying or advancing the
-library. `cancel-and-cleanup` remains available after plan expiry or session
+the current native policy's system/extension/core/controller/size mapping, and
+a fresh full-hash check of the console-managed object. It writes an idempotent
+`retro-import-reused` audit record without copying or advancing the library.
+`cancel-and-cleanup` remains available after plan expiry or session
 revocation, but a pending cleanup requires the exact inspection, expiry,
 policy, generation, source, session, transport, system, entitlement, and audit
 bindings of that transaction rather than plan ID alone. It removes only that
@@ -294,9 +295,10 @@ reported-free-space refusal before mutation, library history shape,
 nonblocking lock and exact cancellation, refusal of eight same-plan pending
 cancellation substitutions, incomplete-copy cleanup, recovery after source
 removal, recovery across object/library publication windows, replacement
-ordering, duplicate reuse with missing/tampered object refusal, cancellation
-after expiry/revocation and after an unrelated generation advance, path-free
-audit persistence, shared storage-namespace derivation,
+ordering, duplicate reuse with same-revision mapping substitution and
+missing/tampered object refusal, cancellation after expiry/revocation and
+after an unrelated generation advance, path-free audit persistence, shared
+storage-namespace derivation,
 an actual derived-root import that preserves package/core/save/state/remap/
 profile/log/cache/package-staging sentinels, recovery-aware path-free library
 snapshots, and Linux symlink refusal. Strict Clippy and Rustdoc pass on the

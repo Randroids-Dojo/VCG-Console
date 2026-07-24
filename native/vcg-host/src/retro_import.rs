@@ -565,6 +565,14 @@ impl RetroImportStore {
         }
         if action == RetroNoCopyAction::ReuseExisting {
             let existing = reuse_entry(&current, &intent)?;
+            if existing.system_id != context.policy.system_id
+                || existing.extension != context.policy.extension
+                || existing.core_id != context.policy.core_id
+                || existing.controller_profile != context.policy.controller_profile
+                || existing.size_bytes > context.policy.max_content_bytes
+            {
+                return Err(RetroImportError::PolicyBindingMismatch);
+            }
             self.verify_object(existing)?;
         }
         let audit = NativeAuditRecord::from_no_copy(&intent, current.generation)?;
@@ -3815,6 +3823,34 @@ mod tests {
             .expect("install existing object");
         let existing_id = fixture.library().entries[0].entry_id.clone();
         let reuse = reuse_intent(bytes, 2, "reuse", &existing_id);
+        let changed_mapping = RetroPlainSystemPolicy::new(
+            "retro-policy",
+            7,
+            "gb",
+            ".gb",
+            "different-core",
+            "game-boy-standard",
+            4 * 1024 * 1024,
+            128,
+            32 * 1024 * 1024,
+        )
+        .expect("same-revision changed mapping");
+        let changed_mapping_authority = RetroPlainImportContext::authorize(
+            &reuse,
+            INSPECTION_ID,
+            10_000,
+            false,
+            changed_mapping,
+        )
+        .expect("authorize same-revision changed mapping");
+        assert!(matches!(
+            fixture
+                .store
+                .commit_without_copy(&reuse, &changed_mapping_authority, 1_000),
+            Err(RetroImportError::PolicyBindingMismatch)
+        ));
+        assert_eq!(fixture.audit_files().len(), 1);
+
         let authority = context(&reuse);
         let outcome = fixture
             .store
