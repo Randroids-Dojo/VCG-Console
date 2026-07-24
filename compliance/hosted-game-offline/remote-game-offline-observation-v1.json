@@ -1,0 +1,4630 @@
+{
+  "format": "vcg-remote-game-offline-observation/v1",
+  "evidenceDate": "2026-07-24",
+  "observedAtUtc": "2026-07-24T23:08:00.519Z",
+  "evidenceClass": "fresh-profile-live-browser-observation",
+  "qualification": "observation-only-no-offline-package-qualified",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Google Chrome",
+    "browserVersion": "150.0.7871.182",
+    "headless": true,
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "onlineNavigationTimeoutMs": 30000,
+    "offlineNavigationTimeoutMs": 15000,
+    "settleMs": 1500
+  },
+  "scope": {
+    "catalogSnapshotDate": "2026-07-19",
+    "expectedGameCount": 26,
+    "lifecycle": "fresh profile, online navigation, online reload, service-worker update request, endpoint GET probes, offline reload",
+    "interactionPolicy": "navigation-and-browser-lifecycle-only; no play, login, consent, permission, purchase, or form interaction",
+    "storedDataPolicy": "metadata, counts, origins, storage names, status, MIME, size, and SHA-256 only; no values, request paths, query strings, bodies, messages, or identifiers"
+  },
+  "games": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "entrypoint": "https://vibebots.randroid.dev",
+      "finalOnlineUrl": "https://vibebots.randroid.dev/mine",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 61,
+        "responseCount": 58,
+        "requestFailureCount": 2,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 61
+        },
+        "responseStatuses": {
+          "200": 57,
+          "307": 1
+        },
+        "origins": [
+          "https://vibebots.randroid.dev"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeBots",
+          "manifestLinks": [
+            "https://vibebots.randroid.dev/manifest.webmanifest"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "vibebots-last-played-app-build",
+            "vibebots-last-played-app-version"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 1003
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeBots",
+          "manifestLinks": [
+            "https://vibebots.randroid.dev/manifest.webmanifest"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "vibebots-last-played-app-build",
+            "vibebots-last-played-app-version",
+            "vibebots-mine-trip-v2-slot-1"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 981
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeBots",
+          "manifestLinks": [
+            "https://vibebots.randroid.dev/manifest.webmanifest"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "vibebots-last-played-app-build",
+            "vibebots-last-played-app-version",
+            "vibebots-mine-trip-v2-slot-1"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 981
+        },
+        "cookieNames": [
+          "vb_player"
+        ]
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": "https://vibebots.randroid.dev/manifest.webmanifest",
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibebots.randroid.dev/manifest.json",
+            "finalUrl": "https://vibebots.randroid.dev/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 12527,
+            "bodyTruncated": false,
+            "sha256": "1c572429c7291dc69c942a34518fd33cddf99a9b44bd3a5dc6d18138294a33b0",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibebots.randroid.dev/manifest.webmanifest",
+            "finalUrl": "https://vibebots.randroid.dev/manifest.webmanifest",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/manifest+json; charset=utf-8",
+            "bodyBytes": 641,
+            "bodyTruncated": false,
+            "sha256": "24dce750bfb8c33a9d5594c5a22eab1ce935f94da204aa36daa057fcc57123f7",
+            "classification": "web-manifest",
+            "manifest": {
+              "name": "VibeBots",
+              "shortName": "VibeBots",
+              "startUrl": "/mine",
+              "scope": "/",
+              "display": "standalone",
+              "iconCount": 5
+            },
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibebots.randroid.dev/service-worker.js",
+            "finalUrl": "https://vibebots.randroid.dev/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 12527,
+            "bodyTruncated": false,
+            "sha256": "1c572429c7291dc69c942a34518fd33cddf99a9b44bd3a5dc6d18138294a33b0",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibebots.randroid.dev/sw.js",
+            "finalUrl": "https://vibebots.randroid.dev/sw.js",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/javascript; charset=utf-8",
+            "bodyBytes": 1138,
+            "bodyTruncated": false,
+            "sha256": "07340f97c433187ced2fe30b1cedc00182f9f53b194fe4a54773d832132e32ac",
+            "classification": "javascript",
+            "manifest": null,
+            "serviceWorkerFeatures": {
+              "install": false,
+              "activate": false,
+              "fetch": false,
+              "push": true,
+              "notificationClick": true
+            }
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibe-pinball",
+      "title": "VibePinball",
+      "entrypoint": "https://vibe-pinball.vercel.app",
+      "finalOnlineUrl": "https://vibe-pinball.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 21,
+        "responseCount": 20,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 21
+        },
+        "responseStatuses": {
+          "200": 20
+        },
+        "origins": [
+          "https://vibe-pinball.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePinball",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 219
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePinball",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 219
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePinball",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 219
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibe-pinball.vercel.app/manifest.json",
+            "finalUrl": "https://vibe-pinball.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8326,
+            "bodyTruncated": false,
+            "sha256": "f157e8e8bc169e050c4089afe60cb4ea0d59b4d7163008db44df4e259017561f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-pinball.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://vibe-pinball.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8326,
+            "bodyTruncated": false,
+            "sha256": "f157e8e8bc169e050c4089afe60cb4ea0d59b4d7163008db44df4e259017561f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibe-pinball.vercel.app/service-worker.js",
+            "finalUrl": "https://vibe-pinball.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8326,
+            "bodyTruncated": false,
+            "sha256": "f157e8e8bc169e050c4089afe60cb4ea0d59b4d7163008db44df4e259017561f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-pinball.vercel.app/sw.js",
+            "finalUrl": "https://vibe-pinball.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8326,
+            "bodyTruncated": false,
+            "sha256": "f157e8e8bc169e050c4089afe60cb4ea0d59b4d7163008db44df4e259017561f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibe-racer",
+      "title": "VibeRacer",
+      "entrypoint": "https://vibe-racer-three.vercel.app",
+      "finalOnlineUrl": "https://vibe-racer-three.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 95,
+        "responseCount": 94,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 95
+        },
+        "responseStatuses": {
+          "200": 94
+        },
+        "origins": [
+          "https://vibe-racer-three.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeRacer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 167
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeRacer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 167
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeRacer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 167
+        },
+        "cookieNames": [
+          "viberacer.racerId"
+        ]
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibe-racer-three.vercel.app/manifest.json",
+            "finalUrl": "https://vibe-racer-three.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6649,
+            "bodyTruncated": false,
+            "sha256": "2cc73c91ebd797b8a404021dd52f6abd49b634a1984b57b0ee37a55a15be4e62",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-racer-three.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://vibe-racer-three.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6670,
+            "bodyTruncated": false,
+            "sha256": "444d8b9e6008a80264306900e029020e387e56b163a5c4c872db342faddfb94d",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibe-racer-three.vercel.app/service-worker.js",
+            "finalUrl": "https://vibe-racer-three.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6661,
+            "bodyTruncated": false,
+            "sha256": "b646da7815529047c8b955f826cf6206cea20eb22eb34d8d7f4c4dc1084f9d4b",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-racer-three.vercel.app/sw.js",
+            "finalUrl": "https://vibe-racer-three.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6625,
+            "bodyTruncated": false,
+            "sha256": "9a27701af257401a89fedd1065afeb6ee0e6c103778f50d185a87cf057de303d",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibe-pins",
+      "title": "VibePins",
+      "entrypoint": "https://vibe-pins.vercel.app",
+      "finalOnlineUrl": "https://vibe-pins.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 9,
+        "responseCount": 8,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 9
+        },
+        "responseStatuses": {
+          "200": 5,
+          "304": 3
+        },
+        "origins": [
+          "https://vibe-pins.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePins",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 141
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePins",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 141
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibePins",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 141
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibe-pins.vercel.app/manifest.json",
+            "finalUrl": "https://vibe-pins.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "6ea810799a075630d03f465d8b92c145bf64fa16ecb0a74e8aa5d10384d0cbb7",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-pins.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://vibe-pins.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "066dad1cc644e4d76725f6cbcb4fdc3b095ebc233ddd58fccc6eb5b424c6e6f2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibe-pins.vercel.app/service-worker.js",
+            "finalUrl": "https://vibe-pins.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "055e89f2db29c90dfbba0921c85aec056b5079141a95cf9af5a4af7c7505c5e8",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-pins.vercel.app/sw.js",
+            "finalUrl": "https://vibe-pins.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "a2712ea3750856205ad17688f38def8d081ad1c7cff728edb30ac78a85bc0677",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "bone-cleaver",
+      "title": "Bone Cleaver",
+      "entrypoint": "https://bonecleaver.vercel.app/",
+      "finalOnlineUrl": "https://bonecleaver.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 158,
+        "responseCount": 157,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 158
+        },
+        "responseStatuses": {
+          "200": 84,
+          "206": 3,
+          "304": 70
+        },
+        "origins": [
+          "https://bonecleaver.vercel.app",
+          "https://unpkg.com"
+        ],
+        "thirdPartyOrigins": [
+          "https://unpkg.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "interactive",
+          "title": "BONE CLEAVER",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "boneCleaver_settings"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 83
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "BONE CLEAVER",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "boneCleaver_settings"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 83
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "BONE CLEAVER",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [
+            "boneCleaver_settings"
+          ],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 83
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://bonecleaver.vercel.app/manifest.json",
+            "finalUrl": "https://bonecleaver.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "d40ad6fc5de2d373d73689a0d352f247085962d292045db9db3990f3b94280b4",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://bonecleaver.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://bonecleaver.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "cd713b8cbe72b3324063363abdf84816f5060d019cca19f6f28ccd637d82dfbe",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://bonecleaver.vercel.app/service-worker.js",
+            "finalUrl": "https://bonecleaver.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "da36b0b8086ecd834b5e8c3549c9f5c2e6e3cbefc4264d7d43547e9f27240f01",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://bonecleaver.vercel.app/sw.js",
+            "finalUrl": "https://bonecleaver.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "c7233e9ab9f328db46c7b5bccb2e6036c6ee8e14a24da0c30dfc9e1081994c54",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibeman-hangman",
+      "title": "Vibeman (Hangman)",
+      "entrypoint": "https://hangman-exe.vercel.app/",
+      "finalOnlineUrl": "https://hangman-exe.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 15,
+        "responseCount": 14,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 15
+        },
+        "responseStatuses": {
+          "200": 11,
+          "304": 3
+        },
+        "origins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com",
+          "https://hangman-exe.vercel.app"
+        ],
+        "thirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "HANGMAN.EXE",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 154
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "HANGMAN.EXE",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 154
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "HANGMAN.EXE",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 154
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://hangman-exe.vercel.app/manifest.json",
+            "finalUrl": "https://hangman-exe.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "f4f639622e1b5ea327c4ca60440451e4bafc761594cedc37dc548568bc7c3e9b",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://hangman-exe.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://hangman-exe.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "9571e48bf780c64f52326db4a9e6f0ddaf44f0897446e3f845709b769979d469",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://hangman-exe.vercel.app/service-worker.js",
+            "finalUrl": "https://hangman-exe.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "12df5a59097d97de447f9f620254295bd66a4544808d0f05e54b0c558e05253c",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://hangman-exe.vercel.app/sw.js",
+            "finalUrl": "https://hangman-exe.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "e19dfd3ac865e675004006bb6b4824d93152b04170600083e928f9df16138265",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "asymptotic-bitrot",
+      "title": "Asymptotic Bitrot",
+      "entrypoint": "https://asymptoticbitrot-um9i.vercel.app",
+      "finalOnlineUrl": "https://asymptoticbitrot-um9i.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 50,
+        "responseCount": 49,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 50
+        },
+        "responseStatuses": {
+          "200": 27,
+          "206": 5,
+          "304": 17
+        },
+        "origins": [
+          "https://asymptoticbitrot-um9i.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Asymptotic BitRot",
+          "manifestLinks": [
+            "https://asymptoticbitrot-um9i.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "asymptotic-bitrot-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Asymptotic BitRot",
+          "manifestLinks": [
+            "https://asymptoticbitrot-um9i.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "asymptotic-bitrot-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Asymptotic BitRot",
+          "manifestLinks": [
+            "https://asymptoticbitrot-um9i.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "asymptotic-bitrot-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": "https://asymptoticbitrot-um9i.vercel.app/manifest.json",
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://asymptoticbitrot-um9i.vercel.app/manifest.json",
+            "finalUrl": "https://asymptoticbitrot-um9i.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/json; charset=utf-8",
+            "bodyBytes": 570,
+            "bodyTruncated": false,
+            "sha256": "3e76c16fbe67552b9901bfd9fca436a902d134c9c28b38a677759cd87f730b2d",
+            "classification": "web-manifest",
+            "manifest": {
+              "name": "Asymptotic BitRot",
+              "shortName": "BitRot",
+              "startUrl": "./",
+              "scope": null,
+              "display": "standalone",
+              "iconCount": 3
+            },
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://asymptoticbitrot-um9i.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://asymptoticbitrot-um9i.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "9b4933a53608e5e91d2dd2fbe9f74b2eda9b88e24f88d8d61665df35e1d04039",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://asymptoticbitrot-um9i.vercel.app/service-worker.js",
+            "finalUrl": "https://asymptoticbitrot-um9i.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "f29cfc949738dae66c066a34e09b513891916245da43818b7dacf05e5bb91539",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://asymptoticbitrot-um9i.vercel.app/sw.js",
+            "finalUrl": "https://asymptoticbitrot-um9i.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/javascript; charset=utf-8",
+            "bodyBytes": 1397,
+            "bodyTruncated": false,
+            "sha256": "6a3f1de0b867a7eee509d07c960ac0d7810c2c9d0efd547a4b76612ac9753374",
+            "classification": "javascript",
+            "manifest": null,
+            "serviceWorkerFeatures": {
+              "install": true,
+              "activate": true,
+              "fetch": true,
+              "push": false,
+              "notificationClick": false
+            }
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "fracking-asteroids",
+      "title": "Fracking Asteroids",
+      "entrypoint": "https://fracking-asteroids.vercel.app",
+      "finalOnlineUrl": "https://fracking-asteroids.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 25,
+        "responseCount": 24,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 25
+        },
+        "responseStatuses": {
+          "200": 24
+        },
+        "origins": [
+          "https://fracking-asteroids.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "FrackingAsteroids",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 71
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "FrackingAsteroids",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 71
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "FrackingAsteroids",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 71
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://fracking-asteroids.vercel.app/manifest.json",
+            "finalUrl": "https://fracking-asteroids.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6648,
+            "bodyTruncated": false,
+            "sha256": "ffef6b666a97d1f2c9d8d2409d5423e78a0ba4af977c8cdf0dc3c534f4d32752",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://fracking-asteroids.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://fracking-asteroids.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6648,
+            "bodyTruncated": false,
+            "sha256": "ffef6b666a97d1f2c9d8d2409d5423e78a0ba4af977c8cdf0dc3c534f4d32752",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://fracking-asteroids.vercel.app/service-worker.js",
+            "finalUrl": "https://fracking-asteroids.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6648,
+            "bodyTruncated": false,
+            "sha256": "ffef6b666a97d1f2c9d8d2409d5423e78a0ba4af977c8cdf0dc3c534f4d32752",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://fracking-asteroids.vercel.app/sw.js",
+            "finalUrl": "https://fracking-asteroids.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6648,
+            "bodyTruncated": false,
+            "sha256": "ffef6b666a97d1f2c9d8d2409d5423e78a0ba4af977c8cdf0dc3c534f4d32752",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "hoops",
+      "title": "Hoops",
+      "entrypoint": "https://hoops-kappa.vercel.app",
+      "finalOnlineUrl": "https://hoops-kappa.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 7,
+        "responseCount": 6,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 7
+        },
+        "responseStatuses": {
+          "200": 4,
+          "304": 2
+        },
+        "origins": [
+          "https://hoops-kappa.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Hoops",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Hoops",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Hoops",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://hoops-kappa.vercel.app/manifest.json",
+            "finalUrl": "https://hoops-kappa.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "44b144c8f42144cb355af12a5ec184bcb953190d3b3e730737e686f0616db72d",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://hoops-kappa.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://hoops-kappa.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "10457da10dd08ab36750cd1dd72729a340ff263a6e69d899b3178a892f9f3045",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://hoops-kappa.vercel.app/service-worker.js",
+            "finalUrl": "https://hoops-kappa.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "a1f2ce2de1abf014b50a1f54ef6f629fa19f3e6ecc611638f399b7af63bdb259",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://hoops-kappa.vercel.app/sw.js",
+            "finalUrl": "https://hoops-kappa.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "bfe645bea464ee893159d29e82c9c2499bde9183e9314673ec6862b4228df424",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "entrypoint": "https://mi-casa-es-su-casa.vercel.app",
+      "finalOnlineUrl": "https://mi-casa-es-su-casa.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 23,
+        "responseCount": 22,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 23
+        },
+        "responseStatuses": {
+          "200": 22
+        },
+        "origins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com",
+          "https://mi-casa-es-su-casa.vercel.app"
+        ],
+        "thirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Mi Casa Es Su Casa",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 145
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Mi Casa Es Su Casa",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 145
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Mi Casa Es Su Casa",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 161
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://mi-casa-es-su-casa.vercel.app/manifest.json",
+            "finalUrl": "https://mi-casa-es-su-casa.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 11609,
+            "bodyTruncated": false,
+            "sha256": "845e436973217319182119d492fd5b4fd1f3d21b6169edbd0421cf0119e5c8d0",
+            "classification": "html-fallback",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://mi-casa-es-su-casa.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://mi-casa-es-su-casa.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 11637,
+            "bodyTruncated": false,
+            "sha256": "aa8a29d9f4495ead20c0a7a29d5c6aee1976be64081157126f06318bfcba6e29",
+            "classification": "html-fallback",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://mi-casa-es-su-casa.vercel.app/service-worker.js",
+            "finalUrl": "https://mi-casa-es-su-casa.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 11625,
+            "bodyTruncated": false,
+            "sha256": "ce8a531085c0062a0b21898bb5e651ce142bc0a0fbc27b30e0092f74f84d2313",
+            "classification": "html-fallback",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://mi-casa-es-su-casa.vercel.app/sw.js",
+            "finalUrl": "https://mi-casa-es-su-casa.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 11577,
+            "bodyTruncated": false,
+            "sha256": "81eacbf5c106712a707eccd1b9ce91cb16cd82715f69794db3eb1cdb1d6b9766",
+            "classification": "html-fallback",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "block-punch-kick",
+      "title": "Block Punch Kick",
+      "entrypoint": "https://block-punch-kick.vercel.app",
+      "finalOnlineUrl": "https://block-punch-kick.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 19,
+        "responseCount": 18,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 19
+        },
+        "responseStatuses": {
+          "200": 15,
+          "304": 3
+        },
+        "origins": [
+          "https://block-punch-kick.vercel.app",
+          "https://unpkg.com"
+        ],
+        "thirdPartyOrigins": [
+          "https://unpkg.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block Punch Kick Prototype",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 54
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block Punch Kick Prototype",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 54
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block Punch Kick Prototype",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 54
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://block-punch-kick.vercel.app/manifest.json",
+            "finalUrl": "https://block-punch-kick.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "cdd1131ef4531e2070c67825e3f93d524874bb33097b024a2dba469acb39bd1f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://block-punch-kick.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://block-punch-kick.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "7014d32b04acc5aa45ac642a1a6797ff79898bad6294fae0bfca7aa98c2f7203",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://block-punch-kick.vercel.app/service-worker.js",
+            "finalUrl": "https://block-punch-kick.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "539a00a8e22919fc8a2af72081a2ad4e1667aab96bbbfba680a087f9eee52c5c",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://block-punch-kick.vercel.app/sw.js",
+            "finalUrl": "https://block-punch-kick.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "c3ac149511673f783174df50f9e7c97d54337587a58c6df6ad6752da404c5d6b",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch",
+      "entrypoint": "https://epoch-theta.vercel.app",
+      "finalOnlineUrl": "https://epoch-theta.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 15,
+        "responseCount": 14,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 15
+        },
+        "responseStatuses": {
+          "200": 14
+        },
+        "origins": [
+          "https://epoch-theta.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Epoch",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 588
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Epoch",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 588
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Epoch",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 588
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://epoch-theta.vercel.app/manifest.json",
+            "finalUrl": "https://epoch-theta.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 7776,
+            "bodyTruncated": false,
+            "sha256": "eeedd80159d9f95951245f3358435970888d7eb4a88d6289e7e37fce873b8bcf",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://epoch-theta.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://epoch-theta.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 7776,
+            "bodyTruncated": false,
+            "sha256": "eeedd80159d9f95951245f3358435970888d7eb4a88d6289e7e37fce873b8bcf",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://epoch-theta.vercel.app/service-worker.js",
+            "finalUrl": "https://epoch-theta.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 7776,
+            "bodyTruncated": false,
+            "sha256": "eeedd80159d9f95951245f3358435970888d7eb4a88d6289e7e37fce873b8bcf",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://epoch-theta.vercel.app/sw.js",
+            "finalUrl": "https://epoch-theta.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 7776,
+            "bodyTruncated": false,
+            "sha256": "eeedd80159d9f95951245f3358435970888d7eb4a88d6289e7e37fce873b8bcf",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "game-tape",
+      "title": "GameTape",
+      "entrypoint": "https://game-tape.vercel.app",
+      "finalOnlineUrl": "https://game-tape.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 305,
+        "responseCount": 280,
+        "requestFailureCount": 8,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 305
+        },
+        "responseStatuses": {
+          "200": 280
+        },
+        "origins": [
+          "https://api.github.com",
+          "https://game-tape.vercel.app",
+          "https://raw.githubusercontent.com"
+        ],
+        "thirdPartyOrigins": [
+          "https://api.github.com",
+          "https://raw.githubusercontent.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Agent Interaction Replay — GameTape",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 132
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Agent Interaction Replay — GameTape",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 133
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Agent Interaction Replay — GameTape",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 133
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://game-tape.vercel.app/manifest.json",
+            "finalUrl": "https://game-tape.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "727218ee9959f2a451afb61fe5a2c595c11eb3f12ccbd30979f9faec157d5382",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://game-tape.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://game-tape.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "dc833c033c9aaa408ac92d93329782379484de90e119823e7ed13bc3299a209f",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://game-tape.vercel.app/service-worker.js",
+            "finalUrl": "https://game-tape.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "fdbea304760d4a5310ca97f8c5fa66ba80bb52aec9ff003ad931fb86bd12e996",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://game-tape.vercel.app/sw.js",
+            "finalUrl": "https://game-tape.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "db299e03ce4522bfd5c471b47f173cb43a7de43151174d6cfe6566ee02c9960c",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "go-pit",
+      "title": "GoPit",
+      "entrypoint": "https://go-pit.vercel.app",
+      "finalOnlineUrl": "https://go-pit.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 18,
+        "responseCount": 17,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 18
+        },
+        "responseStatuses": {
+          "200": 15,
+          "304": 2
+        },
+        "origins": [
+          "https://go-pit.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoPit",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoPit",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoPit",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://go-pit.vercel.app/manifest.json",
+            "finalUrl": "https://go-pit.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "682453d4f273f330120adaca8993b74153d8ce20aae22e79cb4c4a07e1c32715",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://go-pit.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://go-pit.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "66a24c64934d36e608a2d3a91361ce06df02f073ab2216fc34cc4efc99b3965e",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://go-pit.vercel.app/service-worker.js",
+            "finalUrl": "https://go-pit.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "42cce1f345fcfee2879007039fb33558fbc92dd48ba46aacf269f0b8e849d050",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://go-pit.vercel.app/sw.js",
+            "finalUrl": "https://go-pit.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "8984a901437679657d80b2ac95160e545b5e36e28d210a713700b836d449f9ce",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "block-you",
+      "title": "Block-You",
+      "entrypoint": "https://block-you.vercel.app",
+      "finalOnlineUrl": "https://block-you.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 23,
+        "responseCount": 23,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 23
+        },
+        "responseStatuses": {
+          "200": 23
+        },
+        "origins": [
+          "https://block-you.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block-You",
+          "manifestLinks": [
+            "https://block-you.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": "https://block-you.vercel.app/sw.js",
+          "registrations": [
+            {
+              "scope": "https://block-you.vercel.app/",
+              "active": "https://block-you.vercel.app/sw.js",
+              "waiting": null,
+              "installing": null
+            }
+          ],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "block-you-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block-You",
+          "manifestLinks": [
+            "https://block-you.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": "https://block-you.vercel.app/sw.js",
+          "registrations": [
+            {
+              "scope": "https://block-you.vercel.app/",
+              "active": "https://block-you.vercel.app/sw.js",
+              "waiting": null,
+              "installing": null
+            }
+          ],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "block-you-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block-You",
+          "manifestLinks": [
+            "https://block-you.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": "https://block-you.vercel.app/sw.js",
+          "registrations": [
+            {
+              "scope": "https://block-you.vercel.app/",
+              "active": "https://block-you.vercel.app/sw.js",
+              "waiting": null,
+              "installing": null
+            }
+          ],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "block-you-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": "https://block-you.vercel.app/manifest.json",
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://block-you.vercel.app/manifest.json",
+            "finalUrl": "https://block-you.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/json; charset=utf-8",
+            "bodyBytes": 633,
+            "bodyTruncated": false,
+            "sha256": "2eae07b0a27f8702c63dc239f1099d56f49d9d29d93c558c150583981dbc9f25",
+            "classification": "web-manifest",
+            "manifest": {
+              "name": "Block-You",
+              "shortName": "Block-You",
+              "startUrl": "/",
+              "scope": null,
+              "display": "standalone",
+              "iconCount": 2
+            },
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://block-you.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://block-you.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "533b10b7373596ac72a0968c3727149a25deb2080be9586caff45ebf021857fc",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 1,
+          "succeeded": 1,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://block-you.vercel.app/service-worker.js",
+            "finalUrl": "https://block-you.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "e91140b3d1ec9b96187c7e600dbe5225df8a60645fe794206e2a58e9aa3478b7",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://block-you.vercel.app/sw.js",
+            "finalUrl": "https://block-you.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 200,
+            "contentType": "application/javascript; charset=utf-8",
+            "bodyBytes": 3561,
+            "bodyTruncated": false,
+            "sha256": "8104d2eabaa441fa02ca11557fbfde3299255f32449597cdafffb822c1a8febd",
+            "classification": "javascript",
+            "manifest": null,
+            "serviceWorkerFeatures": {
+              "install": true,
+              "activate": true,
+              "fetch": true,
+              "push": false,
+              "notificationClick": false
+            }
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "loaded",
+        "error": null,
+        "state": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Block-You",
+          "manifestLinks": [
+            "https://block-you.vercel.app/manifest.json"
+          ],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": "https://block-you.vercel.app/sw.js",
+          "registrations": [
+            {
+              "scope": "https://block-you.vercel.app/",
+              "active": "https://block-you.vercel.app/sw.js",
+              "waiting": null,
+              "installing": null
+            }
+          ],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [
+            "block-you-v1"
+          ],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        }
+      }
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "entrypoint": "https://determined-khaki.vercel.app",
+      "finalOnlineUrl": "https://determined-khaki.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 79,
+        "responseCount": 78,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 79
+        },
+        "responseStatuses": {
+          "200": 42,
+          "304": 36
+        },
+        "origins": [
+          "https://cdn.jsdelivr.net",
+          "https://determined-khaki.vercel.app"
+        ],
+        "thirdPartyOrigins": [
+          "https://cdn.jsdelivr.net"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Determined — Your Words. Your Chaos. Your Problem.",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Determined — Your Words. Your Chaos. Your Problem.",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Determined — Your Words. Your Chaos. Your Problem.",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 76
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://determined-khaki.vercel.app/manifest.json",
+            "finalUrl": "https://determined-khaki.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "4d6f3e75c409fd02a429eda542980397b20b316ea11ee3642577664d5caabc66",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://determined-khaki.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://determined-khaki.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "b230ef7458c95df5a4b7c3ecfe87b724e17619381e09695439abdbdcef8c3a2d",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://determined-khaki.vercel.app/service-worker.js",
+            "finalUrl": "https://determined-khaki.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "c35855c35a9d9aff14576416c1516b187e3b606b85addc850b25b09f167e3307",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://determined-khaki.vercel.app/sw.js",
+            "finalUrl": "https://determined-khaki.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "9e6167055307916bd6bf5e619b68c837e282131b56ad772375fd774da56c4268",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "software-dev-sim",
+      "title": "SoftwareDevSim",
+      "entrypoint": "https://software-dev-sim.vercel.app",
+      "finalOnlineUrl": "https://software-dev-sim.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 19,
+        "responseCount": 18,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 19
+        },
+        "responseStatuses": {
+          "200": 18
+        },
+        "origins": [
+          "https://software-dev-sim.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "SoftwareDevSim",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "SoftwareDevSim",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "SoftwareDevSim",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://software-dev-sim.vercel.app/manifest.json",
+            "finalUrl": "https://software-dev-sim.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6355,
+            "bodyTruncated": false,
+            "sha256": "f8403ade5d004799741a4e7772d542d9797bd00e068245f58730c3abd09dbe7e",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://software-dev-sim.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://software-dev-sim.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6355,
+            "bodyTruncated": false,
+            "sha256": "f8403ade5d004799741a4e7772d542d9797bd00e068245f58730c3abd09dbe7e",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://software-dev-sim.vercel.app/service-worker.js",
+            "finalUrl": "https://software-dev-sim.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6355,
+            "bodyTruncated": false,
+            "sha256": "f8403ade5d004799741a4e7772d542d9797bd00e068245f58730c3abd09dbe7e",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://software-dev-sim.vercel.app/sw.js",
+            "finalUrl": "https://software-dev-sim.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6355,
+            "bodyTruncated": false,
+            "sha256": "f8403ade5d004799741a4e7772d542d9797bd00e068245f58730c3abd09dbe7e",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "baby-piano",
+      "title": "Baby Piano",
+      "entrypoint": "https://baby-piano-eight.vercel.app",
+      "finalOnlineUrl": "https://baby-piano-eight.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 15,
+        "responseCount": 14,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 15
+        },
+        "responseStatuses": {
+          "200": 14
+        },
+        "origins": [
+          "https://baby-piano-eight.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 105
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 105
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 105
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://baby-piano-eight.vercel.app/manifest.json",
+            "finalUrl": "https://baby-piano-eight.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 5676,
+            "bodyTruncated": false,
+            "sha256": "6baddc918b11f2fd41ad706a36808558c195a57f4e37574e004baff2d20985ab",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://baby-piano-eight.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://baby-piano-eight.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 5676,
+            "bodyTruncated": false,
+            "sha256": "6baddc918b11f2fd41ad706a36808558c195a57f4e37574e004baff2d20985ab",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://baby-piano-eight.vercel.app/service-worker.js",
+            "finalUrl": "https://baby-piano-eight.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 5676,
+            "bodyTruncated": false,
+            "sha256": "6baddc918b11f2fd41ad706a36808558c195a57f4e37574e004baff2d20985ab",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://baby-piano-eight.vercel.app/sw.js",
+            "finalUrl": "https://baby-piano-eight.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 5676,
+            "bodyTruncated": false,
+            "sha256": "6baddc918b11f2fd41ad706a36808558c195a57f4e37574e004baff2d20985ab",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "clankers",
+      "title": "Clankers",
+      "entrypoint": "https://clankers-mocha.vercel.app",
+      "finalOnlineUrl": "https://clankers-mocha.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 17,
+        "responseCount": 16,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 17
+        },
+        "responseStatuses": {
+          "200": 12,
+          "304": 4
+        },
+        "origins": [
+          "https://clankers-mocha.vercel.app",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "thirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Ash & Iron — Card Battler",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 394
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Ash & Iron — Card Battler",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 394
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Ash & Iron — Card Battler",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 394
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://clankers-mocha.vercel.app/manifest.json",
+            "finalUrl": "https://clankers-mocha.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "03366caff84f7a0f559feaeaee43e2890b8fb7d09788e2a226b9199aeb3b3999",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://clankers-mocha.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://clankers-mocha.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "538101d2b4cf7abf97f3529b047cd64bd8d223e2c8cb272e6ed1f4b83c08aa96",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://clankers-mocha.vercel.app/service-worker.js",
+            "finalUrl": "https://clankers-mocha.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "fe6a3bf082def2650dc79d7e44cbddc6a628dfa0e72a05d787a033d3d1dc2b87",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://clankers-mocha.vercel.app/sw.js",
+            "finalUrl": "https://clankers-mocha.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "f7b8bdd548cee733149737a7cf8102cd6f1fca07a43526db579a71841f663f41",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibe-city",
+      "title": "VibeCity",
+      "entrypoint": "https://vibe-city-weld.vercel.app",
+      "finalOnlineUrl": "https://vibe-city-weld.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 55,
+        "responseCount": 54,
+        "requestFailureCount": 22,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 55
+        },
+        "responseStatuses": {
+          "200": 54
+        },
+        "origins": [
+          "https://vibe-city-weld.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeCity",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 493
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeCity",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 493
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeCity",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 493
+        },
+        "cookieNames": [
+          "vibecity.builderId"
+        ]
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibe-city-weld.vercel.app/manifest.json",
+            "finalUrl": "https://vibe-city-weld.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6200,
+            "bodyTruncated": false,
+            "sha256": "047e207d0e4d17bae83b297ddd4a2bab0849f1bd7f89603e29e10ac8d336afeb",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-city-weld.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://vibe-city-weld.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6221,
+            "bodyTruncated": false,
+            "sha256": "d5bf87e789bcad3d0cac8b8291553d9981ae4927e2ca2d2e901bb5db8f0f5f03",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibe-city-weld.vercel.app/service-worker.js",
+            "finalUrl": "https://vibe-city-weld.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6212,
+            "bodyTruncated": false,
+            "sha256": "22ba14d764ec92b566b3bc351cea4717b8fcb1aa4228c8d4f3a61aa726d1cc38",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-city-weld.vercel.app/sw.js",
+            "finalUrl": "https://vibe-city-weld.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6176,
+            "bodyTruncated": false,
+            "sha256": "6a9528f36f25d3e458d57da75c15aca65a8e039ab79b2466fc156494b8f047dd",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "flatline",
+      "title": "Flatline",
+      "entrypoint": "https://flatline-gamma.vercel.app",
+      "finalOnlineUrl": "https://flatline-gamma.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 17,
+        "responseCount": 16,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 17
+        },
+        "responseStatuses": {
+          "200": 16
+        },
+        "origins": [
+          "https://flatline-gamma.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Flatline: A Hard-Boiled Mouse Story",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 326
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Flatline: A Hard-Boiled Mouse Story",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 326
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Flatline: A Hard-Boiled Mouse Story",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 326
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://flatline-gamma.vercel.app/manifest.json",
+            "finalUrl": "https://flatline-gamma.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8564,
+            "bodyTruncated": false,
+            "sha256": "c31f71c79b1c8688811151067cb790553b7c4cfb46778004f0f64ad9050121f2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://flatline-gamma.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://flatline-gamma.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8564,
+            "bodyTruncated": false,
+            "sha256": "c31f71c79b1c8688811151067cb790553b7c4cfb46778004f0f64ad9050121f2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://flatline-gamma.vercel.app/service-worker.js",
+            "finalUrl": "https://flatline-gamma.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8564,
+            "bodyTruncated": false,
+            "sha256": "c31f71c79b1c8688811151067cb790553b7c4cfb46778004f0f64ad9050121f2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://flatline-gamma.vercel.app/sw.js",
+            "finalUrl": "https://flatline-gamma.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 8564,
+            "bodyTruncated": false,
+            "sha256": "c31f71c79b1c8688811151067cb790553b7c4cfb46778004f0f64ad9050121f2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "vibe-gear-2",
+      "title": "VibeGear2",
+      "entrypoint": "https://vibe-gear2.vercel.app",
+      "finalOnlineUrl": "https://vibe-gear2.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 71,
+        "responseCount": 70,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 71
+        },
+        "responseStatuses": {
+          "200": 70
+        },
+        "origins": [
+          "https://vibe-gear2.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeGear2",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeGear2",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "VibeGear2",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 129
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://vibe-gear2.vercel.app/manifest.json",
+            "finalUrl": "https://vibe-gear2.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 9982,
+            "bodyTruncated": false,
+            "sha256": "571ef679dfc4b619055232a0d949693383696b8ce597c28129c6d441c50efaaa",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-gear2.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://vibe-gear2.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 9982,
+            "bodyTruncated": false,
+            "sha256": "571ef679dfc4b619055232a0d949693383696b8ce597c28129c6d441c50efaaa",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://vibe-gear2.vercel.app/service-worker.js",
+            "finalUrl": "https://vibe-gear2.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 9982,
+            "bodyTruncated": false,
+            "sha256": "571ef679dfc4b619055232a0d949693383696b8ce597c28129c6d441c50efaaa",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://vibe-gear2.vercel.app/sw.js",
+            "finalUrl": "https://vibe-gear2.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 9982,
+            "bodyTruncated": false,
+            "sha256": "571ef679dfc4b619055232a0d949693383696b8ce597c28129c6d441c50efaaa",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "text-racer",
+      "title": "Text Racer",
+      "entrypoint": "https://text-racer.vercel.app",
+      "finalOnlineUrl": "https://text-racer.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 15,
+        "responseCount": 14,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 15
+        },
+        "responseStatuses": {
+          "200": 9,
+          "304": 5
+        },
+        "origins": [
+          "https://text-racer.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Text Racer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Text Racer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Text Racer",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 0
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://text-racer.vercel.app/manifest.json",
+            "finalUrl": "https://text-racer.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "d7936b867a312221c797243c8823f1c0235719ba2816d8f64c90b25a7cf26089",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://text-racer.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://text-racer.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "6d5945a85a4e6c621236b9bb2b78e53d04b761b2a2c90a804bde6d13971b7588",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://text-racer.vercel.app/service-worker.js",
+            "finalUrl": "https://text-racer.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "30547ef3ffc7f5a7da526d5639ff6d7c4951237a9c50dbdc0d8a5773c800cb36",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://text-racer.vercel.app/sw.js",
+            "finalUrl": "https://text-racer.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "7aed17d82b641f119dc05a1dff71f4d777eabd602958fb4a5bb49eae43ed8dc2",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "drop-dead-keep",
+      "title": "Drop Dead Keep",
+      "entrypoint": "https://drop-dead-keep.vercel.app",
+      "finalOnlineUrl": "https://drop-dead-keep.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 59,
+        "responseCount": 58,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 59
+        },
+        "responseStatuses": {
+          "200": 32,
+          "304": 26
+        },
+        "origins": [
+          "https://cdnjs.cloudflare.com",
+          "https://drop-dead-keep.vercel.app"
+        ],
+        "thirdPartyOrigins": [
+          "https://cdnjs.cloudflare.com"
+        ],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Drop Dead Keep",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Drop Dead Keep",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Drop Dead Keep",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 86
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://drop-dead-keep.vercel.app/manifest.json",
+            "finalUrl": "https://drop-dead-keep.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "5ab305f6133b5e444b7865325104458fbf29599d65801aedad6076dfbfa2ed94",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://drop-dead-keep.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://drop-dead-keep.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "3f520110798daf2be38464fd0d27b093bb88721e95a22b9e3a50276972cb6645",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://drop-dead-keep.vercel.app/service-worker.js",
+            "finalUrl": "https://drop-dead-keep.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "b6ce9b58c87cd3a5b178510df2e0e3955db4821f72305c8eae085f2383d35b1a",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://drop-dead-keep.vercel.app/sw.js",
+            "finalUrl": "https://drop-dead-keep.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "d0e4feefcb01def6b4b9bd76a6e20d7fcebb4edc13abe0d7d9d93d12c9a5bedc",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "streamer-billboard",
+      "title": "Streamer Billboard",
+      "entrypoint": "https://streamer-billboard.vercel.app",
+      "finalOnlineUrl": "https://streamer-billboard.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 13,
+        "responseCount": 12,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 13
+        },
+        "responseStatuses": {
+          "200": 12
+        },
+        "origins": [
+          "https://streamer-billboard.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Streamer Billboard",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 172
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Streamer Billboard",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 172
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "Streamer Billboard",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": 172
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://streamer-billboard.vercel.app/manifest.json",
+            "finalUrl": "https://streamer-billboard.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6550,
+            "bodyTruncated": false,
+            "sha256": "5ed7efa5021b7837aec026440581edbbd14f037e9384db5b162a20a73f1e0598",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://streamer-billboard.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://streamer-billboard.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6550,
+            "bodyTruncated": false,
+            "sha256": "5ed7efa5021b7837aec026440581edbbd14f037e9384db5b162a20a73f1e0598",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://streamer-billboard.vercel.app/service-worker.js",
+            "finalUrl": "https://streamer-billboard.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6550,
+            "bodyTruncated": false,
+            "sha256": "5ed7efa5021b7837aec026440581edbbd14f037e9384db5b162a20a73f1e0598",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://streamer-billboard.vercel.app/sw.js",
+            "finalUrl": "https://streamer-billboard.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/html; charset=utf-8",
+            "bodyBytes": 6550,
+            "bodyTruncated": false,
+            "sha256": "5ed7efa5021b7837aec026440581edbbd14f037e9384db5b162a20a73f1e0598",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    },
+    {
+      "id": "go-dig",
+      "title": "GoDig",
+      "entrypoint": "https://go-dig.vercel.app",
+      "finalOnlineUrl": "https://go-dig.vercel.app/",
+      "online": {
+        "firstLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "secondLoad": {
+          "outcome": "loaded",
+          "error": null
+        },
+        "requestCount": 15,
+        "responseCount": 14,
+        "requestFailureCount": 1,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "requestMethods": {
+          "GET": 15
+        },
+        "responseStatuses": {
+          "200": 12,
+          "304": 2
+        },
+        "origins": [
+          "https://go-dig.vercel.app"
+        ],
+        "thirdPartyOrigins": [],
+        "mutatingRequestCount": 0
+      },
+      "browserState": {
+        "firstLoad": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoDig",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "beforeServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoDig",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "afterServiceWorkerUpdate": {
+          "documentAccessible": true,
+          "readyState": "complete",
+          "title": "GoDig",
+          "manifestLinks": [],
+          "serviceWorkerSupported": true,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [
+            "/userfs"
+          ],
+          "bodyTextLength": 0
+        },
+        "cookieNames": []
+      },
+      "manifest": {
+        "cdp": {
+          "available": true,
+          "manifestUrl": null,
+          "manifestErrorCount": 0,
+          "installabilityErrorIds": [
+            "in-incognito",
+            "no-manifest"
+          ]
+        },
+        "probes": [
+          {
+            "url": "https://go-dig.vercel.app/manifest.json",
+            "finalUrl": "https://go-dig.vercel.app/manifest.json",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "609111357af9f40c5fd4d749576cc84051a8baf23e981b57ae74550602b1544d",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://go-dig.vercel.app/manifest.webmanifest",
+            "finalUrl": "https://go-dig.vercel.app/manifest.webmanifest",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "6e587ea1dc81d6c1ba4f2176783a6b4e748ad53000845c1c61c7986a4789d359",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "serviceWorker": {
+        "update": {
+          "attempted": 0,
+          "succeeded": 0,
+          "failed": 0
+        },
+        "probes": [
+          {
+            "url": "https://go-dig.vercel.app/service-worker.js",
+            "finalUrl": "https://go-dig.vercel.app/service-worker.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "cdca11a960708078c4efafb720e531e0baa3f56bc16c6864f8c24550f72abfb1",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          },
+          {
+            "url": "https://go-dig.vercel.app/sw.js",
+            "finalUrl": "https://go-dig.vercel.app/sw.js",
+            "outcome": "response",
+            "status": 404,
+            "contentType": "text/plain; charset=utf-8",
+            "bodyBytes": 79,
+            "bodyTruncated": false,
+            "sha256": "675f109454be2f1d575a9918046c87f5c835ec740243852982c3ec48d6c2de11",
+            "classification": "not-found",
+            "manifest": null,
+            "serviceWorkerFeatures": null
+          }
+        ]
+      },
+      "offlineReload": {
+        "outcome": "failed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "state": {
+          "documentAccessible": false,
+          "readyState": null,
+          "title": null,
+          "manifestLinks": [],
+          "serviceWorkerSupported": false,
+          "serviceWorkerController": null,
+          "registrations": [],
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "cacheNames": [],
+          "indexedDbNames": [],
+          "bodyTextLength": null
+        }
+      }
+    }
+  ],
+  "observationSha256": "b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973",
+  "summary": {
+    "gameCount": 26,
+    "onlineFirstLoadSuccessCount": 26,
+    "onlineSecondLoadSuccessCount": 26,
+    "manifestLinkGameCount": 3,
+    "webManifestResponseGameCount": 3,
+    "serviceWorkerRegistrationGameCount": 1,
+    "serviceWorkerFetchHandlerEndpointGameCount": 2,
+    "serviceWorkerUpdateAttemptGameCount": 1,
+    "offlineReloadLoadedCount": 1,
+    "localStorageGameCount": 2,
+    "cacheStorageGameCount": 2,
+    "indexedDbGameCount": 2,
+    "mutatingRequestGameCount": 0,
+    "offlinePackageQualifiedCount": 0
+  },
+  "limitations": [
+    "This is a single fresh-profile Windows x64 headless Google Chrome desk observation of the 26 URLs in the 2026-07-19 VibeCoded.Games snapshot. It is not target-Linux, physical-TV, controller, game-play, account, backend, source, license, or redistribution qualification.",
+    "Navigation, one online reload, browser-managed service-worker update checks, storage inventory, endpoint GET probes, and one offline reload were exercised without game interaction. Features reached only after play, login, consent, notification permission, or another route can remain undiscovered.",
+    "A loaded offline document, manifest, service-worker registration, cache, or fetch handler does not prove complete offline play, correct save behavior, installable packaging, or safe updates. No title is promoted to an offline package by this artifact.",
+    "Endpoint hashes identify the public bytes observed during this run only. Hosted deployments can change without a repository commit or console release, so the observations must be repeated for admission and release qualification.",
+    "Only storage container names and keys from a new anonymous profile are recorded; values, cookies, request paths, query strings, response bodies, console messages, and identifiers are deliberately excluded."
+  ]
+}
