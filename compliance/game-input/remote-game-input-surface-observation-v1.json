@@ -1,0 +1,2240 @@
+{
+  "format": "vcg-remote-game-input-surface-observation/v1",
+  "evidenceDate": "2026-07-24",
+  "observedAtUtc": "2026-07-24T23:46:20.355Z",
+  "evidenceClass": "neutral-synthetic-input-api-surface-observation",
+  "qualification": "zero-input-qualifications",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Google Chrome",
+    "browserVersion": "150.0.7871.182",
+    "headless": true,
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "navigationTimeoutMs": 30000,
+    "settleMs": 4000
+  },
+  "provenance": {
+    "remoteOfflineFormat": "vcg-remote-game-offline-observation/v1",
+    "remoteOfflineObservationSha256": "b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973"
+  },
+  "scope": {
+    "catalogSnapshotDate": "2026-07-19",
+    "expectedGameCount": 26,
+    "syntheticGamepad": "one standard-mapped connected fixture with four neutral axes and seventeen unpressed buttons",
+    "interactionPolicy": "dispatch one neutral gamepadconnected event only; no button, key, pointer, touch, form, permission, login, or game action",
+    "storedData": "listener/control/request/error counts, boolean signals, titles, and query-free URLs only; no values, bodies, messages, identifiers, or user data"
+  },
+  "games": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "entrypoint": "https://vibebots.randroid.dev",
+      "finalUrl": "https://vibebots.randroid.dev/mine",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 32,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibeBots",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 9,
+            "click": 5,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 9,
+            "keypress": 4,
+            "keyup": 7,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 5,
+            "pointermove": 5,
+            "pointerup": 5,
+            "touchend": 4,
+            "touchmove": 5,
+            "touchstart": 4,
+            "wheel": 5
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 341
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 10,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 10
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": true,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibe-pinball",
+      "title": "VibePinball",
+      "entrypoint": "https://vibe-pinball.vercel.app",
+      "finalUrl": "https://vibe-pinball.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 10,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibePinball",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 5,
+            "keypress": 4,
+            "keyup": 5,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 5,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 5
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibe-racer",
+      "title": "VibeRacer",
+      "entrypoint": "https://vibe-racer-three.vercel.app",
+      "finalUrl": "https://vibe-racer-three.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 47,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibeRacer",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 5,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 5,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 91
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 0,
+            "anchor": 9,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 9
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": true,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibe-pins",
+      "title": "VibePins",
+      "entrypoint": "https://vibe-pins.vercel.app",
+      "finalUrl": "https://vibe-pins.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 4,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibePins",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 21,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 1,
+            "keypress": 0,
+            "keyup": 1,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 10,
+            "pointermove": 3,
+            "pointerup": 9,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 29,
+            "anchor": 0,
+            "input": 3,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 32
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "bone-cleaver",
+      "title": "Bone Cleaver",
+      "entrypoint": "https://bonecleaver.vercel.app/",
+      "finalUrl": "https://bonecleaver.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 79,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "BONE CLEAVER",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 29,
+            "click": 61,
+            "gamepadconnected": 1,
+            "gamepaddisconnected": 1,
+            "input": 16,
+            "keydown": 22,
+            "keypress": 0,
+            "keyup": 1,
+            "mousedown": 20,
+            "mousemove": 2,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 200
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 2,
+            "button": 16,
+            "anchor": 0,
+            "input": 42,
+            "select": 5,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 63
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": true,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibeman-hangman",
+      "title": "Vibeman (Hangman)",
+      "entrypoint": "https://hangman-exe.vercel.app/",
+      "finalUrl": "https://hangman-exe.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "HANGMAN.EXE",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 9,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 1,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 9,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 9
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "asymptotic-bitrot",
+      "title": "Asymptotic Bitrot",
+      "entrypoint": "https://asymptoticbitrot-um9i.vercel.app",
+      "finalUrl": "https://asymptoticbitrot-um9i.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 26,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Asymptotic BitRot",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 0,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 1,
+            "keydown": 1,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 1,
+            "mousemove": 1,
+            "mouseup": 1,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 1,
+            "touchmove": 1,
+            "touchstart": 1,
+            "wheel": 1
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 0,
+            "anchor": 0,
+            "input": 1,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 1
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "fracking-asteroids",
+      "title": "Fracking Asteroids",
+      "entrypoint": "https://fracking-asteroids.vercel.app",
+      "finalUrl": "https://fracking-asteroids.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 12,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "FrackingAsteroids",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 4,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 2,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 2
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "hoops",
+      "title": "Hoops",
+      "entrypoint": "https://hoops-kappa.vercel.app",
+      "finalUrl": "https://hoops-kappa.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 3,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Hoops",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 1,
+            "keydown": 2,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 1,
+            "mousemove": 1,
+            "mouseup": 1,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 1,
+            "touchmove": 1,
+            "touchstart": 1,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 2,
+            "button": 4,
+            "anchor": 0,
+            "input": 1,
+            "select": 0,
+            "textarea": 1,
+            "contentEditable": 0,
+            "focusable": 6
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "entrypoint": "https://mi-casa-es-su-casa.vercel.app",
+      "finalUrl": "https://mi-casa-es-su-casa.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 11,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Mi Casa Es Su Casa",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 5,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 5,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 3,
+            "anchor": 0,
+            "input": 1,
+            "select": 0,
+            "textarea": 1,
+            "contentEditable": 0,
+            "focusable": 5
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "block-punch-kick",
+      "title": "Block Punch Kick",
+      "entrypoint": "https://block-punch-kick.vercel.app",
+      "finalUrl": "https://block-punch-kick.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 9,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Block Punch Kick Prototype",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 0,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 3,
+            "keypress": 0,
+            "keyup": 1,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 32,
+            "pointermove": 5,
+            "pointerup": 5,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 5,
+            "wheel": 1
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 2,
+            "button": 27,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 27
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch",
+      "entrypoint": "https://epoch-theta.vercel.app",
+      "finalUrl": "https://epoch-theta.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Epoch",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 5,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 6,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 5,
+            "touchmove": 5,
+            "touchstart": 6,
+            "wheel": 5
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 2,
+            "button": 7,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 7
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "game-tape",
+      "title": "GameTape",
+      "entrypoint": "https://game-tape.vercel.app",
+      "finalUrl": "https://game-tape.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 265,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Agent Interaction Replay — GameTape",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 1,
+            "click": 0,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 1,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 8,
+            "anchor": 0,
+            "input": 2,
+            "select": 3,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 13
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "go-pit",
+      "title": "GoPit",
+      "entrypoint": "https://go-pit.vercel.app",
+      "finalUrl": "https://go-pit.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 9,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "GoPit",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 0,
+            "gamepadconnected": 1,
+            "gamepaddisconnected": 1,
+            "input": 0,
+            "keydown": 2,
+            "keypress": 0,
+            "keyup": 2,
+            "mousedown": 1,
+            "mousemove": 0,
+            "mouseup": 1,
+            "pointerdown": 0,
+            "pointermove": 1,
+            "pointerup": 0,
+            "touchend": 1,
+            "touchmove": 1,
+            "touchstart": 1,
+            "wheel": 1
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 54
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 0,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 1,
+            "focusable": 2
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": true,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "block-you",
+      "title": "Block-You",
+      "entrypoint": "https://block-you.vercel.app",
+      "finalUrl": "https://block-you.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Block-You",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 2,
+            "click": 22,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 1,
+            "keydown": 0,
+            "keypress": 1,
+            "keyup": 0,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 1,
+            "pointermove": 2,
+            "pointerup": 2,
+            "touchend": 1,
+            "touchmove": 0,
+            "touchstart": 1,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 20,
+            "anchor": 0,
+            "input": 1,
+            "select": 3,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 24
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "entrypoint": "https://determined-khaki.vercel.app",
+      "finalUrl": "https://determined-khaki.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 39,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Determined — Your Words. Your Chaos. Your Problem.",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 3,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 1,
+            "keypress": 0,
+            "keyup": 1,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 3,
+            "button": 13,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 13
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "software-dev-sim",
+      "title": "SoftwareDevSim",
+      "entrypoint": "https://software-dev-sim.vercel.app",
+      "finalUrl": "https://software-dev-sim.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 9,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "SoftwareDevSim",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 4,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 5,
+            "mousemove": 5,
+            "mouseup": 5,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 5,
+            "touchmove": 5,
+            "touchstart": 5,
+            "wheel": 5
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 1,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 1
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "baby-piano",
+      "title": "Baby Piano",
+      "entrypoint": "https://baby-piano-eight.vercel.app",
+      "finalUrl": "https://baby-piano-eight.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 5,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 4,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 16,
+            "anchor": 0,
+            "input": 0,
+            "select": 1,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 17
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "clankers",
+      "title": "Clankers",
+      "entrypoint": "https://clankers-mocha.vercel.app",
+      "finalUrl": "https://clankers-mocha.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 8,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Ash & Iron — Card Battler",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 2,
+            "click": 6,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 0,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 6,
+            "anchor": 0,
+            "input": 0,
+            "select": 2,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 8
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": false,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibe-city",
+      "title": "VibeCity",
+      "entrypoint": "https://vibe-city-weld.vercel.app",
+      "finalUrl": "https://vibe-city-weld.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 27,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 10,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibeCity",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 4,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 1,
+            "anchor": 12,
+            "input": 1,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 14
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "flatline",
+      "title": "Flatline",
+      "entrypoint": "https://flatline-gamma.vercel.app",
+      "finalUrl": "https://flatline-gamma.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 8,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Flatline: A Hard-Boiled Mouse Story",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 5,
+            "keypress": 4,
+            "keyup": 5,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 5,
+            "pointermove": 5,
+            "pointerup": 5,
+            "touchend": 5,
+            "touchmove": 5,
+            "touchstart": 5,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 2,
+            "button": 3,
+            "anchor": 0,
+            "input": 0,
+            "select": 1,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 4
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "vibe-gear-2",
+      "title": "VibeGear2",
+      "entrypoint": "https://vibe-gear2.vercel.app",
+      "finalUrl": "https://vibe-gear2.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 35,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "VibeGear2",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 6,
+            "click": 6,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 6,
+            "keydown": 7,
+            "keypress": 6,
+            "keyup": 6,
+            "mousedown": 6,
+            "mousemove": 6,
+            "mouseup": 6,
+            "pointerdown": 7,
+            "pointermove": 6,
+            "pointerup": 6,
+            "touchend": 6,
+            "touchmove": 6,
+            "touchstart": 6,
+            "wheel": 6
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 1,
+            "anchor": 4,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 5
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "text-racer",
+      "title": "Text Racer",
+      "entrypoint": "https://text-racer.vercel.app",
+      "finalUrl": "https://text-racer.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Text Racer",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 0,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 2,
+            "keypress": 0,
+            "keyup": 0,
+            "mousedown": 0,
+            "mousemove": 0,
+            "mouseup": 0,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 0,
+            "touchmove": 0,
+            "touchstart": 0,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 0,
+            "anchor": 0,
+            "input": 1,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 1
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "drop-dead-keep",
+      "title": "Drop Dead Keep",
+      "entrypoint": "https://drop-dead-keep.vercel.app",
+      "finalUrl": "https://drop-dead-keep.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 29,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Drop Dead Keep",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 6,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 0,
+            "keydown": 2,
+            "keypress": 0,
+            "keyup": 1,
+            "mousedown": 1,
+            "mousemove": 1,
+            "mouseup": 1,
+            "pointerdown": 0,
+            "pointermove": 0,
+            "pointerup": 0,
+            "touchend": 1,
+            "touchmove": 1,
+            "touchstart": 1,
+            "wheel": 0
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 4,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 1,
+            "contentEditable": 0,
+            "focusable": 5
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "streamer-billboard",
+      "title": "Streamer Billboard",
+      "entrypoint": "https://streamer-billboard.vercel.app",
+      "finalUrl": "https://streamer-billboard.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 6,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 1,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "Streamer Billboard",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 4,
+            "click": 4,
+            "gamepadconnected": 0,
+            "gamepaddisconnected": 0,
+            "input": 4,
+            "keydown": 4,
+            "keypress": 4,
+            "keyup": 4,
+            "mousedown": 4,
+            "mousemove": 4,
+            "mouseup": 4,
+            "pointerdown": 4,
+            "pointermove": 4,
+            "pointerup": 4,
+            "touchend": 4,
+            "touchmove": 4,
+            "touchstart": 4,
+            "wheel": 4
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 0
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 0,
+            "button": 0,
+            "anchor": 1,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 0,
+            "focusable": 1
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": false,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "inputQualification": "none"
+      }
+    },
+    {
+      "id": "go-dig",
+      "title": "GoDig",
+      "entrypoint": "https://go-dig.vercel.app",
+      "finalUrl": "https://go-dig.vercel.app/",
+      "navigation": {
+        "outcome": "loaded",
+        "error": null
+      },
+      "observation": {
+        "dispatchedNeutralGamepadEvent": true,
+        "requestCount": 7,
+        "mutatingRequestCount": 0,
+        "requestFailureCount": 0,
+        "consoleErrorCount": 0,
+        "pageErrorCount": 0,
+        "runtime": {
+          "accessible": true,
+          "title": "GoDig",
+          "readyState": "complete",
+          "listenerAdds": {
+            "change": 0,
+            "click": 0,
+            "gamepadconnected": 1,
+            "gamepaddisconnected": 1,
+            "input": 0,
+            "keydown": 2,
+            "keypress": 0,
+            "keyup": 2,
+            "mousedown": 1,
+            "mousemove": 0,
+            "mouseup": 1,
+            "pointerdown": 0,
+            "pointermove": 1,
+            "pointerup": 0,
+            "touchend": 1,
+            "touchmove": 1,
+            "touchstart": 1,
+            "wheel": 1
+          },
+          "handlerProperties": {
+            "onkeydown": false,
+            "onkeypress": false,
+            "onkeyup": false,
+            "onmousedown": false,
+            "onmousemove": false,
+            "onmouseup": false,
+            "onpointerdown": false,
+            "onpointermove": false,
+            "onpointerup": false,
+            "ontouchend": false,
+            "ontouchmove": false,
+            "ontouchstart": false
+          },
+          "gamepad": {
+            "originalApiAvailable": true,
+            "instrumented": true,
+            "pollCount": 118
+          },
+          "requests": {
+            "pointerLock": 0,
+            "fullscreen": 0
+          },
+          "dom": {
+            "canvas": 1,
+            "button": 0,
+            "anchor": 0,
+            "input": 0,
+            "select": 0,
+            "textarea": 0,
+            "contentEditable": 1,
+            "focusable": 2
+          }
+        }
+      },
+      "findings": {
+        "gamepadSignal": true,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "inputQualification": "none"
+      }
+    }
+  ],
+  "observationSha256": "0550c6d5a91364fd48e3e15fbdc86b4b6e4d0a443aadc85bcabb1660227d7a8d",
+  "summary": {
+    "gameCount": 26,
+    "navigationLoadedCount": 26,
+    "gamepadSignalCount": 5,
+    "keyboardSignalCount": 25,
+    "pointerSignalCount": 21,
+    "touchSignalCount": 19,
+    "textEntrySurfaceSignalCount": 12,
+    "pointerLockRequestGameCount": 0,
+    "fullscreenRequestGameCount": 0,
+    "mutatingRequestGameCount": 0,
+    "inputQualifiedCount": 0
+  },
+  "limitations": [
+    "This is a fresh-context headless Windows Chrome observation of initial-route listener registration, DOM controls, and neutral synthetic Gamepad API polling. It is not physical-controller, remote, keyboard, pointer, touch, gameplay, focus, mapping, latency, reserved-action, accessibility, or target-Linux qualification.",
+    "The injected standard-mapped gamepad reports only neutral axes and unpressed buttons. A poll or listener proves only that page code touched an API during the observation window; it does not prove that any control works or is required.",
+    "No key, button, pointer, touch, form, permission, login, or game action was performed. Listeners and controls created only after start, play, consent, authentication, another route, or delayed asset loading can remain undiscovered.",
+    "Framework delegation can register keyboard, click, pointer, input, or change listeners even when the title does not expose that input to players. Conversely, direct property handlers, WebAssembly, native browser behavior, and dynamically constructed paths can evade the bounded instrumentation.",
+    "Every title remains input-unverified. A physical controller-only living-room session with console-owned Home/Back/Exit and recovery is still required."
+  ]
+}
