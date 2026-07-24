@@ -12,3 +12,4 @@ pub mod package_intake;
 pub mod package_transfer;
 pub mod process;
 pub mod retroarch;
+pub mod save_lifecycle;

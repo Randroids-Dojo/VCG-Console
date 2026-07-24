@@ -1339,3 +1339,22 @@ The checked-in report is `benchmarks/transport/windows-x64-node24-child-process-
 ### Remaining boundary
 
 I-074 remains active and D-004 remains unchanged. The shared-memory case is still a worker rather than a safe cross-process ownership/recovery design. Windows named pipes do not qualify Linux Unix-domain sockets. Target Linux x86-64 and ARM64, wall-clock CPU/RSS and scheduler soaks, identical Motion serialization/schema work, renderer/tracker suspend/kill/reconnect/churn, signed permission admission, and camera-to-action timing remain required before selecting a production transport.
+
+## 2026-07-24: console-managed save lifecycle contract
+
+### Delivered
+
+- Added a pure Rust planner for remote-web, local-web, native/Godot, and Libretro save namespaces below separate host-owned data and cache roots.
+- Kept package version out of the save namespace so healthy update/rollback preserves progress, while format changes receive a bounded opaque staging transaction.
+- Added separate bounded save/cache quota reservations with existing-usage, remaining-byte, and integer-overflow checks.
+- Defined exact local reset scope and an explicit remote-web boundary that never claims to delete hosted-service data.
+- Added profile deletion transitions to fresh opaque unassigned ownership with no deleted profile ID in the returned persistent record, plus explicit conflict-blocking claim behavior.
+- Documented D-089's no-backup/export/cross-console-migration/cloud boundary and kept profile-vault, diagnostics, package, content, cache, and save data distinct.
+
+### Verification evidence
+
+Ten focused native tests cover all four runtimes, managed-root and identifier traversal, separate quota limits, overflow, package-version namespace stability, migration bounds, wrong deleted owners, duplicate/unsafe unassigned tokens, profile-ID removal, same-name profile recreation, explicit claims, and unresolved slot conflicts. Focused Rust formatting, strict Clippy, and tests pass.
+
+### Remaining boundary
+
+I-100 closes as a design artifact, not a storage implementation claim. No directory, mount, quota, save, move, migration, unlink, claim, reset, or delete is performed. Signed release policy, browser/native/Libretro sandbox enforcement, atomic/power-loss-safe mutation, low/full-space behavior, hostile formats, metadata sanitation, Unassigned Progress UX, permanent-loss evidence, and proof on both reference platforms remain under I-022, I-162, I-188 through I-191, and I-209.

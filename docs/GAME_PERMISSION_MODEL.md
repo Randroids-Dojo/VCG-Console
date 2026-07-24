@@ -25,7 +25,7 @@ schema version.
 | `motion.core17` | Session-local player presence plus the portable 17-landmark skeleton | Maps exactly to Motion profile `body.core17` |
 | `motion.actions.obstacle` | Standardized jump, duck, and dodge events | Maps exactly to `actions.obstacle.v1`; also requires `motion.core17` and input profile `motion.obstacle.v1` |
 | `network` | Game network access consistent with its declared required/optional network class | Offline manifests are rejected if present; non-offline launch grants fail if absent |
-| `persistent-storage` | Game/profile-scoped durable storage | Namespace/quota/reset enforcement remains future host work |
+| `persistent-storage` | Game/profile-scoped durable storage | Bounded native namespace/quota/reset/unlink planning exists; filesystem/mount enforcement remains future host work |
 
 There is no implicit permission. Unknown extension fields remain advisory and
 cannot add authority. Duplicate manifest values do not multiply a grant.
@@ -119,8 +119,9 @@ into authority.
 
 The current desk prototype defines and tests this disclosure contract but does
 not yet render a signed install/launch permission review or enforce every
-native/browser device boundary. Those implementation gaps remain under I-100,
-I-102, I-115, I-141, I-150, and I-209.
+native/browser device boundary. The save lifecycle planner closes I-100's
+design artifact without creating a writable mount. Those implementation gaps
+remain under I-102, I-115, I-141, I-189, I-191, I-150, and I-209.
 
 ## Verification boundary
 

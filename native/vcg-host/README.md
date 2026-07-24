@@ -97,6 +97,7 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.
 - `package_health`: save-isolated signed process/explicit-ready candidate execution with direct-child reaping and no compositor-readiness claim.
+- `save_lifecycle`: pure bounded planning for per-game/per-owner runtime namespaces, separate save/cache quotas, local reset scope, staged format migration, and profile-to-unassigned ownership transitions. It performs no filesystem mutation or network operation.
 - `package_transfer`: exclusively locked exact-offset archive receipt, byte-identical replay, restart resume, remaining-byte capacity checks, full-hash verification, and no-replace ready publication.
 - `package_intake`: signature-first release admission, capacity checks, exact archive/catalog evidence, and bounded portable regular-files-only TAR extraction.
 - `package_generation`: receiver-locked ready-archive intake, serialized verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and launch-frozen path-free read-only retention planning.

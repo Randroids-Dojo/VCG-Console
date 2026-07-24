@@ -32,7 +32,7 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Skeleton trace export | Bounded `MotionTrace` with `containsRawFrames: false` | Written only when the user activates Export; ordinary browser download retention then applies | User-selected local download | Explicit export action | Implemented |
 | Profile name/selection | Launcher profile component | Svelte session memory only; lost on reload | Launcher shell | Create, rename, select | Prototype only |
 | Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
-| Game saves | Individual game runtime | Planned console-managed device-local per-game storage, preserved through healthy update/rollback and lost with writable-storage failure | Owning game and console lifecycle service | Per-game reset and factory reset planned | Not implemented |
+| Game saves | Individual game runtime | Native planner now derives bounded device-local per-game/owner/runtime save and cache namespaces, quotas, reset scope, migration staging, and profile-to-unassigned transitions; no filesystem mutation exists yet | Owning game through a future sandbox/mount adapter and console lifecycle service | Per-game reset and factory reset planned | Contract implemented; storage broker not implemented |
 | Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI status is volatile. Browser fault details contain stable codes and timings, not frames or identities. Bounded redacted native logs remain planned. | Local player/developer screen | Details disclosure; any future export requires deliberate consent | Partially implemented |
 | Hosted game traffic | Supervised top-level browser process | Remote service policy applies; VCG must isolate per-game profile/storage and declare network need | Manifest-approved game origin | Launch disclosure and Exit | Browser supervisor spike only |
 | Model, WASM, and shell assets | Console origin | Ordinary HTTP/browser cache behavior; these are code/assets, never camera samples | Local launcher/tracker | Update lifecycle | Implemented for development build |
@@ -65,7 +65,7 @@ Invariant: profile UI copy must not imply durable encrypted storage until the na
 
 ### Saves
 
-No console save broker exists yet. The selected design gives each installed game isolated local storage with quotas and version metadata; healthy updates and rollbacks preserve committed saves. There is no console backup, export, migration, or cloud sync. Storage loss and factory reset permanently remove saves.
+No mutating console save broker exists yet. `save_lifecycle` now derives isolated host-owned paths, separate save/cache quotas, exact local reset scope, version-independent save namespaces, bounded migration staging, and explicit profile-to-unassigned/claim transitions for remote web, local web, native/Godot, and Libretro. Healthy updates and rollbacks preserve the namespace. Remote-web reset explicitly cannot affect hosted-service data. There is no console backup, export, migration to another console, or cloud sync. Storage loss and factory reset permanently remove saves.
 
 Invariant: future save work must not reuse the profile vault or create a hidden network backup path.
 
