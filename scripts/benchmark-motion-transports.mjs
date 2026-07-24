@@ -345,8 +345,11 @@ async function probeWebSocketBackpressure(server, payload) {
     bufferedAmountBytes: stalled.bufferedAmount,
     applicationFrameBoundRequired: true,
   };
+  const stalledClosed = once(stalled, "close");
+  const serverPeerClosed = serverPeer ? once(serverPeer, "close") : Promise.resolve();
   stalled.terminate();
   serverPeer?.terminate();
+  await Promise.all([stalledClosed, serverPeerClosed]);
   return result;
 }
 
