@@ -24,6 +24,10 @@
     type CalibrationReadyResult,
   } from "./calibration-rehearsal";
   import { launcherCatalog } from "./catalog.generated";
+  import {
+    HostedBrowserPreviewController,
+    type HostedBrowserPreviewPlan,
+  } from "./hosted-browser-preview";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
   import {
@@ -109,6 +113,8 @@
   let launchSupervisor: LaunchSupervisor | undefined;
   let launchUnsubscribe: (() => void) | undefined;
   let launchRetryOperation: ((attempt: number) => void) | undefined;
+  let hostedBrowserPreviewPlan =
+    $state.raw<HostedBrowserPreviewPlan | undefined>();
   let activeNativeRequestId: string | undefined;
   let nativePackageInventory = $state<NativePackageInventory | undefined>();
   let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
@@ -153,6 +159,12 @@
   const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.remote;
   const museum = launcherCatalog.museum;
   const museumHost = new URL(museum.entrypoint).host;
+  const hostedBrowserPreview = new HostedBrowserPreviewController([
+    {
+      id: museum.id,
+      entrypoint: museum.entrypoint,
+    },
+  ]);
   const museumCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "museum");
   const retroCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "retro");
 
@@ -376,6 +388,7 @@
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
     window.removeEventListener("focus", refreshNativePackageInventory);
     document.removeEventListener("visibilitychange", refreshVisibleNativePackageInventory);
+    discardHostedBrowserPreview();
     disposeLaunchSupervisor();
   });
 
@@ -604,7 +617,7 @@
         phases: [
           { label: "Check connection", detail: "Read the console network state" },
           { label: "Confirm destination", detail: "Keep the remote origin visible" },
-          { label: "Hand off", detail: "Open the supervised browser session" },
+          { label: "Preview", detail: "Open a separate unsupervised browser tab" },
         ],
       },
       "local-web": {
@@ -646,6 +659,7 @@
 
   function beginLaunch(session: LaunchSession): number {
     localDiagnostics.record("launch.started", diagnosticUptimeMs());
+    discardHostedBrowserPreview();
     disposeLaunchSupervisor();
     launchRun += 1;
     launchAttempt += 1;
@@ -695,7 +709,7 @@
   function launchMuseum(): void {
     const { supervisor } = beginSupervisedLaunch({
       ...baseLaunch("remote-web", museum.title, museum.context),
-      action: { label: "Open museum", href: museum.entrypoint },
+      action: { label: "Open unsupervised preview" },
     }, REMOTE_LAUNCH_BUDGET);
     launchRetryOperation = () => runMuseumAttempt(supervisor);
     runMuseumAttempt(supervisor);
@@ -708,7 +722,10 @@
     }
     supervisor.advance(1, "Network interface is online");
     supervisor.advance(2, `Remote origin fixed to ${museumHost}`);
-    supervisor.ready("Browser handoff ready · reachability is checked by the native host");
+    hostedBrowserPreviewPlan = hostedBrowserPreview.prepare(museum.id);
+    supervisor.ready(
+      "Browser-only preview ready · reachability and containment are not verified",
+    );
   }
 
   function launchHostedAdapter(
@@ -882,11 +899,14 @@
     if (adapter === "remote-web") {
       const { supervisor } = beginSupervisedLaunch({
         ...baseLaunch(adapter, museum.title, "DEVELOPER PREVIEW / ONLINE"),
-        action: { label: "Open museum", href: museum.entrypoint },
+        action: { label: "Open unsupervised preview" },
       }, REMOTE_LAUNCH_BUDGET);
       supervisor.advance(1, "Network interface is online");
       supervisor.advance(2, `Remote origin fixed to ${museumHost}`);
-      supervisor.ready("Remote browser handoff is ready");
+      hostedBrowserPreviewPlan = hostedBrowserPreview.prepare(museum.id);
+      supervisor.ready(
+        "Browser-only preview ready · reachability and containment are not verified",
+      );
       return;
     }
     const session = baseLaunch(adapter, "Obstacle", "DEVELOPER PREVIEW / INSTALLED");
@@ -922,6 +942,7 @@
 
   function closeLaunch(restoreFocus = true): void {
     if (!launchSession) return;
+    discardHostedBrowserPreview();
     if (activeNativeRequestId) {
       const requestId = activeNativeRequestId;
       activeNativeRequestId = undefined;
@@ -937,7 +958,30 @@
   }
 
   function completeLaunchAction(): void {
+    if (launchSession?.adapter === "remote-web") {
+      if (hostedBrowserPreviewPlan === undefined) {
+        toast("Preview authorization expired. Start the preview again.");
+        return;
+      }
+      const result = hostedBrowserPreview.open(
+        hostedBrowserPreviewPlan,
+        (entrypoint, target, features) =>
+          window.open(entrypoint, target, features),
+      );
+      hostedBrowserPreviewPlan = undefined;
+      if (!result.opened) {
+        hostedBrowserPreviewPlan = hostedBrowserPreview.prepare(museum.id);
+        toast("The browser blocked the separate preview tab. Try again.");
+        return;
+      }
+    }
     closeLaunch(false);
+  }
+
+  function discardHostedBrowserPreview(): void {
+    if (hostedBrowserPreviewPlan === undefined) return;
+    hostedBrowserPreview.discard(hostedBrowserPreviewPlan);
+    hostedBrowserPreviewPlan = undefined;
   }
 
   function retryActiveLaunch(): void {
@@ -1048,9 +1092,9 @@
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>
         <p class="view-kicker">{museumHost.toUpperCase()}</p>
         <div class="museum-title"><h1>The museum is<br />a world of its own.</h1><span>LIVE / WEB</span></div>
-        <p class="museum-copy">Walk through the full VibeCoded collection. The console host will supervise this web experience; this browser prototype opens a new tab.</p>
+        <p class="museum-copy">Walk through the full VibeCoded collection. This browser prototype can open only the cataloged origin in a separate tab, but does not supervise or contain it.</p>
         <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span>↗</span></button>
-        <p class="boundary-note">Internet required · Opens {museumHost}</p>
+        <p class="boundary-note">Internet required · Unsupervised preview · Opens {museumHost}</p>
         <div class="museum-catalog" aria-label="Canonical museum catalog">
           {#each museumCatalogEntries as entry}
             <span><b>{entry.displayIndex}</b><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>

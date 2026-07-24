@@ -138,9 +138,7 @@
       </dl>
     {/if}
     <div class="launch-actions">
-      {#if session.action?.href}
-        <a class="launch-primary" href={session.action.href} target="_blank" rel="noopener noreferrer">{session.action.label}<span>↗</span></a>
-      {:else if session.action}
+      {#if session.action}
         <button class="launch-primary" type="button" onclick={onaction}>{session.action.label}<span>→</span></button>
       {/if}
       {#if session.canRetry}

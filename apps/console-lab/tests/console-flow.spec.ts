@@ -46,7 +46,12 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await expect(canonicalMuseumCatalog.getByText("Determined")).toBeVisible();
   await page.getByRole("button", { name: /Enter the museum/ }).click();
   await expect(page.getByRole("dialog", { name: "VibeCoded Museum" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await expect(
+    page.getByRole("button", { name: "Open unsupervised preview" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/reachability and containment are not verified/),
+  ).toBeVisible();
   await page.getByRole("button", { name: /Exit/ }).click();
   await page.getByRole("button", { name: "Profiles", exact: true }).click();
   await page.getByRole("button", { name: /Guest Local guest/ }).click();
@@ -1254,7 +1259,9 @@ test("one launch screen represents every adapter without inventing progress", as
   const remoteLaunch = page.getByRole("dialog", { name: "VibeCoded Museum" });
   await expect(remoteLaunch).toHaveAttribute("data-launch-adapter", "remote-web");
   await expect(remoteLaunch.getByRole("progressbar")).toHaveCount(0);
-  await expect(remoteLaunch.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await expect(
+    remoteLaunch.getByRole("button", { name: "Open unsupervised preview" }),
+  ).toBeVisible();
   await remoteLaunch.getByRole("button", { name: /Exit/ }).click();
 
   await previews.getByRole("button", { name: "Native", exact: true }).click();
@@ -1671,6 +1678,27 @@ test("launch supervision distinguishes faults and recovers through retry", async
 });
 
 test("museum launch uses the real browser network state and retries", async ({ page, context }) => {
+  await page.addInitScript(() => {
+    const calls: Array<{
+      entrypoint: string;
+      target: string;
+      features: string;
+    }> = [];
+    (
+      window as unknown as {
+        __hostedBrowserPreviewCalls: typeof calls;
+      }
+    ).__hostedBrowserPreviewCalls = calls;
+    window.open = (entrypoint, target, features) => {
+      calls.push({
+        entrypoint: String(entrypoint),
+        target: target ?? "",
+        features: features ?? "",
+      });
+      if (calls.length === 1) return null;
+      return { opener: window } as unknown as Window;
+    };
+  });
   await page.goto("/?skipBoot=1");
   await context.setOffline(true);
   await page.getByRole("button", { name: "Museum", exact: true }).click();
@@ -1682,7 +1710,38 @@ test("museum launch uses the real browser network state and retries", async ({ p
   await context.setOffline(false);
   await launch.getByRole("button", { name: /Retry/ }).click();
   await expect(launch.getByText("RECOVERED", { exact: true })).toBeVisible();
-  await expect(launch.getByRole("link", { name: /Open museum/ })).toHaveAttribute("href", "https://vibecoded.games");
+  await launch
+    .getByRole("button", { name: "Open unsupervised preview" })
+    .click();
+  await expect(launch).toBeVisible();
+  await expect(
+    page.getByText("The browser blocked the separate preview tab. Try again."),
+  ).toBeVisible();
+  await launch
+    .getByRole("button", { name: "Open unsupervised preview" })
+    .click();
+  await expect(launch).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __hostedBrowserPreviewCalls: unknown;
+          }
+        ).__hostedBrowserPreviewCalls,
+    ),
+  ).toEqual([
+    {
+      entrypoint: "https://vibecoded.games",
+      target: "_blank",
+      features: "noopener,noreferrer",
+    },
+    {
+      entrypoint: "https://vibecoded.games",
+      target: "_blank",
+      features: "noopener,noreferrer",
+    },
+  ]);
 });
 
 test("universal search traps focus and restores its opener", async ({ page }) => {

@@ -45,7 +45,6 @@ export interface LaunchSession {
   };
   action?: {
     label: string;
-    href?: string;
   };
 }
 

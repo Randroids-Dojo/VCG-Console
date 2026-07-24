@@ -14,6 +14,11 @@ cross-origin test boundary. It is not the supervised top-level hosted-game
 lane required by I-180, and a production loopback server must reproduce these
 headers before they count as an appliance control.
 
+The separate [hosted browser preview boundary](HOSTED_BROWSER_PREVIEW.md)
+removes raw external-link authority from the Museum rehearsal and binds one
+visible unsupervised tab to an exact generated-catalog origin. It deliberately
+does not upgrade that tab into the missing supervised lane.
+
 ## Trusted launcher policy
 
 The launcher document policy:
