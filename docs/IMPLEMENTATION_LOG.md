@@ -4665,9 +4665,9 @@ frame pacing remain unqualified.
 ### Verification evidence
 
 - OCR-A maps all 95 printable ASCII code points.
-- It maps only `U+00B7 MIDDLE DOT` among 16 distinct non-ASCII code points in
-  current production source. Fifteen arrows, punctuation marks, geometric
-  symbols, Search/status markers, and check marks require fallback.
+- It maps only `U+00B7 MIDDLE DOT` among 15 distinct non-ASCII code points in
+  current production source. Fourteen arrows, punctuation marks, geometric
+  symbols, status markers, and check marks require fallback.
 - Eleven tests accept the exact artifact and reject sfnt/source/provenance/
   claim mutations, truncation, oversize input, duplicate tables, escaped table
   ranges, and unsupported sfnt versions.
@@ -4685,7 +4685,7 @@ localization, accessibility, and final redistribution approval remain.
 ### Delivered
 
 - Built the production app and injected a diagnostic-only 1920x1080 grid for
-  the exact 17-code-point structural inventory.
+  the exact 16-code-point structural inventory.
 - Queried installed Chrome's platform-font report per single-character node
   after the production `OCRA.ttf` and CSS stack loaded.
 - Bound the exact environment, base structural evidence, production source
@@ -4699,7 +4699,7 @@ localization, accessibility, and final redistribution approval remain.
 
 - OCR-A rendered only the `A` baseline and `U+00B7 MIDDLE DOT`.
 - Windows Chrome selected Consolas for eight missing characters, Cambria Math
-  for five, and Segoe UI Symbol for two.
+  for four, and Segoe UI Symbol for two.
 - Eleven adversarial tests reject environment/base/probe/font/request/
   screenshot/provenance/claim substitutions.
 
@@ -4740,3 +4740,30 @@ cold restart, save/reset, update/rollback, source/deploy identity,
 installability, hosted-service, controller/recovery, target Linux/architecture,
 or rights evidence. A successful cached document is not an admitted signed
 offline package.
+
+## 2026-07-24: remove Search's unrelated Unicode fallback
+
+### Delivered
+
+- Replaced the visible `U+2315 TELEPHONE RECORDER` character in Search with a
+  first-party CSS-drawn search mark.
+- Marked the decorative shape `aria-hidden` and retained the visible
+  “Search everything” label as the accessible authority.
+- Added a browser assertion that the mark has no text and is hidden from
+  assistive technology.
+
+### Evidence refresh
+
+- The structural inventory now contains 15 distinct non-ASCII production
+  source code points, 14 of which require fallback.
+- The Windows Chrome probe now contains 16 observations: two OCR-A glyphs and
+  14 platform fallbacks. Cambria Math falls from five observed symbols to four.
+- The structural, Windows fallback, launcher Home, representative-surface, and
+  Search evidence chains were regenerated against the exact new source tree.
+
+### Remaining boundary
+
+This removes one semantic and platform-font dependency; it does not select the
+remaining fallback or shared icon system. Fourteen current characters still
+resolve through Consolas, Cambria Math, or Segoe UI Symbol on the observed
+Windows host, and target Linux/native/physical-TV qualification remains.

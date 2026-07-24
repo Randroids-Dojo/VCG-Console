@@ -36,7 +36,7 @@ async function validateMutation(mutator) {
 test("accepts the exact Windows Chrome OCR-A fallback observation", async () => {
   const artifact = await validateOcraPlatformFallbackEvidence();
   assert.equal(artifact.summary.customFontObservationCount, 2);
-  assert.equal(artifact.summary.platformFallbackObservationCount, 15);
+  assert.equal(artifact.summary.platformFallbackObservationCount, 14);
   assert.deepEqual(artifact.summary.distinctFamilyNames, [
     "Cambria Math",
     "Consolas",
@@ -68,7 +68,7 @@ test("rejects base structural evidence substitution", async () => {
     artifact.baseStructuralEvidence.fontSha256 = "0".repeat(64);
   });
   await validateMutation((artifact) => {
-    artifact.baseStructuralEvidence.productionSourceNonAsciiMissingCount = 14;
+    artifact.baseStructuralEvidence.productionSourceNonAsciiMissingCount = 13;
   });
   await validateMutation((artifact) => {
     artifact.baseStructuralEvidence.path = "untrusted.json";
@@ -116,7 +116,7 @@ test("rejects platform fallback identity or custom-font promotion", async () => 
     artifact.probe.observations[9].fonts[0].customFont = true;
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[16].fonts = [];
+    artifact.probe.observations[15].fonts = [];
   });
 });
 
@@ -146,7 +146,7 @@ test("rejects screenshot or summary substitution", async () => {
     artifact.screenshot.bytes += 1;
   });
   await validateMutation((artifact) => {
-    artifact.summary.platformFallbackObservationCount = 14;
+    artifact.summary.platformFallbackObservationCount = 13;
   });
   await validateMutation((artifact) => {
     artifact.summary.distinctFamilyNames.pop();

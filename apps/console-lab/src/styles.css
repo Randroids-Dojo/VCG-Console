@@ -2961,9 +2961,26 @@ a:focus-visible {
   border-bottom: 1px solid var(--paper);
 }
 
-.search-input-row > span {
+.search-symbol {
+  position: relative;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 0.12rem solid currentColor;
+  border-radius: 50%;
   color: var(--accent);
-  font-size: 1.3rem;
+}
+
+.search-symbol::after {
+  position: absolute;
+  width: 0.52rem;
+  height: 0.12rem;
+  left: 0.7rem;
+  top: 0.72rem;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: left center;
 }
 
 .search-input-row input {

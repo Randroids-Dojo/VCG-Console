@@ -36,13 +36,13 @@ const PNG_SIGNATURE = Buffer.from([
 ]);
 const EXPECTED_SCREENSHOT = Object.freeze({
   path: "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
-  bytes: 88_842,
-  sha256: "0c0fbf368507588a628c8433773a01d618c479d2c9ca2a8ac18f4d9fbb62ce6c",
+  bytes: 86_598,
+  sha256: "fff9fc9829f3d026d65fbf3f71535aba35ab58ebf4acae1ff8f9fc0062552096",
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-MHSNT7it.js": 1,
-  "/assets/main-s9TqATqG.css": 1,
+  "/assets/main-CjOhK6ZD.js": 1,
+  "/assets/main-CM6GLoJk.css": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
   "/assets/src-EbToTsJV.js": 1,
   "/assets/synthetic-BTWSnpMo.js": 1,
@@ -60,7 +60,6 @@ const expectedFontByProbe = Object.freeze({
   "right-arrow": ["Consolas", "Consolas", false],
   "north-east-arrow": ["Segoe UI Symbol", "SegoeUISymbol", false],
   "clockwise-open-circle-arrow": ["Cambria Math", "CambriaMath", false],
-  "telephone-recorder": ["Cambria Math", "CambriaMath", false],
   "white-up-triangle": ["Cambria Math", "CambriaMath", false],
   "black-diamond": ["Cambria Math", "CambriaMath", false],
   "white-diamond": ["Cambria Math", "CambriaMath", false],
@@ -181,7 +180,7 @@ export async function validateOcraPlatformFallbackEvidence(
   assert.deepEqual(artifact.probe, {
     cssFontFamily: "OCRA, ui-monospace, SFMono-Regular, monospace",
     cssFontSizePx: 88,
-    observationCount: 17,
+    observationCount: 16,
     observations: expectedObservations(),
     overflowCssPx: { horizontal: 0, vertical: 0 },
   });
@@ -194,9 +193,9 @@ export async function validateOcraPlatformFallbackEvidence(
   });
   await validateScreenshot(artifact.screenshot);
   assert.deepEqual(artifact.summary, {
-    probeCodePointCount: 17,
+    probeCodePointCount: 16,
     customFontObservationCount: 2,
-    platformFallbackObservationCount: 15,
+    platformFallbackObservationCount: 14,
     distinctFamilyNames: ["Cambria Math", "Consolas", "OCRA", "Segoe UI Symbol"],
     distinctPostScriptNames: ["CambriaMath", "Consolas", "OCRA", "SegoeUISymbol"],
   });

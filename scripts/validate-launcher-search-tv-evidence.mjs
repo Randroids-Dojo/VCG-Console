@@ -69,64 +69,64 @@ const EXPECTED_STATES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-    bytes: 87602,
-    sha256: "c15b1aa5ff29adc7c0faad1b2c43bc1d7be31503bdcc687063d3b76bd25d4d1c",
+    bytes: 87677,
+    sha256: "f2920c52d1cac016377b3a162aaa3b59f66d86255cc0d5fe9f61806ccb87b3af",
   },
   "no-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-    bytes: 60008,
-    sha256: "52daddf2684f083b1c30eedf45fcbc547bb40cd18ac1e18a8d172c802ee59bad",
+    bytes: 60201,
+    sha256: "eda318b463142a230948414e62c002904d883182e45a5e1e6195eff88a3ad9ca",
   },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-    bytes: 105547,
-    sha256: "405730bea33b475ae8c2d8363bcf50e0c6961773c5b947b4da73a6b7920d0fdb",
+    bytes: 105737,
+    sha256: "1bcf7d1d0dd51655226d44e645bdcf542ab6b559b0ebb878ac805c473ddb77a5",
   },
   "no-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-    bytes: 77251,
-    sha256: "9e1356fac7c33abf9c60376ecd066c323d32aac0fa9a72fbb6110f199311c2f5",
+    bytes: 77433,
+    sha256: "51396d4c858be6fb22cd8eb171314b3765d186ada4a534cc95c1b8560c4a31e8",
   },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-    bytes: 256952,
-    sha256: "9406fd323e5bbdf9b39130e69b7b5ef39ce3c6069c11bd82a26810405107bd20",
+    bytes: 257114,
+    sha256: "db0a3d918ad10d58ae1eeee74c96be2b284dbdcee6cdc59c20d1e2ec9b93a737",
   },
   "no-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-    bytes: 190775,
-    sha256: "d3c5b54494179f70b756f0cfb8ba2084b57eb2a5dba04c80303c5f1adc20742c",
+    bytes: 191013,
+    sha256: "440c8a751720d84510aa969a62f138ed0e1389bedf53b0a02c3c6c5f436f65b4",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-results/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 691.766,
+    minimumActionTargetWidthCssPx: 687.766,
     minimumActionTargetHeightCssPx: 48,
   },
   "no-results/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 691.766,
+    minimumActionTargetWidthCssPx: 687.766,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-results/1080p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 955.328,
+    minimumActionTargetWidthCssPx: 951.328,
     minimumActionTargetHeightCssPx: 48,
   },
   "no-results/1080p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 955.328,
+    minimumActionTargetWidthCssPx: 951.328,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-results/4k": {
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1940.656,
+    minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 61,
   },
   "no-results/4k": {
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1940.656,
+    minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 62,
   },
 });
@@ -185,7 +185,11 @@ async function validateScreenshot(observation) {
 }
 
 function validateRequests(requestCounts) {
-  exactKeys(requestCounts, Object.keys(requestCounts).sort(), "requestCounts");
+  exactKeys(
+    requestCounts,
+    Object.keys(requestCounts).sort((left, right) => left.localeCompare(right)),
+    "requestCounts",
+  );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
   assert.equal(requestCounts["/"], 6);

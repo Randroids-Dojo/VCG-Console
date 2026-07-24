@@ -51,9 +51,9 @@ to:
 | mapped Unicode code points | 114 |
 | printable ASCII code points | 95 of 95 covered |
 | production source files scanned | 83 |
-| distinct non-ASCII source code points | 16 |
+| distinct non-ASCII source code points | 15 |
 | non-ASCII source code points covered by OCR-A | 1 |
-| non-ASCII source code points requiring fallback | 15 |
+| non-ASCII source code points requiring fallback | 14 |
 
 The one covered non-ASCII source character is `U+00B7 MIDDLE DOT` (`·`).
 Current production source also contains these characters that OCR-A does not
@@ -69,7 +69,6 @@ map:
 | `U+2192` | `→` | continue/open action |
 | `U+2197` | `↗` | external navigation |
 | `U+21BB` | `↻` | retry action |
-| `U+2315` | `⌕` | Search decoration |
 | `U+25B3` | `△` | controller/status marker |
 | `U+25C6` | `◆` | profile marker |
 | `U+25C7` | `◇` | status marker |

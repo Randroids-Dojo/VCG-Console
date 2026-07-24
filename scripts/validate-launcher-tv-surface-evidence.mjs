@@ -213,7 +213,11 @@ async function validateScreenshot(observation) {
 }
 
 function validateRequests(requestCounts) {
-  exactKeys(requestCounts, Object.keys(requestCounts).sort(), "requestCounts");
+  exactKeys(
+    requestCounts,
+    Object.keys(requestCounts).sort((left, right) => left.localeCompare(right)),
+    "requestCounts",
+  );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
   assert.equal(requestCounts["/"], 9);

@@ -88,7 +88,7 @@
   <div bind:this={panel} class="search-panel">
     <label id="search-title" for="universal-search" data-tv-critical-text>Search everything</label>
     <div class="search-input-row">
-      <span>⌕</span>
+      <span class="search-symbol" aria-hidden="true"></span>
       <input
         bind:this={input}
         bind:value={query}

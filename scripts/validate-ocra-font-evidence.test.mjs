@@ -40,7 +40,7 @@ test("accepts the exact OCR-A structural evidence", async () => {
   assert.equal(artifact.subject.bytes, 24_316);
   assert.equal(artifact.sfnt.cmap.mappingCount, 114);
   assert.equal(artifact.coverage.summary.printableAsciiMissingCount, 0);
-  assert.equal(artifact.coverage.summary.productionSourceNonAsciiMissingCount, 15);
+  assert.equal(artifact.coverage.summary.productionSourceNonAsciiMissingCount, 14);
 });
 
 test("rejects format, date, subject, or parser-limit substitution", async () => {

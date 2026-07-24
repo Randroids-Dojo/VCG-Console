@@ -552,7 +552,7 @@
       {
         "id": "console-source-non-ascii",
         "description": "Every non-ASCII code point present in console-lab production CSS, Svelte, and TypeScript source.",
-        "codePointCount": 16,
+        "codePointCount": 15,
         "codePoints": [
           "U+00B7",
           "U+00D7",
@@ -563,7 +563,6 @@
           "U+2192",
           "U+2197",
           "U+21BB",
-          "U+2315",
           "U+25B3",
           "U+25C6",
           "U+25C7",
@@ -583,7 +582,6 @@
           "U+2192",
           "U+2197",
           "U+21BB",
-          "U+2315",
           "U+25B3",
           "U+25C6",
           "U+25C7",
@@ -756,7 +754,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 808773,
+      "totalBytes": 809137,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -895,8 +893,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-          "bytes": 3655,
-          "sha256": "8a2a4b0d3d304978aea8b696cea2508deffed3fec379b9b938c7848bdc5e7bd1"
+          "bytes": 3693,
+          "sha256": "86b937404e55916340c09e459b9c1fc7a86d49b25b122e971f075c62150e3fac"
         },
         {
           "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
@@ -1130,8 +1128,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 97936,
-          "sha256": "2e949301bee564580b22ea774492d177fee800ebaffccffe37688c9c72884fca"
+          "bytes": 98262,
+          "sha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1464,19 +1462,6 @@
           ]
         },
         {
-          "codePoint": "U+2315",
-          "character": "⌕",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-              "lines": [
-                91
-              ]
-            }
-          ]
-        },
-        {
           "codePoint": "U+25B3",
           "character": "△",
           "fontCovered": false,
@@ -1580,9 +1565,9 @@
       "fontCodePointCount": 114,
       "printableAsciiCodePointCount": 95,
       "printableAsciiMissingCount": 0,
-      "productionSourceNonAsciiCodePointCount": 16,
+      "productionSourceNonAsciiCodePointCount": 15,
       "productionSourceNonAsciiCoveredCount": 1,
-      "productionSourceNonAsciiMissingCount": 15,
+      "productionSourceNonAsciiMissingCount": 14,
       "fallbackRequired": true
     }
   },
@@ -1592,7 +1577,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "2e949301bee564580b22ea774492d177fee800ebaffccffe37688c9c72884fca",
+    "stylePathSha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

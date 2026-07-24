@@ -40,7 +40,6 @@ export const OCRA_FALLBACK_PROBES = Object.freeze([
   { id: "right-arrow", codePoint: "U+2192", character: "→", role: "continue/open action" },
   { id: "north-east-arrow", codePoint: "U+2197", character: "↗", role: "external navigation" },
   { id: "clockwise-open-circle-arrow", codePoint: "U+21BB", character: "↻", role: "retry action" },
-  { id: "telephone-recorder", codePoint: "U+2315", character: "⌕", role: "Search decoration" },
   { id: "white-up-triangle", codePoint: "U+25B3", character: "△", role: "controller/status marker" },
   { id: "black-diamond", codePoint: "U+25C6", character: "◆", role: "profile marker" },
   { id: "white-diamond", codePoint: "U+25C7", character: "◇", role: "status marker" },

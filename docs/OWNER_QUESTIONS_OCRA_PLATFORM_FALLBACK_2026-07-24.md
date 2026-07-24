@@ -41,14 +41,16 @@ with broad required-locale and symbol coverage. Compare their bytes, cmap,
 metrics, rendered symbols, text rhythm beside OCR-A, package cost, and target
 availability before selecting one.
 
-## PFO-005: Search symbol semantics
+## PFO-005: Search symbol remediation
 
-Should the current `U+2315` Search decoration remain, given that its Unicode
-name is not “search” and its visual interpretation depends on fallback?
+Should the prototype keep the first-party CSS Search mark that replaced
+`U+2315 TELEPHONE RECORDER`, or should it move to the eventual shared icon
+asset set?
 
-Safe default: treat it as decorative only and replace it with a first-party
-search icon plus the existing visible “Search everything” label. Do not rely
-on a font-specific resemblance to communicate the action.
+Safe default: keep the mark decorative and hidden from assistive technology
+beside the existing visible “Search everything” label. Preserve the current
+removal of the semantically unrelated font character, then migrate the CSS
+shape only when the versioned first-party icon set exists.
 
 ## Handoff
 

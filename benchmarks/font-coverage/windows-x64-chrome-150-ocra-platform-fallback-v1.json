@@ -18,13 +18,13 @@
     "fontPath": "apps/console-lab/public/fonts/OCRA.ttf",
     "fontBytes": 24316,
     "fontSha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
-    "productionSourceNonAsciiCodePointCount": 16,
-    "productionSourceNonAsciiMissingCount": 15
+    "productionSourceNonAsciiCodePointCount": 15,
+    "productionSourceNonAsciiMissingCount": 14
   },
   "probe": {
     "cssFontFamily": "OCRA, ui-monospace, SFMono-Regular, monospace",
     "cssFontSizePx": 88,
-    "observationCount": 17,
+    "observationCount": 16,
     "observations": [
       {
         "id": "ascii-a",
@@ -167,20 +167,6 @@
         ]
       },
       {
-        "id": "telephone-recorder",
-        "codePoint": "U+2315",
-        "character": "⌕",
-        "role": "Search decoration",
-        "fonts": [
-          {
-            "familyName": "Cambria Math",
-            "postScriptName": "CambriaMath",
-            "customFont": false,
-            "glyphCount": 1
-          }
-        ]
-      },
-      {
         "id": "white-up-triangle",
         "codePoint": "U+25B3",
         "character": "△",
@@ -277,8 +263,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/": 1,
-      "/assets/main-MHSNT7it.js": 1,
-      "/assets/main-s9TqATqG.css": 1,
+      "/assets/main-CjOhK6ZD.js": 1,
+      "/assets/main-CM6GLoJk.css": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-EbToTsJV.js": 1,
       "/assets/synthetic-BTWSnpMo.js": 1,
@@ -288,13 +274,13 @@
   },
   "screenshot": {
     "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
-    "bytes": 88842,
-    "sha256": "0c0fbf368507588a628c8433773a01d618c479d2c9ca2a8ac18f4d9fbb62ce6c"
+    "bytes": 86598,
+    "sha256": "fff9fc9829f3d026d65fbf3f71535aba35ab58ebf4acae1ff8f9fc0062552096"
   },
   "summary": {
-    "probeCodePointCount": 17,
+    "probeCodePointCount": 16,
     "customFontObservationCount": 2,
-    "platformFallbackObservationCount": 15,
+    "platformFallbackObservationCount": 14,
     "distinctFamilyNames": [
       "Cambria Math",
       "Consolas",
@@ -310,15 +296,15 @@
   },
   "provenance": {
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "2e949301bee564580b22ea774492d177fee800ebaffccffe37688c9c72884fca",
+    "stylePathSha256": "39981694d0dfc442f0418dfa133bb38d6e6f74b6ea7584715aa3cff9d53593ba",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "a66e954987797ee7e15395099bec579061859fbfca3ca6bf1b5a3d275e2c6749",
+    "baseEvidencePathSha256": "4d4f91e89702331d930e12328af7fcab42c17405f4b5afdba851038fec5d4603",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "a8a4f8106cf5d66ecf2378cde7a8f523eb070028bf5c23871719dab8f07b08cc",
+    "generatorPathSha256": "394e942dcfb06b6d7a01044094effe22f325182179a5b0673bab30a2ae98b5c4",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "03174e402a6ff3e98acc2e46721c7621113b49e040422ffee03d41620c2429c0",
-    "baseEvidenceBytes": 45974,
-    "baseEvidenceSha256": "a66e954987797ee7e15395099bec579061859fbfca3ca6bf1b5a3d275e2c6749",
+    "validatorPathSha256": "c762e708b30d8aa56882c813097e36dcc73459214b82b6672c078563304b7783",
+    "baseEvidenceBytes": 45615,
+    "baseEvidenceSha256": "4d4f91e89702331d930e12328af7fcab42c17405f4b5afdba851038fec5d4603",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -336,7 +322,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 125,
-      "sha256": "27b41bd87ca02d867f5110ed87cd8647d2306c4ae6e285c2eacd0db04f158b06"
+      "sha256": "dfde827b3f73954616df7f7f2cd00b185e3c26e0d4754f530fb8a29275d7501b"
     }
   },
   "disposition": {

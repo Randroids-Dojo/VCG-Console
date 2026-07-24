@@ -374,6 +374,9 @@ for (const resolution of RESOLUTIONS) {
     await trigger.click();
     const input = page.locator("#universal-search");
     await expect(input).toBeFocused();
+    const searchSymbol = page.locator(".search-symbol");
+    await expect(searchSymbol).toHaveAttribute("aria-hidden", "true");
+    await expect(searchSymbol).toHaveText("");
     await input.fill("motion");
     const results = page.locator("#search-results button");
     await expect(results).toHaveCount(5);
