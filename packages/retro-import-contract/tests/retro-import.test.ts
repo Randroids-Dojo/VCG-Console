@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   parseRetroImportCandidate,
@@ -14,6 +15,7 @@ import {
   type RetroInstalledLibrary,
 } from "../src";
 import checkedInInstalledLibrarySchema from "../../../schemas/retro-installed-library.schema.json";
+import plainInstallFixture from "../fixtures/plain-install-v1.json";
 
 const HASH_A = "a".repeat(64);
 const HASH_B = "b".repeat(64);
@@ -243,6 +245,43 @@ describe("closed import contracts", () => {
 });
 
 describe("shared USB and paired-LAN planning", () => {
+  it("emits the exact plain-install intent consumed by the native host", () => {
+    const payload = Buffer.from(plainInstallFixture.payloadUtf8, "utf8");
+    const payloadSha256 = createHash("sha256").update(payload).digest("hex");
+    expect(payload.byteLength).toBe(38);
+    expect(payloadSha256).toBe(
+      plainInstallFixture.intent.sourceSha256,
+    );
+
+    const request = clone(baseRequest);
+    request.library.generation = 1;
+    request.candidate.sourceName = "Interop_Fixture.gb";
+    request.candidate.receivedBytes = payload.byteLength;
+    request.candidate.receivedSha256 = payloadSha256;
+    request.candidate.scan.subjectSha256 = payloadSha256;
+    request.nowMs = plainInstallFixture.nowMs;
+
+    expect(plainInstallFixture.policy).toEqual({
+      policyId: basePolicy.policyId,
+      policyRevision: basePolicy.revision,
+      systemId: basePolicy.systems[0]!.id,
+      extension: ".gb",
+      coreId: basePolicy.systems[0]!.defaultCoreId,
+      controllerProfile: basePolicy.systems[0]!.controllerProfile,
+      maxContentBytes: basePolicy.systems[0]!.maxContentBytes,
+      maxLibraryEntries: basePolicy.maxLibraryEntries,
+      maxLibraryBytes: basePolicy.maxLibraryBytes,
+    });
+
+    const coordinator = new RetroImportCoordinator(basePolicy);
+    const plan = coordinator.plan(request);
+    expect(plan.inspectionId).toBe(plainInstallFixture.inspectionId);
+    expect(plan.expiresAtMs).toBe(plainInstallFixture.planExpiresAtMs);
+    expect(
+      coordinator.authorize(plan, { action: "install" }, request.nowMs + 1),
+    ).toEqual(plainInstallFixture.intent);
+  });
+
   it("plans and authorizes a plain USB import without retaining source names", () => {
     const coordinator = new RetroImportCoordinator(basePolicy);
     const plan = coordinator.plan(baseRequest);

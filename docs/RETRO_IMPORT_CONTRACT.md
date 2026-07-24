@@ -244,7 +244,7 @@ The package does not persist it.
 
 ## Current verification
 
-Twenty-three focused tests cover:
+Twenty-four focused tests cover:
 
 - closed/frozen policy and checked-in schema freshness;
 - unknown/missing fields, policy ordering, duplicates, and unsupported
@@ -261,9 +261,12 @@ Twenty-three focused tests cover:
   Keep-Both/replacement quota behavior, staging/quota/size/overflow refusal;
   and
 - exact-plan identity, decision scope, one-shot authorization,
-  expiry/revocation, and cleanup cancellation.
+  expiry/revocation, and cleanup cancellation; and
+- exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds ten Windows library tests and eleven Linux tests. They
+The native module adds eleven Windows library tests and twelve Linux tests.
+One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
+authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
 exact-intent authorization, expiry/revocation/policy/generation checks before
 mutation, source length/hash change, clean/blocked/error/unavailable/misbound

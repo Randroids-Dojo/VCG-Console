@@ -2879,6 +2879,53 @@ mod tests {
         pending
     }
 
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase", deny_unknown_fields)]
+    struct PlainInstallInteropFixture {
+        fixture_version: u32,
+        payload_utf8: String,
+        inspection_id: String,
+        plan_expires_at_ms: u64,
+        now_ms: u64,
+        policy: RetroPlainSystemPolicy,
+        intent: Value,
+    }
+
+    #[test]
+    fn consumes_the_exact_terminal_intent_emitted_by_the_typescript_contract() {
+        let shared: PlainInstallInteropFixture = serde_json::from_str(include_str!(
+            "../../../packages/retro-import-contract/fixtures/plain-install-v1.json"
+        ))
+        .expect("parse shared plain-install fixture");
+        assert_eq!(shared.fixture_version, 1);
+        let intent_json = serde_json::to_vec(&shared.intent).expect("serialize shared intent");
+        let authority = RetroPlainImportContext::authorize(
+            &intent_json,
+            shared.inspection_id,
+            shared.plan_expires_at_ms,
+            false,
+            shared.policy,
+        )
+        .expect("authorize shared intent");
+        let fixture = Fixture::new();
+        let mut source = fixture.source("shared-fixture.gb", shared.payload_utf8.as_bytes());
+        let outcome = fixture
+            .store
+            .install_plain(
+                &intent_json,
+                &authority,
+                &mut source,
+                &mut FakeScanner::clean(),
+                shared.now_ms,
+            )
+            .expect("install shared fixture");
+        assert_eq!(outcome.library_generation(), 2);
+        assert_eq!(
+            fixture.library().entries[0].sha256,
+            digest(shared.payload_utf8.as_bytes())
+        );
+    }
+
     #[test]
     fn usb_and_paired_lan_share_exact_plain_file_transaction() {
         for (transport, suffix) in [("usb", "usb"), ("paired-lan", "lan")] {
