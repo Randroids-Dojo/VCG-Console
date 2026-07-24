@@ -1015,10 +1015,11 @@ The selected living room still needs its exact survey and marked zone. Anchor su
 
 ### Verification evidence
 
-- Motion-contract tests cover every valid health tuple, reject incoherent tuples, enforce start/fault player denial and non-ready action denial, and pass the updated `0.3.0` benchmark contract.
-- Bridge tests cover welcome health, ordered out-of-band overload/restart delivery, late reconnect state, stale-event refusal, health/frame mismatch refusal, and degraded profile projection.
-- Console unit tests cover all visible copies/control modes and prove degradation suppresses actions and resets hold timing.
-- Real Chrome exercises the five visible health fixtures plus healthy worker and explicit fallback-backend status.
+- The contract suite passes 47 tests, covering every valid health tuple, incoherent-tuple rejection, start/fault player denial, non-ready action denial, representable JSON constraints, and the updated `0.3.0` benchmark contract.
+- Sixteen bridge tests cover welcome health, ordered out-of-band overload/restart delivery, late reconnect state, stale/time-regressing event refusal, source/status mismatch refusal, and degraded profile projection.
+- Eighty console unit tests cover all visible copies/control modes and prove degradation suppresses actions and resets hold timing.
+- Twenty real-Chrome flows exercise the five visible health fixtures plus healthy worker, explicit fallback-backend status, and the existing cross-origin/navigation boundary.
+- Workspace tests, typechecks, production build, schema/manifests/benchmark freshness, and the high-severity dependency audit pass.
 
 ### Remaining boundary
 
