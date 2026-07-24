@@ -84,9 +84,9 @@
   onclick={(event) => {
     if (event.currentTarget === event.target) close();
   }}
->
+  >
   <div bind:this={panel} class="search-panel">
-    <label id="search-title" for="universal-search">Search everything</label>
+    <label id="search-title" for="universal-search" data-tv-critical-text>Search everything</label>
     <div class="search-input-row">
       <span>⌕</span>
       <input
@@ -97,16 +97,18 @@
         type="search"
         placeholder="Type a game, hub, or setting"
         autocomplete="off"
+        data-tv-action
+        data-tv-critical-text
       />
-      <kbd>ESC</kbd>
+      <kbd data-tv-critical-text>ESC</kbd>
     </div>
     <div bind:this={results} class="search-results" id="search-results">
       {#each matches as item (item.title)}
-        <button type="button" onclick={() => choose(item)}>
-          <span>{item.group}</span><strong>{item.title}</strong><small>{item.detail}</small><b>→</b>
+        <button type="button" data-tv-action onclick={() => choose(item)}>
+          <span data-tv-critical-text>{item.group}</span><strong data-tv-critical-text>{item.title}</strong><small>{item.detail}</small><b data-tv-critical-text>→</b>
         </button>
       {/each}
     </div>
-    <p class="search-empty" id="search-empty" hidden={matches.length > 0}>No matches. Try a game, hub, profile, or setting.</p>
+    <p class="search-empty" id="search-empty" data-tv-critical-text hidden={matches.length > 0}>No matches. Try a game, hub, profile, or setting.</p>
   </div>
 </div>

@@ -4516,6 +4516,51 @@ kbd {
   .launch-body {
     padding-inline: 0;
   }
+
+  .search-overlay {
+    padding: 5vh 5vw;
+  }
+
+  .search-panel {
+    width: min(clamp(850px, 60vw, 2400px), 100%);
+  }
+
+  .search-panel > label {
+    margin-bottom: clamp(16px, 2vh, 43px);
+  }
+
+  .search-input-row {
+    min-height: clamp(66px, 8vh, 172px);
+    gap: clamp(16px, 1.5vw, 58px);
+    padding-inline: clamp(18px, 1.5vw, 58px);
+  }
+
+  .search-results {
+    max-height: calc(82vh - clamp(66px, 8vh, 172px));
+  }
+
+  .search-results button {
+    min-height: clamp(68px, 8vh, 172px);
+    grid-template-columns:
+      clamp(110px, 8vw, 300px)
+      minmax(220px, 1fr)
+      minmax(180px, 1fr)
+      auto;
+    gap: clamp(16px, 1.5vw, 58px);
+    padding-inline: clamp(16px, 1.25vw, 48px);
+  }
+
+  .search-results small {
+    font-size: clamp(18px, 0.9vw, 34px);
+    line-height: 1.4;
+  }
+
+  .search-empty {
+    margin: 0;
+    padding:
+      clamp(28px, 4vh, 86px)
+      clamp(16px, 1.25vw, 48px);
+  }
 }
 
 @media (max-width: 900px) {

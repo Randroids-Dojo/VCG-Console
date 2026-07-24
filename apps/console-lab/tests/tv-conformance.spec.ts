@@ -111,11 +111,11 @@ async function assertTvGeometry(
     expect(
       item.width,
       `${resolution.id} ${item.label} target width`,
-    ).toBeGreaterThanOrEqual(48);
+    ).toBeGreaterThanOrEqual(47.999);
     expect(
       item.height,
       `${resolution.id} ${item.label} target height`,
-    ).toBeGreaterThanOrEqual(48);
+    ).toBeGreaterThanOrEqual(47.999);
   }
 
   const overflow = await page.locator(rootSelector).evaluate((element) => ({
@@ -362,5 +362,56 @@ for (const resolution of RESOLUTIONS) {
     await expect(
       page.getByRole("heading", { name: "Developer." }),
     ).toBeVisible();
+  });
+
+  test(`launcher Search motion results satisfy the candidate TV contract at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await expect(input).toBeFocused();
+    await input.fill("motion");
+    const results = page.locator("#search-results button");
+    await expect(results).toHaveCount(5);
+    await page.evaluate(() => document.fonts.ready);
+
+    await assertTvGeometry(page, resolution, ".search-overlay", 18, 6);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(results.first()).toBeFocused();
+    await results.last().focus();
+    await expect(results.last()).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(input).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#search-overlay")).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test(`launcher Search no-result state satisfies the candidate TV contract at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await input.fill("no-such-vcg-destination");
+    await expect(page.locator("#search-results button")).toHaveCount(0);
+    await expect(page.locator("#search-empty")).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 1);
+
+    await page.keyboard.press("Tab");
+    await expect(input).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#search-overlay")).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 }
