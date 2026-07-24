@@ -2,6 +2,7 @@
 
 import { FilesetResolver, PoseLandmarker, type PoseLandmarkerResult } from "@mediapipe/tasks-vision";
 import { mediapipeResultToMotionFrame } from "./mediapipe-adapter";
+import { nextMediaPipeTimestampMs } from "./mediapipe-timestamp";
 import type { TrackerWorkerRequest, TrackerWorkerResponse } from "./tracker-worker-protocol";
 
 const workerScope = globalThis as unknown as {
@@ -10,6 +11,7 @@ const workerScope = globalThis as unknown as {
 };
 
 let landmarker: PoseLandmarker | undefined;
+let lastMediaPipeTimestampMs: number | undefined;
 
 function monotonicTimestampMs(): number {
   return performance.timeOrigin + performance.now();
@@ -52,7 +54,9 @@ function infer(request: Extract<TrackerWorkerRequest, { type: "frame" }>): void 
   }
   try {
     const inferenceStartedAtMs = monotonicTimestampMs();
-    const result: PoseLandmarkerResult = landmarker.detectForVideo(request.image, inferenceStartedAtMs);
+    const mediaPipeTimestampMs = nextMediaPipeTimestampMs(performance.now(), lastMediaPipeTimestampMs);
+    lastMediaPipeTimestampMs = mediaPipeTimestampMs;
+    const result: PoseLandmarkerResult = landmarker.detectForVideo(request.image, mediaPipeTimestampMs);
     const inferenceCompletedAtMs = monotonicTimestampMs();
     respond({
       type: "frame",

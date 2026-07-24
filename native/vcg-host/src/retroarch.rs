@@ -489,6 +489,7 @@ fn set_private_directory_permissions(path: &Path) -> Result<(), RetroArchError> 
 }
 
 #[cfg(not(unix))]
+#[allow(clippy::unnecessary_wraps)]
 fn set_private_directory_permissions(_path: &Path) -> Result<(), RetroArchError> {
     Ok(())
 }
@@ -506,6 +507,7 @@ fn set_private_file_permissions(path: &Path) -> Result<(), RetroArchError> {
 }
 
 #[cfg(not(unix))]
+#[allow(clippy::unnecessary_wraps)]
 fn set_private_file_permissions(_path: &Path) -> Result<(), RetroArchError> {
     Ok(())
 }

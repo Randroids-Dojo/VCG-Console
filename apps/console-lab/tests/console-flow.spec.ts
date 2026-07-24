@@ -260,6 +260,11 @@ test("loads the pinned local model and starts a camera pipeline", async ({ page 
   await expect
     .poll(async () => `${await page.locator("#metric-tracker").textContent()} / ${await page.locator("#status-detail").textContent()}`, { timeout: 15_000 })
     .toContain("WORKER");
+
+  await page.getByRole("button", { name: "STOP CAMERA" }).click();
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  await expect(page.locator("#health-badge")).toHaveText("LIVE", { timeout: 15_000 });
+  await expect(page.locator("#metric-tracker")).toContainText("WORKER", { timeout: 15_000 });
 });
 
 test("normal camera mode stores and transmits no raw frames", async ({ page }) => {
