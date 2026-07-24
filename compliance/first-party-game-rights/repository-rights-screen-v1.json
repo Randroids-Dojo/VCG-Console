@@ -1,0 +1,1291 @@
+{
+  "format": "vcg-first-party-game-repository-rights-screen/v1",
+  "evidenceDate": "2026-07-24",
+  "observedAtUtc": "2026-07-24T23:20:02.328Z",
+  "evidenceClass": "public-repository-exact-head-rights-screen",
+  "qualification": "zero-offline-redistribution-approvals",
+  "policy": {
+    "decision": "fail-closed-per-title-review",
+    "organizationMembershipGrantsNoDistributionAuthority": true,
+    "publicSourceGrantsNoImplicitLicense": true,
+    "productionCatalogMutation": false,
+    "artifactDownloadOrInstallation": false
+  },
+  "scope": {
+    "catalogSnapshotDate": "2026-07-19",
+    "organization": "Randroids-Dojo",
+    "firstPartyGameCount": 23,
+    "excludedCommunityGames": [
+      "Asymptotic Bitrot",
+      "Bone Cleaver",
+      "Vibeman (Hangman)"
+    ],
+    "observedMaterial": "public repository metadata, exact HEAD/tree identity, license/notice paths, root license bytes, root package metadata, asset-extension counts, and submodule paths"
+  },
+  "games": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "liveUrl": "https://vibebots.randroid.dev",
+      "repository": "VibeBots",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibeBots",
+      "defaultBranch": "main",
+      "observedHeadCommit": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 2529,
+        "sha256": "bcd9ab3a787f389d1dbee547c1d0363eb22b92541d41693b87bd0fd2c140c5e5",
+        "parsed": true,
+        "name": "vibebots",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 70,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 70
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "vibe-pinball",
+      "title": "VibePinball",
+      "liveUrl": "https://vibe-pinball.vercel.app",
+      "repository": "VibePinball",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibePinball",
+      "defaultBranch": "main",
+      "observedHeadCommit": "a9c324d13dac567fb1c490f345cad16dc5bba136",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 891,
+        "sha256": "103449c1c1ea20511b907a737496a632a36eec536e5dd6efb18eff04bc54091e",
+        "parsed": true,
+        "name": "vibepinball",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 4,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 4
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "vibe-racer",
+      "title": "VibeRacer",
+      "liveUrl": "https://vibe-racer-three.vercel.app",
+      "repository": "VibeRacer",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibeRacer",
+      "defaultBranch": "main",
+      "observedHeadCommit": "4ff30a43d52f0b7588398c7e6d84e1babeabc011",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 957,
+        "sha256": "374e06d677b9518c2839030dcc5b340d7b830739b7e85c6dfd734aa342aa9c12",
+        "parsed": true,
+        "name": "viberacer",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 9,
+        "audio": 0,
+        "font": 0,
+        "model": 6,
+        "video": 0,
+        "total": 15
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "vibe-pins",
+      "title": "VibePins",
+      "liveUrl": "https://vibe-pins.vercel.app",
+      "repository": "VibePins",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibePins",
+      "defaultBranch": "main",
+      "observedHeadCommit": "554da94c403e49124ae708d37f41b05ef44ae1c3",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 623,
+        "sha256": "49c32738a22083cce2c90776662fa495c4a872c12d0151302a00a026c68ea648",
+        "parsed": true,
+        "name": "vibepins",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "fracking-asteroids",
+      "title": "Fracking Asteroids",
+      "liveUrl": "https://fracking-asteroids.vercel.app",
+      "repository": "FrackingAsteroids",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/FrackingAsteroids",
+      "defaultBranch": "main",
+      "observedHeadCommit": "02e3804487b0e4ac4e9998017f2a43020b34b9bb",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 1894,
+        "sha256": "77f572699ca9f4493973116bfe2ab4f7c1ee6033e43bd513831262d518a1de4f",
+        "parsed": true,
+        "name": "fracking-asteroids",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 1,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 1
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "hoops",
+      "title": "Hoops",
+      "liveUrl": "https://hoops-kappa.vercel.app",
+      "repository": "Hoops",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/Hoops",
+      "defaultBranch": "main",
+      "observedHeadCommit": "49eee13a3855e2cdc299cece6910d7d098133fda",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 723,
+        "sha256": "440e040535dd6a05754714b75a7e3c7de33562fcc722f7e0e048aaa027111eef",
+        "parsed": true,
+        "name": "hoops",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 2,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 2
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "liveUrl": "https://mi-casa-es-su-casa.vercel.app",
+      "repository": "mi-casa-es-su-casa",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/mi-casa-es-su-casa",
+      "defaultBranch": "main",
+      "observedHeadCommit": "c296f181d94d594ffd8be855d8d0f4a808f19374",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 1120,
+        "sha256": "db9e4696f443541d1228ecc1ab4a21ccfc5c9da65e971745e960489b2d540594",
+        "parsed": true,
+        "name": "mi-casa-es-su-casa",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 2,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 2
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "block-punch-kick",
+      "title": "Block Punch Kick",
+      "liveUrl": "https://block-punch-kick.vercel.app",
+      "repository": "BlockPunchKick",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/BlockPunchKick",
+      "defaultBranch": "main",
+      "observedHeadCommit": "cf6b48c239de7cd046d2ccfff01391d763346352",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 740,
+        "sha256": "674140772fcae4106c6bccd80473e3b66b90978fa3bcd7802db72ec653bea63b",
+        "parsed": true,
+        "name": "blockpunchkick",
+        "private": null,
+        "license": "ISC"
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 1,
+        "video": 0,
+        "total": 1
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "package-license-declaration-only",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "license-text",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch",
+      "liveUrl": "https://epoch-theta.vercel.app",
+      "repository": "epoch",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/epoch",
+      "defaultBranch": "main",
+      "observedHeadCommit": "6fb5052954f38593c8290e02da5fda6bfff3fda6",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 1228,
+        "sha256": "3f27ddb6dd220ecdaafdd6d780defd859f74d232da64789143966e9beef23109",
+        "parsed": true,
+        "name": "epoch",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 1,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 1
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "game-tape",
+      "title": "GameTape",
+      "liveUrl": "https://game-tape.vercel.app",
+      "repository": "GameTape",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/GameTape",
+      "defaultBranch": "main",
+      "observedHeadCommit": "22f5a48ac0a6fd0ee8f9136eba81cf787e85ce99",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": false,
+        "bytes": null,
+        "sha256": null,
+        "parsed": null,
+        "name": null,
+        "private": null,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "go-pit",
+      "title": "GoPit",
+      "liveUrl": "https://go-pit.vercel.app",
+      "repository": "GoPit",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/GoPit",
+      "defaultBranch": "main",
+      "observedHeadCommit": "3210032b0b805d6a77ca5b560c027ad0f7ede3b3",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": false,
+        "bytes": null,
+        "sha256": null,
+        "parsed": null,
+        "name": null,
+        "private": null,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "block-you",
+      "title": "Block-You",
+      "liveUrl": "https://block-you.vercel.app",
+      "repository": "Block-You",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/Block-You",
+      "defaultBranch": "main",
+      "observedHeadCommit": "f018849999666af05535c2ffd17c524b25e5a187",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": false,
+        "bytes": null,
+        "sha256": null,
+        "parsed": null,
+        "name": null,
+        "private": null,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 2,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 2
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "liveUrl": "https://determined-khaki.vercel.app",
+      "repository": "Determined",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/Determined",
+      "defaultBranch": "main",
+      "observedHeadCommit": "7d9a38dc2c64915808c4a0a7081133ebb1865eec",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 248,
+        "sha256": "e772ca89fe6cb286c090bd81c332ff22d91b7af57f1c2a5495fbb600433dd7a2",
+        "parsed": true,
+        "name": "determined",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "software-dev-sim",
+      "title": "SoftwareDevSim",
+      "liveUrl": "https://software-dev-sim.vercel.app",
+      "repository": "SoftwareDevSim",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/SoftwareDevSim",
+      "defaultBranch": "main",
+      "observedHeadCommit": "2fc19ea64f5e35cdc11048a1899abe2b0519876e",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 2210,
+        "sha256": "431a5399de18e09686620ca4bedaa11ee634a5597f50c9882bc8385a8534d405",
+        "parsed": true,
+        "name": "software-dev-sim",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "baby-piano",
+      "title": "Baby Piano",
+      "liveUrl": "https://baby-piano-eight.vercel.app",
+      "repository": "BabyPiano",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/BabyPiano",
+      "defaultBranch": "main",
+      "observedHeadCommit": "f4e286eac374303e62ca63af91c78d0f1f336d40",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 614,
+        "sha256": "bdb7b808609f0b7bf23b9436ea3147f43699e8a4f0fa6a27db0014d47e266643",
+        "parsed": true,
+        "name": "babypiano",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "clankers",
+      "title": "Clankers",
+      "liveUrl": "https://clankers-mocha.vercel.app",
+      "repository": "Clankers",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/Clankers",
+      "defaultBranch": "main",
+      "observedHeadCommit": "9e2bae34a7357067f6cd2fd86c418fa5deaa7224",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": "other",
+        "name": "Other",
+        "spdxId": "NOASSERTION"
+      },
+      "licenseNoticePaths": [
+        "LICENSE"
+      ],
+      "rootLicenses": [
+        {
+          "path": "LICENSE",
+          "bytes": 1473,
+          "sha256": "71fc08d912557571b115b1f09303ed1070072353ec2da143100d0373c957417b",
+          "firstLine": "MIT License",
+          "grantSignal": "mit-text-observed",
+          "scopeExclusionSignal": true
+        }
+      ],
+      "packageManifest": {
+        "present": true,
+        "bytes": 307,
+        "sha256": "e602af864aab16faaf2f4a2f34249077fb74da77e1cf3086cc3e2a1fb56731c1",
+        "parsed": true,
+        "name": "clankers",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "repository-grant-with-explicit-scope-exclusion",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "license-scope-closure",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "vibe-city",
+      "title": "VibeCity",
+      "liveUrl": "https://vibe-city-weld.vercel.app",
+      "repository": "VibeCity",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibeCity",
+      "defaultBranch": "main",
+      "observedHeadCommit": "8c8896f4ba5305e68d365a44d54e1ef02bb3b6c5",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 1020,
+        "sha256": "bceec9d772ce09eb9dfe11bafccf999d34662fc106f863dc9f1e33bea521663e",
+        "parsed": true,
+        "name": "vibecity",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 4,
+        "audio": 0,
+        "font": 0,
+        "model": 9,
+        "video": 0,
+        "total": 13
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "flatline",
+      "title": "Flatline",
+      "liveUrl": "https://flatline-gamma.vercel.app",
+      "repository": "Flatline",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/Flatline",
+      "defaultBranch": "main",
+      "observedHeadCommit": "8f2ecf4720c15e224a4b3b389ee7a1fb700fd3fb",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 1046,
+        "sha256": "ff7658004719045d164de579fb75af221d61f82268c39803814328b82c642ee7",
+        "parsed": true,
+        "name": "flatline",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "vibe-gear-2",
+      "title": "VibeGear2",
+      "liveUrl": "https://vibe-gear2.vercel.app",
+      "repository": "VibeGear2",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/VibeGear2",
+      "defaultBranch": "main",
+      "observedHeadCommit": "6f1eda21bbe2152ecd43ed0de05522a8c58c726c",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdxId": "MIT"
+      },
+      "licenseNoticePaths": [
+        "LICENSE"
+      ],
+      "rootLicenses": [
+        {
+          "path": "LICENSE",
+          "bytes": 1079,
+          "sha256": "a76ed9d1bc3e3df0bda019fab0d6f06ce59b6d14e6f789394f6fd15445ff59e8",
+          "firstLine": "MIT License",
+          "grantSignal": "mit-text-observed",
+          "scopeExclusionSignal": false
+        }
+      ],
+      "packageManifest": {
+        "present": true,
+        "bytes": 2410,
+        "sha256": "b3f06fb48c75e5095b4ba8a260f5d1711c1e321e5f2337a70a636bab8a230688",
+        "parsed": true,
+        "name": "vibegear2",
+        "private": true,
+        "license": "MIT"
+      },
+      "assetInventory": {
+        "image": 156,
+        "audio": 51,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 207
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "repository-grant-observed-review-required",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "text-racer",
+      "title": "Text Racer",
+      "liveUrl": "https://text-racer.vercel.app",
+      "repository": "text-racer",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/text-racer",
+      "defaultBranch": "main",
+      "observedHeadCommit": "385cf6c39867dab0c70bdf7563995a2ede2f4ee1",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 194,
+        "sha256": "56df7f41385409873b67c8b0c0043a86fb6799d5ca5aa45f52b1a37795c6be86",
+        "parsed": true,
+        "name": "text-racer",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "drop-dead-keep",
+      "title": "Drop Dead Keep",
+      "liveUrl": "https://drop-dead-keep.vercel.app",
+      "repository": "drop-dead-keep",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/drop-dead-keep",
+      "defaultBranch": "main",
+      "observedHeadCommit": "f814e8702cfc338d166c01eff41571d1ec24da1c",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 266,
+        "sha256": "2f3c8954a4cfc7607444041b2d75eeb919bca35f775c6c341db266d12751477b",
+        "parsed": true,
+        "name": "drop-dead-keep",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "streamer-billboard",
+      "title": "Streamer Billboard",
+      "liveUrl": "https://streamer-billboard.vercel.app",
+      "repository": "StreamerBillboard",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/StreamerBillboard",
+      "defaultBranch": "main",
+      "observedHeadCommit": "4260e913855cce70f14b634a7132f7e8edef56a6",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": true,
+        "bytes": 696,
+        "sha256": "a30bbdb93c30703fc533c1b0b56d53bfef0ee969fb46cc5ff26d478d72e6cd3e",
+        "parsed": true,
+        "name": "streamer-billboard",
+        "private": true,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 0,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 0
+      },
+      "submodulePaths": [],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    },
+    {
+      "id": "go-dig",
+      "title": "GoDig",
+      "liveUrl": "https://go-dig.vercel.app",
+      "repository": "GoDig",
+      "repositoryUrl": "https://github.com/Randroids-Dojo/GoDig",
+      "defaultBranch": "main",
+      "observedHeadCommit": "bbb1271d18128468172362389dbc4c0db79f666f",
+      "repositoryPublic": true,
+      "repositoryArchived": false,
+      "githubDetectedLicense": {
+        "key": null,
+        "name": null,
+        "spdxId": null
+      },
+      "licenseNoticePaths": [],
+      "rootLicenses": [],
+      "packageManifest": {
+        "present": false,
+        "bytes": null,
+        "sha256": null,
+        "parsed": null,
+        "name": null,
+        "private": null,
+        "license": null
+      },
+      "assetInventory": {
+        "image": 42,
+        "audio": 0,
+        "font": 0,
+        "model": 0,
+        "video": 0,
+        "total": 42
+      },
+      "submodulePaths": [
+        "dots"
+      ],
+      "rights": {
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "titleTrademarkStatus": "not-reviewed",
+        "ownerAuthorizationStatus": "not-recorded",
+        "sourceDeploymentBindingStatus": "not-proven",
+        "redistributionStatus": "blocked",
+        "blockerCodes": [
+          "attribution-notices",
+          "build-dependency-license",
+          "code-license",
+          "content-asset-rights",
+          "exact-source-build-deployment",
+          "owner-authorization",
+          "trademark-title"
+        ]
+      }
+    }
+  ],
+  "observationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+  "summary": {
+    "gameCount": 23,
+    "publicRepositoryCount": 23,
+    "rootLicenseFileGameCount": 2,
+    "githubRecognizedSpdxGameCount": 1,
+    "repositoryGrantObservedGameCount": 1,
+    "explicitScopeExclusionGameCount": 1,
+    "packageLicenseDeclarationOnlyGameCount": 1,
+    "noExplicitCodeGrantGameCount": 20,
+    "ownerAuthorizationRecordedCount": 0,
+    "redistributionApprovedCount": 0,
+    "productionCatalogMutationCount": 0
+  },
+  "limitations": [
+    "This is an exact-revision public-repository metadata and file-inventory screen, not legal advice or a complete code, asset, trademark, patent, privacy, service, build, dependency, or deployment audit.",
+    "A repository under the project organization, a public source tree, a package license field, or GitHub license detection does not prove that every contributor, asset, font, audio file, model, title, service, generated output, or deployed byte is covered by that grant.",
+    "The screen records no private owner authorization. Every title remains blocked from offline redistribution until an accountable owner and qualified reviewer approve the exact code/content/title/notices/build/deployment scope.",
+    "Community entries without first-party repository links are outside this 23-repository artifact and remain separately blocked by the curated-community admission process.",
+    "Hosted deployments can differ from repository heads. Exact source-to-build-to-deployment binding and reproducible ARM64/x86-64 package evidence remain required."
+  ]
+}
