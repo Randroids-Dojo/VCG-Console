@@ -1,6 +1,6 @@
 # Local diagnostics and consented export
 
-Status: bounded volatile browser record, exact-issued review, and consented export implemented; native persistent logging, health aggregation, retention policy, and support workflow remain open.
+Status: bounded volatile browser record, path-free health summary, exact-issued review, and consented export implemented; native persistent logging and health aggregation, retention policy, and support workflow remain open.
 
 ## Purpose
 
@@ -14,6 +14,8 @@ safe browser boundary:
   payloads;
 - at most 256 newest events remain in memory;
 - each event has only a buffer sequence and monotonic page-uptime timestamp;
+- each prepared review derives only record completeness, retained warning
+  count, and fixed launcher/package/access subsystem counts;
 - reload clears the entire record;
 - an export cannot exceed 64 KiB; and
 - no network or persistent browser-storage method exists.
@@ -64,7 +66,14 @@ object, nested declarations, and events are frozen. An identical clone, an
 object issued by another buffer, or a review replaced by a newer preparation
 is rejected. Closing the review, clearing the record, or losing local-admin
 authority revokes the current UI reference; Svelte preserves it as raw state
-instead of substituting a reactive proxy. The export document declares:
+instead of substituting a reactive proxy.
+
+The review also labels its in-memory history as complete or oldest-events
+evicted, reports retained warning count, and shows counts for only the three
+closed subsystems. This is historical record quality, not a claim that the
+launcher, packages, or access controls are currently healthy. The summary is
+immutable review metadata and does not add fields to the exported v1 JSON.
+The export document declares:
 
 ```json
 {
@@ -99,12 +108,13 @@ also remain prohibited.
 
 ## Automated evidence
 
-Eight focused unit tests cover:
+Nine focused unit tests cover:
 
 - closed code-to-subsystem/severity derivation and explicit privacy flags;
 - exact newest-256 retention and eviction count;
 - unknown code, invalid time, reversal, and bundle-time rejection;
 - attempted free-text/profile/path/token/frame smuggling;
+- closed path-free completeness, attention, warning, and subsystem summaries;
 - deterministic bounded and deeply immutable JSON;
 - exact same-buffer issuance, clone/cross-buffer/replaced-review refusal; and
 - complete in-memory clear, prepared-export revocation, and unlinking.
@@ -119,10 +129,11 @@ and report every signal ID without echoing any value. The named
 ten underlying verifier-contract cases.
 
 A real-Chrome test proves family-mode export denial, local admin gating, exact
-review disclosure, prepared-export revocation when authority returns to family
-mode, deliberate re-review and two-step download, expected filename and parsed
-schema, false privacy flags, absence of the active name/profile ID/URL secret,
-and complete clear. The full browser suite still observes no diagnostic upload.
+review disclosure, complete-history and fixed subsystem summary presentation,
+prepared-export revocation when authority returns to family mode, deliberate
+re-review and two-step download, expected filename and parsed schema, false
+privacy flags, absence of the active name/profile ID/URL secret, and complete
+clear. The full browser suite still observes no diagnostic upload.
 
 ## Remaining qualification
 

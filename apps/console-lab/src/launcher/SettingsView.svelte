@@ -392,6 +392,23 @@
           <dl>
             <div><dt>Events retained</dt><dd>{diagnosticReview.bundle.events.length} / {diagnosticReview.bundle.retention.maximumEvents}</dd></div>
             <div><dt>Events dropped</dt><dd>{diagnosticReview.bundle.retention.droppedEvents}</dd></div>
+            <div>
+              <dt>History quality</dt>
+              <dd data-diagnostic-attention={diagnosticReview.summary.attention}>
+                {diagnosticReview.summary.recordQuality === "complete"
+                  ? "Complete in-memory window"
+                  : "Oldest events were evicted"}
+              </dd>
+            </div>
+            <div><dt>Warnings retained</dt><dd>{diagnosticReview.summary.retainedWarningEvents}</dd></div>
+            <div>
+              <dt>Subsystem counts</dt>
+              <dd>
+                Launcher {diagnosticReview.summary.subsystemCounts.launcher}
+                · Packages {diagnosticReview.summary.subsystemCounts.packages}
+                · Access {diagnosticReview.summary.subsystemCounts.access}
+              </dd>
+            </div>
             <div><dt>Raw frames / skeletons</dt><dd>Excluded / Excluded</dd></div>
             <div><dt>Profiles / credentials</dt><dd>Excluded / Excluded</dd></div>
           </dl>

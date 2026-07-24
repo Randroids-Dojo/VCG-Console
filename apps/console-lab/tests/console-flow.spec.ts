@@ -1359,6 +1359,15 @@ test("diagnostic export is reviewed, admin-gated, bounded, and identity-free", a
   await diagnostics.getByRole("button", { name: "Review local diagnostics" }).click();
   await expect(diagnostics.getByText("Raw frames / skeletons")).toBeVisible();
   await expect(diagnostics.getByText("Excluded / Excluded").first()).toBeVisible();
+  await expect(diagnostics.getByText("Complete in-memory window")).toBeVisible();
+  await expect(diagnostics.getByText("Warnings retained")).toBeVisible();
+  const subsystemCounts = diagnostics
+    .locator("dl > div")
+    .filter({ hasText: "Subsystem counts" })
+    .locator("dd");
+  await expect(subsystemCounts).toContainText(/Launcher \d+/);
+  await expect(subsystemCounts).toContainText(/Packages \d+/);
+  await expect(subsystemCounts).toContainText(/Access \d+/);
   await expect(diagnostics.getByText("mode.admin.entered")).toBeVisible();
   await page.screenshot({ path: "../../test-results/console-lab/diagnostic-review.png" });
 

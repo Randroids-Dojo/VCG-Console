@@ -22,6 +22,23 @@ export type LocalDiagnosticSubsystem =
   (typeof DIAGNOSTIC_DEFINITIONS)[LocalDiagnosticCode]["subsystem"];
 export type LocalDiagnosticSeverity =
   (typeof DIAGNOSTIC_DEFINITIONS)[LocalDiagnosticCode]["severity"];
+export type LocalDiagnosticRecordQuality = "complete" | "history-evicted";
+export type LocalDiagnosticAttention =
+  | "none"
+  | "retained-warning"
+  | "history-incomplete";
+
+export interface LocalDiagnosticHealthSummary {
+  readonly schemaVersion: 1;
+  readonly recordQuality: LocalDiagnosticRecordQuality;
+  readonly attention: LocalDiagnosticAttention;
+  readonly retainedEvents: number;
+  readonly droppedEvents: number;
+  readonly retainedWarningEvents: number;
+  readonly subsystemCounts: Readonly<
+    Record<LocalDiagnosticSubsystem, number>
+  >;
+}
 
 export interface LocalDiagnosticEvent {
   readonly sequence: number;
@@ -52,6 +69,7 @@ export interface LocalDiagnosticBundle {
 
 export interface PreparedLocalDiagnosticExport {
   readonly bundle: LocalDiagnosticBundle;
+  readonly summary: LocalDiagnosticHealthSummary;
   readonly serialized: string;
 }
 
@@ -134,6 +152,7 @@ export class LocalDiagnosticBuffer {
     const bundle = freezeDiagnosticBundle(this.snapshot(generatedAtUptimeMs));
     const prepared = Object.freeze({
       bundle,
+      summary: summarizeDiagnosticBundle(bundle),
       serialized: serializeDiagnosticBundle(bundle),
     });
     this.#preparedExport = prepared;
@@ -193,4 +212,33 @@ function serializeDiagnosticBundle(bundle: LocalDiagnosticBundle): string {
     throw new Error("diagnostic bundle exceeds its export bound");
   }
   return serialized;
+}
+
+function summarizeDiagnosticBundle(
+  bundle: LocalDiagnosticBundle,
+): LocalDiagnosticHealthSummary {
+  const subsystemCounts: Record<LocalDiagnosticSubsystem, number> = {
+    launcher: 0,
+    packages: 0,
+    access: 0,
+  };
+  let retainedWarningEvents = 0;
+  for (const event of bundle.events) {
+    subsystemCounts[event.subsystem] += 1;
+    if (event.severity === "warning") retainedWarningEvents += 1;
+  }
+  const historyIncomplete = bundle.retention.droppedEvents > 0;
+  return Object.freeze({
+    schemaVersion: 1,
+    recordQuality: historyIncomplete ? "history-evicted" : "complete",
+    attention: historyIncomplete
+      ? "history-incomplete"
+      : retainedWarningEvents > 0
+        ? "retained-warning"
+        : "none",
+    retainedEvents: bundle.events.length,
+    droppedEvents: bundle.retention.droppedEvents,
+    retainedWarningEvents,
+    subsystemCounts: Object.freeze(subsystemCounts),
+  });
 }

@@ -46,6 +46,38 @@ describe("LocalDiagnosticBuffer", () => {
       MAX_LOCAL_DIAGNOSTIC_EVENTS + 17,
     );
     expect(snapshot.retention.droppedEvents).toBe(17);
+    expect(
+      diagnostics.prepareExport(MAX_LOCAL_DIAGNOSTIC_EVENTS + 17).summary,
+    ).toMatchObject({
+      recordQuality: "history-evicted",
+      attention: "history-incomplete",
+      retainedEvents: MAX_LOCAL_DIAGNOSTIC_EVENTS,
+      droppedEvents: 17,
+    });
+  });
+
+  it("summarizes only fixed subsystem counts and retained warning history", () => {
+    const diagnostics = new LocalDiagnosticBuffer();
+    diagnostics.record("launcher.ready", 1);
+    diagnostics.record("package.inventory.unavailable", 2);
+    diagnostics.record("mode.confirmation.expired", 3);
+    const summary = diagnostics.prepareExport(4).summary;
+
+    expect(summary).toEqual({
+      schemaVersion: 1,
+      recordQuality: "complete",
+      attention: "retained-warning",
+      retainedEvents: 3,
+      droppedEvents: 0,
+      retainedWarningEvents: 2,
+      subsystemCounts: {
+        launcher: 1,
+        packages: 1,
+        access: 1,
+      },
+    });
+    expect(Object.isFrozen(summary)).toBe(true);
+    expect(Object.isFrozen(summary.subsystemCounts)).toBe(true);
   });
 
   it("rejects unknown codes, malformed time, and time reversal", () => {
@@ -91,6 +123,7 @@ describe("LocalDiagnosticBuffer", () => {
     expect(diagnostics.confirmExport(prepared)).toBe(first);
     expect(Object.isFrozen(prepared)).toBe(true);
     expect(Object.isFrozen(prepared.bundle)).toBe(true);
+    expect(Object.isFrozen(prepared.summary)).toBe(true);
     expect(Object.isFrozen(prepared.bundle.privacy)).toBe(true);
     expect(Object.isFrozen(prepared.bundle.retention)).toBe(true);
     expect(Object.isFrozen(prepared.bundle.events)).toBe(true);

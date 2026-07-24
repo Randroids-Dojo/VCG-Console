@@ -3170,3 +3170,47 @@ pending Q-236, consented minimized data, exact dependency/config locks,
 participant-disjoint traces and labels, repeated training, single-use
 held-out scoring, common event timing, target x86/Pi resources, license review,
 and an explicit no-selection or selected-candidate decision.
+
+## 2026-07-24: exact browser diagnostic review and exclusion evidence
+
+### Delivered
+
+- Advanced I-186 with the first real producer integration: the exact confirmed
+  `LocalDiagnosticBuffer` JSON is materialized and scanned against distinct
+  synthetic profile, portrait, calibration, body-profile, and progress-link
+  canaries.
+- Added a separate materialized positive control that must find all five
+  signal IDs without echoing their values. The negative result binds the exact
+  producer bytes through a raw SHA-256 and the verifier's content-tree
+  commitment.
+- Hardened I-116 so prepared diagnostic reviews are deeply immutable and only
+  the current exact object issued by the same buffer can be confirmed.
+  Clones, cross-buffer objects, replaced reviews, clear, close, component
+  destruction, and loss of local-admin authority fail closed or revoke the
+  current review.
+- Added a closed path-free review summary for complete versus evicted history,
+  retained warning count, and fixed launcher/package/access subsystem counts.
+  It is explicitly historical record quality, not a current-health claim, and
+  does not change exported JSON v1.
+
+### Verification evidence
+
+- Ten adversarial verifier cases and the actual diagnostic producer
+  negative/positive integration pass under `pnpm validate:data-exclusion`.
+- Nine focused diagnostic-buffer tests cover closed input, bounds, exact
+  issuance, deep immutability, replacement/cross-buffer refusal, clear
+  revocation, and summary derivation.
+- All 394 workspace unit tests, workspace typecheck, and production build pass.
+  All 33 Chrome flows passed after exact review authority was added; the
+  subsequently updated diagnostics flow separately passes its summary and
+  privilege-revocation assertions.
+
+### Remaining boundary
+
+This is one volatile browser producer and a browser-admin rehearsal, not a
+trusted native log or support pipeline. I-116/I-186 still require
+source-authenticated bounded native storage, selected retention/rotation and
+destination policy, independently reviewed support materialization, crash and
+swap policy, and positive/negative canary evidence across every real update,
+rollback, save, developer, log, support, recovery, clone, reflash,
+replacement, deletion, reset, and target-hardware path.
