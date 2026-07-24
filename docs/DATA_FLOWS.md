@@ -34,7 +34,7 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Console operating mode | Local launcher confirmation flow | Volatile fail-closed family/admin/developer state; boot/reload starts in family mode and no credential or pairing secret exists | Launcher policy only; no native service consumes it | Separate admin/developer confirmations, cancel, end developer mode, family lock | Browser policy/UX prototype only |
 | Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
 | Game saves | Individual game runtime | Native planner derives bounded device-local per-game/owner/runtime save and cache namespaces, quotas, reset scope, migration staging, and profile-to-unassigned transitions; a separate host-only durable transaction can now execute/recover one exact confirmed save/cache reset | Owning game through a future sandbox/mount adapter and console lifecycle service | Per-game reset still needs deliberate controller/motion UI; factory reset remains planned | Contract and reset primitive implemented; storage broker/confinement not implemented |
-| Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI status is volatile. Browser fault details contain stable codes and timings, not frames or identities. Bounded redacted native logs remain planned. | Local player/developer screen | Details disclosure; any future export requires deliberate consent | Partially implemented |
+| Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI plus a newest-256 closed-code browser record are volatile. Exact reviewed bytes can be downloaded only after local admin confirmation; native logs remain planned. | Local player/admin screen and one deliberate local JSON download | Review, separate prepare/confirm export, admin-gated clear | Browser record/export implemented; native store not implemented |
 | Hosted game traffic | Supervised top-level browser process | Remote service policy applies; VCG must isolate per-game profile/storage and declare network need | Manifest-approved game origin | Launch disclosure and Exit | Browser supervisor spike only |
 | Model, WASM, and shell assets | Console origin | Ordinary HTTP/browser cache behavior; these are code/assets, never camera samples | Local launcher/tracker | Update lifecycle | Implemented for development build |
 | Motion bridge messages | Shell ↔ approved same-browser window using `postMessage` | Session map only; expired after silence or goodbye; one unacknowledged frame maximum | Exact allowed origin and source with negotiated projection | Game approval and launch lifecycle | Implemented cooperative path |
@@ -80,7 +80,18 @@ Invariant: future save work must not reuse the profile vault or create a hidden 
 
 ### Logs and support evidence
 
-Current tracker and launch status text is volatile. Skeleton trace export is a separate deliberate action and labels itself raw-frame-free. Future native logs must be bounded, redacted, device-local, and excluded from automatic cloud telemetry. Any support export requires an explicit review screen and consent.
+Current tracker and launch status text is volatile. The launcher additionally
+retains at most 256 closed diagnostic codes in memory with monotonic page
+timings. Callers cannot attach free text or payloads. Family mode may review;
+local admin confirmation is required to prepare/confirm an exact at-most-64-KiB
+JSON download or clear the record. The export explicitly declares frames,
+skeletons, profiles, personal identifiers, credentials, and free text absent.
+It never uploads and reload clears the record.
+
+Skeleton trace export is a separate deliberate action and labels itself
+raw-frame-free. Future native logs must be bounded, redacted, device-local, and
+excluded from automatic cloud telemetry. Any native support export requires an
+explicit review screen and consent.
 
 Invariant: diagnostics must never silently add frames, portraits, calibration vectors, direct personal identifiers, credentials, or save contents.
 

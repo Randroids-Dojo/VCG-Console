@@ -1915,3 +1915,81 @@ secure write-rate/endurance evidence, Raspberry Pi bootloader coordination,
 trusted health producers and deadlines, authorized migration/reset, audit
 handling, reader/block-writer provenance, and target power-loss/full-disk
 qualification remain open.
+
+## 2026-07-24: fail-closed console operating modes
+
+### Delivered
+
+- Replaced the unrestricted Developer mode switch with a pure family/admin/
+  developer controller and explicit launcher state.
+- Made family mode the boot, reboot, lock, and identity-change default.
+- Required separate one-shot 30-second local confirmations for admin and then
+  developer state. Cancelled, expired, malformed, or impossible transitions
+  grant nothing.
+- Kept guest/local profile identity orthogonal to privilege and revoked
+  elevation on identity change.
+- Moved focus to the first safe action after every transition; controller Back
+  cancels pending confirmation without leaving Settings.
+- Kept pairing and deployment absent: the browser opens no listener, holds no
+  credential/key, and cannot grant native authority.
+- Added `CONSOLE_OPERATING_MODES.md`, Q-144 through Q-147, and advanced I-115.
+
+### Verification evidence
+
+Six unit tests cover boot/reboot denial, both confirmations, expiry,
+cancellation, developer exit, family lock, profile non-authority,
+identity-change revocation, invalid clocks, and impossible transitions.
+
+Two Chrome flows verify visible family/admin/developer states, pairing
+unavailability, profile-change revocation, controller Select through both
+confirmations, controller Back cancellation/retry at both stages, and focus
+continuity.
+
+### Remaining boundary
+
+This is browser policy/UX, not authentication. A privileged coordinator,
+reserved local input, actual authenticated encrypted pairing, protected keys
+and state, listener shutdown, audit, hostile same-origin tests, reboot/update
+behavior, controller-only recovery, and accessibility review remain I-102/
+I-115 work after Q-144 through Q-147.
+
+## 2026-07-24: bounded local diagnostics and consented export
+
+### Delivered
+
+- Added a newest-256 in-memory diagnostic buffer using only a closed code
+  vocabulary, derived subsystem/severity, monotonic page uptime, and sequence.
+- Rejected unknown codes, malformed/reversed time, and arbitrary text/payload
+  attachment; kept profile/game/package IDs, URLs, paths, tokens, frames,
+  skeletons, wall-clock time, and exception text out of the schema.
+- Capped JSON export at 64 KiB and made Prepare/Confirm export use the exact
+  bytes frozen during review, so later events cannot enter silently.
+- Allowed family-mode review but required local admin state to export or clear;
+  clear removes events, eviction count, sequence, and time state.
+- Used a local Blob download with no persistent browser store or network path.
+- Added `LOCAL_DIAGNOSTICS.md`, Q-148 through Q-150, and advanced I-116.
+
+### Verification evidence
+
+Six unit tests cover closed metadata/privacy declarations, exact retention/
+eviction, malformed input, hostile free-text/profile/path/token/frame
+smuggling, deterministic bounded JSON, and complete clear.
+
+The Chrome flow proves family export denial, admin gating, exact disclosure,
+two-step download, expected filename/schema, false prohibited-data flags,
+absence of active name/profile ID/URL secret, zero export network requests, and
+complete clear. Visual review confirms the retained-code and privacy panels
+remain legible at the reviewed desktop viewport.
+
+All 227 TypeScript/Svelte tests, zero-warning typecheck, production build,
+schema/manifest/benchmark/transport/compliance freshness, and all 25 Chrome
+flows pass on Windows.
+
+### Remaining boundary
+
+This is volatile browser evidence, not trustworthy native logging. Native
+crash-safe storage, producer authentication, every-producer redaction,
+health-summary UX, final byte/boot/time rotation, trusted provenance/clock
+policy, filesystem/full-disk/power-loss behavior, controller/accessibility
+review, and an independently reviewed support artifact remain I-116 work after
+Q-148 through Q-150.

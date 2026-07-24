@@ -953,6 +953,78 @@ a:focus-visible {
   gap: 10px;
 }
 
+.diagnostic-review {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 20px 0;
+  border-top: 1px solid #292e30;
+  border-bottom: 1px solid #292e30;
+}
+
+.diagnostic-review > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.diagnostic-review > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.diagnostic-review strong {
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+.diagnostic-review small,
+.diagnostic-review p {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.62rem;
+  line-height: 1.55;
+}
+
+.diagnostic-review p {
+  max-width: 620px;
+  margin: 0;
+}
+
+.diagnostic-review dl {
+  margin: 0;
+}
+
+.diagnostic-review ol {
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.diagnostic-review li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6rem;
+}
+
+.diagnostic-review li span {
+  color: var(--accent);
+}
+
+.diagnostic-review li strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .launch-preview {
   margin-top: 26px;
   padding-top: 22px;

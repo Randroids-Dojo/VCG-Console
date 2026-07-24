@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
   await page.goto(`/?skipBoot=1${simulatorTest ? "&motionSimulatorTest=1" : ""}`);
@@ -199,6 +200,73 @@ test("controller can confirm or cancel every operating-mode transition", async (
   await expect(
     operatingMode.getByRole("button", { name: "End developer mode" }),
   ).toBeFocused();
+});
+
+test("diagnostic export is reviewed, admin-gated, bounded, and identity-free", async ({
+  page,
+}) => {
+  let exportStarted = false;
+  const exportRequests: string[] = [];
+  page.on("request", (request) => {
+    if (exportStarted) exportRequests.push(request.url());
+  });
+  await page.goto("/?skipBoot=1#support-secret-must-not-export");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Developer", exact: true }).click();
+
+  const diagnostics = page.locator(".diagnostic-review");
+  await diagnostics.getByRole("button", { name: "Review local diagnostics" }).click();
+  await expect(diagnostics.getByText("Admin confirmation is required")).toBeVisible();
+  await expect(
+    diagnostics.getByRole("button", { name: "Prepare diagnostics export" }),
+  ).toHaveCount(0);
+  await diagnostics.getByRole("button", { name: "Close review" }).click();
+
+  const operatingMode = page.locator(".operating-mode");
+  await operatingMode.getByRole("button", { name: "Request admin access" }).click();
+  await operatingMode.getByRole("button", { name: "Confirm admin access" }).click();
+  await diagnostics.getByRole("button", { name: "Review local diagnostics" }).click();
+  await expect(diagnostics.getByText("Raw frames / skeletons")).toBeVisible();
+  await expect(diagnostics.getByText("Excluded / Excluded").first()).toBeVisible();
+  await expect(diagnostics.getByText("mode.admin.entered")).toBeVisible();
+  await page.screenshot({ path: "../../test-results/console-lab/diagnostic-review.png" });
+
+  await diagnostics.getByRole("button", { name: "Prepare diagnostics export" }).click();
+  await expect(diagnostics.getByText(/Export only these reviewed stable codes/)).toBeVisible();
+  const downloadPromise = page.waitForEvent("download");
+  exportStarted = true;
+  await diagnostics.getByRole("button", { name: "Confirm diagnostics export" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("vcg-console-diagnostics-v1.json");
+  const downloadPath = await download.path();
+  expect(downloadPath).not.toBeNull();
+  const serialized = await readFile(downloadPath!, "utf8");
+  const bundle = JSON.parse(serialized) as {
+    schemaVersion: number;
+    privacy: Record<string, boolean>;
+    retention: { storage: string; maximumEvents: number };
+    events: Array<Record<string, unknown>>;
+  };
+  expect(bundle).toMatchObject({
+    schemaVersion: 1,
+    privacy: {
+      containsRawFrames: false,
+      containsSkeletons: false,
+      containsProfiles: false,
+      containsPersonalIdentifiers: false,
+      containsCredentials: false,
+      containsFreeText: false,
+    },
+    retention: { storage: "memory-only", maximumEvents: 256 },
+  });
+  expect(bundle.events.length).toBeGreaterThan(0);
+  expect(serialized).not.toContain("Randy");
+  expect(serialized).not.toContain("profile-randy");
+  expect(serialized).not.toContain("support-secret-must-not-export");
+  expect(exportRequests).toEqual([]);
+
+  await diagnostics.getByRole("button", { name: "Clear volatile diagnostics" }).click();
+  await expect(diagnostics.getByText("0 / 256")).toBeVisible();
 });
 
 test("native launch authenticates to the Rust host before checking installed packages", async ({ page }) => {

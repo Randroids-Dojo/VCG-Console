@@ -184,6 +184,23 @@ Retro content remains untrusted regardless of entitlement. Before import or fami
 
 Relevant classes include secret/PII logging, log injection or disk exhaustion, cross-game save access, quota bypass, profile deletion that leaves linkable remnants, unassigned-progress reassociation, insecure reset, malicious USB/LAN archives, paired-key theft, unattended developer listeners, unsigned-code confusion, update interruption, and recovery media that includes household data.
 
+The browser launcher now models family, admin, and developer state separately
+from guest/local profile identity. It defaults and explicitly locks to family,
+requires two distinct expiring local confirmations before developer state,
+cancels pending transitions through Back, visibly marks developer state, and
+revokes elevation on identity change. It opens no listener and grants no native
+authority; same-origin code can still synthesize browser events. Production
+must authenticate administration and accept confirmation through privileged
+reserved input before a paired-LAN service can use this state.
+
+The browser also retains at most 256 closed diagnostic codes in memory. Codes
+derive subsystem/severity and have no caller text or payload field. A frozen
+at-most-64-KiB JSON export follows exact review, local admin gating, and
+separate prepare/confirm actions; automated byte inspection excludes active
+profile identity, URL secrets, frames, skeletons, credentials, personal
+identifiers, and free text, and observes no export request. This constrains the
+prototype but does not authenticate event truth or provide native persistence.
+
 The repository now models one aligned firmware/equal A/B/writable-data layout, fixed direct-child data namespaces, aggregate capacity, recovery reserve, inactive verified-image fit, logical fault scope, and cleanup/reset disposition. It rejects relative/root/traversal-like roots and never treats automatic cleanup as authority over identity, saves, or installed content. Production brokers and physical enforcement remain absent. Safe implementation still requires real partition/mount identity, per-game identities and quotas, serialized block reservation, atomic writes, bounded/redacted logs, deliberate consented export, archive limits, staging recovery, no source-path retention, protected paired keys, visible developer state, factory-reset policy/verification, and tests proving profiles/portraits/body data never enter system slots, saves, diagnostics, recovery images, or cloud paths.
 
 ### Supply chain and developer tooling

@@ -4,6 +4,12 @@
     ConsoleOperatingModeController,
     type ConsoleOperatingModeSnapshot,
   } from "./operating-mode";
+  import {
+    diagnosticUptimeMs,
+    type LocalDiagnosticCode,
+    type LocalDiagnosticBuffer,
+    type PreparedLocalDiagnosticExport,
+  } from "./local-diagnostics";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, SettingsPanel } from "./types";
 
   let {
@@ -12,12 +18,14 @@
     onpreviewfault,
     ontoast,
     activeProfileId,
+    localDiagnostics,
   }: {
     openMotionLab: (mode?: LabMode) => void;
     onpreviewlaunch: (adapter: LaunchAdapter) => void;
     onpreviewfault: (fault: LaunchFaultPreview) => void;
     ontoast: (message: string) => void;
     activeProfileId: string;
+    localDiagnostics: LocalDiagnosticBuffer;
   } = $props();
   let panel = $state<SettingsPanel>("system");
   let scanning = $state(false);
@@ -25,6 +33,8 @@
   let diagnostics = $state(false);
   const operatingMode = new ConsoleOperatingModeController();
   let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
+  let diagnosticReview = $state<PreparedLocalDiagnosticExport | undefined>();
+  let diagnosticExportArmed = $state(false);
   let observedProfileId: string | undefined;
   let operatingModeElement: HTMLElement;
   let scanTimer: number | undefined;
@@ -35,11 +45,15 @@
       observedProfileId = activeProfileId;
     } else if (activeProfileId !== observedProfileId) {
       observedProfileId = activeProfileId;
+      const wasElevated =
+        operatingModeSnapshot.mode !== "family" ||
+        operatingModeSnapshot.pendingConfirmation !== undefined;
       setOperatingModeSnapshot(
         operatingMode.changeIdentity(
           activeProfileId === "profile-guest" ? "guest" : "local-profile",
         ),
       );
+      if (wasElevated) recordDiagnostic("mode.identity-change.locked");
     }
   });
 
@@ -64,15 +78,22 @@
 
   function requestAdminAccess(): void {
     setOperatingModeSnapshot(operatingMode.requestAdminConfirmation(Date.now()));
+    recordDiagnostic("mode.admin.requested");
   }
 
   function requestDeveloperMode(): void {
     setOperatingModeSnapshot(operatingMode.requestDeveloperConfirmation(Date.now()));
+    recordDiagnostic("mode.developer.requested");
   }
 
   function confirmOperatingMode(): void {
     try {
       setOperatingModeSnapshot(operatingMode.confirmLocally(Date.now()));
+      recordDiagnostic(
+        operatingModeSnapshot.mode === "developer"
+          ? "mode.developer.entered"
+          : "mode.admin.entered",
+      );
     } catch {
       setOperatingModeSnapshot(operatingMode.snapshot(Date.now()));
       ontoast("Confirmation expired. Start again.");
@@ -81,24 +102,71 @@
 
   function cancelOperatingModeConfirmation(): void {
     setOperatingModeSnapshot(operatingMode.cancelConfirmation());
+    recordDiagnostic("mode.confirmation.cancelled");
   }
 
   function endDeveloperMode(): void {
     setOperatingModeSnapshot(operatingMode.endDeveloperMode());
+    recordDiagnostic("mode.developer.ended");
   }
 
   function lockToFamily(): void {
     setOperatingModeSnapshot(operatingMode.lockToFamily());
+    recordDiagnostic("mode.family.locked");
+  }
+
+  function recordDiagnostic(code: LocalDiagnosticCode): void {
+    localDiagnostics.record(code, diagnosticUptimeMs());
+  }
+
+  function reviewDiagnostics(): void {
+    diagnosticReview = localDiagnostics.prepareExport(diagnosticUptimeMs());
+    diagnosticExportArmed = false;
+  }
+
+  function closeDiagnosticReview(): void {
+    diagnosticReview = undefined;
+    diagnosticExportArmed = false;
+  }
+
+  function requestDiagnosticExport(): void {
+    diagnosticExportArmed = true;
+  }
+
+  function exportDiagnostics(): void {
+    if (
+      !operatingModeSnapshot.canManageConsole ||
+      !diagnosticExportArmed ||
+      diagnosticReview === undefined
+    ) return;
+    const objectUrl = URL.createObjectURL(
+      new Blob([diagnosticReview.serialized], { type: "application/json" }),
+    );
+    const download = document.createElement("a");
+    download.href = objectUrl;
+    download.download = "vcg-console-diagnostics-v1.json";
+    download.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+    diagnosticExportArmed = false;
+  }
+
+  function clearDiagnostics(): void {
+    if (!operatingModeSnapshot.canManageConsole) return;
+    localDiagnostics.clear();
+    diagnosticReview = localDiagnostics.prepareExport(diagnosticUptimeMs());
+    diagnosticExportArmed = false;
   }
 
   function setOperatingModeSnapshot(snapshot: ConsoleOperatingModeSnapshot): void {
     operatingModeSnapshot = snapshot;
+    if (!snapshot.canManageConsole) diagnosticExportArmed = false;
     if (operatingModeTimer !== undefined) window.clearTimeout(operatingModeTimer);
     operatingModeTimer = undefined;
     const pending = snapshot.pendingConfirmation;
     if (pending !== undefined) {
       operatingModeTimer = window.setTimeout(() => {
         setOperatingModeSnapshot(operatingMode.snapshot(Date.now()));
+        recordDiagnostic("mode.confirmation.expired");
       }, Math.max(0, pending.expiresAtMs - Date.now() + 1));
     }
     void focusFirstOperatingModeAction();
@@ -186,6 +254,43 @@
             <button type="button" onclick={endDeveloperMode}>End developer mode</button>
             <button type="button" onclick={lockToFamily}>Lock to family mode</button>
           </div>
+        {/if}
+      </div>
+      <div class="diagnostic-review">
+        <div>
+          <strong>Local diagnostic record</strong>
+          <small>Bounded stable codes in memory only · cleared on reload</small>
+        </div>
+        {#if diagnosticReview === undefined}
+          <button type="button" onclick={reviewDiagnostics}>Review local diagnostics</button>
+        {:else}
+          <dl>
+            <div><dt>Events retained</dt><dd>{diagnosticReview.bundle.events.length} / {diagnosticReview.bundle.retention.maximumEvents}</dd></div>
+            <div><dt>Events dropped</dt><dd>{diagnosticReview.bundle.retention.droppedEvents}</dd></div>
+            <div><dt>Raw frames / skeletons</dt><dd>Excluded / Excluded</dd></div>
+            <div><dt>Profiles / credentials</dt><dd>Excluded / Excluded</dd></div>
+          </dl>
+          <ol aria-label="Retained diagnostic codes">
+            {#each diagnosticReview.bundle.events.slice(-8) as event}
+              <li><span>{event.sequence}</span><strong>{event.code}</strong><small>+{event.uptimeMs} ms</small></li>
+            {/each}
+          </ol>
+          {#if !operatingModeSnapshot.canManageConsole}
+            <p>Admin confirmation is required before a file can be exported or the record cleared.</p>
+            <button type="button" onclick={closeDiagnosticReview}>Close review</button>
+          {:else if diagnosticExportArmed}
+            <p>Export only these reviewed stable codes and monotonic timings? The file contains no frames, skeletons, profiles, free text, or credentials.</p>
+            <div>
+              <button type="button" onclick={exportDiagnostics}>Confirm diagnostics export</button>
+              <button type="button" onclick={() => (diagnosticExportArmed = false)}>Cancel export</button>
+            </div>
+          {:else}
+            <div>
+              <button type="button" onclick={requestDiagnosticExport}>Prepare diagnostics export</button>
+              <button type="button" onclick={clearDiagnostics}>Clear volatile diagnostics</button>
+              <button type="button" onclick={closeDiagnosticReview}>Close review</button>
+            </div>
+          {/if}
         {/if}
       </div>
       <button type="button" onclick={() => openMotionLab("tracker")}>Open Motion Lab</button>

@@ -15,6 +15,10 @@
   import { launcherCatalog } from "./catalog.generated";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
+  import {
+    diagnosticUptimeMs,
+    LocalDiagnosticBuffer,
+  } from "./local-diagnostics";
   import { nativeLifecycleDetail } from "./native-lifecycle";
   import ProfilesView from "./ProfilesView.svelte";
   import SearchOverlay from "./SearchOverlay.svelte";
@@ -46,6 +50,7 @@
   let nativePackageInventory = $state<NativePackageInventory | undefined>();
   let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
   let nativePackageInventoryRefresh: Promise<void> | undefined;
+  const localDiagnostics = new LocalDiagnosticBuffer();
 
   type CatalogLaunchExpectation = {
     gameId: string;
@@ -80,6 +85,7 @@
   ];
 
   onMount(() => {
+    localDiagnostics.record("launcher.ready", diagnosticUptimeMs());
     paintClock();
     clockTimer = window.setInterval(paintClock, 15_000);
     void positionSignal();
@@ -180,11 +186,20 @@
     const result = await listNativePackages();
     if (result.ok) {
       nativePackageInventory = result.inventory;
-      nativePackageInventoryState = "available";
+      setNativePackageInventoryState("available");
       return;
     }
     nativePackageInventory = undefined;
-    nativePackageInventoryState = "unavailable";
+    setNativePackageInventoryState("unavailable");
+  }
+
+  function setNativePackageInventoryState(
+    next: "available" | "unavailable",
+  ): void {
+    if (nativePackageInventoryState !== next) {
+      localDiagnostics.record(`package.inventory.${next}`, diagnosticUptimeMs());
+    }
+    nativePackageInventoryState = next;
   }
 
   function refreshVisibleNativePackageInventory(): void {
@@ -259,6 +274,7 @@
   }
 
   function beginLaunch(session: LaunchSession): number {
+    localDiagnostics.record("launch.started", diagnosticUptimeMs());
     disposeLaunchSupervisor();
     launchRun += 1;
     launchAttempt += 1;
@@ -715,7 +731,7 @@
       </div>
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
-        <SettingsView bind:this={settings} {openMotionLab} {activeProfileId} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
+        <SettingsView bind:this={settings} {openMotionLab} {activeProfileId} {localDiagnostics} onpreviewlaunch={previewLaunch} onpreviewfault={previewFault} ontoast={toast} />
       </div>
     </section>
   </div>
