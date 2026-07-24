@@ -60,6 +60,12 @@ readiness, or global Home/Back recovery.
 
 Each game receives a dated record with exact browser, console OS, hardware, commit/deployment, resolution, and network state.
 
+The executable candidate baseline and complete pre-admission author checklist
+are in [the television compatibility contract](TV_COMPATIBILITY_CONTRACT.md).
+Its desk fixture is useful for finding layout and keyboard-focus regressions;
+it does not substitute for any per-game, physical-TV, controller, reserved
+Home/Back, or target-platform row below.
+
 | Area | Checks | Passing condition |
 |---|---|---|
 | Launch | TLS, redirect, frame/top-level policy, load timeout, health check | Predictable playable or clearly unavailable state |

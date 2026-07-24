@@ -4045,3 +4045,50 @@ I-180 remains active. Retrying one transient development-host file lock does
 not select or qualify the production browser, native authority, service/
 cgroup ownership, compositor controls, explicit readiness, resource/hang
 recovery, or either target Linux architecture.
+
+## 2026-07-24: candidate television compatibility conformance
+
+### Delivered
+
+- Added a standalone television-authoring surface with a visible five-percent
+  safe area, responsive critical text, four deterministic focus targets,
+  keyboard select/Back behavior, reduced-motion handling, and a closed
+  geometry/input/frame-sampling probe.
+- Added a frozen Windows x64 installed-Chrome generator for 1280x720,
+  1920x1080, and 3840x2160 CSS viewports. It uses a random loopback server
+  with exactly three deny-by-default resources and records pixel screenshots,
+  computed rectangles/text/target sizes, input counters, 120 animation
+  deltas, request counts, and browser errors.
+- Added a bounded offline validator that re-hashes every source and exact PNG,
+  requires canonical keys and observations, and refuses physical-TV,
+  controller, overscan, compositor, catalog-game, or frame-rate promotion.
+- Added 11 validator tests covering resolution/environment substitution,
+  safe-area escape, weakened text/targets, focus/select/Back drift, invalid
+  elapsed-time samples, screenshot substitution, hidden browser errors,
+  fabricated participants/hardware/games, stale provenance, and widened
+  claims.
+- Published the candidate contract, author checklist, strict evidence
+  boundary, and Q-242/Q-243 owner handoff; advanced I-098 from open to active
+  without closing Q-056.
+
+### Verification evidence
+
+- The three pixel-bound captures contain all five declared critical regions
+  inside their exact five-percent safe rectangles. Minimum critical text is
+  24, 31.68, and 38 CSS px; minimum action targets are 256.609x64,
+  385.391x64, and 803x70 CSS px.
+- Every run records focus order 0/1/2/3, two keyboard selections, one Back
+  request, 120 nonnegative elapsed-time samples, complete document state, and
+  zero console, page, or request errors.
+- `pnpm validate:tv-conformance` validates the tracked JSON, exact PNG bytes,
+  current provenance, and all 11 adversarial tests.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. Physical televisions, actual EDID/output and
+compositor scaling, reserved Home/Back and controller recovery, real catalog
+titles, localization/accessibility, seating-distance comprehension, overscan,
+audio, frame pacing, concurrent tracking load, and ARM64/x86-64 Linux remain
+unproven. Q-242 and Q-243 select the final visual and output/performance
+policies; until then 5% / 24 CSS px / 48 CSS px is only a conservative
+automated authoring floor.
