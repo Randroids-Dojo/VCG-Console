@@ -77,7 +77,7 @@ func _frame(sequence: int, timestamp_ms: int, hip_x: float, actions: Array = [])
 		var x := hip_x if name in ["left_hip", "right_hip"] else 0.5
 		landmarks.append({"name": name, "position": {"x": x, "y": 0.5}})
 	return {
-		"schemaVersion": "0.3.0",
+		"schemaVersion": "0.4.0",
 		"sequence": sequence,
 		"source": "replay",
 		"sourceTimestampMs": timestamp_ms,

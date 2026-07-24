@@ -65,7 +65,7 @@ describe("motion benchmark contract", () => {
       formatVersion: 1,
       protocolId: "score-fixture",
       createdAt: "2026-07-24T00:00:00.000Z",
-      motionApiSchemaVersion: "0.3.0",
+      motionApiSchemaVersion: "0.4.0",
       containsRawFrames: false,
       rawVideoDefault: false,
       trials: [

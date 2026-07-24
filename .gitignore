@@ -3,6 +3,8 @@ dist/
 target/
 .DS_Store
 coverage/
+__pycache__/
+*.py[cod]
 test-results/
 playwright-report/
 artifacts/

@@ -50,7 +50,7 @@ const availableCapabilities = MotionCapabilitiesSchema.parse(validFrame.capabili
 
 describe("MotionFrameSchema", () => {
   it("requires the explicit temporal-action schema version", () => {
-    expect(MOTION_API_SCHEMA_VERSION).toBe("0.3.0");
+    expect(MOTION_API_SCHEMA_VERSION).toBe("0.4.0");
     expect(MotionFrameSchema.safeParse({ ...validFrame, schemaVersion: "0.2.0" }).success).toBe(false);
   });
 

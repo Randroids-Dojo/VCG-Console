@@ -5,7 +5,7 @@ Last updated: 2026-07-24
 The optional Motion capability query reports whether one tracker provider can
 produce a named optional feature. It lets platform code inspect depth,
 segmentation, hands, and future sensor-derived features without adding those
-features to the closed Motion `0.3.0` frame profile enum or pretending that
+features to the closed Motion `0.4.0` frame profile enum or pretending that
 unimplemented data exists.
 
 The query has its own schema version, currently `1`. It is an availability

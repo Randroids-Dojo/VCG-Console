@@ -44,7 +44,7 @@ The following are not v1 permission values and are rejected by the closed enum:
 - console-owned shell actions such as Home, Back, Pause, or profile selection.
 
 Presence-only is intentionally unavailable rather than implemented by silently
-overgranting a skeleton. Motion API `0.3.0` frames represent a player with the
+overgranting a skeleton. Motion API `0.4.0` frames represent a player with the
 complete core skeleton, so `motion.core17` is the minimum current Motion grant.
 A future presence-only wire shape requires a new reviewed Motion profile and a
 new manifest permission version.

@@ -35,7 +35,7 @@ test("Motion JSON performs a stable full-frame round trip with validation", () =
     schemaValidation: true,
     producerSchemaValidation: true,
     consumerSchemaValidation: true,
-    motionApiVersion: "0.3.0",
+    motionApiVersion: "0.4.0",
     frameShape: "one synthetic candidate with body.core17 landmarks and no actions",
   });
 });

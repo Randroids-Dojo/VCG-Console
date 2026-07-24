@@ -22,7 +22,7 @@ configuration and construct `VcgMotionWebBridge` with that value. Do not accept
 the target origin from an arbitrary URL parameter.
 
 The web adapter requires `body.core17`, treats `actions.obstacle.v1` as
-optional, binds welcome/health/frame messages to bridge v2 and Motion API 0.3,
+optional, binds welcome/health/frame messages to bridge v2 and Motion API 0.4,
 and acknowledges only a successfully consumed exact frame sequence. The game
 uses all 17 named portable landmarks, triggers gameplay only on obstacle
 `triggered` actions, and ignores shell actions.

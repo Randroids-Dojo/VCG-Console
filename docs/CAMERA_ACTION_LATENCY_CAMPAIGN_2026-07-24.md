@@ -73,7 +73,7 @@ Every completed attempt records:
 
 - one run-relative monotonic exposure timestamp in nanoseconds;
 - the maximum timing uncertainty for that attempt;
-- all triggered Motion `0.3.0` actions at the game API, ordered by
+- all triggered Motion `0.4.0` actions at the game API, ordered by
   run-relative monotonic receipt timestamp; and
 - the number of dropped frames.
 
@@ -100,7 +100,7 @@ The format supports:
 - explicitly non-blocking `exploratory` sessions.
 
 For every declared cell, the plan requires exactly 20 attempts for every
-Motion `0.3.0` action:
+Motion `0.4.0` action:
 
 1. `player_join`
 2. `jump`

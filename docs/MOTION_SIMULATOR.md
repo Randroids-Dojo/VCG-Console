@@ -3,7 +3,7 @@
 Last updated: 2026-07-24
 
 `MotionPoseSimulator` is a deterministic, camera-free source for game developers,
-automated tests, and the Motion Lab. It emits schema-valid Motion API `0.3.0`
+automated tests, and the Motion Lab. It emits schema-valid Motion API `0.4.0`
 landmark frames. It does not request camera permission, inject standardized
 actions, or bypass the normal action recognizer.
 

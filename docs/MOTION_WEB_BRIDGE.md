@@ -8,7 +8,7 @@ It does not make an arbitrary separately launched hosted page motion-capable. D-
 
 ## Protocol
 
-1. The game sends `vcg.motion.hello` with bridge protocol version 2, exact Motion API schema version `0.3.0`, a stable client ID, and required/optional capability profiles.
+1. The game sends `vcg.motion.hello` with bridge protocol version 2, exact Motion API schema version `0.4.0`, a stable client ID, and required/optional capability profiles.
 2. The host checks the exact event origin and source before parsing the message.
 3. The host creates a session only for that exact bridge/schema pair and replies with `vcg.motion.welcome`, repeating the bound Motion API version and negotiated profiles, or `vcg.motion.rejected` when a required profile is missing.
 4. Every `vcg.motion.frame` is validated against the Motion API schema and projected to the profiles granted to that session.

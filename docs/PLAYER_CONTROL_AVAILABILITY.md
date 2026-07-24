@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-This contract makes missing-landmark behavior visible and action-specific without inventing a provider confidence threshold. Motion API `0.3.0` already supplies per-landmark `observed` flags and global tracker health. `assessPlayerControlAvailability` derives a separate, versioned view from those existing signals.
+This contract makes missing-landmark behavior visible and action-specific without inventing a provider confidence threshold. Motion API `0.4.0` supplies per-landmark `observed` flags and global tracker health. `assessPlayerControlAvailability` derives a separate, versioned view from those existing signals.
 
 The derived view is diagnostic. It does not grant manifest permission, negotiate a profile, bypass action context, complete calibration, override cooldown, or authorize side effects. Clients still act only on standardized actions with `phase: "triggered"`.
 

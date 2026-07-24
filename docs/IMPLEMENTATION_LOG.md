@@ -9,7 +9,7 @@ This file records what has actually been built and verified. It does not convert
 ### Delivered
 
 - pnpm workspace with independent Motion API, game-manifest, console-lab, asset-preparation, schema-export, catalog-validation, and hosted-process supervision surfaces.
-- Motion API `0.3.0`: exact 17-point core, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, ordered out-of-band tracker health, temporal standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schemas, and explicit required/optional capability negotiation.
+- Motion API `0.4.0`: exact 17-point core, honest MediaPipe/RTMO/replay/synthetic source identity, optional MediaPipe 33 and world-coordinate profiles, named timestamp quality, ordered out-of-band tracker health, temporal standardized obstacle/shell actions, skeleton-only traces, generated Draft 2020-12 schemas, and explicit required/optional capability negotiation.
 - Local MediaPipe Pose Landmarker Lite pipeline with GPU-first and WASM CPU fallback, hidden raw video, 17/33 mapping, synthetic replay, bounded 600-frame trace buffer, and latency/FPS diagnostics that clearly label capture-arrival timing.
 - Minimal OCR-A television shell with charcoal, off-white, and cyan tokens; visible focus; Tracker, Obstacle, and Shell Lab surfaces; keyboard/controller recovery; and reduced-motion support.
 - Prototype join, jump, duck, dodge, swipe, two-hands select, crossed-arm Back/pause, 300 ms tracking-loss confirmation, and two-second silent reacquisition logic.
@@ -2544,7 +2544,7 @@ source commit and reused evidence bytes instead of claiming a clean tree.
   with exact exposure-semantics and clock-mapping proof digests.
 - Freezes exact target, camera, pipeline, workload, room, placement, persona,
   and canonical household-motion-plan digests before results are visible.
-- Requires 20 attempts for each of all ten Motion `0.3.0` actions in every
+- Requires 20 attempts for each of all ten Motion `0.4.0` actions in every
   declared persona/placement/workload cell, plus at least 15 minutes of
   negative/idle evidence per cell.
 - Retains invalid attempts and dropped frames; binds skeleton, ground-truth,
@@ -2577,3 +2577,60 @@ camera/room/placement/persona evidence, both blocking personas and qualified
 placements, representative concurrent workload, minimized trace artifacts,
 and an honest derived result. Neither the browser capture-arrival metrics nor
 the transport benchmarks can satisfy the 120 ms p95 gate.
+
+## 2026-07-24: pinned RTMO x86 CPU spike
+
+### Delivered
+
+- Advanced I-051 to `active` with a real RTMO-s/rtmlib/ONNX Runtime execution
+  path on the owned Windows x86-64 host.
+- Added a strict RTMO COCO-17 adapter that validates shape, scores,
+  coordinates, timing, thresholds, and player bounds; filters the all-zero
+  no-detection sentinel; preserves finite out-of-frame coordinates; and emits
+  only portable candidate landmarks without fabricating identity or actions.
+- Issued Motion API `0.4.0` under D-168 because `source` is a closed vocabulary
+  and honest `rtmo-native` provenance cannot be added silently to exact
+  `0.3.0`. Landmark, action, health, coordinate, and bridge semantics remain
+  unchanged. Current schemas, bridge peers, Godot sample, benchmark plan, and
+  camera campaign contract move together; historical `0.3.0` transport
+  evidence remains labeled as historical.
+- Added a Python 3.13 `uv` lock, a bounded official-model downloader, exact ZIP
+  and ONNX size/SHA-256 verification, and ignored model storage. No model bytes
+  were added to Git or treated as redistribution-cleared.
+- Ran RTMO-s and MediaPipe Lite sequentially in separate CPU processes on the
+  exact same
+  deterministic black/gray/gradient/seeded-noise 640 × 640 suite, with 20
+  warm-ups and 100 measured calls each.
+- Recorded RTMO-s at 56.334 ms p50 / 60.987 ms p95 / 17.923 FPS and MediaPipe
+  Lite at 9.571 ms p50 / 10.090 ms p95 / 104.182 FPS. Both correctly produced
+  zero detections on this no-person suite.
+- Added a closed report validator that binds the benchmark implementation and
+  dependency lock digests, exact models/providers/workload, monotonic latency
+  summaries, memory, detection accounting, no-raw-frame claim, and explicit
+  limitations across both reports.
+- Reserved Q-213 for CUDA/cuDNN installation authority and Q-214 for a paired
+  consented real-player comparison coordinated with Q-212.
+
+### Verification evidence
+
+- The Motion contract suite passes 70 tests, including nine RTMO mapping,
+  sentinel, ranking, bounds, out-of-frame, malformed-output, and timing cases.
+- Motion contract TypeScript checking passes; regenerated Draft 2020-12
+  schemas bind exact `0.4.0` and include `rtmo-native`.
+- Three Python helper tests pass; pinned model preparation verifies both
+  archive and expanded ONNX bytes.
+- Six adversarial report-validator tests pass, and both tracked CPU reports
+  pass the real validator with identical suite, environment, implementation,
+  lock, and source revision bindings.
+- The updated 280-attempt household benchmark and 18-test camera-action
+  campaign contract pass at Motion `0.4.0`.
+
+### Remaining boundary
+
+Synthetic no-person inputs prove executable compatibility and negative/idle
+compute only. I-051 remains active: consented paired real-player accuracy,
+one-player then two-player occlusion/identity/action/recovery evidence,
+exposure-to-action latency, representative concurrent load, native Linux and
+Rust-host integration, and distribution review remain. GPU is explicitly
+unqualified because the local CUDA/cuDNN runtime is absent; a provider-name
+attempt that fell back to CPU was discarded.

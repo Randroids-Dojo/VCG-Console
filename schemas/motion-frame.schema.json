@@ -4,7 +4,7 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "0.3.0"
+      "const": "0.4.0"
     },
     "sequence": {
       "type": "integer",
@@ -15,6 +15,7 @@
       "type": "string",
       "enum": [
         "mediapipe-web",
+        "rtmo-native",
         "replay",
         "synthetic"
       ]

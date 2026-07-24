@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-Motion API `0.3.0` separates tracker health transitions from pose frames. A frame still carries its source-local health snapshot, but a versioned `TrackerHealthEvent` remains deliverable when no frame exists—for example while a camera is unavailable, a backend restarts, or a stream disconnects.
+Motion API `0.3.0` introduced tracker health transitions outside pose frames; current `0.4.0` retains those semantics unchanged. A frame still carries its source-local health snapshot, but a versioned `TrackerHealthEvent` remains deliverable when no frame exists—for example while a camera is unavailable, a backend restarts, or a stream disconnects.
 
 ## Event contract
 

@@ -96,6 +96,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Casual local obstacle leaderboard](docs/LOCAL_LEADERBOARD.md)
 - [Tracker health and degraded-control contract](docs/TRACKER_HEALTH.md)
 - [Household motion benchmark protocol](docs/MOTION_BENCHMARK_PROTOCOL.md)
+- [RTMO x86 adapter and CPU spike](docs/RTMO_X86_SPIKE_2026-07-24.md)
 - [Player session and recovery state machine](docs/PLAYER_SESSION_STATE_MACHINE.md)
 - [Player-session household-interference campaign](docs/PLAYER_SESSION_INTERFERENCE_CAMPAIGN_2026-07-24.md)
 - [Controller input prototype contract](docs/CONTROLLER_INPUT.md)

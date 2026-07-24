@@ -2,7 +2,7 @@ class_name VcgMotionWebBridge
 extends RefCounted
 
 const PROTOCOL_VERSION := 2
-const MOTION_API_SCHEMA_VERSION := "0.3.0"
+const MOTION_API_SCHEMA_VERSION := "0.4.0"
 const ORIGIN_PATTERN := "^https?://[A-Za-z0-9.-]+(?::[0-9]{1,5})?$"
 
 var _game: RefCounted
@@ -36,7 +36,7 @@ func start() -> bool:
 				window.parent.postMessage({
 					type: "vcg.motion.hello",
 					protocolVersion: 2,
-					motionApiSchemaVersion: "0.3.0",
+					motionApiSchemaVersion: "0.4.0",
 					clientId,
 					request: {
 						requiredProfiles: ["body.core17"],

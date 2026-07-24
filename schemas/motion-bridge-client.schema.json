@@ -14,7 +14,7 @@
         },
         "motionApiSchemaVersion": {
           "type": "string",
-          "const": "0.3.0"
+          "const": "0.4.0"
         },
         "clientId": {
           "type": "string",

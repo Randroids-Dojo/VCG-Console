@@ -53,7 +53,7 @@ async function fixture() {
     formatVersion: 1,
     campaignId: "owned-x86-camera-latency-v1",
     createdAt: "2026-07-24T17:00:00.000Z",
-    motionApiVersion: "0.3.0",
+    motionApiVersion: "0.4.0",
     motionBenchmark: {
       protocolId: "household-one-player-v1",
       repositoryPath: "benchmarks/motion.json",

@@ -44,7 +44,7 @@ Raw images terminate inside the tracker boundary. The bridge accepts and emits s
 
 1. A non-allowlisted origin receives no reply, including no capability oracle.
 2. Both origin and source-window identity must match; knowing a session ID is insufficient.
-3. Hello binds bridge v2 and exact Motion API `0.3.0` before a session exists.
+3. Hello binds bridge v2 and exact Motion API `0.4.0` before a session exists.
 4. The host intersects source capabilities with an explicit manifest-derived
    profile grant before negotiation. Missing required profiles reject the
    session; optional profiles may degrade explicitly.

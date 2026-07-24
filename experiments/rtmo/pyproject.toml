@@ -1,0 +1,17 @@
+[project]
+name = "vcg-rtmo-spike"
+version = "0.1.0"
+description = "Pinned, local-only RTMO and MediaPipe x86 comparison tooling"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "mediapipe==0.10.35",
+  "numpy==2.5.1",
+  "onnxruntime==1.27.0",
+  "opencv-contrib-python==5.0.0.93",
+  "opencv-python==5.0.0.93",
+  "psutil==7.2.2",
+  "rtmlib==0.0.15",
+]
+
+[tool.uv]
+package = false

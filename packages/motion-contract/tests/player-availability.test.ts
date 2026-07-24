@@ -129,6 +129,6 @@ describe("player control availability", () => {
     expect(playerControlAvailabilityJsonSchema.$comment).toContain(
       "does not grant action authority",
     );
-    expect(MOTION_API_SCHEMA_VERSION).toBe("0.3.0");
+    expect(MOTION_API_SCHEMA_VERSION).toBe("0.4.0");
   });
 });

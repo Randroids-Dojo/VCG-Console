@@ -47,7 +47,7 @@ export async function validateLatencyPlan(plan, root = repositoryRoot) {
   requireEqual(plan.formatVersion, 1, "plan.formatVersion");
   requireIdentifier(plan.campaignId, "plan.campaignId");
   requireIsoDate(plan.createdAt, "plan.createdAt");
-  requireEqual(plan.motionApiVersion, "0.3.0", "plan.motionApiVersion");
+  requireEqual(plan.motionApiVersion, "0.4.0", "plan.motionApiVersion");
 
   await validateMotionBenchmarkBinding(plan.motionBenchmark, root);
   validateConfiguration(plan.configuration);
@@ -751,7 +751,7 @@ function requireRepositoryPath(value, name) {
 }
 
 function requireAction(value, name) {
-  if (!actionSet.has(value)) throw new Error(`${name} is not a Motion 0.3.0 action`);
+  if (!actionSet.has(value)) throw new Error(`${name} is not a Motion 0.4.0 action`);
 }
 
 function requireIdentifier(value, name) {

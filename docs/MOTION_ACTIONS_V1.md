@@ -2,9 +2,9 @@
 
 Last updated: 2026-07-23
 
-Motion API `0.2.0` introduced the temporal contract for `actions.obstacle.v1` and `actions.shell.v1`; current Motion API `0.3.0` retains it unchanged while adding out-of-band tracker health. This contract separates player feedback from side effects: clients may animate `started`, `held`, `ended`, and `cancelled`, but they act only on `triggered`.
+Motion API `0.2.0` introduced the temporal contract for `actions.obstacle.v1` and `actions.shell.v1`; `0.3.0` added out-of-band tracker health, and current Motion API `0.4.0` retains both unchanged while adding the RTMO source identity. This contract separates player feedback from side effects: clients may animate `started`, `held`, `ended`, and `cancelled`, but they act only on `triggered`.
 
-The Motion API version, coordinate specification version, and cooperative bridge protocol version are independent. Motion frames use `0.3.0`, the coordinate specification remains `0.1.0`, and the cooperative bridge protocol is version 2.
+The Motion API version, coordinate specification version, and cooperative bridge protocol version are independent. Motion frames use `0.4.0`, the coordinate specification remains `0.1.0`, and the cooperative bridge protocol is version 2.
 
 ## Profile ownership
 

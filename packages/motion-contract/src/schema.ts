@@ -7,7 +7,7 @@ import {
 import { COORDINATE_SPEC_VERSION, IMAGE_COORDINATE_SYSTEM, PROVIDER_WORLD_COORDINATE_SYSTEM } from "./coordinates";
 import { CORE_LANDMARK_NAMES, MEDIAPIPE_LANDMARK_NAMES } from "./landmarks";
 
-export const MOTION_API_SCHEMA_VERSION = "0.3.0" as const;
+export const MOTION_API_SCHEMA_VERSION = "0.4.0" as const;
 
 const NormalizedPointSchema = z.object({
   x: z.number().finite(),
@@ -167,7 +167,7 @@ export const TRACKER_HEALTH_REASONS = [
 
 export const TrackerHealthStatusSchema = z.enum(["starting", "ready", "degraded", "fault"]);
 export const TrackerHealthReasonSchema = z.enum(TRACKER_HEALTH_REASONS);
-export const MotionSourceSchema = z.enum(["mediapipe-web", "replay", "synthetic"]);
+export const MotionSourceSchema = z.enum(["mediapipe-web", "rtmo-native", "replay", "synthetic"]);
 
 const TrackerHealthEventBaseSchema = z.object({
   schemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),

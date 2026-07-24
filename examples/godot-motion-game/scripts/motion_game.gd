@@ -3,7 +3,7 @@ extends RefCounted
 
 signal changed(snapshot: Dictionary)
 
-const MOTION_API_SCHEMA_VERSION := "0.3.0"
+const MOTION_API_SCHEMA_VERSION := "0.4.0"
 const CORE_PROFILE := "body.core17"
 const OBSTACLE_PROFILE := "actions.obstacle.v1"
 const CORE_LANDMARKS := [
