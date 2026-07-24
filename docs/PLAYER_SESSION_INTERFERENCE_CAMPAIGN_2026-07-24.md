@@ -89,6 +89,33 @@ Current synthetic outcome: every named interference class is covered, all
 checks pass, the four authority-failure counts are zero, and one deliberate
 replacement takeover occurs. This is state-machine evidence only.
 
+### Pinned synthetic result
+
+The deterministic outcome is now preserved as
+`benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json`.
+It contains five scenarios, 15 passing checks, 12 interference-candidate
+observations, zero false joins, zero false controls, zero unintended
+takeovers, zero false actions, and exactly one explicit takeover.
+
+The artifact binds normalized SHA-256 digests for the session controller,
+adversarial rehearsal, generator, and validator. Its strict validator
+recomputes the complete report and rejects authority-failure substitution,
+missing explicit takeover, scenario/check reordering, raw-frame or identity
+claims, prohibited report fields, stale provenance, and undeclared
+qualification fields. It is bounded to 64 KiB and decoded as strict UTF-8.
+
+Reproduce it with:
+
+```text
+pnpm tsx scripts/generate-player-session-adversarial-evidence.mjs
+pnpm tsx scripts/validate-player-session-adversarial-evidence.mjs
+pnpm tsx --test scripts/validate-player-session-adversarial-evidence.test.mjs
+```
+
+The tracked result does not make the synthetic actors more realistic. It
+prevents the passing claim from drifting away from the exact state machine
+and fixture that produced it.
+
 ## Physical campaign formats
 
 [`validate-player-session-interference-campaign.mjs`](../scripts/validate-player-session-interference-campaign.mjs)
@@ -277,10 +304,12 @@ not be relabeled harness-invalid merely because the outcome is undesirable.
 
 ## Remaining work and closure boundary
 
-I-069 remains open. Closure requires:
+I-069 remains active. Closure requires:
 
-- owner authorization for the real room, exact camera/tracker build, consented
-  participants, replacement-player ceremony, and interference scripts;
+- Q-220 through Q-226 owner authorization for the real room, exact
+  camera/tracker build, consented participants, replacement-player ceremony,
+  interference scripts, animal-welfare protocol, evidence retention, and
+  independent review;
 - a frozen valid plan with real manifest digests;
 - independent harness dry runs proving oracle truth and stop paths;
 - all 840 planned trial ledger entries;

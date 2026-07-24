@@ -1,0 +1,233 @@
+{
+  "format": "vcg-player-session-adversarial-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "camera-free-synthetic-state-machine",
+  "qualification": "not-physical-qualification",
+  "invariant": "Detection alone grants no join, gameplay, Pause, silent-reacquisition, or takeover authority; one-player takeover requires deliberate Resume from a currently visible candidate after recovery opens.",
+  "report": {
+    "schemaVersion": "player-session-adversarial-synthetic/v1",
+    "source": "camera-free synthetic tracks",
+    "scenarios": [
+      {
+        "id": "passive-spectator",
+        "title": "Passive spectator detection grants no authority",
+        "interferenceClasses": [
+          "spectator"
+        ],
+        "checks": [
+          {
+            "id": "passive-detection-no-join",
+            "passed": true,
+            "detail": "A visible spectator remains an unassigned candidate."
+          },
+          {
+            "id": "spectator-no-control",
+            "passed": true,
+            "detail": "The spectator has no gameplay slot."
+          },
+          {
+            "id": "spectator-action-ignored",
+            "passed": true,
+            "detail": "A spectator-only pause completion cannot open the overlay."
+          }
+        ],
+        "metrics": {
+          "falseCandidateObservations": 1,
+          "falseJoins": 0,
+          "falseControls": 0,
+          "unintendedTakeovers": 0,
+          "falseActions": 0,
+          "explicitTakeovers": 0
+        },
+        "finalPhase": "setup"
+      },
+      {
+        "id": "pet-mirror-television",
+        "title": "Household interference cannot act for a joined player",
+        "interferenceClasses": [
+          "pet",
+          "mirror",
+          "television-person"
+        ],
+        "checks": [
+          {
+            "id": "joined-track-stable",
+            "passed": true,
+            "detail": "Pet, mirror, and television detections do not replace Player 1."
+          },
+          {
+            "id": "outsiders-no-control",
+            "passed": true,
+            "detail": "No household interference track receives gameplay authority."
+          },
+          {
+            "id": "outsider-actions-ignored",
+            "passed": true,
+            "detail": "Interference-only action completions cannot open Pause."
+          },
+          {
+            "id": "joined-action-wins",
+            "passed": true,
+            "detail": "The exact joined player can still open Pause while interference is visible."
+          }
+        ],
+        "metrics": {
+          "falseCandidateObservations": 3,
+          "falseJoins": 0,
+          "falseControls": 0,
+          "unintendedTakeovers": 0,
+          "falseActions": 0,
+          "explicitTakeovers": 0
+        },
+        "finalPhase": "paused"
+      },
+      {
+        "id": "passerby-during-loss",
+        "title": "A passerby cannot silently recover or control a lost session",
+        "interferenceClasses": [
+          "passerby"
+        ],
+        "checks": [
+          {
+            "id": "passerby-no-silent-recovery",
+            "passed": true,
+            "detail": "A different visible track cannot satisfy silent reacquisition."
+          },
+          {
+            "id": "recovery-stays-frozen",
+            "passed": true,
+            "detail": "Recovery requires an explicit Resume after the same-track window."
+          },
+          {
+            "id": "passerby-no-recovery-control",
+            "passed": true,
+            "detail": "A passerby has no gameplay authority while recovery is open."
+          },
+          {
+            "id": "original-player-explicit-resume",
+            "passed": true,
+            "detail": "Explicit Resume restores the selected original track without takeover."
+          }
+        ],
+        "metrics": {
+          "falseCandidateObservations": 3,
+          "falseJoins": 0,
+          "falseControls": 0,
+          "unintendedTakeovers": 0,
+          "falseActions": 0,
+          "explicitTakeovers": 0
+        },
+        "finalPhase": "playing"
+      },
+      {
+        "id": "deliberate-one-player-takeover",
+        "title": "Only explicit Resume transfers a one-player session",
+        "interferenceClasses": [
+          "spectator"
+        ],
+        "checks": [
+          {
+            "id": "replacement-does-not-auto-takeover",
+            "passed": true,
+            "detail": "A replacement player remains a candidate until Resume."
+          },
+          {
+            "id": "explicit-one-player-takeover",
+            "passed": true,
+            "detail": "Explicit Resume transfers the one-player slot to the selected replacement."
+          }
+        ],
+        "metrics": {
+          "falseCandidateObservations": 1,
+          "falseJoins": 0,
+          "falseControls": 0,
+          "unintendedTakeovers": 0,
+          "falseActions": 0,
+          "explicitTakeovers": 1
+        },
+        "finalPhase": "playing"
+      },
+      {
+        "id": "multiplayer-outsider-recovery",
+        "title": "Multiplayer recovery refuses outsider substitution",
+        "interferenceClasses": [
+          "spectator",
+          "passerby"
+        ],
+        "checks": [
+          {
+            "id": "missing-player-not-substituted",
+            "passed": true,
+            "detail": "Spectator and passerby tracks cannot substitute for retained Player 2."
+          },
+          {
+            "id": "explicit-roster-reduction",
+            "passed": true,
+            "detail": "A deliberate non-empty roster reduction resumes without outsider takeover."
+          }
+        ],
+        "metrics": {
+          "falseCandidateObservations": 4,
+          "falseJoins": 0,
+          "falseControls": 0,
+          "unintendedTakeovers": 0,
+          "falseActions": 0,
+          "explicitTakeovers": 0
+        },
+        "finalPhase": "playing"
+      }
+    ],
+    "coveredInterferenceClasses": [
+      "spectator",
+      "pet",
+      "mirror",
+      "television-person",
+      "passerby"
+    ],
+    "totals": {
+      "falseCandidateObservations": 12,
+      "falseJoins": 0,
+      "falseControls": 0,
+      "unintendedTakeovers": 0,
+      "falseActions": 0,
+      "explicitTakeovers": 1
+    },
+    "passed": true,
+    "qualificationBoundary": "Synthetic state-machine evidence only; no person, animal, mirror, television, room, camera, tracker, or target-hardware qualification has run."
+  },
+  "summary": {
+    "scenarioCount": 5,
+    "checkCount": 15,
+    "interferenceClassCount": 5,
+    "falseCandidateObservations": 12,
+    "authorityFailureCount": 0,
+    "explicitTakeoverCount": 1,
+    "allChecksPassed": true
+  },
+  "provenance": {
+    "controllerPath": "apps/console-lab/src/player-session.ts",
+    "rehearsalPath": "apps/console-lab/src/player-session-adversarial.ts",
+    "generatorPath": "scripts/generate-player-session-adversarial-evidence.mjs",
+    "validatorPath": "scripts/validate-player-session-adversarial-evidence.mjs",
+    "controllerSha256": "0855bcbe196b6439b8173b4f2992213f88dfe51e3c977cfcf3553f526d34e500",
+    "rehearsalSha256": "9c2f7dada63d94bd540e27ac30d4514796c85ef46a807cedf47e3ccda91ffae9",
+    "generatorSha256": "a5c7b44845216d4881be306ff2ba79c3beead07e6d454ec4b16ecdce9c2d608a",
+    "validatorSha256": "1d7dc1ab884e71f902e8b4e29df732f4644fcef72822115e817134dceae2fa2f"
+  },
+  "privacy": {
+    "rawFramesRetained": false,
+    "imagesRetained": false,
+    "landmarksRetained": false,
+    "bodyMeasurementsRetained": false,
+    "biometricIdentityUsed": false,
+    "durableIdentityUsed": false,
+    "syntheticTrackIdsOnly": true
+  },
+  "claimBoundary": "Deterministic camera-free state-machine evidence only. It proves the authored authority transitions for synthetic opaque tracks; it does not measure false detection, identity stability, action accuracy, latency, comfort, safety, or behavior of a camera, tracker, person, animal, mirror, television, passerby, room, game runtime, or target appliance.",
+  "limitations": [
+    "Interference roles are assigned by the fixture oracle; the runtime does not semantically identify people, animals, reflections, or displays.",
+    "Synthetic track continuity does not model detector false positives, identity swaps, overlap, occlusion, tracker restart, or camera error.",
+    "The single deliberate takeover proves a state transition, not comprehension, consent, controller assignment, profile/save ownership, or competitive fairness.",
+    "The separate 70-cell and 840-trial physical campaign remains unexecuted."
+  ]
+}

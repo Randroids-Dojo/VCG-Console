@@ -143,6 +143,13 @@ browser tests prove all named classes execute, the four authority-failure
 counts remain zero, explicit one-player Resume transfers exactly once, no
 camera request is made, and controller Select/Back remains usable.
 
+The same deterministic result is pinned in
+`benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json`
+with normalized hashes of the controller, rehearsal, generator, and strict
+validator. Fifteen checks record 12 interference-candidate observations, zero
+authority failures, and one deliberate takeover. This makes result drift
+detectable; it does not strengthen the synthetic claim.
+
 `PLAYER_SESSION_INTERFERENCE_CAMPAIGN_2026-07-24.md` and its strict validator
 pre-register the later physical campaign as 70 class/persona/scene cells and
 840 scheduled trials. This is future evidence, not a completed result.

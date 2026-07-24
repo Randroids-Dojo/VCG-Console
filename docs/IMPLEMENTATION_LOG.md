@@ -3364,3 +3364,54 @@ camera/backend and both target tiers, action and full-latency measurements,
 comfort/fatigue and stop-rule evidence, deliberate controller assignment,
 visible-helper/identity/takeover testing with I-069, and TV-distance
 supported/unsupported communication remain required.
+
+## 2026-07-24: pinned player-session interference result
+
+### Delivered
+
+- Reconciled I-069 from open to active: the authority state machine,
+  camera-free rehearsal, UI evidence, and strict future physical campaign
+  contract already existed, while the investigation row and retained
+  synthetic-result evidence lagged behind them.
+- Pinned the five-scenario camera-free authority result as a bounded JSON
+  artifact with 15 passing checks across spectator, pet, mirror,
+  television-person, passerby, deliberate replacement, and multiplayer
+  outsider-recovery cases.
+- Preserved 12 interference-candidate observations separately from the safety
+  outcome: false joins, false controls, unintended takeovers, and false
+  actions are all zero, while exactly one explicit post-recovery Resume
+  takeover occurs.
+- Bound normalized SHA-256 digests for the player-session controller,
+  adversarial rehearsal, generator, and validator so the report cannot drift
+  from its implementation silently.
+- Added strict UTF-8 and 64 KiB bounds, exact scenario/check ordering, closed
+  metrics/privacy/provenance fields, recomputation, and prohibited body/image
+  report keys.
+- Reused the existing Q-220 through Q-226 owner-question set for
+  real-room/camera/tracker authorization, participant consent/assent and
+  safeguarding, replacement ceremony, interference scripts, animal welfare,
+  evidence retention, reliability scope, and independent review.
+
+### Verification evidence
+
+- Ten artifact-validator cases accept the pinned report and reject false join,
+  false control/action, unintended takeover, missing explicit takeover,
+  scenario/check substitution, raw-frame/biometric/durable-identity claims,
+  prohibited fields, stale provenance, and undeclared physical
+  qualification.
+- The existing 232 Console Lab unit tests and Svelte typecheck remain green,
+  including the underlying player-session and adversarial rehearsal coverage.
+- All 432 workspace package tests, workspace typecheck, production build,
+  schema freshness, benchmark/transport/manifest validation, device-only data
+  exclusion, compliance inventory, and Godot 4.7 validation pass.
+
+### Remaining boundary
+
+I-069 remains active. The pinned result only replays authored opaque tracks;
+it does not measure a detector, identity tracker, action recognizer, camera,
+room, runtime, target device, participant, animal, mirror, television, or
+passerby. The separately pre-registered 70-cell / 840-trial physical campaign
+has no real manifest-bound plan or result. Q-220 through Q-226, independent
+harness/oracle dry runs, consented child/adult sessions, safe interference
+and animal-welfare protocols, every planned ledger entry, reviewed failures,
+and reruns after material fixes remain required.
