@@ -94,7 +94,11 @@ const report = {
     options.serverLayout === "child-process"
       ? "Client and server CPU/RSS are process-isolated, but both processes still share one development host and scheduler."
       : "Same-process socket servers understate scheduler and process-isolation costs.",
-    "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
+    process.platform === "win32"
+      ? "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence."
+      : process.env.WSL_DISTRO_NAME || /microsoft/i.test(osRelease)
+        ? "WSL2 local-socket results use a Unix-domain socket under a virtualized Linux kernel; target native Linux must rerun the same harness."
+        : "Linux local-socket results use a Unix-domain socket; each target architecture and operating image must rerun the same harness.",
     "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
     options.payloadMode === "motion-json"
       ? "The representative frame is synthetic; live backend distributions, multi-player traffic, and worst-case frames require separate measurements."
