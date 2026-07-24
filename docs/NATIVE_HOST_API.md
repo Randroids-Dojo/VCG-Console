@@ -8,7 +8,7 @@ This document defines the first reversible transport between the local Svelte la
 
 The implemented `0.1.0` surface answers status and installed-package queries and accepts one narrow privileged operation: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog.
 
-It never accepts a browser-provided manifest, executable, path, hash, command, environment, or writable root. It does not return logs, change settings, grant a game access to the host API, prove a visible game window, or connect the existing heartbeat watchdog. Process start is observable; compositor readiness remains deliberately unproven.
+It never accepts a browser-provided manifest, executable, path, hash, command, environment, or writable root. It does not return logs, change settings, grant a game access to the host API, or prove a visible game window. Host-selected installed games may use the existing heartbeat watchdog, but process/runtime health is only observable; compositor readiness remains deliberately unproven.
 
 ## Launch and authority flow
 
@@ -59,6 +59,8 @@ Creation accepts exactly:
 The 128-bit random request ID is an idempotency key within one host process. Repeating identical intent returns the existing record and cannot start a second child. Reusing the ID for different intent fails with `REQUEST_ID_CONFLICT`. The host permits one active native game, keeps at most 64 lifecycle records, and prunes terminal records first. These records are memory-only: replay protection does not survive host restart.
 
 The profile ID must be in the host's explicit `--profile-id` allowlist. Browser-created or renamed display text cannot create a storage namespace. After accepting intent, Rust re-resolves and verifies the signed catalog, manifest, frontend, core, base configuration, and content, prepares host-owned storage, and invokes the executable directly without a shell.
+
+If privileged host configuration names the signed game ID with `--watchdog-game-id`, the same request record owns bounded heartbeat/restart recovery for every player profile. The browser cannot enable watchdog mode, set its policy, or provide probe paths, and a runtime heartbeat does not satisfy compositor/window readiness.
 
 A lifecycle response contains protocol version, request ID, game ID, profile ID, monotonic per-launch sequence, state, stable detail code, replay marker, and an exit code only for terminal completed/failed states. It never contains a process ID or native path. States are `preparing`, `running`, `stopping`, `completed`, `failed`, and `cancelled`.
 

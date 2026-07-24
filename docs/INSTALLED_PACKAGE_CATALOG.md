@@ -29,11 +29,14 @@ It cannot install, update, revoke, roll back, prove window readiness, persist la
 --data-root <absolute-persistent-data-root>
 [--content-root <absolute-managed-retro-content-root>]
 [--profile-id <host-owned-profile-id>]...
+[--watchdog-game-id <installed-game-id>]...
 ```
 
-The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the number of configured profiles.
+The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
 
 Without `--profile-id`, the API exposes metadata only. With one or more unique bounded IDs, it also advertises `trusted-package-launch`; submitted profile IDs must exactly match that host allowlist. The current Svelte profile IDs are desk-prototype identifiers and are not yet a persisted native profile registry.
+
+An optional watchdog game must name a package in the verified installed catalog. It is privileged host configuration, not browser or public-manifest metadata, and means that game's exact qualified runtime producer must satisfy the bounded heartbeat contract for every player profile.
 
 The public-key file is currently a host-configured path. Target images still need to pin that key in a verified read-only system slot and define rotation/revocation under I-112/I-141. A writable key path beside a writable catalog is not a production trust root.
 
@@ -157,5 +160,5 @@ Still required:
 - signed package installation and atomic catalog promotion;
 - immutable or descriptor-bound artifact use;
 - persistent replay/idempotency policy across host restart;
-- window readiness events, watchdog integration, compositor containment, reserved Home/Back, and target-Linux sandboxing;
+- qualified heartbeat producers, window readiness events, compositor containment, reserved Home/Back, and target-Linux sandboxing;
 - update and removal cleanup plus architecture-parity evidence.

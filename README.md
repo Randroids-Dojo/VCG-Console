@@ -70,6 +70,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Deferred owner questions from the prototype-gates tranche](docs/OWNER_QUESTIONS_PROTOTYPE_GATES_2026-07-23.md)
 - [Deferred owner questions from the installed-catalog tranche](docs/OWNER_QUESTIONS_INSTALLED_CATALOG_2026-07-23.md)
 - [Deferred owner questions from the native-launch tranche](docs/OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md)
+- [Deferred owner questions from the package-watchdog tranche](docs/OWNER_QUESTIONS_WATCHDOG_2026-07-23.md)
 - [Source ledger](docs/SOURCES.md)
 
 ## Experience principles

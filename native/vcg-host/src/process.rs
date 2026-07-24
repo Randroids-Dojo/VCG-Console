@@ -113,6 +113,7 @@ pub struct ProcessSupervisor;
 enum AttemptResult {
     Completed(ExitStatus),
     Recover(WatchdogReason),
+    Cancelled,
 }
 
 impl ProcessSupervisor {
@@ -149,63 +150,135 @@ impl ProcessSupervisor {
         &self,
         spec: &LaunchSpec,
         policy: &WatchdogPolicy,
-        mut probe: P,
-        mut emit: F,
+        probe: P,
+        emit: F,
     ) -> Result<WatchdogOutcome, WatchdogError>
     where
         P: HealthProbe,
         F: FnMut(&WatchdogEvent),
     {
+        match self.watch_controlled(spec, policy, probe, emit, || false)? {
+            ControlledWatchdogOutcome::Completed(outcome) => Ok(outcome),
+            ControlledWatchdogOutcome::Cancelled { .. } => {
+                unreachable!("an uncontrolled watchdog cannot be cancelled")
+            }
+        }
+    }
+
+    /// Runs a child under bounded supervision while observing a host-owned
+    /// cancellation signal.
+    ///
+    /// Cancellation always terminates and reaps the current direct child. It
+    /// also interrupts restart backoff and prevents another attempt from
+    /// starting.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the child cannot launch, the probe or process
+    /// cannot be inspected, or the configured recovery budget is exhausted.
+    pub fn watch_controlled<P, F, C>(
+        &self,
+        spec: &LaunchSpec,
+        policy: &WatchdogPolicy,
+        mut probe: P,
+        mut emit: F,
+        mut cancelled: C,
+    ) -> Result<ControlledWatchdogOutcome, WatchdogError>
+    where
+        P: HealthProbe,
+        F: FnMut(&WatchdogEvent),
+        C: FnMut() -> bool,
+    {
         policy.validate().map_err(WatchdogError::Configuration)?;
         let mut attempt = 0;
 
         loop {
+            if cancelled() {
+                emit(&WatchdogEvent::Cancelled { attempt });
+                return Ok(ControlledWatchdogOutcome::Cancelled { attempts: attempt });
+            }
             attempt += 1;
             probe.reset().map_err(|source| WatchdogError::Io {
                 operation: "reset health probe",
                 source,
             })?;
+            if cancelled() {
+                emit(&WatchdogEvent::Cancelled {
+                    attempt: attempt - 1,
+                });
+                return Ok(ControlledWatchdogOutcome::Cancelled {
+                    attempts: attempt - 1,
+                });
+            }
             let mut child = self.launch(spec).map_err(WatchdogError::Launch)?;
             emit(&WatchdogEvent::Started {
                 attempt,
                 process_id: child.id(),
             });
-            match Self::monitor_attempt(&mut child, policy, &mut probe, &mut emit, attempt)? {
+            match Self::monitor_attempt(
+                &mut child,
+                policy,
+                &mut probe,
+                &mut emit,
+                &mut cancelled,
+                attempt,
+            )? {
                 AttemptResult::Completed(status) => {
                     emit(&WatchdogEvent::Completed {
                         attempt,
                         exit_code: status.code(),
                         recovered: attempt > 1,
                     });
-                    return Ok(WatchdogOutcome {
+                    return Ok(ControlledWatchdogOutcome::Completed(WatchdogOutcome {
                         status,
                         attempts: attempt,
                         recovered: attempt > 1,
-                    });
+                    }));
                 }
                 AttemptResult::Recover(reason) => {
                     Self::recover_or_fail(&mut emit, policy, attempt, reason)?;
+                    if wait_for_restart_or_cancel(
+                        policy.restart_backoff,
+                        policy.poll_interval,
+                        &mut cancelled,
+                    ) {
+                        emit(&WatchdogEvent::Cancelled { attempt });
+                        return Ok(ControlledWatchdogOutcome::Cancelled { attempts: attempt });
+                    }
+                }
+                AttemptResult::Cancelled => {
+                    emit(&WatchdogEvent::Cancelled { attempt });
+                    return Ok(ControlledWatchdogOutcome::Cancelled { attempts: attempt });
                 }
             }
         }
     }
 
-    fn monitor_attempt<P, F>(
+    fn monitor_attempt<P, F, C>(
         child: &mut ManagedChild,
         policy: &WatchdogPolicy,
         probe: &mut P,
         emit: &mut F,
+        cancelled: &mut C,
         attempt: u32,
     ) -> Result<AttemptResult, WatchdogError>
     where
         P: HealthProbe,
         F: FnMut(&WatchdogEvent),
+        C: FnMut() -> bool,
     {
         let started_at = Instant::now();
         let mut last_heartbeat_at = started_at;
         let mut ready = false;
 
         loop {
+            if cancelled() {
+                child.terminate().map_err(|source| WatchdogError::Io {
+                    operation: "terminate cancelled child",
+                    source,
+                })?;
+                return Ok(AttemptResult::Cancelled);
+            }
             if let Some(status) = child.try_wait().map_err(|source| WatchdogError::Io {
                 operation: "inspect child status",
                 source,
@@ -289,7 +362,6 @@ impl ProcessSupervisor {
                 next_attempt: attempt + 1,
                 reason,
             });
-            thread::sleep(policy.restart_backoff);
             Ok(())
         } else {
             emit(&WatchdogEvent::Failed {
@@ -301,6 +373,27 @@ impl ProcessSupervisor {
                 attempts: attempt,
             })
         }
+    }
+}
+
+fn wait_for_restart_or_cancel<C>(
+    duration: Duration,
+    poll_interval: Duration,
+    cancelled: &mut C,
+) -> bool
+where
+    C: FnMut() -> bool,
+{
+    let deadline = Instant::now() + duration;
+    loop {
+        if cancelled() {
+            return true;
+        }
+        let now = Instant::now();
+        if now >= deadline {
+            return false;
+        }
+        thread::sleep((deadline - now).min(poll_interval));
     }
 }
 
@@ -571,6 +664,9 @@ pub enum WatchdogEvent {
         attempts: u32,
         reason: WatchdogReason,
     },
+    Cancelled {
+        attempt: u32,
+    },
 }
 
 impl fmt::Display for WatchdogEvent {
@@ -612,8 +708,18 @@ impl fmt::Display for WatchdogEvent {
                     "watchdog:failed attempts={attempts} reason={reason}"
                 )
             }
+            Self::Cancelled { attempt } => {
+                write!(formatter, "watchdog:cancelled attempt={attempt}")
+            }
         }
     }
+}
+
+/// Terminal result from a cancellation-aware watchdog run.
+#[derive(Debug)]
+pub enum ControlledWatchdogOutcome {
+    Completed(WatchdogOutcome),
+    Cancelled { attempts: u32 },
 }
 
 /// Successful completion after one or more supervised attempts.
@@ -737,12 +843,15 @@ mod tests {
     use std::io;
     use std::path::PathBuf;
     use std::process;
+    use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
     use std::thread;
     use std::time::{Duration, Instant, SystemTime};
 
     use super::{
-        FileHealthProbe, HealthProbe, HealthSignal, LaunchError, LaunchSpec, ProcessSupervisor,
-        ResourceFault, WatchdogError, WatchdogEvent, WatchdogPolicy, WatchdogReason,
+        ControlledWatchdogOutcome, FileHealthProbe, HealthProbe, HealthSignal, LaunchError,
+        LaunchSpec, ProcessSupervisor, ResourceFault, WatchdogError, WatchdogEvent, WatchdogPolicy,
+        WatchdogReason,
     };
 
     #[derive(Debug)]
@@ -1098,6 +1207,90 @@ mod tests {
         assert!(matches!(events[0], WatchdogEvent::Started { .. }));
         assert!(matches!(events[1], WatchdogEvent::Ready { .. }));
         assert!(matches!(events[2], WatchdogEvent::Completed { .. }));
+    }
+
+    #[test]
+    fn controlled_watchdog_terminates_a_running_child_on_cancellation() {
+        let executable = env::current_exe().expect("current test executable");
+        let spec = LaunchSpec::new(executable)
+            .expect("valid executable")
+            .args([
+                "--exact",
+                "process::tests::managed_child_drop_helper",
+                "--ignored",
+            ]);
+        let polls = AtomicUsize::new(0);
+        let mut events = Vec::new();
+
+        let outcome = ProcessSupervisor
+            .watch_controlled(
+                &spec,
+                &fast_policy(0),
+                HealthyProbe,
+                |event| events.push(event.clone()),
+                || polls.fetch_add(1, Ordering::Relaxed) >= 5,
+            )
+            .expect("cancellation is a successful terminal outcome");
+
+        assert!(matches!(
+            outcome,
+            ControlledWatchdogOutcome::Cancelled { attempts: 1 }
+        ));
+        assert!(
+            events
+                .iter()
+                .any(|event| matches!(event, WatchdogEvent::Cancelled { attempt: 1 }))
+        );
+        assert!(
+            !events
+                .iter()
+                .any(|event| matches!(event, WatchdogEvent::Completed { .. }))
+        );
+    }
+
+    #[test]
+    fn controlled_watchdog_cancels_restart_backoff_before_another_spawn() {
+        let directory = test_directory("cancel-backoff");
+        fs::create_dir_all(&directory).expect("test directory is created");
+        let counter = directory.join("counter");
+        let executable = env::current_exe().expect("current test executable");
+        let spec = LaunchSpec::new(executable)
+            .expect("valid executable")
+            .args([
+                "--exact",
+                "process::tests::watchdog_crash_once_helper",
+                "--ignored",
+            ])
+            .env("VCG_WATCHDOG_TEST_COUNTER", counter.as_os_str());
+        let restarting = Arc::new(AtomicBool::new(false));
+        let event_flag = Arc::clone(&restarting);
+        let cancel_flag = Arc::clone(&restarting);
+        let mut policy = fast_policy(1);
+        policy.restart_backoff = Duration::from_secs(1);
+
+        let outcome = ProcessSupervisor
+            .watch_controlled(
+                &spec,
+                &policy,
+                QuietProbe,
+                move |event| {
+                    if matches!(event, WatchdogEvent::Restarting { .. }) {
+                        event_flag.store(true, Ordering::Release);
+                    }
+                },
+                move || cancel_flag.load(Ordering::Acquire),
+            )
+            .expect("backoff cancellation succeeds");
+
+        assert!(matches!(
+            outcome,
+            ControlledWatchdogOutcome::Cancelled { attempts: 1 }
+        ));
+        assert_eq!(
+            fs::read_to_string(&counter).expect("only first attempt records"),
+            "1"
+        );
+        fs::remove_dir_all(directory).expect("test directory is removed");
     }
 
     #[test]

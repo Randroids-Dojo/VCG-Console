@@ -39,6 +39,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("retroarch-integrity: sha256-required");
             println!("installed-catalog: ed25519-signed-target-qualified");
             println!("native-launch: fixed-intent-process-lifecycle");
+            println!("native-launch-watchdog: host-game-opt-in");
             println!("native-launch-replay: in-memory-bounded");
             println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
@@ -72,6 +73,7 @@ struct LauncherOptions {
     runtime_root: Option<PathBuf>,
     data_root: Option<PathBuf>,
     profile_ids: Vec<String>,
+    watchdog_game_ids: Vec<String>,
 }
 
 struct LauncherCatalogOptions {
@@ -80,6 +82,7 @@ struct LauncherCatalogOptions {
     public_key: PathBuf,
     roots: CatalogRoots,
     profile_ids: Vec<String>,
+    watchdog_game_ids: Vec<String>,
 }
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
@@ -90,16 +93,22 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     if dry_run {
         let spec = plan_launcher(&request).map_err(|error| error.to_string())?;
         println!("launcher:plan mode=dry-run");
-        if let Some((catalog, profile_ids)) = &catalog_configuration {
+        if let Some((catalog, profile_ids, watchdog_game_ids)) = &catalog_configuration {
             println!(
                 "launcher:catalog generation={} target={}",
                 catalog.generation(),
                 catalog.target()
             );
             println!("launcher:profiles count={}", profile_ids.len());
+            println!("launcher:watchdog-games count={}", watchdog_game_ids.len());
             if !profile_ids.is_empty() {
-                NativeLaunchService::new(std::sync::Arc::new(catalog.clone()), profile_ids.clone())
-                    .map_err(|error| error.to_string())?;
+                NativeLaunchService::with_watchdog_games(
+                    std::sync::Arc::new(catalog.clone()),
+                    profile_ids.clone(),
+                    watchdog_game_ids.clone(),
+                    WatchdogPolicy::local_game_defaults(),
+                )
+                .map_err(|error| error.to_string())?;
             }
         }
         println!("program: {}", spec.program().display());
@@ -110,11 +119,19 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     }
 
     let origin = loopback_origin(request.url()).map_err(|error| error.to_string())?;
-    let host_api = if let Some((catalog, profile_ids)) = catalog_configuration {
+    let host_api = if let Some((catalog, profile_ids, watchdog_game_ids)) = catalog_configuration {
         if profile_ids.is_empty() {
             HostStatusServer::start_with_catalog(origin, catalog)
-        } else {
+        } else if watchdog_game_ids.is_empty() {
             HostStatusServer::start_with_launch_service(origin, catalog, profile_ids)
+        } else {
+            HostStatusServer::start_with_watchdog_launch_service(
+                origin,
+                catalog,
+                profile_ids,
+                watchdog_game_ids,
+                WatchdogPolicy::local_game_defaults(),
+            )
         }
     } else {
         HostStatusServer::start(origin)
@@ -155,7 +172,7 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
 }
 
 impl LauncherCatalogOptions {
-    fn load(self) -> Result<(TrustedPackageCatalog, Vec<String>), String> {
+    fn load(self) -> Result<(TrustedPackageCatalog, Vec<String>, Vec<String>), String> {
         let catalog = TrustedPackageCatalog::load(
             &self.catalog,
             &self.signature,
@@ -163,7 +180,7 @@ impl LauncherCatalogOptions {
             self.roots,
         )
         .map_err(|error| error.to_string())?;
-        Ok((catalog, self.profile_ids))
+        Ok((catalog, self.profile_ids, self.watchdog_game_ids))
     }
 }
 
@@ -201,7 +218,11 @@ fn launcher_request(
         || options.content_root.is_some()
         || options.runtime_root.is_some()
         || options.data_root.is_some()
-        || !options.profile_ids.is_empty();
+        || !options.profile_ids.is_empty()
+        || !options.watchdog_game_ids.is_empty();
+    if !options.watchdog_game_ids.is_empty() && options.profile_ids.is_empty() {
+        return Err("--watchdog-game-id requires at least one --profile-id".to_owned());
+    }
     let catalog = if catalog_requested {
         Some(LauncherCatalogOptions {
             catalog: options
@@ -226,6 +247,7 @@ fn launcher_request(
                     .ok_or_else(|| "launcher catalog requires --data-root".to_owned())?,
             },
             profile_ids: options.profile_ids,
+            watchdog_game_ids: options.watchdog_game_ids,
         })
     } else {
         None
@@ -283,6 +305,18 @@ fn parse_launcher_catalog_option(
             return Err("--profile-id values must be unique".to_owned());
         }
         output.profile_ids.push(profile_id);
+        return Ok(());
+    }
+    if option == "--watchdog-game-id" {
+        let game_id = required_next_text(arguments, cursor, option)?;
+        if output
+            .watchdog_game_ids
+            .iter()
+            .any(|existing| existing == &game_id)
+        {
+            return Err("--watchdog-game-id values must be unique".to_owned());
+        }
+        output.watchdog_game_ids.push(game_id);
         return Ok(());
     }
     let slot = match option {
@@ -747,7 +781,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]...]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --catalog-public-key <path> --install-root <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]... [--watchdog-game-id <id>]...]\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -837,13 +871,14 @@ mod tests {
             "profile-randy",
             "--profile-id",
             "profile-guest",
+            "--watchdog-game-id",
+            "retro-2048",
         ]);
         let (_, _, catalog) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
-        assert_eq!(
-            catalog.expect("catalog options exist").profile_ids,
-            ["profile-randy", "profile-guest"]
-        );
+        let catalog = catalog.expect("catalog options exist");
+        assert_eq!(catalog.profile_ids, ["profile-randy", "profile-guest"]);
+        assert_eq!(catalog.watchdog_game_ids, ["retro-2048"]);
 
         let mut partial = base.to_vec();
         partial.extend(["--catalog", "/metadata/catalog.json"]);
@@ -854,6 +889,49 @@ mod tests {
         let mut duplicate_profile = complete;
         duplicate_profile.extend(["--profile-id", "profile-randy"]);
         assert!(launcher_request(&args(&duplicate_profile)).is_err());
+        let mut watchdog_without_catalog = base.to_vec();
+        watchdog_without_catalog.extend(["--watchdog-game-id", "retro-2048"]);
+        assert!(launcher_request(&args(&watchdog_without_catalog)).is_err());
+        let mut watchdog_without_profile = base.to_vec();
+        watchdog_without_profile.extend([
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--catalog-public-key",
+            "/metadata/catalog.pub",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+            "--watchdog-game-id",
+            "retro-2048",
+        ]);
+        assert!(launcher_request(&args(&watchdog_without_profile)).is_err());
+        let mut duplicate_watchdog_game = base.to_vec();
+        duplicate_watchdog_game.extend([
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--catalog-public-key",
+            "/metadata/catalog.pub",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+            "--profile-id",
+            "profile-randy",
+            "--watchdog-game-id",
+            "retro-2048",
+            "--watchdog-game-id",
+            "retro-2048",
+        ]);
+        assert!(launcher_request(&args(&duplicate_watchdog_game)).is_err());
     }
 
     #[test]

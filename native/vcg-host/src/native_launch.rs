@@ -11,7 +11,10 @@ use std::time::Duration;
 use crate::installed_catalog::{
     CatalogError, ResolvedPackage, TrustedPackageCatalog, validate_intent_id,
 };
-use crate::process::{LaunchError, ProcessSupervisor};
+use crate::process::{
+    ControlledWatchdogOutcome, FileHealthProbe, LaunchError, ProcessSupervisor,
+    WatchdogConfigError, WatchdogError, WatchdogEvent, WatchdogPolicy, WatchdogReason,
+};
 use crate::retroarch::{RetroArchError, RetroArchPlan, plan as plan_retroarch};
 
 const MAX_LAUNCH_RECORDS: usize = 64;
@@ -114,6 +117,8 @@ enum PreparedLaunch {
 pub struct NativeLaunchService {
     catalog: Arc<TrustedPackageCatalog>,
     allowed_profiles: HashSet<String>,
+    watchdog_games: HashSet<String>,
+    watchdog_policy: WatchdogPolicy,
     shared: Arc<Mutex<SharedLaunches>>,
     stop: Arc<AtomicBool>,
     workers: Mutex<Vec<JoinHandle<()>>>,
@@ -129,6 +134,30 @@ impl NativeLaunchService {
         catalog: Arc<TrustedPackageCatalog>,
         profile_ids: impl IntoIterator<Item = String>,
     ) -> Result<Self, NativeLaunchError> {
+        Self::with_watchdog_games(
+            catalog,
+            profile_ids,
+            Vec::new(),
+            WatchdogPolicy::local_game_defaults(),
+        )
+    }
+
+    /// Creates a launch service whose explicitly selected games require
+    /// heartbeat supervision.
+    ///
+    /// Watchdog game IDs must identify packages in the signature-verified
+    /// catalog. The browser cannot enable supervision or select probe paths.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid or duplicate launch-profile/watchdog-game IDs, watchdog
+    /// games absent from the catalog, and invalid watchdog policy.
+    pub fn with_watchdog_games(
+        catalog: Arc<TrustedPackageCatalog>,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+    ) -> Result<Self, NativeLaunchError> {
         let mut allowed_profiles = HashSet::new();
         for profile_id in profile_ids {
             validate_intent_id("profile", &profile_id)
@@ -140,9 +169,25 @@ impl NativeLaunchService {
         if allowed_profiles.is_empty() {
             return Err(NativeLaunchError::NoProfiles);
         }
+        let mut watchdog_games = HashSet::new();
+        for game_id in watchdog_game_ids {
+            validate_intent_id("game", &game_id)
+                .map_err(|_| NativeLaunchError::InvalidWatchdogGame(game_id.clone()))?;
+            if !watchdog_games.insert(game_id.clone()) {
+                return Err(NativeLaunchError::DuplicateWatchdogGame(game_id));
+            }
+            if catalog.package_summary(&game_id).is_err() {
+                return Err(NativeLaunchError::WatchdogGameNotInstalled(game_id));
+            }
+        }
+        watchdog_policy
+            .validate()
+            .map_err(NativeLaunchError::WatchdogConfiguration)?;
         Ok(Self {
             catalog,
             allowed_profiles,
+            watchdog_games,
+            watchdog_policy,
             shared: Arc::new(Mutex::new(SharedLaunches::default())),
             stop: Arc::new(AtomicBool::new(false)),
             workers: Mutex::new(Vec::new()),
@@ -183,7 +228,11 @@ impl NativeLaunchService {
         if self.stop.load(Ordering::Acquire) || cancel.load(Ordering::Acquire) {
             return self.cancelled_start(request_id);
         }
-        self.activate_process(request_id, game_id, profile_id, &plan, cancel)
+        if self.watchdog_games.contains(game_id) {
+            self.activate_watchdog(request_id, &plan, &cancel)
+        } else {
+            self.activate_process(request_id, game_id, profile_id, &plan, cancel)
+        }
     }
 
     fn validate_launch_intent(
@@ -330,6 +379,79 @@ impl NativeLaunchService {
         })
     }
 
+    fn activate_watchdog(
+        &self,
+        request_id: &str,
+        plan: &RetroArchPlan,
+        cancel: &Arc<AtomicBool>,
+    ) -> Result<NativeLaunchStart, NativeLaunchError> {
+        let heartbeat_path = plan.storage().session.join("vcg.heartbeat");
+        let probe = FileHealthProbe::new(&heartbeat_path, None)
+            .map_err(NativeLaunchError::WatchdogConfiguration)?;
+        let launch = plan
+            .launch()
+            .clone()
+            .env("VCG_HEARTBEAT_FILE", heartbeat_path.as_os_str());
+        let accepted_snapshot = {
+            let mut shared = lock(&self.shared)?;
+            let record = shared
+                .records
+                .iter_mut()
+                .find(|record| record.request_id == request_id)
+                .ok_or_else(|| NativeLaunchError::RequestNotFound(request_id.to_owned()))?;
+            record.sequence += 1;
+            if record.cancel.load(Ordering::Acquire) {
+                record.state = NativeLaunchState::Cancelled;
+                record.detail_code = "PROCESS_CANCELLED";
+            } else {
+                record.detail_code = "WATCHDOG_STARTING";
+            }
+            record.snapshot()
+        };
+        if accepted_snapshot.state == NativeLaunchState::Cancelled {
+            return Ok(NativeLaunchStart {
+                snapshot: accepted_snapshot,
+                replayed: false,
+            });
+        }
+        let policy = self.watchdog_policy.clone();
+        let shared = Arc::clone(&self.shared);
+        let stop = Arc::clone(&self.stop);
+        let worker_cancel = Arc::clone(cancel);
+        let worker_request_id = request_id.to_owned();
+        let worker = thread::Builder::new()
+            .name(format!("vcg-watchdog-{}", short_request_id(request_id)))
+            .spawn(move || {
+                monitor_watchdog(
+                    &launch,
+                    &policy,
+                    probe,
+                    &shared,
+                    &stop,
+                    &worker_cancel,
+                    &worker_request_id,
+                );
+            })
+            .map_err(|source| {
+                update_state(
+                    &self.shared,
+                    request_id,
+                    NativeLaunchState::Failed { exit_code: None },
+                    "MONITOR_START_FAILED",
+                );
+                NativeLaunchError::Io {
+                    operation: "start watchdog monitor",
+                    source,
+                }
+            })?;
+        lock(&self.workers)?.push(worker);
+
+        Ok(NativeLaunchStart {
+            snapshot: accepted_snapshot,
+            replayed: false,
+        })
+    }
+
     /// Returns one launch without exposing native implementation details.
     ///
     /// # Errors
@@ -425,6 +547,135 @@ impl Drop for NativeLaunchService {
         };
         for worker in workers {
             let _ = worker.join();
+        }
+    }
+}
+
+fn monitor_watchdog(
+    launch: &crate::process::LaunchSpec,
+    policy: &WatchdogPolicy,
+    probe: FileHealthProbe,
+    shared: &Mutex<SharedLaunches>,
+    stop: &AtomicBool,
+    cancel: &AtomicBool,
+    request_id: &str,
+) {
+    let result = ProcessSupervisor.watch_controlled(
+        launch,
+        policy,
+        probe,
+        |event| apply_watchdog_event(shared, request_id, event),
+        || stop.load(Ordering::Acquire) || cancel.load(Ordering::Acquire),
+    );
+    match result {
+        Ok(
+            ControlledWatchdogOutcome::Completed(_) | ControlledWatchdogOutcome::Cancelled { .. },
+        )
+        | Err(WatchdogError::RecoveryExhausted { .. }) => {}
+        Err(WatchdogError::Launch(_)) => update_state(
+            shared,
+            request_id,
+            NativeLaunchState::Failed { exit_code: None },
+            "PROCESS_START_FAILED",
+        ),
+        Err(WatchdogError::Configuration(_) | WatchdogError::Io { .. }) => update_state(
+            shared,
+            request_id,
+            NativeLaunchState::Failed { exit_code: None },
+            "WATCHDOG_INTERNAL_FAILURE",
+        ),
+    }
+}
+
+fn apply_watchdog_event(shared: &Mutex<SharedLaunches>, request_id: &str, event: &WatchdogEvent) {
+    let Ok(mut shared) = shared.lock() else {
+        return;
+    };
+    let Some(record) = shared
+        .records
+        .iter_mut()
+        .find(|record| record.request_id == request_id)
+    else {
+        return;
+    };
+    if record.cancel.load(Ordering::Acquire) && !matches!(event, WatchdogEvent::Cancelled { .. }) {
+        if matches!(
+            event,
+            WatchdogEvent::Completed { .. } | WatchdogEvent::Failed { .. }
+        ) {
+            record.state = NativeLaunchState::Cancelled;
+            record.sequence += 1;
+            record.detail_code = "PROCESS_CANCELLED";
+        }
+        return;
+    }
+    match event {
+        WatchdogEvent::Started { attempt, .. } => {
+            record.state = NativeLaunchState::Running;
+            record.sequence += 1;
+            record.detail_code = if *attempt == 1 {
+                "PROCESS_STARTED"
+            } else {
+                "PROCESS_RESTARTED"
+            };
+        }
+        WatchdogEvent::Ready { recovered, .. } => {
+            record.state = NativeLaunchState::Running;
+            record.sequence += 1;
+            record.detail_code = if *recovered {
+                "WATCHDOG_HEALTH_RECOVERED"
+            } else {
+                "WATCHDOG_HEALTHY"
+            };
+        }
+        WatchdogEvent::Restarting { .. } => {
+            record.state = NativeLaunchState::Running;
+            record.sequence += 1;
+            record.detail_code = "WATCHDOG_RESTARTING";
+        }
+        WatchdogEvent::Completed { exit_code, .. } => {
+            record.state = NativeLaunchState::Completed {
+                exit_code: *exit_code,
+            };
+            record.sequence += 1;
+            record.detail_code = "PROCESS_COMPLETED";
+        }
+        WatchdogEvent::Failed { reason, .. } => {
+            record.state = NativeLaunchState::Failed {
+                exit_code: watchdog_exit_code(reason),
+            };
+            record.sequence += 1;
+            record.detail_code = watchdog_failure_code(reason);
+        }
+        WatchdogEvent::Cancelled { .. } => {
+            record.state = NativeLaunchState::Cancelled;
+            record.sequence += 1;
+            record.detail_code = "PROCESS_CANCELLED";
+        }
+    }
+}
+
+fn watchdog_exit_code(reason: &WatchdogReason) -> Option<i32> {
+    match reason {
+        WatchdogReason::ProcessExit { exit_code } => *exit_code,
+        WatchdogReason::StartupTimeout
+        | WatchdogReason::HeartbeatTimeout
+        | WatchdogReason::InvalidProbeData
+        | WatchdogReason::ResourceFault(_) => None,
+    }
+}
+
+fn watchdog_failure_code(reason: &WatchdogReason) -> &'static str {
+    match reason {
+        WatchdogReason::StartupTimeout => "WATCHDOG_STARTUP_TIMEOUT",
+        WatchdogReason::HeartbeatTimeout => "WATCHDOG_HEARTBEAT_TIMEOUT",
+        WatchdogReason::InvalidProbeData => "WATCHDOG_INVALID_HEALTH",
+        WatchdogReason::ProcessExit { .. } => "WATCHDOG_PROCESS_EXIT",
+        WatchdogReason::ResourceFault(crate::process::ResourceFault::GpuReset) => {
+            "WATCHDOG_GPU_RESET"
+        }
+        WatchdogReason::ResourceFault(crate::process::ResourceFault::OutOfMemory) => {
+            "WATCHDOG_OUT_OF_MEMORY"
         }
     }
 }
@@ -538,6 +789,10 @@ pub enum NativeLaunchError {
     NoProfiles,
     InvalidProfile(String),
     DuplicateProfile(String),
+    InvalidWatchdogGame(String),
+    DuplicateWatchdogGame(String),
+    WatchdogGameNotInstalled(String),
+    WatchdogConfiguration(WatchdogConfigError),
     ProfileNotFound(String),
     InvalidGame(String),
     InvalidRequestId(String),
@@ -561,6 +816,16 @@ impl fmt::Display for NativeLaunchError {
             Self::NoProfiles => formatter.write_str("at least one host profile ID is required"),
             Self::InvalidProfile(id) => write!(formatter, "profile ID is invalid: {id}"),
             Self::DuplicateProfile(id) => write!(formatter, "profile ID is duplicated: {id}"),
+            Self::InvalidWatchdogGame(id) => {
+                write!(formatter, "watchdog game ID is invalid: {id}")
+            }
+            Self::DuplicateWatchdogGame(id) => {
+                write!(formatter, "watchdog game ID is duplicated: {id}")
+            }
+            Self::WatchdogGameNotInstalled(id) => {
+                write!(formatter, "watchdog game is not installed: {id}")
+            }
+            Self::WatchdogConfiguration(error) => error.fmt(formatter),
             Self::ProfileNotFound(id) => write!(formatter, "profile is not configured: {id}"),
             Self::InvalidGame(id) => write!(formatter, "game ID is invalid: {id}"),
             Self::InvalidRequestId(id) => write!(formatter, "launch request ID is invalid: {id}"),
@@ -588,6 +853,7 @@ impl std::error::Error for NativeLaunchError {
             Self::Catalog(error) => Some(error),
             Self::RetroArch(error) => Some(error),
             Self::Launch(error) => Some(error),
+            Self::WatchdogConfiguration(error) => Some(error),
             Self::Io { source, .. } => Some(source),
             _ => None,
         }
@@ -600,8 +866,19 @@ mod tests {
     use std::thread;
     use std::time::{Duration, Instant};
 
-    use super::{NativeLaunchError, NativeLaunchService, NativeLaunchState};
+    use super::{NativeLaunchError, NativeLaunchService, NativeLaunchState, apply_watchdog_event};
     use crate::installed_catalog::tests::{signed_catalog, signed_launch_catalog};
+    use crate::process::{WatchdogConfigError, WatchdogEvent, WatchdogPolicy};
+
+    fn fast_watchdog_policy(max_restarts: u32) -> WatchdogPolicy {
+        WatchdogPolicy {
+            startup_timeout: Duration::from_millis(100),
+            heartbeat_timeout: Duration::from_millis(100),
+            poll_interval: Duration::from_millis(1),
+            restart_backoff: Duration::ZERO,
+            max_restarts,
+        }
+    }
 
     #[test]
     fn requires_explicit_unique_host_profile_ids() {
@@ -620,6 +897,42 @@ mod tests {
                 vec!["local-player".to_owned(), "local-player".to_owned()]
             ),
             Err(NativeLaunchError::DuplicateProfile(_))
+        ));
+    }
+
+    #[test]
+    fn watchdog_games_are_explicit_validated_catalog_members() {
+        let (_fixture, catalog) = signed_catalog();
+        assert!(matches!(
+            NativeLaunchService::with_watchdog_games(
+                Arc::new(catalog.clone()),
+                vec!["local-player".to_owned()],
+                vec!["unknown-game".to_owned()],
+                fast_watchdog_policy(1),
+            ),
+            Err(NativeLaunchError::WatchdogGameNotInstalled(_))
+        ));
+        assert!(matches!(
+            NativeLaunchService::with_watchdog_games(
+                Arc::new(catalog.clone()),
+                vec!["local-player".to_owned()],
+                vec!["retro-2048".to_owned(), "retro-2048".to_owned()],
+                fast_watchdog_policy(1),
+            ),
+            Err(NativeLaunchError::DuplicateWatchdogGame(_))
+        ));
+        let mut invalid_policy = fast_watchdog_policy(1);
+        invalid_policy.startup_timeout = Duration::ZERO;
+        assert!(matches!(
+            NativeLaunchService::with_watchdog_games(
+                Arc::new(catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                invalid_policy,
+            ),
+            Err(NativeLaunchError::WatchdogConfiguration(
+                WatchdogConfigError::ZeroDuration("startup timeout")
+            ))
         ));
     }
 
@@ -718,6 +1031,50 @@ mod tests {
     }
 
     #[test]
+    fn watchdog_game_restarts_and_reports_a_catalog_resolved_child_failure() {
+        let (_fixture, catalog) = signed_launch_catalog();
+        let service = NativeLaunchService::with_watchdog_games(
+            Arc::new(catalog),
+            vec!["local-player".to_owned(), "profile-guest".to_owned()],
+            vec!["retro-2048".to_owned()],
+            fast_watchdog_policy(1),
+        )
+        .expect("watchdog launch service configures");
+        let request_id = "44444444444444444444444444444444";
+        let started = service
+            .start(request_id, "retro-2048", "profile-guest")
+            .expect("watchdog worker is accepted");
+        assert_eq!(started.snapshot.state, NativeLaunchState::Preparing);
+        assert_eq!(started.snapshot.sequence, 2);
+        assert_eq!(started.snapshot.detail_code, "WATCHDOG_STARTING");
+        assert_eq!(started.snapshot.profile_id, "profile-guest");
+
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let terminal = loop {
+            let snapshot = service
+                .status(request_id)
+                .expect("supervised launch remains observable");
+            if !snapshot.state.active() {
+                break snapshot;
+            }
+            assert!(
+                Instant::now() < deadline,
+                "watchdog launch did not reach a terminal state"
+            );
+            thread::sleep(Duration::from_millis(10));
+        };
+        assert!(matches!(
+            terminal.state,
+            NativeLaunchState::Failed { exit_code: Some(_) }
+        ));
+        assert_eq!(terminal.detail_code, "WATCHDOG_PROCESS_EXIT");
+        assert!(
+            terminal.sequence >= 6,
+            "one bounded restart must be observable"
+        );
+    }
+
+    #[test]
     fn cancellation_is_idempotent_and_advances_the_bounded_lifecycle() {
         let (_fixture, catalog) = signed_catalog();
         let service = NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
@@ -745,5 +1102,111 @@ mod tests {
         assert_eq!(terminal.state, NativeLaunchState::Cancelled);
         assert_eq!(terminal.sequence, 3);
         assert_eq!(terminal.detail_code, "PROCESS_CANCELLED");
+    }
+
+    #[test]
+    fn accepted_watchdog_cancellation_cannot_regress_to_running_or_completed() {
+        let (_fixture, catalog) = signed_catalog();
+        let service = NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
+            .expect("launch service configures");
+        let request_id = "55555555555555555555555555555555";
+        let cancel = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        service
+            .reserve(
+                request_id,
+                "retro-2048",
+                "local-player",
+                Arc::clone(&cancel),
+            )
+            .expect("launch reserves");
+        service.cancel(request_id).expect("cancel is accepted");
+
+        apply_watchdog_event(
+            &service.shared,
+            request_id,
+            &WatchdogEvent::Started {
+                attempt: 1,
+                process_id: 7,
+            },
+        );
+        assert_eq!(
+            service.status(request_id).expect("status remains").state,
+            NativeLaunchState::Stopping
+        );
+        apply_watchdog_event(
+            &service.shared,
+            request_id,
+            &WatchdogEvent::Completed {
+                attempt: 1,
+                exit_code: Some(0),
+                recovered: false,
+            },
+        );
+        let terminal = service.status(request_id).expect("terminal remains");
+        assert_eq!(terminal.state, NativeLaunchState::Cancelled);
+        assert_eq!(terminal.detail_code, "PROCESS_CANCELLED");
+    }
+
+    #[test]
+    fn watchdog_events_advance_one_bounded_launch_record_without_claiming_readiness() {
+        let (_fixture, catalog) = signed_catalog();
+        let service = NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
+            .expect("launch service configures");
+        let request_id = "66666666666666666666666666666666";
+        service
+            .reserve(
+                request_id,
+                "retro-2048",
+                "local-player",
+                Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            )
+            .expect("launch reserves");
+
+        let events = [
+            WatchdogEvent::Started {
+                attempt: 1,
+                process_id: 7,
+            },
+            WatchdogEvent::Ready {
+                attempt: 1,
+                recovered: false,
+            },
+            WatchdogEvent::Restarting {
+                attempt: 1,
+                next_attempt: 2,
+                reason: crate::process::WatchdogReason::HeartbeatTimeout,
+            },
+            WatchdogEvent::Started {
+                attempt: 2,
+                process_id: 8,
+            },
+            WatchdogEvent::Ready {
+                attempt: 2,
+                recovered: true,
+            },
+            WatchdogEvent::Completed {
+                attempt: 2,
+                exit_code: Some(0),
+                recovered: true,
+            },
+        ];
+        let expected_codes = [
+            "PROCESS_STARTED",
+            "WATCHDOG_HEALTHY",
+            "WATCHDOG_RESTARTING",
+            "PROCESS_RESTARTED",
+            "WATCHDOG_HEALTH_RECOVERED",
+            "PROCESS_COMPLETED",
+        ];
+        for (index, (event, expected_code)) in events.iter().zip(expected_codes).enumerate() {
+            apply_watchdog_event(&service.shared, request_id, event);
+            let snapshot = service.status(request_id).expect("status remains");
+            assert_eq!(snapshot.sequence, u64::try_from(index).unwrap() + 2);
+            assert_eq!(snapshot.detail_code, expected_code);
+        }
+        assert_eq!(
+            service.status(request_id).expect("terminal remains").state,
+            NativeLaunchState::Completed { exit_code: Some(0) }
+        );
     }
 }

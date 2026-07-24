@@ -15,6 +15,9 @@ cargo run -p vcg-host -- launcher --windowed \
 # Add the signed-catalog/root options documented below, then repeat:
 #   --profile-id profile-randy
 # to enable native package launch for that host-owned profile.
+# Add a signed installed game ID with:
+#   --watchdog-game-id retro-2048
+# only when that game's trusted wrapper implements the heartbeat contract.
 cargo run -p vcg-host -- supervise --dry-run -- /path/to/program argument
 cargo run -p vcg-host -- supervise -- /path/to/program argument
 cargo run -p vcg-host -- watchdog --dry-run \
@@ -56,12 +59,17 @@ Add one or more repeated `--profile-id <opaque-id>` options to enable
 `trusted-package-launch` for exactly those host-owned profiles. With no profile
 IDs, the same catalog remains discovery-only. See the
 [native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
+An optional repeated `--watchdog-game-id <opaque-id>` must name a package in the
+verified installed catalog and applies bounded heartbeat/restart supervision to
+that game for every player profile. Other games remain process-only when they
+do not have a qualified heartbeat producer. A heartbeat still does not prove a
+visible or usable window.
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
 `watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.
 
-`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact signed SHA-256 for the frontend, core, base configuration, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Current lifecycle is process-only; a compositor/window probe must be added before readiness can be claimed.
+`retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact signed SHA-256 for the frontend, core, base configuration, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Direct RetroArch remains process-only unless the signed frontend is a host-qualified cooperative wrapper for a watchdog game. A compositor/window probe is still required before readiness can be claimed.
 
 ## Boundary
 
@@ -69,7 +77,7 @@ IDs, the same catalog remains discovery-only. See the
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata validation and host-owned package resolution from fixed game/profile IDs.
-- `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, polling, cancellation, and shutdown cleanup.
+- `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 

@@ -13,6 +13,7 @@ use crate::installed_catalog::{CatalogError, TrustedPackageCatalog};
 use crate::native_launch::{
     NativeLaunchError, NativeLaunchService, NativeLaunchSnapshot, NativeLaunchState,
 };
+use crate::process::WatchdogPolicy;
 
 const MAX_REQUEST_BYTES: usize = 8_192;
 const MAX_LAUNCH_BODY_BYTES: usize = 1_024;
@@ -67,10 +68,38 @@ impl HostStatusServer {
         catalog: TrustedPackageCatalog,
         profile_ids: impl IntoIterator<Item = String>,
     ) -> Result<Self, HostApiError> {
+        Self::start_with_watchdog_launch_service(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            Vec::new(),
+            WatchdogPolicy::local_game_defaults(),
+        )
+    }
+
+    /// Starts the API with fixed-intent launching and heartbeat supervision
+    /// for an explicit set of signature-verified installed games.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch/watchdog configuration, the listener,
+    /// operating-system randomness, or worker creation fails.
+    pub fn start_with_watchdog_launch_service(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+    ) -> Result<Self, HostApiError> {
         let catalog = Arc::new(catalog);
         let launch_service = Arc::new(
-            NativeLaunchService::new(Arc::clone(&catalog), profile_ids)
-                .map_err(HostApiError::LaunchConfiguration)?,
+            NativeLaunchService::with_watchdog_games(
+                Arc::clone(&catalog),
+                profile_ids,
+                watchdog_game_ids,
+                watchdog_policy,
+            )
+            .map_err(HostApiError::LaunchConfiguration)?,
         );
         Self::start_internal(allowed_origin.into(), Some(catalog), Some(launch_service))
     }
@@ -569,6 +598,10 @@ fn write_launch_error(
         }
         NativeLaunchError::NoProfiles
         | NativeLaunchError::DuplicateProfile(_)
+        | NativeLaunchError::InvalidWatchdogGame(_)
+        | NativeLaunchError::DuplicateWatchdogGame(_)
+        | NativeLaunchError::WatchdogGameNotInstalled(_)
+        | NativeLaunchError::WatchdogConfiguration(_)
         | NativeLaunchError::RecordLimit
         | NativeLaunchError::Launch(_)
         | NativeLaunchError::Io { .. }

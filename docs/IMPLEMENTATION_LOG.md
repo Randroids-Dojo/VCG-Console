@@ -232,7 +232,7 @@ At this stage I-154 remained open. The next implementation tranche closes the la
 
 ### Remaining boundary
 
-I-154 closes the launcher-layer state and recovery contract. I-109 remains open for real Rust child-process heartbeat, forced termination, launcher restart, post-ready crash/hang/OOM handling, and target-Linux fault injection. Cross-origin remote reachability, native/Godot readiness, and RetroArch readiness require that host integration rather than browser fabrication.
+At this checkpoint I-154 closed the launcher-layer state and recovery contract while I-109 still lacked the native connection. The later D-136 tranche adds opt-in Rust heartbeat/restart enforcement; launcher service restart, protected real GPU/OOM signals, target-Linux fault injection, cross-origin remote reachability, native/Godot readiness, and RetroArch compositor readiness still require host evidence rather than browser fabrication.
 
 ## 2026-07-22: data-flow map and raw-frame egress audit
 
@@ -437,7 +437,31 @@ This is package authority and safe discovery, not a production package lifecycle
 
 ### Remaining boundary
 
-This is process lifecycle, not a qualified playable handoff. Request records are not persistent across host restart; the Svelte profile list is not a native persistent registry; polling is not a measured event transport; API-launched children do not yet use the heartbeat/restart watchdog; descendant process groups are not contained; cancellation is not yet proven under hostile children; no compositor window identity/readiness exists; and reserved Home/Back, re-entry, immutable artifact handoff, target-Linux sandboxing, service-manager recovery, and hardware evidence remain open.
+This was process lifecycle, not a qualified playable handoff. The later D-136 tranche connects opt-in watchdog games without changing the remaining boundary: request records are not persistent across host restart; the Svelte profile list is not a native persistent registry; polling is not a measured event transport; descendant process groups are not contained; cancellation is not yet proven under hostile children; no compositor window identity/readiness exists; and reserved Home/Back, re-entry, immutable artifact handoff, target-Linux sandboxing, service-manager recovery, and hardware evidence remain open.
+
+## 2026-07-23: API launch watchdog integration
+
+### Delivered
+
+- Host configuration may repeat `--watchdog-game-id` for games present in the signature-verified installed catalog. Browser launch intent and public/package manifests cannot enable watchdog mode or select probe paths.
+- Selected games derive a heartbeat file below the prepared private session directory and pass it as `VCG_HEARTBEAT_FILE` to the signed child or trusted wrapper. The integrated path omits a resource-fault file until a trusted OS producer and child containment exist.
+- A cancellation-aware watchdog terminates and reaps an active direct child, interrupts restart backoff, and checks cancellation before another spawn.
+- Startup timeout, heartbeat timeout, invalid health data, and non-zero process exit consume the bounded retry budget. Every retry remains inside the original request record, so replay protection and the one-active-launch invariant continue to apply. GPU-reset and out-of-memory injection remain available only through the generic watchdog CLI.
+- Native lifecycle records expose stable bounded health/restart/failure detail codes without paths or process IDs. Svelte presents runtime recovery while continuing to wait for compositor/window readiness.
+- Process-only games remain explicit compatibility mode for packages such as direct RetroArch that do not yet implement the heartbeat contract. A heartbeat is runtime-health evidence, never proof of a visible usable window.
+- D-136 records the host-owned opt-in and readiness boundary.
+- `OWNER_QUESTIONS_WATCHDOG_2026-07-23.md` preserves exact-release binding and production health-producer ownership without blocking the desk-safe default.
+
+### Verification evidence
+
+- Process tests prove cancellation during an active attempt and during restart backoff; no post-cancel attempt spawns.
+- Native-launch tests prove watchdog-game catalog membership/policy validation and one bounded retry of the catalog-resolved child inside one monotonic lifecycle record.
+- Rust formatting and Clippy pass; all 56 active Rust library tests and 12 CLI tests pass, with four subprocess helpers intentionally ignored.
+- All 112 workspace tests, workspace type checking, the production build, all four manifest validations, and all 18 Playwright flows pass. pnpm reports no known vulnerabilities, and Cargo Audit scans all 34 locked Rust dependencies against 1,169 advisories with no finding.
+
+### Remaining boundary
+
+No current RetroArch package or compositor producer is qualified to emit heartbeats. Probe files are not protected from a compromised same-account child, descendant process groups/cgroups remain uncontained, and real Linux GPU/OOM signals, compositor readiness/re-entry, hostile-child cancellation, service-manager restart, architecture parity, and target hardware fault injection remain open under I-109, I-198, and I-209.
 
 ## 2026-07-23: canonical game manifest v1
 

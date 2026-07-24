@@ -97,7 +97,7 @@ retroarch:started pid=<pid>
 retroarch:completed exit_code=<code|signal>
 ```
 
-The direct child is always reaped, and dropping its managed handle terminates it. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. A trusted compositor/window adapter must prove visible readiness and continued responsiveness before the existing watchdog can enforce startup/hang recovery.
+The direct child is always reaped, and dropping its managed handle terminates it. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. Host configuration may select the installed game for connected watchdog recovery only when its signed frontend is a qualified wrapper or platform producer. A trusted compositor/window adapter must separately prove visible readiness and continued responsiveness.
 
 ## 2048 smoke candidate
 
@@ -129,7 +129,7 @@ Still required:
 
 - signed, pinned frontend/core artifacts on ARM64 and x86-64;
 - production key rotation, catalog anti-rollback, and immutable verification-to-child binding;
-- persistent host profile identity, compositor/readiness event mapping, and watchdog integration for API-launched children;
+- persistent host profile identity, compositor/readiness event mapping, and a qualified wrapper or platform heartbeat producer before assigning a RetroArch game to the connected API watchdog;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
 - SDL3 mapping, player assignment, and compositor-reserved Home/Back;
