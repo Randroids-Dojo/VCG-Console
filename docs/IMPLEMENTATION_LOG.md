@@ -650,7 +650,7 @@ This is pre-promotion candidate health, not live or post-activation qualificatio
 
 This is local completed-archive intake, not an update client. Network transport/resume, mirrors/TLS policy, disk reservation, low-space coordination/UI, `tar-zstd`, key-role separation, immutable destination ownership, target-Linux permission/mount behavior, and sudden-power qualification remain open.
 
-## 2026-07-23: durable resumable package archive receipt
+## 2026-07-24: durable resumable package archive receipt
 
 ### Delivered
 

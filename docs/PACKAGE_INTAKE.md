@@ -1,6 +1,6 @@
 # Signed package release intake
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document defines the implemented host-owned admission and extraction boundary between a completed package archive and the [signed generation store](PACKAGE_GENERATION_STORE.md). The separate [resumable transfer contract](PACKAGE_TRANSFER.md) supplies a durable transport-neutral local sink. Network discovery/client policy, mirrors, update scheduling, cleanup, and activation remain separate.
 
@@ -71,4 +71,4 @@ Failure before the rename removes the private incoming directory after validatin
 
 ## Remaining boundary
 
-Network discovery/client behavior, HTTP range/TLS/mirror policy, real disk reservation, cross-writer low-space coordination and cleanup, `tar-zstd` decompression, hostile concurrent destination mutation, target-Linux permission/mount qualification, and sudden-power campaigns remain open. See [the owner intake questions](OWNER_QUESTIONS_PACKAGE_INTAKE_2026-07-23.md) and [transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-23.md).
+Network discovery/client behavior, HTTP range/TLS/mirror policy, real disk reservation, cross-writer low-space coordination and cleanup, `tar-zstd` decompression, hostile concurrent destination mutation, target-Linux permission/mount qualification, and sudden-power campaigns remain open. See [the owner intake questions](OWNER_QUESTIONS_PACKAGE_INTAKE_2026-07-23.md) and [transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).

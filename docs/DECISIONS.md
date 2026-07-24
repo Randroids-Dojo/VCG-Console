@@ -1,6 +1,6 @@
 # Decision log
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This is the authoritative decision register. Requirements describe the intended product. Working decisions guide current experiments but are reversible. Proposed decisions need evidence before implementation depends on them. Rejected and deferred options remain recorded so the same debate is not repeated without new information.
 

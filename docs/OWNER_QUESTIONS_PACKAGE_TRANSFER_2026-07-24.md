@@ -1,6 +1,6 @@
 # Owner questions: package transfer
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 No answer here blocks the implemented transport-neutral durable sink.
 

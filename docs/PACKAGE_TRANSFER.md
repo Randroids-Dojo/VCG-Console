@@ -1,6 +1,6 @@
 # Resumable package archive transfer
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document defines the implemented durable local sink between a future network client and [signed package intake](PACKAGE_INTAKE.md). It does not select URLs, HTTP/TLS behavior, mirrors, credentials, proxies, scheduling, or UI.
 
@@ -44,4 +44,4 @@ The persistent lock file contains no authority or progress and may remain after 
 
 ## Remaining boundary
 
-Network transport and descriptor discovery, TLS/pinning/proxy/mirror policy, HTTP range semantics, retry/backoff, bandwidth limits, abandoned-partial and consumed-ready cleanup, low-space UI/coordination, hostile noncooperating writers, filesystem-lock behavior on target Linux, and sudden-power qualification remain open. See [the owner transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-23.md).
+Network transport and descriptor discovery, TLS/pinning/proxy/mirror policy, HTTP range semantics, retry/backoff, bandwidth limits, abandoned-partial and consumed-ready cleanup, low-space UI/coordination, hostile noncooperating writers, filesystem-lock behavior on target Linux, and sudden-power qualification remain open. See [the owner transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).
