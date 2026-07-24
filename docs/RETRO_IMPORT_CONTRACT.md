@@ -103,6 +103,16 @@ name derives only from validated system ID, full content hash, and canonical
 extension. It does not create an HTTP endpoint or treat a browser-submitted
 intent as native authority.
 
+The two no-copy terminal actions are native as well. `reuse-existing`
+requires active authority, the exact current library generation and entry,
+and a fresh full-hash check of the console-managed object. It writes an
+idempotent `retro-import-reused` audit record without copying or advancing the
+library. `cancel-and-cleanup` remains available after plan expiry or session
+revocation, removes only a same-plan pre-publication stage, never rolls back
+published content, and writes an idempotent `retro-import-cancelled` record.
+An exact retry returns the original audit generation even if unrelated
+imports have since advanced the library.
+
 ## Closed policy
 
 The package contains no product system allowlist. Tests use a synthetic
@@ -264,7 +274,7 @@ Twenty-four focused tests cover:
   expiry/revocation, and cleanup cancellation; and
 - exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds eleven Windows library tests and twelve Linux tests.
+The native module adds thirteen Windows library tests and fourteen Linux tests.
 One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
 authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
@@ -273,9 +283,10 @@ mutation, source length/hash change, clean/blocked/error/unavailable/misbound
 scanner behavior, capacity overflow, library history shape, nonblocking lock
 and exact cancellation, incomplete-copy cleanup, recovery after source
 removal, recovery across object/library publication windows, replacement
-ordering, path-free audit persistence, and Linux symlink refusal. Strict
-Clippy and Rustdoc pass on the module; physical power removal has not been
-tested.
+ordering, duplicate reuse with full object revalidation, cancellation after
+expiry/revocation and after an unrelated generation advance, path-free audit
+persistence, and Linux symlink refusal. Strict Clippy and Rustdoc pass on the
+module; physical power removal has not been tested.
 
 ## Remaining implementation and evidence
 
@@ -294,9 +305,9 @@ I-199 remains active. Product activation still requires:
 6. real block reservations and physical full-disk/power-loss qualification;
    the plain-file path now has durable same-filesystem staging, synchronized
    writes, hash revalidation, no-replace publication, and cleanup recovery;
-7. library-history compaction, explicit deletion, reuse/cancel audit handling,
-   and physical fault campaigns; append-only generation commits, exact
-   replacement, entry/byte quotas, and recovery now exist;
+7. library-history compaction, explicit deletion, and physical fault
+   campaigns; append-only generation commits, exact replacement,
+   duplicate reuse/cancel auditing, entry/byte quotas, and recovery now exist;
 8. isolation from packages, cores, BIOS, saves, states, remaps, profiles,
    updates, and source media;
 9. family-mode/controller-accessible disclosure, progress, conflict,

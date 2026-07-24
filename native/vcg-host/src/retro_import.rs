@@ -292,6 +292,44 @@ impl RetroImportOutcome {
     }
 }
 
+/// No-copy terminal action committed by the native store.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RetroNoCopyAction {
+    CancelAndCleanup,
+    ReuseExisting,
+}
+
+/// Durable result of cancellation or reuse without a library generation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroNoCopyOutcome {
+    plan_id: String,
+    action: RetroNoCopyAction,
+    library_generation: u64,
+    existing_entry_id: Option<String>,
+}
+
+impl RetroNoCopyOutcome {
+    #[must_use]
+    pub fn plan_id(&self) -> &str {
+        &self.plan_id
+    }
+
+    #[must_use]
+    pub const fn action(&self) -> RetroNoCopyAction {
+        self.action
+    }
+
+    #[must_use]
+    pub const fn library_generation(&self) -> u64 {
+        self.library_generation
+    }
+
+    #[must_use]
+    pub fn existing_entry_id(&self) -> Option<&str> {
+        self.existing_entry_id.as_deref()
+    }
+}
+
 /// Result of an explicit interrupted-import recovery pass.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RetroImportRecovery {
@@ -398,6 +436,7 @@ impl RetroImportStore {
     ) -> Result<RetroImportOutcome, RetroImportError> {
         let intent = parse_commit_intent(commit_intent_json)?;
         validate_install_authority(&intent, context, now_ms)?;
+        intent.require_install_action()?;
         let _operation = self.acquire_operation_lock()?;
         if self.state_present()? {
             return Err(RetroImportError::RecoveryRequired);
@@ -431,6 +470,94 @@ impl RetroImportStore {
             ResumePending::Incomplete => Err(RetroImportError::IncompleteStaging),
             ResumePending::Rejected(status) => Err(RetroImportError::ScanRejected(status)),
         }
+    }
+
+    /// Commits an exact reuse or cancellation intent without copying bytes.
+    ///
+    /// Reuse revalidates the current library generation, exact existing
+    /// entry, and console-managed object hash before writing a path-free
+    /// audit record. Cancellation may execute after plan expiry or session
+    /// revocation, removes only a matching pre-publication pending stage, and
+    /// never advances the installed library. Both records publish atomically
+    /// without replacement and are idempotently verifiable on retry.
+    ///
+    /// # Errors
+    ///
+    /// Rejects mutating actions, changed native authorization, inactive reuse
+    /// authority, mismatched library/object state, another pending plan,
+    /// unsafe paths, lock contention, or persistence failure.
+    pub fn commit_without_copy(
+        &self,
+        commit_intent_json: &[u8],
+        context: &RetroPlainImportContext,
+        now_ms: u64,
+    ) -> Result<RetroNoCopyOutcome, RetroImportError> {
+        let intent = parse_commit_intent(commit_intent_json)?;
+        validate_terminal_authority(&intent, context)?;
+        if now_ms > MAX_SAFE_INTEGER {
+            return Err(RetroImportError::PlanExpired);
+        }
+        let action = match intent.action {
+            CommitAction::CancelAndCleanup => RetroNoCopyAction::CancelAndCleanup,
+            CommitAction::ReuseExisting => {
+                validate_active_authority(context, now_ms)?;
+                RetroNoCopyAction::ReuseExisting
+            }
+            CommitAction::InstallNew | CommitAction::ReplaceExisting => {
+                return Err(RetroImportError::UnsupportedAction);
+            }
+        };
+
+        let _operation = self.acquire_operation_lock()?;
+        if let Some(pending) = self.read_pending()? {
+            if action != RetroNoCopyAction::CancelAndCleanup
+                || pending.intent.plan_id != intent.plan_id
+            {
+                return Err(RetroImportError::RecoveryRequired);
+            }
+            self.abort_pending(&pending)?;
+        } else {
+            self.remove_unpublished_temp_if_present()?;
+        }
+
+        let audit_path = self.audit_path(&intent.plan_id);
+        if path_exists(&audit_path)? {
+            let existing_audit = read_audit(&audit_path)?;
+            let expected_audit =
+                NativeAuditRecord::from_no_copy(&intent, existing_audit.library_generation)?;
+            if existing_audit != expected_audit {
+                return Err(RetroImportError::AuditMismatch);
+            }
+            self.publish_terminal_audit(&intent.plan_id, &expected_audit)?;
+            return Ok(RetroNoCopyOutcome {
+                plan_id: intent.plan_id,
+                action,
+                library_generation: existing_audit.library_generation,
+                existing_entry_id: intent.existing_entry_id,
+            });
+        }
+
+        let current = self.current_library()?;
+        if action == RetroNoCopyAction::ReuseExisting
+            && current.generation != intent.expected_library_generation
+        {
+            return Err(RetroImportError::LibraryGenerationMismatch {
+                expected: intent.expected_library_generation,
+                actual: current.generation,
+            });
+        }
+        if action == RetroNoCopyAction::ReuseExisting {
+            let existing = reuse_entry(&current, &intent)?;
+            self.verify_object(existing)?;
+        }
+        let audit = NativeAuditRecord::from_no_copy(&intent, current.generation)?;
+        self.publish_terminal_audit(&intent.plan_id, &audit)?;
+        Ok(RetroNoCopyOutcome {
+            plan_id: intent.plan_id,
+            action,
+            library_generation: current.generation,
+            existing_entry_id: intent.existing_entry_id,
+        })
     }
 
     /// Completes or safely discards the one durable pending transaction.
@@ -896,6 +1023,33 @@ impl RetroImportStore {
         )
     }
 
+    fn publish_terminal_audit(
+        &self,
+        plan_id: &str,
+        audit: &NativeAuditRecord,
+    ) -> Result<(), RetroImportError> {
+        let path = self.audit_path(plan_id);
+        let temporary = self.staging_root.join(format!(".audit-{plan_id}.tmp"));
+        if path_exists(&path)? {
+            let existing = read_audit(&path)?;
+            if existing == *audit {
+                if remove_regular_file_if_present(&temporary)? {
+                    sync_directory(&self.staging_root)?;
+                }
+                return Ok(());
+            }
+            return Err(RetroImportError::AuditMismatch);
+        }
+        let bytes = serialized_bounded(audit, MAX_AUDIT_RECORD_BYTES, "retro import audit")?;
+        publish_new_file_resumable(
+            &self.audit_root,
+            &temporary,
+            &path,
+            &bytes,
+            "retro import audit",
+        )
+    }
+
     fn cleanup_replaced_object(
         &self,
         base: &RetroInstalledLibrary,
@@ -1210,6 +1364,15 @@ impl RetroImportCommitIntent {
             .as_ref()
             .ok_or(RetroImportError::InstallEntryRequired)
     }
+
+    fn require_install_action(&self) -> Result<(), RetroImportError> {
+        match self.action {
+            CommitAction::InstallNew | CommitAction::ReplaceExisting => Ok(()),
+            CommitAction::CancelAndCleanup | CommitAction::ReuseExisting => {
+                Err(RetroImportError::UnsupportedAction)
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -1332,7 +1495,7 @@ impl NativeAuditRecord {
             .ok_or(RetroImportError::LibraryGenerationOverflow)?;
         Ok(Self {
             schema_version: SCHEMA_VERSION,
-            event: NativeAuditEventKind::RetroImportCommitted,
+            event: NativeAuditEventKind::Committed,
             plan_id: pending.intent.plan_id.clone(),
             policy_id: pending.intent.audit.policy_id.clone(),
             policy_revision: pending.intent.audit.policy_revision,
@@ -1346,12 +1509,44 @@ impl NativeAuditRecord {
             scan: scan.cloned(),
         })
     }
+
+    fn from_no_copy(
+        intent: &RetroImportCommitIntent,
+        library_generation: u64,
+    ) -> Result<Self, RetroImportError> {
+        let event = match intent.action {
+            CommitAction::CancelAndCleanup => NativeAuditEventKind::Cancelled,
+            CommitAction::ReuseExisting => NativeAuditEventKind::Reused,
+            CommitAction::InstallNew | CommitAction::ReplaceExisting => {
+                return Err(RetroImportError::UnsupportedAction);
+            }
+        };
+        Ok(Self {
+            schema_version: SCHEMA_VERSION,
+            event,
+            plan_id: intent.plan_id.clone(),
+            policy_id: intent.audit.policy_id.clone(),
+            policy_revision: intent.audit.policy_revision,
+            session_id: intent.audit.session_id.clone(),
+            transport: intent.audit.transport,
+            system_id: intent.audit.system_id.clone(),
+            content_sha256: intent.audit.content_sha256.clone(),
+            entitlement_statement_version: intent.audit.entitlement_statement_version,
+            decision: intent.audit.decision,
+            library_generation,
+            scan: None,
+        })
+    }
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(rename_all = "kebab-case")]
 enum NativeAuditEventKind {
-    RetroImportCommitted,
+    #[serde(rename = "retro-import-cancelled")]
+    Cancelled,
+    #[serde(rename = "retro-import-committed")]
+    Committed,
+    #[serde(rename = "retro-import-reused")]
+    Reused,
 }
 
 enum ResumePending {
@@ -1377,35 +1572,53 @@ fn validate_install_authority(
     context: &RetroPlainImportContext,
     now_ms: u64,
 ) -> Result<(), RetroImportError> {
+    validate_terminal_authority(intent, context)?;
+    validate_active_authority(context, now_ms)
+}
+
+fn validate_terminal_authority(
+    intent: &RetroImportCommitIntent,
+    context: &RetroPlainImportContext,
+) -> Result<(), RetroImportError> {
     validate_commit_intent(intent)?;
     if canonical_intent_sha256(intent)? != context.intent_authority_sha256 {
         return Err(RetroImportError::IntentAuthorityMismatch);
     }
     context.policy.validate()?;
     validate_prefixed_hex_id("inspection ID", &context.inspection_id, "rii-", 32)?;
+    validate_context_policy_binding(intent, context)
+}
+
+fn validate_active_authority(
+    context: &RetroPlainImportContext,
+    now_ms: u64,
+) -> Result<(), RetroImportError> {
     if now_ms > MAX_SAFE_INTEGER || now_ms >= context.plan_expires_at_ms {
         return Err(RetroImportError::PlanExpired);
     }
     if context.session_revoked {
         return Err(RetroImportError::SessionRevoked);
     }
-    validate_context_policy_binding(intent, context)
+    Ok(())
 }
 
 fn validate_context_policy_binding(
     intent: &RetroImportCommitIntent,
     context: &RetroPlainImportContext,
 ) -> Result<(), RetroImportError> {
-    let entry = intent.install_entry_required()?;
     let audit = &intent.audit;
     if audit.policy_id != context.policy.policy_id
         || audit.policy_revision != context.policy.policy_revision
         || audit.system_id != context.policy.system_id
-        || entry.system_id != context.policy.system_id
-        || entry.extension != context.policy.extension
-        || entry.core_id != context.policy.core_id
-        || entry.controller_profile != context.policy.controller_profile
-        || entry.size_bytes > context.policy.max_content_bytes
+    {
+        return Err(RetroImportError::PolicyBindingMismatch);
+    }
+    if let Some(entry) = &intent.install_entry
+        && (entry.system_id != context.policy.system_id
+            || entry.extension != context.policy.extension
+            || entry.core_id != context.policy.core_id
+            || entry.controller_profile != context.policy.controller_profile
+            || entry.size_bytes > context.policy.max_content_bytes)
     {
         return Err(RetroImportError::PolicyBindingMismatch);
     }
@@ -1424,6 +1637,7 @@ fn validate_pending(pending: &PendingInstall) -> Result<(), RetroImportError> {
     }
     pending.policy.validate()?;
     validate_commit_intent(&pending.intent)?;
+    pending.intent.require_install_action()?;
     validate_sha256("intent authority SHA-256", &pending.intent_authority_sha256)?;
     if canonical_intent_sha256(&pending.intent)? != pending.intent_authority_sha256 {
         return Err(RetroImportError::IntentAuthorityMismatch);
@@ -1470,20 +1684,23 @@ fn validate_commit_intent(intent: &RetroImportCommitIntent) -> Result<(), RetroI
             "terminal intent must require staging cleanup".to_owned(),
         ));
     }
-    let entry = match intent.action {
-        CommitAction::InstallNew | CommitAction::ReplaceExisting => {
-            intent.install_entry_required()?
-        }
-        CommitAction::CancelAndCleanup | CommitAction::ReuseExisting => {
-            return Err(RetroImportError::UnsupportedAction);
-        }
-    };
-    validate_entry(entry)?;
-    if intent.source_sha256 != entry.sha256 {
+    let audit = &intent.audit;
+    if audit.plan_id != intent.plan_id
+        || audit.content_sha256 != intent.source_sha256
+        || audit.policy_revision == 0
+        || audit.policy_revision > MAX_SAFE_INTEGER
+    {
         return Err(RetroImportError::IntentBindingMismatch);
     }
+    validate_safe_id("audit policy ID", &audit.policy_id, 64)?;
+    validate_safe_id("audit system ID", &audit.system_id, 64)?;
+    validate_prefixed_hex_id("audit session ID", &audit.session_id, "ris-", 32)?;
+    validate_sha256("audit content SHA-256", &audit.content_sha256)?;
+
     match intent.action {
         CommitAction::InstallNew => {
+            let entry = intent.install_entry_required()?;
+            validate_install_entry_binding(intent, entry)?;
             if intent.existing_entry_id.is_some()
                 || !matches!(
                     intent.audit.decision,
@@ -1494,6 +1711,8 @@ fn validate_commit_intent(intent: &RetroImportCommitIntent) -> Result<(), RetroI
             }
         }
         CommitAction::ReplaceExisting => {
+            let entry = intent.install_entry_required()?;
+            validate_install_entry_binding(intent, entry)?;
             let existing = intent
                 .existing_entry_id
                 .as_deref()
@@ -1504,26 +1723,42 @@ fn validate_commit_intent(intent: &RetroImportCommitIntent) -> Result<(), RetroI
                 return Err(RetroImportError::IntentBindingMismatch);
             }
         }
-        CommitAction::CancelAndCleanup | CommitAction::ReuseExisting => unreachable!(),
+        CommitAction::CancelAndCleanup => {
+            if intent.install_entry.is_some()
+                || intent.existing_entry_id.is_some()
+                || intent.audit.decision != AuditDecision::Cancel
+            {
+                return Err(RetroImportError::IntentBindingMismatch);
+            }
+        }
+        CommitAction::ReuseExisting => {
+            let existing = intent
+                .existing_entry_id
+                .as_deref()
+                .ok_or(RetroImportError::ExistingEntryRequired)?;
+            validate_content_id(existing)?;
+            if intent.install_entry.is_some() || intent.audit.decision != AuditDecision::UseExisting
+            {
+                return Err(RetroImportError::IntentBindingMismatch);
+            }
+        }
     }
+    Ok(())
+}
+
+fn validate_install_entry_binding(
+    intent: &RetroImportCommitIntent,
+    entry: &RetroInstalledEntry,
+) -> Result<(), RetroImportError> {
+    validate_entry(entry)?;
     let audit = &intent.audit;
-    if audit.plan_id != intent.plan_id
+    if intent.source_sha256 != entry.sha256
         || audit.system_id != entry.system_id
-        || audit.content_sha256 != entry.sha256
         || audit.transport != entry.provenance.transport
         || audit.session_id != entry.provenance.import_session_id
         || audit.entitlement_statement_version != entry.provenance.entitlement_statement_version
     {
         return Err(RetroImportError::IntentBindingMismatch);
-    }
-    validate_safe_id("audit policy ID", &audit.policy_id, 64)?;
-    validate_safe_id("audit system ID", &audit.system_id, 64)?;
-    validate_prefixed_hex_id("audit session ID", &audit.session_id, "ris-", 32)?;
-    validate_sha256("audit content SHA-256", &audit.content_sha256)?;
-    if audit.policy_revision == 0 || audit.policy_revision > MAX_SAFE_INTEGER {
-        return Err(RetroImportError::InvalidIntent(
-            "audit policy revision must be a positive safe integer".to_owned(),
-        ));
     }
     Ok(())
 }
@@ -1664,6 +1899,25 @@ fn replacement_entry<'a>(
         .iter()
         .find(|entry| entry.entry_id == id)
         .ok_or_else(|| RetroImportError::ReplacementMissing(id.to_owned()))
+}
+
+fn reuse_entry<'a>(
+    library: &'a RetroInstalledLibrary,
+    intent: &RetroImportCommitIntent,
+) -> Result<&'a RetroInstalledEntry, RetroImportError> {
+    let id = intent
+        .existing_entry_id
+        .as_deref()
+        .ok_or(RetroImportError::ExistingEntryRequired)?;
+    let entry = library
+        .entries
+        .iter()
+        .find(|entry| entry.entry_id == id)
+        .ok_or_else(|| RetroImportError::ExistingEntryMissing(id.to_owned()))?;
+    if entry.sha256 != intent.source_sha256 || entry.system_id != intent.audit.system_id {
+        return Err(RetroImportError::IntentBindingMismatch);
+    }
+    Ok(entry)
 }
 
 fn outcome_from_pending(pending: &PendingInstall) -> Result<RetroImportOutcome, RetroImportError> {
@@ -2372,6 +2626,8 @@ pub enum RetroImportError {
     LibraryQuotaExceeded,
     CommittedLibraryMismatch,
     InstallEntryRequired,
+    ExistingEntryRequired,
+    ExistingEntryMissing(String),
     ReplacementEntryRequired,
     ReplacementMissing(String),
     ReplacementStillReferenced,
@@ -2494,6 +2750,12 @@ impl fmt::Display for RetroImportError {
             }
             Self::InstallEntryRequired => {
                 formatter.write_str("plain install intent has no installed entry")
+            }
+            Self::ExistingEntryRequired => {
+                formatter.write_str("reuse intent has no existing entry")
+            }
+            Self::ExistingEntryMissing(entry) => {
+                write!(formatter, "reuse entry does not exist: {entry}")
             }
             Self::ReplacementEntryRequired => {
                 formatter.write_str("replacement intent has no existing entry")
@@ -2853,6 +3115,27 @@ mod tests {
             existing_entry_id,
         ))
         .expect("serialize intent")
+    }
+
+    fn cancel_intent(bytes: &[u8], generation: u64, suffix: &str) -> Vec<u8> {
+        let mut value = intent_value(bytes, generation, "usb", suffix, None);
+        value["action"] = json!("cancel-and-cleanup");
+        value["installEntry"] = Value::Null;
+        value["audit"]["decision"] = json!("cancel");
+        serde_json::to_vec(&value).expect("serialize cancel intent")
+    }
+
+    fn reuse_intent(
+        bytes: &[u8],
+        generation: u64,
+        suffix: &str,
+        existing_entry_id: &str,
+    ) -> Vec<u8> {
+        let mut value = intent_value(bytes, generation, "usb", suffix, Some(existing_entry_id));
+        value["action"] = json!("reuse-existing");
+        value["installEntry"] = Value::Null;
+        value["audit"]["decision"] = json!("use-existing");
+        serde_json::to_vec(&value).expect("serialize reuse intent")
     }
 
     fn pending_for(
@@ -3309,6 +3592,132 @@ mod tests {
         assert_eq!(library.entries[0].sha256, digest(new_bytes));
         assert_eq!(fixture.object_files().len(), 1);
         assert_eq!(fixture.audit_files().len(), 2);
+    }
+
+    #[test]
+    fn reuse_revalidates_existing_object_without_copy_or_generation_change() {
+        let fixture = Fixture::new();
+        let bytes = b"existing duplicate";
+        let install = intent_bytes(bytes, 1, "usb", "existing", None);
+        let mut source = fixture.source("existing.gb", bytes);
+        fixture
+            .store
+            .install_plain(
+                &install,
+                &context(&install),
+                &mut source,
+                &mut FakeScanner::clean(),
+                1_000,
+            )
+            .expect("install existing object");
+        let existing_id = fixture.library().entries[0].entry_id.clone();
+        let reuse = reuse_intent(bytes, 2, "reuse", &existing_id);
+        let authority = context(&reuse);
+        let outcome = fixture
+            .store
+            .commit_without_copy(&reuse, &authority, 1_000)
+            .expect("reuse existing object");
+        assert_eq!(outcome.action(), RetroNoCopyAction::ReuseExisting);
+        assert_eq!(outcome.library_generation(), 2);
+        assert_eq!(outcome.existing_entry_id(), Some(existing_id.as_str()));
+        assert_eq!(fixture.library().generation, 2);
+        assert_eq!(fixture.object_files().len(), 1);
+        assert_eq!(fixture.audit_files().len(), 2);
+        assert!(
+            fixture
+                .audit_files()
+                .iter()
+                .map(|path| fs::read_to_string(path).expect("read reuse audit"))
+                .any(|audit| audit.contains("\"event\":\"retro-import-reused\""))
+        );
+
+        assert_eq!(
+            fixture
+                .store
+                .commit_without_copy(&reuse, &authority, 1_000)
+                .expect("idempotent reuse"),
+            outcome
+        );
+        assert_eq!(fixture.audit_files().len(), 2);
+
+        fs::remove_file(&fixture.object_files()[0]).expect("remove managed object");
+        let missing = reuse_intent(bytes, 2, "reuse-missing", &existing_id);
+        assert!(
+            fixture
+                .store
+                .commit_without_copy(&missing, &context(&missing), 1_000)
+                .is_err()
+        );
+        assert_eq!(fixture.audit_files().len(), 2);
+    }
+
+    #[test]
+    fn cancellation_survives_expiry_and_revocation_and_cleans_only_matching_stage() {
+        let fixture = Fixture::new();
+        let bytes = b"cancel after expiry";
+        let cancel = cancel_intent(bytes, 1, "expired-cancel");
+        let expired_and_revoked =
+            RetroPlainImportContext::authorize(&cancel, INSPECTION_ID, 500, true, policy())
+                .expect("authorize cancellation");
+        let outcome = fixture
+            .store
+            .commit_without_copy(&cancel, &expired_and_revoked, 1_000)
+            .expect("cancel after expiry and revocation");
+        assert_eq!(outcome.action(), RetroNoCopyAction::CancelAndCleanup);
+        assert_eq!(outcome.library_generation(), 1);
+        assert!(outcome.existing_entry_id().is_none());
+        assert_eq!(fixture.library().generation, 1);
+        assert!(fixture.object_files().is_empty());
+        assert_eq!(fixture.audit_files().len(), 1);
+        assert!(
+            fs::read_to_string(&fixture.audit_files()[0])
+                .expect("read cancellation audit")
+                .contains("\"event\":\"retro-import-cancelled\"")
+        );
+
+        let other_bytes = b"later unrelated import";
+        let other_intent = intent_bytes(other_bytes, 1, "usb", "after-cancel", None);
+        let mut other_source = fixture.source("after-cancel.gb", other_bytes);
+        fixture
+            .store
+            .install_plain(
+                &other_intent,
+                &context(&other_intent),
+                &mut other_source,
+                &mut FakeScanner::clean(),
+                1_000,
+            )
+            .expect("advance library after cancellation");
+        let retried = fixture
+            .store
+            .commit_without_copy(&cancel, &expired_and_revoked, 2_000)
+            .expect("retry cancellation after library advance");
+        assert_eq!(retried, outcome);
+        assert_eq!(fixture.library().generation, 2);
+        assert_eq!(fixture.audit_files().len(), 2);
+
+        let staged = Fixture::new();
+        let pending = pending_for(&staged, bytes, 1, "staged-cancel");
+        let stage = staged.store.stage_directory(&pending);
+        fs::create_dir(&stage).expect("create pending stage");
+        fs::write(stage.join("payload"), b"partial").expect("write pending bytes");
+        let matching_cancel = cancel_intent(bytes, 1, "staged-cancel");
+        let matching_authority = RetroPlainImportContext::authorize(
+            &matching_cancel,
+            INSPECTION_ID,
+            500,
+            true,
+            policy(),
+        )
+        .expect("authorize staged cancellation");
+        staged
+            .store
+            .commit_without_copy(&matching_cancel, &matching_authority, 1_000)
+            .expect("clean exact pending stage");
+        assert!(!stage.exists());
+        assert!(staged.pending().is_none());
+        assert_eq!(staged.audit_files().len(), 1);
+        assert_eq!(staged.library().generation, 1);
     }
 
     #[test]
