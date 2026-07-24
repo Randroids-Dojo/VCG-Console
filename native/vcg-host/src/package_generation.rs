@@ -24,6 +24,10 @@ use crate::package_transfer::{
 use crate::retroarch::plan as plan_retroarch;
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
+const CLEANUP_INTENT_SCHEMA_VERSION: u32 = 1;
+const CLEANUP_INTENT_FILE: &str = "generation-cleanup.intent";
+const CLEANUP_INTENT_TEMP_FILE: &str = "generation-cleanup.intent.tmp";
+const MAX_CLEANUP_INTENT_BYTES: u64 = 2 * 1_024 * 1_024;
 const MAX_MARKER_BYTES: u64 = 1_024;
 const INTENT_FILE: &str = "promotion.intent";
 const OPERATION_LOCK_FILE: &str = ".vcg-package-store.lock";
@@ -88,6 +92,18 @@ pub struct GenerationCleanupPlan {
     pub retained_generations: Vec<u64>,
     pub retired_generations: Vec<u64>,
     pub orphan_generations: Vec<u64>,
+}
+
+/// Result of one explicit bounded generation-cleanup transaction.
+///
+/// The remover never selects policy itself. The caller supplies the retention
+/// floor and per-transaction bound, while the returned plan shows any
+/// remaining eligible history after the durable transaction completes.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct GenerationCleanupOutcome {
+    pub removed_retired_generations: Vec<u64>,
+    pub removed_orphan_generations: Vec<u64>,
+    pub remaining_plan: GenerationCleanupPlan,
 }
 
 /// Host-owned signed package generation storage.
@@ -233,10 +249,111 @@ impl PackageGenerationStore {
         self.plan_cleanup_unlocked(retain_count, &protected)
     }
 
+    /// Removes a bounded set of unprotected retired/orphan generations while
+    /// fresh native launches and cooperating package-store mutations remain
+    /// frozen.
+    ///
+    /// Orphans are selected before the oldest retired activation history. A
+    /// durable intent is synchronized before the first marker or generation
+    /// directory is removed. The transaction removes an activated marker
+    /// before its directory, so every interruption is either the original
+    /// valid history or an inert orphan that
+    /// [`Self::recover_cleanup_for_launch_service`] can resume.
+    ///
+    /// This is an explicit host primitive, not an automatic cleanup policy.
+    /// It never removes the data/save root, managed content, staging,
+    /// promotion state, active generation, rollback floor, or a generation
+    /// protected by an active/restart-ambiguous native launch.
+    ///
+    /// # Errors
+    ///
+    /// Rejects a zero/excessive transaction bound, promotion or cleanup
+    /// recovery, unavailable launch protection, lock contention, malformed
+    /// history, or any target that changes before durable removal.
+    pub fn cleanup_for_launch_service(
+        &self,
+        retain_count: usize,
+        max_removals: usize,
+        launch_service: &NativeLaunchService,
+    ) -> Result<GenerationCleanupOutcome, GenerationError> {
+        if !(1..=MAX_GENERATION_ENTRIES).contains(&max_removals) {
+            return Err(GenerationError::InvalidCleanupLimit(max_removals));
+        }
+        let launch_maintenance = launch_service.acquire_maintenance()?;
+        let _operation = self.acquire_operation_lock()?;
+        if self.promotion_recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        if self.cleanup_recovery_required()? {
+            return Err(GenerationError::CleanupRecoveryRequired);
+        }
+        let protected = launch_maintenance.protected_catalog_generations()?;
+        let plan = self.plan_cleanup_unlocked_inner(retain_count, &protected, true)?;
+        if plan.retired_generations.is_empty() && plan.orphan_generations.is_empty() {
+            return Ok(GenerationCleanupOutcome {
+                removed_retired_generations: Vec::new(),
+                removed_orphan_generations: Vec::new(),
+                remaining_plan: plan,
+            });
+        }
+        let intent = self.create_cleanup_intent(&plan, retain_count, max_removals)?;
+        self.write_cleanup_intent(&intent)?;
+        let durable = self.read_cleanup_intent_if_present()?.ok_or_else(|| {
+            GenerationError::CleanupIntentInvalid(
+                "published cleanup intent disappeared before mutation".to_owned(),
+            )
+        })?;
+        if durable != intent {
+            return Err(GenerationError::CleanupIntentInvalid(
+                "published cleanup intent changed before mutation".to_owned(),
+            ));
+        }
+        self.apply_cleanup_intent_unlocked(&durable, &protected)
+    }
+
+    /// Resumes an interrupted generation cleanup under fresh launch
+    /// protection and the same package-store operation lock.
+    ///
+    /// A missing intent returns `Ok(None)`. A present intent is fully
+    /// validated before any remaining mutation. A target that has become
+    /// protected or retained fails closed and leaves the intent for trusted
+    /// recovery rather than deleting through ambiguity.
+    ///
+    /// # Errors
+    ///
+    /// Rejects simultaneous promotion recovery, malformed/unsafe intent,
+    /// unavailable protection, lock contention, changed history, or I/O
+    /// failure.
+    pub fn recover_cleanup_for_launch_service(
+        &self,
+        launch_service: &NativeLaunchService,
+    ) -> Result<Option<GenerationCleanupOutcome>, GenerationError> {
+        let launch_maintenance = launch_service.acquire_maintenance()?;
+        let _operation = self.acquire_operation_lock()?;
+        if self.promotion_recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        let Some(intent) = self.read_cleanup_intent_if_present()? else {
+            return Ok(None);
+        };
+        let protected = launch_maintenance.protected_catalog_generations()?;
+        self.apply_cleanup_intent_unlocked(&intent, &protected)
+            .map(Some)
+    }
+
     fn plan_cleanup_unlocked(
         &self,
         retain_count: usize,
         protected_generations: &[u64],
+    ) -> Result<GenerationCleanupPlan, GenerationError> {
+        self.plan_cleanup_unlocked_inner(retain_count, protected_generations, false)
+    }
+
+    fn plan_cleanup_unlocked_inner(
+        &self,
+        retain_count: usize,
+        protected_generations: &[u64],
+        allow_cleanup_recovery: bool,
     ) -> Result<GenerationCleanupPlan, GenerationError> {
         if !(MIN_RETAINED_GENERATIONS..=MAX_GENERATION_ENTRIES).contains(&retain_count) {
             return Err(GenerationError::InvalidRetentionCount(retain_count));
@@ -262,8 +379,11 @@ impl PackageGenerationStore {
                 Ok(generations)
             },
         )?;
-        if self.recovery_required()? {
+        if self.promotion_recovery_required()? {
             return Err(GenerationError::RecoveryRequired);
+        }
+        if !allow_cleanup_recovery && self.cleanup_recovery_required()? {
+            return Err(GenerationError::CleanupRecoveryRequired);
         }
 
         let activated = self.activation_generations()?;
@@ -310,6 +430,237 @@ impl PackageGenerationStore {
         })
     }
 
+    fn create_cleanup_intent(
+        &self,
+        plan: &GenerationCleanupPlan,
+        retain_count: usize,
+        max_removals: usize,
+    ) -> Result<GenerationCleanupIntent, GenerationError> {
+        let orphan_generations: Vec<_> = plan
+            .orphan_generations
+            .iter()
+            .copied()
+            .take(max_removals)
+            .collect();
+        let remaining = max_removals.saturating_sub(orphan_generations.len());
+        let retired_generations = plan
+            .retired_generations
+            .iter()
+            .copied()
+            .take(remaining)
+            .map(|generation| {
+                let marker = read_marker(&self.activation_path(generation))?;
+                validate_marker(&marker, generation)?;
+                Ok(marker)
+            })
+            .collect::<Result<Vec<_>, GenerationError>>()?;
+        let intent = GenerationCleanupIntent {
+            schema_version: CLEANUP_INTENT_SCHEMA_VERSION,
+            retain_count: u32::try_from(retain_count)
+                .expect("validated cleanup retention count fits u32"),
+            retired_generations,
+            orphan_generations,
+        };
+        validate_cleanup_intent(&intent)?;
+        Ok(intent)
+    }
+
+    fn write_cleanup_intent(
+        &self,
+        intent: &GenerationCleanupIntent,
+    ) -> Result<(), GenerationError> {
+        validate_cleanup_intent(intent)?;
+        let path = self.root.join(CLEANUP_INTENT_FILE);
+        let temporary = self.root.join(CLEANUP_INTENT_TEMP_FILE);
+        if path_exists(&path)? {
+            return Err(GenerationError::CleanupRecoveryRequired);
+        }
+        if path_exists(&temporary)? {
+            require_regular_file(&temporary, "temporary package generation cleanup intent")?;
+            fs::remove_file(&temporary).map_err(|source| GenerationError::Io {
+                operation: "remove unpublished package generation cleanup intent",
+                path: temporary.clone(),
+                source,
+            })?;
+            sync_directory(&self.root)?;
+        }
+        let bytes = serde_json::to_vec(intent)
+            .map_err(|error| GenerationError::CleanupIntentInvalid(error.to_string()))?;
+        if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_CLEANUP_INTENT_BYTES {
+            return Err(GenerationError::CleanupIntentInvalid(
+                "serialized cleanup intent exceeds size limit".to_owned(),
+            ));
+        }
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|source| GenerationError::Io {
+                operation: "create temporary package generation cleanup intent",
+                path: temporary.clone(),
+                source,
+            })?;
+        file.write_all(&bytes)
+            .and_then(|()| file.sync_all())
+            .map_err(|source| GenerationError::Io {
+                operation: "persist temporary package generation cleanup intent",
+                path: temporary.clone(),
+                source,
+            })?;
+        drop(file);
+        fs::hard_link(&temporary, &path).map_err(|source| {
+            if source.kind() == io::ErrorKind::AlreadyExists {
+                GenerationError::CleanupRecoveryRequired
+            } else {
+                GenerationError::Io {
+                    operation: "publish package generation cleanup intent",
+                    path: path.clone(),
+                    source,
+                }
+            }
+        })?;
+        fs::remove_file(&temporary).map_err(|source| GenerationError::Io {
+            operation: "remove published temporary generation cleanup intent",
+            path: temporary,
+            source,
+        })?;
+        sync_directory(&self.root)
+    }
+
+    fn apply_cleanup_intent_unlocked(
+        &self,
+        intent: &GenerationCleanupIntent,
+        protected_generations: &[u64],
+    ) -> Result<GenerationCleanupOutcome, GenerationError> {
+        validate_cleanup_intent(intent)?;
+        let retain_count = usize::try_from(intent.retain_count).map_err(|_| {
+            GenerationError::CleanupIntentInvalid(
+                "cleanup retention count cannot be represented".to_owned(),
+            )
+        })?;
+        let plan = self.plan_cleanup_unlocked_inner(retain_count, protected_generations, true)?;
+        self.validate_cleanup_targets(intent, &plan)?;
+
+        for marker in &intent.retired_generations {
+            let activation = self.activation_path(marker.generation);
+            if path_exists(&activation)? {
+                let current = read_marker(&activation)?;
+                validate_marker(&current, marker.generation)?;
+                if current != *marker {
+                    return Err(GenerationError::CleanupTargetChanged(marker.generation));
+                }
+                fs::remove_file(&activation).map_err(|source| GenerationError::Io {
+                    operation: "remove retired package activation marker",
+                    path: activation,
+                    source,
+                })?;
+                sync_directory(&self.activations)?;
+            }
+            self.remove_generation_directory_if_present(marker.generation)?;
+        }
+        for generation in &intent.orphan_generations {
+            self.remove_generation_directory_if_present(*generation)?;
+        }
+
+        let intent_path = self.root.join(CLEANUP_INTENT_FILE);
+        fs::remove_file(&intent_path).map_err(|source| GenerationError::Io {
+            operation: "remove completed package generation cleanup intent",
+            path: intent_path,
+            source,
+        })?;
+        let temporary = self.root.join(CLEANUP_INTENT_TEMP_FILE);
+        if path_exists(&temporary)? {
+            require_regular_file(&temporary, "temporary package generation cleanup intent")?;
+            fs::remove_file(&temporary).map_err(|source| GenerationError::Io {
+                operation: "remove recovered temporary generation cleanup intent",
+                path: temporary,
+                source,
+            })?;
+        }
+        sync_directory(&self.root)?;
+
+        let remaining_plan =
+            self.plan_cleanup_unlocked_inner(retain_count, protected_generations, false)?;
+        Ok(GenerationCleanupOutcome {
+            removed_retired_generations: intent
+                .retired_generations
+                .iter()
+                .map(|marker| marker.generation)
+                .collect(),
+            removed_orphan_generations: intent.orphan_generations.clone(),
+            remaining_plan,
+        })
+    }
+
+    fn validate_cleanup_targets(
+        &self,
+        intent: &GenerationCleanupIntent,
+        plan: &GenerationCleanupPlan,
+    ) -> Result<(), GenerationError> {
+        for marker in &intent.retired_generations {
+            let generation = marker.generation;
+            if plan
+                .protected_generations
+                .binary_search(&generation)
+                .is_ok()
+                || plan.retained_generations.binary_search(&generation).is_ok()
+            {
+                return Err(GenerationError::CleanupTargetProtected(generation));
+            }
+            let activation = self.activation_path(generation);
+            if path_exists(&activation)? {
+                if plan.retired_generations.binary_search(&generation).is_err() {
+                    return Err(GenerationError::CleanupTargetChanged(generation));
+                }
+                let current = read_marker(&activation)?;
+                validate_marker(&current, generation)?;
+                if current != *marker {
+                    return Err(GenerationError::CleanupTargetChanged(generation));
+                }
+            } else {
+                let directory = self.generation_path(generation);
+                if path_exists(&directory)?
+                    && plan.orphan_generations.binary_search(&generation).is_err()
+                {
+                    return Err(GenerationError::CleanupTargetChanged(generation));
+                }
+            }
+        }
+        for generation in &intent.orphan_generations {
+            if path_exists(&self.activation_path(*generation))? {
+                return Err(GenerationError::CleanupTargetChanged(*generation));
+            }
+            let directory = self.generation_path(*generation);
+            if path_exists(&directory)?
+                && plan.orphan_generations.binary_search(generation).is_err()
+            {
+                return Err(GenerationError::CleanupTargetChanged(*generation));
+            }
+        }
+        Ok(())
+    }
+
+    fn remove_generation_directory_if_present(
+        &self,
+        generation: u64,
+    ) -> Result<(), GenerationError> {
+        let path = self.generation_path(generation);
+        if !path_exists(&path)? {
+            return Ok(());
+        }
+        let canonical = canonical_direct_child(
+            "package generation cleanup target",
+            &self.generations,
+            &path,
+        )?;
+        fs::remove_dir_all(&canonical).map_err(|source| GenerationError::Io {
+            operation: "remove package generation directory",
+            path: canonical,
+            source,
+        })?;
+        sync_directory(&self.generations)
+    }
+
     /// Admits and publishes one signed uncompressed-TAR release as an inert
     /// staging transaction.
     ///
@@ -336,9 +687,7 @@ impl PackageGenerationStore {
     ) -> Result<StagedPackageGeneration, GenerationError> {
         let _operation = self.acquire_operation_lock()?;
         validate_transaction_id(transaction_id)?;
-        if self.recovery_required()? {
-            return Err(GenerationError::RecoveryRequired);
-        }
+        self.ensure_no_recovery_required()?;
         let release = VerifiedPackageRelease::load(
             descriptor_path,
             descriptor_signature_path,
@@ -371,9 +720,7 @@ impl PackageGenerationStore {
         let _operation = self.acquire_operation_lock()?;
         let transaction_id = transfer.transaction_id();
         validate_transaction_id(transaction_id)?;
-        if self.recovery_required()? {
-            return Err(GenerationError::RecoveryRequired);
-        }
+        self.ensure_no_recovery_required()?;
         let release = VerifiedPackageRelease::load(
             descriptor_path,
             descriptor_signature_path,
@@ -402,9 +749,7 @@ impl PackageGenerationStore {
         let _operation = self.acquire_operation_lock()?;
         let transaction_id = transfer.transaction_id();
         validate_transaction_id(transaction_id)?;
-        if self.recovery_required()? {
-            return Err(GenerationError::RecoveryRequired);
-        }
+        self.ensure_no_recovery_required()?;
         let stage = self.canonical_stage(transaction_id)?;
         let receipt_path = canonical_direct_file(
             "staged transfer receipt",
@@ -632,6 +977,10 @@ impl PackageGenerationStore {
     /// Rejects malformed, oversized, symlinked, or otherwise unsafe intent
     /// state.
     pub fn recovery_required(&self) -> Result<bool, GenerationError> {
+        self.promotion_recovery_required()
+    }
+
+    fn promotion_recovery_required(&self) -> Result<bool, GenerationError> {
         let intent_path = self.root.join(INTENT_FILE);
         match fs::symlink_metadata(&intent_path) {
             Ok(_) => {
@@ -646,6 +995,46 @@ impl PackageGenerationStore {
                 source,
             }),
         }
+    }
+
+    /// Reports whether a valid durable generation-cleanup intent requires
+    /// recovery.
+    ///
+    /// The check is read-only and validates the complete bounded intent. A
+    /// malformed or non-regular file fails closed.
+    ///
+    /// # Errors
+    ///
+    /// Rejects malformed, oversized, symlinked, or otherwise unsafe cleanup
+    /// state.
+    pub fn cleanup_recovery_required(&self) -> Result<bool, GenerationError> {
+        self.read_cleanup_intent_if_present()
+            .map(|intent| intent.is_some())
+    }
+
+    fn read_cleanup_intent_if_present(
+        &self,
+    ) -> Result<Option<GenerationCleanupIntent>, GenerationError> {
+        let path = self.root.join(CLEANUP_INTENT_FILE);
+        match fs::symlink_metadata(&path) {
+            Ok(_) => read_cleanup_intent(&path).map(Some),
+            Err(source) if source.kind() == io::ErrorKind::NotFound => Ok(None),
+            Err(source) => Err(GenerationError::Io {
+                operation: "inspect package generation cleanup intent",
+                path,
+                source,
+            }),
+        }
+    }
+
+    fn ensure_no_recovery_required(&self) -> Result<(), GenerationError> {
+        if self.promotion_recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        if self.cleanup_recovery_required()? {
+            return Err(GenerationError::CleanupRecoveryRequired);
+        }
+        Ok(())
     }
 
     /// Health-checks and promotes one fully populated
@@ -679,9 +1068,7 @@ impl PackageGenerationStore {
         F: FnMut(&CandidateHealthRequest) -> Result<(), CandidateHealthError>,
     {
         validate_transaction_id(transaction_id)?;
-        if self.recovery_required()? {
-            return Err(GenerationError::RecoveryRequired);
-        }
+        self.ensure_no_recovery_required()?;
         let stage = self.canonical_stage(transaction_id)?;
         let candidate = self.load_release(&stage)?;
         let expected_catalog_sha256 = candidate.catalog_sha256.clone();
@@ -726,10 +1113,8 @@ impl PackageGenerationStore {
         expected_catalog_sha256: Option<&str>,
     ) -> Result<PromotionOutcome, GenerationError> {
         validate_transaction_id(transaction_id)?;
+        self.ensure_no_recovery_required()?;
         let global_intent = self.root.join(INTENT_FILE);
-        if global_intent.exists() {
-            return Err(GenerationError::RecoveryRequired);
-        }
 
         let stage = self.canonical_stage(transaction_id)?;
         let candidate = self.load_release(&stage)?;
@@ -813,6 +1198,9 @@ impl PackageGenerationStore {
     /// Rejects inconsistent or changed candidate state and downgrades.
     pub fn recover(&self) -> Result<RecoveryOutcome, GenerationError> {
         let _operation = self.acquire_operation_lock()?;
+        if self.cleanup_recovery_required()? {
+            return Err(GenerationError::CleanupRecoveryRequired);
+        }
         let intent_path = self.root.join(INTENT_FILE);
         if !intent_path.exists() {
             return Ok(RecoveryOutcome::Clean);
@@ -1059,6 +1447,15 @@ struct ActivationMarker {
 
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct GenerationCleanupIntent {
+    schema_version: u32,
+    retain_count: u32,
+    retired_generations: Vec<ActivationMarker>,
+    orphan_generations: Vec<u64>,
+}
+
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct StagedTransferReceipt {
     schema_version: u32,
     transaction_id: String,
@@ -1249,6 +1646,94 @@ fn read_marker(path: &Path) -> Result<ActivationMarker, GenerationError> {
     }
     serde_json::from_slice(&bytes)
         .map_err(|error| GenerationError::MarkerMismatch(error.to_string()))
+}
+
+fn read_cleanup_intent(path: &Path) -> Result<GenerationCleanupIntent, GenerationError> {
+    require_regular_file(path, "package generation cleanup intent")?;
+    let file = File::open(path).map_err(|source| GenerationError::Io {
+        operation: "open package generation cleanup intent",
+        path: path.to_owned(),
+        source,
+    })?;
+    let mut bytes = Vec::new();
+    file.take(MAX_CLEANUP_INTENT_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|source| GenerationError::Io {
+            operation: "read package generation cleanup intent",
+            path: path.to_owned(),
+            source,
+        })?;
+    if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_CLEANUP_INTENT_BYTES {
+        return Err(GenerationError::CleanupIntentInvalid(
+            "cleanup intent exceeds size limit".to_owned(),
+        ));
+    }
+    let intent: GenerationCleanupIntent = serde_json::from_slice(&bytes)
+        .map_err(|error| GenerationError::CleanupIntentInvalid(error.to_string()))?;
+    validate_cleanup_intent(&intent)?;
+    Ok(intent)
+}
+
+fn validate_cleanup_intent(intent: &GenerationCleanupIntent) -> Result<(), GenerationError> {
+    if intent.schema_version != CLEANUP_INTENT_SCHEMA_VERSION {
+        return Err(GenerationError::CleanupIntentInvalid(format!(
+            "unsupported cleanup intent schema {}",
+            intent.schema_version
+        )));
+    }
+    let retain_count = usize::try_from(intent.retain_count).map_err(|_| {
+        GenerationError::CleanupIntentInvalid(
+            "cleanup retention count cannot be represented".to_owned(),
+        )
+    })?;
+    if !(MIN_RETAINED_GENERATIONS..=MAX_GENERATION_ENTRIES).contains(&retain_count) {
+        return Err(GenerationError::CleanupIntentInvalid(format!(
+            "cleanup retention count {} is invalid",
+            intent.retain_count
+        )));
+    }
+    let target_count = intent
+        .retired_generations
+        .len()
+        .checked_add(intent.orphan_generations.len())
+        .ok_or_else(|| {
+            GenerationError::CleanupIntentInvalid("cleanup target count overflow".to_owned())
+        })?;
+    if !(1..=MAX_GENERATION_ENTRIES).contains(&target_count) {
+        return Err(GenerationError::CleanupIntentInvalid(format!(
+            "cleanup target count {target_count} is invalid"
+        )));
+    }
+
+    let mut previous = None;
+    let mut retired = BTreeSet::new();
+    for marker in &intent.retired_generations {
+        validate_marker(marker, marker.generation)
+            .map_err(|error| GenerationError::CleanupIntentInvalid(error.to_string()))?;
+        if previous.is_some_and(|generation| marker.generation <= generation) {
+            return Err(GenerationError::CleanupIntentInvalid(
+                "retired cleanup targets are not strictly increasing".to_owned(),
+            ));
+        }
+        previous = Some(marker.generation);
+        retired.insert(marker.generation);
+    }
+
+    previous = None;
+    for generation in &intent.orphan_generations {
+        if *generation == 0 || previous.is_some_and(|prior| *generation <= prior) {
+            return Err(GenerationError::CleanupIntentInvalid(
+                "orphan cleanup targets must be nonzero and strictly increasing".to_owned(),
+            ));
+        }
+        if retired.contains(generation) {
+            return Err(GenerationError::CleanupIntentInvalid(format!(
+                "cleanup generation {generation} appears in both target classes"
+            )));
+        }
+        previous = Some(*generation);
+    }
+    Ok(())
 }
 
 fn generation_from_marker_name(name: &std::ffi::OsStr) -> Result<u64, GenerationError> {
@@ -1479,7 +1964,12 @@ pub enum GenerationError {
     },
     InvalidLayout(String),
     InvalidRetentionCount(usize),
+    InvalidCleanupLimit(usize),
     InvalidCleanupProtection(String),
+    CleanupRecoveryRequired,
+    CleanupIntentInvalid(String),
+    CleanupTargetProtected(u64),
+    CleanupTargetChanged(u64),
     InvalidTransactionId(String),
     StagingTransactionExists(String),
     StagedTransferReceiptMismatch(String),
@@ -1530,9 +2020,30 @@ impl fmt::Display for GenerationError {
                 formatter,
                 "package retention count {count} is outside {MIN_RETAINED_GENERATIONS}..={MAX_GENERATION_ENTRIES}"
             ),
+            Self::InvalidCleanupLimit(limit) => write!(
+                formatter,
+                "package cleanup limit {limit} is outside 1..={MAX_GENERATION_ENTRIES}"
+            ),
             Self::InvalidCleanupProtection(error) => {
                 write!(formatter, "package cleanup protection is invalid: {error}")
             }
+            Self::CleanupRecoveryRequired => {
+                formatter.write_str("package generation cleanup recovery is required")
+            }
+            Self::CleanupIntentInvalid(error) => {
+                write!(
+                    formatter,
+                    "package generation cleanup intent is invalid: {error}"
+                )
+            }
+            Self::CleanupTargetProtected(generation) => write!(
+                formatter,
+                "package cleanup generation {generation} is now retained or launch-protected"
+            ),
+            Self::CleanupTargetChanged(generation) => write!(
+                formatter,
+                "package cleanup generation {generation} changed after intent publication"
+            ),
             Self::InvalidTransactionId(value) => {
                 write!(formatter, "package transaction id is invalid: {value}")
             }
@@ -1644,10 +2155,11 @@ mod tests {
     use tar::Builder;
 
     use super::{
-        ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, GenerationError, INTENT_FILE,
-        OPERATION_LOCK_FILE, PackageGenerationConfig, PackageGenerationStore, PromotionOutcome,
-        RecoveryOutcome, STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker,
-        publish_intent, read_marker,
+        ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, CLEANUP_INTENT_FILE,
+        CLEANUP_INTENT_TEMP_FILE, GenerationError, INTENT_FILE, OPERATION_LOCK_FILE,
+        PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
+        STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker, publish_intent,
+        read_marker,
     };
     use crate::installed_catalog::PackageHealthCheck;
     use crate::native_launch::NativeLaunchService;
@@ -2523,6 +3035,331 @@ mod tests {
                 orphan_generations: Vec::new(),
             }
         );
+    }
+
+    #[test]
+    fn explicit_cleanup_is_bounded_preserves_rollback_and_never_touches_saves() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+            ("update-ten", 10, "1.3.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+        fs::create_dir(fixture.root.join("generations/00000000000000000011"))
+            .expect("orphan generation directory creates");
+        let save = fixture.data.join("local-player/retro-2048/save.srm");
+        fs::create_dir_all(save.parent().expect("save has parent")).expect("save parent creates");
+        fs::write(&save, b"player progress").expect("save writes");
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+        fs::write(
+            fixture.root.join(CLEANUP_INTENT_TEMP_FILE),
+            b"interrupted before authoritative publication",
+        )
+        .expect("stale unpublished intent writes");
+
+        let outcome = store
+            .cleanup_for_launch_service(2, 2, &service)
+            .expect("bounded cleanup completes");
+        assert_eq!(outcome.removed_orphan_generations, vec![11]);
+        assert_eq!(outcome.removed_retired_generations, vec![7]);
+        assert_eq!(
+            outcome.remaining_plan,
+            super::GenerationCleanupPlan {
+                active_generation: Some(10),
+                protected_generations: Vec::new(),
+                retained_generations: vec![9, 10],
+                retired_generations: vec![8],
+                orphan_generations: Vec::new(),
+            }
+        );
+        assert!(!fixture.root.join(CLEANUP_INTENT_FILE).exists());
+        assert!(!fixture.root.join(CLEANUP_INTENT_TEMP_FILE).exists());
+        assert!(
+            !fixture
+                .root
+                .join("activations/00000000000000000007.json")
+                .exists()
+        );
+        assert!(
+            !fixture
+                .root
+                .join("generations/00000000000000000007")
+                .exists()
+        );
+        assert!(
+            fixture
+                .root
+                .join("activations/00000000000000000008.json")
+                .is_file(),
+            "bounded cleanup leaves the next retired generation"
+        );
+        assert_eq!(
+            fs::read(save).expect("save survives generation cleanup"),
+            b"player progress"
+        );
+    }
+
+    #[test]
+    fn cleanup_recovery_resumes_after_marker_removal_and_blocks_other_mutations() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+        let plan = store.plan_cleanup(2).expect("cleanup plan derives");
+        let intent = store
+            .create_cleanup_intent(&plan, 2, 1)
+            .expect("cleanup intent derives");
+        store
+            .write_cleanup_intent(&intent)
+            .expect("cleanup intent persists");
+        fs::hard_link(
+            fixture.root.join(CLEANUP_INTENT_FILE),
+            fixture.root.join(CLEANUP_INTENT_TEMP_FILE),
+        )
+        .expect("simulated interruption retains published temporary link");
+        fs::remove_file(fixture.root.join("activations/00000000000000000007.json"))
+            .expect("simulated interruption removes marker");
+
+        assert!(
+            store
+                .cleanup_recovery_required()
+                .expect("cleanup recovery state validates")
+        );
+        assert!(matches!(
+            store.plan_cleanup(2),
+            Err(GenerationError::CleanupRecoveryRequired)
+        ));
+        fixture.stage("blocked-ten", 10, "2.0.0");
+        assert!(matches!(
+            store.promote_without_health("blocked-ten"),
+            Err(GenerationError::CleanupRecoveryRequired)
+        ));
+        assert!(matches!(
+            store.recover(),
+            Err(GenerationError::CleanupRecoveryRequired)
+        ));
+
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+        let outcome = store
+            .recover_cleanup_for_launch_service(&service)
+            .expect("cleanup recovery succeeds")
+            .expect("cleanup intent was present");
+        assert_eq!(outcome.removed_retired_generations, vec![7]);
+        assert!(
+            !fixture
+                .root
+                .join("generations/00000000000000000007")
+                .exists()
+        );
+        assert!(!fixture.root.join(CLEANUP_INTENT_FILE).exists());
+        assert!(!fixture.root.join(CLEANUP_INTENT_TEMP_FILE).exists());
+        assert!(
+            !store
+                .cleanup_recovery_required()
+                .expect("cleanup recovery clears")
+        );
+    }
+
+    #[test]
+    fn cleanup_recovery_is_idempotent_after_target_bytes_are_already_absent() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+        let plan = store.plan_cleanup(2).expect("cleanup plan derives");
+        let intent = store
+            .create_cleanup_intent(&plan, 2, 1)
+            .expect("cleanup intent derives");
+        store
+            .write_cleanup_intent(&intent)
+            .expect("cleanup intent persists");
+        fs::remove_file(fixture.root.join("activations/00000000000000000007.json"))
+            .expect("simulated interruption removes marker");
+        fs::remove_dir_all(fixture.root.join("generations/00000000000000000007"))
+            .expect("simulated interruption removes generation");
+
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+        assert_eq!(
+            store
+                .recover_cleanup_for_launch_service(&service)
+                .expect("completed mutation recovers")
+                .expect("cleanup intent exists")
+                .removed_retired_generations,
+            vec![7]
+        );
+        assert!(
+            store
+                .recover_cleanup_for_launch_service(&service)
+                .expect("second recovery is clean")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn cleanup_noop_and_interrupted_orphan_removal_are_deterministic() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        fixture.stage("install-seven", 7, "1.0.0");
+        store
+            .promote_without_health("install-seven")
+            .expect("generation promotes");
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+
+        let noop = store
+            .cleanup_for_launch_service(2, 1, &service)
+            .expect("clean history is a no-op");
+        assert!(noop.removed_retired_generations.is_empty());
+        assert!(noop.removed_orphan_generations.is_empty());
+        assert!(!fixture.root.join(CLEANUP_INTENT_FILE).exists());
+
+        let orphan = fixture.root.join("generations/00000000000000000008");
+        fs::create_dir(&orphan).expect("orphan directory creates");
+        let plan = store.plan_cleanup(2).expect("orphan plan derives");
+        let intent = store
+            .create_cleanup_intent(&plan, 2, 1)
+            .expect("orphan intent derives");
+        store
+            .write_cleanup_intent(&intent)
+            .expect("orphan intent persists");
+        fs::remove_dir(&orphan).expect("simulated interruption removes empty orphan");
+
+        let recovered = store
+            .recover_cleanup_for_launch_service(&service)
+            .expect("orphan cleanup recovers")
+            .expect("orphan cleanup intent exists");
+        assert_eq!(recovered.removed_orphan_generations, vec![8]);
+        assert!(recovered.removed_retired_generations.is_empty());
+        assert!(!fixture.root.join(CLEANUP_INTENT_FILE).exists());
+    }
+
+    #[test]
+    fn cleanup_recovery_refuses_new_protection_or_changed_target_identity() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+        let plan = store.plan_cleanup(2).expect("cleanup plan derives");
+        let intent = store
+            .create_cleanup_intent(&plan, 2, 1)
+            .expect("cleanup intent derives");
+        store
+            .write_cleanup_intent(&intent)
+            .expect("cleanup intent persists");
+
+        assert!(matches!(
+            store.apply_cleanup_intent_unlocked(&intent, &[7]),
+            Err(GenerationError::CleanupTargetProtected(7))
+        ));
+        assert!(fixture.root.join(CLEANUP_INTENT_FILE).is_file());
+
+        let activation = fixture.root.join("activations/00000000000000000007.json");
+        let mut changed = read_marker(&activation).expect("target marker reads");
+        changed.transaction_id = "different-seven".to_owned();
+        fs::write(
+            &activation,
+            serde_json::to_vec(&changed).expect("changed marker serializes"),
+        )
+        .expect("target marker changes");
+        assert!(matches!(
+            store.apply_cleanup_intent_unlocked(&intent, &[]),
+            Err(GenerationError::CleanupTargetChanged(7))
+        ));
+        assert!(fixture.root.join(CLEANUP_INTENT_FILE).is_file());
+        assert!(
+            fixture
+                .root
+                .join("generations/00000000000000000007")
+                .is_dir()
+        );
+    }
+
+    #[test]
+    fn cleanup_rejects_invalid_bounds_and_malformed_intent() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        fixture.stage("install-seven", 7, "1.0.0");
+        store
+            .promote_without_health("install-seven")
+            .expect("generation promotes");
+        let active = store
+            .load_active()
+            .expect("active generation loads")
+            .expect("active generation exists");
+        let service =
+            NativeLaunchService::new(Arc::new(active.catalog), vec!["local-player".to_owned()])
+                .expect("launch service configures");
+
+        for limit in [0, super::MAX_GENERATION_ENTRIES + 1] {
+            assert!(matches!(
+                store.cleanup_for_launch_service(2, limit, &service),
+                Err(GenerationError::InvalidCleanupLimit(value)) if value == limit
+            ));
+        }
+        fs::write(fixture.root.join(CLEANUP_INTENT_FILE), b"not an intent")
+            .expect("malformed cleanup intent writes");
+        assert!(matches!(
+            store.cleanup_recovery_required(),
+            Err(GenerationError::CleanupIntentInvalid(_))
+        ));
+        assert!(matches!(
+            store.recover_cleanup_for_launch_service(&service),
+            Err(GenerationError::CleanupIntentInvalid(_))
+        ));
     }
 
     #[test]

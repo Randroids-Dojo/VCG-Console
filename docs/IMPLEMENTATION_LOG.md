@@ -1025,6 +1025,28 @@ The selected living room still needs its exact survey and marked zone. Anchor su
 
 The low-confidence and overload states are contract/UI fixtures, not measured thresholds. Real camera disconnect/reconnect, sustained overload, fallback qualification, per-limb loss, freeze/pause behavior, accessibility comprehension, and ARM64/x86-64 timing remain under I-063, I-134, I-161, I-208, I-210, and Q-039.
 
+## 2026-07-24: bounded crash-recoverable generation cleanup
+
+### Delivered
+
+- Added an explicit host-only generation remover that accepts a validated retention floor and per-transaction bound; no browser route or automatic scheduler invokes it.
+- The coordinator holds the native launch-maintenance lease and then the package-store operation lock through fresh protection derivation, plan selection, durable intent publication, deletion, and completion.
+- Cleanup selects inert orphan generations before the oldest retired activation history. It never targets the active generation, newest rollback floor, or any active/restart-ambiguous launch generation.
+- A strict bounded cleanup intent records exact retired activation-marker identities and orphan generation numbers before mutation. It is synchronized as a temporary file and published by no-replace hard link, so a mid-write crash cannot create a truncated authoritative intent. Retired markers are then synchronized away before their directories, leaving only recoverable inert orphans.
+- Restart recovery reacquires both leases, re-derives launch protection, validates target identity, and resumes after intent publication, marker removal, partial/already-complete directory removal, or an already-absent orphan.
+- Pending cleanup blocks planning, intake staging, transfer-receipt cleanup, promotion, and promotion recovery. Malformed intent, changed identity, a newly retained/protected target, invalid bounds, unsafe paths, or simultaneous promotion recovery fails closed without clearing evidence.
+- Fixed-width generation numbers derive direct-child paths; the remover cannot name or touch staging, transfer state, managed content, runtime roots, or player data/saves.
+- D-150 records the crash-consistency boundary. I-101/I-142/I-209 and the generation-store/native-lifecycle docs now distinguish this implemented primitive from unselected automatic retention and uninstall policy.
+
+### Verification evidence
+
+- Rust regression tests cover bounded orphan-first selection, rollback/save preservation, clean no-op, restart after marker removal, already-absent target bytes, interrupted orphan removal, changed marker identity, newly protected targets, malformed intent, invalid limits, and mutation denial while recovery is pending.
+- Workspace formatting and clippy with warnings denied pass; 136 Rust library tests plus 14 CLI tests pass, with five intentional subprocess helpers ignored. Checked-in schemas, the 14-trial/280-attempt benchmark, launcher manifests, TypeScript/Svelte diagnostics, 166 web/package unit tests, the production build, and all 20 Chromium flows also pass.
+
+### Remaining boundary
+
+No target Linux filesystem, sudden-power, noncooperating-writer, or service-manager run has qualified this remover. Automatic timing, generation/byte budget, low-space behavior, uninstall, managed-content garbage collection, and controller-confirmed save preservation/deletion remain Q-113/Q-114/Q-126 and I-101 work. The safe default is to keep automatic cleanup disabled.
+
 ## 2026-07-24: Motion service and bridge abuse review
 
 ### Delivered

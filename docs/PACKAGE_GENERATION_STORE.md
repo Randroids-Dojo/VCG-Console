@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-This document defines the implemented host-owned signed-archive intake, staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, and launcher-startup boundary for production game packages. It composes with the [signed release intake](PACKAGE_INTAKE.md) and [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not a network downloader, uninstall UI, live-runtime qualification, or target-hardware result.
+This document defines the implemented host-owned signed-archive intake, staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, explicit crash-recoverable generation cleanup, and launcher-startup boundary for production game packages. It composes with the [signed release intake](PACKAGE_INTAKE.md) and [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not a network downloader, automatic retention policy, uninstall UI, live-runtime qualification, or target-hardware result.
 
 ## Store layout
 
@@ -136,10 +136,13 @@ Rust tests cover:
 - exclusive no-replace intent publication and recovery after activation-before-intent-unlink;
 - required preprovisioning, nonblocking operation-lock contention across independently opened store handles, inert contents, and rejection of a non-regular lock path;
 - launch-frozen cleanup planning composed with the store operation lock;
+- explicit bounded cleanup of orphan and oldest-retired generations while preserving the rollback floor, active generation, live/restart-ambiguous launch generations, staging, managed content, and data/save roots;
+- recovery after synchronized cleanup intent, activation-marker removal, generation-directory removal, or already-absent target bytes;
+- refusal of malformed intent, changed target identity, newly protected targets, invalid bounds, promotion overlap, and all unrelated mutation until cleanup recovery completes;
 - fail-closed malformed newest activation state;
 - preservation of data-root save bytes.
 
-## Retention planning
+## Retention planning and explicit cleanup
 
 `plan_cleanup(retain_count)` is a read-only host primitive. It accepts only a bounded count of at least two, refuses pending recovery, validates every activation marker and generation-directory name, requires every activated marker to retain a matching directory, and re-verifies the active generation.
 
@@ -154,7 +157,11 @@ The result exposes generation numbers only:
 
 The launch service binds the exact trusted catalog generation when accepting an intent. Preparing, running, and stopping records protect that generation. After restart, an indeterminate record continues protecting it until trusted native code proves old descendants gone and clears the durable cleanup barrier. Normal terminal history does not retain a generation.
 
-Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. The implemented lease and store lock close the in-process launch-admission/protection race and serialize cooperating store handles, but they are not deletion authority. Actual deletion remains disabled until a crash-recoverable remover consumes the validated plan under the same leases, preserves the rollback/save boundaries, and the owner selects the count/byte and scheduling policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md) and [Q-126](OWNER_QUESTIONS_GENERATION_CLEANUP_2026-07-24.md).
+Planning never returns filesystem paths and never mutates package state. `cleanup_for_launch_service(retain_count, max_removals, launch_service)` is a separate explicit host primitive. It takes the same launch-maintenance lease and then the store lock, recomputes protection, selects orphan generations before the oldest retired activation history, writes/synchronizes a bounded strict temporary intent, and publishes it with a no-replace hard link before mutation. A crash before publication leaves only a safe unpublished temporary file; after publication the authoritative intent is complete. The remover deletes a retired activation marker before its generation directory, making every later interruption either the original valid history or an inert orphan. `recover_cleanup_for_launch_service` reacquires both leases, validates the exact marker identity and current protection, and resumes idempotently. Newly protected/retained targets, target changes, malformed intent, or simultaneous promotion recovery fail closed and preserve the intent.
+
+The remover cannot name arbitrary paths. It derives fixed-width generation paths from validated numbers, canonicalizes each direct child before recursive removal, deletes only activation markers and generation directories, and never touches staging, transfer state, managed content, runtime roots, or data/save roots. An in-progress cleanup blocks planning, staging, receipt cleanup, promotion, and promotion recovery until trusted cleanup recovery completes.
+
+No browser endpoint or automatic scheduler invokes the remover. Exact generation-count/byte policy, low-space thresholds, and ordinary-versus-explicit timing remain [Q-113/Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md) and [Q-126](OWNER_QUESTIONS_GENERATION_CLEANUP_2026-07-24.md). Uninstall also remains separate because it needs controller-confirmed save preservation/deletion semantics and broader package/content lifecycle rules.
 
 Still required:
 
@@ -162,7 +169,7 @@ Still required:
 - automatic abandoned/consumed-transfer retention and cleanup scheduling;
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
-- crash-recoverable bounded retention deletion, uninstall, and garbage collection under the existing coordinator leases;
+- automatic retention scheduling/byte policy, uninstall, managed-content garbage collection, and controller-confirmed save disposition;
 - offline-root delegation, key rotation/revocation, and per-channel monotonic state;
-- immutable/read-only artifact handoff and target-Linux crash/power-loss qualification;
+- immutable/read-only artifact handoff and target-Linux crash/power-loss/directory-synchronization qualification;
 - developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.
