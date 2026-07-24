@@ -3050,3 +3050,45 @@ RTMO sessions, held-out provider-specific and time-based threshold selection,
 action/control accuracy, accessibility and recovery comprehension, integration
 with identity/smoothing/calibration/global health, and ordinary x86-64 Linux
 plus Raspberry Pi qualification. No Motion wire or runtime authority changed.
+
+## 2026-07-24: exact-issued portrait and profile authority
+
+### Delivered
+
+- Hardened I-185 portrait capture so both countdown completion and final
+  acceptance require the exact frozen reference/plan objects issued by the
+  same controller.
+- Rejects identical clones, field substitutions, cross-controller refs/plans,
+  stale callbacks, and unknown fields before temporary preview promotion or
+  accepted-portrait replacement.
+- Preserves the exact attempt reference through Svelte raw state, preventing a
+  reactive proxy from accidentally changing controller-local authority.
+- Extended the same rule across I-188 profile creation, rename, calibration
+  application, and destructive operations. Cloned or cross-controller create,
+  substituted rename, cloned calibration, and substituted destructive plans
+  fail before mutation; calibration clone rejection does not consume the
+  separately issued result.
+- Keeps field validation, revision checks, session/attempt binding, result
+  consumption, destructive review timing, and exact state re-resolution as
+  independent fail-closed layers.
+
+### Verification evidence
+
+- Nine focused portrait cases cover early, cloned, cross-controller, retaken,
+  cancelled, expired, and stale callback/commit behavior.
+- Sixteen focused profile cases cover uniform exact issuance alongside
+  qualifier revocation, permanent-delete scope, calibration consumption, and
+  same-name non-reassociation.
+- All 209 console unit tests, complete workspace JavaScript
+  test/typecheck/build gates, and all 33 Chrome flows pass. The portrait,
+  profile-management, and calibration Chrome scenarios also pass as focused
+  runs.
+
+### Remaining boundary
+
+Object reference identity is a volatile browser regression guard, not a
+serialized or restart-safe capability. Production still requires
+broker-issued authenticated session/operation authority, protected revisions,
+exclusive camera leases, encrypted temporary/accepted portrait records, and
+one atomic registry/vault/save transaction with target crash, rollback,
+power-loss, household, accessibility, privacy, and legal evidence.
