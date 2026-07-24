@@ -303,7 +303,9 @@ impl VerifiedSystemImageRelease {
     ///
     /// The privileged platform adapter owns the reader's provenance and must
     /// synchronize the completed write before opening the read-back handle.
-    /// A source-image handle is not accepted as proof of that platform step.
+    /// This byte verifier cannot distinguish an inactive-slot reader from any
+    /// other `Read`; supplying the verified source would not prove the platform
+    /// step.
     ///
     /// # Errors
     ///

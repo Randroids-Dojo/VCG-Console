@@ -2,9 +2,10 @@
 //!
 //! This module deliberately owns boot-selection metadata only. A privileged
 //! image writer must verify signatures and the bytes written to an inactive
-//! read-only slot before constructing [`SystemImage`]. A boot coordinator must
-//! durably claim a pending attempt before transferring control, and the
-//! running candidate must pass every required health check before confirmation.
+//! read-only slot before producing sealed [`VerifiedSystemImageEvidence`]. A
+//! boot coordinator must durably claim a pending attempt before transferring
+//! control, and the running candidate must pass every required health check
+//! before confirmation.
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -65,9 +66,9 @@ pub struct SystemImage {
 }
 
 impl SystemImage {
-    /// Constructs validated image evidence.
+    /// Constructs the persisted image facts held inside sealed evidence.
     ///
-    /// This validates only the evidence shape. The privileged caller remains
+    /// This validates only their shape. The system-image verifier remains
     /// responsible for signature verification and read-back hashing.
     ///
     /// # Errors
