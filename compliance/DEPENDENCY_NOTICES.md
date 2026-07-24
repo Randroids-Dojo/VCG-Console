@@ -22,10 +22,10 @@ fails while either blocker remains.
 |---|---:|
 | Project root | 1 |
 | First-party subcomponents | 6 |
-| npm dependencies | 81 |
+| npm dependencies | 82 |
 | Cargo packages | 42 |
 | Pinned assets | 2 |
-| Total | 132 |
+| Total | 133 |
 
 ## npm dependencies
 
@@ -110,6 +110,7 @@ fails while either blocker remains.
 | vitefu | 1.1.3 | development | MIT | <https://github.com/svitejs/vitefu#readme> |
 | vitest | 4.1.10 | development | MIT | <https://vitest.dev> |
 | why-is-node-running | 2.3.0 | development | MIT | <https://github.com/mafintosh/why-is-node-running> |
+| ws | 8.21.1 | development | MIT | <https://github.com/websockets/ws> |
 | zimmerframe | 1.1.4 | required | MIT | <https://github.com/sveltejs/zimmerframe#readme> |
 | zod | 4.4.3 | required | MIT | <https://zod.dev> |
 

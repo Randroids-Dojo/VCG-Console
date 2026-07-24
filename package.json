@@ -7,6 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "benchmark:transports": "node scripts/benchmark-motion-transports.mjs",
     "build": "pnpm -r build",
     "dev": "pnpm --filter @vcg/console-lab dev",
     "prepare:assets": "node scripts/prepare-assets.mjs",
@@ -35,6 +36,7 @@
     "@vcg/motion-contract": "workspace:*",
     "@vcg/motion-web-bridge": "workspace:*",
     "tsx": "4.23.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "ws": "8.21.1"
   }
 }

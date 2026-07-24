@@ -65,6 +65,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Release compliance and CycloneDX SBOM](docs/RELEASE_COMPLIANCE.md)
 - [Motion service and bridge security review](docs/MOTION_SECURITY_REVIEW.md)
 - [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
+- [Motion local-transport benchmark](docs/MOTION_TRANSPORT_BENCHMARK.md)
 - [Motion standardized action semantics](docs/MOTION_ACTIONS_V1.md)
 - [Motion SDK web authoring guide](docs/MOTION_SDK_AUTHORING.md)
 - [Camera-free Motion pose simulator](docs/MOTION_SIMULATOR.md)

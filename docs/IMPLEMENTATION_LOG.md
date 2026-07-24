@@ -1253,3 +1253,31 @@ I-077 and I-086 stay active. The web adapter still needs a reviewed live Godot b
 ### Remaining boundary
 
 The deterministic fixtures prove SDK and UI behavior, not tracker quality. Provider-specific confidence-to-observed thresholds and hysteresis, real-player recordings, per-game continuation/pause rules, seated/child/limited-range accessibility, TV-distance feedback comprehension, and cross-backend parity remain required before I-063 can close.
+
+## 2026-07-24: first local Motion transport benchmark
+
+### Delivered
+
+- Added a bounded cross-platform Node harness for direct-library copy, one-slot worker shared memory, TCP loopback, OS local socket, and a real uncompressed WebSocket stack.
+- Measured sequential 4 KiB echo RTT distributions, round trips per second, aggregate process CPU, declared queue models, and stalled-reader buffer signals.
+- Added strict argument bounds, deterministic payloads, environment metadata, explicit process-layout limitations, and optional JSON report output.
+- Recorded 5,000 measured samples after 500 warmups on the current Windows x64 development host.
+- Kept I-074 active and D-004 unchanged rather than treating same-process Windows evidence as a target transport decision.
+
+### Initial evidence
+
+| Transport | p50 µs | p95 µs | p99 µs | Process CPU ms | Stall signal |
+|---|---:|---:|---:|---:|---|
+| Direct library copy | 1.4 | 4.6 | 6.9 | 31 | synchronous, no queue |
+| One-slot shared memory | 2.2 | 13.3 | 19.8 | 31 | one frame |
+| Windows named pipe | 17.8 | 39.0 | 88.6 | 172 | 3 full writes before stream backpressure |
+| TCP loopback | 41.4 | 80.4 | 188.1 | 297 | 51 full writes before stream backpressure |
+| WebSocket loopback | 73.1 | 142.7 | 292.2 | 547 | 303 frames before buffered amount exceeded 1 MiB |
+
+The checked-in JSON report is `benchmarks/transport/windows-x64-node24-2026-07-24.json`.
+
+Full workspace tests, diagnostics, build, all twenty-three Chrome flows, Godot validation, schemas, manifests, benchmarks, refreshed 133-component compliance inventory, dependency audit, and native formatting/lint/tests pass.
+
+### Remaining boundary
+
+The socket and WebSocket endpoints share one process, the shared-memory case uses a worker thread rather than cross-process ownership, and the run excludes schema parsing and camera/action work. Target Linux must rerun Unix-domain sockets and true process isolation on x86-64 and ARM64, including RSS, scheduler load, suspend/kill/reconnect, permission binding, stale-reader recovery, and identical Motion serialization. No production transport is selected.
