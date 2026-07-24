@@ -52,7 +52,24 @@ describe("PortraitCaptureController", () => {
         "portrait-fixture-randy-a",
         200 + PORTRAIT_COUNTDOWN_MS,
       ),
-    ).toThrow("stale");
+    ).toThrow("was not issued by this controller");
+    expect(() =>
+      controller.completeSyntheticCapture(
+        { ...attempt },
+        "portrait-fixture-randy-a",
+        200 + PORTRAIT_COUNTDOWN_MS,
+      ),
+    ).toThrow("was not issued by this controller");
+    const otherController = new PortraitCaptureController();
+    otherController.open("profile-randy", 100);
+    otherController.beginCountdown(200);
+    expect(() =>
+      otherController.completeSyntheticCapture(
+        attempt,
+        "portrait-fixture-randy-a",
+        200 + PORTRAIT_COUNTDOWN_MS,
+      ),
+    ).toThrow("was not issued by this controller");
     expect(
       controller.completeSyntheticCapture(
         attempt,
@@ -184,7 +201,7 @@ describe("PortraitCaptureController", () => {
     expect(controller.snapshot().phase).toBe("idle");
   });
 
-  it("rejects forged commit fields, stale state, and non-fixture handles", () => {
+  it("rejects cloned commit plans, stale state, and non-fixture handles", () => {
     const controller = new PortraitCaptureController();
     controller.open("profile-randy", 0);
     const attempt = controller.beginCountdown(1);
@@ -213,7 +230,27 @@ describe("PortraitCaptureController", () => {
         ...plan,
         temporaryRenderHandle: "portrait-fixture-randy-b",
       }, 1 + PORTRAIT_COUNTDOWN_MS),
-    ).toThrow("does not match");
+    ).toThrow("was not issued by this controller");
+    expect(() =>
+      controller.commit(
+        { ...plan },
+        1 + PORTRAIT_COUNTDOWN_MS,
+      ),
+    ).toThrow("was not issued by this controller");
+    const otherController = new PortraitCaptureController();
+    otherController.open("profile-randy", 0);
+    const otherAttempt = otherController.beginCountdown(1);
+    otherController.completeSyntheticCapture(
+      otherAttempt,
+      "portrait-fixture-randy-a",
+      1 + PORTRAIT_COUNTDOWN_MS,
+    );
+    expect(() =>
+      otherController.commit(
+        plan,
+        1 + PORTRAIT_COUNTDOWN_MS,
+      ),
+    ).toThrow("was not issued by this controller");
     controller.retake(1 + PORTRAIT_COUNTDOWN_MS);
     expect(() =>
       controller.commit(plan, 1 + PORTRAIT_COUNTDOWN_MS),

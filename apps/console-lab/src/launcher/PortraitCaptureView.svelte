@@ -26,7 +26,7 @@
     ontoast: (message: string) => void;
   } = $props();
 
-  let attempt = $state<PortraitCaptureAttemptRef | null>(null);
+  let attempt = $state.raw<PortraitCaptureAttemptRef | null>(null);
   let countdown = $state(3);
   let clockTimer: number | undefined;
 

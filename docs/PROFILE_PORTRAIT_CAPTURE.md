@@ -104,6 +104,14 @@ Unknown fields, unsafe IDs, data URLs, paths, arbitrary handles, early
 completion, stale callbacks, mismatched previews, changed replacement state,
 and stale revision fail closed.
 
+The in-memory controller additionally accepts only the exact frozen attempt
+reference and acceptance plan objects it issued. Identical clones,
+field-substituted objects, and objects issued by another controller fail
+before capture completion or portrait mutation. The Svelte view retains the
+attempt in raw state so reactivity does not replace its identity. This
+controller-local reference binding is synthetic replay evidence, not a
+production broker capability format.
+
 ## Current data boundary
 
 The browser model accepts only handles matching the explicit synthetic
@@ -205,7 +213,7 @@ record, broker capability, and real deletion paths do not exist.
 | ID | Story | Required prevention/evidence |
 |---|---|---|
 | PT-01 | A background tracking frame is promoted without notice. | Capture API accepts only a dedicated broker session/attempt; source and dependency test excludes tracker frame objects. |
-| PT-02 | Early or late callbacks overwrite another attempt. | Exact session/attempt/revision binding; retake and cancellation revoke prior attempt; adversarial callback tests. |
+| PT-02 | Early, late, cloned, or cross-controller callbacks overwrite another attempt. | Exact controller-issued reference plus session/attempt/revision binding; retake and cancellation revoke prior attempt; adversarial callback tests. |
 | PT-03 | Back or Home visually exits but a delayed callback saves. | Cancel commits revocation before navigation; delayed completion rejected; process and power-loss tests. |
 | PT-04 | A game or hosted page invokes capture or fetches a handle. | Caller-specific broker ACL; no game permission vocabulary; hostile process/origin tests. |
 | PT-05 | Portrait pixels enter diagnostics, backup, recovery, support, save, logs, crash dump, swap, or network. | Producer canaries, trusted materialization, path-free evidence, RAM/swap/crash/network inspection under I-186. |
@@ -222,7 +230,8 @@ record, broker capability, and real deletion paths do not exist.
 ### Current mitigations and limits
 
 The synthetic controller already enforces PT-01 through PT-04 and PT-14 at the
-launcher-policy level without handling pixels. The browser flow proves no
+launcher-policy level, including exact issued callback/commit object identity,
+without handling pixels. The browser flow proves no
 `getUserMedia` call occurs in the simulator-backed rehearsal. That is not proof
 against another process, browser/driver cache, crash dump, or future real
 adapter. PT-05 through PT-13 remain production gates.
@@ -248,13 +257,14 @@ Nine pure Vitest cases prove:
 
 - empty identity-minimized frozen state;
 - explicit notice and complete countdown before preview;
-- exact attempt matching and early/stale callback refusal;
+- exact issued attempt matching plus early, cloned, cross-controller, and
+  stale callback refusal;
 - one accepted handle per profile and replacement disposition;
 - Retake invalidation and temporary-handle discard;
 - Back-style cancellation without promotion and preservation of the old image;
 - bounded expiry without acceptance;
-- forged/unknown commit, data URL, path, unsafe ID, excessive-count, and
-  backwards-time refusal; and
+- unknown-field, cloned, substituted, and cross-controller commit refusal plus
+  data URL, path, unsafe ID, excessive-count, and backwards-time refusal; and
 - no acceptance from notice, countdown, cancellation, or display-name
   similarity.
 

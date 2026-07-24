@@ -139,6 +139,10 @@ export class PortraitCaptureController {
   #nextSessionId = 1;
   #lastNowMs = 0;
   readonly #accepted: AcceptedPortraitCollection;
+  readonly #issuedAttempts =
+    new WeakSet<PortraitCaptureAttemptRef>();
+  readonly #issuedCommitPlans =
+    new WeakSet<PortraitCommitPlan>();
 
   constructor(
     acceptedPortraits:
@@ -202,7 +206,9 @@ export class PortraitCaptureController {
     session.temporaryRenderHandle = null;
     this.#phase = "countdown";
     this.#revision += 1;
-    return freezeAttemptRef(session);
+    const attempt = freezeAttemptRef(session);
+    this.#issuedAttempts.add(attempt);
+    return attempt;
   }
 
   completeSyntheticCapture(
@@ -213,6 +219,11 @@ export class PortraitCaptureController {
     this.#observeTime(nowMs);
     validateAttemptRef(attempt);
     validateFixtureHandle(renderHandle);
+    if (!this.#issuedAttempts.has(attempt)) {
+      throw new PortraitCaptureError(
+        "portrait capture reference was not issued by this controller",
+      );
+    }
     const session = this.#requireLiveSession(nowMs);
     if (this.#phase !== "countdown" || session.countdownEndsAtMs === null) {
       throw new PortraitCaptureError("capture completion requires a countdown");
@@ -246,9 +257,11 @@ export class PortraitCaptureController {
     session.countdownEndsAtMs = nowMs + PORTRAIT_COUNTDOWN_MS;
     this.#phase = "countdown";
     this.#revision += 1;
+    const attempt = freezeAttemptRef(session);
+    this.#issuedAttempts.add(attempt);
     return Object.freeze({
       discardedTemporaryRenderHandle,
-      attempt: freezeAttemptRef(session),
+      attempt,
       snapshot: this.snapshot(),
     });
   }
@@ -259,7 +272,7 @@ export class PortraitCaptureController {
     if (this.#phase !== "preview" || session.temporaryRenderHandle === null) {
       throw new PortraitCaptureError("acceptance requires a temporary preview");
     }
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "accept-portrait",
       expectedRevision: this.#revision,
       sessionId: session.id,
@@ -268,6 +281,8 @@ export class PortraitCaptureController {
       temporaryRenderHandle: session.temporaryRenderHandle,
       replacedRenderHandle: this.#accepted.portraitFor(session.profileId),
     });
+    this.#issuedCommitPlans.add(plan);
+    return plan;
   }
 
   commit(
@@ -280,10 +295,15 @@ export class PortraitCaptureController {
   }> {
     this.#observeTime(nowMs);
     validateCommitPlan(plan);
-    const session = this.#requireLiveSession(nowMs);
     if (plan.expectedRevision !== this.#revision) {
       throw new PortraitCaptureError("portrait confirmation is stale");
     }
+    if (!this.#issuedCommitPlans.has(plan)) {
+      throw new PortraitCaptureError(
+        "portrait commit plan was not issued by this controller",
+      );
+    }
+    const session = this.#requireLiveSession(nowMs);
     if (
       this.#phase !== "preview"
       || session.id !== plan.sessionId
