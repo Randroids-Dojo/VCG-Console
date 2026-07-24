@@ -29,6 +29,12 @@ permanently removes the data.
 The Svelte screen uses four synthetic records and an in-memory controller.
 It says so on-screen. It does not call the native host, read a save, persist a
 claim, delete a file, or assert that any current game has compatible progress.
+Those four records are deliberately separate from the profile-management
+controller's synthetic progress links. Profile deletion does not invent the
+package version, byte count, compatibility, summary, recency, or opaque launch
+owner needed to add an Unassigned entry. Joining the models requires the
+trusted metadata projection and one atomic native transaction defined by
+Q-191; two sequential browser-controller commits would be misleading.
 
 ## Entry projection
 
@@ -93,8 +99,13 @@ Unassigned list -- choose --> sanitized detail
 
 Every confirmation is bound to the model revision. A changed list makes an
 older claim or delete plan stale; the user must review the current record
-again. A committed prototype claim or deletion removes only that entry from
-the in-memory projection and increments the revision.
+again. The controller also accepts only the exact frozen mutation plan object
+it issued; identical clones, scope substitutions, and plans issued by another
+controller fail before mutation. Svelte retains that raw object identity
+through the modal. This volatile reference binding is regression evidence,
+not a durable native capability format. A committed prototype claim or
+deletion removes only that entry from the in-memory projection and increments
+the revision.
 
 ## Conflict behavior
 
@@ -178,8 +189,9 @@ The pure model tests prove:
 - play refusal while a package is incompatible or unavailable;
 - exact profile-slot conflict detection;
 - explicit replace and capability-gated keep-both handling;
-- runtime-forged fields, mismatched delete scope, and unknown mutation
-  authority rejection;
+- runtime-forged fields, unknown fields, identical clones, valid-looking scope
+  substitutions, cross-controller plans, and unknown mutation authority
+  rejection;
 - stale confirmation refusal;
 - no display-name-based claim; and
 - exact-entry permanent deletion with no export field.

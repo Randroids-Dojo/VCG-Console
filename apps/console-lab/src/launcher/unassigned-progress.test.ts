@@ -199,7 +199,10 @@ describe("UnassignedProgressController", () => {
         ...deletion,
         gameId: "different-game",
       }),
-    ).toThrow("delete scope");
+    ).toThrow("was not issued by this controller");
+    expect(() =>
+      controller.commit({ ...deletion }),
+    ).toThrow("was not issued by this controller");
     expect(() =>
       controller.commit({
         ...deletion,
@@ -225,7 +228,13 @@ describe("UnassignedProgressController", () => {
         ...claim,
         destination: "same-slot",
       }),
-    ).toThrow("does not match");
+    ).toThrow("was not issued by this controller");
+    const otherController = new UnassignedProgressController([
+      entry(),
+    ]);
+    expect(() =>
+      otherController.commit(deletion),
+    ).toThrow("was not issued by this controller");
     expect(() =>
       controller.commit({
         kind: "archive",

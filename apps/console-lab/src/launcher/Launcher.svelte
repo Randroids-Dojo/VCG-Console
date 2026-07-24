@@ -288,7 +288,7 @@
     const permanentlyDeleted =
       result.disposition.permanentlyDeletedProgressCount;
     toast(
-      `Profile deleted in the rehearsal. ${unassigned} local progress item${unassigned === 1 ? " is" : "s are"} now unassigned; ${permanentlyDeleted} explicitly selected item${permanentlyDeleted === 1 ? " was" : "s were"} permanently deleted; hosted services were not changed.`,
+      `Profile deleted in the isolated profile rehearsal. ${unassigned} local progress item${unassigned === 1 ? " is" : "s are"} now unassigned inside that model; ${permanentlyDeleted} explicitly selected item${permanentlyDeleted === 1 ? " was" : "s were"} permanently deleted. The separate Unassigned Progress sample list and hosted services were not changed.`,
     );
     void showView("profiles");
     if (profileId === portraitProfileId) portraitProfileId = null;

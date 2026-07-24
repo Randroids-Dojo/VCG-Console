@@ -137,6 +137,8 @@ export class UnassignedProgressController {
   #revision = 0;
   readonly #entries = new Map<string, UnassignedProgressEntry>();
   readonly #profileSlots = new Set<string>();
+  readonly #issuedMutationPlans =
+    new WeakSet<UnassignedMutationPlan>();
 
   constructor(
     entries: readonly UnassignedProgressEntry[],
@@ -223,7 +225,7 @@ export class UnassignedProgressController {
     if (conflictResolution === "keep-both" && !inspection.keepBothAvailable) {
       throw new UnassignedProgressError("this game does not support an additional slot");
     }
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "claim",
       expectedRevision: this.#revision,
       entryId: entry.id,
@@ -232,23 +234,32 @@ export class UnassignedProgressController {
       destination:
         conflictResolution === "keep-both" ? "additional-slot" : "same-slot",
     });
+    this.#issuedMutationPlans.add(plan);
+    return plan;
   }
 
   planDelete(entryId: string): UnassignedDeletePlan {
     const entry = this.#requireEntry(entryId);
-    return Object.freeze({
+    const plan = Object.freeze({
       kind: "delete",
       expectedRevision: this.#revision,
       entryId: entry.id,
       gameId: entry.gameId,
       slotId: entry.slotId,
     });
+    this.#issuedMutationPlans.add(plan);
+    return plan;
   }
 
   commit(plan: UnassignedMutationPlan): UnassignedProgressSnapshot {
     validateMutationPlan(plan);
     if (plan.expectedRevision !== this.#revision) {
       throw new UnassignedProgressError("confirmation is stale");
+    }
+    if (!this.#issuedMutationPlans.has(plan)) {
+      throw new UnassignedProgressError(
+        "mutation plan was not issued by this controller",
+      );
     }
     const entry = this.#requireEntry(plan.entryId);
     if (plan.kind === "claim") {

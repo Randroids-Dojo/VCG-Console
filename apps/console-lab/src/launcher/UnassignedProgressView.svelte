@@ -37,8 +37,8 @@
   let selectedId = $state<string | null>(null);
   let flow = $state<Flow>("none");
   let targetProfileId = $state<string | null>(null);
-  let pendingClaim = $state<UnassignedClaimPlan | null>(null);
-  let pendingDelete = $state<UnassignedDeletePlan | null>(null);
+  let pendingClaim = $state.raw<UnassignedClaimPlan | null>(null);
+  let pendingDelete = $state.raw<UnassignedDeletePlan | null>(null);
   let returnFocus = $state<HTMLElement | null>(null);
   let dialog = $state<HTMLElement>();
 

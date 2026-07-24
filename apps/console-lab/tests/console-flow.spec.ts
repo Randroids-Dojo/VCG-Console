@@ -649,6 +649,9 @@ test("credential-free profile management gates destructive scope and never reass
   await expect(page.locator("#launcher-toast")).toContainText(
     "0 explicitly selected items were permanently deleted",
   );
+  await expect(page.locator("#launcher-toast")).toContainText(
+    "The separate Unassigned Progress sample list and hosted services were not changed",
+  );
 
   await page.getByRole("button", {
     name: /Create profile New local player/,

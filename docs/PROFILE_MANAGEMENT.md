@@ -35,6 +35,13 @@ save broker, game runtime, camera, network, hosted service, filesystem, or
 browser persistence. It therefore proves the UI and pure state-policy shape,
 not a durable deletion or power-loss-safe transaction.
 
+Its synthetic progress links are not the four independent records shown by
+the Unassigned Progress screen. The completion toast says that list is
+unchanged. Safely populating it requires trusted package/compatibility/size
+metadata, an opaque launch owner, and the same atomic native transaction as
+profile unlink or permanent deletion; the browser does not synthesize those
+fields or sequence two stores as though that were durable.
+
 ## Current synthetic model
 
 The model accepts at most 64 profiles and 256 progress links. A profile seed
@@ -321,6 +328,8 @@ One Chrome flow proves:
 - deliberate motion confirmation after focus movement;
 - active-profile recovery after deletion;
 - same-name recreation with no portrait or progress links;
+- explicit disclosure that the separate Unassigned Progress sample list was
+  not mutated;
 - visible Guest game/slot/runtime safe-unlink warning, default-disabled
   deletion, explicit permanent-delete opt-in, exact modal disclosure, cancel
   without mutation, cleared opt-in, and safe focus recovery; and
