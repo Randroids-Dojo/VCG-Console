@@ -238,8 +238,8 @@
 </script>
 
 <header class="view-header">
-  <div><p class="view-kicker">CONSOLE SETTINGS</p><h1>{panelPresentation[panel].title}</h1></div>
-  <p>{panelPresentation[panel].detail}</p>
+  <div><p class="view-kicker" data-tv-critical-text>CONSOLE SETTINGS</p><h1 data-tv-critical-text>{panelPresentation[panel].title}</h1></div>
+  <p data-tv-critical-text>{panelPresentation[panel].detail}</p>
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">
@@ -247,6 +247,8 @@
       <button
         class:active={panel === target}
         type="button"
+        data-tv-action
+        data-tv-critical-text
         data-settings-target={target}
         onclick={() => (panel = target as SettingsPanel)}
       >{target === "network" ? "Wi-Fi" : target === "accessibility" ? "Access" : target === "developer" ? "Developer" : target[0]?.toUpperCase() + target.slice(1)}</button>
@@ -330,7 +332,7 @@
       <button class="accessibility-reset" type="button" onclick={onaccessibilityreset}>Reset accessibility settings</button>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
-      <div class="setting-callout"><span>OFFLINE</span><strong>Wi-Fi is not configured</strong><p>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning…" : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
+      <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning…" : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
     </section>
     <section data-settings-panel="storage" hidden={panel !== "storage"}>
       <div class="storage-meter"><div><span style="width:15%"></span></div><p><strong>38 GB used</strong><span>218 GB available / 256 GB total</span></p></div>
@@ -449,7 +451,7 @@
         <div><strong>Launch recovery preview</strong><small>Inject a state without starting a game</small></div>
         <div>
           <button type="button" onclick={() => onpreviewfault("slow")}>Slow</button>
-          <button type="button" onclick={() => onpreviewfault("offline")}>Offline</button>
+          <button type="button" data-tv-focus="offline-preview" onclick={() => onpreviewfault("offline")}>Offline</button>
           <button type="button" onclick={() => onpreviewfault("hung")}>Hung</button>
           <button type="button" onclick={() => onpreviewfault("crashed")}>Crashed</button>
           <button type="button" onclick={() => onpreviewfault("recovered")}>Recovered</button>

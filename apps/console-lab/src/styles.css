@@ -4454,6 +4454,12 @@ kbd {
     line-height: 0.94;
   }
 
+  .launcher .view-header h1[data-tv-critical-text],
+  .launcher .launch-identity h1[data-tv-critical-text] {
+    font-size: clamp(44px, 4vw, 96px);
+    line-height: 0.96;
+  }
+
   .launcher [data-tv-action] {
     min-width: 48px;
     min-height: 48px;
@@ -4466,6 +4472,49 @@ kbd {
   .home-status {
     gap: clamp(18px, 2vw, 76px);
     padding-top: clamp(12px, 2vh, 43px);
+  }
+
+  .launch-screen {
+    grid-template-rows:
+      clamp(72px, 8vh, 172px)
+      minmax(0, 1fr)
+      auto;
+    padding: 5vh 5vw;
+    overflow: hidden;
+  }
+
+  .launch-header,
+  .launch-body,
+  .launch-footer {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .launch-header,
+  .launch-footer {
+    padding-inline: 0;
+  }
+
+  .launch-footer {
+    gap: clamp(16px, 2vw, 64px);
+  }
+
+  .launch-metrics {
+    gap: clamp(12px, 1.5vw, 32px);
+  }
+
+  .launch-actions {
+    gap: clamp(6px, 0.8vw, 10px);
+  }
+
+  .launch-actions button,
+  .launch-actions a {
+    gap: clamp(12px, 1.5vw, 30px);
+    padding-inline: clamp(10px, 1vw, 16px);
+  }
+
+  .launch-body {
+    padding-inline: 0;
   }
 }
 

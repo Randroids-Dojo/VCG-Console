@@ -1073,12 +1073,12 @@
       </div>
 
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
-        <header class="view-header"><div><p class="view-kicker">MOTION HUB</p><h1>Move to play.</h1></div><p>Camera stays local. Every experience keeps a controller exit.</p></header>
+        <header class="view-header"><div><p class="view-kicker" data-tv-critical-text>MOTION HUB</p><h1 data-tv-critical-text>Move to play.</h1></div><p data-tv-critical-text>Camera stays local. Every experience keeps a controller exit.</p></header>
         <div class="library-list">
-          <button type="button" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span>01</span><strong>Obstacle</strong><small>Dodge · Duck · Jump</small><b>Ready</b></button>
-          <button type="button" onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span>02</span><strong>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b>Ready</b></button>
-          <button type="button" onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span>03</span><strong>Shell Lab</strong><small>Gesture navigation and recovery</small><b>Ready</b></button>
-          <button type="button" onclick={() => showView("session-adversarial")}><span>04</span><strong>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b>Synthetic</b></button>
+          <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span data-tv-critical-text>01</span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span data-tv-critical-text>02</span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span data-tv-critical-text>03</span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span data-tv-critical-text>04</span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
         </div>
       </div>
 

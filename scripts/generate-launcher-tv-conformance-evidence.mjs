@@ -76,17 +76,17 @@ const productionSourceTreeRoots = Object.freeze([
   "packages/retro-import-contract/src",
 ]);
 
-function normalizedSha256(bytes) {
+export function normalizedSha256(bytes) {
   return createHash("sha256")
     .update(bytes.toString("utf8").replaceAll("\r\n", "\n"))
     .digest("hex");
 }
 
-function sha256(bytes) {
+export function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-async function provenance() {
+export async function provenance() {
   const entries = await Promise.all(
     Object.entries(provenancePaths).map(async ([key, path]) => [
       key,
@@ -123,7 +123,7 @@ async function collectSourceTreeFiles(path) {
   return nested.flat();
 }
 
-async function sourceTreeCommitment() {
+export async function sourceTreeCommitment() {
   const paths = (
     await Promise.all(
       productionSourceTreeRoots.map(collectSourceTreeFiles),
@@ -144,7 +144,7 @@ async function sourceTreeCommitment() {
   };
 }
 
-function findChrome() {
+export function findChrome() {
   const candidates = [
     process.env.VCG_CHROME_PATH,
     process.env.ProgramFiles
@@ -180,11 +180,11 @@ function findChrome() {
   return browser;
 }
 
-function rounded(value) {
+export function rounded(value) {
   return Number(value.toFixed(3));
 }
 
-function insideSafeArea(item, safeArea) {
+export function insideSafeArea(item, safeArea) {
   return (
     item.left >= safeArea.left - 0.5
     && item.top >= safeArea.top - 0.5
@@ -193,7 +193,7 @@ function insideSafeArea(item, safeArea) {
   );
 }
 
-function countOverlaps(items) {
+export function countOverlaps(items) {
   let count = 0;
   for (let leftIndex = 0; leftIndex < items.length; leftIndex += 1) {
     for (
@@ -215,7 +215,7 @@ function countOverlaps(items) {
   return count;
 }
 
-async function startProductionPreview() {
+export async function startProductionPreview() {
   const requireFromConsoleLab = createRequire(
     resolve(appRoot, "package.json"),
   );
@@ -245,7 +245,7 @@ async function startProductionPreview() {
   };
 }
 
-async function measureElements(page, selector) {
+export async function measureElements(page, selector) {
   return page.locator(selector).evaluateAll((elements) =>
     elements.map((element) => {
       const bounds = element.getBoundingClientRect();

@@ -41,6 +41,101 @@ async function measurements(
   );
 }
 
+async function assertTvGeometry(
+  page: Page,
+  resolution: (typeof RESOLUTIONS)[number],
+  rootSelector: string,
+  expectedCriticalText: number,
+  expectedActions: number,
+): Promise<void> {
+  const safeArea = {
+    left: resolution.width * 0.05,
+    top: resolution.height * 0.05,
+    right: resolution.width * 0.95,
+    bottom: resolution.height * 0.95,
+  };
+  const criticalText = await measurements(
+    page,
+    `${rootSelector} [data-tv-critical-text]:visible`,
+  );
+  const actions = await measurements(
+    page,
+    `${rootSelector} [data-tv-action]:visible`,
+  );
+
+  expect(criticalText.length).toBe(expectedCriticalText);
+  expect(actions.length).toBe(expectedActions);
+  for (const item of criticalText) {
+    expect(
+      item.left,
+      `${resolution.id} ${item.label} left edge`,
+    ).toBeGreaterThanOrEqual(safeArea.left - 0.5);
+    expect(
+      item.top,
+      `${resolution.id} ${item.label} top edge`,
+    ).toBeGreaterThanOrEqual(safeArea.top - 0.5);
+    expect(
+      item.right,
+      `${resolution.id} ${item.label} right edge`,
+    ).toBeLessThanOrEqual(safeArea.right + 0.5);
+    expect(
+      item.bottom,
+      `${resolution.id} ${item.label} bottom edge`,
+    ).toBeLessThanOrEqual(safeArea.bottom + 0.5);
+    expect(
+      item.fontSize,
+      `${resolution.id} ${item.label} font size`,
+    ).toBeGreaterThanOrEqual(24);
+  }
+  for (let leftIndex = 0; leftIndex < criticalText.length; leftIndex += 1) {
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < criticalText.length;
+      rightIndex += 1
+    ) {
+      const left = criticalText[leftIndex]!;
+      const right = criticalText[rightIndex]!;
+      const overlapWidth =
+        Math.min(left.right, right.right)
+        - Math.max(left.left, right.left);
+      const overlapHeight =
+        Math.min(left.bottom, right.bottom)
+        - Math.max(left.top, right.top);
+      expect(
+        overlapWidth > 0.5 && overlapHeight > 0.5,
+        `${resolution.id} critical text overlap: ${left.label} / ${right.label}`,
+      ).toBe(false);
+    }
+  }
+  for (const item of actions) {
+    expect(
+      item.width,
+      `${resolution.id} ${item.label} target width`,
+    ).toBeGreaterThanOrEqual(48);
+    expect(
+      item.height,
+      `${resolution.id} ${item.label} target height`,
+    ).toBeGreaterThanOrEqual(48);
+  }
+
+  const overflow = await page.locator(rootSelector).evaluate((element) => ({
+    horizontal: element.scrollWidth - element.clientWidth,
+    vertical: element.scrollHeight - element.clientHeight,
+    clientWidth: element.clientWidth,
+    clientHeight: element.clientHeight,
+    scrollWidth: element.scrollWidth,
+    scrollHeight: element.scrollHeight,
+  }));
+  expect(
+    overflow.horizontal,
+    `${resolution.id} ${rootSelector} horizontal overflow`,
+  ).toBeLessThanOrEqual(1);
+  expect(
+    overflow.vertical,
+    `${resolution.id} ${rootSelector} vertical overflow: ${JSON.stringify(overflow)}`,
+  ).toBeLessThanOrEqual(1);
+}
+
 for (const resolution of RESOLUTIONS) {
   test(`launcher home satisfies the candidate TV contract at ${resolution.id}`, async ({
     page,
@@ -188,6 +283,84 @@ for (const resolution of RESOLUTIONS) {
     ).toBeHidden();
     await expect(
       page.getByRole("heading", { name: /Good evening/ }),
+    ).toBeVisible();
+  });
+
+  test(`launcher motion catalog satisfies the candidate TV contract at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    await page.locator('[data-view-target="motion"]').click();
+    await expect(
+      page.getByRole("heading", { name: "Move to play." }),
+    ).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+
+    await assertTvGeometry(page, resolution, "#launcher", 24, 13);
+
+    const firstEntry = page
+      .locator('[data-launcher-view="motion"] .library-list button')
+      .first();
+    await firstEntry.focus();
+    await expect(firstEntry).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("heading", { name: /Good evening/ }),
+    ).toBeVisible();
+    await expect(page.locator('[data-view-target="home"]')).toBeFocused();
+  });
+
+  test(`launcher Wi-Fi offline state satisfies the candidate TV contract at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    await page.locator('[data-view-target="settings"]').click();
+    await page.locator('[data-settings-target="network"]').click();
+    await expect(
+      page.getByRole("heading", { name: "Wi-Fi." }),
+    ).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+
+    await assertTvGeometry(page, resolution, "#launcher", 21, 15);
+
+    await page.locator("#scan-wifi").focus();
+    await expect(page.locator("#scan-wifi")).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("heading", { name: /Good evening/ }),
+    ).toBeVisible();
+    await expect(page.locator('[data-view-target="home"]')).toBeFocused();
+  });
+
+  test(`launcher offline recovery dialog satisfies the candidate TV contract at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    await page.locator('[data-view-target="settings"]').click();
+    await page.locator('[data-settings-target="developer"]').click();
+    await page
+      .getByRole("button", { name: "Offline", exact: true })
+      .evaluate((button: HTMLButtonElement) => button.click());
+    const dialog = page.getByRole("dialog", { name: "Obstacle" });
+    await expect(dialog).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+
+    await assertTvGeometry(page, resolution, ".launch-screen", 21, 3);
+
+    const exit = page.getByRole("button", { name: /Exit/ });
+    const retry = page.getByRole("button", { name: /Retry/ });
+    await expect(exit).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(retry).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(exit).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(
+      page.getByRole("heading", { name: "Developer." }),
     ).toBeVisible();
   });
 }

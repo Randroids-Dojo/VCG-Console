@@ -100,6 +100,24 @@ and its
 This advances one shell surface only; the remaining launcher views and every
 game still require the checklist below.
 
+## Representative launcher states
+
+Three additional production-built states apply the same candidate floor:
+Motion Hub catalog discovery, the Wi-Fi offline settings state, and an
+injected offline launch-recovery dialog. Nine pixel captures bind all three
+states at all three resolutions. The checks add exact keyboard Back and opener
+focus recovery, zero major-section overlap, and zero measured-root overflow.
+
+See
+[the representative-state evidence](LAUNCHER_TV_SURFACE_EVIDENCE_2026-07-24.md),
+its
+[strict artifact](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json),
+and the
+[remaining owner questions](OWNER_QUESTIONS_LAUNCHER_TV_SURFACES_2026-07-24.md).
+The injected offline state is presentation evidence, not proof of real
+network detection, retry recovery, or native supervision. Other launcher
+states and every game remain outside the result.
+
 ## Author checklist
 
 Before proposing a title or shell surface as television-compatible, record:
@@ -130,10 +148,10 @@ physical-TV, or target-platform checklist items by implication.
 
 ## Remaining qualification
 
-I-098 remains active. Completion requires representative catalog and shell
-surfaces on the selected ARM64 and x86-64 Linux targets, physical televisions
-at the actual output/scaling modes, controller and reserved-recovery input,
-overscan/edge visibility, seating-distance legibility, localization and
-accessibility variants, and measured frame pacing. Q-242 and Q-243 record the
-owner decisions needed to turn the candidate values into a final support
-policy.
+I-098 remains active. Completion requires the remaining high-risk launcher
+and game surfaces on the selected ARM64 and x86-64 Linux targets, physical
+televisions at the actual output/scaling modes, controller and
+reserved-recovery input, overscan/edge visibility, seating-distance
+legibility, localization and accessibility variants, and measured frame
+pacing. Q-242 and Q-243 record the owner decisions needed to turn the
+candidate values into a final support policy.

@@ -4358,3 +4358,46 @@ GPU/audio/display and controller surfaces; read-only firmware projection;
 artifact hash-to-exec retention; descendant, namespace, cgroup and compositor
 containment; crash/restart cleanup; malicious real-content tests; and
 ARM64/x86-64 target evidence.
+
+## 2026-07-24: representative launcher television surfaces
+
+### Delivered
+
+- Applied the candidate television floor to Motion Hub catalog discovery,
+  Wi-Fi offline settings, and the injected offline launch-recovery dialog.
+- Marked exact critical copy and actions; kept all marked text inside the
+  five-percent safe rectangle at 720p, 1080p, and 4K; and tightened launch
+  overlay spacing so its header, body, footer, metrics, and actions remain
+  bounded.
+- Expanded the production-build Playwright suite from three to twelve
+  launcher-TV cases. The new cases require exact counts, at least 24 CSS px
+  text, at least 48 x 48 CSS px actions, zero marked-text/section overlap,
+  zero root overflow, and exact Escape/focus restoration.
+- Added a frozen nine-observation generator, nine byte-stable screenshots, a
+  bounded artifact, an offline validator, and eleven adversarial tests.
+- Published the evidence report plus LTV-001 through LTV-004 for remaining
+  state priority, dense-screen scrolling, failure-dialog focus, and capture
+  retention.
+
+### Verification evidence
+
+- Motion catalog records 24 critical texts and 13 actions per resolution;
+  Wi-Fi offline records 21 and 15; launch offline records 21 and 3.
+- Minimum text is 24 CSS px at 720p/1080p and 48 CSS px at 4K. Every minimum
+  action dimension is at least 48 CSS px.
+- All nine critical-overlap, section-overlap, horizontal-overflow, and
+  vertical-overflow counts are zero.
+- Focus returns from Motion and Wi-Fi to Home. The launch dialog starts on
+  Exit, wraps to Retry and back, then restores the exact Offline opener.
+- `pnpm validate:launcher-tv-surfaces` passes the exact artifact and all
+  eleven claim-boundary mutation tests.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. The result covers four launcher states on one
+Windows desk when combined with launcher Home. It does not prove every shell
+state, any game, a real network failure or successful retry, physical TV,
+controller, reserved Home, native supervision, target Linux display output,
+overscan, seating-distance comprehension, localization/accessibility, audio,
+concurrent tracking load, or frame timing. Q-242/Q-243 and LTV-001 through
+LTV-004 retain those decisions and evidence needs.

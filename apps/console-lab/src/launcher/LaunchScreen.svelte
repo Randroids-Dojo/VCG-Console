@@ -84,25 +84,25 @@
   onkeydown={handleKeydown}
 >
   <header class="launch-header">
-    <span>VCG<span>/</span>TRANSFER</span>
-    <span>{session.adapterLabel}</span>
+    <span data-tv-critical-text>VCG<span>/</span>TRANSFER</span>
+    <span data-tv-critical-text>{session.adapterLabel}</span>
   </header>
 
   <div class="launch-body">
     <div class="launch-identity">
-      <p>{session.context}</p>
-      <h1 id="launch-title">{session.title}</h1>
+      <p data-tv-critical-text>{session.context}</p>
+      <h1 id="launch-title" data-tv-critical-text>{session.title}</h1>
       <div class="launch-readout" aria-live="polite">
         <span class="launch-state-mark" aria-hidden="true"></span>
-        <div><small>{statusLabel}</small><strong>{session.detail}</strong></div>
+        <div><small data-tv-critical-text>{statusLabel}</small><strong data-tv-critical-text>{session.detail}</strong></div>
       </div>
     </div>
 
     <ol class="launch-trace" aria-label="Launch phases">
       {#each session.phases as phase, index}
         <li class:complete={index < session.activePhase || session.status === "ready"} class:active={index === session.activePhase && session.status !== "ready"}>
-          <span>{String(index + 1).padStart(2, "0")}</span>
-          <div><strong>{phase.label}</strong><small>{phase.detail}</small></div>
+          <span data-tv-critical-text>{String(index + 1).padStart(2, "0")}</span>
+          <div><strong data-tv-critical-text>{phase.label}</strong><small>{phase.detail}</small></div>
         </li>
       {/each}
     </ol>
@@ -110,10 +110,10 @@
 
   <footer class="launch-footer">
     <div class="launch-metrics">
-      <span><small>ELAPSED</small><strong>{elapsed}</strong></span>
-      <span><small>PHASE</small><strong>{Math.min(session.activePhase + 1, session.phases.length)} / {session.phases.length}</strong></span>
+      <span><small data-tv-critical-text>ELAPSED</small><strong data-tv-critical-text>{elapsed}</strong></span>
+      <span><small data-tv-critical-text>PHASE</small><strong data-tv-critical-text>{Math.min(session.activePhase + 1, session.phases.length)} / {session.phases.length}</strong></span>
       {#if session.progress !== undefined}
-        <span><small>PROGRESS</small><strong>{Math.round(session.progress * 100)}%</strong></span>
+        <span><small data-tv-critical-text>PROGRESS</small><strong data-tv-critical-text>{Math.round(session.progress * 100)}%</strong></span>
       {/if}
     </div>
     {#if session.progress !== undefined}
@@ -139,15 +139,15 @@
     {/if}
     <div class="launch-actions">
       {#if session.action}
-        <button class="launch-primary" type="button" onclick={onaction}>{session.action.label}<span>→</span></button>
+        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onaction}>{session.action.label}<span>→</span></button>
       {/if}
       {#if session.canRetry}
-        <button class="launch-primary" type="button" onclick={onretry}>Retry<span>↻</span></button>
+        <button class="launch-primary" type="button" data-tv-action data-tv-critical-text onclick={onretry}>Retry<span>↻</span></button>
       {/if}
       {#if session.diagnostics}
-        <button type="button" aria-expanded={detailsVisible} onclick={() => (detailsVisible = !detailsVisible)}>{detailsVisible ? "Hide details" : "Details"}<span>+</span></button>
+        <button type="button" data-tv-action data-tv-critical-text aria-expanded={detailsVisible} onclick={() => (detailsVisible = !detailsVisible)}>{detailsVisible ? "Hide details" : "Details"}<span>+</span></button>
       {/if}
-      <button bind:this={exitButton} type="button" onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}<kbd>ESC</kbd></button>
+      <button bind:this={exitButton} type="button" data-tv-action data-tv-critical-text onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}<kbd>ESC</kbd></button>
     </div>
   </footer>
 </div>
