@@ -1485,22 +1485,6 @@ mod archive_tests {
             Err(PackageIntakeError::UnsafeMode { .. })
         ));
 
-        let metadata_fixture = Fixture::new();
-        let mut builder = metadata_fixture.builder();
-        builder
-            .append_pax_extensions([("comment", b"hidden metadata".as_slice())])
-            .expect("pax fixture appends");
-        append_required_files(&mut builder);
-        builder.finish().expect("archive finishes");
-        assert!(matches!(
-            extract_package_tar(
-                &metadata_fixture.archive,
-                &metadata_fixture.destination,
-                PackageIntakeLimits::default()
-            ),
-            Err(PackageIntakeError::UnsupportedEntry { .. })
-        ));
-
         let duplicate_fixture = Fixture::new();
         let mut builder = duplicate_fixture.builder();
         append_required_files(&mut builder);
@@ -1528,6 +1512,25 @@ mod archive_tests {
                 "unsafe path must fail: {path:?}"
             );
         }
+    }
+
+    #[test]
+    fn rejects_hidden_extended_archive_metadata() {
+        let fixture = Fixture::new();
+        let mut builder = fixture.builder();
+        builder
+            .append_pax_extensions([("comment", b"hidden metadata".as_slice())])
+            .expect("pax fixture appends");
+        append_required_files(&mut builder);
+        builder.finish().expect("archive finishes");
+        assert!(matches!(
+            extract_package_tar(
+                &fixture.archive,
+                &fixture.destination,
+                PackageIntakeLimits::default()
+            ),
+            Err(PackageIntakeError::UnsupportedEntry { .. })
+        ));
     }
 
     #[test]

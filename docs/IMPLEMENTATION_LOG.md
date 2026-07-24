@@ -644,7 +644,7 @@ This is pre-promotion candidate health, not live or post-activation qualificatio
 - Descriptor tests cover signature-before-parse behavior, exact archive use, wrong/tampered input, target/schema/record bounds, capacity arithmetic, real filesystem capacity, unsupported compressed extraction, and descriptor-bound TAR/catalog evidence.
 - Archive tests cover successful bounded extraction, nonempty/unsafe destinations, links, duplicates, portable case collisions, unsafe names, and archive/file/entry limits.
 - Generation tests prove a signed capacity-admitted archive becomes only a re-verifiable inert stage and that signed expanded-fact mismatch removes partial work without intent or activation.
-- The Rust workspace passes 86 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+- The Rust workspace passes 87 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
 
 ### Remaining boundary
 
