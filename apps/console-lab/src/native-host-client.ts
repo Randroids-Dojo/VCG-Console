@@ -2,6 +2,7 @@ const HOST_API_PROTOCOL_VERSION = "0.1.0";
 const HOST_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
 const HOST_PORT_PATTERN = /^[1-9][0-9]{0,4}$/;
 const HOST_REQUEST_TIMEOUT_MS = 1_500;
+const MAX_HOST_STATUS_BYTES = 16_384;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -123,7 +124,7 @@ export async function checkNativeHost(
 
     let body: unknown;
     try {
-      body = await response.json();
+      body = await readBoundedJson(response);
     } catch {
       if (controller.signal.aborted) return unreachableHost();
       return {
@@ -158,6 +159,54 @@ function unreachableHost(): NativeHostResult {
     code: "HOST_UNREACHABLE",
     detail: "Rust console host did not answer on the local appliance channel",
   };
+}
+
+async function readBoundedJson(response: Response): Promise<unknown> {
+  const declaredLengthText = response.headers.get("content-length");
+  if (declaredLengthText !== null) {
+    const declaredLength = Number(declaredLengthText);
+    if (
+      !/^(0|[1-9][0-9]*)$/.test(declaredLengthText) ||
+      !Number.isSafeInteger(declaredLength) ||
+      declaredLength > MAX_HOST_STATUS_BYTES
+    ) {
+      throw new Error("host status content length is invalid");
+    }
+  }
+
+  if (!response.body) {
+    const text = await response.text();
+    if (new TextEncoder().encode(text).byteLength > MAX_HOST_STATUS_BYTES) {
+      throw new Error("host status body is too large");
+    }
+    return JSON.parse(text) as unknown;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.byteLength;
+      if (length > MAX_HOST_STATUS_BYTES) {
+        await reader.cancel("host status body is too large");
+        throw new Error("host status body is too large");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
 }
 
 function isNativeHostStatus(value: unknown): value is Omit<NativeHostStatus, "protocolVersion"> & { protocolVersion: string } {

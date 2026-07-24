@@ -35,7 +35,7 @@ A successful response is JSON with:
 
 Responses are non-cacheable, close the connection, and disclose no status body on a rejected token or origin. The server caps request headers at 8 KiB, applies bounded read/write timeouts, rejects ambiguous duplicate Origin/Authorization/preflight-method headers, and handles one request per connection.
 
-The launcher distinguishes absent or malformed fragment authority, unreachable/timed-out host, rejected authority, malformed status, protocol mismatch, and a valid host with no trusted installed package. A host connection alone never makes a game appear installed or launchable.
+The launcher rejects malformed or oversized `Content-Length` declarations and streams at most 16 KiB for the response document. It distinguishes absent or malformed fragment authority, unreachable/timed-out host, rejected authority, malformed or oversized status, protocol mismatch, and a valid host with no trusted installed package. A host connection alone never makes a game appear installed or launchable.
 
 ## Security invariants for future endpoints
 
@@ -53,4 +53,4 @@ The launcher distinguishes absent or malformed fragment authority, unreachable/t
 
 Rust tests cover authenticated status, exact-origin preflight, wrong tokens/origins, unsafe configured origins, ambiguous security headers, per-launch token uniqueness, and fragment rather than query placement. TypeScript tests cover strict fragment parsing, request options, host error classes, protocol validation, malformed status, and a body that stalls past the deadline. Playwright proves the real Svelte native-launch flow sends the bearer token and reports a connected host separately from an unavailable package.
 
-Still required are a hostile-navigation and process-inspection threat test, bounded response-size handling, signed installed-manifest resolution, privileged launch requests, event delivery, request replay policy, compositor readiness, global recovery controls, target-Linux sandboxing, and service-manager restart evidence. D-129 remains a working transport decision until those tests justify retaining it.
+Still required are a hostile-navigation and process-inspection threat test, signed installed-manifest resolution, privileged launch requests, event delivery, request replay policy, compositor readiness, global recovery controls, target-Linux sandboxing, and service-manager restart evidence. D-129 remains a working transport decision until those tests justify retaining it.

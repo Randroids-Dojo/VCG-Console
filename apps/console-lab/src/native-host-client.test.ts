@@ -100,19 +100,61 @@ describe("native host status", () => {
     });
   });
 
+  it("rejects oversized status bodies without consuming them", async () => {
+    const oversized = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(" ".repeat(16_385), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(checkNativeHost(HOST_URL, oversized)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
+  });
+
+  it("rejects oversized or malformed declared status lengths before reading", async () => {
+    for (const contentLength of ["16385", "-1", "not-a-number"]) {
+      const response = new Response("{}", {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": contentLength,
+        },
+      });
+      Object.defineProperty(response, "body", {
+        get: () => {
+          throw new Error("body must not be read");
+        },
+      });
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response);
+
+      await expect(checkNativeHost(HOST_URL, fetcher)).resolves.toMatchObject({
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+      });
+    }
+  });
+
   it("keeps the request deadline active while reading the status body", async () => {
     const fetcher = vi.fn<typeof fetch>(async (_input, init) => {
       const signal = init?.signal;
-      return {
-        ok: true,
-        status: 200,
-        json: () =>
-          new Promise((_resolve, reject) => {
-            signal?.addEventListener("abort", () => reject(new DOMException("timed out", "AbortError")), {
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          signal?.addEventListener(
+            "abort",
+            () => controller.error(new DOMException("timed out", "AbortError")),
+            {
               once: true,
-            });
-          }),
-      } as Response;
+            },
+          );
+        },
+      });
+      return new Response(body, {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     });
 
     await expect(checkNativeHost(HOST_URL, fetcher, 5)).resolves.toMatchObject({
