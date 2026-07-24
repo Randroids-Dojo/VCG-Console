@@ -1,6 +1,6 @@
 # Implementation record
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This file records what has actually been built and verified. It does not convert desk evidence into Raspberry Pi, ordinary x86-64 Linux, SteamOS, real-room, or product qualification.
 
@@ -673,6 +673,29 @@ This is local completed-archive intake, not an update client. Network transport/
 ### Remaining boundary
 
 This is a durable local byte sink, not a network update client. Descriptor discovery, URL/TLS/proxy/mirror policy, HTTP range validation, retry/backoff, bandwidth limits, abandoned-partial and consumed-ready cleanup, real reservation, cross-writer low-space coordination, target filesystem locks, and sudden-power evidence remain open.
+
+## 2026-07-24: durable native launch replay
+
+### Delivered
+
+- Added an exclusively locked replay journal that synchronizes immutable request/game/profile acceptance before any signed resolution or child execution.
+- Each lifecycle transition is an append-only event with strict state/detail validation. The journal is bounded to 64 retained records, 128 events per record, and 2 KiB per event; duplicate request IDs, ordinals, malformed state, or unavailable storage fail closed.
+- Identical retained terminal intent replays across host restart without execution. Recovered preparing, running, or stopping intent becomes terminal `HOST_RESTARTED_INDETERMINATE` and is never re-executed.
+- Recovery persists a cleanup barrier that blocks every fresh launch until trusted native service code proves old descendants gone and synchronizes `acknowledge_restart_cleanup`. The authenticated browser API cannot invoke that operation.
+- Terminal retirement and empty-acceptance cleanup are interruption-recoverable and bounded. The watchdog restart count is also persisted and capped.
+- `vcg-host launcher` now requires an absolute `--launch-replay-root` whenever native profiles are configured. HTTP 503 recovery codes are preserved as bounded typed failures in the Svelte client.
+- D-141 records the mechanism. Q-123 through Q-125 preserve boot lifetime, cleanup ownership, and retention/privacy choices.
+
+### Verification evidence
+
+- Journal tests cover terminal replay, active-to-indeterminate recovery, cleanup-barrier persistence and acknowledgement, exclusive locking, empty acceptance, interrupted retirement, oldest-terminal retention, corruption, duplicate binding, unsafe root paths, pre-parse event bounds, and cancellation after a live persistence fault.
+- Integrated launch tests prove durable terminal replay does not execute again and a recovered indeterminate launch blocks fresh execution until trusted cleanup acknowledgement.
+- Rust formatting and Clippy with warnings denied pass. The Rust workspace passes 112 active library tests with five subprocess helpers ignored by the parent run, plus 14 CLI tests.
+- TypeScript tests cover the two bounded host recovery errors without surfacing native details; the full workspace passes 117 unit tests.
+
+### Remaining boundary
+
+This is the durable at-most-once primitive, not production process-group recovery. A privileged service manager must own game descendants, prove their cgroup empty, and invoke the native-only acknowledgement. Boot-scoped root selection, age retention, protected directory ownership, target-Linux lock/rename/synchronization behavior, sudden-power testing, and operator reset/export policy remain open.
 
 ## 2026-07-23: game trust tiers and admission lifecycle
 

@@ -1,6 +1,6 @@
 # Signed installed-package catalog
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) supplies signed staging, candidate health gating, monotonic activation, interruption recovery, and the preferred launcher startup source; downloader, uninstall, and target qualification remain separate.
 
@@ -14,7 +14,7 @@ The implemented slice can:
 - disclose only id, version, runtime, and catalog generation to the authenticated trusted launcher;
 - start the resolved child only when the profile ID is in the host-owned allowlist.
 
-The launcher CLI cannot yet download, install, update, revoke, roll back, or uninstall; it also cannot prove window readiness, persist launch idempotency across host restart, or provide target-Linux containment. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs enables the separate launch lifecycle.
+The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; it also cannot prove window readiness, clean escaped descendants after restart, or provide target-Linux containment. Package installation currently exists as a separate signature-first inert staging and generation-promotion boundary. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs plus a durable replay root enables the separate launch lifecycle.
 
 ## Host configuration
 
@@ -162,6 +162,6 @@ Still required:
 - verified read-only public-key provisioning, rotation, and revocation;
 - per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
 - immutable or descriptor-bound artifact use;
-- persistent replay/idempotency policy across host restart;
+- production service-manager cleanup acknowledgement, boot-scoped replay retention, and target-filesystem durability qualification;
 - qualified heartbeat producers, window readiness events, compositor containment, reserved Home/Back, and target-Linux sandboxing;
 - update and removal cleanup plus architecture-parity evidence.

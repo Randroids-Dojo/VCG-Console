@@ -1,7 +1,7 @@
 use std::env;
 use std::ffi::OsString;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::Duration;
 
@@ -44,7 +44,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("package-generations: crash-recoverable-active-store");
             println!("native-launch: fixed-intent-process-lifecycle");
             println!("native-launch-watchdog: host-game-opt-in");
-            println!("native-launch-replay: in-memory-bounded");
+            println!("native-launch-replay: durable-bounded-fail-closed");
             println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
             println!("sdl3-input: adapter pending target-Linux qualification");
@@ -77,6 +77,7 @@ struct LauncherOptions {
     content_root: Option<PathBuf>,
     runtime_root: Option<PathBuf>,
     data_root: Option<PathBuf>,
+    launch_replay_root: Option<PathBuf>,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
 }
@@ -85,6 +86,7 @@ struct LauncherCatalogOptions {
     source: LauncherCatalogSourceOptions,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
+    launch_replay_root: Option<PathBuf>,
 }
 
 enum LauncherCatalogSourceOptions {
@@ -101,6 +103,7 @@ struct LauncherCatalogConfiguration {
     catalog: TrustedPackageCatalog,
     profile_ids: Vec<String>,
     watchdog_game_ids: Vec<String>,
+    launch_replay_root: Option<PathBuf>,
     source: &'static str,
     recovery: Option<RecoveryOutcome>,
 }
@@ -139,6 +142,13 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
                     WatchdogPolicy::local_game_defaults(),
                 )
                 .map_err(|error| error.to_string())?;
+                if !configuration
+                    .launch_replay_root
+                    .as_deref()
+                    .is_some_and(Path::is_absolute)
+                {
+                    return Err("launcher replay root must be absolute".to_owned());
+                }
             }
         }
         println!("program: {}", initial_spec.program().display());
@@ -148,29 +158,7 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    let host_api = if let Some(configuration) = catalog_configuration {
-        report_package_recovery(configuration.recovery);
-        if configuration.profile_ids.is_empty() {
-            HostStatusServer::start_with_catalog(origin, configuration.catalog)
-        } else if configuration.watchdog_game_ids.is_empty() {
-            HostStatusServer::start_with_launch_service(
-                origin,
-                configuration.catalog,
-                configuration.profile_ids,
-            )
-        } else {
-            HostStatusServer::start_with_watchdog_launch_service(
-                origin,
-                configuration.catalog,
-                configuration.profile_ids,
-                configuration.watchdog_game_ids,
-                WatchdogPolicy::local_game_defaults(),
-            )
-        }
-    } else {
-        HostStatusServer::start(origin)
-    }
-    .map_err(|error| error.to_string())?;
+    let host_api = start_launcher_host_api(origin, catalog_configuration)?;
     let launcher_url = host_api
         .launcher_url(request.url())
         .map_err(|error| error.to_string())?;
@@ -203,6 +191,41 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     } else {
         ExitCode::FAILURE
     })
+}
+
+fn start_launcher_host_api(
+    origin: String,
+    configuration: Option<LauncherCatalogConfiguration>,
+) -> Result<HostStatusServer, String> {
+    let Some(configuration) = configuration else {
+        return HostStatusServer::start(origin).map_err(|error| error.to_string());
+    };
+    report_package_recovery(configuration.recovery);
+    if configuration.profile_ids.is_empty() {
+        return HostStatusServer::start_with_catalog(origin, configuration.catalog)
+            .map_err(|error| error.to_string());
+    }
+    let launch_replay_root = configuration
+        .launch_replay_root
+        .expect("launch profiles require replay root");
+    let server = if configuration.watchdog_game_ids.is_empty() {
+        HostStatusServer::start_with_persistent_launch_service(
+            origin,
+            configuration.catalog,
+            configuration.profile_ids,
+            &launch_replay_root,
+        )
+    } else {
+        HostStatusServer::start_with_persistent_watchdog_launch_service(
+            origin,
+            configuration.catalog,
+            configuration.profile_ids,
+            configuration.watchdog_game_ids,
+            WatchdogPolicy::local_game_defaults(),
+            &launch_replay_root,
+        )
+    };
+    server.map_err(|error| error.to_string())
 }
 
 fn report_package_recovery(recovery: Option<RecoveryOutcome>) {
@@ -260,6 +283,7 @@ impl LauncherCatalogOptions {
             catalog,
             profile_ids: self.profile_ids,
             watchdog_game_ids: self.watchdog_game_ids,
+            launch_replay_root: self.launch_replay_root,
             source,
             recovery,
         })
@@ -309,10 +333,17 @@ fn launcher_request(
         || options.content_root.is_some()
         || options.runtime_root.is_some()
         || options.data_root.is_some()
+        || options.launch_replay_root.is_some()
         || !options.profile_ids.is_empty()
         || !options.watchdog_game_ids.is_empty();
     if !options.watchdog_game_ids.is_empty() && options.profile_ids.is_empty() {
         return Err("--watchdog-game-id requires at least one --profile-id".to_owned());
+    }
+    if options.profile_ids.is_empty() && options.launch_replay_root.is_some() {
+        return Err("--launch-replay-root requires at least one --profile-id".to_owned());
+    }
+    if !options.profile_ids.is_empty() && options.launch_replay_root.is_none() {
+        return Err("--profile-id requires --launch-replay-root".to_owned());
     }
     let catalog = if catalog_requested {
         let public_key = options
@@ -355,6 +386,7 @@ fn launcher_request(
             source,
             profile_ids: options.profile_ids,
             watchdog_game_ids: options.watchdog_game_ids,
+            launch_replay_root: options.launch_replay_root,
         })
     } else {
         None
@@ -435,6 +467,7 @@ fn parse_launcher_catalog_option(
         "--content-root" => &mut output.content_root,
         "--runtime-root" => &mut output.runtime_root,
         "--data-root" => &mut output.data_root,
+        "--launch-replay-root" => &mut output.launch_replay_root,
         value => return Err(format!("unknown launcher option: {value}")),
     };
     set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
@@ -889,7 +922,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --catalog-public-key <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-id <id>]... [--watchdog-game-id <id>]...\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --catalog-public-key <path> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
@@ -952,6 +985,10 @@ mod tests {
     }
 
     #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "the all-or-nothing launcher configuration matrix is clearest as one test"
+    )]
     fn launcher_catalog_configuration_is_all_or_nothing() {
         let base = [
             "--browser",
@@ -975,6 +1012,8 @@ mod tests {
             "/runtime",
             "--data-root",
             "/data",
+            "--launch-replay-root",
+            "/launch-replay",
             "--profile-id",
             "profile-randy",
             "--profile-id",
@@ -987,6 +1026,10 @@ mod tests {
         let catalog = catalog.expect("catalog options exist");
         assert_eq!(catalog.profile_ids, ["profile-randy", "profile-guest"]);
         assert_eq!(catalog.watchdog_game_ids, ["retro-2048"]);
+        assert_eq!(
+            catalog.launch_replay_root.as_deref(),
+            Some(std::path::Path::new("/launch-replay"))
+        );
 
         let mut partial = base.to_vec();
         partial.extend(["--catalog", "/metadata/catalog.json"]);
@@ -1032,6 +1075,8 @@ mod tests {
             "/runtime",
             "--data-root",
             "/data",
+            "--launch-replay-root",
+            "/launch-replay",
             "--profile-id",
             "profile-randy",
             "--watchdog-game-id",
@@ -1040,6 +1085,48 @@ mod tests {
             "retro-2048",
         ]);
         assert!(launcher_request(&args(&duplicate_watchdog_game)).is_err());
+    }
+
+    #[test]
+    fn launcher_profiles_require_exactly_one_replay_root() {
+        let configured = [
+            "--browser",
+            "/browser",
+            "--profile-dir",
+            "/profile",
+            "--url",
+            "http://127.0.0.1:5173/",
+            "--catalog",
+            "/metadata/catalog.json",
+            "--catalog-signature",
+            "/metadata/catalog.sig",
+            "--catalog-public-key",
+            "/metadata/catalog.pub",
+            "--install-root",
+            "/installed",
+            "--runtime-root",
+            "/runtime",
+            "--data-root",
+            "/data",
+        ];
+        let mut profile_without_replay = configured.to_vec();
+        profile_without_replay.extend(["--profile-id", "profile-randy"]);
+        assert!(launcher_request(&args(&profile_without_replay)).is_err());
+
+        let mut replay_without_profile = configured.to_vec();
+        replay_without_profile.extend(["--launch-replay-root", "/launch-replay"]);
+        assert!(launcher_request(&args(&replay_without_profile)).is_err());
+
+        let mut duplicate_replay_root = configured.to_vec();
+        duplicate_replay_root.extend([
+            "--launch-replay-root",
+            "/launch-replay",
+            "--launch-replay-root",
+            "/other-replay",
+            "--profile-id",
+            "profile-randy",
+        ]);
+        assert!(launcher_request(&args(&duplicate_replay_root)).is_err());
     }
 
     #[test]
@@ -1064,6 +1151,8 @@ mod tests {
             "/runtime",
             "--data-root",
             "/data",
+            "--launch-replay-root",
+            "/launch-replay",
             "--profile-id",
             "profile-randy",
         ]);

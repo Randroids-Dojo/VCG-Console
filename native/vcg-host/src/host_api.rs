@@ -3,6 +3,7 @@
 use std::fmt;
 use std::io::{self, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::path::Path;
 use std::str;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -77,6 +78,28 @@ impl HostStatusServer {
         )
     }
 
+    /// Starts the launch API with a host-owned durable replay journal.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch configuration or replay state is invalid,
+    /// the journal is already locked, or server startup fails.
+    pub fn start_with_persistent_launch_service(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        journal_root: &Path,
+    ) -> Result<Self, HostApiError> {
+        Self::start_with_persistent_watchdog_launch_service(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            Vec::new(),
+            WatchdogPolicy::local_game_defaults(),
+            journal_root,
+        )
+    }
+
     /// Starts the API with fixed-intent launching and heartbeat supervision
     /// for an explicit set of signature-verified installed games.
     ///
@@ -91,14 +114,65 @@ impl HostStatusServer {
         watchdog_game_ids: impl IntoIterator<Item = String>,
         watchdog_policy: WatchdogPolicy,
     ) -> Result<Self, HostApiError> {
+        Self::start_with_optional_replay(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            watchdog_game_ids,
+            watchdog_policy,
+            None,
+        )
+    }
+
+    /// Starts the fixed-intent/watchdog API with durable replay state.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch/watchdog configuration or replay state is
+    /// invalid, the journal is already locked, or server startup fails.
+    pub fn start_with_persistent_watchdog_launch_service(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+        journal_root: &Path,
+    ) -> Result<Self, HostApiError> {
+        Self::start_with_optional_replay(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            watchdog_game_ids,
+            watchdog_policy,
+            Some(journal_root),
+        )
+    }
+
+    fn start_with_optional_replay(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+        journal_root: Option<&Path>,
+    ) -> Result<Self, HostApiError> {
         let catalog = Arc::new(catalog);
         let launch_service = Arc::new(
-            NativeLaunchService::with_watchdog_games(
-                Arc::clone(&catalog),
-                profile_ids,
-                watchdog_game_ids,
-                watchdog_policy,
-            )
+            match journal_root {
+                Some(journal_root) => NativeLaunchService::with_persistent_replay(
+                    Arc::clone(&catalog),
+                    profile_ids,
+                    watchdog_game_ids,
+                    watchdog_policy,
+                    journal_root,
+                ),
+                None => NativeLaunchService::with_watchdog_games(
+                    Arc::clone(&catalog),
+                    profile_ids,
+                    watchdog_game_ids,
+                    watchdog_policy,
+                ),
+            }
             .map_err(HostApiError::LaunchConfiguration)?,
         );
         Self::start_internal(allowed_origin.into(), Some(catalog), Some(launch_service))
@@ -593,6 +667,14 @@ fn write_launch_error(
         }
         NativeLaunchError::RequestConflict(_) => (409, "Conflict", "REQUEST_ID_CONFLICT"),
         NativeLaunchError::AlreadyRunning(_) => (409, "Conflict", "GAME_ALREADY_RUNNING"),
+        NativeLaunchError::Replay(_) | NativeLaunchError::ReplayUnavailable => {
+            (503, "Service Unavailable", "LAUNCH_REPLAY_UNAVAILABLE")
+        }
+        NativeLaunchError::RestartCleanupRequired => (
+            503,
+            "Service Unavailable",
+            "LAUNCH_RESTART_CLEANUP_REQUIRED",
+        ),
         NativeLaunchError::Catalog(_) | NativeLaunchError::RetroArch(_) => {
             (409, "Conflict", "PACKAGE_VERIFICATION_FAILED")
         }
@@ -602,6 +684,7 @@ fn write_launch_error(
         | NativeLaunchError::DuplicateWatchdogGame(_)
         | NativeLaunchError::WatchdogGameNotInstalled(_)
         | NativeLaunchError::WatchdogConfiguration(_)
+        | NativeLaunchError::WatchdogRestartLimit(_)
         | NativeLaunchError::RecordLimit
         | NativeLaunchError::Launch(_)
         | NativeLaunchError::Io { .. }

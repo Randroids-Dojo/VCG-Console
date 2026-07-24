@@ -3,6 +3,7 @@
 use std::collections::{HashSet, VecDeque};
 use std::fmt;
 use std::io;
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread::{self, JoinHandle};
@@ -11,6 +12,7 @@ use std::time::Duration;
 use crate::installed_catalog::{
     CatalogError, ResolvedPackage, TrustedPackageCatalog, validate_intent_id,
 };
+use crate::native_launch_replay::{DurableLaunchRecord, LaunchReplayError, LaunchReplayJournal};
 use crate::process::{
     ControlledWatchdogOutcome, FileHealthProbe, LaunchError, ProcessSupervisor,
     WatchdogConfigError, WatchdogError, WatchdogEvent, WatchdogPolicy, WatchdogReason,
@@ -20,6 +22,7 @@ use crate::retroarch::{RetroArchError, RetroArchPlan, plan as plan_retroarch};
 const MAX_LAUNCH_RECORDS: usize = 64;
 const MONITOR_INTERVAL: Duration = Duration::from_millis(50);
 const REQUEST_ID_HEX_BYTES: usize = 16;
+const MAX_PERSISTED_WATCHDOG_RESTARTS: u32 = 16;
 
 /// One browser-safe view of a host-owned launch.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -79,6 +82,7 @@ pub struct NativeLaunchStart {
 
 #[derive(Debug)]
 struct LaunchRecord {
+    accepted_ordinal: u64,
     request_id: String,
     game_id: String,
     profile_id: String,
@@ -99,11 +103,75 @@ impl LaunchRecord {
             detail_code: self.detail_code,
         }
     }
+
+    fn durable(&self) -> DurableLaunchRecord {
+        DurableLaunchRecord::new(
+            self.accepted_ordinal,
+            &self.request_id,
+            &self.game_id,
+            &self.profile_id,
+            self.sequence,
+            self.state.name(),
+            self.detail_code,
+            self.state.exit_code(),
+        )
+    }
+
+    fn from_durable(record: DurableLaunchRecord) -> Result<Self, NativeLaunchError> {
+        let state = match record.state.as_str() {
+            "preparing" => NativeLaunchState::Preparing,
+            "running" => NativeLaunchState::Running,
+            "stopping" => NativeLaunchState::Stopping,
+            "completed" => NativeLaunchState::Completed {
+                exit_code: record.exit_code,
+            },
+            "failed" => NativeLaunchState::Failed {
+                exit_code: record.exit_code,
+            },
+            "cancelled" => NativeLaunchState::Cancelled,
+            _ => {
+                return Err(NativeLaunchError::from(LaunchReplayError::InvalidState(
+                    "native launch replay state is unsupported".to_owned(),
+                )));
+            }
+        };
+        let detail_code = durable_detail_code(&record.detail_code).ok_or_else(|| {
+            NativeLaunchError::from(LaunchReplayError::InvalidState(
+                "native launch replay detail code is unsupported".to_owned(),
+            ))
+        })?;
+        Ok(Self {
+            accepted_ordinal: record.accepted_ordinal,
+            request_id: record.request_id,
+            game_id: record.game_id,
+            profile_id: record.profile_id,
+            state,
+            sequence: record.sequence,
+            detail_code,
+            cancel: Arc::new(AtomicBool::new(false)),
+        })
+    }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct SharedLaunches {
     records: VecDeque<LaunchRecord>,
+    journal: Option<LaunchReplayJournal>,
+    next_ordinal: u64,
+    journal_faulted: bool,
+    restart_cleanup_required: bool,
+}
+
+impl Default for SharedLaunches {
+    fn default() -> Self {
+        Self {
+            records: VecDeque::new(),
+            journal: None,
+            next_ordinal: 1,
+            journal_faulted: false,
+            restart_cleanup_required: false,
+        }
+    }
 }
 
 enum PreparedLaunch {
@@ -158,6 +226,48 @@ impl NativeLaunchService {
         watchdog_game_ids: impl IntoIterator<Item = String>,
         watchdog_policy: WatchdogPolicy,
     ) -> Result<Self, NativeLaunchError> {
+        Self::with_optional_replay(
+            catalog,
+            profile_ids,
+            watchdog_game_ids,
+            watchdog_policy,
+            None,
+        )
+    }
+
+    /// Creates a launch service with durable bounded cross-restart replay.
+    ///
+    /// Every accepted state is synchronized beneath the host-owned journal
+    /// root before execution. Reopening converts a nonterminal record into an
+    /// indeterminate terminal failure and never re-executes it.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid launch configuration, unsafe or corrupted journal
+    /// state, journal lock contention, and journal I/O failures.
+    pub fn with_persistent_replay(
+        catalog: Arc<TrustedPackageCatalog>,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+        journal_root: &Path,
+    ) -> Result<Self, NativeLaunchError> {
+        Self::with_optional_replay(
+            catalog,
+            profile_ids,
+            watchdog_game_ids,
+            watchdog_policy,
+            Some(journal_root),
+        )
+    }
+
+    fn with_optional_replay(
+        catalog: Arc<TrustedPackageCatalog>,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+        journal_root: Option<&Path>,
+    ) -> Result<Self, NativeLaunchError> {
         let mut allowed_profiles = HashSet::new();
         for profile_id in profile_ids {
             validate_intent_id("profile", &profile_id)
@@ -183,12 +293,36 @@ impl NativeLaunchService {
         watchdog_policy
             .validate()
             .map_err(NativeLaunchError::WatchdogConfiguration)?;
+        if watchdog_policy.max_restarts > MAX_PERSISTED_WATCHDOG_RESTARTS {
+            return Err(NativeLaunchError::WatchdogRestartLimit(
+                watchdog_policy.max_restarts,
+            ));
+        }
+        let shared = if let Some(journal_root) = journal_root {
+            let (journal, durable_records, restart_cleanup_required) =
+                LaunchReplayJournal::open(journal_root, MAX_LAUNCH_RECORDS)
+                    .map_err(NativeLaunchError::from)?;
+            let next_ordinal = journal.next_ordinal();
+            let records = durable_records
+                .into_iter()
+                .map(LaunchRecord::from_durable)
+                .collect::<Result<VecDeque<_>, _>>()?;
+            SharedLaunches {
+                records,
+                journal: Some(journal),
+                next_ordinal,
+                journal_faulted: false,
+                restart_cleanup_required,
+            }
+        } else {
+            SharedLaunches::default()
+        };
         Ok(Self {
             catalog,
             allowed_profiles,
             watchdog_games,
             watchdog_policy,
-            shared: Arc::new(Mutex::new(SharedLaunches::default())),
+            shared: Arc::new(Mutex::new(shared)),
             stop: Arc::new(AtomicBool::new(false)),
             workers: Mutex::new(Vec::new()),
         })
@@ -197,6 +331,31 @@ impl NativeLaunchService {
     #[must_use]
     pub fn catalog(&self) -> &TrustedPackageCatalog {
         &self.catalog
+    }
+
+    /// Clears a crash-recovery launch barrier after trusted host code has
+    /// proven that every process from the interrupted launch is gone.
+    ///
+    /// This method is intentionally not exposed by the browser API.
+    ///
+    /// # Errors
+    ///
+    /// Fails when the service is memory-only, replay persistence is faulted,
+    /// or the cleanup acknowledgement cannot be synchronized.
+    pub fn acknowledge_restart_cleanup(&self) -> Result<(), NativeLaunchError> {
+        let mut shared = lock(&self.shared)?;
+        if shared.journal_faulted {
+            return Err(NativeLaunchError::ReplayUnavailable);
+        }
+        let Some(journal) = &mut shared.journal else {
+            return Err(NativeLaunchError::ReplayUnavailable);
+        };
+        if let Err(error) = journal.clear_cleanup_required() {
+            shared.journal_faulted = true;
+            return Err(error.into());
+        }
+        shared.restart_cleanup_required = false;
+        Ok(())
     }
 
     /// Starts one package or returns the existing record for an identical
@@ -231,7 +390,7 @@ impl NativeLaunchService {
         if self.watchdog_games.contains(game_id) {
             self.activate_watchdog(request_id, &plan, &cancel)
         } else {
-            self.activate_process(request_id, game_id, profile_id, &plan, cancel)
+            self.activate_process(request_id, &plan, cancel)
         }
     }
 
@@ -261,6 +420,9 @@ impl NativeLaunchService {
         cancel: Arc<AtomicBool>,
     ) -> Result<Option<NativeLaunchStart>, NativeLaunchError> {
         let mut shared = lock(&self.shared)?;
+        if shared.journal_faulted {
+            return Err(NativeLaunchError::ReplayUnavailable);
+        }
         if let Some(existing) = shared
             .records
             .iter()
@@ -274,14 +436,19 @@ impl NativeLaunchService {
                 replayed: true,
             }));
         }
+        if shared.restart_cleanup_required {
+            return Err(NativeLaunchError::RestartCleanupRequired);
+        }
         if let Some(active) = shared.records.iter().find(|record| record.state.active()) {
             return Err(NativeLaunchError::AlreadyRunning(active.game_id.clone()));
         }
-        prune_records(&mut shared.records);
+        prune_records(&mut shared)?;
         if shared.records.len() >= MAX_LAUNCH_RECORDS {
             return Err(NativeLaunchError::RecordLimit);
         }
-        shared.records.push_back(LaunchRecord {
+        let accepted_ordinal = shared.next_ordinal;
+        let record = LaunchRecord {
+            accepted_ordinal,
             request_id: request_id.to_owned(),
             game_id: game_id.to_owned(),
             profile_id: profile_id.to_owned(),
@@ -289,7 +456,20 @@ impl NativeLaunchService {
             sequence: 1,
             detail_code: "PACKAGE_RESOLVING",
             cancel,
-        });
+        };
+        if let Some(journal) = &mut shared.journal {
+            if let Err(error) = journal.accept(&record.durable()) {
+                shared.journal_faulted = true;
+                return Err(error.into());
+            }
+            shared.next_ordinal = journal.next_ordinal();
+        } else {
+            shared.next_ordinal = shared
+                .next_ordinal
+                .checked_add(1)
+                .ok_or(NativeLaunchError::RecordLimit)?;
+        }
+        shared.records.push_back(record);
         Ok(None)
     }
 
@@ -311,38 +491,46 @@ impl NativeLaunchService {
     fn activate_process(
         &self,
         request_id: &str,
-        game_id: &str,
-        profile_id: &str,
         plan: &RetroArchPlan,
         cancel: Arc<AtomicBool>,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
         let Ok(mut child) = ProcessSupervisor.launch(plan.launch()) else {
             return self.failed_start(request_id, "PROCESS_START_FAILED");
         };
-        {
+        let accepted_snapshot = {
             let mut shared = lock(&self.shared)?;
-            let Some(record) = shared
+            let Some(index) = shared
                 .records
-                .iter_mut()
-                .find(|record| record.request_id == request_id)
+                .iter()
+                .position(|record| record.request_id == request_id)
             else {
                 let _ = child.terminate();
                 return Err(NativeLaunchError::RequestNotFound(request_id.to_owned()));
             };
-            if record.cancel.load(Ordering::Acquire) {
+            if shared.records[index].cancel.load(Ordering::Acquire) {
                 let _ = child.terminate();
-                record.state = NativeLaunchState::Cancelled;
-                record.sequence += 1;
-                record.detail_code = "PROCESS_CANCELLED";
+                transition_record(
+                    &mut shared,
+                    index,
+                    NativeLaunchState::Cancelled,
+                    "PROCESS_CANCELLED",
+                )?;
                 return Ok(NativeLaunchStart {
-                    snapshot: record.snapshot(),
+                    snapshot: shared.records[index].snapshot(),
                     replayed: false,
                 });
             }
-            record.state = NativeLaunchState::Running;
-            record.sequence += 1;
-            record.detail_code = "PROCESS_STARTED";
-        }
+            if let Err(error) = transition_record(
+                &mut shared,
+                index,
+                NativeLaunchState::Running,
+                "PROCESS_STARTED",
+            ) {
+                let _ = child.terminate();
+                return Err(error);
+            }
+            shared.records[index].snapshot()
+        };
 
         let shared = Arc::clone(&self.shared);
         let stop = Arc::clone(&self.stop);
@@ -367,14 +555,7 @@ impl NativeLaunchService {
         lock(&self.workers)?.push(worker);
 
         Ok(NativeLaunchStart {
-            snapshot: NativeLaunchSnapshot {
-                request_id: request_id.to_owned(),
-                game_id: game_id.to_owned(),
-                profile_id: profile_id.to_owned(),
-                state: NativeLaunchState::Running,
-                sequence: 2,
-                detail_code: "PROCESS_STARTED",
-            },
+            snapshot: accepted_snapshot,
             replayed: false,
         })
     }
@@ -394,19 +575,27 @@ impl NativeLaunchService {
             .env("VCG_HEARTBEAT_FILE", heartbeat_path.as_os_str());
         let accepted_snapshot = {
             let mut shared = lock(&self.shared)?;
-            let record = shared
+            let index = shared
                 .records
-                .iter_mut()
-                .find(|record| record.request_id == request_id)
+                .iter()
+                .position(|record| record.request_id == request_id)
                 .ok_or_else(|| NativeLaunchError::RequestNotFound(request_id.to_owned()))?;
-            record.sequence += 1;
-            if record.cancel.load(Ordering::Acquire) {
-                record.state = NativeLaunchState::Cancelled;
-                record.detail_code = "PROCESS_CANCELLED";
+            if shared.records[index].cancel.load(Ordering::Acquire) {
+                transition_record(
+                    &mut shared,
+                    index,
+                    NativeLaunchState::Cancelled,
+                    "PROCESS_CANCELLED",
+                )?;
             } else {
-                record.detail_code = "WATCHDOG_STARTING";
+                transition_record(
+                    &mut shared,
+                    index,
+                    NativeLaunchState::Preparing,
+                    "WATCHDOG_STARTING",
+                )?;
             }
-            record.snapshot()
+            shared.records[index].snapshot()
         };
         if accepted_snapshot.state == NativeLaunchState::Cancelled {
             return Ok(NativeLaunchStart {
@@ -476,21 +665,24 @@ impl NativeLaunchService {
     pub fn cancel(&self, request_id: &str) -> Result<NativeLaunchSnapshot, NativeLaunchError> {
         validate_request_id(request_id)?;
         let mut shared = lock(&self.shared)?;
-        let record = shared
+        let index = shared
             .records
-            .iter_mut()
-            .find(|record| record.request_id == request_id)
+            .iter()
+            .position(|record| record.request_id == request_id)
             .ok_or_else(|| NativeLaunchError::RequestNotFound(request_id.to_owned()))?;
         if matches!(
-            record.state,
+            shared.records[index].state,
             NativeLaunchState::Preparing | NativeLaunchState::Running
         ) {
-            record.cancel.store(true, Ordering::Release);
-            record.state = NativeLaunchState::Stopping;
-            record.sequence += 1;
-            record.detail_code = "CANCEL_REQUESTED";
+            shared.records[index].cancel.store(true, Ordering::Release);
+            transition_record(
+                &mut shared,
+                index,
+                NativeLaunchState::Stopping,
+                "CANCEL_REQUESTED",
+            )?;
         }
-        Ok(record.snapshot())
+        Ok(shared.records[index].snapshot())
     }
 
     fn failed_start(
@@ -498,12 +690,12 @@ impl NativeLaunchService {
         request_id: &str,
         detail_code: &'static str,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
-        update_state(
+        update_state_result(
             &self.shared,
             request_id,
             NativeLaunchState::Failed { exit_code: None },
             detail_code,
-        );
+        )?;
         Ok(NativeLaunchStart {
             snapshot: self.status(request_id)?,
             replayed: false,
@@ -511,12 +703,12 @@ impl NativeLaunchService {
     }
 
     fn cancelled_start(&self, request_id: &str) -> Result<NativeLaunchStart, NativeLaunchError> {
-        update_state(
+        update_state_result(
             &self.shared,
             request_id,
             NativeLaunchState::Cancelled,
             "PROCESS_CANCELLED",
-        );
+        )?;
         Ok(NativeLaunchStart {
             snapshot: self.status(request_id)?,
             replayed: false,
@@ -591,68 +783,62 @@ fn apply_watchdog_event(shared: &Mutex<SharedLaunches>, request_id: &str, event:
     let Ok(mut shared) = shared.lock() else {
         return;
     };
-    let Some(record) = shared
+    let Some(index) = shared
         .records
-        .iter_mut()
-        .find(|record| record.request_id == request_id)
+        .iter()
+        .position(|record| record.request_id == request_id)
     else {
         return;
     };
-    if record.cancel.load(Ordering::Acquire) && !matches!(event, WatchdogEvent::Cancelled { .. }) {
+    if shared.records[index].cancel.load(Ordering::Acquire)
+        && !matches!(event, WatchdogEvent::Cancelled { .. })
+    {
         if matches!(
             event,
             WatchdogEvent::Completed { .. } | WatchdogEvent::Failed { .. }
         ) {
-            record.state = NativeLaunchState::Cancelled;
-            record.sequence += 1;
-            record.detail_code = "PROCESS_CANCELLED";
+            let _ = transition_record(
+                &mut shared,
+                index,
+                NativeLaunchState::Cancelled,
+                "PROCESS_CANCELLED",
+            );
         }
         return;
     }
-    match event {
-        WatchdogEvent::Started { attempt, .. } => {
-            record.state = NativeLaunchState::Running;
-            record.sequence += 1;
-            record.detail_code = if *attempt == 1 {
+    let (state, detail_code) = match event {
+        WatchdogEvent::Started { attempt, .. } => (
+            NativeLaunchState::Running,
+            if *attempt == 1 {
                 "PROCESS_STARTED"
             } else {
                 "PROCESS_RESTARTED"
-            };
-        }
-        WatchdogEvent::Ready { recovered, .. } => {
-            record.state = NativeLaunchState::Running;
-            record.sequence += 1;
-            record.detail_code = if *recovered {
+            },
+        ),
+        WatchdogEvent::Ready { recovered, .. } => (
+            NativeLaunchState::Running,
+            if *recovered {
                 "WATCHDOG_HEALTH_RECOVERED"
             } else {
                 "WATCHDOG_HEALTHY"
-            };
-        }
-        WatchdogEvent::Restarting { .. } => {
-            record.state = NativeLaunchState::Running;
-            record.sequence += 1;
-            record.detail_code = "WATCHDOG_RESTARTING";
-        }
-        WatchdogEvent::Completed { exit_code, .. } => {
-            record.state = NativeLaunchState::Completed {
+            },
+        ),
+        WatchdogEvent::Restarting { .. } => (NativeLaunchState::Running, "WATCHDOG_RESTARTING"),
+        WatchdogEvent::Completed { exit_code, .. } => (
+            NativeLaunchState::Completed {
                 exit_code: *exit_code,
-            };
-            record.sequence += 1;
-            record.detail_code = "PROCESS_COMPLETED";
-        }
-        WatchdogEvent::Failed { reason, .. } => {
-            record.state = NativeLaunchState::Failed {
+            },
+            "PROCESS_COMPLETED",
+        ),
+        WatchdogEvent::Failed { reason, .. } => (
+            NativeLaunchState::Failed {
                 exit_code: watchdog_exit_code(reason),
-            };
-            record.sequence += 1;
-            record.detail_code = watchdog_failure_code(reason);
-        }
-        WatchdogEvent::Cancelled { .. } => {
-            record.state = NativeLaunchState::Cancelled;
-            record.sequence += 1;
-            record.detail_code = "PROCESS_CANCELLED";
-        }
-    }
+            },
+            watchdog_failure_code(reason),
+        ),
+        WatchdogEvent::Cancelled { .. } => (NativeLaunchState::Cancelled, "PROCESS_CANCELLED"),
+    };
+    let _ = transition_record(&mut shared, index, state, detail_code);
 }
 
 fn watchdog_exit_code(reason: &WatchdogReason) -> Option<i32> {
@@ -742,25 +928,84 @@ fn update_state(
     state: NativeLaunchState,
     detail_code: &'static str,
 ) {
-    if let Ok(mut shared) = shared.lock()
-        && let Some(record) = shared
-            .records
-            .iter_mut()
-            .find(|record| record.request_id == request_id)
-    {
-        record.state = state;
-        record.sequence += 1;
-        record.detail_code = detail_code;
-    }
+    let _ = update_state_result(shared, request_id, state, detail_code);
 }
 
-fn prune_records(records: &mut VecDeque<LaunchRecord>) {
-    while records.len() >= MAX_LAUNCH_RECORDS {
-        let Some(index) = records.iter().position(|record| !record.state.active()) else {
+fn update_state_result(
+    shared: &Mutex<SharedLaunches>,
+    request_id: &str,
+    state: NativeLaunchState,
+    detail_code: &'static str,
+) -> Result<(), NativeLaunchError> {
+    let mut shared = lock(shared)?;
+    let index = shared
+        .records
+        .iter()
+        .position(|record| record.request_id == request_id)
+        .ok_or_else(|| NativeLaunchError::RequestNotFound(request_id.to_owned()))?;
+    transition_record(&mut shared, index, state, detail_code)
+}
+
+fn transition_record(
+    shared: &mut SharedLaunches,
+    index: usize,
+    state: NativeLaunchState,
+    detail_code: &'static str,
+) -> Result<(), NativeLaunchError> {
+    if shared.journal_faulted {
+        return Err(NativeLaunchError::ReplayUnavailable);
+    }
+    let sequence = shared.records[index]
+        .sequence
+        .checked_add(1)
+        .ok_or(NativeLaunchError::RecordLimit)?;
+    let durable = DurableLaunchRecord::new(
+        shared.records[index].accepted_ordinal,
+        &shared.records[index].request_id,
+        &shared.records[index].game_id,
+        &shared.records[index].profile_id,
+        sequence,
+        state.name(),
+        detail_code,
+        state.exit_code(),
+    );
+    if let Some(journal) = &mut shared.journal
+        && let Err(error) = journal.append(&durable)
+    {
+        shared.journal_faulted = true;
+        let record = &mut shared.records[index];
+        record.cancel.store(true, Ordering::Release);
+        record.state = NativeLaunchState::Failed { exit_code: None };
+        record.sequence = sequence;
+        record.detail_code = "LAUNCH_STATE_PERSIST_FAILED";
+        return Err(error.into());
+    }
+    let record = &mut shared.records[index];
+    record.state = state;
+    record.sequence = sequence;
+    record.detail_code = detail_code;
+    Ok(())
+}
+
+fn prune_records(shared: &mut SharedLaunches) -> Result<(), NativeLaunchError> {
+    while shared.records.len() >= MAX_LAUNCH_RECORDS {
+        let Some(index) = shared
+            .records
+            .iter()
+            .position(|record| !record.state.active())
+        else {
             break;
         };
-        records.remove(index);
+        let record = &shared.records[index];
+        if let Some(journal) = &mut shared.journal
+            && let Err(error) = journal.retire(record.accepted_ordinal, &record.request_id)
+        {
+            shared.journal_faulted = true;
+            return Err(error.into());
+        }
+        shared.records.remove(index);
     }
+    Ok(())
 }
 
 fn validate_request_id(value: &str) -> Result<(), NativeLaunchError> {
@@ -773,6 +1018,38 @@ fn validate_request_id(value: &str) -> Result<(), NativeLaunchError> {
     } else {
         Err(NativeLaunchError::InvalidRequestId(value.to_owned()))
     }
+}
+
+fn durable_detail_code(value: &str) -> Option<&'static str> {
+    Some(match value {
+        "PACKAGE_RESOLVING" => "PACKAGE_RESOLVING",
+        "PACKAGE_RESOLUTION_FAILED" => "PACKAGE_RESOLUTION_FAILED",
+        "PACKAGE_PLAN_FAILED" => "PACKAGE_PLAN_FAILED",
+        "PACKAGE_PREPARE_FAILED" => "PACKAGE_PREPARE_FAILED",
+        "PROCESS_START_FAILED" => "PROCESS_START_FAILED",
+        "PROCESS_STARTED" => "PROCESS_STARTED",
+        "PROCESS_RESTARTED" => "PROCESS_RESTARTED",
+        "PROCESS_COMPLETED" => "PROCESS_COMPLETED",
+        "PROCESS_EXITED_UNSUCCESSFULLY" => "PROCESS_EXITED_UNSUCCESSFULLY",
+        "PROCESS_STATUS_FAILED" => "PROCESS_STATUS_FAILED",
+        "PROCESS_CANCELLED" => "PROCESS_CANCELLED",
+        "CANCEL_REQUESTED" => "CANCEL_REQUESTED",
+        "MONITOR_START_FAILED" => "MONITOR_START_FAILED",
+        "WATCHDOG_STARTING" => "WATCHDOG_STARTING",
+        "WATCHDOG_HEALTHY" => "WATCHDOG_HEALTHY",
+        "WATCHDOG_RESTARTING" => "WATCHDOG_RESTARTING",
+        "WATCHDOG_HEALTH_RECOVERED" => "WATCHDOG_HEALTH_RECOVERED",
+        "WATCHDOG_STARTUP_TIMEOUT" => "WATCHDOG_STARTUP_TIMEOUT",
+        "WATCHDOG_HEARTBEAT_TIMEOUT" => "WATCHDOG_HEARTBEAT_TIMEOUT",
+        "WATCHDOG_INVALID_HEALTH" => "WATCHDOG_INVALID_HEALTH",
+        "WATCHDOG_PROCESS_EXIT" => "WATCHDOG_PROCESS_EXIT",
+        "WATCHDOG_GPU_RESET" => "WATCHDOG_GPU_RESET",
+        "WATCHDOG_OUT_OF_MEMORY" => "WATCHDOG_OUT_OF_MEMORY",
+        "WATCHDOG_INTERNAL_FAILURE" => "WATCHDOG_INTERNAL_FAILURE",
+        "HOST_RESTARTED_INDETERMINATE" => "HOST_RESTARTED_INDETERMINATE",
+        "LAUNCH_STATE_PERSIST_FAILED" => "LAUNCH_STATE_PERSIST_FAILED",
+        _ => return None,
+    })
 }
 
 fn short_request_id(value: &str) -> &str {
@@ -793,6 +1070,7 @@ pub enum NativeLaunchError {
     DuplicateWatchdogGame(String),
     WatchdogGameNotInstalled(String),
     WatchdogConfiguration(WatchdogConfigError),
+    WatchdogRestartLimit(u32),
     ProfileNotFound(String),
     InvalidGame(String),
     InvalidRequestId(String),
@@ -800,6 +1078,9 @@ pub enum NativeLaunchError {
     RequestNotFound(String),
     AlreadyRunning(String),
     RecordLimit,
+    Replay(String),
+    ReplayUnavailable,
+    RestartCleanupRequired,
     Catalog(CatalogError),
     RetroArch(RetroArchError),
     Launch(LaunchError),
@@ -826,6 +1107,10 @@ impl fmt::Display for NativeLaunchError {
                 write!(formatter, "watchdog game is not installed: {id}")
             }
             Self::WatchdogConfiguration(error) => error.fmt(formatter),
+            Self::WatchdogRestartLimit(restarts) => write!(
+                formatter,
+                "native launch watchdog restart count {restarts} exceeds {MAX_PERSISTED_WATCHDOG_RESTARTS}"
+            ),
             Self::ProfileNotFound(id) => write!(formatter, "profile is not configured: {id}"),
             Self::InvalidGame(id) => write!(formatter, "game ID is invalid: {id}"),
             Self::InvalidRequestId(id) => write!(formatter, "launch request ID is invalid: {id}"),
@@ -838,6 +1123,12 @@ impl fmt::Display for NativeLaunchError {
             Self::RequestNotFound(id) => write!(formatter, "launch request was not found: {id}"),
             Self::AlreadyRunning(id) => write!(formatter, "game is already running: {id}"),
             Self::RecordLimit => formatter.write_str("launch record limit reached"),
+            Self::Replay(error) => write!(formatter, "native launch replay failed: {error}"),
+            Self::ReplayUnavailable => {
+                formatter.write_str("native launch replay state is unavailable")
+            }
+            Self::RestartCleanupRequired => formatter
+                .write_str("native launch restart cleanup must be proven before another launch"),
             Self::Catalog(error) => write!(formatter, "package resolution failed: {error}"),
             Self::RetroArch(error) => write!(formatter, "RetroArch planning failed: {error}"),
             Self::Launch(error) => write!(formatter, "game process launch failed: {error}"),
@@ -860,15 +1151,37 @@ impl std::error::Error for NativeLaunchError {
     }
 }
 
+impl From<LaunchReplayError> for NativeLaunchError {
+    fn from(error: LaunchReplayError) -> Self {
+        Self::Replay(error.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::fs;
+    use std::path::PathBuf;
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
     use std::thread;
     use std::time::{Duration, Instant};
 
-    use super::{NativeLaunchError, NativeLaunchService, NativeLaunchState, apply_watchdog_event};
+    use super::{
+        MAX_PERSISTED_WATCHDOG_RESTARTS, NativeLaunchError, NativeLaunchService, NativeLaunchState,
+        apply_watchdog_event,
+    };
     use crate::installed_catalog::tests::{signed_catalog, signed_launch_catalog};
     use crate::process::{WatchdogConfigError, WatchdogEvent, WatchdogPolicy};
+
+    static REPLAY_FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+    fn replay_root() -> PathBuf {
+        let sequence = REPLAY_FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+        std::env::temp_dir().join(format!(
+            "vcg-native-launch-service-replay-{}-{sequence}",
+            std::process::id()
+        ))
+    }
 
     fn fast_watchdog_policy(max_restarts: u32) -> WatchdogPolicy {
         WatchdogPolicy {
@@ -934,6 +1247,15 @@ mod tests {
                 WatchdogConfigError::ZeroDuration("startup timeout")
             ))
         ));
+        assert!(matches!(
+            NativeLaunchService::with_watchdog_games(
+                Arc::new(signed_catalog().1),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(MAX_PERSISTED_WATCHDOG_RESTARTS + 1),
+            ),
+            Err(NativeLaunchError::WatchdogRestartLimit(_))
+        ));
     }
 
     #[test]
@@ -990,6 +1312,260 @@ mod tests {
             service.start(request_id, "not-installed", "local-player"),
             Err(NativeLaunchError::RequestConflict(_))
         ));
+    }
+
+    #[test]
+    fn persists_terminal_replay_and_exclusively_locks_the_journal() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let journal_root = replay_root();
+        let request_id = "12121212121212121212121212121212";
+        let first_snapshot = {
+            let service = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("persistent launch service configures");
+            let first = service
+                .start(request_id, "retro-2048", "local-player")
+                .expect("failed process start records");
+            assert_eq!(
+                first.snapshot.state,
+                NativeLaunchState::Failed { exit_code: None }
+            );
+            first.snapshot
+        };
+
+        {
+            let reopened = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("persistent launch service reopens");
+            let replay = reopened
+                .start(request_id, "retro-2048", "local-player")
+                .expect("terminal request replays after restart");
+            assert!(replay.replayed);
+            assert_eq!(replay.snapshot, first_snapshot);
+            assert!(matches!(
+                NativeLaunchService::with_persistent_replay(
+                    Arc::clone(&catalog),
+                    vec!["local-player".to_owned()],
+                    Vec::new(),
+                    fast_watchdog_policy(1),
+                    &journal_root,
+                ),
+                Err(NativeLaunchError::Replay(_))
+            ));
+            assert!(matches!(
+                reopened.start(request_id, "not-installed", "local-player"),
+                Err(NativeLaunchError::RequestConflict(_))
+            ));
+        }
+
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn restart_indeterminate_replay_blocks_fresh_launch_until_trusted_cleanup() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let journal_root = replay_root();
+        let interrupted_id = "13131313131313131313131313131313";
+        let fresh_id = "14141414141414141414141414141414";
+        {
+            let service = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("persistent launch service configures");
+            service
+                .reserve(
+                    interrupted_id,
+                    "retro-2048",
+                    "local-player",
+                    Arc::new(AtomicBool::new(false)),
+                )
+                .expect("accepted intent persists before execution");
+        }
+
+        {
+            let reopened = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("interrupted replay state recovers");
+            let replay = reopened
+                .start(interrupted_id, "retro-2048", "local-player")
+                .expect("identical interrupted intent replays");
+            assert!(replay.replayed);
+            assert_eq!(
+                replay.snapshot.state,
+                NativeLaunchState::Failed { exit_code: None }
+            );
+            assert_eq!(replay.snapshot.detail_code, "HOST_RESTARTED_INDETERMINATE");
+            assert!(matches!(
+                reopened.start(fresh_id, "retro-2048", "local-player"),
+                Err(NativeLaunchError::RestartCleanupRequired)
+            ));
+        }
+
+        let reopened = NativeLaunchService::with_persistent_replay(
+            Arc::clone(&catalog),
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            &journal_root,
+        )
+        .expect("cleanup barrier survives another restart");
+        assert!(matches!(
+            reopened.start(fresh_id, "retro-2048", "local-player"),
+            Err(NativeLaunchError::RestartCleanupRequired)
+        ));
+        reopened
+            .acknowledge_restart_cleanup()
+            .expect("trusted process cleanup acknowledgement persists");
+        let fresh = reopened
+            .start(fresh_id, "retro-2048", "local-player")
+            .expect("fresh launch is admitted after cleanup proof");
+        assert!(!fresh.replayed);
+        assert_eq!(
+            fresh.snapshot.state,
+            NativeLaunchState::Failed { exit_code: None }
+        );
+        drop(reopened);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn persistent_retention_retires_the_oldest_terminal_record() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let journal_root = replay_root();
+        {
+            let service = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("persistent launch service configures");
+            for ordinal in 1..=65_u128 {
+                let request_id = format!("{ordinal:032x}");
+                let failed = service
+                    .start(&request_id, "not-installed", "local-player")
+                    .expect("missing package creates a terminal record");
+                assert_eq!(
+                    failed.snapshot.state,
+                    NativeLaunchState::Failed { exit_code: None }
+                );
+            }
+            assert!(matches!(
+                service.status("00000000000000000000000000000001"),
+                Err(NativeLaunchError::RequestNotFound(_))
+            ));
+            assert_eq!(
+                service
+                    .status("00000000000000000000000000000002")
+                    .expect("second retained record remains")
+                    .detail_code,
+                "PACKAGE_RESOLUTION_FAILED"
+            );
+        }
+
+        let reopened = NativeLaunchService::with_persistent_replay(
+            Arc::clone(&catalog),
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            &journal_root,
+        )
+        .expect("retired history reopens cleanly");
+        let replay = reopened
+            .start(
+                "00000000000000000000000000000002",
+                "not-installed",
+                "local-player",
+            )
+            .expect("retained terminal record replays");
+        assert!(replay.replayed);
+        drop(reopened);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn persistence_failure_cancels_the_owned_launch_and_fails_closed() {
+        let (_fixture, catalog) = signed_catalog();
+        let journal_root = replay_root();
+        let request_id = "15151515151515151515151515151515";
+        let service = NativeLaunchService::with_persistent_replay(
+            Arc::new(catalog),
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            &journal_root,
+        )
+        .expect("persistent launch service configures");
+        let cancel = Arc::new(AtomicBool::new(false));
+        service
+            .reserve(
+                request_id,
+                "retro-2048",
+                "local-player",
+                Arc::clone(&cancel),
+            )
+            .expect("accepted intent persists");
+
+        let record_directory = fs::read_dir(journal_root.join("active"))
+            .expect("active replay directory reads")
+            .next()
+            .expect("accepted replay record exists")
+            .expect("accepted replay record reads")
+            .path();
+        fs::remove_dir_all(record_directory).expect("fault injection removes record storage");
+
+        apply_watchdog_event(
+            &service.shared,
+            request_id,
+            &WatchdogEvent::Started {
+                attempt: 1,
+                process_id: 7,
+            },
+        );
+
+        assert!(cancel.load(Ordering::Acquire));
+        let snapshot = service
+            .status(request_id)
+            .expect("failure remains observable");
+        assert_eq!(
+            snapshot.state,
+            NativeLaunchState::Failed { exit_code: None }
+        );
+        assert_eq!(snapshot.detail_code, "LAUNCH_STATE_PERSIST_FAILED");
+        assert!(matches!(
+            service.start(
+                "16161616161616161616161616161616",
+                "retro-2048",
+                "local-player"
+            ),
+            Err(NativeLaunchError::ReplayUnavailable)
+        ));
+
+        drop(service);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
     }
 
     #[test]

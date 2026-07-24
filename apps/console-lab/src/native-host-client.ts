@@ -50,6 +50,8 @@ type NativeHostFailure = {
     | "HOST_PROTOCOL_MISMATCH"
     | "PACKAGE_NOT_INSTALLED"
     | "PACKAGE_LAUNCH_FAILED"
+    | "LAUNCH_REPLAY_UNAVAILABLE"
+    | "LAUNCH_RESTART_CLEANUP_REQUIRED"
     | "LAUNCH_NOT_FOUND";
   detail: string;
 };
@@ -344,7 +346,7 @@ export async function startNativeLaunch(
   );
   if (!response.ok) return response.failure;
   if (![200, 202, 422].includes(response.value.status)) {
-    return launchHttpFailure(response.value.status);
+    return launchHttpFailure(response.value.status, response.value.body);
   }
   const launch = parseLaunchResponse(response.value.body);
   if (
@@ -409,7 +411,9 @@ async function mutateOrReadNativeLaunch(
     timeoutMs,
   );
   if (!response.ok) return response.failure;
-  if (!response.value.responseOk) return launchHttpFailure(response.value.status);
+  if (!response.value.responseOk) {
+    return launchHttpFailure(response.value.status, response.value.body);
+  }
   const launch = parseLaunchResponse(response.value.body);
   if (!launch || launch.requestId !== requestId) return invalidLaunchDocument();
   return { ok: true, launch };
@@ -485,7 +489,29 @@ function parseLaunchResponse(body: unknown): NativeLaunchSnapshot | undefined {
   return isNativeLaunchSnapshot(body) ? body : undefined;
 }
 
-function launchHttpFailure(status: number): NativeHostFailure {
+function launchHttpFailure(status: number, body: unknown): NativeHostFailure {
+  const hostCode =
+    typeof body === "object" &&
+    body !== null &&
+    Object.keys(body).length === 1 &&
+    typeof (body as Record<string, unknown>).code === "string"
+      ? ((body as Record<string, unknown>).code as string)
+      : undefined;
+  if (status === 503 && hostCode === "LAUNCH_RESTART_CLEANUP_REQUIRED") {
+    return {
+      ok: false,
+      code: "LAUNCH_RESTART_CLEANUP_REQUIRED",
+      detail:
+        "Rust console host is waiting for trusted cleanup of an interrupted native game",
+    };
+  }
+  if (status === 503 && hostCode === "LAUNCH_REPLAY_UNAVAILABLE") {
+    return {
+      ok: false,
+      code: "LAUNCH_REPLAY_UNAVAILABLE",
+      detail: "Rust console host could not verify durable native launch replay state",
+    };
+  }
   if (status === 404) {
     return {
       ok: false,

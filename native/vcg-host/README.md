@@ -12,7 +12,9 @@ cargo run -p vcg-host -- launcher --windowed \
   --browser "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" \
   --profile-dir "C:\Users\<you>\AppData\Local\VCG-Console\browser-profile" \
   --url http://127.0.0.1:5173/
-# Add the signed-catalog/root options documented below, then repeat:
+# Add the signed-catalog/root options documented below, then include:
+#   --launch-replay-root /var/lib/vcg/launch-replay
+# and repeat:
 #   --profile-id profile-randy
 # to enable native package launch for that host-owned profile.
 # Add a signed installed game ID with:
@@ -55,10 +57,17 @@ launcher options (plus `--content-root` when needed) to expose signed
 installed-package metadata. These paths are privileged service configuration,
 not launcher input. See the
 [signed installed-package catalog contract](../../docs/INSTALLED_PACKAGE_CATALOG.md).
-Add one or more repeated `--profile-id <opaque-id>` options to enable
+Add an absolute `--launch-replay-root <path>` and one or more repeated
+`--profile-id <opaque-id>` options to enable
 `trusted-package-launch` for exactly those host-owned profiles. With no profile
 IDs, the same catalog remains discovery-only. See the
 [native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
+The host durably accepts each launch before execution and replays retained
+terminal requests across restart. Recovered nonterminal work becomes
+indeterminate and blocks fresh execution until trusted native service code
+proves the old process group empty and acknowledges cleanup. This
+acknowledgement is intentionally absent from the browser API; a production
+service-manager/cgroup adapter and boot-retention policy remain required.
 An optional repeated `--watchdog-game-id <opaque-id>` must name a package in the
 verified installed catalog and applies bounded heartbeat/restart supervision to
 that game for every player profile. Other games remain process-only when they
@@ -88,7 +97,7 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 - `package_transfer`: exclusively locked exact-offset archive receipt, byte-identical replay, restart resume, remaining-byte capacity checks, full-hash verification, and no-replace ready publication.
 - `package_intake`: signature-first release admission, capacity checks, exact archive/catalog evidence, and bounded portable regular-files-only TAR extraction.
 - `package_generation`: receiver-locked ready-archive intake, verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and path-free read-only retention planning.
-- `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
+- `native_launch`: profile-allowlisted durable idempotent intent, one active child, bounded append-only replay, restart-indeterminate cleanup barrier, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.
 

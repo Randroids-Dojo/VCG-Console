@@ -1,14 +1,14 @@
 # Owner questions: native launch qualification
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
-No answer here blocks the current desk implementation. The host uses the safest reversible limits available now: one active child, memory-bounded lifecycle, explicit cancellation, no readiness claim, and no automatic retry after host failure.
+No answer here blocks the current desk implementation. The host uses the safest reversible limits available now: one active child, bounded durable lifecycle, explicit cancellation, no readiness claim, and no automatic retry after host failure.
 
 ## Q-108: cross-restart launch replay
 
 Should a request remain idempotent across Rust-host/service restart, across one operating-system boot, or only while its original host process remains alive?
 
-Safe default: before production, use the service manager or cgroup to prove every old game descendant is gone, then persist a small crash-safe journal of accepted request IDs and terminal disposition for the current boot. Do not re-execute an indeterminate request automatically. Require a fresh deliberate launcher action after cleanup, and bound journal age and size.
+Implemented primitive: the host now persists a bounded crash-safe journal, never re-executes an indeterminate request, and blocks fresh execution behind a native-only cleanup barrier. Production still needs the service manager or cgroup to prove every old game descendant is gone, the selected boot scope, and age-based retention. Those deployment choices are isolated in [the July 24 replay questions](OWNER_QUESTIONS_LAUNCH_REPLAY_2026-07-24.md).
 
 ## Q-109: authoritative window readiness
 

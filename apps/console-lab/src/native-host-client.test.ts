@@ -345,6 +345,30 @@ describe("trusted native launch lifecycle", () => {
     ).resolves.toEqual({ ok: true, status: launchStatus, launch: failed });
   });
 
+  it.each([
+    [
+      "LAUNCH_REPLAY_UNAVAILABLE",
+      "Rust console host could not verify durable native launch replay state",
+    ],
+    [
+      "LAUNCH_RESTART_CLEANUP_REQUIRED",
+      "Rust console host is waiting for trusted cleanup of an interrupted native game",
+    ],
+  ] as const)("preserves the bounded host recovery failure %s", async (code, detail) => {
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(launchStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ code }), {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+
+    await expect(
+      startNativeLaunch("retro-2048", "local-player", requestId, HOST_URL, fetcher, 100),
+    ).resolves.toEqual({ ok: false, code, detail });
+  });
+
   it("reads and cancels lifecycle state with the same authenticated request id", async () => {
     const stopping = {
       ...running,

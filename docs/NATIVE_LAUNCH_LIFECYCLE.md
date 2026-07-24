@@ -1,6 +1,6 @@
 # Native package launch lifecycle
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document defines the authenticated path from a signed installed package to a host-owned child process. It proves narrow intent, artifact verification, direct process start, observation, cancellation, cleanup, and opt-in bounded heartbeat recovery. It does not yet prove a visible or responsive game window, controller ownership, compositor containment, descendant containment, or target-Linux qualification.
 
@@ -9,6 +9,7 @@ This document defines the authenticated path from a signed installed package to 
 The launch capability exists only when `vcg-host launcher` receives:
 
 - a valid signed installed catalog and all host-owned roots;
+- an absolute `--launch-replay-root <path>`;
 - at least one repeated `--profile-id <opaque-id>` option.
 
 The profile list is privileged host configuration. The Svelte launcher may select one of those IDs but cannot create an accepted native profile merely by sending a new string. Catalog-only configuration continues to expose metadata without exposing process launch.
@@ -40,7 +41,9 @@ The JSON rejects unknown fields and is limited to 1 KiB inside the existing 8 Ki
 
 The request ID is correlation and replay protection, not launch authority. Repeating the same ID with identical game/profile intent returns the retained lifecycle record without starting another child. Reusing it for different intent fails with `REQUEST_ID_CONFLICT`. A second ID cannot start another child while one launch is active.
 
-Records are memory-only and idempotency currently lasts only for the originating Rust-host process. A host or operating-system restart does not prove that an old request is safe to execute again; durable replay disposition and descendant cleanup remain qualification work.
+Before execution, the host durably accepts the immutable request/game/profile intent in one exclusively locked replay journal. Each lifecycle transition is an append-only, synchronized event. The journal retains at most 64 records and 128 events per record, rejects duplicate request IDs or ordinals, and fails closed on malformed, conflicting, oversized, or unavailable state.
+
+An identical terminal request replays after host restart without execution. Any recovered `preparing`, `running`, or `stopping` record becomes terminal `failed` with `HOST_RESTARTED_INDETERMINATE`; it is never executed again. Recovery also persists a cleanup barrier that rejects every fresh launch with `LAUNCH_RESTART_CLEANUP_REQUIRED`. Only trusted native startup or service-manager code may prove the old process group empty and call the cleanup acknowledgement; the browser API has no such operation. If replay state cannot be verified, launch fails with `LAUNCH_REPLAY_UNAVAILABLE`.
 
 ## Host-owned preparation
 
@@ -94,11 +97,13 @@ The Svelte loading screen polls only while one native launch is active. It valid
 
 Cancellation is idempotent. The monitor force-terminates and reaps the direct child before publishing `cancelled`. A controlled watchdog also checks cancellation before spawn, during each attempt, and during restart backoff, so cancellation cannot race into another retry. Dropping the per-browser host API signals every monitor, joins the bounded worker set, and relies on `ManagedChild` cleanup as a final kill-and-reap guard. Finished monitor handles are joined before another start so repeated launches do not accumulate threads.
 
-The host retains at most 64 lifecycle records and prunes terminal history before accepting more. It permits only one preparing/running/stopping child in this first slice.
+The host retains at most 64 lifecycle records and retires the oldest terminal history before accepting more. Retirement is crash-recoverable and bounded. It permits only one preparing/running/stopping child in this first slice. The exact boot scope, age retention, protected storage ownership, and production service-manager cleanup adapter remain deployment decisions rather than browser policy.
 
 ## Remaining qualification boundary
 
 - Replace development CLI profile allowlisting with a host-owned persistent profile registry and deletion/unassignment semantics.
+- Provide a production service-manager/cgroup adapter that proves interrupted descendants are gone before acknowledging the restart-cleanup barrier.
+- Select and enforce the journal's operating-system boot scope and age retention; qualify lock, rename, file synchronization, and sudden-power behavior on the target Linux filesystems.
 - Add compositor/window identity, visible readiness, continued responsiveness, and focus/input ownership events.
 - Decide whether the production browser transport retains bounded polling or moves lifecycle changes to an authenticated event stream.
 - Bind verified files immutably through process creation and contain descendant processes/cgroups.
