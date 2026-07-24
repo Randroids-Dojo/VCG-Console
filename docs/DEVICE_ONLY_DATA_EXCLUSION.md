@@ -14,10 +14,12 @@ calibration fields, body-profile templates, matching probes, and their links
 do not enter backup, export, cloud, diagnostics, support, recovery,
 system-slot, game-storage, developer, or factory-reset outputs.
 
-The verifier does not claim that those product paths exist or are safe today.
+The verifier does not claim that most product paths exist or are safe today.
 It proves only that a complete, stable, materialized directory tree does or
 does not contain the supplied synthetic canaries in the representations it
-recognizes. Every producer still needs an integration that seeds all sensitive
+recognizes. The current volatile browser diagnostic exporter now has one
+producer-specific negative scan plus a separately failing positive control.
+Every other producer still needs an integration that seeds all sensitive
 fields, creates the real target artifact, materializes every opaque layer with
 a separately trusted format-specific tool, and submits the complete result.
 
@@ -208,6 +210,35 @@ Use distinct canaries per field and test run. Reusing one value hides which
 producer field was omitted and makes stale evidence easier to mistake for a
 current run.
 
+## Current producer integration: browser local diagnostics
+
+`scripts/local-diagnostics-data-exclusion.test.ts` materializes the exact JSON
+returned by `LocalDiagnosticBuffer.prepareExport`, after recording
+representative launcher, package, launch, and access events. It scans that
+single real producer output as a `diagnostics` artifact against five distinct
+synthetic canaries for:
+
+- opaque profile identity;
+- portrait data;
+- calibration data;
+- body-profile data; and
+- profile-to-progress linkage.
+
+The producer rejects a canary supplied as an event code, the materialized
+export contains none of the five values, and the verifier must return a
+complete path-free pass with one exact file and its byte count. A second,
+separate materialized source fixture contains all five canaries and must
+return a complete failure naming every signal ID without echoing a value.
+This positive control proves the configured scanner can observe the exact
+signals used by the negative run.
+
+The integration binds the submitted diagnostic bytes through both a direct
+SHA-256 calculation and the verifier's content-tree commitment. It does not
+upgrade the browser exporter into a trusted native diagnostic producer, prove
+that arbitrary personal information is absent, or cover native logs, crash
+dumps, support bundles, downloads after browser compromise, RAM, swap, or
+network traffic.
+
 ## I-186 coverage ledger
 
 | Required path/event | Current verifier contribution | Still required |
@@ -217,7 +248,7 @@ current run.
 | Save backup/restore | `backup` and `game-storage` kinds are defined | Console backup is intentionally absent; prove no hidden path and inspect every runtime's saves |
 | Game export | `export` and `game-storage` trees can be scanned | Real web/native/Godot/Libretro export and storage brokers |
 | Developer mode | `developer` trees can be scanned | Paired deployment does not exist; future staging, logs, keys, and workstation traffic |
-| Logs and diagnostics | Materialized diagnostic files can be scanned | Native producers/store; current volatile browser diagnostics have separate closed-schema tests |
+| Logs and diagnostics | Actual volatile browser export passes five-field negative scan; separate source fixture finds all five positive controls | Native producers/store, hostile-browser/download boundary, crash/log/support artifacts, and target evidence |
 | Support bundle | `support-bundle` trees can be scanned | Final bundle builder, review UI, materializer, and independent redaction review |
 | Recovery image and reflash | Refuses an opaque image until fully materialized | Exact Pi/PC images, partitions, free-space model, flash/replacement tests |
 | Cloud path | `cloud-sync` trees can be scanned | Prove no console profile service/path and inspect each hosted game's separate service behavior |
@@ -256,7 +287,8 @@ in the rightmost column.
 
 ## Automated evidence
 
-`pnpm validate:data-exclusion` covers:
+`pnpm validate:data-exclusion` runs the ten verifier-contract cases plus the
+browser-diagnostic producer integration. Together they cover:
 
 - exact manifest fields, schema, identifiers, paths, counts, and limits;
 - deterministic clean-tree evidence;
@@ -266,7 +298,13 @@ in the rightmost column.
 - bounded finding truncation;
 - extension- and magic-based opaque-container refusal;
 - global limits across disjoint roots;
-- overlapping-root and symlink refusal; and
-- CLI exit `0`/`1`/`2` behavior without canary echo.
+- overlapping-root and symlink refusal;
+- CLI exit `0`/`1`/`2` behavior without canary echo;
+- actual closed diagnostic-export materialization and byte accounting;
+- distinct profile, portrait, calibration, body-profile, and progress-link
+  negative canaries; and
+- a separately materialized positive control that must find all five signal
+  IDs without value disclosure.
 
-These tests use disposable synthetic fixtures only.
+These tests use disposable synthetic fixtures and the actual volatile
+diagnostic serializer only. They do not contain real household data.

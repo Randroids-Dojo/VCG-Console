@@ -102,6 +102,15 @@ Six focused unit tests cover:
 - deterministic bounded JSON; and
 - complete in-memory clear and unlinking.
 
+A separate I-186 producer integration materializes the exact
+`prepareExport` JSON and runs the device-only data-exclusion verifier against
+distinct synthetic profile, portrait, calibration, body-profile, and
+progress-link canaries. The export produces a complete one-file negative pass.
+A separately materialized source fixture containing all five values must fail
+and report every signal ID without echoing any value. The named
+`pnpm validate:data-exclusion` gate runs both this producer integration and the
+ten underlying verifier-contract cases.
+
 A real-Chrome test proves family-mode export denial, local admin gating, exact
 review disclosure, deliberate two-step download, expected filename and parsed
 schema, false privacy flags, absence of the active name/profile ID/URL secret,
