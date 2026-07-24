@@ -628,6 +628,28 @@ This is classification, not garbage collection. Marker or directory deletion sta
 
 This is pre-promotion candidate health, not live or post-activation qualification. Process survival is weak compatibility evidence. Explicit-ready remains self-asserted until the exact signed wrapper/observer is qualified, and neither mechanism proves a visible/focused compositor window. Hosted/local-web HTTP health, update-service wiring, post-activation rollback, runtime-root cleanup, hostile descendant containment, and target measurements remain open.
 
+## 2026-07-23: signature-first bounded package intake
+
+### Delivered
+
+- Added a domain-separated, signature-before-parse release descriptor binding target, generation, archive format/hash/length, exact expanded file/byte facts, and installed-catalog hash/length.
+- Added deterministic pre-download and post-download capacity admission with a mandatory nonzero reserve and real staging-filesystem available-space snapshots.
+- Added a regular-files-only uncompressed-TAR extractor with archive/file/expanded/entry limits; portable ASCII paths; case-insensitive prefix-collision detection; link/device/special-entry rejection; no-replace writes; safe executable-mode normalization; and Unix file/directory synchronization.
+- The generation store now extracts into a private incoming directory, rechecks signed expanded/catalog evidence, verifies the installed catalog and every referenced artifact, requires descriptor/catalog generation agreement and monotonicity, then atomically publishes an inert staging transaction.
+- Failed intake validates and removes only its private direct-child work directory. It never changes activation state, managed content, or saves.
+- D-139 records the boundary. Q-117 through Q-119 preserve compression, reserve, and signing-role choices.
+
+### Verification evidence
+
+- Descriptor tests cover signature-before-parse behavior, exact archive use, wrong/tampered input, target/schema/record bounds, capacity arithmetic, real filesystem capacity, unsupported compressed extraction, and descriptor-bound TAR/catalog evidence.
+- Archive tests cover successful bounded extraction, nonempty/unsafe destinations, links, duplicates, portable case collisions, unsafe names, and archive/file/entry limits.
+- Generation tests prove a signed capacity-admitted archive becomes only a re-verifiable inert stage and that signed expanded-fact mismatch removes partial work without intent or activation.
+- The Rust workspace passes 86 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+
+### Remaining boundary
+
+This is local completed-archive intake, not an update client. Network transport/resume, mirrors/TLS policy, disk reservation, low-space coordination/UI, `tar-zstd`, key-role separation, immutable destination ownership, target-Linux permission/mount behavior, and sudden-power qualification remain open.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

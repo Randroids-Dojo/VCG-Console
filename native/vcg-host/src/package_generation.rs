@@ -12,6 +12,9 @@ use crate::installed_catalog::{
     CatalogError, CatalogRoots, ResolvedPackage, TrustedPackageCatalog,
 };
 use crate::package_health::{CandidateHealthChecker, CandidateHealthError, CandidateHealthRequest};
+use crate::package_intake::{
+    CapacityAdmission, PackageIntakeError, PackageIntakeStats, VerifiedPackageRelease,
+};
 use crate::retroarch::plan as plan_retroarch;
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
@@ -54,6 +57,14 @@ pub enum RecoveryOutcome {
 pub struct PromotionOutcome {
     pub previous_generation: Option<u64>,
     pub active_generation: u64,
+}
+
+/// Result of signature-first extraction into one inert staging transaction.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct StagedPackageGeneration {
+    pub generation: u64,
+    pub intake: PackageIntakeStats,
+    pub capacity: CapacityAdmission,
 }
 
 /// Read-only classification of package generations for a future cleanup
@@ -191,6 +202,137 @@ impl PackageGenerationStore {
             retired_generations,
             orphan_generations,
         })
+    }
+
+    /// Admits and publishes one signed uncompressed-TAR release as an inert
+    /// staging transaction.
+    ///
+    /// The small release descriptor is signature-verified before archive use.
+    /// Its exact archive hash/size, expanded file count/bytes, catalog
+    /// hash/size, target, and generation bind extraction. Extraction occurs in
+    /// a private `.incoming-<transaction-id>` directory and is renamed to the
+    /// public staging name only after the installed catalog and every
+    /// referenced artifact verify. No promotion intent or active state changes.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid inputs, pending recovery, an existing transaction,
+    /// insufficient extraction headroom, unsafe or excessive archive entries,
+    /// descriptor/catalog disagreement, signature or artifact failures, and
+    /// non-advancing generations.
+    pub fn stage_package_tar(
+        &self,
+        transaction_id: &str,
+        descriptor_path: &Path,
+        descriptor_signature_path: &Path,
+        archive_path: &Path,
+        reserve_bytes: u64,
+    ) -> Result<StagedPackageGeneration, GenerationError> {
+        validate_transaction_id(transaction_id)?;
+        if self.recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        let release = VerifiedPackageRelease::load(
+            descriptor_path,
+            descriptor_signature_path,
+            &self.public_key_path,
+        )?;
+        release.verify_archive(archive_path)?;
+        let capacity = release.admit_extraction_capacity_at(&self.staging, reserve_bytes)?;
+        let limits = release.extraction_limits()?;
+
+        let stage = self.staging.join(transaction_id);
+        let incoming = self.staging.join(format!(".incoming-{transaction_id}"));
+        if path_exists(&stage)? || path_exists(&incoming)? {
+            return Err(GenerationError::StagingTransactionExists(
+                transaction_id.to_owned(),
+            ));
+        }
+        fs::create_dir(&incoming).map_err(|source| GenerationError::Io {
+            operation: "create package intake directory",
+            path: incoming.clone(),
+            source,
+        })?;
+        if let Err(error) = sync_directory(&self.staging) {
+            return self.finish_intake(&incoming, Err(error));
+        }
+
+        let result = (|| {
+            let intake = release.extract_verified(archive_path, &incoming, limits)?;
+            release.verify_archive(archive_path)?;
+            let candidate = self.load_release(&incoming)?;
+            if candidate.generation != release.generation() {
+                return Err(GenerationError::IntakeDescriptorMismatch(format!(
+                    "descriptor generation {} does not match catalog generation {}",
+                    release.generation(),
+                    candidate.generation
+                )));
+            }
+            if let Some(active) = self.load_active()?
+                && candidate.generation <= active.generation
+            {
+                return Err(GenerationError::RollbackRejected {
+                    current: active.generation,
+                    candidate: candidate.generation,
+                });
+            }
+            fs::rename(&incoming, &stage).map_err(|source| GenerationError::Io {
+                operation: "publish verified package staging transaction",
+                path: stage.clone(),
+                source,
+            })?;
+            sync_directory(&self.staging)?;
+            Ok(StagedPackageGeneration {
+                generation: candidate.generation,
+                intake,
+                capacity,
+            })
+        })();
+        self.finish_intake(&incoming, result)
+    }
+
+    fn finish_intake<T>(
+        &self,
+        incoming: &Path,
+        result: Result<T, GenerationError>,
+    ) -> Result<T, GenerationError> {
+        let primary = match result {
+            Ok(value) => return Ok(value),
+            Err(error) => error,
+        };
+        let canonical = match fs::symlink_metadata(incoming) {
+            Err(source) if source.kind() == io::ErrorKind::NotFound => return Err(primary),
+            Err(source) => {
+                return Err(GenerationError::IntakeCleanup {
+                    path: incoming.to_owned(),
+                    primary: Box::new(primary),
+                    source,
+                });
+            }
+            Ok(_) => {
+                match canonical_direct_child("incomplete package intake", &self.staging, incoming) {
+                    Ok(canonical) => canonical,
+                    Err(cleanup_error) => {
+                        return Err(GenerationError::IntakeCleanupValidation {
+                            path: incoming.to_owned(),
+                            primary: Box::new(primary),
+                            cleanup_error: Box::new(cleanup_error),
+                        });
+                    }
+                }
+            }
+        };
+        match fs::remove_dir_all(&canonical) {
+            Ok(()) => {
+                sync_directory(&self.staging)?;
+                Err(primary)
+            }
+            Err(source) => Err(GenerationError::IntakeCleanup {
+                path: canonical,
+                primary: Box::new(primary),
+                source,
+            }),
+        }
     }
 
     fn activation_generations(&self) -> Result<Vec<u64>, GenerationError> {
@@ -989,6 +1131,18 @@ fn sync_directory(_path: &Path) -> Result<(), GenerationError> {
     Ok(())
 }
 
+fn path_exists(path: &Path) -> Result<bool, GenerationError> {
+    match fs::symlink_metadata(path) {
+        Ok(_) => Ok(true),
+        Err(source) if source.kind() == io::ErrorKind::NotFound => Ok(false),
+        Err(source) => Err(GenerationError::Io {
+            operation: "inspect package store path",
+            path: path.to_owned(),
+            source,
+        }),
+    }
+}
+
 /// Signed generation activation failure.
 #[derive(Debug)]
 pub enum GenerationError {
@@ -999,6 +1153,7 @@ pub enum GenerationError {
     },
     Catalog(CatalogError),
     Health(CandidateHealthError),
+    Intake(PackageIntakeError),
     UnsafePath {
         kind: &'static str,
         path: PathBuf,
@@ -1006,6 +1161,8 @@ pub enum GenerationError {
     InvalidLayout(String),
     InvalidRetentionCount(usize),
     InvalidTransactionId(String),
+    StagingTransactionExists(String),
+    IntakeDescriptorMismatch(String),
     MarkerMismatch(String),
     RecoveryRequired,
     RollbackRejected {
@@ -1014,6 +1171,16 @@ pub enum GenerationError {
     },
     GenerationExists(u64),
     CandidateChangedAfterHealth,
+    IntakeCleanup {
+        path: PathBuf,
+        primary: Box<GenerationError>,
+        source: io::Error,
+    },
+    IntakeCleanupValidation {
+        path: PathBuf,
+        primary: Box<GenerationError>,
+        cleanup_error: Box<GenerationError>,
+    },
 }
 
 impl fmt::Display for GenerationError {
@@ -1030,6 +1197,7 @@ impl fmt::Display for GenerationError {
             ),
             Self::Catalog(error) => write!(formatter, "{error}"),
             Self::Health(error) => write!(formatter, "{error}"),
+            Self::Intake(error) => write!(formatter, "{error}"),
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
@@ -1040,6 +1208,15 @@ impl fmt::Display for GenerationError {
             ),
             Self::InvalidTransactionId(value) => {
                 write!(formatter, "package transaction id is invalid: {value}")
+            }
+            Self::StagingTransactionExists(value) => {
+                write!(
+                    formatter,
+                    "package staging transaction already exists: {value}"
+                )
+            }
+            Self::IntakeDescriptorMismatch(error) => {
+                write!(formatter, "package intake descriptor mismatch: {error}")
             }
             Self::MarkerMismatch(error) => {
                 write!(formatter, "package activation marker is invalid: {error}")
@@ -1055,6 +1232,24 @@ impl fmt::Display for GenerationError {
             Self::CandidateChangedAfterHealth => {
                 formatter.write_str("candidate catalog changed after health verification")
             }
+            Self::IntakeCleanup {
+                path,
+                primary,
+                source,
+            } => write!(
+                formatter,
+                "package intake failed ({primary}) and cleanup failed for {}: {source}",
+                path.display()
+            ),
+            Self::IntakeCleanupValidation {
+                path,
+                primary,
+                cleanup_error,
+            } => write!(
+                formatter,
+                "package intake failed ({primary}) and cleanup validation failed for {}: {cleanup_error}",
+                path.display()
+            ),
         }
     }
 }
@@ -1062,9 +1257,11 @@ impl fmt::Display for GenerationError {
 impl std::error::Error for GenerationError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::Io { source, .. } => Some(source),
+            Self::Io { source, .. } | Self::IntakeCleanup { source, .. } => Some(source),
             Self::Catalog(error) => Some(error),
             Self::Health(error) => Some(error),
+            Self::Intake(error) => Some(error),
+            Self::IntakeCleanupValidation { cleanup_error, .. } => Some(cleanup_error),
             _ => None,
         }
     }
@@ -1082,26 +1279,35 @@ impl From<CandidateHealthError> for GenerationError {
     }
 }
 
+impl From<PackageIntakeError> for GenerationError {
+    fn from(error: PackageIntakeError) -> Self {
+        Self::Intake(error)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::fs;
+    use std::fs::{self, File};
     use std::path::{Path, PathBuf};
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use ed25519_dalek::{Signer, SigningKey};
     use serde_json::json;
     use sha2::{Digest, Sha256};
+    use tar::Builder;
 
     use super::{
-        ACTIVATION_SCHEMA_VERSION, ActivationMarker, GenerationError, INTENT_FILE,
+        ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, GenerationError, INTENT_FILE,
         PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
         STAGED_INTENT_FILE, prepare_staged_marker, publish_intent, read_marker,
     };
     use crate::installed_catalog::PackageHealthCheck;
     use crate::package_health::CandidateHealthChecker;
+    use crate::package_intake::PackageIntakeError;
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
     const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
+    const RELEASE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
 
     struct Fixture {
         root: PathBuf,
@@ -1229,6 +1435,79 @@ mod tests {
             release
         }
 
+        fn package_tar(
+            &self,
+            generation: u64,
+            version: &str,
+        ) -> (PathBuf, PathBuf, PathBuf, u64, u64) {
+            let source = self.stage("archive-source", generation, version);
+            let archive = self.root.join(format!("release-{generation}.tar"));
+            let descriptor = self.root.join(format!("release-{generation}.json"));
+            let descriptor_signature = self.root.join(format!("release-{generation}.sig"));
+            let relative_files = [
+                "installed-catalog.json",
+                "installed-catalog.sig",
+                "install/packages/retro-2048/vcg-game.json",
+                "install/retroarch/retroarch",
+                "install/cores/2048_libretro.so",
+                "install/retroarch/vcg-base.cfg",
+            ];
+            let mut expanded_bytes = 0_u64;
+            let mut builder =
+                Builder::new(File::create(&archive).expect("package archive creates"));
+            for relative in relative_files {
+                let path = source.join(relative);
+                expanded_bytes += fs::metadata(&path).expect("artifact inspects").len();
+                builder
+                    .append_path_with_name(&path, relative)
+                    .expect("artifact appends");
+            }
+            builder.finish().expect("package archive finishes");
+            drop(builder);
+
+            let catalog = source.join(CATALOG_FILE);
+            let document = json!({
+                "schemaVersion": 1,
+                "generation": generation,
+                "target": format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS),
+                "archive": {
+                    "format": "tar",
+                    "sha256": digest(&archive),
+                    "sizeBytes": fs::metadata(&archive).expect("archive inspects").len(),
+                },
+                "expanded": {
+                    "sizeBytes": expanded_bytes,
+                    "fileCount": relative_files.len(),
+                },
+                "catalog": {
+                    "sha256": digest(&catalog),
+                    "sizeBytes": fs::metadata(&catalog).expect("catalog inspects").len(),
+                },
+            });
+            fs::write(
+                &descriptor,
+                serde_json::to_vec(&document).expect("release descriptor serializes"),
+            )
+            .expect("release descriptor writes");
+            self.sign_release_descriptor(&descriptor, &descriptor_signature);
+            fs::remove_dir_all(source).expect("archive source removes");
+            (
+                descriptor,
+                descriptor_signature,
+                archive,
+                expanded_bytes,
+                u64::try_from(relative_files.len()).expect("file count converts"),
+            )
+        }
+
+        fn sign_release_descriptor(&self, descriptor: &Path, signature: &Path) {
+            let descriptor_bytes = fs::read(descriptor).expect("release descriptor reads");
+            let mut message = Vec::from(RELEASE_SIGNED_MESSAGE_PREFIX);
+            message.extend_from_slice(&descriptor_bytes);
+            fs::write(signature, hex(&self.signing_key.sign(&message).to_bytes()))
+                .expect("release descriptor signature writes");
+        }
+
         fn publish_intent(
             &self,
             store: &PackageGenerationStore,
@@ -1255,6 +1534,69 @@ mod tests {
         fn drop(&mut self) {
             let _ = fs::remove_dir_all(&self.root);
         }
+    }
+
+    #[test]
+    fn stages_only_a_signed_capacity_admitted_exact_tar_release() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, expanded_bytes, file_count) =
+            fixture.package_tar(7, "1.0.0");
+        let store = fixture.store();
+
+        let staged = store
+            .stage_package_tar("intake-seven", &descriptor, &signature, &archive, 1)
+            .expect("signed release stages");
+        assert_eq!(staged.generation, 7);
+        assert_eq!(staged.intake.file_count, file_count);
+        assert_eq!(staged.intake.expanded_bytes, expanded_bytes);
+        assert_eq!(staged.capacity.archive_bytes, 0);
+        assert_eq!(staged.capacity.reserve_bytes, 1);
+        assert!(fixture.root.join("staging/intake-seven").is_dir());
+        assert!(!fixture.root.join("staging/.incoming-intake-seven").exists());
+        assert_eq!(
+            store
+                .load_release(
+                    &store
+                        .canonical_stage("intake-seven")
+                        .expect("stage canonicalizes"),
+                )
+                .expect("staged release re-verifies")
+                .generation,
+            7
+        );
+        assert!(store.load_active().expect("active lookup works").is_none());
+    }
+
+    #[test]
+    fn failed_signed_intake_removes_partial_state_without_activation() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, _, _) = fixture.package_tar(7, "1.0.0");
+        let mut document: serde_json::Value =
+            serde_json::from_slice(&fs::read(&descriptor).expect("descriptor reads"))
+                .expect("descriptor parses");
+        document["expanded"]["fileCount"] = json!(7);
+        fs::write(
+            &descriptor,
+            serde_json::to_vec(&document).expect("descriptor serializes"),
+        )
+        .expect("descriptor rewrites");
+        fixture.sign_release_descriptor(&descriptor, &signature);
+        let store = fixture.store();
+
+        let error = store
+            .stage_package_tar("bad-intake", &descriptor, &signature, &archive, 1)
+            .expect_err("mismatched intake fails");
+        assert!(
+            matches!(
+                error,
+                GenerationError::Intake(PackageIntakeError::ExpandedFactsMismatch { .. })
+            ),
+            "unexpected intake error: {error:?}"
+        );
+        assert!(!fixture.root.join("staging/bad-intake").exists());
+        assert!(!fixture.root.join("staging/.incoming-bad-intake").exists());
+        assert!(!fixture.root.join(INTENT_FILE).exists());
+        assert!(store.load_active().expect("active lookup works").is_none());
     }
 
     #[test]

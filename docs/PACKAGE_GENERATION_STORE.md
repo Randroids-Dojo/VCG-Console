@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the implemented host-owned staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, and launcher-startup boundary for production game packages. It composes with the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not an update downloader, uninstall UI, live-runtime qualification, or target-hardware result.
+This document defines the implemented host-owned signed-archive intake, staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, and launcher-startup boundary for production game packages. It composes with the [signed release intake](PACKAGE_INTAKE.md) and [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not a network downloader, uninstall UI, live-runtime qualification, or target-hardware result.
 
 ## Store layout
 
@@ -48,6 +48,12 @@ The active generation is the numerically greatest valid activation marker. Every
 An equal or lower signed generation is rejected while the activation history remains intact. A deliberate bad-release rollback therefore requires a newly signed, higher generation whose catalog selects the prior package versions.
 
 This is crash-monotonic selection, not tamper-resistant anti-rollback. The current history lives in the writable store; protected per-channel state, deletion resistance, and authenticated recovery remain open under I-141.
+
+## Signed archive intake
+
+`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). It verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
+
+Only then is the private directory atomically renamed to `staging/<transaction-id>`. This creates an inert promotion candidate; it does not publish `promotion.intent`, run candidate health, or change active state. Failure validates and removes only the private incoming direct child.
 
 ## Health-gated promotion
 
@@ -112,6 +118,8 @@ This is necessary but not sufficient for uninstall. Package/runtime garbage coll
 
 Rust tests cover:
 
+- signature-first capacity-admitted archive intake and failed partial-work cleanup;
+- portable bounded TAR paths/types/sizes plus exact expanded/catalog evidence;
 - first install and higher-generation update;
 - signature/catalog verification plus every referenced artifact, including managed content;
 - signed process/explicit-ready policy parsing with timeout bounds;
@@ -139,7 +147,8 @@ Planning never returns filesystem paths and never removes activation markers, ge
 
 Still required:
 
-- update download/intake, archive safety, capacity reservation, and low-space cleanup;
+- network download/resume, real capacity reservation, and low-space coordination/cleanup;
+- bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - bounded retention, uninstall, and garbage collection;
 - offline-root delegation, key rotation/revocation, and per-channel monotonic state;
