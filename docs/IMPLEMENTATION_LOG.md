@@ -978,3 +978,24 @@ This is a source-snapshot compatibility matrix, not evidence from externally rel
 ### Remaining boundary
 
 No participant has been tested by this slice. Consent materials still need household review, and actual child/adult/seated/limited-range tracking, safety, comprehension, action accuracy, TV distance, clothing/lighting, and placement evidence remain under I-035, I-037, I-041, I-053, I-068, I-147, I-155, I-194, and I-210. Networked family beta and automatic identity/portrait features retain their separate privacy and legal gates.
+
+## 2026-07-24: fail-closed household active-play checklist
+
+### Delivered
+
+- Defined one observed `pass`/`fail`/`not-applicable` pre-play gate; a waiver, warning, camera view, supervision, or consent cannot override a physical failure.
+- Covered the clear 8 x 8 ft zone, falls and floor trips, television/furniture anchoring, falling objects, power/signal cable routing, enclosure stability/heat/ventilation, pets/passersby/spectators, participant readiness, water/rest access, and independent controller/physical stop paths.
+- Defined runtime freeze/stop conditions for zone intrusion, moved equipment, falls/collisions, tracking ambiguity, participant stop or distress, thermal/power faults, and loss of supervision.
+- Added a conservative 20-active-minute prototype break offer with Rest focused, controller parity, paused timing, no fitness/guilt language, and shorter child trial blocks. The cadence remains reviewable rather than a medical claim.
+- Added post-play camera/idle/equipment checks and twelve required abuse scenarios, including cable tug, pet entry, camera shift, hung UI, controller loss, thermal fault, and mid-action stop.
+- Bounded the evidence with CPSC furniture/tip/fall guidance and CDC heat/activity stop guidance without representing the room as a playground or the product as medically or regulatorily qualified.
+
+### Verification evidence
+
+- I-012's required furniture, cable, pet, fall, heat, and break-reminder hazards all have explicit block, pause, stop, and evidence behavior.
+- The checklist connects to the existing room, persona, privacy, camera-state, reserved escape, and prototype-claim boundaries.
+- I-012 closes as hazard identification. No room, enclosure, participant, anchor, cable installation, or runtime has passed it yet.
+
+### Remaining boundary
+
+The selected living room still needs its exact survey and marked zone. Anchor suitability, floor/cable installation, electrical/thermal/enclosure safety, break cadence, child comprehension, physical stop, and every abuse scenario require qualified hands-on review under I-001, I-002, I-037, I-046, I-140, I-143, I-144, I-192, I-194, I-195, and I-196.
