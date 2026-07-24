@@ -217,6 +217,50 @@ impl TrustedPackageCatalog {
         &self.target
     }
 
+    /// Verifies every artifact referenced by this signed catalog without
+    /// creating runtime or save state.
+    ///
+    /// This is the installer/promotion boundary. Launch resolution repeats the
+    /// relevant checks at use time so a successful staging verification never
+    /// becomes a permanent trust grant.
+    ///
+    /// # Errors
+    ///
+    /// Rejects missing, changed, misbound, or root-escaping package artifacts.
+    pub fn verify_all_artifacts(&self) -> Result<(), CatalogError> {
+        for package in &self.packages {
+            let manifest =
+                resolve_managed_file("manifest", &self.roots.install_root, &package.manifest.path)?;
+            verify_sha256("manifest", &manifest, &package.manifest.sha256)?;
+            verify_manifest_identity(&manifest, package)?;
+
+            match &package.runtime {
+                InstalledRuntime::Libretro(libretro) => {
+                    for (kind, file) in [
+                        ("frontend", &libretro.frontend),
+                        ("core", &libretro.core),
+                        ("base configuration", &libretro.base_config),
+                    ] {
+                        let path =
+                            resolve_managed_file(kind, &self.roots.install_root, &file.path)?;
+                        verify_sha256(kind, &path, &file.sha256)?;
+                    }
+                    if let Some(content) = &libretro.content {
+                        let root = self.roots.content_root.as_ref().ok_or_else(|| {
+                            CatalogError::InvalidRecord(format!(
+                                "package {} requires a content root",
+                                package.id
+                            ))
+                        })?;
+                        let path = resolve_managed_file("content", root, &content.path)?;
+                        verify_sha256("content", &path, &content.sha256)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Returns signed, non-path package metadata for launcher presentation.
     ///
     /// # Errors
@@ -1036,6 +1080,31 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn verifies_every_referenced_artifact_before_promotion() {
+        for (kind, tampered_path) in [
+            ("frontend", Fixture::new()),
+            ("core", Fixture::new()),
+            ("base configuration", Fixture::new()),
+        ] {
+            let path = match kind {
+                "frontend" => &tampered_path.frontend,
+                "core" => &tampered_path.core,
+                "base configuration" => &tampered_path.base_config,
+                _ => unreachable!("test cases are exhaustive"),
+            };
+            let catalog = tampered_path.load().expect("catalog loads before tamper");
+            fs::write(path, b"tampered artifact").expect("tamper artifact");
+            assert!(matches!(
+                catalog.verify_all_artifacts(),
+                Err(CatalogError::IntegrityMismatch {
+                    kind: actual_kind,
+                    ..
+                }) if actual_kind == kind
+            ));
+        }
+    }
+
+    #[test]
     fn rejects_invalid_browser_intents_and_bound_manifest_identity() {
         let fixture = Fixture::new();
         let catalog = fixture.load().expect("catalog loads");
@@ -1379,6 +1448,35 @@ mod more_tests {
         assert!(matches!(
             catalog.resolve("retro-2048", "player-one"),
             Err(CatalogError::InvalidBoundManifest(_))
+        ));
+    }
+
+    #[test]
+    fn verifies_managed_content_before_promotion() {
+        let fixture = Fixture::new();
+        let content_path = fixture.content_root.join("retro/2048.rom");
+        fs::create_dir_all(content_path.parent().expect("content has a parent"))
+            .expect("content directory creates");
+        fs::write(&content_path, b"managed content").expect("managed content writes");
+        let mut document = fixture.document();
+        document["packages"][0]["libretro"]["content"] = json!({
+            "mode": "managed",
+            "path": relative_text(&fixture.content_root, &content_path),
+            "sha256": file_hash(&content_path),
+        });
+        fixture.publish(&document);
+        let catalog = fixture.load().expect("managed-content catalog loads");
+        catalog
+            .verify_all_artifacts()
+            .expect("managed content verifies");
+
+        fs::write(&content_path, b"changed content").expect("managed content tamper writes");
+        assert!(matches!(
+            catalog.verify_all_artifacts(),
+            Err(CatalogError::IntegrityMismatch {
+                kind: "content",
+                ..
+            })
         ));
     }
 

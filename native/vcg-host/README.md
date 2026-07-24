@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, strict signed installed-package resolution, idempotent profile-allowlisted launch/cancel lifecycle, and a contained RetroArch launch adapter. It does not yet claim SDL3, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, strict signed installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, and a contained RetroArch launch adapter. It does not yet claim an update downloader/service, SDL3, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -77,6 +77,7 @@ visible or usable window.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata validation and host-owned package resolution from fixed game/profile IDs.
+- `package_generation`: verify-before-intent and verify-after-move signed generation activation with deterministic interrupted-promotion recovery.
 - `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.

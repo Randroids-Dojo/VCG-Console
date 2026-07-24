@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-23
 
-This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. It remains deliberately narrower than an installer or production package lifecycle.
+This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) now supplies a library-level signed staging, monotonic activation, and interruption-recovery primitive; downloader, health, uninstall, service integration, and target qualification remain separate.
 
 The implemented slice can:
 
@@ -14,7 +14,7 @@ The implemented slice can:
 - disclose only id, version, runtime, and catalog generation to the authenticated trusted launcher;
 - start the resolved child only when the profile ID is in the host-owned allowlist.
 
-It cannot install, update, revoke, roll back, prove window readiness, persist launch idempotency across host restart, or provide target-Linux containment. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs enables the separate launch lifecycle.
+The launcher CLI cannot yet download, install, update, revoke, roll back, or uninstall; it also cannot prove window readiness, persist launch idempotency across host restart, or provide target-Linux containment. Catalog-only configuration continues to stop at `PACKAGE_LAUNCH_PENDING`; adding host profile IDs enables the separate launch lifecycle.
 
 ## Host configuration
 
@@ -156,8 +156,8 @@ Native tests cover valid signed resolution, signature-before-parse failure, wron
 Still required:
 
 - verified read-only public-key provisioning, rotation, and revocation;
-- persisted monotonic generation and rollback protection;
-- signed package installation and atomic catalog promotion;
+- launcher/service integration with the implemented generation store;
+- per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
 - immutable or descriptor-bound artifact use;
 - persistent replay/idempotency policy across host restart;
 - qualified heartbeat producers, window readiness events, compositor containment, reserved Home/Back, and target-Linux sandboxing;

@@ -1,6 +1,6 @@
 # Implementation record
 
-Last updated: 2026-07-19
+Last updated: 2026-07-23
 
 This file records what has actually been built and verified. It does not convert desk evidence into Raspberry Pi, ordinary x86-64 Linux, SteamOS, real-room, or product qualification.
 
@@ -543,6 +543,29 @@ This is deterministic temporal behavior on synthetic desk frames, not proof that
 ### Evidence boundary
 
 This is a reusable threat model, not a vulnerability scan or proof that every mitigation works. I-136 navigation/permission containment, I-141 key/rollback qualification, I-142 fuzzing, I-184 profile privacy review, I-209 target native-host qualification, and installer/update/import/sandbox investigations remain independently open.
+
+## 2026-07-23: signed package generation activation
+
+### Delivered
+
+- Added a host-owned package generation store with explicit `staging`, `generations`, and append-only-by-contract `activations` namespaces.
+- Promotion verifies the detached Ed25519 catalog before parsing and verifies every referenced manifest, frontend, core, base configuration, and managed-content SHA-256 before publishing durable intent.
+- Candidate generation must strictly advance the highest committed generation. Deliberate rollback must use a newer signed catalog selecting older package versions; signed trust state never decrements.
+- A synchronized, no-replace intent binds transaction ID, generation, and exact catalog digest. The verified staging directory moves within the same store filesystem, is re-verified from its final path, then a no-replace hard-link entry commits its activation marker. Competing intent publication cannot replace an owner, and recovery handles interruption after activation but before intent unlink.
+- Recovery deterministically resumes when interruption occurs either before or after the generation-directory move. An incomplete stage without durable intent remains inert.
+- Active load re-verifies the highest activation marker, signed catalog, and every artifact. Malformed newest state fails closed rather than silently falling back.
+- Package generation paths remain separate from the configured managed-content and persistent data/save roots; update tests preserve committed save bytes.
+- `PACKAGE_GENERATION_STORE.md` records D-137, layout, activation grammar, interruption states, save boundary, evidence, and unimplemented service/health/cleanup work.
+
+### Verification evidence
+
+- The Rust workspace passes 65 active library tests with four subprocess helpers ignored by the parent run, plus 12 CLI tests.
+- New tests cover first promotion, higher-generation update, equal-generation rejection, tamper before intent and after the generation move, managed-content verification, save preservation, both generation-move interruption boundaries, competing no-replace intents, activation-before-unlink recovery, repeat recovery, and corrupt-newest fail-closed behavior.
+- Rust formatting and workspace Clippy with warnings denied pass. `git diff --check` is clean.
+
+### Remaining boundary
+
+This is a library primitive, not an update service. It does not download or extract packages, reserve disk headroom, synchronize producer-written candidate files, launch provisional releases for health checks, connect the launcher to the active-generation resolver, automate bad-release rollback, rotate/revoke keys, garbage-collect old snapshots, uninstall packages, or implement the developer namespace. Unix builds synchronize marker and rename-parent directories; Windows proves only logical recovery. Real filesystem, low-space, sudden-power, immutable-mount, hostile-concurrency, and target-Linux qualification remain open.
 
 ## 2026-07-23: game trust tiers and admission lifecycle
 
