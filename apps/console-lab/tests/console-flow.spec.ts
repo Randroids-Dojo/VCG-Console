@@ -202,6 +202,11 @@ test("retro launch submits only signed package and profile intent to the host", 
             version: installedVersion,
             runtime: "libretro",
           },
+          {
+            id: "secret-diagnostic",
+            version: "1.0.0",
+            runtime: "libretro",
+          },
         ],
       };
     } else if (request.url().includes("/v1/packages/")) {
@@ -244,10 +249,13 @@ test("retro launch submits only signed package and profile intent to the host", 
   await page.goto(`/?skipBoot=1#vcg-host-port=43124&vcg-host-token=${token}`);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Candidate/ })).toBeVisible();
+  await expect(page.getByText("No retro packages installed")).toBeVisible();
 
   installedVersion = "qualification-candidate-2026-07-23";
   observed.length = 0;
   await page.getByRole("button", { name: "Home", exact: true }).click();
+  await expect(page.getByText("1 signed package installed")).toBeVisible();
+  await expect(page.getByText("secret-diagnostic")).toHaveCount(0);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Installed/ })).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();

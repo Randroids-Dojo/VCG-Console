@@ -196,7 +196,7 @@
   function installedPackageSummary(): string {
     if (nativePackageInventoryState === "checking") return "Checking signed package catalog";
     if (nativePackageInventoryState === "unavailable") return "Local package catalog unavailable";
-    const count = nativePackageInventory?.packages.length ?? 0;
+    const count = launcherCatalog.entries.filter(isCatalogEntryInstalled).length;
     return `${count} signed ${count === 1 ? "package" : "packages"} installed`;
   }
 
