@@ -1281,3 +1281,22 @@ Full workspace tests, diagnostics, build, all twenty-three Chrome flows, Godot v
 ### Remaining boundary
 
 The socket and WebSocket endpoints share one process, the shared-memory case uses a worker thread rather than cross-process ownership, and the run excludes schema parsing and camera/action work. Target Linux must rerun Unix-domain sockets and true process isolation on x86-64 and ARM64, including RSS, scheduler load, suspend/kill/reconnect, permission binding, stale-reader recovery, and identical Motion serialization. No production transport is selected.
+
+## 2026-07-24: bounded native reserved-input routing
+
+### Delivered
+
+- Added a platform-neutral native router after controller reconciliation with explicit Launcher, Game, and Console Overlay contexts.
+- Kept Home, Back, and Pause console-owned in every context while routing only directions and Select to a game.
+- Bound every release to the recipient of its press and synthesized deterministic releases before a surface transition, preventing held movement or selection from carrying into an overlay.
+- Ignored duplicate presses and orphan releases, bounded safe device identifiers before allocation, capped held state at the existing 16-controller by eight-action ceiling, and kept rejection transactional.
+- Proved a registry-synthesized disconnect release reaches the original game target and documented the exact policy and remaining native-enforcement boundary; I-150 moves to active.
+
+### Verification evidence
+
+- Focused native tests cover all reserved actions, all game-routable actions, launcher routing, context transition/rearm, duplicate/orphan denial, bounded-state rejection, and registry disconnect integration.
+- Native formatting and lint are clean; 143 Rust library tests and fourteen CLI tests pass, with five intentional subprocess helpers ignored in the primary library run.
+
+### Remaining boundary
+
+The router is privileged policy code, not a real SDL3 producer or compositor hook. It is not yet connected to host launch/runtime delivery and does not prove a hostile browser or native game cannot read physical input, capture focus, hang, or suppress the shell. SDL3 mapping, runtime delivery, compositor/service ownership, physical controllers, hostile fullscreen/pointer-lock/native tests, and ARM64/x86-64 Linux qualification remain under I-150, I-151, I-152, and I-209.

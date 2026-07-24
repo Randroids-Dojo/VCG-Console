@@ -372,6 +372,178 @@ impl fmt::Display for ControllerRegistryError {
 
 impl Error for ControllerRegistryError {}
 
+/// Console surface that currently owns ordinary, non-reserved input.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum InputContext {
+    Launcher,
+    Game,
+    ConsoleOverlay,
+}
+
+/// Trusted recipient selected by [`ReservedInputRouter`].
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum InputTarget {
+    Console,
+    Game,
+}
+
+/// One canonical event after privileged target selection.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RoutedInputEvent {
+    pub target: InputTarget,
+    pub input: InputEvent,
+}
+
+/// Maximum held-edge state accepted from trusted semantic input producers.
+///
+/// The controller registry admits at most sixteen controllers and each can
+/// hold at most the eight distinct [`ShellAction`] values.
+pub const MAX_ROUTED_HELD_ACTIONS: usize = MAX_CONNECTED_CONTROLLERS * 8;
+pub const MAX_INPUT_DEVICE_ID_BYTES: usize = 64;
+
+/// Privileged input routing that never delivers console-owned actions to a
+/// game and never carries a held edge across a surface transition.
+///
+/// This is platform-independent policy for a future SDL/compositor adapter.
+/// It is not evidence that a browser, native game, or target compositor can
+/// already be prevented from reading the underlying physical input.
+#[derive(Debug)]
+pub struct ReservedInputRouter {
+    context: InputContext,
+    held_targets: BTreeMap<(String, ShellAction), InputTarget>,
+}
+
+impl ReservedInputRouter {
+    #[must_use]
+    pub fn new(context: InputContext) -> Self {
+        Self {
+            context,
+            held_targets: BTreeMap::new(),
+        }
+    }
+
+    #[must_use]
+    pub fn context(&self) -> InputContext {
+        self.context
+    }
+
+    #[must_use]
+    pub fn held_count(&self) -> usize {
+        self.held_targets.len()
+    }
+
+    /// Routes one edge. Duplicate presses and releases without a matching
+    /// routed press are ignored so a surface cannot receive an orphan edge.
+    ///
+    /// Home, Back, and Pause are always console-owned. All other actions follow
+    /// the current surface. A release returns to the target that received its
+    /// press, even if a caller has not yet declared a context transition.
+    ///
+    /// # Errors
+    ///
+    /// Rejects a new distinct press when bounded held-edge state is full. The
+    /// existing state remains unchanged.
+    pub fn route(
+        &mut self,
+        input: InputEvent,
+    ) -> Result<Option<RoutedInputEvent>, ReservedInputRouterError> {
+        if !valid_input_device_id(&input.device_id) {
+            return Err(ReservedInputRouterError::InvalidDeviceId);
+        }
+        let key = (input.device_id.clone(), input.action);
+        if input.pressed {
+            if self.held_targets.contains_key(&key) {
+                return Ok(None);
+            }
+            if self.held_targets.len() >= MAX_ROUTED_HELD_ACTIONS {
+                return Err(ReservedInputRouterError::HeldActionCapacityExceeded);
+            }
+            let target = self.target_for_press(input.action);
+            self.held_targets.insert(key, target);
+            return Ok(Some(RoutedInputEvent { target, input }));
+        }
+
+        let Some(target) = self.held_targets.remove(&key) else {
+            return Ok(None);
+        };
+        Ok(Some(RoutedInputEvent { target, input }))
+    }
+
+    /// Changes surface ownership and releases every held action to its prior
+    /// recipient before accepting input in the new context.
+    ///
+    /// Physical buttons that remain held must release and be pressed again;
+    /// their later unmatched release is ignored. This prevents navigation,
+    /// selection, or movement from leaking through an overlay transition.
+    pub fn set_context(&mut self, context: InputContext) -> Vec<RoutedInputEvent> {
+        if context == self.context {
+            return Vec::new();
+        }
+        let releases = self.release_all();
+        self.context = context;
+        releases
+    }
+
+    /// Clears held state for shutdown, backend failure, or an authority reset.
+    pub fn release_all(&mut self) -> Vec<RoutedInputEvent> {
+        let held_targets = std::mem::take(&mut self.held_targets);
+        held_targets
+            .into_iter()
+            .map(|((device_id, action), target)| RoutedInputEvent {
+                target,
+                input: InputEvent {
+                    device_id,
+                    action,
+                    pressed: false,
+                },
+            })
+            .collect()
+    }
+
+    fn target_for_press(&self, action: ShellAction) -> InputTarget {
+        if matches!(
+            action,
+            ShellAction::Home | ShellAction::Back | ShellAction::Pause
+        ) || self.context != InputContext::Game
+        {
+            InputTarget::Console
+        } else {
+            InputTarget::Game
+        }
+    }
+}
+
+fn valid_input_device_id(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= MAX_INPUT_DEVICE_ID_BYTES
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ReservedInputRouterError {
+    InvalidDeviceId,
+    HeldActionCapacityExceeded,
+}
+
+impl fmt::Display for ReservedInputRouterError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidDeviceId => write!(
+                formatter,
+                "input device ID must be 1 to {MAX_INPUT_DEVICE_ID_BYTES} ASCII letters, digits, hyphens, or underscores"
+            ),
+            Self::HeldActionCapacityExceeded => write!(
+                formatter,
+                "routed held-action count exceeds {MAX_ROUTED_HELD_ACTIONS}"
+            ),
+        }
+    }
+}
+
+impl Error for ReservedInputRouterError {}
+
 /// Source of already canonical privileged shell input.
 ///
 /// Native controller discovery should use [`ControllerSnapshotSource`] plus
@@ -390,8 +562,9 @@ pub trait InputSource {
 mod tests {
     use super::{
         ControllerConnectionEvent, ControllerConnectionState, ControllerEvent, ControllerMapping,
-        ControllerRegistry, ControllerRegistryError, ControllerSnapshot, InputEvent,
-        MAX_CONNECTED_CONTROLLERS, ShellAction,
+        ControllerRegistry, ControllerRegistryError, ControllerSnapshot, InputContext, InputEvent,
+        InputTarget, MAX_CONNECTED_CONTROLLERS, MAX_INPUT_DEVICE_ID_BYTES, MAX_ROUTED_HELD_ACTIONS,
+        ReservedInputRouter, ReservedInputRouterError, RoutedInputEvent, ShellAction,
     };
 
     fn snapshot(
@@ -430,6 +603,301 @@ mod tests {
             action,
             pressed,
         })
+    }
+
+    fn routed(
+        device_id: &str,
+        action: ShellAction,
+        pressed: bool,
+        target: InputTarget,
+    ) -> RoutedInputEvent {
+        RoutedInputEvent {
+            target,
+            input: InputEvent {
+                device_id: device_id.to_owned(),
+                action,
+                pressed,
+            },
+        }
+    }
+
+    #[test]
+    fn reserved_actions_never_route_to_a_game() {
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        for action in [ShellAction::Home, ShellAction::Back, ShellAction::Pause] {
+            assert_eq!(
+                router
+                    .route(InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action,
+                        pressed: true,
+                    })
+                    .expect("reserved press"),
+                Some(routed(
+                    "controller-0001",
+                    action,
+                    true,
+                    InputTarget::Console
+                ))
+            );
+            assert_eq!(
+                router
+                    .route(InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action,
+                        pressed: false,
+                    })
+                    .expect("reserved release"),
+                Some(routed(
+                    "controller-0001",
+                    action,
+                    false,
+                    InputTarget::Console
+                ))
+            );
+        }
+    }
+
+    #[test]
+    fn ordinary_game_input_routes_only_while_game_context_owns_it() {
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        for action in [
+            ShellAction::Up,
+            ShellAction::Down,
+            ShellAction::Left,
+            ShellAction::Right,
+            ShellAction::Select,
+        ] {
+            assert_eq!(
+                router
+                    .route(InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action,
+                        pressed: true,
+                    })
+                    .expect("game press"),
+                Some(routed("controller-0001", action, true, InputTarget::Game))
+            );
+            assert_eq!(
+                router
+                    .route(InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action,
+                        pressed: false,
+                    })
+                    .expect("game release"),
+                Some(routed("controller-0001", action, false, InputTarget::Game))
+            );
+        }
+
+        router.set_context(InputContext::Launcher);
+        assert_eq!(
+            router
+                .route(InputEvent {
+                    device_id: "controller-0001".to_owned(),
+                    action: ShellAction::Select,
+                    pressed: true,
+                })
+                .expect("launcher press"),
+            Some(routed(
+                "controller-0001",
+                ShellAction::Select,
+                true,
+                InputTarget::Console
+            ))
+        );
+    }
+
+    #[test]
+    fn context_change_releases_prior_targets_and_requires_rearming() {
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        for action in [ShellAction::Left, ShellAction::Home] {
+            router
+                .route(InputEvent {
+                    device_id: "controller-0001".to_owned(),
+                    action,
+                    pressed: true,
+                })
+                .expect("press");
+        }
+
+        assert_eq!(
+            router.set_context(InputContext::ConsoleOverlay),
+            vec![
+                RoutedInputEvent {
+                    target: InputTarget::Game,
+                    input: InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action: ShellAction::Left,
+                        pressed: false,
+                    },
+                },
+                RoutedInputEvent {
+                    target: InputTarget::Console,
+                    input: InputEvent {
+                        device_id: "controller-0001".to_owned(),
+                        action: ShellAction::Home,
+                        pressed: false,
+                    },
+                },
+            ]
+        );
+        assert_eq!(router.held_count(), 0);
+        assert_eq!(
+            router
+                .route(InputEvent {
+                    device_id: "controller-0001".to_owned(),
+                    action: ShellAction::Left,
+                    pressed: false,
+                })
+                .expect("orphan release"),
+            None
+        );
+        assert_eq!(
+            router
+                .route(InputEvent {
+                    device_id: "controller-0001".to_owned(),
+                    action: ShellAction::Left,
+                    pressed: true,
+                })
+                .expect("rearmed press"),
+            Some(routed(
+                "controller-0001",
+                ShellAction::Left,
+                true,
+                InputTarget::Console
+            ))
+        );
+    }
+
+    #[test]
+    fn duplicate_presses_and_orphan_releases_do_not_fabricate_edges() {
+        let mut router = ReservedInputRouter::new(InputContext::Launcher);
+        let press = InputEvent {
+            device_id: "controller-0001".to_owned(),
+            action: ShellAction::Select,
+            pressed: true,
+        };
+        assert!(router.route(press.clone()).expect("first press").is_some());
+        assert_eq!(router.route(press).expect("duplicate press"), None);
+        assert_eq!(
+            router
+                .route(InputEvent {
+                    device_id: "controller-9999".to_owned(),
+                    action: ShellAction::Select,
+                    pressed: false,
+                })
+                .expect("orphan release"),
+            None
+        );
+        assert_eq!(router.held_count(), 1);
+    }
+
+    #[test]
+    fn invalid_device_ids_are_rejected_before_entering_held_state() {
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        for device_id in [
+            String::new(),
+            "controller/escape".to_owned(),
+            "x".repeat(MAX_INPUT_DEVICE_ID_BYTES + 1),
+        ] {
+            assert_eq!(
+                router.route(InputEvent {
+                    device_id,
+                    action: ShellAction::Select,
+                    pressed: true,
+                }),
+                Err(ReservedInputRouterError::InvalidDeviceId)
+            );
+        }
+        assert_eq!(router.held_count(), 0);
+    }
+
+    #[test]
+    fn routed_held_state_is_bounded_and_rejection_is_transactional() {
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        let actions = [
+            ShellAction::Up,
+            ShellAction::Down,
+            ShellAction::Left,
+            ShellAction::Right,
+            ShellAction::Select,
+            ShellAction::Back,
+            ShellAction::Home,
+            ShellAction::Pause,
+        ];
+        for controller in 0..MAX_CONNECTED_CONTROLLERS {
+            for action in actions {
+                router
+                    .route(InputEvent {
+                        device_id: format!("controller-{controller:04}"),
+                        action,
+                        pressed: true,
+                    })
+                    .expect("bounded press");
+            }
+        }
+        assert_eq!(router.held_count(), MAX_ROUTED_HELD_ACTIONS);
+        assert_eq!(
+            router.route(InputEvent {
+                device_id: "controller-overflow".to_owned(),
+                action: ShellAction::Select,
+                pressed: true,
+            }),
+            Err(ReservedInputRouterError::HeldActionCapacityExceeded)
+        );
+        assert_eq!(router.held_count(), MAX_ROUTED_HELD_ACTIONS);
+        assert_eq!(router.release_all().len(), MAX_ROUTED_HELD_ACTIONS);
+        assert_eq!(router.held_count(), 0);
+    }
+
+    #[test]
+    fn registry_disconnect_release_returns_to_the_original_game_target() {
+        let mut registry = ControllerRegistry::new();
+        let mut router = ReservedInputRouter::new(InputContext::Game);
+        let connected = registry
+            .reconcile(&[snapshot(
+                7,
+                1,
+                ControllerMapping::Standard,
+                &[ShellAction::Select],
+            )])
+            .expect("connect");
+        let press = connected
+            .into_iter()
+            .find_map(|event| match event {
+                ControllerEvent::Input(input) => Some(input),
+                ControllerEvent::Connection(_) => None,
+            })
+            .expect("press");
+        assert_eq!(
+            router.route(press).expect("route press"),
+            Some(routed(
+                "controller-0001",
+                ShellAction::Select,
+                true,
+                InputTarget::Game
+            ))
+        );
+
+        let disconnected = registry.reconcile(&[]).expect("disconnect");
+        let release = disconnected
+            .into_iter()
+            .find_map(|event| match event {
+                ControllerEvent::Input(input) => Some(input),
+                ControllerEvent::Connection(_) => None,
+            })
+            .expect("release");
+        assert_eq!(
+            router.route(release).expect("route release"),
+            Some(routed(
+                "controller-0001",
+                ShellAction::Select,
+                false,
+                InputTarget::Game
+            ))
+        );
+        assert_eq!(router.held_count(), 0);
     }
 
     #[test]

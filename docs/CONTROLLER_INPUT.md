@@ -43,13 +43,29 @@ The Rust host now adds a platform-neutral `ControllerSnapshotSource`/`Controller
 - keeps ambiguous devices visible for future guided mapping while denying them semantic shell authority; and
 - leaves all established state unchanged when any complete observation is invalid or excessive.
 
-This is the native lifecycle/edge state machine, not an SDL3 adapter or privileged compositor route. Product qualification still requires:
+## Privileged routing policy
+
+`ReservedInputRouter` consumes the canonical edges after registry reconciliation and selects a trusted recipient:
+
+| Current surface | Home / Back / Pause | Directions / Select |
+|---|---|---|
+| Launcher | Console | Console |
+| Game | Console | Game |
+| Console overlay | Console | Console |
+
+Home, Back, and Pause therefore have no route to a game in the native policy model. Pause is console-owned because it opens the console overlay; a game does not receive it as gameplay input. Motion long-X ownership remains in the separate player-session state machine.
+
+The router records the recipient of each press and returns its release to that same recipient. A surface change first emits deterministic releases for every held action and clears the epoch. A still-held physical control must release and be pressed again, preventing movement or selection from leaking through an overlay transition. Duplicate presses and releases without a routed press are ignored. Device IDs are restricted to 1-64 safe ASCII identifier bytes before allocation. Held state is capped at 128 entries, matching 16 admitted controllers times eight canonical actions; an excessive new press is rejected without mutating existing state.
+
+Registry-to-router tests prove that a synthesized disconnect release returns to the game that received its press. Separate tests cover all reserved actions, all game-routable actions, context transitions, rearming, duplicate/orphan edges, deterministic release targets, and capacity rejection.
+
+This is the native lifecycle and routing policy state machine, not an SDL3 adapter or privileged compositor route. It is not yet connected to the host launch/runtime loop. Product qualification still requires:
 
 - SDL3 discovery, mapping-database behavior, hot-plug, reconnect, sleep/wake, and simultaneous-device tests on ARM64 and x86-64 Linux;
 - explicit player assignment and controller-accessible recovery for ambiguous mappings;
 - standards-conformant generic glyph behavior and an observed compatibility table;
-- compositor- or service-owned Home and Back that hosted/native games cannot intercept;
+- wiring the router to real SDL3 input plus compositor/service ownership so hosted and native games cannot read or suppress Home, Back, or Pause;
 - pointer-lock, fullscreen, lost-focus, hung-game, and hostile-input tests;
 - battery, transport, and controller-specific limitations reported without narrowing the standards-conformant compatibility promise.
 
-Until those gates pass, browser Home/Back and Rust registry events are contract evidence only, not proof of unstealable system controls.
+Until those gates pass, browser Home/Back and Rust registry/router events are contract evidence only, not proof of unstealable system controls.
