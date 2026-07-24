@@ -472,3 +472,18 @@ Manifest validity is not qualification, redistribution authority, installation a
 ### Evidence boundary
 
 This is a reusable threat model, not a vulnerability scan or proof that every mitigation works. I-136 navigation/permission containment, I-141 key/rollback qualification, I-142 fuzzing, I-184 profile privacy review, I-209 target native-host qualification, and installer/update/import/sandbox investigations remain independently open.
+
+## 2026-07-23: game trust tiers and admission lifecycle
+
+### Delivered
+
+- `GAME_TRUST_TIERS.md` separates owner-production, manually curated community, paired developer-session, and blocked untrusted-URL authority without treating runtime, signature, public manifest validity, URL reachability, or compatibility as interchangeable with trust.
+- A tier matrix defines who may admit a release, where it can appear, its baseline containment, and mandatory visible disclosure. Local community content still uses signed production installation; developer builds remain unsigned only inside a visibly active paired namespace.
+- An immutable admission record binds exact package version/hash/target or hosted origin/deployment plus rights, content, permissions, Motion, input, recovery, network/services, storage, privacy, health, update ownership, evidence, and review scope.
+- Default-deny capability rules cover ordinary input, derived Motion, camera/microphone, network, storage, profiles, and native execution for every tier.
+- Candidate, Approved, Temporarily disabled, Revoked, and Removed are independent states with constrained transitions. Disable/revoke/removal block launch before mutation and do not silently uninstall or erase/reassociate user data.
+- Eleven abuse-test requirements cover self-promotion, version/origin drift, stale family caches, developer namespace escape, permission overgrant, hostile capture, rollback-resistant revocation, save isolation, review tamper, log redaction, and offline family operation. I-105 closes.
+
+### Remaining boundary
+
+This is the admission policy, not an implemented admission database or review service. Per-game evidence, signed installation/update, paired deployment, curated discovery, console mode UX, emergency-disable distribution, browser containment, sandboxing, and rollback qualification remain open under I-095, I-096, I-101, I-102, I-106, I-115, I-136, and I-141.

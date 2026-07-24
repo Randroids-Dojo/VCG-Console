@@ -47,6 +47,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Open-question register](docs/OPEN_QUESTIONS.md)
 - [VibeCoded game compatibility snapshot](docs/GAME_COMPATIBILITY.md)
 - [Canonical game manifest v1 contract](docs/GAME_MANIFEST_CONTRACT.md)
+- [Game trust tiers and admission lifecycle](docs/GAME_TRUST_TIERS.md)
 - [Raspberry Pi 5 and AI HAT feasibility brief](docs/RASPBERRY_PI_AI_HAT.md)
 - [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)

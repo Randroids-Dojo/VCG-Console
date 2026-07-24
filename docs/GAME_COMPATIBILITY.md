@@ -72,6 +72,8 @@ Each game receives a dated record with exact browser, console OS, hardware, comm
 
 The implemented v1 fields and compatibility policy are authoritative in [the game manifest contract](GAME_MANIFEST_CONTRACT.md). The broader inventory below remains a roadmap for later schema versions and package services. A listed field that is absent from v1 is not accepted as permission or native authority, and adding an authority-affecting field requires a new schema version.
 
+Admission and runtime compatibility are separate. [The trust-tier contract](GAME_TRUST_TIERS.md) decides whether one exact release or hosted origin may enter family mode; manifest validity or a reachable URL never assigns that trust.
+
 The current and planned vocabulary covers:
 
 - identity: schema version, stable ID, title, semantic version, publisher;
