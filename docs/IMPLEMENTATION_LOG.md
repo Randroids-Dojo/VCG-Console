@@ -378,3 +378,17 @@ This closes only authenticated discovery, not privileged launch IPC or target qu
 ### Evidence boundary
 
 I-007 closes because the acceptance criteria and evidence rules now exist. No current desk, Windows, x86-64 Linux, Raspberry Pi, Hailo, Steam Machine, camera, room, or game configuration is represented as passing. Each configuration must still produce the linked I-001/I-002/I-015/I-023/I-053/I-109/I-134/I-155/I-194/I-209/I-210 evidence before it may use the checklist's passing claim.
+
+## 2026-07-23: online/offline service contract
+
+### Delivered
+
+- `ONLINE_OFFLINE_SERVICE_MATRIX.md` classifies boot, launcher, input, tracking, Motion bridge, local games, profiles, saves, Retro, imports, networking, updates, diagnostics, time, Museum, hosted games, and optional Steam features under five explicit network classes.
+- Core launcher, tracking, controlled installed gameplay, profiles, saves, diagnostics, and Retro behavior remain offline-required. Museum/current hosted entries are network-required; updates and USB import are maintenance-only; paired LAN workflows are session-scoped rather than hidden WAN dependencies.
+- The current catalog matrix records Determined, Mi Casa Es Su Casa, and VibeBots as network-required remote experiences without inventing offline packages. The Retro 2048 candidate remains offline but uninstalled and unqualified.
+- Manifest and future host rules distinguish offline, optional, and required services; deny network permission to offline packages; keep primary gameplay offline for family-mode installed packages; and reserve signed manifest/origin resolution to the Rust host.
+- A failure matrix now covers interface loss, WAN/LAN separation, DNS, refusal, timeout, TLS, captive portals, mid-operation loss, restoration, invalid time, and interrupted maintenance with required state, timeout, recovery, cleanup, and egress evidence.
+
+### Evidence boundary
+
+I-009 closes as a contract task. Native network containment, optional-service inventory, installed-local enforcement, signed manifest resolution, update/import services, target offline runs, and the hosted game compatibility matrix remain open under their existing investigations. A cached page, Steam Offline Mode, or a LAN development server cannot satisfy the offline qualification claim.
