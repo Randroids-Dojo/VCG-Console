@@ -129,6 +129,49 @@ The real-Chrome case skips only when neither `VCG_CHROME_PATH` nor a known
 installed Chrome/Chromium path exists. A target qualification run must require
 the exact selected browser rather than accepting that skip.
 
+## Epoch top-level evidence
+
+`benchmarks/hosted-browser/epoch-top-level-windows-v1.json` records one live
+2026-07-24 Windows x64 run against
+`https://epoch-theta.vercel.app/`. The response returned HTTP 200 and retained:
+
+- `Content-Security-Policy: frame-ancestors 'self' https://randroid.dev https://www.randroid.dev`;
+- `X-Frame-Options: ALLOW-FROM https://randroid.dev`; and
+- `Content-Type: text/html; charset=utf-8`.
+
+Those headers do not authorize a VCG console origin to frame Epoch. The probe
+therefore used the selected top-level path rather than weakening or bypassing
+the deployment policy. Chrome `150.0.7871.182` loaded the exact allowlisted
+entrypoint as the sole guarded page, reported title `Epoch` and
+`document.readyState=complete`, observed no policy violation, exited with code
+0, and removed the fresh profile.
+
+The probe reuses the production policy derivation, blank-page attachment,
+navigation guard, browser shutdown, and profile cleanup. Its result contains
+only final URL, title, ready state, browser product, exit status, and cleanup
+state. It does not inspect game content or confer readiness authority.
+
+The artifact binds the exact supervisor, live generator, and strict validator
+SHA-256 values. Eight mutation tests reject framing authorization, altered
+headers or origins, weakened load/cleanup facts, fabricated play/controller/
+participant evidence, playability promotion, stale provenance, and unknown
+fields. Routine tests validate the recorded artifact; the live network and
+Chrome generator is deliberately an explicit evidence-capture action frozen
+to the dated artifact:
+
+```sh
+pnpm validate:epoch-top-level
+pnpm exec tsx scripts/generate-epoch-top-level-evidence.mjs
+```
+
+Evidence captured after 2026-07-24 requires a versioned successor rather than
+silently overwriting the date and claim boundary of this record.
+
+I-090 is closed at the framing-mode boundary. Q-046, Q-048, Q-049, and I-180
+remain open for unstealable target-compositor Home/Back, hostile capture and
+failure recovery, hands-on controller playability, explicit game readiness,
+and ARM64/x86-64 Linux evidence.
+
 ## Residual boundary
 
 This tranche does not yet prove:

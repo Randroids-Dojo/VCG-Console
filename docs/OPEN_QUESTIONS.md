@@ -1,6 +1,6 @@
 # Open-question register
 
-Last updated: 2026-07-22
+Last updated: 2026-07-24
 
 Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible alpha, P2 informs later quality or distribution. `Owner` is the role needed, not an assigned person.
 
@@ -51,7 +51,7 @@ Priority meanings: P0 blocks the first living-room proof, P1 blocks a credible a
 |---|---:|---|---|---|---|
 | Q-046 | P0 | How does a player reliably exit pointer-lock and full-screen games? | Existing games may capture all ordinary input. | Reserve a controller chord or remote Home action at the compositor level. | Platform/UX |
 | Q-047 | P0 | Which browser engine and kiosk wrapper behave best on ARM64 and x86-64? | Gamepad, WebGL, audio autoplay, storage, and updates differ. | Test Chromium/Cage, Gamescope browser, and any Electron/WPE option with a fixed matrix. | Platform/web |
-| Q-048 | P0 | How should Epoch launch while its CSP excludes the console origin? | It is a known current catalog incompatibility. | Choose top-level launch or update its `frame-ancestors`; verify security and exit behavior. | Web/game owner |
+| Q-048 | P0 | Can Epoch's selected supervised top-level mode preserve unstealable Home/Back and safe exit on the target kiosk? | A 2026-07-24 Windows x64 probe verified exact-origin containment, complete document load, clean process exit, and profile removal without weakening Epoch's restrictive framing headers. It did not exercise compositor-owned recovery controls. | Run the Q-046/Q-079 hostile full-screen, pointer-lock, focus, hang, and crash recovery matrix on the selected Linux compositor and browser; keep iframe launch rejected unless Epoch deliberately authorizes the console origin. | Platform/UX/web |
 | Q-049 | P0 | Which existing games require keyboard, mouse, touch, auth, or network services? | A TV-only game can load successfully but still be unplayable. | Complete the 26-game hands-on matrix with controller and remote only. | QA/game owners |
 | Q-050 | P0 | How will trusted web games receive motion events? | This is the shortest path to custom body games. | Prototype handshake, origin allowlist, JSON schema, rate limits, reconnect, and sample client. | SDK/security |
 | Q-051 | P1 | Which games can legally and technically become offline bundles? | Offline appliance behavior cannot be assumed from public URLs. | Add license, build, service dependency, assets, and service-worker audits per game. | Legal/game owners |

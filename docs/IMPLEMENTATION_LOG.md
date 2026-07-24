@@ -3768,3 +3768,46 @@ OS suspend test, tracker-process isolation, selected native transport, target
 Linux evidence, product resource budget, or full latency/recovery result.
 Q-241 and repeated ARM64/x86-64 target campaigns under the actual
 tracker/renderer/compositor/service-manager topology remain required.
+
+## 2026-07-24: Epoch supervised top-level load evidence
+
+### Delivered
+
+- Added a bounded `probeHostedBrowserTopLevelLoad` helper that reuses the
+  hosted-browser policy derivation, blank-target attachment, active
+  navigation guard, browser shutdown, and ephemeral-profile cleanup.
+- Fixed the supervisor's load-event boundary so each `Page.navigate` receives
+  a fresh promise. The prior shared promise could be satisfied by Chrome's
+  startup `about:blank` load before the reviewed entrypoint navigation.
+- Captured one live Windows x64 Chrome `150.0.7871.182` observation of
+  `https://epoch-theta.vercel.app/`.
+- Preserved the exact restrictive CSP and X-Frame-Options response rather than
+  proxying, stripping, or weakening them. The evidence uses top-level
+  navigation and does not claim that VCG framing is permitted.
+- Added a 64 KiB-bounded hash-bound artifact, strict validator, eight mutation
+  tests, a detailed evidence report, and an offline root validation command.
+
+### Verification evidence
+
+- Epoch returned HTTP 200 with
+  `frame-ancestors 'self' https://randroid.dev https://www.randroid.dev` and
+  `X-Frame-Options: ALLOW-FROM https://randroid.dev`.
+- The sole guarded page retained the exact reviewed HTTPS entrypoint, reported
+  title `Epoch` and `document.readyState=complete`, and triggered zero policy
+  violations.
+- Chrome exited with code 0 and the fresh temporary profile was removed.
+- The artifact records one HTTP success and one top-level load, but zero play
+  tests, controller tests, or participants.
+- Eight adversarial cases reject framing authorization, header/origin drift,
+  weakened load/cleanup facts, fabricated play/controller/recovery evidence,
+  playability promotion, stale provenance, and unknown fields.
+
+### Remaining boundary
+
+I-090 is closed only at the framing-mode boundary. Epoch remains ineligible for
+VCG-origin embedding, and this result does not qualify game readiness or
+playability. Q-046 and Q-048 still require compositor-owned Home/Back and
+hostile full-screen, pointer-lock, focus, hang, and crash recovery on the
+selected Linux browser lane. Q-049 still requires controller-only hands-on
+play. I-180 remains active for the native-host, service-manager, browser
+policy, and ARM64/x86-64 Linux evidence.

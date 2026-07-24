@@ -9,6 +9,7 @@ import WebSocket, { type RawData } from "ws";
 const MAX_ALLOWED_ORIGINS = 8;
 const MAX_CDP_MESSAGE_BYTES = 1_048_576;
 const MAX_CDP_PENDING_COMMANDS = 128;
+const MAX_TOP_LEVEL_PROBE_URL_LENGTH = 4_096;
 const CDP_COMMAND_TIMEOUT_MS = 5_000;
 const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
 const DENIED_BROWSER_PERMISSIONS = Object.freeze([
@@ -85,6 +86,16 @@ export interface HostedBrowserStatus {
 export interface HostedBrowserContainmentProbeResult {
   readonly attempt: HostedBrowserContainmentProbeAttempt;
   readonly violation: HostedBrowserViolation;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+export interface HostedBrowserTopLevelProbeResult {
+  readonly loaded: true;
+  readonly finalUrl: string;
+  readonly title: string;
+  readonly readyState: "interactive" | "complete";
+  readonly browserProduct: string;
   readonly exitCode: number | null;
   readonly signal: NodeJS.Signals | null;
 }
@@ -755,13 +766,202 @@ export async function probeHostedBrowserContainment(
   }
 }
 
+/**
+ * Loads one reviewed HTTPS entrypoint as the only top-level page through the
+ * same blank-profile CDP guard used by the supervisor.
+ *
+ * This is a bounded desk evidence helper, not readiness or playability
+ * authority. It returns only document identity/readiness metadata, closes the
+ * browser, and removes the branded temporary profile before resolving.
+ */
+export async function probeHostedBrowserTopLevelLoad(
+  browserPath: string,
+  profilePath: string,
+  policy: HostedBrowserPolicy,
+): Promise<HostedBrowserTopLevelProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  const child = spawn(
+    browserPath,
+    [
+      ...buildHostedBrowserArguments(profilePath),
+      "--headless=new",
+      "--disable-gpu",
+    ],
+    {
+      detached: process.platform !== "win32",
+      stdio: "ignore",
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  let connection: CdpConnection | undefined;
+  let violation: HostedBrowserViolation | undefined;
+  let resolveViolation: (
+    value: HostedBrowserViolation,
+  ) => void = () => undefined;
+  const observedViolation = new Promise<HostedBrowserViolation>((resolve) => {
+    resolveViolation = resolve;
+  });
+  try {
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      policy,
+      (value) => {
+        if (violation !== undefined) return;
+        violation = value;
+        resolveViolation(value);
+      },
+      () => undefined,
+    );
+    await ready.navigate();
+    const outcome = await withDeadline(
+      Promise.race([
+        ready.loaded.then(() => ({ kind: "loaded" as const })),
+        observedViolation.then((value) => ({
+          kind: "violation" as const,
+          value,
+        })),
+        childExit.then((exit) => ({ kind: "exit" as const, exit })),
+      ]),
+      policy.launchTimeoutMs,
+      "top-level browser probe did not finish its initial document load",
+    );
+    if (outcome.kind === "violation") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${outcome.value.code}`,
+      );
+    }
+    if (outcome.kind === "exit") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe exited before load: ${String(outcome.exit.code)}/${String(outcome.exit.signal)}`,
+      );
+    }
+    if (violation !== undefined) {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${violation.code}`,
+      );
+    }
+    let state: Record<string, unknown> | undefined;
+    let interactiveState: Record<string, unknown> | undefined;
+    const documentStateDeadline = Date.now() + 2_000;
+    while (Date.now() <= documentStateDeadline) {
+      const serializedState = await ready.evaluate(`JSON.stringify({
+        finalUrl: window.location.href,
+        title: document.title,
+        readyState: document.readyState
+      })`);
+      if (
+        typeof serializedState !== "string"
+        || serializedState.length === 0
+        || serializedState.length > 8_192
+      ) {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned invalid serialized state",
+        );
+      }
+      let candidate: unknown;
+      try {
+        candidate = JSON.parse(serializedState);
+      } catch {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned malformed serialized state",
+        );
+      }
+      if (!isRecord(candidate)) {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned invalid document state",
+        );
+      }
+      const candidateReadyState = stringField(candidate, "readyState");
+      if (candidateReadyState === "complete") {
+        state = candidate;
+        break;
+      }
+      if (candidateReadyState === "interactive") {
+        interactiveState = candidate;
+      }
+      await delay(50);
+    }
+    state ??= interactiveState;
+    if (state === undefined) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe document did not become ready",
+      );
+    }
+    if (violation !== undefined) {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${violation.code}`,
+      );
+    }
+    const finalUrl = stringField(state, "finalUrl");
+    const title = stringField(state, "title");
+    const readyState = stringField(state, "readyState");
+    if (
+      finalUrl === undefined
+      || finalUrl.length === 0
+      || finalUrl.length > MAX_TOP_LEVEL_PROBE_URL_LENGTH
+      || !policy.allowedOrigins.includes(new URL(finalUrl).origin)
+    ) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe returned an unapproved final URL",
+      );
+    }
+    if (title === undefined || title.length > 512) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe title is too long",
+      );
+    }
+    if (readyState !== "interactive" && readyState !== "complete") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe document is not ready: ${String(readyState)}`,
+      );
+    }
+    const browserVersion = await connection.send("Browser.getVersion");
+    const browserProduct = stringField(browserVersion, "product");
+    if (
+      browserProduct === undefined
+      || browserProduct.length === 0
+      || browserProduct.length > 128
+      || !/^[A-Za-z][A-Za-z0-9 ._-]*\/\d+\.\d+\.\d+\.\d+$/.test(
+        browserProduct,
+      )
+    ) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe browser product is invalid",
+      );
+    }
+    const exit = await stopBrowserProcess(connection, child, childExit);
+    return Object.freeze({
+      loaded: true as const,
+      finalUrl,
+      title,
+      readyState,
+      browserProduct,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      await stopBrowserProcess(connection, child, childExit);
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
 async function superviseCdpSession(
   connection: CdpConnection,
   policy: HostedBrowserPolicy,
   onViolation: ViolationListener,
   onMainTargetClosed: () => void,
 ): Promise<{
-  readonly evaluate: (expression: string) => Promise<void>;
+  readonly evaluate: (expression: string) => Promise<unknown>;
   readonly loaded: Promise<void>;
   readonly navigate: (url?: string) => Promise<void>;
 }> {
@@ -769,9 +969,13 @@ async function superviseCdpSession(
   let guard: HostedBrowserNavigationGuard | undefined;
   let mainSessionId: string | undefined;
   let resolveLoaded: (() => void) | undefined;
-  const loaded = new Promise<void>((resolve) => {
-    resolveLoaded = resolve;
-  });
+  let loaded: Promise<void>;
+  const resetLoaded = () => {
+    loaded = new Promise<void>((resolve) => {
+      resolveLoaded = resolve;
+    });
+  };
+  resetLoaded();
   const reportViolation = (value: HostedBrowserViolation | undefined) => {
     if (value !== undefined) onViolation(value);
   };
@@ -907,9 +1111,13 @@ async function superviseCdpSession(
           "hosted browser probe expression failed",
         );
       }
+      return objectField(result, "result")?.value;
     },
-    loaded,
+    get loaded() {
+      return loaded;
+    },
     navigate: async (url = policy.entrypoint) => {
+      resetLoaded();
       guard?.beginNavigation();
       const result = await connection.send(
         "Page.navigate",
