@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, the canonical input boundary, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package intake, strict installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, and a contained RetroArch launch adapter. It does not yet claim a network update client/service, SDL3, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, durable resumable package receipt, signature-first bounded package intake, strict installed-package resolution, crash-recoverable package-generation activation, idempotent profile-allowlisted launch/cancel lifecycle, and a contained RetroArch launch adapter. It does not yet claim a network update client/service, SDL3, compositor-reserved input, compositor readiness, navigation containment, persistent profile storage, RetroArch artifact/window qualification, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -92,7 +92,7 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 
 ## Boundary
 
-- `input`: language-neutral shell actions and the adapter trait that SDL3 will implement.
+- `input`: language-neutral shell actions, transactional bounded controller reconciliation, opaque session IDs, mapping confidence, deterministic edges/releases, and the complete-snapshot adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.

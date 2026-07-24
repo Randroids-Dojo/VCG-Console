@@ -33,7 +33,17 @@ The prototype identity is the browser session's index plus ID and mapping. It is
 
 ## Native qualification boundary
 
-The Rust `InputSource` and `ShellAction` types preserve the intended native seam, but the SDL3 adapter remains unimplemented. Product qualification still requires:
+The Rust host now adds a platform-neutral `ControllerSnapshotSource`/`ControllerRegistry` seam beside canonical `InputEvent` and `ShellAction`. A privileged adapter supplies a complete observation bounded to 16 controllers. The registry:
+
+- validates the whole observation before mutation and rejects duplicate backend instances, zero connection epochs, duplicate semantic actions, or semantic input from an ambiguous mapping;
+- assigns only opaque session-local `controller-NNNN` IDs, never adapter names, serials, paths, or backend instance IDs;
+- reconciles in backend-order-independent form and emits deterministic press/release edges;
+- treats a changed connection epoch or mapping as disconnect then connect with a new opaque ID;
+- synthesizes releases before disconnect so Home, Back, Pause, or another action cannot remain held after disappearance, shutdown, sleep, or backend fault;
+- keeps ambiguous devices visible for future guided mapping while denying them semantic shell authority; and
+- leaves all established state unchanged when any complete observation is invalid or excessive.
+
+This is the native lifecycle/edge state machine, not an SDL3 adapter or privileged compositor route. Product qualification still requires:
 
 - SDL3 discovery, mapping-database behavior, hot-plug, reconnect, sleep/wake, and simultaneous-device tests on ARM64 and x86-64 Linux;
 - explicit player assignment and controller-accessible recovery for ambiguous mappings;
@@ -42,4 +52,4 @@ The Rust `InputSource` and `ShellAction` types preserve the intended native seam
 - pointer-lock, fullscreen, lost-focus, hung-game, and hostile-input tests;
 - battery, transport, and controller-specific limitations reported without narrowing the standards-conformant compatibility promise.
 
-Until those gates pass, browser Home and Back are functional prototype actions only.
+Until those gates pass, browser Home/Back and Rust registry events are contract evidence only, not proof of unstealable system controls.

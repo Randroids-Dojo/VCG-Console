@@ -843,6 +843,27 @@ This fixture does not prove every CSP/sandbox/browser combination or trust arbit
 
 Browser input is still cooperative page input. Native SDL3 discovery/mapping, real controllers/transports, player assignment, glyphs, ambiguity UI, battery and sleep/wake behavior, compositor-owned Home/Back, hostile focus/fullscreen tests, and both target tiers remain open under I-150 through I-152.
 
+## 2026-07-24: native controller lifecycle reconciliation
+
+### Delivered
+
+- Added a platform-neutral complete-snapshot source contract for a future SDL3 adapter without exposing SDL handles, names, serials, paths, or binding types.
+- Added a transactional registry bounded to 16 simultaneous observations. It validates duplicates, connection epochs, semantic action uniqueness, and mapping confidence before changing established state.
+- Assigned opaque session-only controller IDs in deterministic backend-instance order. Disconnect/reconnect or connection-epoch/mapping replacement creates a fresh identity and action-edge epoch.
+- Added deterministic press and release events. Disappearance, shutdown, sleep, or an explicit backend-fault reset synthesizes every release before disconnect so privileged actions cannot remain logically held.
+- Ambiguous devices remain visible for future controller-accessible mapping UX but cannot publish Select, Back, Home, Pause, or other semantic actions.
+- No new product choice was made; this implements more of D-116/D-123 while retaining Q-067 and Q-101 for real mapping and system ownership.
+
+### Verification evidence
+
+- Six new Rust tests cover order-independent discovery, edge-only updates, synthetic release and reconnect rearming, same-instance replacement ordering, ambiguous-mapping denial, transactional invalid/excessive observation rejection, and shutdown/restart lifecycle.
+- Rust formatting and Clippy with warnings denied pass. The Rust workspace contains 130 active library tests with five subprocess helpers ignored by the parent run, plus 14 CLI tests.
+- The RustSec advisory scan reports no known vulnerable dependency in the locked 43-crate graph.
+
+### Remaining boundary
+
+This is adapter-independent state, not SDL3 or Steam Input qualification. Exact bindings/mapping database, real USB/Bluetooth/receiver devices, player assignment, generic glyphs, guided ambiguous mapping, battery and sleep/wake observation, compositor-owned Home/Back, hostile-focus/fullscreen/hang tests, and ARM64/x86-64 Linux evidence remain open under I-150 through I-152 and I-209.
+
 ## 2026-07-24: pre-registered household motion benchmark
 
 ### Delivered

@@ -47,6 +47,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("native-launch-replay: durable-bounded-fail-closed");
             println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
+            println!("controller-registry: bounded-opaque-lifecycle");
             println!("sdl3-input: adapter pending target-Linux qualification");
             Ok(ExitCode::SUCCESS)
         }
