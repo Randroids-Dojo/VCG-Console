@@ -27,6 +27,7 @@ Bridge protocol v1 and Motion API `0.2.0` or earlier are incompatible with this 
 - The host verifies both `event.origin` and the source window. The client likewise verifies its configured console origin and target window.
 - Clients receive only negotiated profiles. Rich landmarks, world coordinates, and action families are removed unless granted.
 - Publication is bounded per session and drops excess frames rather than accumulating a latency-producing queue.
+- Distinct source-window sessions default to a maximum of 16 and may be configured only from 1 through 64. A reconnect may replace its own source session at the bound; another window receives an explicit rejection.
 - Health delivery is out of band from frame acknowledgements, uses a closed reason/control vocabulary, and carries no arbitrary provider error text.
 - The bridge carries Motion API frames only. Raw camera images, `ImageBitmap` objects, audio, and camera controls are outside the wire schema.
 - Action projection follows [the standardized action contract](MOTION_ACTIONS_V1.md): each action belongs to exactly one granted profile, and only `triggered` is side-effecting. Lifecycle feedback remains visible to a client only when that action family was negotiated.
@@ -63,6 +64,8 @@ A complete typed example lives in `packages/motion-web-bridge/examples/sample-cl
 
 ## Verification scope
 
-Automated tests cover successful and rejected negotiation, legacy bridge and mismatched Motion-schema refusal before session creation, exact-version client retry, welcome-time and ordered out-of-band health, health/frame source-state binding, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive welcome health plus overload/recovery transitions and frames, reconnect after reload, deny an origin-drift handshake and publication, then renegotiate with current health when the allowlisted game returns.
+Automated tests cover successful and rejected negotiation, legacy bridge and mismatched Motion-schema refusal before session creation, exact-version client retry, welcome-time and ordered out-of-band health, health/frame source-state binding, sibling-window spoof/stolen-session denial, bounded session admission, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive welcome health plus overload/recovery transitions and frames, reconnect after reload, deny an origin-drift handshake and publication, then renegotiate with current health when the allowlisted game returns.
+
+The complete abuse-case inventory and residual-risk boundary is in [the Motion security review](MOTION_SECURITY_REVIEW.md).
 
 Still required: broader CSP/sandbox/browser-policy combinations, redirects and hostile same-origin code, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.

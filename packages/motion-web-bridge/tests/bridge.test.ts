@@ -110,7 +110,12 @@ function readyHealth(sequence = 0, occurredAtMs = 0): TrackerHealthEvent {
   };
 }
 
-function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?: number; now?: () => number } = {}) {
+function connectedPair(options: {
+  maximumFramesPerSecond?: number;
+  maximumSessions?: number;
+  sessionTtlMs?: number;
+  now?: () => number;
+} = {}) {
   const link = fakeLink();
   const host = new MotionBridgeHost({
     receiver: link.hostReceiver,
@@ -118,6 +123,7 @@ function connectedPair(options: { maximumFramesPerSecond?: number; sessionTtlMs?
     capabilities,
     initialHealth: readyHealth(),
     ...(options.maximumFramesPerSecond === undefined ? {} : { maximumFramesPerSecond: options.maximumFramesPerSecond }),
+    ...(options.maximumSessions === undefined ? {} : { maximumSessions: options.maximumSessions }),
     ...(options.sessionTtlMs === undefined ? {} : { sessionTtlMs: options.sessionTtlMs }),
     ...(options.now === undefined ? {} : { now: options.now }),
   });
@@ -205,6 +211,96 @@ describe("Motion web bridge", () => {
     client.reconnect();
     expect(receivedHealth.at(-1)).toEqual(restarting);
     expect(host.stats().publishedHealthEvents).toBe(2);
+  });
+
+  it("rejects sibling-window server spoofing and stolen-session goodbye", () => {
+    const {
+      client,
+      host,
+      hostReceiver,
+      gameReceiver,
+      gameOrigin,
+      consoleOrigin,
+      receivedHealth,
+    } = connectedPair();
+    const stolenSessionId = client.sessionId;
+    expect(stolenSessionId).toBeDefined();
+    const siblingTarget: BridgePostTarget = { postMessage: () => undefined };
+    const spoofedHealth: TrackerHealthEvent = {
+      schemaVersion: MOTION_API_SCHEMA_VERSION,
+      sequence: 99,
+      source: "synthetic",
+      occurredAtMs: 99,
+      status: "fault",
+      reason: "backend-fault",
+      controlAvailability: "blocked",
+    };
+
+    gameReceiver.dispatch({
+      origin: consoleOrigin,
+      source: siblingTarget,
+      data: {
+        type: "vcg.motion.health",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId: stolenSessionId,
+        event: spoofedHealth,
+      },
+    });
+    expect(receivedHealth).toEqual([readyHealth()]);
+
+    hostReceiver.dispatch({
+      origin: gameOrigin,
+      source: siblingTarget,
+      data: {
+        type: "vcg.motion.goodbye",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        sessionId: stolenSessionId,
+      },
+    });
+    expect(host.publish(frame())).toBe(1);
+  });
+
+  it("bounds distinct allowlisted sessions without blocking same-window reconnect", () => {
+    for (const maximumSessions of [0, 1.5, 65]) {
+      const invalidLink = fakeLink();
+      expect(() =>
+        new MotionBridgeHost({
+          receiver: invalidLink.hostReceiver,
+          allowedOrigins: [invalidLink.gameOrigin],
+          capabilities,
+          initialHealth: readyHealth(),
+          maximumSessions,
+        }),
+      ).toThrow(/maximumSessions/);
+    }
+
+    const { client, host, hostReceiver, gameOrigin } = connectedPair({ maximumSessions: 1 });
+    client.reconnect();
+    expect(host.stats().acceptedConnections).toBe(2);
+
+    const replies: unknown[] = [];
+    const secondWindow: BridgePostTarget = {
+      postMessage: (message) => replies.push(message),
+    };
+    hostReceiver.dispatch({
+      origin: gameOrigin,
+      source: secondWindow,
+      data: {
+        type: "vcg.motion.hello",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        motionApiSchemaVersion: MOTION_API_SCHEMA_VERSION,
+        clientId: "second-window",
+        request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
+      },
+    });
+
+    expect(replies).toEqual([{
+      type: "vcg.motion.rejected",
+      protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+      reason: "protocol-error",
+    }]);
+    expect(host.stats()).toMatchObject({ acceptedConnections: 2, rejectedConnections: 1 });
+    expect(host.publish(frame())).toBe(1);
   });
 
   it("rejects bridge v1 and mismatched Motion schemas before creating a session", () => {

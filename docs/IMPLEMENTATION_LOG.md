@@ -1024,3 +1024,23 @@ The selected living room still needs its exact survey and marked zone. Anchor su
 ### Remaining boundary
 
 The low-confidence and overload states are contract/UI fixtures, not measured thresholds. Real camera disconnect/reconnect, sustained overload, fallback qualification, per-limb loss, freeze/pause behavior, accessibility comprehension, and ARM64/x86-64 timing remain under I-063, I-134, I-161, I-208, I-210, and Q-039.
+
+## 2026-07-24: Motion service and bridge abuse review
+
+### Delivered
+
+- Added a dedicated browser Motion data-flow and trust-boundary review covering raw capture, worker inference, derived frames/actions/health, profile projection, bridge sessions, acknowledgements, and trace export.
+- Recorded eleven enforceable invariants and eighteen abuse cases with current mitigation, evidence, and residual risk.
+- Added negative proof that a correct-origin sibling window cannot spoof server health to a client or terminate another window's session with a copied session ID.
+- Bounded distinct allowlisted source-window sessions to 16 by default and at most 64. Excess windows receive explicit rejection, while the already-known source can still replace its own session during reconnect.
+- Kept compromised approved same-origin code, shell XSS, OS/GPU leakage, browser containment, admission/revocation, diagnostics, and native transport as explicit residual boundaries.
+- I-083 closes as a threat-model artifact; I-084 remains active for timed soak, stalls, churn, memory telemetry, and native IPC.
+
+### Verification evidence
+
+- Eighteen focused bridge tests pass, including origin/source confusion, stolen session, capability/profile projection, version binding, health ordering, session bounds, frame flood, acknowledgement, expiry, and reconnect cases.
+- Bridge typechecking passes with the bounded-session option and exported limits.
+
+### Remaining boundary
+
+This is a design-and-desk-test review, not production browser or native isolation. Same-origin compromise is intentionally not described as mitigated by an allowlist. Hostile popup/download/fullscreen/permission flows, emergency revocation, real resource exhaustion, native transport, OS-level body-data leakage, and redacted support tooling remain under I-076, I-084, I-115, I-116, I-134, I-136, I-141, I-180, and I-208.

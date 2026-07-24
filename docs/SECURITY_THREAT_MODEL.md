@@ -87,6 +87,8 @@ Relevant classes include XSS in the trusted shell, compromised approved origins,
 
 Exact origin/source checks, schema/version validation, requested-capability negotiation, data projection, per-session IDs, ACK gating, rate limits, and expiry materially constrain the cooperative bridge. The hosted supervisor validates the initial and redirected health-check origin and uses a private browser profile, but it does not yet contain navigation after launch.
 
+[`MOTION_SECURITY_REVIEW.md`](MOTION_SECURITY_REVIEW.md) supplies the current Motion-specific data-flow diagram, trust assumptions, security invariants, abuse matrix, test evidence, and residual-risk boundary. It also records the default-16/hard-64 distinct-session bound and proves that a correct-origin sibling window cannot spoof server health or terminate another source window by copying its session ID.
+
 Threat tests should include hostile same-window and sibling-window messages, allowed-origin compromise, redirects after readiness, pop-ups, downloads, custom schemes, `file:` attempts, permission requests, pointer lock, nested full-screen, focus theft, storage persistence, high-rate messages, hung renderers, and reserved Home/Back during each state. Approval and emergency revocation must be version/origin scoped rather than a permanent endorsement.
 
 ### Loopback host and privileged launch IPC

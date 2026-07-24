@@ -13,6 +13,9 @@ import {
 import { BridgeClientMessageSchema, MOTION_BRIDGE_PROTOCOL_VERSION, type BridgeServerMessage } from "./protocol";
 import type { BridgeMessageEvent, BridgeMessageListener, BridgeMessageReceiver, BridgePostTarget } from "./window-types";
 
+export const DEFAULT_MAXIMUM_BRIDGE_SESSIONS = 16;
+export const MAXIMUM_BRIDGE_SESSIONS_LIMIT = 64;
+
 interface Session {
   id: string;
   clientId: string;
@@ -39,6 +42,7 @@ export interface MotionBridgeHostOptions {
   allowedOrigins: readonly string[];
   capabilities: MotionCapabilities;
   initialHealth: TrackerHealthEvent;
+  maximumSessions?: number;
   maximumFramesPerSecond?: number;
   sessionTtlMs?: number;
   now?: () => number;
@@ -56,6 +60,7 @@ export class MotionBridgeHost {
   readonly #capabilities: MotionCapabilities;
   #currentHealth: TrackerHealthEvent;
   readonly #minimumFrameIntervalMs: number;
+  readonly #maximumSessions: number;
   readonly #sessionTtlMs: number;
   readonly #now: () => number;
   readonly #sessions = new Map<BridgePostTarget, Session>();
@@ -80,6 +85,14 @@ export class MotionBridgeHost {
     if (this.#allowedOrigins.size === 0) throw new Error("Motion bridge requires at least one allowed origin");
     this.#capabilities = MotionCapabilitiesSchema.parse(options.capabilities);
     this.#currentHealth = TrackerHealthEventSchema.parse(options.initialHealth);
+    this.#maximumSessions = options.maximumSessions ?? DEFAULT_MAXIMUM_BRIDGE_SESSIONS;
+    if (
+      !Number.isSafeInteger(this.#maximumSessions) ||
+      this.#maximumSessions < 1 ||
+      this.#maximumSessions > MAXIMUM_BRIDGE_SESSIONS_LIMIT
+    ) {
+      throw new Error(`maximumSessions must be an integer from 1 through ${MAXIMUM_BRIDGE_SESSIONS_LIMIT}`);
+    }
     const maximumFramesPerSecond = options.maximumFramesPerSecond ?? 60;
     if (!Number.isFinite(maximumFramesPerSecond) || maximumFramesPerSecond <= 0 || maximumFramesPerSecond > 240) {
       throw new Error("maximumFramesPerSecond must be between 0 and 240");
@@ -203,6 +216,16 @@ export class MotionBridgeHost {
         protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
         reason: "capability-mismatch",
         negotiation,
+      });
+      return;
+    }
+
+    if (!this.#sessions.has(event.source) && this.#sessions.size >= this.#maximumSessions) {
+      this.#stats.rejectedConnections += 1;
+      this.#send(event.source, event.origin, {
+        type: "vcg.motion.rejected",
+        protocolVersion: MOTION_BRIDGE_PROTOCOL_VERSION,
+        reason: "protocol-error",
       });
       return;
     }
