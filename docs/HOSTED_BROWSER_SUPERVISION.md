@@ -58,7 +58,11 @@ connects to DevTools, requires exactly one blank `about:` or Chrome new-tab
 page, attaches to it, enables page events, disables downloads, resets browser
 permission grants, and explicitly denies camera, microphone, geolocation,
 MIDI, and notifications for every allowed origin. Only then does it send the
-reviewed entrypoint through `Page.navigate`.
+reviewed entrypoint through `Page.navigate`. While waiting within the same
+fixed startup deadline, it retries only an absent `DevToolsActivePort` file or
+a transient Windows `EBUSY` lock on that file. Oversized/malformed endpoint
+bytes, other filesystem errors, browser exit, and deadline exhaustion still
+fail closed.
 
 On normal close, abort, failure, or violation, cleanup first requests
 `Browser.close`. Windows development fallback terminates the exact spawned PID
@@ -93,11 +97,12 @@ game-ready, compositor-ready, interactive, or healthy.
 
 ## Automated evidence
 
-Fifteen focused cases cover:
+Sixteen focused cases cover:
 
 - strict policy derivation and immutability;
 - runtime, ID, origin, credential, duplicate, bound, timeout, entrypoint, and
   health authority rejection;
+- bounded retry of one transiently locked DevTools endpoint file;
 - allowed same-origin and reviewed multi-origin navigation;
 - malformed, downgraded, credentialed, subdomain, foreign, `file:`, `data:`,
   and `chrome:` refusal;

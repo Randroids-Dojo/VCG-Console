@@ -52,6 +52,14 @@ reviewed navigation. The supervisor now creates a fresh load promise
 immediately before every `Page.navigate`. The final evidence therefore binds
 the load signal to the Epoch navigation rather than the blank startup target.
 
+The later integrated gate exposed a separate Windows startup race:
+`DevToolsActivePort` existed but was transiently locked with `EBUSY`. The
+supervisor now retries only that lock and ordinary pre-creation `ENOENT` within
+the unchanged bounded deadline. A deterministic unit case and the three real
+Chrome containment probes pass. The live Epoch artifact was reproduced on the
+same evidence date so its provenance binds the exact corrected supervisor;
+its narrow HTTP/load/cleanup facts did not change.
+
 ## Recorded artifact
 
 The authoritative record is

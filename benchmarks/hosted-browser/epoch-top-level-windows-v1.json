@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-24",
   "evidenceClass": "live-windows-x64-supervised-top-level-load",
   "qualification": "top-level-load-only-not-playability",
-  "retrievedAtUtc": "2026-07-24T20:34:48.525Z",
+  "retrievedAtUtc": "2026-07-24T21:33:46.179Z",
   "environment": {
     "platform": "win32",
     "architecture": "x64",
@@ -58,7 +58,7 @@
   },
   "provenance": {
     "supervisorPath": "scripts/hosted-browser-supervisor.ts",
-    "supervisorPathSha256": "2029ed1b7cab1f552cc2920a037329404728f0a81e8746707e32b9f99a8e3df5",
+    "supervisorPathSha256": "e006feb2ae8c29902964de6a9285fb9fdf7472efdbdac781fd956a0e37b8394a",
     "generatorPath": "scripts/generate-epoch-top-level-evidence.mjs",
     "generatorPathSha256": "9af4c0c92b662a1366233ab75df8015be3b8dee822d215febc27c3018c9eac70",
     "validatorPath": "scripts/validate-epoch-top-level-evidence.mjs",

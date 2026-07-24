@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import type { ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -13,6 +14,7 @@ import {
   requireHealthyHostedEndpoint,
   type HostedBrowserManifestInput,
   validateHostedBrowserProfilePath,
+  waitForDevToolsEndpoint,
 } from "./hosted-browser-supervisor";
 
 function installedChromePath(): string | undefined {
@@ -407,6 +409,40 @@ describe("hosted browser health check", () => {
 });
 
 describe("hosted browser process arguments", () => {
+  it("retries a transiently locked DevTools endpoint file", async () => {
+    const child = {
+      exitCode: null,
+      signalCode: null,
+    } as ChildProcess;
+    let reads = 0;
+    const endpoint = await waitForDevToolsEndpoint(
+      "C:/bounded-profile",
+      child,
+      250,
+      async (path) => {
+        assert.equal(
+          path,
+          "C:/bounded-profile/DevToolsActivePort",
+        );
+        reads += 1;
+        if (reads === 1) {
+          throw Object.assign(new Error("temporarily locked"), {
+            code: "EBUSY",
+          });
+        }
+        return Buffer.from(
+          "9222\n/devtools/browser/bounded-fixture\n",
+          "utf8",
+        );
+      },
+    );
+    assert.equal(
+      endpoint,
+      "ws://127.0.0.1:9222/devtools/browser/bounded-fixture",
+    );
+    assert.equal(reads, 2);
+  });
+
   it("uses one blank app target, ephemeral profile, and loopback-only DevTools", () => {
     const args = buildHostedBrowserArguments("C:/Temp/vcg-hosted-123");
     assert.equal(

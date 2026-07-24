@@ -1302,10 +1302,13 @@ class CdpConnection {
   }
 }
 
-async function waitForDevToolsEndpoint(
+type DevToolsEndpointReader = (path: string) => Promise<Buffer>;
+
+export async function waitForDevToolsEndpoint(
   profilePath: string,
   child: ChildProcess,
   timeoutMs: number,
+  readEndpointFile: DevToolsEndpointReader = readFile,
 ): Promise<string> {
   const activePortPath = `${profilePath}/DevToolsActivePort`;
   const deadline = Date.now() + timeoutMs;
@@ -1316,7 +1319,7 @@ async function waitForDevToolsEndpoint(
       );
     }
     try {
-      const bytes = await readFile(activePortPath);
+      const bytes = await readEndpointFile(activePortPath);
       if (bytes.byteLength > 4_096) {
         throw new HostedBrowserPolicyError(
           "DevTools endpoint file exceeded its byte bound",
@@ -1344,7 +1347,7 @@ async function waitForDevToolsEndpoint(
         isRecord(error) && typeof error.code === "string"
           ? error.code
           : undefined;
-      if (code !== "ENOENT") throw error;
+      if (code !== "ENOENT" && code !== "EBUSY") throw error;
     }
     await delay(25);
   }

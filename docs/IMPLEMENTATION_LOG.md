@@ -4011,3 +4011,33 @@ reservation; explicit deletion and library compaction; product service and
 controller UI wiring; target-architecture, hostile-media/LAN, full-disk,
 reboot, and physical power-loss campaigns; legal review and entitled
 fixtures; and proof that supervised RetroArch never opens source-media paths.
+
+## 2026-07-24: bounded Chrome DevTools endpoint lock recovery
+
+### Delivered
+
+- Reproduced an integrated Windows failure where Chrome had created
+  `DevToolsActivePort` but the supervisor's first read received `EBUSY`.
+- Kept the original startup deadline and fail-closed endpoint parser, while
+  retrying only ordinary pre-creation `ENOENT` and transient `EBUSY`.
+- Added an injected deterministic case that returns `EBUSY` once, then exact
+  bounded endpoint bytes, and requires precisely two reads.
+- Reproduced the live Epoch top-level artifact on the same evidence date so
+  its provenance binds the corrected supervisor source.
+
+### Verification evidence
+
+- All 16 hosted-browser supervisor tests pass, including three installed
+  Chrome 150 forbidden-navigation, popup, and download termination probes.
+- The Epoch validator and all eight adversarial mutation tests pass against
+  the regenerated artifact. Its HTTP 200, exact response headers, sole guarded
+  page, complete document, clean exit, and removed profile facts are unchanged.
+- The integrated root test suite, workspace typecheck, production build, and
+  every ordinary checked-in validator pass.
+
+### Remaining boundary
+
+I-180 remains active. Retrying one transient development-host file lock does
+not select or qualify the production browser, native authority, service/
+cgroup ownership, compositor controls, explicit readiness, resource/hang
+recovery, or either target Linux architecture.
