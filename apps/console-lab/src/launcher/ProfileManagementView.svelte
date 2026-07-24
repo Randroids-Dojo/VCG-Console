@@ -16,6 +16,7 @@
     oncreated,
     ondeleted,
     onportrait,
+    oncalibrate,
     onback,
     ontoast,
   }: {
@@ -29,6 +30,7 @@
       result: ProfileManagementCommitResult,
     ) => void;
     onportrait: (profileId: string) => void;
+    oncalibrate: (profileId: string) => void;
     onback: () => void;
     ontoast: (message: string) => void;
   } = $props();
@@ -123,6 +125,8 @@
         ontoast(
           "Prior calibration and body match cleared. Recalibration is now required.",
         );
+        oncalibrate(plan.profileId);
+        return;
       }
       void focusPrimaryAction();
     } catch (error) {

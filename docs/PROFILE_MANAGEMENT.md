@@ -205,7 +205,7 @@ evidence, not inference from this browser controller.
 
 ## Abuse and regression evidence
 
-Eleven focused unit cases prove:
+Twelve focused unit cases prove:
 
 - immutable, minimized snapshots and defensive copies;
 - closed/bounded profile and progress schemas;
@@ -215,6 +215,8 @@ Eleven focused unit cases prove:
 - fresh opaque IDs and no same-name reassociation;
 - elapsed review delay, bounded expiry, and monotonic time;
 - recalibration clearing calibration/body state only;
+- exact synthetic calibration-result application advancing the calibration
+  revision without creating body-match authority;
 - reset removing the shared portrait plus calibration/body state while
   preserving profile and links;
 - deletion removing the profile and shared portrait while unassigning every

@@ -17,6 +17,11 @@
     type AccessibilityPreferenceChange,
     type AccessibilityPreferenceSnapshot,
   } from "./accessibility-preferences";
+  import CalibrationRehearsalView from "./CalibrationRehearsalView.svelte";
+  import {
+    CalibrationRehearsalController,
+    type CalibrationReadyResult,
+  } from "./calibration-rehearsal";
   import { launcherCatalog } from "./catalog.generated";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
@@ -54,6 +59,7 @@
   let settings: SettingsView;
   let portraitCapture: PortraitCaptureView;
   let profileManagement: ProfileManagementView;
+  let calibrationRehearsal: CalibrationRehearsalView;
   let unassigned: UnassignedProgressView;
   let visible = $state(true);
   let view = $state<LauncherView>("home");
@@ -72,6 +78,7 @@
   let activeProfile = $state("Randy");
   let activeProfileId = $state("profile-randy");
   let managementProfileId = $state<string | null>(null);
+  let calibrationProfileId = $state<string | null>(null);
   let portraitProfileId = $state<string | null>(null);
   let portraitReturnView = $state<"profiles" | "profile-management">(
     "profiles",
@@ -101,6 +108,11 @@
     acceptedPortraits,
   );
   let portraitCaptureSnapshot = $state(portraitCaptureController.snapshot());
+  const calibrationRehearsalController =
+    new CalibrationRehearsalController();
+  let calibrationRehearsalSnapshot = $state(
+    calibrationRehearsalController.snapshot(),
+  );
   const unassignedProgressController = new UnassignedProgressController(
     UNASSIGNED_PROGRESS_DEMO_ENTRIES,
     [
@@ -145,6 +157,7 @@
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
+    { title: "Calibration rehearsal", detail: "Synthetic player and play-zone check", group: "System", terms: "profile floor zone scale stance range calibration", action: () => openCalibrationRehearsal(activeProfileId) },
     { title: "Portrait rehearsal", detail: "Synthetic device-only capture lifecycle", group: "System", terms: "profile portrait camera preview retake consent", action: () => openPortraitCapture(activeProfileId) },
     { title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") },
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
@@ -262,6 +275,7 @@
     );
     void showView("profiles");
     if (profileId === portraitProfileId) portraitProfileId = null;
+    if (profileId === calibrationProfileId) calibrationProfileId = null;
   }
 
   function finishPortraitCapture(): void {
@@ -271,6 +285,52 @@
 
   function leavePortraitCapture(): void {
     void showView(portraitReturnView);
+  }
+
+  function openCalibrationRehearsal(profileId: string): void {
+    const profile = profiles.find((candidate) => candidate.id === profileId);
+    if (!profile) {
+      toast("Select an existing local profile first.");
+      return;
+    }
+    try {
+      managementProfileId = profile.id;
+      calibrationProfileId = profile.id;
+      calibrationRehearsalSnapshot = calibrationRehearsalController.open(
+        profile.id,
+        "room-fixture-a",
+        "camera-fixture-a",
+        Math.floor(performance.now()),
+      );
+      void showView("calibration");
+    } catch (error) {
+      toast(
+        error instanceof Error
+          ? error.message
+          : "Calibration rehearsal unavailable.",
+      );
+    }
+  }
+
+  function completeCalibrationRehearsal(
+    result: CalibrationReadyResult,
+  ): void {
+    try {
+      const committed = profileManagementController.commit(
+        profileManagementController.planApplyCalibration(result),
+        Math.floor(performance.now()),
+      );
+      applyProfileManagementSnapshot(committed.snapshot);
+      toast(
+        result.limited
+          ? "Synthetic calibration applied with conservative limits."
+          : "Synthetic calibration applied to the selected profile.",
+      );
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error("Synthetic calibration could not be applied.");
+    }
   }
 
   function openPortraitCapture(profileId: string): void {
@@ -316,6 +376,7 @@
     closeLaunch(false);
     if (view === "portrait") portraitCapture.cancelPending();
     if (view === "profile-management") profileManagement.cancelPending();
+    if (view === "calibration") calibrationRehearsal.cancelPending();
     visible = false;
   }
 
@@ -333,6 +394,13 @@
     ) {
       profileManagement.cancelPending();
     }
+    if (
+      view === "calibration"
+      && next !== "calibration"
+      && calibrationRehearsalSnapshot.phase !== "idle"
+    ) {
+      calibrationRehearsal.cancelPending();
+    }
     view = next;
     if (next === "retro") void refreshNativePackageInventory();
     await tick();
@@ -348,6 +416,12 @@
           ".profile-management-actions button",
         )
       )?.focus({ preventScroll: true });
+    } else if (next === "calibration") {
+      launcher
+        .querySelector<HTMLButtonElement>(
+          '[data-launcher-view="calibration"] .calibration-phase-actions button',
+        )
+        ?.focus({ preventScroll: true });
     } else if (next === "unassigned") {
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
@@ -362,6 +436,7 @@
       portraitCapture.cancelPending();
     }
     if (view === "profile-management") profileManagement.cancelPending();
+    if (view === "calibration") calibrationRehearsal.cancelPending();
     view = "settings";
     await tick();
     settings.show(panel);
@@ -381,6 +456,10 @@
       && profileManagement.cancelPending()
     ) return;
     else if (view === "profile-management") showView("profiles");
+    else if (view === "calibration") {
+      calibrationRehearsal.cancelPending();
+      showView("profile-management");
+    }
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -391,6 +470,7 @@
       closeLaunch();
       if (view === "portrait") portraitCapture.cancelPending();
       if (view === "profile-management") profileManagement.cancelPending();
+      if (view === "calibration") calibrationRehearsal.cancelPending();
       showView("home");
       return;
     }
@@ -425,6 +505,10 @@
     }
     if (view === "profile-management") {
       profileManagement.cancelPending();
+      view = "home";
+    }
+    if (view === "calibration") {
+      calibrationRehearsal.cancelPending();
       view = "home";
     }
     void search.open();
@@ -894,7 +978,7 @@
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
-        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
 
@@ -1005,7 +1089,23 @@
           oncreated={profileCreated}
           ondeleted={profileDeleted}
           onportrait={openPortraitCapture}
+          oncalibrate={openCalibrationRehearsal}
           onback={() => showView("profiles")}
+          ontoast={toast}
+        />
+      </div>
+
+      <div class="launcher-view calibration-view" data-launcher-view="calibration" hidden={view !== "calibration"}>
+        <CalibrationRehearsalView
+          bind:this={calibrationRehearsal}
+          controller={calibrationRehearsalController}
+          snapshot={calibrationRehearsalSnapshot}
+          profile={profiles.find((profile) => profile.id === calibrationProfileId) ?? null}
+          onchanged={(snapshot) => {
+            calibrationRehearsalSnapshot = snapshot;
+          }}
+          oncomplete={completeCalibrationRehearsal}
+          onback={() => showView("profile-management")}
           ontoast={toast}
         />
       </div>

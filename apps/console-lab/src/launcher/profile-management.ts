@@ -17,6 +17,7 @@ export type ProfileManagementDestructiveOperation =
 export type ProfileManagementOperation =
   | "create-profile"
   | "rename-profile"
+  | "apply-calibration"
   | ProfileManagementDestructiveOperation;
 
 export interface ManagedProfileSeed {
@@ -71,6 +72,25 @@ export interface RenameProfilePlan {
   name: string;
 }
 
+export interface SyntheticCalibrationResultRef {
+  id: string;
+  profileId: string;
+  sessionId: number;
+  attempt: number;
+  limited: boolean;
+}
+
+export interface ApplyCalibrationPlan {
+  kind: "apply-calibration";
+  expectedRevision: number;
+  profileId: string;
+  expectedCalibrationRevision: number | null;
+  resultId: string;
+  resultSessionId: number;
+  resultAttempt: number;
+  limited: boolean;
+}
+
 export interface DestructiveProfilePlan {
   kind: ProfileManagementDestructiveOperation;
   expectedRevision: number;
@@ -88,6 +108,7 @@ export interface DestructiveProfilePlan {
 export type ProfileManagementPlan =
   | CreateProfilePlan
   | RenameProfilePlan
+  | ApplyCalibrationPlan
   | DestructiveProfilePlan;
 
 export interface ProfileManagementDisposition {
@@ -141,6 +162,16 @@ const renamePlanKeys = [
   "name",
   "profileId",
 ] as const;
+const applyCalibrationPlanKeys = [
+  "expectedCalibrationRevision",
+  "expectedRevision",
+  "kind",
+  "limited",
+  "profileId",
+  "resultAttempt",
+  "resultId",
+  "resultSessionId",
+] as const;
 const destructivePlanKeys = [
   "confirmAfterMs",
   "expectedBodyProfilePresent",
@@ -157,6 +188,8 @@ const destructivePlanKeys = [
 
 const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ownerPattern = /^[0-9a-f]{32}$/;
+const calibrationResultPattern =
+  /^calibration-fixture-([1-9][0-9]*)-([1-9][0-9]*)$/;
 const unsafeTextPattern =
   /[\u0000-\u001f\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/u;
 const runtimes = new Set<ProfileManagementRuntime>([
@@ -177,6 +210,7 @@ export class ProfileManagementController {
   #revision = 0;
   #lastNowMs = 0;
   #nextProfileOrdinal = 3;
+  #nextCalibrationRevision = 1;
   readonly #profiles = new Map<string, ManagedProfileRecord>();
   readonly #progress = new Map<string, ManagedProgressRecord>();
   readonly #portraits: AcceptedPortraitCollection;
@@ -198,6 +232,12 @@ export class ProfileManagementController {
         throw new ProfileManagementError("duplicate local profile");
       }
       this.#profiles.set(profile.id, profile);
+      if (
+        profile.calibrationRevision !== null
+        && profile.calibrationRevision >= this.#nextCalibrationRevision
+      ) {
+        this.#nextCalibrationRevision = profile.calibrationRevision + 1;
+      }
     }
     const owners = new Set<string>();
     for (const source of progress) {
@@ -277,6 +317,23 @@ export class ProfileManagementController {
     });
   }
 
+  planApplyCalibration(
+    result: SyntheticCalibrationResultRef,
+  ): ApplyCalibrationPlan {
+    validateCalibrationResult(result);
+    const profile = this.#requireProfile(result.profileId);
+    return Object.freeze({
+      kind: "apply-calibration",
+      expectedRevision: this.#revision,
+      profileId: profile.id,
+      expectedCalibrationRevision: profile.calibrationRevision,
+      resultId: result.id,
+      resultSessionId: result.sessionId,
+      resultAttempt: result.attempt,
+      limited: result.limited,
+    });
+  }
+
   planDestructive(
     kind: ProfileManagementDestructiveOperation,
     profileId: string,
@@ -339,6 +396,9 @@ export class ProfileManagementController {
     if (plan.kind === "rename-profile") {
       return this.#commitRename(plan);
     }
+    if (plan.kind === "apply-calibration") {
+      return this.#commitApplyCalibration(plan);
+    }
     return this.#commitDestructive(plan, nowMs);
   }
 
@@ -397,6 +457,39 @@ export class ProfileManagementController {
       removedPortraitRenderHandle: null,
       calibrationCleared: false,
       bodyProfileRemoved: false,
+      unassignedProgressCount: 0,
+      preservedLinkedProgressCount: linked.length,
+      hostedServicesUnaffected: linked.filter(
+        (record) => record.hostedServiceSeparate,
+      ).length,
+    });
+  }
+
+  #commitApplyCalibration(
+    plan: ApplyCalibrationPlan,
+  ): ProfileManagementCommitResult {
+    const profile = this.#requireProfile(plan.profileId);
+    if (
+      profile.calibrationRevision !== plan.expectedCalibrationRevision
+    ) {
+      throw new ProfileManagementError(
+        "profile calibration changed before commit",
+      );
+    }
+    if (this.#nextCalibrationRevision > Number.MAX_SAFE_INTEGER) {
+      throw new ProfileManagementError(
+        "calibration revision space exhausted",
+      );
+    }
+    const bodyProfileRemoved = profile.bodyProfilePresent;
+    profile.calibrationRevision = this.#nextCalibrationRevision++;
+    profile.bodyProfilePresent = false;
+    this.#revision += 1;
+    const linked = this.#linkedProgress(profile.id);
+    return this.#result(plan.kind, plan.profileId, {
+      removedPortraitRenderHandle: null,
+      calibrationCleared: false,
+      bodyProfileRemoved,
       unassignedProgressCount: 0,
       preservedLinkedProgressCount: linked.length,
       hostedServicesUnaffected: linked.filter(
@@ -658,6 +751,31 @@ function validatePlan(plan: ProfileManagementPlan): void {
     validateName(plan.name);
     return;
   }
+  if (plan.kind === "apply-calibration") {
+    validateExactKeys(
+      plan,
+      applyCalibrationPlanKeys,
+      "apply-calibration plan",
+    );
+    validateId(plan.profileId, "profile ID");
+    if (
+      plan.expectedCalibrationRevision !== null
+      && (
+        !Number.isSafeInteger(plan.expectedCalibrationRevision)
+        || plan.expectedCalibrationRevision <= 0
+      )
+    ) {
+      throw new ProfileManagementError("invalid prior calibration revision");
+    }
+    validateCalibrationResult({
+      id: plan.resultId,
+      profileId: plan.profileId,
+      sessionId: plan.resultSessionId,
+      attempt: plan.resultAttempt,
+      limited: plan.limited,
+    });
+    return;
+  }
   if (!destructiveOperations.has(plan.kind)) {
     throw new ProfileManagementError("invalid profile-plan kind");
   }
@@ -699,6 +817,44 @@ function validatePlan(plan: ProfileManagementPlan): void {
   }
 }
 
+function validateCalibrationResult(
+  result: SyntheticCalibrationResultRef,
+): void {
+  if (
+    typeof result !== "object"
+    || result === null
+    || Array.isArray(result)
+    || !hasExactKeyNames(
+      result,
+      ["attempt", "id", "limited", "profileId", "sessionId"],
+    )
+  ) {
+    throw new ProfileManagementError(
+      "calibration result must use the closed schema",
+    );
+  }
+  validateId(result.profileId, "profile ID");
+  if (
+    !Number.isSafeInteger(result.sessionId)
+    || result.sessionId <= 0
+    || !Number.isSafeInteger(result.attempt)
+    || result.attempt <= 0
+    || typeof result.limited !== "boolean"
+  ) {
+    throw new ProfileManagementError("invalid calibration result");
+  }
+  const match = calibrationResultPattern.exec(result.id);
+  if (
+    !match
+    || Number(match[1]) !== result.sessionId
+    || Number(match[2]) !== result.attempt
+  ) {
+    throw new ProfileManagementError(
+      "calibration result identity mismatch",
+    );
+  }
+}
+
 function validateIdArray(value: readonly string[], label: string): void {
   if (!Array.isArray(value) || value.length > PROFILE_MANAGEMENT_MAX_PROGRESS_RECORDS) {
     throw new ProfileManagementError(`invalid ${label}`);
@@ -727,6 +883,18 @@ function validateExactKeys(
   ) {
     throw new ProfileManagementError(`${label} must use the closed schema`);
   }
+}
+
+function hasExactKeyNames(
+  value: object,
+  expected: readonly string[],
+): boolean {
+  const keys = Object.keys(value).sort();
+  const sortedExpected = [...expected].sort();
+  return (
+    keys.length === sortedExpected.length
+    && sortedExpected.every((key, index) => keys[index] === key)
+  );
 }
 
 function validateId(value: string, label: string): void {

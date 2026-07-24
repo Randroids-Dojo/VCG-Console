@@ -77,12 +77,15 @@ The highest-level security objectives are to keep games from becoming console au
   and service-manager code remains in scope for design threats that cannot
   become present implementation vulnerabilities before the code exists. A
   portrait and credential-free profile-management lifecycle models and UIs
-  now exist, so their state/input/claim boundaries are present attack surface.
-  The implementation is restricted to opaque synthetic handles, closed
-  session-only profile/progress fixtures, and invokes no camera, pixel,
-  registry, vault, save broker, hosted service, or durable store. Real
-  portrait capture/storage and native profile mutation remain future attack
-  surface.
+  now exist, and a camera-free calibration confidence/guidance controller adds
+  ordered synthetic observation and invalidation state. Their
+  state/input/claim boundaries are present attack surface. The implementation
+  is restricted to opaque synthetic handles, closed session-only
+  profile/progress/confidence fixtures, and invokes no camera, pixel,
+  landmark, measurement, floor transform, room map, registry, vault, save
+  broker, hosted service, or durable store. Real portrait capture/storage,
+  calibration measurement/persistence, and native profile mutation remain
+  future attack surface.
 - Denial of one voluntarily launched untrusted game is less severe than denial of boot, Home/Back, tracker recovery, update rollback, or the whole console.
 
 ## Attack Surface, Mitigations, and Attacker Stories
@@ -106,6 +109,17 @@ rejection. Reset and delete revoke the shared synthetic portrait; deletion
 unassigns local progress and same-name recreation receives no links. The
 browser test suite observes no external requests or persistent browser stores
 during normal camera mode.
+
+The calibration rehearsal binds every observation to an exact
+session/attempt/profile/environment/camera reference, requires contiguous
+bounded samples, blocks any unsafe-zone/camera-movement/no-player/multi-player
+fact, refuses stale corrections, permits only optional neutral/range
+conservative fallback, expires abandoned sessions, and invalidates Ready after
+explicit changed room/camera evidence. Its snapshots and results contain no
+body measurements or storage authority. These controls prevent the synthetic
+UI from silently guessing missing dimensions; they do not qualify real
+confidence, room-change detection, floor geometry, safety, persistence, or
+game delivery.
 
 Important attacker stories are a hostile game requesting richer landmarks than approved; a same-origin compromise inheriting an origin allowlist; a crafted scene causing false join/Back/pause; a stale worker result crossing camera restart; or future support/log tooling accidentally including frames, portraits, body measurements, or linkable traces. Required follow-up includes OS/device permission tests, crash/swap inspection, legal/privacy review for body matching and portraits, sensitive-store encryption and deletion, adversarial action scoring, and negative export/support-bundle tests.
 

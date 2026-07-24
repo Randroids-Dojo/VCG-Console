@@ -7,6 +7,7 @@ export type LauncherView =
   | "retro"
   | "profiles"
   | "profile-management"
+  | "calibration"
   | "portrait"
   | "unassigned"
   | "settings";

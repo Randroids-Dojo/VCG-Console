@@ -33,7 +33,8 @@ The browser main thread and pose worker are separate execution contexts, not sep
 | Profile management projection | Launcher profile-management controller | Closed bounded synthetic profiles and progress links in Svelte session memory only; lost on reload | Launcher shell | Create, rename, recalibrate, reset, delete, or select through revision-bound plans | Camera/storage-free lifecycle prototype only; no native registry, vault, or save mutation |
 | Console operating mode | Local launcher confirmation flow | Volatile fail-closed family/admin/developer state; boot/reload starts in family mode and no credential or pairing secret exists | Launcher policy only; no native service consumes it | Separate admin/developer confirmations, cancel, end developer mode, family lock | Browser policy/UX prototype only |
 | Accessibility preferences | Settings / Access closed v1 document | At most 1,024 bytes under `vcg.accessibility.v1`; device-wide prototype state only; invalid state defaults in full | Trusted shell presentation only; posture/remap are not sent to tracker, input host, profiles, or games | Pre-profile edit, local cue preview, complete reset | Browser prototype; native settings service not implemented |
-| Portrait and body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
+| Calibration confidence rehearsal | Closed synthetic observation fixtures → calibration controller → dimension/status/result reference | Volatile session memory only; 8 through 24 closed observations per exact attempt, 120-second expiry, no real values | Launcher understood-state and profile-management fixture revision only | Explicit start; dimension-specific correction; fail-closed block; optional conservative fallback; Back/Home/cancel; room/camera invalidation | Camera-free lifecycle prototype only; no frame, landmark, measurement, floor transform, room map, vault write, or game projection |
+| Portrait and persistent body calibration | Future local capture/calibration flow | Planned encrypted device-local vault behind a deny-by-default broker; excluded from backup, diagnostics, games, and network | Profile/calibration broker only | Explicit capture/retake/confirm/delete; legal and consent gates remain | Not implemented |
 | Game saves | Individual game runtime | Native planner derives bounded device-local per-game/owner/runtime save and cache namespaces, quotas, reset scope, migration staging, and profile-to-unassigned transitions; a separate host-only durable transaction can now execute/recover one exact confirmed save/cache reset | Owning game through a future sandbox/mount adapter and console lifecycle service | Per-game reset still needs deliberate controller/motion UI; factory reset remains planned | Contract and reset primitive implemented; storage broker/confinement not implemented |
 | Runtime status and diagnostics | Launcher, tracker, bridge, supervisor, native host | Current UI plus a newest-256 closed-code browser record are volatile. Exact reviewed bytes can be downloaded only after local admin confirmation; native logs remain planned. | Local player/admin screen and one deliberate local JSON download | Review, separate prepare/confirm export, admin-gated clear | Browser record/export implemented; native store not implemented |
 | Hosted game traffic | Supervised top-level browser process | Remote service policy applies; VCG must isolate per-game profile/storage and declare network need | Manifest-approved game origin | Launch disclosure and Exit | Browser supervisor spike only |
@@ -88,6 +89,20 @@ household tests remain explicit gates.
 Invariant: profile UI copy must not imply durable encrypted storage, deletion,
 or progress unassignment until one native transaction and the native vault
 exist and pass fault evidence.
+
+The camera-free calibration rehearsal consumes only closed synthetic
+confidence, visibility, stability, zone-clear, and player-count facts. It
+requires ordered exact attempt callbacks, blocks any unsafe or ambiguous
+fact, guides only failed dimensions, and permits a conservative result only
+when floor, play zone, and player scale already pass. Ready state can be
+invalidated by explicit changed room or camera evidence. Applying its exact
+synthetic result advances only the selected in-memory profile calibration
+revision and clears the prior body-match fixture. It computes and persists no
+calibration value.
+
+Invariant: no UI confidence fixture is a product threshold, no Ready screen
+claims a real floor or safe play zone, and no game receives calibration until
+the native broker commits a qualified minimized projection.
 
 The launcher mode prototype treats guest/local identity and privilege as
 orthogonal. A profile selection cannot elevate authority. Family mode denies

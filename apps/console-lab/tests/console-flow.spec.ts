@@ -668,6 +668,231 @@ test("credential-free profile management gates destructive scope and never reass
   ).toBe(true);
 });
 
+test("synthetic calibration guides failed dimensions and invalidates changed rooms", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let gamepad: Gamepad | null = null;
+    let cameraCalls = 0;
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => [gamepad],
+    });
+    (
+      window as unknown as Record<string, (buttons: number[]) => void>
+    ).__setCalibrationGamepad = (buttons) => {
+      gamepad = {
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, index) => ({
+          pressed: buttons.includes(index),
+          touched: buttons.includes(index),
+          value: buttons.includes(index) ? 1 : 0,
+        })),
+        connected: true,
+        hapticActuators: [],
+        id: "Playwright calibration controller",
+        index: 0,
+        mapping: "standard",
+        timestamp: performance.now(),
+        vibrationActuator: null,
+      } as unknown as Gamepad;
+    };
+    const originalGetUserMedia =
+      navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: (...constraints: Parameters<typeof originalGetUserMedia>) => {
+        cameraCalls += 1;
+        return originalGetUserMedia(...constraints);
+      },
+    });
+    (
+      window as unknown as Record<string, () => number>
+    ).__calibrationCameraCalls = () => cameraCalls;
+  });
+  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.waitForTimeout(850);
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  await page.waitForTimeout(750);
+
+  await page.getByRole("button", { name: "Profiles", exact: true }).click();
+  await page.getByRole("button", { name: "Manage selected profile" }).click();
+  let management = page.locator(
+    '[data-launcher-view="profile-management"]',
+  );
+  await management
+    .getByRole("button", { name: /Require recalibration/ })
+    .click();
+  let confirmation = page.getByRole("dialog", {
+    name: "Require recalibration?",
+  });
+  await page.waitForTimeout(1_600);
+  await confirmation
+    .getByRole("button", { name: "Require recalibration" })
+    .click();
+
+  const calibration = page.locator('[data-launcher-view="calibration"]');
+  await expect(
+    calibration.getByRole("heading", {
+      name: "Show what the console understood.",
+    }),
+  ).toBeVisible();
+  await expect(
+    calibration.getByText(
+      "Camera off · closed synthetic confidence fixtures",
+    ),
+  ).toBeVisible();
+  await expect(
+    calibration.getByRole("button", { name: "Feet missing" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__calibrationCameraCalls!(),
+    ),
+  ).toBe(0);
+
+  await calibration
+    .getByRole("button", { name: "Start automatic rehearsal" })
+    .click();
+  await expect(
+    calibration.getByRole("heading", {
+      name: "One short correction is needed.",
+    }),
+  ).toBeVisible({ timeout: 3_000 });
+  await expect(
+    calibration.locator(
+      '[data-calibration-status="needs-check"]',
+    ).filter({ hasText: "Floor" }),
+  ).toContainText("Needs guided check");
+  await expect(
+    calibration.locator(
+      '[data-calibration-status="ready"]',
+    ).filter({ hasText: "Play zone" }),
+  ).toContainText("Understood");
+  await expect(
+    calibration.getByRole("button", {
+      name: "Use conservative fallback",
+    }),
+  ).toHaveCount(0);
+  await page.screenshot({
+    path: "../../test-results/console-lab/calibration-guided.png",
+  });
+  await pressSyntheticGamepadButton(
+    page,
+    "__setCalibrationGamepad",
+    1,
+  );
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+  await expect(
+    management.getByText("Required", { exact: true }),
+  ).toBeVisible();
+
+  await management
+    .getByRole("button", { name: /Require recalibration/ })
+    .click();
+  confirmation = page.getByRole("dialog", {
+    name: "Require recalibration?",
+  });
+  await page.waitForTimeout(1_600);
+  await confirmation
+    .getByRole("button", { name: "Require recalibration" })
+    .click();
+  await calibration.getByRole("button", { name: "Unsafe zone" }).click();
+  await calibration
+    .getByRole("button", { name: "Start automatic rehearsal" })
+    .click();
+  await expect(
+    calibration.getByRole("heading", {
+      name: "Placement is unsafe or ambiguous.",
+    }),
+  ).toBeVisible({ timeout: 3_000 });
+  await expect(
+    calibration.getByText("unsafe zone", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    calibration.getByRole("button", {
+      name: "Use conservative fallback",
+    }),
+  ).toHaveCount(0);
+  await page.screenshot({
+    path: "../../test-results/console-lab/calibration-blocked.png",
+  });
+
+  await calibration
+    .getByRole("button", {
+      name: "Apply safe-room fixture and recheck",
+    })
+    .click();
+  await expect(
+    calibration.getByRole("heading", {
+      name: "Ready for this synthetic session.",
+    }),
+  ).toBeVisible({ timeout: 3_000 });
+  await expect(
+    calibration.getByText("All required dimensions passed."),
+  ).toBeVisible();
+  await calibration
+    .getByRole("button", { name: "Rehearse room change" })
+    .click();
+  await expect(
+    calibration.getByRole("heading", {
+      name: "Room or camera evidence changed.",
+    }),
+  ).toBeVisible();
+  await calibration
+    .getByRole("button", { name: "Recheck changed room" })
+    .click();
+  await expect(
+    calibration.getByRole("heading", {
+      name: "Ready for this synthetic session.",
+    }),
+  ).toBeVisible({ timeout: 3_000 });
+
+  await page.setViewportSize({ width: 520, height: 900 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await expect(
+    calibration.getByRole("button", {
+      name: "Use synthetic calibration",
+    }),
+  ).toBeFocused();
+  await page.evaluate(() =>
+    window.__vcgMotionSimulator?.setPose("hands-together")
+  );
+  await page.waitForTimeout(550);
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
+  management = page.locator('[data-launcher-view="profile-management"]');
+  await expect(
+    management.getByRole("heading", { name: "Manage Randy." }),
+  ).toBeVisible();
+  await expect(
+    management.getByText("Synthetic revision 8"),
+  ).toBeVisible();
+  await expect(
+    management.getByText("Not configured", { exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as Record<string, () => number>
+        ).__calibrationCameraCalls!(),
+    ),
+  ).toBe(0);
+});
+
 test("accessibility preferences apply, persist, disclose gaps, and reset", async ({
   page,
 }) => {

@@ -204,6 +204,48 @@ describe("ProfileManagementController", () => {
     });
   });
 
+  it("applies one exact synthetic calibration result without creating body-match authority", () => {
+    const portraits = new AcceptedPortraitCollection([{
+      profileId: "profile-randy",
+      renderHandle: "portrait-fixture-profile-randy-a",
+    }]);
+    const manager = controller(portraits);
+    const plan = manager.planApplyCalibration({
+      id: "calibration-fixture-4-2",
+      profileId: "profile-randy",
+      sessionId: 4,
+      attempt: 2,
+      limited: false,
+    });
+    const result = manager.commit(plan, 0);
+    const profile = result.snapshot.profiles.find(
+      (candidate) => candidate.id === "profile-randy",
+    );
+
+    expect(profile).toMatchObject({
+      calibrationRevision: 8,
+      bodyProfilePresent: false,
+      portraitPresent: true,
+      linkedLocalProgressCount: 2,
+    });
+    expect(result.disposition).toMatchObject({
+      operation: "apply-calibration",
+      bodyProfileRemoved: true,
+      unassignedProgressCount: 0,
+      preservedLinkedProgressCount: 2,
+    });
+    expect(() => manager.commit(plan, 1)).toThrow(
+      "confirmation is stale",
+    );
+    expect(() => controller().planApplyCalibration({
+      id: "calibration-fixture-4-3",
+      profileId: "profile-randy",
+      sessionId: 4,
+      attempt: 2,
+      limited: false,
+    })).toThrow("identity mismatch");
+  });
+
   it("reset removes sensitive identity data while preserving the profile and linked progress", () => {
     const portraits = new AcceptedPortraitCollection([{
       profileId: "profile-randy",
