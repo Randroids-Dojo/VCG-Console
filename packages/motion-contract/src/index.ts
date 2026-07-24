@@ -6,6 +6,8 @@ export * from "./laterality-guard";
 export * from "./landmarks";
 export * from "./laterality-benchmark";
 export * from "./optional-capabilities";
+export * from "./observation-confidence";
+export * from "./observation-confidence-benchmark";
 export * from "./player-availability";
 export * from "./replay";
 export * from "./rtmo-adapter";

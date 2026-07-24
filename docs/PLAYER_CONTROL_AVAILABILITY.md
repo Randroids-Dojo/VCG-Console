@@ -26,6 +26,15 @@ The helper accepts one parsed player, if present, and the frame's global health 
 
 Visibility and presence numbers are deliberately not thresholded here. Provider adapters remain responsible for producing the existing `observed` signal. Exact confidence, hysteresis, and provider-parity thresholds require real-player evidence under I-063 and Q-039.
 
+The separate `fail-closed-confidence-rearm/v1` research gate now makes one
+candidate mechanism testable without changing this contract. It blocks
+immediately on provider loss or low confidence and requires bounded
+high-confidence evidence to restore. On the authored 115-sample comparison it
+removes 14 unsafe openings but increases false unavailability from 2 to 34.
+Those frozen values are an exposed safety/availability tradeoff, not provider
+qualification or permission to reinterpret `observed`. See
+`MOTION_CONFIDENCE_DEGRADATION_EVIDENCE_2026-07-24.md`.
+
 ## Region states
 
 Each region is `observed` when all listed landmarks are observed, `partial` when some are observed, and `missing` when none are observed.
@@ -88,4 +97,11 @@ These fixtures prove deterministic software behavior, not tracker accuracy or a 
 
 ## Remaining qualification boundary
 
-I-063 remains active. Closure still needs provider-specific observed/confidence hysteresis, real-player missing-limb and half-body recordings, gameplay continuation-versus-pause policy by title, accessibility alternatives, seated/child/limited-range cases, feedback comprehension at TV distance, controller recovery, and cross-backend conformance. No silent landmark extrapolation is authorized.
+I-063 remains active. A strict research gate and hash-bound synthetic
+comparison now define immediate loss, bounded rearm, replay refusal, and the
+measured safety/availability tradeoff. Closure still needs provider-specific
+observed/confidence calibration, time-based restoration, real-player
+missing-limb and half-body recordings, gameplay continuation-versus-pause
+policy by title, accessibility alternatives, seated/child/limited-range
+cases, feedback comprehension at TV distance, controller recovery, and
+cross-backend conformance. No silent landmark extrapolation is authorized.

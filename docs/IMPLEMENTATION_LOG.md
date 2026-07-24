@@ -3010,3 +3010,43 @@ metadata, unlink or delete exact saves, update the profile registry/vault,
 preserve stable unassigned launch ownership, recover after interruption, and
 prove the result on both target tiers before the two browser rehearsals can be
 wired together.
+
+## 2026-07-24: fail-closed landmark confidence rearming
+
+### Delivered
+
+- Advanced I-063 with a strict research-only per-landmark observation gate.
+  Provider loss or confidence below the release threshold blocks immediately;
+  restoration requires bounded consecutive high-confidence observations.
+- Rejects non-monotonic timestamps so duplicate/replayed samples cannot
+  manufacture restoration, clears partial evidence on every loss, resets
+  across epochs, validates closed bounded options, and never extrapolates a
+  missing coordinate.
+- Added a deterministic 10-scenario / 115-sample campaign covering stable
+  confidence, threshold jitter, occlusion rebound, explicit provider loss,
+  isolated and sustained loss, ambiguous alternation, retain-band behavior,
+  and provider-flag oscillation.
+- Added a hash-bound evidence artifact, exact strategy/scenario results, source
+  and suite commitments, and ten adversarial report-validator tests.
+- Added Q-234 for the owner-selected restoration-delay and multiplayer safety
+  posture without assuming an answer.
+
+### Verification evidence
+
+- The Motion contract package passes all 133 tests and TypeScript checking.
+- The memoryless `0.5` strategy records 14 unsafe-available samples, 2
+  false-unavailable samples, and 32 transitions.
+- Immediate loss plus a `0.75` / three-sample rearm records zero unsafe
+  availability, 34 false-unavailable samples, and 20 transitions.
+- Ten evidence-validator tests reject raw-frame/coordinate claims, truth
+  leakage, implementation/suite/result substitution, hidden safety or
+  availability costs, and undeclared report fields.
+
+### Remaining boundary
+
+Authored confidence values prove deterministic state behavior, not provider
+calibration. I-063 remains active pending independently labeled MediaPipe and
+RTMO sessions, held-out provider-specific and time-based threshold selection,
+action/control accuracy, accessibility and recovery comprehension, integration
+with identity/smoothing/calibration/global health, and ordinary x86-64 Linux
+plus Raspberry Pi qualification. No Motion wire or runtime authority changed.
