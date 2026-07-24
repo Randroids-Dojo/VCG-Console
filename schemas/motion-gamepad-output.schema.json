@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "mappingId": {
+      "type": "string",
+      "enum": [
+        "platformer-lean-actions-v1",
+        "racing-steer-only-v1",
+        "arcade-lean-actions-v1"
+      ]
+    },
+    "gameId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+    },
+    "researchOnly": {
+      "type": "boolean",
+      "const": true
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "occurredAtMs": {
+      "type": "number",
+      "minimum": 0
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "released",
+        "unsupported"
+      ]
+    },
+    "releaseReason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "tracker-not-ready",
+            "authority-lost",
+            "mapping-incomplete"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "axes": {
+      "type": "object",
+      "properties": {
+        "leftStickX": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "leftStickX"
+      ]
+    },
+    "buttons": {
+      "type": "object",
+      "properties": {
+        "south": {
+          "type": "boolean"
+        },
+        "west": {
+          "type": "boolean"
+        },
+        "leftShoulder": {
+          "type": "boolean"
+        },
+        "rightShoulder": {
+          "type": "boolean"
+        },
+        "dpadDown": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "south",
+        "west",
+        "leftShoulder",
+        "rightShoulder",
+        "dpadDown"
+      ]
+    },
+    "blockedActions": {
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "player_join",
+          "jump",
+          "duck",
+          "dodge_left",
+          "dodge_right",
+          "menu_swipe_left",
+          "menu_swipe_right",
+          "menu_select",
+          "menu_back",
+          "pause"
+        ]
+      }
+    },
+    "staleActions": {
+      "maxItems": 4,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "jump",
+          "duck",
+          "dodge_left",
+          "dodge_right"
+        ]
+      }
+    },
+    "repeatedActions": {
+      "maxItems": 4,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "jump",
+          "duck",
+          "dodge_left",
+          "dodge_right"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "mappingId",
+    "gameId",
+    "researchOnly",
+    "sequence",
+    "occurredAtMs",
+    "state",
+    "releaseReason",
+    "axes",
+    "buttons",
+    "blockedActions",
+    "staleActions",
+    "repeatedActions"
+  ],
+  "$id": "urn:vcg:schema:motion-gamepad-output:1",
+  "title": "VCG Motion-to-gamepad research output v1",
+  "$comment": "Research output only. Home, Back, Pause, and shell actions are never virtual-gamepad bindings."
+}

@@ -1,5 +1,6 @@
 export * from "./actions";
 export * from "./coordinates";
+export * from "./gamepad-emulation";
 export * from "./identity-benchmark";
 export * from "./identity-tracking";
 export * from "./laterality-guard";

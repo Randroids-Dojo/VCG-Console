@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import { gameManifestJsonSchema } from "@vcg/game-manifest";
 import {
   motionFrameJsonSchema,
+  motionGamepadOutputJsonSchema,
+  motionGamepadSampleJsonSchema,
   motionTraceJsonSchema,
   optionalMotionCapabilityInventoryJsonSchema,
   optionalMotionCapabilityNegotiationJsonSchema,
@@ -21,6 +23,8 @@ async function main(): Promise<void> {
   const outputDirectory = resolve("schemas");
   const artifacts = [
     ["motion-frame.schema.json", motionFrameJsonSchema],
+    ["motion-gamepad-sample.schema.json", motionGamepadSampleJsonSchema],
+    ["motion-gamepad-output.schema.json", motionGamepadOutputJsonSchema],
     ["motion-trace.schema.json", motionTraceJsonSchema],
     ["tracker-health-event.schema.json", trackerHealthEventJsonSchema],
     ["motion-capability-inventory.schema.json", optionalMotionCapabilityInventoryJsonSchema],

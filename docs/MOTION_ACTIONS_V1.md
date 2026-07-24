@@ -79,6 +79,14 @@ instead of guessing from screen position. This is not yet a wire availability
 state or game-freeze policy, and it cannot detect a distal-only left/right swap
 when torso labels remain plausible.
 
+The I-071 Motion-to-gamepad adapter is another separate research consumer. It
+accepts only obstacle `triggered` events plus an injected bounded lean feature,
+binds them through one exact title mapping, and blocks the entire shell action
+family. Platformer and simple-arcade mappings have camera-free authored
+function coverage; racing remains unsupported because continuous throttle and
+brake are absent. No game or native virtual device has been tested. See
+`MOTION_GAMEPAD_EMULATION_EVIDENCE_2026-07-24.md`.
+
 ## Confidence and time
 
 `confidence` is the recognizer's confidence for that sampled phase, bounded from zero to one. `cancelled` uses zero because the candidate is no longer accepted; `ended` retains the last accepted confidence. Confidence never authorizes a side effect without `phase: "triggered"`.

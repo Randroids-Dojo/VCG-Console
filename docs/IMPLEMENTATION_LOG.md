@@ -3509,3 +3509,58 @@ enterprise policy, cgroup/service-manager/resource/hang containment, explicit
 game readiness, in-page network and storage controls, login/offline recovery,
 popup-auth and permission-requiring compatibility, same-account profile-path
 swap resistance, and ARM64/ordinary x86-64 Linux evidence remain.
+
+## 2026-07-24: bounded Motion-to-gamepad research adapter
+
+### Delivered
+
+- Advanced I-071 from open to active with a strict research-only,
+  title/mapping/epoch-bound virtual-gamepad adapter.
+- Added an exact bounded sample contract with increasing sequence, monotonic
+  time, tracker health, explicit pre-authorized player state, injected
+  `[-1, 1]` lean, and at most ten parsed Motion actions.
+- Applied a symmetric 0.15 lean deadzone and full-range left-stick X rescale;
+  the adapter does not derive lean from a camera or claim calibration.
+- Added title-specific platformer and simple-arcade mappings for obstacle
+  triggers with fixed 80 ms pulses; repeated events cannot extend a pulse and
+  late events cannot synthesize delayed presses.
+- Kept racing unsupported because steering alone cannot supply the required
+  continuous throttle and brake functions; incomplete mappings emit a fully
+  released state.
+- Blocked all shell actions and omitted Home/Back/Pause from the output button
+  vocabulary. Non-ready health, authority loss, and incomplete mappings clear
+  every axis and held pulse immediately.
+- Added generated sample/output schemas plus a hash-bound three-genre evidence
+  artifact, generator, strict validator, and mutation suite.
+- Added Q-239 for exact games, per-title mappings, native virtual-device
+  authority, participant scope, and play/latency/comfort gates.
+
+### Verification evidence
+
+- Eleven focused Motion contract cases cover title-specific platformer and
+  arcade bindings, deadzone/rescale, pulse release, repeated and stale events,
+  shell/reserved blocking, health/authority release, incomplete racing
+  refusal, replay/epoch/time/shape denial, and honest schema comments.
+- The three-genre artifact passes 12/12 deterministic software checks,
+  classifies two mappings as camera-free software paths only, classifies
+  racing unsupported, and keeps play-test, latency, and comfort counts at
+  zero.
+- Ten artifact-validator cases reject fabricated play/latency/comfort,
+  incomplete-racing promotion, hidden throttle/brake coverage,
+  shell/reserved delivery, missing title/player/health binding, stuck
+  buttons, reserved output fields, mapping substitution, stale provenance,
+  and undeclared qualification.
+- All 443 workspace package tests and 15 hosted-browser supervisor tests pass,
+  together with workspace typecheck, production build, schema freshness,
+  benchmark/transport/manifest validation, device-only data exclusion,
+  compliance inventory, and Godot 4.7 validation.
+
+### Remaining boundary
+
+I-071 remains active. No unmodified game, native virtual gamepad, Linux input
+stack, compositor, target appliance, camera, tracker, or participant was used.
+The fixed pulse and authored function coverage are not playability, latency,
+comfort, accessibility, or catalog evidence. Q-239, exact rights-cleared game
+builds, signed host-owned mappings, native release/fault behavior, both target
+tiers, physical controller recovery, full latency distributions, and
+consented separately reported three-genre play sessions remain required.

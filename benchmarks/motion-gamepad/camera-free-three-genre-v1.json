@@ -1,0 +1,330 @@
+{
+  "format": "vcg-motion-gamepad-three-genre-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "camera-free-synthetic-adapter",
+  "qualification": "not-a-play-test",
+  "policy": {
+    "exactTitleMappingRequired": true,
+    "exactAuthorizedPlayerRequired": true,
+    "trackerReadyRequired": true,
+    "shellActionsDeliverableToGame": false,
+    "reservedHomeBackPauseDeliverableToGame": false,
+    "incompleteMappingLaunchable": false,
+    "nativeVirtualDeviceImplemented": false
+  },
+  "mappingResults": [
+    {
+      "mappingId": "platformer-lean-actions-v1",
+      "genre": "platformer",
+      "coverage": "candidate-complete",
+      "requiredFunctions": [
+        "move-horizontal",
+        "jump",
+        "crouch",
+        "dodge-left",
+        "dodge-right"
+      ],
+      "missingFunctions": [],
+      "disposition": "camera-free-software-path-only",
+      "playTestCompleted": false,
+      "measuredEndToEndLatencyMs": null,
+      "comfortFinding": null,
+      "checks": [
+        {
+          "id": "lean-rescales-to-left-stick",
+          "passed": true,
+          "detail": "A bounded +0.575 lean feature becomes +0.5 left-stick X after the deadzone."
+        },
+        {
+          "id": "jump-and-crouch-bind-explicitly",
+          "passed": true,
+          "detail": "Jump maps to South and Duck maps to D-pad Down only in the title-bound platformer mapping."
+        },
+        {
+          "id": "button-pulses-release",
+          "passed": true,
+          "detail": "Discrete buttons release at the fixed 80 ms boundary."
+        },
+        {
+          "id": "shell-actions-never-bind",
+          "passed": true,
+          "detail": "Pause, Back, and Select shell actions are reported blocked and emit no gamepad button."
+        },
+        {
+          "id": "tracker-loss-releases",
+          "passed": true,
+          "detail": "Non-ready tracker health clears axes and held pulses immediately."
+        }
+      ]
+    },
+    {
+      "mappingId": "racing-steer-only-v1",
+      "genre": "racing",
+      "coverage": "incomplete",
+      "requiredFunctions": [
+        "steer",
+        "throttle",
+        "brake"
+      ],
+      "missingFunctions": [
+        "continuous-throttle",
+        "continuous-brake"
+      ],
+      "disposition": "unsupported",
+      "playTestCompleted": false,
+      "measuredEndToEndLatencyMs": null,
+      "comfortFinding": null,
+      "checks": [
+        {
+          "id": "steering-alone-is-insufficient",
+          "passed": true,
+          "detail": "Lean can propose steering but cannot supply required continuous throttle and brake."
+        },
+        {
+          "id": "incomplete-mapping-emits-nothing",
+          "passed": true,
+          "detail": "An incomplete genre mapping fails closed instead of launching with partial controls."
+        },
+        {
+          "id": "racing-play-claim-withheld",
+          "passed": true,
+          "detail": "The adapter exposes the incomplete mapping reason and no playability conclusion."
+        }
+      ]
+    },
+    {
+      "mappingId": "arcade-lean-actions-v1",
+      "genre": "arcade",
+      "coverage": "candidate-complete",
+      "requiredFunctions": [
+        "move-horizontal",
+        "primary-action",
+        "secondary-action",
+        "left-action",
+        "right-action"
+      ],
+      "missingFunctions": [],
+      "disposition": "camera-free-software-path-only",
+      "playTestCompleted": false,
+      "measuredEndToEndLatencyMs": null,
+      "comfortFinding": null,
+      "checks": [
+        {
+          "id": "arcade-lean-rescales",
+          "passed": true,
+          "detail": "A bounded -0.575 lean feature becomes -0.5 left-stick X."
+        },
+        {
+          "id": "arcade-actions-bind-explicitly",
+          "passed": true,
+          "detail": "Four obstacle actions map to the arcade title's explicit ordinary buttons."
+        },
+        {
+          "id": "mapping-remains-title-specific",
+          "passed": true,
+          "detail": "Duck differs across the arcade and platformer mappings rather than using a hidden global remap."
+        },
+        {
+          "id": "authority-loss-releases",
+          "passed": true,
+          "detail": "Loss of exact player authority clears axes and held pulses immediately."
+        }
+      ]
+    }
+  ],
+  "representativeOutputs": {
+    "platformerActive": {
+      "schemaVersion": 1,
+      "mappingId": "platformer-lean-actions-v1",
+      "gameId": "fixture-platformer",
+      "researchOnly": true,
+      "sequence": 0,
+      "occurredAtMs": 100,
+      "state": "active",
+      "releaseReason": null,
+      "axes": {
+        "leftStickX": 0.5
+      },
+      "buttons": {
+        "south": true,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": true
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "platformerReleased": {
+      "schemaVersion": 1,
+      "mappingId": "platformer-lean-actions-v1",
+      "gameId": "fixture-platformer",
+      "researchOnly": true,
+      "sequence": 1,
+      "occurredAtMs": 180,
+      "state": "active",
+      "releaseReason": null,
+      "axes": {
+        "leftStickX": 0
+      },
+      "buttons": {
+        "south": false,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": false
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "platformerShellBlocked": {
+      "schemaVersion": 1,
+      "mappingId": "platformer-lean-actions-v1",
+      "gameId": "fixture-platformer",
+      "researchOnly": true,
+      "sequence": 2,
+      "occurredAtMs": 200,
+      "state": "active",
+      "releaseReason": null,
+      "axes": {
+        "leftStickX": 0
+      },
+      "buttons": {
+        "south": false,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": false
+      },
+      "blockedActions": [
+        "pause",
+        "menu_back",
+        "menu_select"
+      ],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "platformerHealthReleased": {
+      "schemaVersion": 1,
+      "mappingId": "platformer-lean-actions-v1",
+      "gameId": "fixture-platformer",
+      "researchOnly": true,
+      "sequence": 4,
+      "occurredAtMs": 220,
+      "state": "released",
+      "releaseReason": "tracker-not-ready",
+      "axes": {
+        "leftStickX": 0
+      },
+      "buttons": {
+        "south": false,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": false
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "racingUnsupported": {
+      "schemaVersion": 1,
+      "mappingId": "racing-steer-only-v1",
+      "gameId": "fixture-racing",
+      "researchOnly": true,
+      "sequence": 0,
+      "occurredAtMs": 100,
+      "state": "unsupported",
+      "releaseReason": "mapping-incomplete",
+      "axes": {
+        "leftStickX": 0
+      },
+      "buttons": {
+        "south": false,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": false
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "arcadeActive": {
+      "schemaVersion": 1,
+      "mappingId": "arcade-lean-actions-v1",
+      "gameId": "fixture-arcade",
+      "researchOnly": true,
+      "sequence": 0,
+      "occurredAtMs": 100,
+      "state": "active",
+      "releaseReason": null,
+      "axes": {
+        "leftStickX": -0.5
+      },
+      "buttons": {
+        "south": true,
+        "west": true,
+        "leftShoulder": true,
+        "rightShoulder": true,
+        "dpadDown": false
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    },
+    "arcadeAuthorityReleased": {
+      "schemaVersion": 1,
+      "mappingId": "arcade-lean-actions-v1",
+      "gameId": "fixture-arcade",
+      "researchOnly": true,
+      "sequence": 1,
+      "occurredAtMs": 110,
+      "state": "released",
+      "releaseReason": "authority-lost",
+      "axes": {
+        "leftStickX": 0
+      },
+      "buttons": {
+        "south": false,
+        "west": false,
+        "leftShoulder": false,
+        "rightShoulder": false,
+        "dpadDown": false
+      },
+      "blockedActions": [],
+      "staleActions": [],
+      "repeatedActions": []
+    }
+  },
+  "summary": {
+    "genreCount": 3,
+    "checkCount": 12,
+    "passedCheckCount": 12,
+    "candidateSoftwarePathCount": 2,
+    "unsupportedCount": 1,
+    "completedPlayTestCount": 0,
+    "measuredLatencyCount": 0,
+    "comfortFindingCount": 0
+  },
+  "provenance": {
+    "implementationPath": "packages/motion-contract/src/gamepad-emulation.ts",
+    "contractTestPath": "packages/motion-contract/tests/gamepad-emulation.test.ts",
+    "generatorPath": "scripts/generate-motion-gamepad-evidence.mjs",
+    "validatorPath": "scripts/validate-motion-gamepad-evidence.mjs",
+    "implementationSha256": "892700658f9de7dfc3d5b9a52991c2e32bf622c410631ed0f5b8048e9bb2ab67",
+    "contractTestSha256": "bf0fd4a1269a256eb9e80a7b3060273eef8792c8ee95ddb3aaf820189886107b",
+    "generatorSha256": "1c4d49e51d675193fd1ee8c055a6939face2b2f080c09734a1bd2bb24699018f",
+    "validatorSha256": "a5b99f9e4747580bcc6d152db7b3102a1ac823ee59db8dd069be3df3cc37ba83"
+  },
+  "claimBoundary": "Camera-free deterministic adapter evidence only. It proves authored mapping, pulse, replay, health, authority, and reserved-action behavior; it does not prove that any unmodified game receives a native virtual controller, is playable, meets latency gates, or is comfortable for a person.",
+  "limitations": [
+    "The lean feature is injected directly and is not measured from a camera, tracker, calibrated body, or player.",
+    "No native Linux virtual gamepad, SDL3 device, compositor, game process, or target appliance is connected.",
+    "The fixed 80 ms software pulse is not a measured game-compatible hold duration and adds no end-to-end latency evidence.",
+    "No participant attempted a platformer, racing game, or arcade game; comfort, fatigue, comprehension, false actions, and gameplay outcomes are unknown.",
+    "The two candidate-complete mappings describe authored function coverage only and are not approved catalog mappings."
+  ]
+}
