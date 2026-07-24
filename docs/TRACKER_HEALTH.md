@@ -49,6 +49,6 @@ Health events do not grant capabilities, origin trust, launch authority, or raw-
 
 ## Browser lab evidence
 
-The Motion Lab has visible Ready, Low confidence, Overload, Restart, and Disconnect fixtures. Status is redundant in badge text, title, detail, border treatment, and `FULL`, `LANDMARKS ONLY`, or `CONTROLLER ONLY` availability. The actual browser tracker emits initializing/restarting, healthy worker, fallback-backend, camera-unavailable/disconnected, and backend-fault transitions.
+The Motion Lab has visible Ready, Low confidence, Overload, Restart, and Disconnect fixtures. Status is redundant in badge text, title, detail, border treatment, and `FULL`, `LANDMARKS ONLY`, or `CONTROLLER ONLY` availability. The actual browser tracker emits initializing/restarting, healthy worker, fallback-backend, camera-unavailable/disconnected, and backend-fault transitions. Same-origin and sandboxed cross-origin Chrome fixtures also display welcome-time health, later overload, recovery, reload, and return-after-hostile-navigation state.
 
 The fixture proves deterministic contract and UI behavior, not the thresholds that should produce low-confidence or overload on real hardware. Real camera disconnects, sustained overload, restart recovery, per-limb loss, game pause behavior, accessibility comprehension, and ARM64/x86-64 latency remain qualification work.

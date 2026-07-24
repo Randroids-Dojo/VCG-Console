@@ -1018,7 +1018,7 @@ The selected living room still needs its exact survey and marked zone. Anchor su
 - The contract suite passes 47 tests, covering every valid health tuple, incoherent-tuple rejection, start/fault player denial, non-ready action denial, representable JSON constraints, and the updated `0.3.0` benchmark contract.
 - Sixteen bridge tests cover welcome health, ordered out-of-band overload/restart delivery, late reconnect state, stale/time-regressing event refusal, source/status mismatch refusal, and degraded profile projection.
 - Eighty console unit tests cover all visible copies/control modes and prove degradation suppresses actions and resets hold timing.
-- Twenty real-Chrome flows exercise the five visible health fixtures plus healthy worker, explicit fallback-backend status, and the existing cross-origin/navigation boundary.
+- Twenty real-Chrome flows exercise the five visible health fixtures, healthy worker, explicit fallback-backend status, and welcome/overload/recovery health across same-origin and sandboxed cross-origin clients through reload and hostile navigation.
 - Workspace tests, typechecks, production build, schema/manifests/benchmark freshness, and the high-severity dependency audit pass.
 
 ### Remaining boundary

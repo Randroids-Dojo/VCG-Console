@@ -561,7 +561,12 @@ test("cooperative web game negotiates, receives a frame, and reconnects after re
   await page.goto("/bridge-host.html");
   const game = page.frameLocator("#game");
   await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await expect(page.locator("#host-status")).toHaveText("CONNECTED");
+  await page.getByRole("button", { name: "PUBLISH DEGRADED HEALTH" }).click();
+  await expect(game.locator("#health-state")).toHaveText("HEALTH OVERLOAD / LANDMARKS-ONLY");
+  await page.getByRole("button", { name: "PUBLISH READY HEALTH" }).click();
+  await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 0");
 
@@ -576,9 +581,14 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
   await page.goto("/bridge-cross-origin-host.html");
   const game = page.frameLocator("#game");
   await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await expect(game.locator("#client-origin")).toHaveText("http://localhost:4173");
   await expect(page.locator("#host-status")).toHaveText("CONNECTED");
 
+  await page.getByRole("button", { name: "PUBLISH DEGRADED HEALTH" }).click();
+  await expect(game.locator("#health-state")).toHaveText("HEALTH OVERLOAD / LANDMARKS-ONLY");
+  await page.getByRole("button", { name: "PUBLISH READY HEALTH" }).click();
+  await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 0");
 
@@ -595,6 +605,7 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
     element.src = "http://localhost:4173/bridge-cross-origin-client.html";
   });
   await expect(game.locator("#client-status")).toHaveText("CONNECTED");
+  await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 2");
 });
