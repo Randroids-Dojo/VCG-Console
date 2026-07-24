@@ -1993,3 +1993,54 @@ health-summary UX, final byte/boot/time rotation, trusted provenance/clock
 policy, filesystem/full-disk/power-loss behavior, controller/accessibility
 review, and an independently reviewed support artifact remain I-116 work after
 Q-148 through Q-150.
+
+## 2026-07-24: automatic body-profile matching threat model
+
+### Delivered
+
+- Added a feature-specific threat model without replacing or narrowing the
+  repository-wide security model.
+- Classified raw samples, landmark windows, probes, templates, candidates,
+  scores, profile presentation, calibration, policy state, and the vault key
+  by sensitivity and intended lifetime.
+- Drew the planned capture-to-confirmation flow and made the portrait store,
+  game runtimes, backup, diagnostics, support, recovery, and cloud explicit
+  no-edge boundaries.
+- Defined nine trust boundaries, eight actor classes, seven security/privacy
+  objectives, and fail-closed behavior for absent consent, schema drift,
+  vault/key failure, ambiguity, missing confirmation, withdrawal, and
+  portrait/matching separation.
+- Recorded sixteen attacker stories covering enumeration and membership
+  oracles, removable-storage theft, rollback, false matches, unequal error,
+  portrait creep, diagnostics/recovery leakage, developer misuse, incomplete
+  deletion, key loss, hostile inputs, supply chain, accidental management,
+  bystanders, and shared-TV disclosure.
+- Specified the crash-recoverable deletion sequence, canary-based negative-
+  leak matrix, feature inversion/linkability tests, stratified accuracy
+  evidence, legal-jurisdiction screening, and Critical/High/Medium/Low
+  severity calibration.
+- Made explicit profile selection with transient calibration the complete
+  fallback and kept automatic matching disabled until every release gate
+  passes.
+- Added Q-151 through Q-154 for the exact feature allowlist, household
+  notice/consent/opt-out, launch jurisdictions/legal posture, and measurable
+  residual-risk acceptance.
+
+### Verification evidence
+
+The artifact covers every proof class requested by I-184 and links the current
+primary GDPR/UK ICO, COPPA/eCFR, Illinois, Colorado, Texas, and California
+screening sources. Local Markdown links resolve, whitespace validation passes,
+and the investigation remains `active` rather than claiming that a design
+review proves implementation, legal compliance, target security, or household
+acceptability.
+
+### Remaining boundary
+
+The exact minimized feature schema and consent state do not exist. Automatic
+matching, the profile broker, encrypted vault, device-bound key, protected
+deletion state, target sandboxing, exclusion tests, inversion/linkability
+tests, accuracy and accessibility trials, household research, and legal review
+are all unimplemented or unperformed. I-067, I-072, I-186, and I-187 must
+produce that evidence, and the owner must answer Q-151 through Q-154 before
+I-184 can close or any household beta can enable matching.
