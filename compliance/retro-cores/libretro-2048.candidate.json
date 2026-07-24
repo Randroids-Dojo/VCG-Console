@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentType": "vcg-retro-core-source-candidate-sbom",
+  "observedOn": "2026-07-24",
+  "status": "source-candidate-unqualified",
+  "core": {
+    "id": "2048",
+    "name": "libretro 2048",
+    "upstreamAuthors": [
+      "Gabriele Cirulli",
+      "Higor Eurípedes"
+    ]
+  },
+  "source": {
+    "repository": "https://github.com/libretro/libretro-2048",
+    "observedBranch": "master",
+    "revision": "c90437d3c3913999624deca3fb55ecfa632b72c4",
+    "sourceArchive": "https://github.com/libretro/libretro-2048/archive/c90437d3c3913999624deca3fb55ecfa632b72c4.tar.gz",
+    "sourceArchiveSha256": null,
+    "publishedRelease": null
+  },
+  "license": {
+    "expression": "LicenseRef-Unlicense",
+    "evidence": "https://raw.githubusercontent.com/libretro/libretro-2048/c90437d3c3913999624deca3fb55ecfa632b72c4/COPYING",
+    "reviewStatus": "source-text-observed-legal-review-pending",
+    "noticeObligation": "retain-exact-license-and-component-attribution",
+    "sourceOffer": "no-reciprocal-source-offer-identified-retain-exact-source-anyway"
+  },
+  "runtime": {
+    "contentMode": "none",
+    "bios": [],
+    "supportsNoGame": true,
+    "controllerProfile": "retropad-standard-v1",
+    "documentedFeatures": [
+      "controls",
+      "netplay",
+      "remapping",
+      "restart",
+      "rewind",
+      "saves",
+      "screenshots",
+      "states"
+    ]
+  },
+  "build": {
+    "selectedRecipe": null,
+    "artifactSha256": null,
+    "artifactByteLength": null,
+    "requestedArchitectures": [
+      {
+        "architecture": "aarch64",
+        "status": "unverified"
+      },
+      {
+        "architecture": "x86_64",
+        "status": "unverified"
+      }
+    ],
+    "sourceDependencies": [
+      {
+        "id": "libretro-api-header",
+        "relationship": "vendored-source",
+        "license": "MIT",
+        "reviewStatus": "header-license-observed"
+      },
+      {
+        "id": "libretro-common-subset",
+        "relationship": "vendored-source",
+        "license": "NOASSERTION",
+        "reviewStatus": "complete-file-license-review-pending"
+      }
+    ],
+    "ambiguity": [
+      "No target build recipe, compiler, flags, sysroot, or reproducible environment is selected.",
+      "The non-Cairo Makefile compiles vendored libretro-common sources, while the README also names fontconfig, FreeType, expat, bzip2, zlib, and iconv for another build path.",
+      "No ARM64 or x86-64 core binary has been built, hashed, scanned, or run."
+    ]
+  },
+  "knownIssues": [
+    {
+      "id": "upstream-11",
+      "state": "open",
+      "url": "https://github.com/libretro/libretro-2048/issues/11",
+      "summary": "Segmentation fault reported during regular gameplay.",
+      "disposition": "blocks qualification until reproduced or closed with target evidence"
+    },
+    {
+      "id": "upstream-33",
+      "state": "open",
+      "url": "https://github.com/libretro/libretro-2048/issues/33",
+      "summary": "Font size reported too small on handheld retro consoles.",
+      "disposition": "requires TV-distance and low-resolution legibility verification"
+    },
+    {
+      "id": "upstream-42",
+      "state": "open",
+      "url": "https://github.com/libretro/libretro-2048/issues/42",
+      "summary": "User reports uncertainty about loading the core.",
+      "disposition": "requires one-action Start Core and recovery-flow verification"
+    },
+    {
+      "id": "upstream-25",
+      "state": "open",
+      "url": "https://github.com/libretro/libretro-2048/issues/25",
+      "summary": "Upstream enhancement request for a 5x5 mode.",
+      "disposition": "not required for the VCG qualification candidate"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "repository",
+      "url": "https://github.com/libretro/libretro-2048"
+    },
+    {
+      "id": "pinned-commit",
+      "url": "https://github.com/libretro/libretro-2048/commit/c90437d3c3913999624deca3fb55ecfa632b72c4"
+    },
+    {
+      "id": "core-documentation",
+      "url": "https://docs.libretro.com/library/2048/"
+    },
+    {
+      "id": "license-index",
+      "url": "https://docs.libretro.com/development/licenses/"
+    },
+    {
+      "id": "open-issues",
+      "url": "https://github.com/libretro/libretro-2048/issues"
+    }
+  ]
+}

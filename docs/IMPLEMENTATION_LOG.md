@@ -3564,3 +3564,52 @@ comfort, accessibility, or catalog evidence. Q-239, exact rights-cleared game
 builds, signed host-owned mappings, native release/fault behavior, both target
 tiers, physical controller recovery, full latency distributions, and
 consented separately reported three-genre play sessions remain required.
+
+## 2026-07-24: pinned libretro 2048 source-candidate SBOM
+
+### Delivered
+
+- Advanced I-124 from open to active with a deterministic per-core
+  source-candidate SBOM for libretro 2048.
+- Pinned exact observed upstream revision
+  `c90437d3c3913999624deca3fb55ecfa632b72c4`, its revision-specific source
+  archive URL, pinned license evidence, contentless/no-BIOS behavior,
+  documented RetroPad features, and four open upstream issue dispositions.
+- Kept the unfetched archive hash, published release, build recipe, artifact
+  hash/length, and both requested architecture results explicitly absent or
+  unverified. The record cannot claim qualification or a distributable binary.
+- Recorded the vendored libretro API header's observed MIT notice while
+  keeping the selected libretro-common subset at `NOASSERTION` pending an
+  exact build recipe and complete selected-file review.
+- Added a 64 KiB bounded UTF-8 parser, duplicate-member rejection, closed
+  object shapes, deterministic generation/freshness checking, and exact
+  reviewed-evidence locking.
+- Added `RETRO_CORE_SBOM.md` with source-backed component, license, build,
+  issue, and remaining-gate boundaries. No source archive or executable was
+  downloaded, produced, or distributed.
+
+### Verification evidence
+
+- Thirteen focused tests cover canonical generation plus malformed, invalid
+  UTF-8, oversized, duplicate-member, unknown/missing-field, source,
+  qualification, architecture, content/BIOS, license, dependency, crash,
+  issue/evidence identity, and digest-format substitutions.
+- `pnpm validate:retro-core-sbom` verifies the checked-in artifact byte for
+  byte and passes the complete adversarial suite.
+- The root unit gate passes all 443 workspace package tests, 15 hosted-browser
+  supervisor tests, and 13 SBOM tests: 471 tests total.
+- Workspace TypeScript/Svelte checking reports zero diagnostics and the
+  production build succeeds.
+- Schema freshness, manifest/catalog validation, compliance inventory,
+  benchmark and transport validation, Godot 4.7, and device-only data
+  exclusion all pass.
+
+### Remaining boundary
+
+I-124 remains active. Controlled archive retrieval and hashing, source-tree
+equivalence, one exact reproducible build path, complete selected dependency
+and license closure, legal approval, source/notice bundle policy, signed and
+scanned ARM64/x86-64 artifacts, open-crash reproduction or closure,
+TV-distance legibility, one-action startup, runtime behavior, and target
+package lifecycle evidence remain. The public candidate manifest stays
+`unverified`; this source-candidate SBOM cannot promote it.
