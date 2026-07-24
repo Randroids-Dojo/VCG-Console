@@ -83,10 +83,16 @@ export interface HostedBrowserStatus {
 }
 
 export interface HostedBrowserContainmentProbeResult {
+  readonly attempt: HostedBrowserContainmentProbeAttempt;
   readonly violation: HostedBrowserViolation;
   readonly exitCode: number | null;
   readonly signal: NodeJS.Signals | null;
 }
+
+export type HostedBrowserContainmentProbeAttempt =
+  | "download"
+  | "foreign-navigation"
+  | "popup";
 
 interface CdpEvent {
   readonly method: string;
@@ -654,6 +660,7 @@ export async function runSupervisedHostedBrowser(
 export async function probeHostedBrowserContainment(
   browserPath: string,
   profilePath: string,
+  attempt: HostedBrowserContainmentProbeAttempt = "foreign-navigation",
 ): Promise<HostedBrowserContainmentProbeResult> {
   profilePath = validateHostedBrowserProfilePath(profilePath);
   const probePolicy = createHostedBrowserPolicy({
@@ -705,7 +712,28 @@ export async function probeHostedBrowserContainment(
       },
       () => undefined,
     );
-    await ready.navigate("data:text/html,vcg-contained");
+    switch (attempt) {
+      case "foreign-navigation":
+        await ready.navigate("data:text/html,vcg-contained");
+        break;
+      case "popup":
+        await ready.evaluate(
+          'window.open("about:blank", "_blank", "noopener")',
+        );
+        break;
+      case "download":
+        await ready.evaluate(`
+          (() => {
+            const link = document.createElement("a");
+            link.href = "data:text/plain,vcg-contained";
+            link.download = "vcg-contained.txt";
+            document.body.append(link);
+            link.click();
+            link.remove();
+          })()
+        `);
+        break;
+    }
     const observed = await withDeadline(
       observedViolation,
       5_000,
@@ -713,6 +741,7 @@ export async function probeHostedBrowserContainment(
     );
     const exit = await stopBrowserProcess(connection, child, childExit);
     return Object.freeze({
+      attempt,
       violation: observed,
       exitCode: exit.code,
       signal: exit.signal,
@@ -732,6 +761,7 @@ async function superviseCdpSession(
   onViolation: ViolationListener,
   onMainTargetClosed: () => void,
 ): Promise<{
+  readonly evaluate: (expression: string) => Promise<void>;
   readonly loaded: Promise<void>;
   readonly navigate: (url?: string) => Promise<void>;
 }> {
@@ -830,6 +860,7 @@ async function superviseCdpSession(
   });
   mainSessionId = requireStringField(attachResult, "sessionId");
   await connection.send("Page.enable", {}, mainSessionId);
+  await connection.send("Runtime.enable", {}, mainSessionId);
   await connection.send(
     "Page.setLifecycleEventsEnabled",
     { enabled: true },
@@ -851,6 +882,32 @@ async function superviseCdpSession(
   }
 
   return Object.freeze({
+    evaluate: async (expression: string) => {
+      if (
+        typeof expression !== "string"
+        || expression.length === 0
+        || expression.length > 4_096
+      ) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser probe expression is invalid",
+        );
+      }
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: true,
+          expression,
+          returnByValue: true,
+          userGesture: true,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser probe expression failed",
+        );
+      }
+    },
     loaded,
     navigate: async (url = policy.entrypoint) => {
       guard?.beginNavigation();

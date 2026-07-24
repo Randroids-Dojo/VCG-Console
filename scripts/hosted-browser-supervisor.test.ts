@@ -461,22 +461,28 @@ describe("hosted browser process arguments", () => {
 
   const chrome = installedChromePath();
   it(
-    "actively terminates real Chrome on a forbidden top-level navigation",
-    { skip: chrome === undefined, timeout: 30_000 },
+    "actively terminates real Chrome on navigation, popup, and download abuse",
+    { skip: chrome === undefined, timeout: 60_000 },
     async () => {
       assert.ok(chrome);
-      const profilePath = await mkdtemp(
-        join(tmpdir(), "vcg-hosted-probe-"),
-      );
-      const result = await probeHostedBrowserContainment(
-        chrome,
-        profilePath,
-      );
-      assert.equal(
-        result.violation.code,
-        "NAVIGATION_ORIGIN_DENIED",
-      );
-      assert.equal(existsSync(profilePath), false);
+      const attempts = [
+        ["foreign-navigation", "NAVIGATION_ORIGIN_DENIED"],
+        ["popup", "POPUP_ATTEMPT"],
+        ["download", "DOWNLOAD_ATTEMPT"],
+      ] as const;
+      for (const [attempt, expectedCode] of attempts) {
+        const profilePath = await mkdtemp(
+          join(tmpdir(), "vcg-hosted-probe-"),
+        );
+        const result = await probeHostedBrowserContainment(
+          chrome,
+          profilePath,
+          attempt,
+        );
+        assert.equal(result.attempt, attempt);
+        assert.equal(result.violation.code, expectedCode);
+        assert.equal(existsSync(profilePath), false);
+      }
     },
   );
 });

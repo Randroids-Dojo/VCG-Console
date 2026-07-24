@@ -110,12 +110,13 @@ Fifteen focused cases cover:
 - destructive-profile lexical scope, including refusal of the temporary root,
   unrelated names, short names, and nested paths.
 
-The final test launches installed Chrome headlessly through the real random
-DevTools endpoint and ephemeral profile, arms the production guard, injects a
-forbidden `data:` top-level navigation, observes
-`NAVIGATION_ORIGIN_DENIED`, closes the owned browser with exit code 0, and
-verifies the profile directory is gone. The 2026-07-24 Windows evidence used
-Chrome 150.0.7871.182.
+The final test launches installed Chrome headlessly three times through real
+random DevTools endpoints and separate ephemeral profiles. It arms the
+production guard, injects a forbidden `data:` top-level navigation, popup, and
+download, observes `NAVIGATION_ORIGIN_DENIED`, `POPUP_ATTEMPT`, and
+`DOWNLOAD_ATTEMPT`, closes each owned browser with exit code 0, and verifies
+each profile directory is gone. The 2026-07-24 Windows evidence used Chrome
+150.0.7871.182.
 
 Run:
 
