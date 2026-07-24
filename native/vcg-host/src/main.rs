@@ -5,6 +5,7 @@ use std::process::ExitCode;
 use std::time::Duration;
 
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
+use vcg_host::retroarch::{RetroArchRequest, plan as plan_retroarch};
 
 fn main() -> ExitCode {
     let arguments = env::args_os().skip(1).collect::<Vec<_>>();
@@ -28,18 +29,214 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("target: {}-{}", env::consts::ARCH, env::consts::OS);
             println!("process-supervision: available");
             println!("game-watchdog: heartbeat-and-bounded-restart");
+            println!("retroarch-adapter: plan-and-direct-launch");
+            println!("retroarch-readiness: compositor-adapter-pending");
             println!("resource-fault-detection: adapter-required");
             println!("sdl3-input: adapter pending target-Linux qualification");
             Ok(ExitCode::SUCCESS)
         }
         "supervise" => supervise(&arguments[1..]),
         "watchdog" => watchdog(&arguments[1..]),
+        "retroarch" => retroarch(&arguments[1..]),
         "help" | "--help" | "-h" => {
             println!("{}", usage());
             Ok(ExitCode::SUCCESS)
         }
         _ => Err(usage()),
     }
+}
+
+fn retroarch(arguments: &[OsString]) -> Result<ExitCode, String> {
+    let (dry_run, request) = retroarch_request(arguments)?;
+    let plan = plan_retroarch(&request).map_err(|error| error.to_string())?;
+    if dry_run {
+        println!("retroarch:plan mode=dry-run");
+        println!("program: {}", plan.launch().program().display());
+        for argument in plan.launch().arguments() {
+            println!("argument: {}", argument.to_string_lossy());
+        }
+        println!("session: {}", plan.storage().session.display());
+        println!("session-config: {}", plan.storage().config.display());
+        println!("saves: {}", plan.storage().saves.display());
+        println!("states: {}", plan.storage().states.display());
+        println!("contentless: {}", plan.contentless());
+        return Ok(ExitCode::SUCCESS);
+    }
+
+    plan.prepare().map_err(|error| error.to_string())?;
+    println!(
+        "retroarch:prepared game={} profile={} config={}",
+        request.game_id,
+        request.profile_id,
+        plan.storage().config.display()
+    );
+    let child = ProcessSupervisor
+        .launch(plan.launch())
+        .map_err(|error| error.to_string())?;
+    println!("retroarch:started pid={}", child.id());
+    let status = child.wait().map_err(|error| error.to_string())?;
+    println!(
+        "retroarch:completed exit_code={}",
+        status
+            .code()
+            .map_or_else(|| "signal".to_owned(), |code| code.to_string())
+    );
+    Ok(if status.success() {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE
+    })
+}
+
+#[derive(Default)]
+struct RetroArchOptions {
+    dry_run: bool,
+    install_root: Option<PathBuf>,
+    content_root: Option<PathBuf>,
+    runtime_root: Option<PathBuf>,
+    data_root: Option<PathBuf>,
+    frontend: Option<PathBuf>,
+    core: Option<PathBuf>,
+    content: Option<PathBuf>,
+    base_config: Option<PathBuf>,
+    profile_id: Option<String>,
+    game_id: Option<String>,
+}
+
+fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest), String> {
+    let mut options = RetroArchOptions::default();
+    let mut cursor = 0;
+    while let Some(argument) = arguments.get(cursor) {
+        let option = argument
+            .to_str()
+            .ok_or_else(|| "retroarch options must be UTF-8".to_owned())?;
+        parse_retroarch_option(arguments, &mut cursor, option, &mut options)?;
+        cursor += 1;
+    }
+
+    let dry_run = options.dry_run;
+    Ok((
+        dry_run,
+        RetroArchRequest {
+            install_root: options
+                .install_root
+                .ok_or_else(|| "retroarch requires --install-root".to_owned())?,
+            content_root: options.content_root,
+            runtime_root: options
+                .runtime_root
+                .ok_or_else(|| "retroarch requires --runtime-root".to_owned())?,
+            data_root: options
+                .data_root
+                .ok_or_else(|| "retroarch requires --data-root".to_owned())?,
+            frontend: options
+                .frontend
+                .ok_or_else(|| "retroarch requires --frontend".to_owned())?,
+            core: options
+                .core
+                .ok_or_else(|| "retroarch requires --core".to_owned())?,
+            content: options.content,
+            base_config: options
+                .base_config
+                .ok_or_else(|| "retroarch requires --base-config".to_owned())?,
+            profile_id: options
+                .profile_id
+                .ok_or_else(|| "retroarch requires --profile".to_owned())?,
+            game_id: options
+                .game_id
+                .ok_or_else(|| "retroarch requires --game".to_owned())?,
+        },
+    ))
+}
+
+fn parse_retroarch_option(
+    arguments: &[OsString],
+    cursor: &mut usize,
+    option: &str,
+    output: &mut RetroArchOptions,
+) -> Result<(), String> {
+    if option == "--dry-run" {
+        output.dry_run = true;
+        return Ok(());
+    }
+    *cursor += 1;
+    match option {
+        "--install-root" => set_path_option(
+            &mut output.install_root,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--content-root" => set_path_option(
+            &mut output.content_root,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--runtime-root" => set_path_option(
+            &mut output.runtime_root,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--data-root" => set_path_option(
+            &mut output.data_root,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--frontend" => set_path_option(
+            &mut output.frontend,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--core" => set_path_option(
+            &mut output.core,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--content" => set_path_option(
+            &mut output.content,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--base-config" => set_path_option(
+            &mut output.base_config,
+            required_path(arguments, *cursor, option)?,
+            option,
+        ),
+        "--profile" => set_text_option(
+            &mut output.profile_id,
+            required_text(arguments, *cursor, option)?,
+            option,
+        ),
+        "--game" => set_text_option(
+            &mut output.game_id,
+            required_text(arguments, *cursor, option)?,
+            option,
+        ),
+        value => Err(format!("unknown retroarch option: {value}")),
+    }
+}
+
+fn set_path_option(slot: &mut Option<PathBuf>, value: PathBuf, option: &str) -> Result<(), String> {
+    if slot.replace(value).is_some() {
+        Err(format!("{option} may only be supplied once"))
+    } else {
+        Ok(())
+    }
+}
+
+fn set_text_option(slot: &mut Option<String>, value: String, option: &str) -> Result<(), String> {
+    if slot.replace(value).is_some() {
+        Err(format!("{option} may only be supplied once"))
+    } else {
+        Ok(())
+    }
+}
+
+fn required_text(arguments: &[OsString], cursor: usize, option: &str) -> Result<String, String> {
+    arguments
+        .get(cursor)
+        .and_then(|value| value.to_str())
+        .filter(|value| !value.is_empty())
+        .map(str::to_owned)
+        .ok_or_else(|| format!("{option} requires a non-empty UTF-8 value"))
 }
 
 fn supervise(arguments: &[OsString]) -> Result<ExitCode, String> {
@@ -231,13 +428,13 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]"
+    "usage:\n  vcg-host doctor\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --core <path> --base-config <path> --profile <id> --game <id> [--content-root <path> --content <path>]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{supervise, supervise_plan, watchdog_plan};
+    use super::{retroarch_request, supervise, supervise_plan, watchdog_plan};
     use std::ffi::OsString;
 
     fn args(values: &[&str]) -> Vec<OsString> {
@@ -311,6 +508,39 @@ mod tests {
             ]))
             .is_err()
         );
+    }
+
+    #[test]
+    fn retroarch_requires_all_trusted_roots_and_artifacts() {
+        assert!(retroarch_request(&[]).is_err());
+        assert!(
+            retroarch_request(&args(&[
+                "--install-root",
+                "/installed",
+                "--runtime-root",
+                "/runtime",
+                "--data-root",
+                "/data",
+                "--frontend",
+                "/installed/retroarch",
+                "--core",
+                "/installed/core.so",
+                "--base-config",
+                "/installed/base.cfg",
+                "--profile",
+                "player-one",
+            ]))
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn retroarch_parser_rejects_duplicate_and_unknown_options() {
+        assert!(
+            retroarch_request(&args(&["--install-root", "/one", "--install-root", "/two"]))
+                .is_err()
+        );
+        assert!(retroarch_request(&args(&["--surprise"])).is_err());
     }
 
     #[test]
