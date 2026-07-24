@@ -44,7 +44,7 @@ The generated artifact selects only presentation and routing facts: ID, version,
 - Universal search derives every visible game title, runtime, network class, compatibility state, and search terms from the generated artifact.
 - The retro list derives the 2048 candidate's title, ID, summary, position, and status from the same artifact.
 - Local and remote loading supervisors consume the policy budgets instead of component-local constants.
-- The authenticated native host supplies a separately bounded signed-package inventory. The shell refreshes it at startup, on Retro entry, and when focus returns; concurrent triggers share one request. It shows `Installed` and increments the home total only for exact generated-catalog ID/version/runtime matches, reports catalog absence honestly, and does not reveal unknown signed packages as public entries or counts.
+- The authenticated native host supplies a separately bounded signed-package inventory. The shell refreshes it at startup, on Retro entry, and when focus returns; concurrent triggers share one request. It shows `Installed` and increments the home total only for exact generated-catalog ID/version/runtime matches, repeats that comparison against the per-ID response before launch submission, reports catalog absence honestly, and does not reveal unknown signed packages as public entries or counts.
 
 Selecting a museum game currently enters the museum view. It does not directly navigate to the manifest entrypoint because the supervised top-level hosted-game lane, origin containment, global Home/Back, and crash return remain unimplemented.
 

@@ -212,7 +212,7 @@ test("retro launch submits only signed package and profile intent to the host", 
     } else if (request.url().includes("/v1/packages/")) {
       body = {
         id: "retro-2048",
-        version: "qualification-candidate-2026-07-23",
+        version: installedVersion,
         runtime: "libretro",
         catalogGeneration: 7,
       };
@@ -250,6 +250,13 @@ test("retro launch submits only signed package and profile intent to the host", 
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Candidate/ })).toBeVisible();
   await expect(page.getByText("No retro packages installed")).toBeVisible();
+  await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
+  const mismatchedLaunch = page.getByRole("dialog", { name: "2048" });
+  await expect(mismatchedLaunch.getByText("NOT AVAILABLE")).toBeVisible();
+  await mismatchedLaunch.getByRole("button", { name: /Details/ }).click();
+  await expect(mismatchedLaunch.getByText("PACKAGE_RELEASE_MISMATCH")).toBeVisible();
+  expect(observed.some(({ method }) => method === "POST")).toBe(false);
+  await mismatchedLaunch.getByRole("button", { name: /Exit/ }).click();
 
   installedVersion = "qualification-candidate-2026-07-23";
   observed.length = 0;

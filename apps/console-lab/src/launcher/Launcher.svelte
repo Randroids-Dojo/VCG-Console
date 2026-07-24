@@ -47,6 +47,12 @@
   let nativePackageInventoryState = $state<"checking" | "available" | "unavailable">("checking");
   let nativePackageInventoryRefresh: Promise<void> | undefined;
 
+  type CatalogLaunchExpectation = {
+    gameId: string;
+    version: string;
+    runtime: string;
+  };
+
   const LOCAL_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.local;
   const REMOTE_LAUNCH_BUDGET: LaunchSupervisorOptions = launcherCatalog.launchBudgets.remote;
   const museum = launcherCatalog.museum;
@@ -317,27 +323,44 @@
     supervisor.ready("Browser handoff ready · reachability is checked by the native host");
   }
 
-  function launchHostedAdapter(adapter: "native" | "retro", requestedTitle?: string, gameId?: string): void {
+  function launchHostedAdapter(
+    adapter: "native" | "retro",
+    requestedTitle?: string,
+    expected?: CatalogLaunchExpectation,
+  ): void {
     const title = requestedTitle ?? (adapter === "retro" ? "RetroArch" : "Native game");
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
     const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
-    launchRetryOperation = () => void runHostedAttempt(supervisor, gameId);
-    void runHostedAttempt(supervisor, gameId);
+    launchRetryOperation = () => void runHostedAttempt(supervisor, expected);
+    void runHostedAttempt(supervisor, expected);
   }
 
-  async function runHostedAttempt(supervisor: LaunchSupervisor, gameId?: string): Promise<void> {
+  async function runHostedAttempt(
+    supervisor: LaunchSupervisor,
+    expected?: CatalogLaunchExpectation,
+  ): Promise<void> {
     supervisor.advance(1, "Requesting the Rust console host");
-    if (gameId) {
+    if (expected) {
       if (activeNativeRequestId) {
         const previousRequestId = activeNativeRequestId;
         activeNativeRequestId = undefined;
         await cancelNativeLaunch(previousRequestId);
         if (launchSupervisor !== supervisor) return;
       }
-      const packageResult = await checkNativePackage(gameId);
+      const packageResult = await checkNativePackage(expected.gameId);
       if (launchSupervisor !== supervisor) return;
       if (!packageResult.ok) {
         supervisor.unavailable(packageResult.detail, packageResult.code);
+        return;
+      }
+      if (
+        packageResult.package.version !== expected.version ||
+        packageResult.package.runtime !== expected.runtime
+      ) {
+        supervisor.unavailable(
+          `Installed ${packageResult.package.version} ${packageResult.package.runtime} release does not match launcher catalog ${expected.version} ${expected.runtime}`,
+          "PACKAGE_RELEASE_MISMATCH",
+        );
         return;
       }
       if (!packageResult.status.capabilities.includes("trusted-package-launch")) {
@@ -351,7 +374,7 @@
         );
         return;
       }
-      const launchResult = await startNativeLaunch(gameId, activeProfileId);
+      const launchResult = await startNativeLaunch(expected.gameId, activeProfileId);
       if (launchSupervisor !== supervisor) {
         if (launchResult.ok) void cancelNativeLaunch(launchResult.launch.requestId);
         return;
@@ -644,7 +667,15 @@
         {/if}
         <div class="library-list">
           {#each retroCatalogEntries as entry}
-            <button type="button" onclick={() => launchHostedAdapter("retro", entry.title, entry.id)}>
+            <button
+              type="button"
+              onclick={() =>
+                launchHostedAdapter("retro", entry.title, {
+                  gameId: entry.id,
+                  version: entry.version,
+                  runtime: entry.runtime,
+                })}
+            >
               <span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
             </button>
           {/each}
