@@ -623,7 +623,15 @@ fn render_config(storage: &RetroArchStorage) -> String {
         ("menu_show_configurations", "false".to_owned()),
         ("menu_show_information", "false".to_owned()),
         ("kiosk_mode_enable", "true".to_owned()),
+        ("preemptive_frames_enable", "false".to_owned()),
+        ("rewind_enable", "false".to_owned()),
+        ("run_ahead_enabled", "false".to_owned()),
+        ("video_frame_delay", "0".to_owned()),
+        ("video_frame_delay_auto", "false".to_owned()),
         ("video_fullscreen", "true".to_owned()),
+        ("video_hard_sync", "false".to_owned()),
+        ("video_shader_enable", "false".to_owned()),
+        ("video_threaded", "false".to_owned()),
         ("load_dummy_on_core_shutdown", "false".to_owned()),
         ("savefile_directory", path_value(&storage.saves)),
         ("savestate_directory", path_value(&storage.states)),
@@ -943,6 +951,21 @@ mod tests {
             plan.generated_config()
                 .contains("kiosk_mode_enable = \"true\"")
         );
+        for conservative_default in [
+            "preemptive_frames_enable = \"false\"",
+            "rewind_enable = \"false\"",
+            "run_ahead_enabled = \"false\"",
+            "video_frame_delay = \"0\"",
+            "video_frame_delay_auto = \"false\"",
+            "video_hard_sync = \"false\"",
+            "video_shader_enable = \"false\"",
+            "video_threaded = \"false\"",
+        ] {
+            assert!(
+                plan.generated_config().contains(conservative_default),
+                "missing conservative experience default: {conservative_default}"
+            );
+        }
     }
 
     #[test]

@@ -87,6 +87,15 @@ The host creates private directories and atomically replaces the generated appen
 
 The generated configuration disables configuration persistence, history, command interfaces, achievements, online/core updaters, load-core/load-content entries, general configuration/information entries, and enables kiosk/fullscreen behavior. It redirects every mutable directory used by this slice into the paths above. OS/compositor sandboxing remains required because configuration is defense in depth, not a security boundary.
 
+The append configuration also establishes the I-132 no-enhancement baseline:
+shaders, run-ahead, preemptive frames, rewind, frame delay/automatic frame
+delay, hard GPU sync, and threaded video are explicitly disabled. A base
+configuration cannot silently opt the session into those features. Any later
+non-baseline profile must follow
+[`RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md`](RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md)
+and bind exact target/frontend/core/content/display evidence; raw family-mode
+RetroArch tuning remains unavailable.
+
 ## Lifecycle boundary
 
 Current stable lines:
