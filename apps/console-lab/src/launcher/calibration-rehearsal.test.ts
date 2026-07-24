@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  AcceptedCalibrationResultCollection,
+  CALIBRATION_READY_RESULT_LIMIT,
   CALIBRATION_REHEARSAL_MAX_SAMPLES,
   CALIBRATION_REHEARSAL_MIN_SAMPLES,
   CALIBRATION_REHEARSAL_SESSION_TTL_MS,
@@ -368,5 +370,143 @@ describe("CalibrationRehearsalController", () => {
     expect(snapshot.readyResult?.id).toMatch(
       /^calibration-fixture-[0-9]+-[0-9]+$/,
     );
+  });
+
+  it("issues exact one-shot result authority and revokes invalidated or cancelled results", () => {
+    const accepted = new AcceptedCalibrationResultCollection();
+    const controller = new CalibrationRehearsalController(accepted);
+    controller.open(
+      "profile-randy",
+      "room-fixture-a",
+      "camera-fixture-a",
+      0,
+    );
+    const attempt = controller.beginAutomatic(1);
+    submit(controller, attempt);
+    const ready = controller.evaluate(20).readyResult!;
+
+    expect(accepted.size).toBe(1);
+    expect(accepted.hasExact(ready, 20)).toBe(true);
+    expect(accepted.hasExact({
+      ...ready,
+      profileId: "profile-guest",
+    }, 20)).toBe(false);
+    expect(accepted.hasExact({
+      ...ready,
+      limited: true,
+    }, 20)).toBe(false);
+
+    controller.invalidate(
+      "room-change",
+      "room-fixture-b",
+      "camera-fixture-a",
+      21,
+    );
+    expect(accepted.hasExact(ready, 21)).toBe(false);
+
+    const restarted = controller.beginAutomatic(22);
+    submit(controller, restarted, readyObservation, 8, 30);
+    const replacement = controller.evaluate(50).readyResult!;
+    expect(accepted.hasExact(replacement, 50)).toBe(true);
+    controller.cancel(51);
+    expect(accepted.hasExact(replacement, 51)).toBe(false);
+  });
+
+  it("bounds issued results, expires old entries, and consumes each exact result once", () => {
+    const accepted = new AcceptedCalibrationResultCollection();
+    const first = {
+      id: "calibration-fixture-1-1",
+      profileId: "profile-randy",
+      sessionId: 1,
+      attempt: 1,
+      limited: false,
+    } as const;
+    accepted.issue(first, 0, 10);
+    expect(accepted.consumeExact({
+      ...first,
+      profileId: "profile-guest",
+    }, 1)).toBe(false);
+    expect(accepted.consumeExact(first, 1)).toBe(true);
+    expect(accepted.consumeExact(first, 1)).toBe(false);
+
+    for (
+      let sessionId = 1;
+      sessionId <= CALIBRATION_READY_RESULT_LIMIT;
+      sessionId += 1
+    ) {
+      accepted.issue({
+        id: `calibration-fixture-${sessionId}-2`,
+        profileId: "profile-randy",
+        sessionId,
+        attempt: 2,
+        limited: false,
+      }, 2, 100);
+    }
+    expect(accepted.size).toBe(CALIBRATION_READY_RESULT_LIMIT);
+    expect(() => accepted.issue({
+      id: "calibration-fixture-65-2",
+      profileId: "profile-randy",
+      sessionId: 65,
+      attempt: 2,
+      limited: false,
+    }, 2, 100)).toThrow("too many unconsumed");
+    expect(() => accepted.issue({
+      id: "calibration-fixture-1-2",
+      profileId: "profile-randy",
+      sessionId: 1,
+      attempt: 2,
+      limited: false,
+    }, 2, 100)).toThrow("already issued");
+
+    const replacement = {
+      id: "calibration-fixture-65-2",
+      profileId: "profile-randy",
+      sessionId: 65,
+      attempt: 2,
+      limited: false,
+    } as const;
+    accepted.issue(replacement, 101, 200);
+    expect(accepted.size).toBe(1);
+    expect(accepted.hasExact(replacement, 200)).toBe(true);
+    expect(accepted.hasExact(replacement, 201)).toBe(false);
+    expect(accepted.size).toBe(0);
+    expect(() => accepted.issue(first, 11, 10)).toThrow(
+      "cannot be issued after expiry",
+    );
+  });
+
+  it("does not expose Ready when result issuance cannot commit", () => {
+    const accepted = new AcceptedCalibrationResultCollection();
+    for (
+      let index = 0;
+      index < CALIBRATION_READY_RESULT_LIMIT;
+      index += 1
+    ) {
+      accepted.issue({
+        id: `calibration-fixture-${index + 100}-1`,
+        profileId: "profile-randy",
+        sessionId: index + 100,
+        attempt: 1,
+        limited: false,
+      }, 0, CALIBRATION_REHEARSAL_SESSION_TTL_MS);
+    }
+    const controller = new CalibrationRehearsalController(accepted);
+    controller.open(
+      "profile-randy",
+      "room-fixture-a",
+      "camera-fixture-a",
+      0,
+    );
+    const attempt = controller.beginAutomatic(1);
+    submit(controller, attempt);
+
+    expect(() => controller.evaluate(20)).toThrow(
+      "too many unconsumed",
+    );
+    expect(controller.snapshot()).toMatchObject({
+      phase: "observing",
+      readyResult: null,
+    });
+    expect(accepted.size).toBe(CALIBRATION_READY_RESULT_LIMIT);
   });
 });

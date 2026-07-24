@@ -153,12 +153,21 @@ exact session and attempt
 limited: true | false
 ```
 
-The profile-management controller validates the closed result, exact ID
-encoding, session/attempt agreement, current profile revision, and prior
-calibration revision before assigning a new monotonic synthetic calibration
-revision. Applying a new calibration clears any old body-match fixture; it
-does not create body-match authority. Portrait and progress links stay
-unchanged.
+The calibration controller issues each Ready result into a shared bounded
+collection before exposing it. At most 64 unconsumed results may exist. The
+profile-management controller requires an exact issued match across result ID,
+opaque profile ID, session, attempt, and limited flag, then consumes that
+authority exactly once during commit. Expiry is checked against the shared
+monotonic time at both planning and commit, independently of any UI cleanup
+callback. Shape-valid but unissued, cross-profile, changed, invalidated,
+cancelled, expired, externally consumed, or replayed results fail before
+profile mutation. Expired entries are pruned before capacity is evaluated.
+
+After provenance checks, profile management also binds current profile and
+prior-calibration revision before assigning a new monotonic synthetic
+calibration revision. Applying a new calibration clears any old body-match
+fixture; it does not create body-match authority. Portrait and progress links
+stay unchanged.
 
 This in-process composition is not a native transaction or persistent
 calibration schema. Production must bind the broker-owned result, selected
@@ -174,7 +183,7 @@ Confidence drop is separately explicit.
 
 Invalidation:
 
-- removes the ready result immediately;
+- revokes the issued ready-result authority immediately;
 - marks every synthetic dimension unavailable;
 - sends no former state to a game;
 - requires a fresh attempt before another result; and
@@ -219,16 +228,18 @@ from one operation to another merely because confidence changes.
    Ready.
 6. Corrections start fresh attempts; late evidence is rejected.
 7. A Ready result names one exact opaque profile and session/attempt.
-8. A display name, portrait, body match, current player, or game string cannot
+8. A Ready result is issued once, consumed once, and revoked on invalidation,
+   cancellation, or expiry.
+9. A display name, portrait, body match, current player, or game string cannot
    select calibration authority.
-9. Camera/room/configuration changes invalidate before gameplay use.
-10. Applying calibration invalidates prior body matching; it never creates an
+10. Camera/room/configuration changes invalidate before gameplay use.
+11. Applying calibration invalidates prior body matching; it never creates an
     identity prediction.
-11. Games receive no result until the production broker commits a qualified
+12. Games receive no result until the production broker commits a qualified
     minimized projection.
-12. Frames, landmarks, body measurements, and room geometry do not enter logs,
+13. Frames, landmarks, body measurements, and room geometry do not enter logs,
     diagnostics, support, saves, backup, export, recovery images, or network.
-13. The real feature remains disabled until thresholds, measurement schema,
+14. The real feature remains disabled until thresholds, measurement schema,
     persistence, invalidation, accessibility, safety, privacy, and both-target
     evidence pass.
 
@@ -242,16 +253,16 @@ from one operation to another merely because confidence changes.
 | CR-04 | Feet are absent but floor confidence looks high. | Feet visibility independently gates the floor dimension. |
 | CR-05 | Low confidence silently applies default body thresholds. | Missing dimensions remain visible; only explicitly permitted optional guidance can use conservative status. |
 | CR-06 | A camera shifts after Ready and games retain the old floor/zone. | Qualified change authority invalidates the entire result before further delivery. |
-| CR-07 | A same-name or predicted profile receives another person's calibration. | Exact opaque profile ID and current revision bind application; names/predictions have no authority. |
+| CR-07 | A same-name or predicted profile receives another person's calibration. | Exact issued profile binding plus current revision reject cross-profile substitution; names/predictions have no authority. |
 | CR-08 | Recalibration leaves an old body-match template active. | Applying or requiring recalibration clears the synthetic body-match state; production must transactionally invalidate derived templates. |
-| CR-09 | A hostile browser forges a Ready result ID or adds measurements/paths. | Closed result grammar and exact session/attempt encoding reject it; browser still has no native mutation authority. |
+| CR-09 | A hostile browser forges a Ready result ID, substitutes profile/limited fields, replays a consumed result, or adds measurements/paths. | Closed result grammar plus exact bounded one-shot issuance reject it; browser still has no native mutation authority. |
 | CR-10 | Calibration confidence or body values leak through diagnostics/support. | Current model contains no values; production must use I-186 producer canaries and artifact inspection. |
-| CR-11 | Session abandonment later applies a result. | Back/Home/cancel/expiry remove the session and result. |
+| CR-11 | Session abandonment later applies a result. | Back/Home/cancel/expiry revoke issued authority and remove the session/result. |
 | CR-12 | Seated, child, limited-range, assisted, or mobility-changing users are forced through unsafe standing assumptions. | Cohort-specific guidance and optional profiles remain required under Q-209; no current fixture is qualification. |
 
 ## Automated evidence
 
-Eleven focused calibration unit cases prove:
+Fourteen focused calibration unit cases prove:
 
 - frozen identity-minimized idle state;
 - explicit notice, ordered observations, and minimum sample count;
@@ -264,11 +275,20 @@ Eleven focused calibration unit cases prove:
 - cancel and exact session expiry without a result;
 - exact room/camera invalidation and recheck;
 - maximum-sample, safe-time, and backwards-clock bounds; and
-- result/snapshot exclusion of measurements and storage authority.
+- result/snapshot exclusion of measurements and storage authority;
+- exact one-shot result issuance and cross-profile/limited-field mismatch
+  denial;
+- revocation on invalidation/cancel and fresh corrected-result issuance; and
+- unconsumed-result bounds, expired-entry pruning, invalid-expiry and
+  duplicate-ID rejection, one-time consumption, and no Ready exposure when
+  issuance cannot commit.
 
-The profile-management suite adds exact result application, monotonic
-synthetic calibration revision, prior-body-match removal, stale profile
-revision refusal, and result-ID/session/attempt agreement.
+The profile-management suite adds issued-result provenance, cross-profile and
+limited-field substitution denial, expiry refusal at both planning and commit,
+consumed-result replay refusal, no-mutation failure after expiry or external
+consumption, monotonic synthetic calibration revision, prior-body-match
+removal, stale profile revision refusal, and exact result-ID/session/attempt
+agreement.
 
 One Chrome flow proves:
 

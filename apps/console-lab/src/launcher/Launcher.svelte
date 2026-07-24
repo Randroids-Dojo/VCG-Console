@@ -19,6 +19,7 @@
   } from "./accessibility-preferences";
   import CalibrationRehearsalView from "./CalibrationRehearsalView.svelte";
   import {
+    AcceptedCalibrationResultCollection,
     CalibrationRehearsalController,
     type CalibrationReadyResult,
   } from "./calibration-rehearsal";
@@ -66,10 +67,13 @@
   let visible = $state(true);
   let view = $state<LauncherView>("home");
   const acceptedPortraits = new AcceptedPortraitCollection();
+  const acceptedCalibrationResults =
+    new AcceptedCalibrationResultCollection();
   const profileManagementController = new ProfileManagementController(
     PROFILE_MANAGEMENT_DEMO_PROFILES,
     PROFILE_MANAGEMENT_DEMO_PROGRESS,
     acceptedPortraits,
+    acceptedCalibrationResults,
   );
   let profileManagementSnapshot = $state(
     profileManagementController.snapshot(),
@@ -111,7 +115,7 @@
   );
   let portraitCaptureSnapshot = $state(portraitCaptureController.snapshot());
   const calibrationRehearsalController =
-    new CalibrationRehearsalController();
+    new CalibrationRehearsalController(acceptedCalibrationResults);
   let calibrationRehearsalSnapshot = $state(
     calibrationRehearsalController.snapshot(),
   );
@@ -319,9 +323,10 @@
     result: CalibrationReadyResult,
   ): void {
     try {
+      const nowMs = Math.floor(performance.now());
       const committed = profileManagementController.commit(
-        profileManagementController.planApplyCalibration(result),
-        Math.floor(performance.now()),
+        profileManagementController.planApplyCalibration(result, nowMs),
+        nowMs,
       );
       applyProfileManagementSnapshot(committed.snapshot);
       toast(

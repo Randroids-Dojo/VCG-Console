@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AcceptedCalibrationResultCollection } from "./calibration-rehearsal";
 import { AcceptedPortraitCollection } from "./portrait-capture";
 import {
   PROFILE_MANAGEMENT_CONFIRMATION_DELAY_MS,
@@ -13,11 +14,13 @@ import {
 
 function controller(
   portraits = new AcceptedPortraitCollection(),
+  calibrationResults = new AcceptedCalibrationResultCollection(),
 ): ProfileManagementController {
   return new ProfileManagementController(
     PROFILE_MANAGEMENT_DEMO_PROFILES,
     PROFILE_MANAGEMENT_DEMO_PROGRESS,
     portraits,
+    calibrationResults,
   );
 }
 
@@ -209,14 +212,18 @@ describe("ProfileManagementController", () => {
       profileId: "profile-randy",
       renderHandle: "portrait-fixture-profile-randy-a",
     }]);
-    const manager = controller(portraits);
-    const plan = manager.planApplyCalibration({
+    const calibrationResults =
+      new AcceptedCalibrationResultCollection();
+    const issued = {
       id: "calibration-fixture-4-2",
       profileId: "profile-randy",
       sessionId: 4,
       attempt: 2,
       limited: false,
-    });
+    } as const;
+    calibrationResults.issue(issued, 0, 100);
+    const manager = controller(portraits, calibrationResults);
+    const plan = manager.planApplyCalibration(issued, 0);
     const result = manager.commit(plan, 0);
     const profile = result.snapshot.profiles.find(
       (candidate) => candidate.id === "profile-randy",
@@ -243,7 +250,89 @@ describe("ProfileManagementController", () => {
       sessionId: 4,
       attempt: 2,
       limited: false,
-    })).toThrow("identity mismatch");
+    }, 0)).toThrow("identity mismatch");
+    expect(() => manager.planApplyCalibration(issued, 1)).toThrow(
+      "was not issued",
+    );
+  });
+
+  it("rejects forged, substituted, changed, and externally consumed calibration authority", () => {
+    const accepted = new AcceptedCalibrationResultCollection();
+    const issued = {
+      id: "calibration-fixture-7-3",
+      profileId: "profile-randy",
+      sessionId: 7,
+      attempt: 3,
+      limited: false,
+    } as const;
+    accepted.issue(issued, 0, 100);
+    const manager = controller(
+      new AcceptedPortraitCollection(),
+      accepted,
+    );
+
+    expect(() => manager.planApplyCalibration({
+      ...issued,
+      profileId: "profile-guest",
+    }, 0)).toThrow("not issued for this exact profile");
+    expect(() => manager.planApplyCalibration({
+      ...issued,
+      limited: true,
+    }, 0)).toThrow("not issued for this exact profile");
+    expect(() => manager.planApplyCalibration({
+      id: "calibration-fixture-8-1",
+      profileId: "profile-randy",
+      sessionId: 8,
+      attempt: 1,
+      limited: false,
+    }, 0)).toThrow("not issued for this exact profile");
+
+    const plan = manager.planApplyCalibration(issued, 0);
+    expect(accepted.consumeExact(issued, 0)).toBe(true);
+    expect(() => manager.commit(plan, 0)).toThrow(
+      "stale, changed, or already consumed",
+    );
+    expect(manager.snapshot().profiles.find(
+      ({ id }) => id === "profile-randy",
+    )?.calibrationRevision).toBe(7);
+  });
+
+  it("rejects calibration authority that expires before planning or commit", () => {
+    const accepted = new AcceptedCalibrationResultCollection();
+    const expiredBeforePlan = {
+      id: "calibration-fixture-9-1",
+      profileId: "profile-randy",
+      sessionId: 9,
+      attempt: 1,
+      limited: false,
+    } as const;
+    accepted.issue(expiredBeforePlan, 0, 10);
+    const manager = controller(
+      new AcceptedPortraitCollection(),
+      accepted,
+    );
+
+    expect(() => manager.planApplyCalibration(
+      expiredBeforePlan,
+      11,
+    )).toThrow("was not issued");
+
+    const expiresBeforeCommit = {
+      id: "calibration-fixture-10-1",
+      profileId: "profile-randy",
+      sessionId: 10,
+      attempt: 1,
+      limited: false,
+    } as const;
+    accepted.issue(expiresBeforeCommit, 11, 20);
+    const plan = manager.planApplyCalibration(expiresBeforeCommit, 19);
+
+    expect(() => manager.commit(plan, 21)).toThrow(
+      "stale, changed, or already consumed",
+    );
+    expect(manager.snapshot().profiles.find(
+      ({ id }) => id === "profile-randy",
+    )?.calibrationRevision).toBe(7);
   });
 
   it("reset removes sensitive identity data while preserving the profile and linked progress", () => {

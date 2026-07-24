@@ -97,6 +97,15 @@ rollback, or mismatched arrays fail closed. Plans contain no unassigned owner
 ID, path, pixel, body feature, password, credential, export destination, or
 network instruction.
 
+Synthetic calibration application additionally requires an exact result
+issued by the active calibration controller into a shared at-most-64-entry
+collection. ID, opaque profile ID, session, attempt, and limited flag must all
+match. Commit consumes the result once. Invalidation, cancellation, and expiry
+revoke it, while cross-profile substitution, changed fields, external
+consumption, and replay fail before profile mutation. Shared monotonic time
+rechecks expiry during both planning and commit, so a delayed or missing UI
+cleanup callback cannot extend authority.
+
 ## Provisional operation matrix
 
 | Operation | Profile | Name | Portrait | Calibration | Body match | Console progress | Hosted service |
@@ -205,7 +214,7 @@ evidence, not inference from this browser controller.
 
 ## Abuse and regression evidence
 
-Twelve focused unit cases prove:
+Fourteen focused profile-management unit cases prove:
 
 - immutable, minimized snapshots and defensive copies;
 - closed/bounded profile and progress schemas;
@@ -215,8 +224,12 @@ Twelve focused unit cases prove:
 - fresh opaque IDs and no same-name reassociation;
 - elapsed review delay, bounded expiry, and monotonic time;
 - recalibration clearing calibration/body state only;
-- exact synthetic calibration-result application advancing the calibration
-  revision without creating body-match authority;
+- exact issued synthetic calibration-result application advancing the
+  calibration revision without creating body-match authority;
+- unissued, cross-profile, limited-field-substituted, externally consumed, and
+  replayed calibration-result refusal without mutation;
+- calibration-result expiry refusal both before planning and between planning
+  and commit, without profile mutation;
 - reset removing the shared portrait plus calibration/body state while
   preserving profile and links;
 - deletion removing the profile and shared portrait while unassigning every

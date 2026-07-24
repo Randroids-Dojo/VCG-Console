@@ -1,4 +1,8 @@
 import { AcceptedPortraitCollection } from "./portrait-capture";
+import {
+  AcceptedCalibrationResultCollection,
+  type CalibrationReadyResult,
+} from "./calibration-rehearsal";
 
 export const PROFILE_MANAGEMENT_MAX_PROFILES = 64;
 export const PROFILE_MANAGEMENT_MAX_PROGRESS_RECORDS = 256;
@@ -72,13 +76,7 @@ export interface RenameProfilePlan {
   name: string;
 }
 
-export interface SyntheticCalibrationResultRef {
-  id: string;
-  profileId: string;
-  sessionId: number;
-  attempt: number;
-  limited: boolean;
-}
+export type SyntheticCalibrationResultRef = CalibrationReadyResult;
 
 export interface ApplyCalibrationPlan {
   kind: "apply-calibration";
@@ -214,11 +212,13 @@ export class ProfileManagementController {
   readonly #profiles = new Map<string, ManagedProfileRecord>();
   readonly #progress = new Map<string, ManagedProgressRecord>();
   readonly #portraits: AcceptedPortraitCollection;
+  readonly #calibrationResults: AcceptedCalibrationResultCollection;
 
   constructor(
     profiles: readonly ManagedProfileSeed[],
     progress: readonly ManagedProgressSeed[],
     portraits = new AcceptedPortraitCollection(),
+    calibrationResults = new AcceptedCalibrationResultCollection(),
   ) {
     if (profiles.length > PROFILE_MANAGEMENT_MAX_PROFILES) {
       throw new ProfileManagementError("too many local profiles");
@@ -260,6 +260,7 @@ export class ProfileManagementController {
       this.#progress.set(record.id, record);
     }
     this.#portraits = portraits;
+    this.#calibrationResults = calibrationResults;
   }
 
   snapshot(): ProfileManagementSnapshot {
@@ -319,8 +320,15 @@ export class ProfileManagementController {
 
   planApplyCalibration(
     result: SyntheticCalibrationResultRef,
+    nowMs: number,
   ): ApplyCalibrationPlan {
+    this.#observeTime(nowMs);
     validateCalibrationResult(result);
+    if (!this.#calibrationResults.hasExact(result, nowMs)) {
+      throw new ProfileManagementError(
+        "calibration result was not issued for this exact profile",
+      );
+    }
     const profile = this.#requireProfile(result.profileId);
     return Object.freeze({
       kind: "apply-calibration",
@@ -397,7 +405,7 @@ export class ProfileManagementController {
       return this.#commitRename(plan);
     }
     if (plan.kind === "apply-calibration") {
-      return this.#commitApplyCalibration(plan);
+      return this.#commitApplyCalibration(plan, nowMs);
     }
     return this.#commitDestructive(plan, nowMs);
   }
@@ -467,6 +475,7 @@ export class ProfileManagementController {
 
   #commitApplyCalibration(
     plan: ApplyCalibrationPlan,
+    nowMs: number,
   ): ProfileManagementCommitResult {
     const profile = this.#requireProfile(plan.profileId);
     if (
@@ -479,6 +488,18 @@ export class ProfileManagementController {
     if (this.#nextCalibrationRevision > Number.MAX_SAFE_INTEGER) {
       throw new ProfileManagementError(
         "calibration revision space exhausted",
+      );
+    }
+    const result: CalibrationReadyResult = {
+      id: plan.resultId,
+      profileId: plan.profileId,
+      sessionId: plan.resultSessionId,
+      attempt: plan.resultAttempt,
+      limited: plan.limited,
+    };
+    if (!this.#calibrationResults.consumeExact(result, nowMs)) {
+      throw new ProfileManagementError(
+        "calibration result is stale, changed, or already consumed",
       );
     }
     const bodyProfileRemoved = profile.bodyProfilePresent;

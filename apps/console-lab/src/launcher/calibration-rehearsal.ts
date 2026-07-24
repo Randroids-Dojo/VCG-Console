@@ -2,6 +2,7 @@ export const CALIBRATION_REHEARSAL_MIN_SAMPLES = 8;
 export const CALIBRATION_REHEARSAL_MAX_SAMPLES = 24;
 export const CALIBRATION_REHEARSAL_CONFIDENCE_GATE = 0.82;
 export const CALIBRATION_REHEARSAL_SESSION_TTL_MS = 120_000;
+export const CALIBRATION_READY_RESULT_LIMIT = 64;
 
 export type CalibrationRehearsalPhase =
   | "idle"
@@ -139,7 +140,16 @@ const observationKeys = [
   "zoneClear",
   "zoneConfidence",
 ] as const;
+const readyResultKeys = [
+  "attempt",
+  "id",
+  "limited",
+  "profileId",
+  "sessionId",
+] as const;
 const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const readyResultPattern =
+  /^calibration-fixture-([1-9][0-9]*)-([1-9][0-9]*)$/;
 const invalidationReasons = new Set<CalibrationInvalidationReason>([
   "room-change",
   "camera-change",
@@ -149,12 +159,109 @@ const invalidationReasons = new Set<CalibrationInvalidationReason>([
 
 export class CalibrationRehearsalError extends Error {}
 
+export class AcceptedCalibrationResultCollection {
+  readonly #results = new Map<
+    string,
+    Readonly<{
+      result: Readonly<CalibrationReadyResult>;
+      expiresAtMs: number;
+    }>
+  >();
+
+  issue(
+    result: CalibrationReadyResult,
+    nowMs: number,
+    expiresAtMs: number,
+  ): void {
+    validateReadyResult(result);
+    validateResultTime(nowMs, "calibration result issue time");
+    validateResultTime(expiresAtMs, "calibration result expiry");
+    if (expiresAtMs < nowMs) {
+      throw new CalibrationRehearsalError(
+        "calibration result cannot be issued after expiry",
+      );
+    }
+    this.#pruneExpired(nowMs);
+    if (this.#results.has(result.id)) {
+      throw new CalibrationRehearsalError(
+        "calibration result identifier already issued",
+      );
+    }
+    if (this.#results.size >= CALIBRATION_READY_RESULT_LIMIT) {
+      throw new CalibrationRehearsalError(
+        "too many unconsumed calibration results",
+      );
+    }
+    this.#results.set(result.id, Object.freeze({
+      result: Object.freeze({ ...result }),
+      expiresAtMs,
+    }));
+  }
+
+  hasExact(
+    result: CalibrationReadyResult,
+    nowMs: number,
+  ): boolean {
+    return this.#matchesExact(result, nowMs, false);
+  }
+
+  consumeExact(
+    result: CalibrationReadyResult,
+    nowMs: number,
+  ): boolean {
+    return this.#matchesExact(result, nowMs, true);
+  }
+
+  revokeExact(result: CalibrationReadyResult): boolean {
+    return this.#matchesExact(result, undefined, true);
+  }
+
+  get size(): number {
+    return this.#results.size;
+  }
+
+  #matchesExact(
+    result: CalibrationReadyResult,
+    nowMs: number | undefined,
+    remove: boolean,
+  ): boolean {
+    try {
+      validateReadyResult(result);
+    } catch {
+      return false;
+    }
+    if (nowMs !== undefined) {
+      try {
+        validateResultTime(nowMs, "calibration result time");
+      } catch {
+        return false;
+      }
+      this.#pruneExpired(nowMs);
+    }
+    const issued = this.#results.get(result.id);
+    if (!issued || !sameReadyResult(issued.result, result)) return false;
+    if (remove) this.#results.delete(result.id);
+    return true;
+  }
+
+  #pruneExpired(nowMs: number): void {
+    for (const [id, issued] of this.#results) {
+      if (nowMs > issued.expiresAtMs) this.#results.delete(id);
+    }
+  }
+}
+
 export class CalibrationRehearsalController {
   #revision = 0;
   #phase: CalibrationRehearsalPhase = "idle";
   #session: ActiveCalibrationSession | null = null;
   #nextSessionId = 1;
   #lastNowMs = 0;
+
+  constructor(
+    private readonly acceptedResults =
+      new AcceptedCalibrationResultCollection(),
+  ) {}
 
   snapshot(): CalibrationRehearsalSnapshot {
     const session = this.#session;
@@ -315,7 +422,9 @@ export class CalibrationRehearsalController {
     } else if (evaluation.guidedSteps.length > 0) {
       this.#phase = "guided";
     } else {
-      session.readyResult = readyResult(session, false);
+      const result = readyResult(session, false);
+      this.acceptedResults.issue(result, nowMs, session.expiresAtMs);
+      session.readyResult = result;
       this.#phase = "ready";
     }
     this.#revision += 1;
@@ -345,7 +454,9 @@ export class CalibrationRehearsalController {
         ? { ...summary, status: "conservative" }
         : summary,
     );
-    session.readyResult = readyResult(session, true);
+    const result = readyResult(session, true);
+    this.acceptedResults.issue(result, nowMs, session.expiresAtMs);
+    session.readyResult = result;
     this.#phase = "ready";
     this.#revision += 1;
     return this.snapshot();
@@ -387,6 +498,7 @@ export class CalibrationRehearsalController {
         "camera invalidation requires changed configuration",
       );
     }
+    this.acceptedResults.revokeExact(session.readyResult);
     session.environmentId = environmentId;
     session.cameraConfigurationId = cameraConfigurationId;
     session.samples = [];
@@ -406,7 +518,10 @@ export class CalibrationRehearsalController {
 
   cancel(nowMs: number): CalibrationRehearsalSnapshot {
     this.#observeTime(nowMs);
-    this.#requireLiveSession(nowMs);
+    const session = this.#requireLiveSession(nowMs);
+    if (session.readyResult) {
+      this.acceptedResults.revokeExact(session.readyResult);
+    }
     this.#session = null;
     this.#phase = "idle";
     this.#revision += 1;
@@ -416,6 +531,9 @@ export class CalibrationRehearsalController {
   expire(nowMs: number): CalibrationRehearsalSnapshot | null {
     this.#observeTime(nowMs);
     if (!this.#session || nowMs <= this.#session.expiresAtMs) return null;
+    if (this.#session.readyResult) {
+      this.acceptedResults.revokeExact(this.#session.readyResult);
+    }
     this.#session = null;
     this.#phase = "idle";
     this.#revision += 1;
@@ -593,6 +711,56 @@ function readyResult(
     attempt: session.attempt,
     limited,
   };
+}
+
+function validateReadyResult(result: CalibrationReadyResult): void {
+  if (
+    typeof result !== "object"
+    || result === null
+    || Array.isArray(result)
+    || !hasExactKeys(result, readyResultKeys)
+    || !Number.isSafeInteger(result.sessionId)
+    || result.sessionId <= 0
+    || !Number.isSafeInteger(result.attempt)
+    || result.attempt <= 0
+    || typeof result.limited !== "boolean"
+  ) {
+    throw new CalibrationRehearsalError(
+      "invalid calibration ready result",
+    );
+  }
+  validateId(result.profileId, "calibration profile ID");
+  const match = readyResultPattern.exec(result.id);
+  if (
+    !match
+    || Number(match[1]) !== result.sessionId
+    || Number(match[2]) !== result.attempt
+  ) {
+    throw new CalibrationRehearsalError(
+      "calibration result identity mismatch",
+    );
+  }
+}
+
+function validateResultTime(value: number, name: string): void {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new CalibrationRehearsalError(
+      `${name} must be a non-negative safe integer`,
+    );
+  }
+}
+
+function sameReadyResult(
+  left: CalibrationReadyResult,
+  right: CalibrationReadyResult,
+): boolean {
+  return (
+    left.id === right.id
+    && left.profileId === right.profileId
+    && left.sessionId === right.sessionId
+    && left.attempt === right.attempt
+    && left.limited === right.limited
+  );
 }
 
 function freezeAttemptRef(
