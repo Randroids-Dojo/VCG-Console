@@ -57,3 +57,20 @@ func _render(snapshot: Dictionary) -> void:
 		String(snapshot["input_source"]).to_upper(),
 		snapshot["status"],
 	]
+	_publish_web_export_probe(snapshot)
+
+
+func _publish_web_export_probe(snapshot: Dictionary) -> void:
+	if not OS.has_feature("web"):
+		return
+	var value := {
+		"schemaVersion": 1,
+		"lane": int(snapshot["lane"]),
+		"stance": String(snapshot["stance"]),
+		"score": int(snapshot["score"]),
+		"inputSource": String(snapshot["input_source"]),
+		"status": String(snapshot["status"]),
+	}
+	JavaScriptBridge.eval(
+		"globalThis.__vcgGodotExportProbe = Object.freeze(%s);" % JSON.stringify(value)
+	)

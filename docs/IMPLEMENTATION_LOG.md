@@ -3811,3 +3811,49 @@ hostile full-screen, pointer-lock, focus, hang, and crash recovery on the
 selected Linux browser lane. Q-049 still requires controller-only hands-on
 play. I-180 remains active for the native-host, service-manager, browser
 policy, and ARM64/x86-64 Linux evidence.
+
+## 2026-07-24: Godot release exports and live browser desk evidence
+
+### Delivered
+
+- Installed only the exact web and Linux ARM64/x86-64 files from Godot's
+  official 4.7.1 standard export-template archive after verifying its
+  1,280,486,955-byte length and SHA-256.
+- Added checked-in unthreaded Web, Linux x86-64, and Linux ARM64 release
+  presets to the tiny Motion sample.
+- Added a six-field browser-only diagnostic probe so exported state and
+  fallback transitions can be checked without player, camera, or Motion data
+  and without treating the probe as readiness authority.
+- Added a bounded generator that verifies all selected templates, rebuilds
+  three ignored output sets, checks exact file identities and ELF machines,
+  serves only the web export on loopback, drives installed Chrome, and boots
+  x86-64 headlessly through WSL2.
+- Added a strict 128 KiB-bounded tracked artifact, a detailed report, an
+  offline validator, and ten adversarial mutation tests.
+
+### Verification evidence
+
+- Two complete generations produced identical hashes and sizes for all 13
+  release files.
+- The Web set is 39,866,665 bytes; Linux x86-64 is 73,489,216 bytes; Linux
+  ARM64 is 67,065,624 bytes. All share the same 18,952-byte project pack.
+- Chrome `150.0.7871.182` reached a complete document and one 960×540 canvas,
+  exposed the exact waiting state, and accepted Left then Jump keyboard
+  fallback transitions with zero console or page errors.
+- Required HTML, JavaScript, pack, and WASM assets returned HTTP 200. Chrome
+  also reported one non-fatal aborted WASM fetch; it is retained in the
+  evidence rather than normalized away.
+- The x86-64 and ARM64 executables identify as ELF64 machine 62 and 183. The
+  x86-64 build booted under WSL2 with exit code 0; ARM64 execution was not
+  attempted.
+- All ten mutation tests pass and reject toolchain/output substitution plus
+  physical-controller, Motion, target, package, latency, participant, and ARM
+  execution promotion.
+
+### Remaining boundary
+
+I-077 and I-086 remain active. The browser actions were keyboard fallback, not
+a physical gamepad or recovery remote. No live Motion bridge, camera, tracker,
+participant, native IPC, signed package, target compositor/service manager,
+ordinary x86-64 Linux, ARM64 execution, GPU/audio, or camera-to-action latency
+was tested. WSL2 remains same-host virtualized evidence, so Q-058 cannot close.

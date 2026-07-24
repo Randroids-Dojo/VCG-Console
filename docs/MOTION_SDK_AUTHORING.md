@@ -1,6 +1,7 @@
 # Motion SDK authoring guide
 
-Status: runnable web and Godot quickstarts implemented; target export qualification pending
+Status: runnable web and Godot quickstarts plus desk export evidence implemented;
+target qualification pending
 
 Authority: Motion API 0.4, bridge v2, D-004, D-006, D-059, and I-086
 
@@ -170,9 +171,24 @@ triggered-versus-held semantics, shell-action exclusion, controller recovery,
 deterministic replay, raw-frame denial, unsafe-origin denial, and non-web
 live-bridge denial.
 
-This completes both quickstart source paths for I-086 but keeps the
-investigation active until a real reviewed Godot web export negotiates live
-with the browser host and the target ARM64/x86-64 export, package-size,
-tooling, and latency comparison is recorded under I-077/Q-058. Neither sample
-replaces real-player action qualification, signed permission grants, target
-origin containment, or native reserved-control enforcement.
+The checked-in Godot release presets now produce unthreaded Web, Linux x86-64,
+and Linux ARM64 outputs with exact Godot 4.7.1 templates. The dated Windows
+desk record pins all output hashes and sizes. Installed Chrome loads the web
+build to the closed six-field `__vcgGodotExportProbe`, then Left and Jump
+keyboard fallback produce the expected game states. The x86-64 ELF boots
+headlessly under WSL2; the ARM64 ELF has the expected AArch64 identity but was
+not executed.
+
+Run the offline evidence gate:
+
+```powershell
+pnpm validate:godot-exports
+```
+
+This advances both quickstart source paths for I-086 but keeps the
+investigation active until a real physical controller and reviewed Motion
+bridge negotiate with the export, target ARM64/x86-64 execution is observed,
+and the tooling and camera/landmark/action latency comparison is recorded
+under I-077/Q-058. Neither sample replaces real-player action qualification,
+signed permission grants, target origin containment, or native
+reserved-control enforcement.

@@ -1,0 +1,294 @@
+{
+  "format": "vcg-godot-export-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "windows-x64-godot-export-web-load-and-wsl-x86-boot",
+  "qualification": "desk-export-and-load-only-not-target-qualification",
+  "retrievedAtUtc": "2026-07-24T20:49:41.974Z",
+  "environment": {
+    "producerPlatform": "win32",
+    "producerArchitecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "godotVersion": "4.7.1.stable.official.a13da4feb",
+    "godotBinaryName": "Godot_v4.7.1-stable_win64_console.exe",
+    "browserProduct": "Chrome/150.0.7871.182"
+  },
+  "toolchain": {
+    "templateVersion": "4.7.1.stable",
+    "templateArchive": {
+      "url": "https://github.com/godotengine/godot-builds/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz",
+      "bytes": 1280486955,
+      "sha256": "86409db6200b6f8fd3230989c2d2002851f3dd18acf11d7bdbafddf5a0dd0f72"
+    },
+    "installedTemplateFileCount": 13,
+    "installedTemplates": [
+      {
+        "name": "linux_debug.arm64",
+        "bytes": 68111656,
+        "sha256": "90b31e8d23d9929b9640409a0d229c7bb8a1e63fadb9ceb2a20b6ba476f81d39"
+      },
+      {
+        "name": "linux_debug.x86_64",
+        "bytes": 73675128,
+        "sha256": "0b20d290d99ab6e73b1b5888bea582859fde5be8116160f0eb192cc1b2611808"
+      },
+      {
+        "name": "linux_release.arm64",
+        "bytes": 67046672,
+        "sha256": "96b9343e2747d373ba6c4d21df168dbc76e5cf373904b74b255504d7ab51af9f"
+      },
+      {
+        "name": "linux_release.x86_64",
+        "bytes": 73470264,
+        "sha256": "2cb27aee3f7fdf763d0ae16972f6975606959a071f4cd33f6ef1429eb8385049"
+      },
+      {
+        "name": "version.txt",
+        "bytes": 13,
+        "sha256": "233b4ce93ffa3c6bc967b45dcfcdf2d29c7d65878d0af6d2fc7c95661d585013"
+      },
+      {
+        "name": "web_debug.zip",
+        "bytes": 10342565,
+        "sha256": "105e3b45b64e149bccfb137a1ebc1dd35019d025b0a5a8b33d1f9f66b0d54b68"
+      },
+      {
+        "name": "web_dlink_debug.zip",
+        "bytes": 12124531,
+        "sha256": "bd3581067e1a0f321a1df1c027a30ea74eaced7305052e3f82e281b2e122fdf4"
+      },
+      {
+        "name": "web_dlink_nothreads_debug.zip",
+        "bytes": 12013956,
+        "sha256": "2f3015c397d86c62e9b1fbbbb58bd2d7e443de72dde10388334b72d080239ca2"
+      },
+      {
+        "name": "web_dlink_nothreads_release.zip",
+        "bytes": 11548067,
+        "sha256": "553026cc96519da0db3a2dcae493ba9497ca34bbe15e21f0be68713079c81541"
+      },
+      {
+        "name": "web_dlink_release.zip",
+        "bytes": 11567332,
+        "sha256": "3d9a4f7963759b31d9bc19fffe0991b7348eeeb970187c9f09bbf1aa843a0c6c"
+      },
+      {
+        "name": "web_nothreads_debug.zip",
+        "bytes": 10231638,
+        "sha256": "eb6ca0ca168c405e73b20a4439d6dc048d74ae65eb31cc7675b6bc3cf7ad1815"
+      },
+      {
+        "name": "web_nothreads_release.zip",
+        "bytes": 10246274,
+        "sha256": "b7b7d7da29fc6cc2f4934fdd26cc571a40e7af57f716ea3eb7e18da720dae28a"
+      },
+      {
+        "name": "web_release.zip",
+        "bytes": 10289612,
+        "sha256": "fbf25789a657fc484e4ae9befd7bab8e4919d6ab758bef96a9ea05ba82097406"
+      }
+    ]
+  },
+  "outputs": {
+    "web": {
+      "preset": "Web",
+      "target": "wasm32-web-unthreaded",
+      "fileCount": 9,
+      "totalBytes": 39866665,
+      "files": [
+        {
+          "path": "artifacts/godot-motion/web/index.apple-touch-icon.png",
+          "bytes": 11944,
+          "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.audio.position.worklet.js",
+          "bytes": 2973,
+          "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.audio.worklet.js",
+          "bytes": 7298,
+          "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.html",
+          "bytes": 5449,
+          "sha256": "3b994d83ca53acf6d2c4aa7869d3c7a545b9c561ce4804f5cdc7175c2713a6d7"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.icon.png",
+          "bytes": 5700,
+          "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.js",
+          "bytes": 279815,
+          "sha256": "68586d6daafc93c6e697b3fb258976874aa7459b8931165ebb1dc3c9614cc42c"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.pck",
+          "bytes": 18952,
+          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.png",
+          "bytes": 21443,
+          "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e"
+        },
+        {
+          "path": "artifacts/godot-motion/web/index.wasm",
+          "bytes": 39513091,
+          "sha256": "35116f68540ac41acf7d71ea457added91b5e960a9cca3e2acc72918eaf01277"
+        }
+      ]
+    },
+    "linuxX86_64": {
+      "preset": "Linux x86_64",
+      "target": "linux-x86_64",
+      "elf": {
+        "class": "ELF64",
+        "endianness": "little",
+        "machine": "x86-64",
+        "machineCode": 62
+      },
+      "fileCount": 2,
+      "totalBytes": 73489216,
+      "files": [
+        {
+          "path": "artifacts/godot-motion/linux-x86_64/vcg-tiny-motion-game.pck",
+          "bytes": 18952,
+          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+        },
+        {
+          "path": "artifacts/godot-motion/linux-x86_64/vcg-tiny-motion-game.x86_64",
+          "bytes": 73470264,
+          "sha256": "2cb27aee3f7fdf763d0ae16972f6975606959a071f4cd33f6ef1429eb8385049"
+        }
+      ],
+      "boot": {
+        "attempted": true,
+        "environment": "WSL2-not-target-Linux",
+        "kernel": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64 GNU/Linux",
+        "exitCode": 0,
+        "signal": null,
+        "engineBanner": "Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org"
+      }
+    },
+    "linuxArm64": {
+      "preset": "Linux arm64",
+      "target": "linux-arm64",
+      "elf": {
+        "class": "ELF64",
+        "endianness": "little",
+        "machine": "AArch64",
+        "machineCode": 183
+      },
+      "fileCount": 2,
+      "totalBytes": 67065624,
+      "files": [
+        {
+          "path": "artifacts/godot-motion/linux-arm64/vcg-tiny-motion-game.arm64",
+          "bytes": 67046672,
+          "sha256": "96b9343e2747d373ba6c4d21df168dbc76e5cf373904b74b255504d7ab51af9f"
+        },
+        {
+          "path": "artifacts/godot-motion/linux-arm64/vcg-tiny-motion-game.pck",
+          "bytes": 18952,
+          "sha256": "608c9b1a44b2eb4e62e964d75cbf1fd7099a190aac63d87f699e31b52cdd51ca"
+        }
+      ],
+      "executionAttempted": false
+    }
+  },
+  "browser": {
+    "browserProduct": "Chrome/150.0.7871.182",
+    "originClass": "random-loopback-http",
+    "path": "/index.html",
+    "httpStatus": 200,
+    "readyMs": 710.38,
+    "document": {
+      "title": "VCG Tiny Motion Game",
+      "readyState": "complete",
+      "canvasCount": 1,
+      "canvasWidth": 960,
+      "canvasHeight": 540
+    },
+    "initial": {
+      "inputSource": "waiting",
+      "lane": 1,
+      "schemaVersion": 1,
+      "score": 0,
+      "stance": "standing",
+      "status": "WAITING FOR PLAYER"
+    },
+    "afterLeft": {
+      "inputSource": "controller",
+      "lane": 0,
+      "schemaVersion": 1,
+      "score": 100,
+      "stance": "standing",
+      "status": "CONTROLLER LEFT"
+    },
+    "afterJump": {
+      "inputSource": "controller",
+      "lane": 0,
+      "schemaVersion": 1,
+      "score": 200,
+      "stance": "jumping",
+      "status": "CONTROLLER JUMP"
+    },
+    "keyboardFallbackActionCount": 2,
+    "consoleErrorCount": 0,
+    "pageErrorCount": 0,
+    "requiredAssetHttpSuccessCount": 4,
+    "requestFailureCount": 1,
+    "abortedWasmFetchCount": 1
+  },
+  "disposition": {
+    "webReleaseExportProduced": true,
+    "linuxX86_64ReleaseExportProduced": true,
+    "linuxArm64ReleaseExportProduced": true,
+    "webChromeLoadVerified": true,
+    "keyboardFallbackVerified": true,
+    "physicalGamepadVerified": false,
+    "liveMotionBridgeNegotiationVerified": false,
+    "linuxX86_64WslBootObserved": true,
+    "linuxTargetQualified": false,
+    "linuxArm64ExecutionVerified": false,
+    "signedPackageLaunchVerified": false,
+    "latencyQualified": false
+  },
+  "summary": {
+    "exportCount": 3,
+    "webLoadCount": 1,
+    "keyboardFallbackActionCount": 2,
+    "physicalControllerCount": 0,
+    "participantCount": 0,
+    "motionFrameCount": 0,
+    "targetHardwareCount": 0
+  },
+  "provenance": {
+    "projectPath": "examples/godot-motion-game/project.godot",
+    "projectPathSha256": "6c877bee436793f5578b3938a195f7e7b220d0f20976b2cb6eef8dad0b6617ff",
+    "scenePath": "examples/godot-motion-game/main.tscn",
+    "scenePathSha256": "95871e3b1cfe4a52dafcc882f22af42b254a03d9d3341fb3475bb165aa6b9df7",
+    "mainScriptPath": "examples/godot-motion-game/scripts/main.gd",
+    "mainScriptPathSha256": "f118b309c097bfd53b56019186dbd2cea3f3164e9c955f04f957e90827dd392a",
+    "gameScriptPath": "examples/godot-motion-game/scripts/motion_game.gd",
+    "gameScriptPathSha256": "ebd32337fc6cc4aa4caa328117c8b9e761aa62f2723daf980ed6e522df8313cc",
+    "presetPath": "examples/godot-motion-game/export_presets.cfg",
+    "presetPathSha256": "d00238a434fd970c06f16757994626c0f838d5342856ce431354e5746fc6d1cd",
+    "generatorPath": "scripts/generate-godot-export-evidence.mjs",
+    "generatorPathSha256": "a43c6321d7bfb7e3f50d67e3b3f6ce5bd36daab69c2a6bb5ac2e98b3f710c86d",
+    "validatorPath": "scripts/validate-godot-export-evidence.mjs",
+    "validatorPathSha256": "03b98cc11670c789dea824e0050046fb8857b17c8f1c442357682f162aa1bd35"
+  },
+  "claimBoundary": "One Windows x64 desk run with exact Godot 4.7.1 templates proves that the tiny Motion sample exported to unthreaded Web, Linux x86-64, and Linux ARM64; the Web build reached a bounded diagnostic state in installed Chrome and accepted two keyboard fallback actions; and the Linux x86-64 build booted headlessly under WSL2. It does not prove a real controller, live Motion bridge negotiation, native Motion IPC, target Linux or ARM64 execution, compositor recovery controls, signed-package launch, camera-to-action latency, or product qualification.",
+  "limitations": [
+    "The browser exercise used keyboard events as the sample's fallback input and did not connect a physical gamepad, recovery remote, camera, tracker, or participant.",
+    "The web export loaded from a random loopback HTTP origin in installed Chrome; it did not negotiate the Motion bridge, run under the console wrapper, or prove production origin and permission authority.",
+    "The Linux x86-64 executable booted under WSL2 on the Windows development host, not either selected ordinary Linux appliance, its GPU/audio stack, compositor, or service manager.",
+    "The Linux ARM64 output was identified structurally as AArch64 but was not executed on ARM64 hardware or an emulator.",
+    "Release files are retained only as ignored local build artifacts; the tracked evidence records their exact hashes and sizes but does not sign, distribute, sandbox, or qualify them."
+  ]
+}
