@@ -6,6 +6,10 @@ Status: one bounded Windows x64 Chrome desk run proves the actual Godot Web
 export can negotiate and consume synthetic Motion across distinct loopback
 origins. This is not production or target qualification.
 
+Successor note: `GODOT_WEB_BRIDGE_RESILIENCE_EVIDENCE_2026-07-24.md`
+separately exercises degraded/ready health and reload/reconnect without
+rewriting this v1 observation.
+
 ## Result
 
 The fixture built the real console-lab host against the existing

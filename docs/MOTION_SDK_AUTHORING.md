@@ -191,11 +191,20 @@ synthetic `body.core17` frames, the Godot probe reaches `LANDMARKS ACTIVE`, and
 both exact acknowledgements clear before the next publication. The run has
 zero console, page, and request errors.
 
+A successor run sends ordered degraded/overload and recovered/ready health
+events to that same export. The visible probe moves from Motion-active to
+waiting, then ready, and resumes exact frame acknowledgements. Reloading the
+sandboxed child creates one replacement session with active/peak session
+counts held at one; the new document receives current ready health and
+acknowledges a post-reload frame. Every HTML, JavaScript, pack, and WASM core
+asset is fetched once per document lifecycle.
+
 Run the offline evidence gates:
 
 ```powershell
 pnpm validate:godot-exports
 pnpm validate:godot-web-bridge
+pnpm validate:godot-web-bridge-resilience
 ```
 
 This advances both quickstart source paths for I-086 but keeps the
@@ -203,5 +212,6 @@ investigation active until a real physical controller and real tracker
 exercise the export, target ARM64/x86-64 execution is observed, and the
 tooling and camera/landmark/action latency comparison is recorded under
 I-077/Q-058. The desk host is not production launcher authority and does not
-replace signed permission grants, real-player action qualification, target
+replace signed permission grants, hostile-origin navigation evidence,
+renderer suspend/kill recovery, real-player action qualification, target
 origin containment, or native reserved-control enforcement.

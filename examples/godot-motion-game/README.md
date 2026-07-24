@@ -31,6 +31,7 @@ ignored `artifacts/godot-motion` directory:
 pnpm exec tsx scripts/generate-godot-export-evidence.mjs
 pnpm validate:godot-exports
 pnpm validate:godot-web-bridge
+pnpm validate:godot-web-bridge-resilience
 ```
 
 The dated generator requires exact Godot `4.7.1.stable` templates. It verifies
@@ -56,6 +57,12 @@ frames, and observes an exact ACK after each. The offline artifact gate above
 checks that run and ten adversarial mutations. The live generator is
 `scripts/generate-godot-web-bridge-evidence.mjs`.
 
+A separate successor fixture sends ordered degraded and ready health, proves
+that the Godot UI blocks and restores Motion control, reloads the same
+sandboxed frame, observes one replacement session with no overlap, and
+acknowledges a post-reload frame. Its offline gate is
+`validate:godot-web-bridge-resilience`; the v1 bridge record remains unchanged.
+
 This sample does not implement native IPC. Native Godot must wait for I-074 to
 select and measure the local transport; do not substitute an unauthenticated
 ad hoc socket. Headless tests validate the GDScript consumer, replay ordering,
@@ -63,7 +70,8 @@ raw-frame denial, controller recovery, safe-integer JSON sequence
 normalization, and non-web live-bridge denial. The
 dated desk evidence proves three release exports, a Chrome web load with
 keyboard fallback, live synthetic Motion negotiation across distinct origins,
-exact frame ACK recovery, ELF architecture identity, and a WSL2 x86-64
-headless boot. It does not prove physical gamepad input, a real tracker,
-production launcher authority, signed permissions, target Linux/ARM64
-execution, package launch, or latency qualification.
+exact frame ACK recovery, visible degraded/ready health, reload/reconnect, ELF
+architecture identity, and a WSL2 x86-64 headless boot. It does not prove
+physical gamepad input, a real tracker, hostile-origin navigation, process
+suspend or kill, production launcher authority, signed permissions, target
+Linux/ARM64 execution, package launch, or latency qualification.

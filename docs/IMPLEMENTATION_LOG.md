@@ -3897,6 +3897,46 @@ the privileged native package server, signed permission admission, production
 compositor, physical controller, real tracker, participant, target Linux or
 ARM64 system, native IPC, package lifecycle, or latency qualification.
 
+## 2026-07-24: Godot Web bridge health and reload resilience
+
+### Delivered
+
+- Added a successor two-origin fixture without changing the immutable v1
+  bridge fixture or artifact.
+- Drove ordered overload/degraded and healthy/ready events through the actual
+  host and Godot adapter, then required the visible game probe to block Motion,
+  recover to ready, and resume exact frame acknowledgements.
+- Reloaded the sandboxed Godot document in place, required a second accepted
+  session with active and peak counts held at one, verified current ready
+  health in the replacement document, and ACKed a post-reload frame.
+- Added a separately built fixture, 96 KiB-bounded hash-bound successor
+  artifact, strict validator, ten mutation tests, an offline validation
+  command, and a detailed report.
+
+### Verification evidence
+
+- Chrome `150.0.7871.182` completed one initial and one replacement Godot
+  document across distinct random `127.0.0.1` and `localhost` origins.
+- Three frames were published and ACKed, two ordered health events were
+  delivered, pending and invalid-ACK counts remained zero, and the replacement
+  session did not overlap the prior session.
+- Each HTML, JavaScript, pack, WASM, image, and audio-worklet resource was
+  fetched twice. The tracked run had zero console/page errors and one recorded
+  non-fatal aborted WASM fetch during replacement.
+- The generator records a narrowly bounded optional unload-side WASM abort
+  rather than hiding it; any other request failure fails.
+- Ten adversarial tests reject base substitution, missing health/reconnect
+  state, session/frame/ACK drift, incomplete resource reload, authority or
+  target promotion, stale provenance, and unknown claims.
+
+### Remaining boundary
+
+I-077 and I-086 remain active. This was an authored synthetic health sequence
+and ordinary same-host iframe reload, not hostile-origin navigation,
+session-expiry, renderer kill, OS suspend, network loss, repeated soak,
+production launcher authority, signed permission admission, physical
+controller, real tracker, participant, target system, or latency evidence.
+
 ## 2026-07-24: shared retro import contract and native plain-file transaction
 
 ### Delivered
