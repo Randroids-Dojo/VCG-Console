@@ -2232,3 +2232,44 @@ journal, profile registry and unassigned-save transaction, factory-reset
 executor, I-186 producer canaries, target power-loss/storage/update campaigns,
 and security review remain open. Persistent encrypted profiles and automatic
 body-profile matching must stay disabled until their respective gates pass.
+
+## 2026-07-24: bounded power and recovery state machine
+
+### Delivered
+
+- Added a pure fail-closed runtime controller for tier-native idle, wake,
+  restart, and shutdown with exact coordinator-epoch/operation-ID references
+  and monotonic deadlines.
+- Required launch admission to close before game, tracker, camera, input,
+  writable-state, and protected-update quiescence acknowledgements.
+- Mapped a short physical power press to idle while active and wake while idle;
+  kept Restart and Shut Down behind a separate expiring confirmation.
+- Kept the entire transition, including platform handoff, inside one bounded
+  window and made timeout, adapter failure, unsafe update state, and unclean
+  electrical loss terminal rather than recoverable through page input.
+- Added a separate boot-only service gate: a qualified dedicated-button hold
+  plus release authorizes non-destructive service mode, while recovery requires
+  a new press and release and yields one one-shot boot-bound authorization.
+- Documented the state diagrams, exact gates, adapter responsibilities,
+  emergency-cut semantics, security boundary, unresolved implementation, and
+  Q-167 through Q-169.
+- Added D-166 and advanced I-029 from `open` to `active`.
+
+### Verification evidence
+
+Nineteen focused Vitest cases cover both idle strategies, short-press mapping,
+launch-admission-first ordering, all quiescence/wake gates, exact confirmation,
+cancel/expiry, stale/cross-operation/cross-restart and open-enum rejection,
+transition deadlines, adapter faults, one-shot handoff, unclean loss, monotonic
+clock and identifier bounds, ordinary boot, service hold/release, separate
+recovery press/release, cancellation, and wrong-boot/replayed/forged/misordered
+physical evidence, including unknown-field rejection and release after a
+canceled press. The focused suite and zero-warning Svelte typecheck pass.
+
+### Remaining boundary
+
+This is executable policy, not native power or recovery. Privileged service
+coordination, authenticated acknowledgements, per-game suspend/checkpoint
+manifest semantics, systemd/firmware/SteamOS/Pi adapters, physical controls,
+display blanking and wake devices, signed recovery, data/reset disposition,
+and target suspend/resume/power-cut/thermal/energy/endurance tests remain open.

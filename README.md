@@ -70,6 +70,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Console-managed game save lifecycle](docs/GAME_SAVE_LIFECYCLE.md)
 - [Console family, admin, and developer operating modes](docs/CONSOLE_OPERATING_MODES.md)
 - [Console accessibility preferences](docs/ACCESSIBILITY_PREFERENCES.md)
+- [Power and recovery state machine](docs/POWER_RECOVERY_STATE_MACHINE.md)
 - [Local diagnostics and consented export](docs/LOCAL_DIAGNOSTICS.md)
 - [Atomic A/B system-update state](docs/SYSTEM_AB_UPDATE_STATE.md)
 - [System-update journal protected-state adapter](docs/SYSTEM_UPDATE_PROTECTED_STATE.md)
