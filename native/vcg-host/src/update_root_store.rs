@@ -13,6 +13,8 @@ use std::io::{self, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
 use fs4::TryLockError;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::update_trust::{
     DetachedUpdateSignatures, MAX_UPDATE_ROOT_METADATA_BYTES, MAX_UPDATE_SIGNATURE_BUNDLE_BYTES,
@@ -25,11 +27,109 @@ const ROOT_FILE: &str = "root.json";
 const SIGNATURE_FILE: &str = "signatures.json";
 const INCOMING_PREFIX: &str = ".incoming-";
 const MAX_GENERATIONS: usize = 4_096;
+/// Maximum strict JSON representation accepted from a protected-state adapter.
+pub const MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES: usize = 4 * 1_024;
 
 /// Host-provisioned paths for accepted update-root history.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UpdateRootStoreConfig {
     pub store_root: PathBuf,
+}
+
+/// Exact accepted-root identity supplied by protected platform state.
+///
+/// The serialized representation is only an adapter boundary. Keeping it in
+/// an ordinary writable file does not make it protected.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ProtectedUpdateRootState {
+    schema_version: u32,
+    generation: u64,
+    root_metadata_sha256: Option<String>,
+}
+
+impl ProtectedUpdateRootState {
+    /// State before any accepted root has been committed to the platform
+    /// monotonic adapter.
+    #[must_use]
+    pub const fn uninitialized() -> Self {
+        Self {
+            schema_version: 1,
+            generation: 0,
+            root_metadata_sha256: None,
+        }
+    }
+
+    /// Parses a bounded closed JSON state document.
+    ///
+    /// # Errors
+    ///
+    /// Rejects malformed input, unknown fields, unsupported schema, or a
+    /// noncanonical generation/digest pairing.
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, UpdateRootStoreError> {
+        require_payload(
+            bytes,
+            MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES,
+            "protected update root state",
+        )?;
+        let state: Self = serde_json::from_slice(bytes).map_err(|error| {
+            UpdateRootStoreError::InvalidProtectedState(format!(
+                "protected state is malformed: {error}"
+            ))
+        })?;
+        state.validate()?;
+        Ok(state)
+    }
+
+    fn for_root(generation: u64, root_bytes: &[u8]) -> Self {
+        Self {
+            schema_version: 1,
+            generation,
+            root_metadata_sha256: Some(sha256_bytes(root_bytes)),
+        }
+    }
+
+    fn validate(&self) -> Result<(), UpdateRootStoreError> {
+        if self.schema_version != 1 {
+            return Err(UpdateRootStoreError::InvalidProtectedState(format!(
+                "unsupported schema {}",
+                self.schema_version
+            )));
+        }
+        match (self.generation, self.root_metadata_sha256.as_deref()) {
+            (0, None) => Ok(()),
+            (0, Some(_)) => Err(UpdateRootStoreError::InvalidProtectedState(
+                "generation zero must not contain a root digest".to_owned(),
+            )),
+            (_, None) => Err(UpdateRootStoreError::InvalidProtectedState(
+                "an initialized generation requires a root digest".to_owned(),
+            )),
+            (_, Some(digest)) if is_canonical_sha256(digest) => Ok(()),
+            (_, Some(_)) => Err(UpdateRootStoreError::InvalidProtectedState(
+                "root digest must be canonical lowercase SHA-256".to_owned(),
+            )),
+        }
+    }
+
+    #[must_use]
+    pub const fn generation(&self) -> u64 {
+        self.generation
+    }
+
+    #[must_use]
+    pub fn root_metadata_sha256(&self) -> Option<&str> {
+        self.root_metadata_sha256.as_deref()
+    }
+}
+
+/// Result after accepting or idempotently replaying one candidate root.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RootAcceptance {
+    /// The exact root already matches protected platform state and may be used.
+    Active(ProtectedUpdateRootState),
+    /// Root bytes are durable but must not authorize artifacts until the
+    /// platform atomically commits this exact state.
+    ProtectionCommitRequired(ProtectedUpdateRootState),
 }
 
 /// An append-only, crash-recoverable accepted-root store.
@@ -78,19 +178,24 @@ impl UpdateRootStore {
     ///
     /// # Errors
     ///
-    /// Rejects invalid trust metadata, rollback below the protected floor,
-    /// expired roots, non-empty stores, lock contention, or unsafe state.
+    /// Rejects invalid trust metadata, a protected-state mismatch, expired
+    /// roots, non-empty stores, lock contention, or unsafe state.
     pub fn bootstrap(
         &self,
         root_bytes: &[u8],
         signature_bytes: &[u8],
         anchors: &RootTrustAnchorSet,
-        minimum_generation: u64,
+        protected_state: &ProtectedUpdateRootState,
         trusted_unix_seconds: u64,
-    ) -> Result<TrustedUpdateRoot, UpdateRootStoreError> {
+    ) -> Result<RootAcceptance, UpdateRootStoreError> {
+        protected_state.validate()?;
         let _operation = self.acquire_operation_lock()?;
         let entries = self.committed_generations()?;
         if !entries.is_empty() {
+            let current = self.replay_unlocked(anchors, protected_state)?;
+            if current.root_bytes == root_bytes && current.signature_bytes == signature_bytes {
+                return acceptance_for(&current, protected_state);
+            }
             return Err(UpdateRootStoreError::AlreadyBootstrapped);
         }
         let signatures = parse_signatures(signature_bytes)?;
@@ -98,11 +203,21 @@ impl UpdateRootStore {
             root_bytes,
             &signatures,
             anchors,
-            minimum_generation,
+            0,
             trusted_unix_seconds,
         )?;
+        let expected_state = ProtectedUpdateRootState::for_root(root.generation(), root_bytes);
+        if protected_state.generation > 0 && protected_state != &expected_state {
+            return Err(UpdateRootStoreError::ProtectedRootMissing {
+                generation: protected_state.generation,
+            });
+        }
         self.publish(root.generation(), root_bytes, signature_bytes)?;
-        Ok(root)
+        if protected_state == &expected_state {
+            Ok(RootAcceptance::Active(expected_state))
+        } else {
+            Ok(RootAcceptance::ProtectionCommitRequired(expected_state))
+        }
     }
 
     /// Verifies, accepts, and durably publishes the exact next root.
@@ -110,36 +225,46 @@ impl UpdateRootStore {
     /// # Errors
     ///
     /// Rejects interrupted state, invalid stored history, non-consecutive or
-    /// incorrectly signed candidates, rollback below the protected floor,
-    /// expiry, lock contention, or publication failure.
+    /// incorrectly signed candidates, a protected-state mismatch, expiry,
+    /// lock contention, or publication failure.
     pub fn rotate(
         &self,
         candidate_bytes: &[u8],
         signature_bytes: &[u8],
         anchors: &RootTrustAnchorSet,
-        minimum_generation: u64,
+        protected_state: &ProtectedUpdateRootState,
         trusted_unix_seconds: u64,
-    ) -> Result<TrustedUpdateRoot, UpdateRootStoreError> {
+    ) -> Result<RootAcceptance, UpdateRootStoreError> {
+        protected_state.validate()?;
         let _operation = self.acquire_operation_lock()?;
+        // An expired current root must still be able to authenticate its exact
+        // successor. Only the candidate is required to be current here.
+        let current = self.replay_unlocked(anchors, protected_state)?;
+        if current.root_bytes == candidate_bytes && current.signature_bytes == signature_bytes {
+            return acceptance_for(&current, protected_state);
+        }
         if self.committed_generations()?.len() >= MAX_GENERATIONS {
             return Err(UpdateRootStoreError::TooManyGenerations {
                 maximum: MAX_GENERATIONS,
             });
         }
-        // An expired current root must still be able to authenticate its exact
-        // successor. Only the candidate is required to be current here.
-        let current = self.replay_unlocked(anchors, minimum_generation)?;
+        require_exact_protected_root(&current, protected_state)?;
         let signatures = parse_signatures(signature_bytes)?;
-        let candidate = current.rotate(candidate_bytes, &signatures, trusted_unix_seconds)?;
+        let candidate =
+            current
+                .trusted
+                .rotate(candidate_bytes, &signatures, trusted_unix_seconds)?;
         self.publish(candidate.generation(), candidate_bytes, signature_bytes)?;
-        Ok(candidate)
+        Ok(RootAcceptance::ProtectionCommitRequired(
+            ProtectedUpdateRootState::for_root(candidate.generation(), candidate_bytes),
+        ))
     }
 
     /// Replays all committed exact bytes and returns the current trusted root.
     ///
     /// Historical roots may be expired; their signatures, structure, and
     /// exact-generation links are still checked. The final root must satisfy
-    /// the trusted time and protected generation floor.
+    /// the trusted time and exact protected root identity.
     ///
     /// # Errors
     ///
@@ -148,11 +273,12 @@ impl UpdateRootStore {
     pub fn load_current(
         &self,
         anchors: &RootTrustAnchorSet,
-        minimum_generation: u64,
+        protected_state: &ProtectedUpdateRootState,
         trusted_unix_seconds: u64,
     ) -> Result<TrustedUpdateRoot, UpdateRootStoreError> {
+        protected_state.validate()?;
         let _operation = self.acquire_operation_lock()?;
-        self.load_current_unlocked(anchors, minimum_generation, trusted_unix_seconds)
+        self.load_current_unlocked(anchors, protected_state, trusted_unix_seconds)
     }
 
     /// Removes only canonical unpublished `.incoming-*` directories.
@@ -197,19 +323,20 @@ impl UpdateRootStore {
     fn load_current_unlocked(
         &self,
         anchors: &RootTrustAnchorSet,
-        minimum_generation: u64,
+        protected_state: &ProtectedUpdateRootState,
         trusted_unix_seconds: u64,
     ) -> Result<TrustedUpdateRoot, UpdateRootStoreError> {
-        let trusted = self.replay_unlocked(anchors, minimum_generation)?;
-        trusted.require_current(trusted_unix_seconds)?;
-        Ok(trusted)
+        let replayed = self.replay_unlocked(anchors, protected_state)?;
+        require_exact_protected_root(&replayed, protected_state)?;
+        replayed.trusted.require_current(trusted_unix_seconds)?;
+        Ok(replayed.trusted)
     }
 
     fn replay_unlocked(
         &self,
         anchors: &RootTrustAnchorSet,
-        minimum_generation: u64,
-    ) -> Result<TrustedUpdateRoot, UpdateRootStoreError> {
+        protected_state: &ProtectedUpdateRootState,
+    ) -> Result<ReplayedRoot, UpdateRootStoreError> {
         let generations = self.committed_generations()?;
         let first = generations
             .first()
@@ -225,6 +352,15 @@ impl UpdateRootStore {
                 metadata: trusted.generation(),
             });
         }
+        let mut latest_root_bytes = root_bytes;
+        let mut latest_signature_bytes = signature_bytes;
+        let mut protected_state_seen = protected_state.generation == 0;
+        observe_protected_state(
+            &mut protected_state_seen,
+            protected_state,
+            trusted.generation(),
+            &latest_root_bytes,
+        )?;
         for generation in generations.iter().copied().skip(1) {
             let expected = trusted
                 .generation()
@@ -239,14 +375,32 @@ impl UpdateRootStore {
             let (root_bytes, signature_bytes) = self.read_generation(generation)?;
             let signatures = parse_signatures(&signature_bytes)?;
             trusted = trusted.rotate_stored(&root_bytes, &signatures)?;
+            observe_protected_state(
+                &mut protected_state_seen,
+                protected_state,
+                trusted.generation(),
+                &root_bytes,
+            )?;
+            latest_root_bytes = root_bytes;
+            latest_signature_bytes = signature_bytes;
         }
-        if trusted.generation() < minimum_generation {
-            return Err(UpdateRootStoreError::Rollback {
-                minimum_generation,
-                actual_generation: trusted.generation(),
+        if trusted.generation() < protected_state.generation {
+            return Err(UpdateRootStoreError::ProtectedRollback {
+                protected_generation: protected_state.generation,
+                stored_generation: trusted.generation(),
             });
         }
-        Ok(trusted)
+        if protected_state.generation > 0 && !protected_state_seen {
+            return Err(UpdateRootStoreError::ProtectedRootMissing {
+                generation: protected_state.generation,
+            });
+        }
+        Ok(ReplayedRoot {
+            trusted,
+            root_bytes: latest_root_bytes,
+            signature_bytes: latest_signature_bytes,
+            protected_state_seen,
+        })
     }
 
     fn committed_generations(&self) -> Result<Vec<u64>, UpdateRootStoreError> {
@@ -387,6 +541,74 @@ impl UpdateRootStore {
 
 struct UpdateRootOperationLock {
     _file: File,
+}
+
+struct ReplayedRoot {
+    trusted: TrustedUpdateRoot,
+    root_bytes: Vec<u8>,
+    signature_bytes: Vec<u8>,
+    protected_state_seen: bool,
+}
+
+fn observe_protected_state(
+    seen: &mut bool,
+    protected_state: &ProtectedUpdateRootState,
+    generation: u64,
+    root_bytes: &[u8],
+) -> Result<(), UpdateRootStoreError> {
+    if protected_state.generation != generation {
+        return Ok(());
+    }
+    let actual = ProtectedUpdateRootState::for_root(generation, root_bytes);
+    if &actual != protected_state {
+        return Err(UpdateRootStoreError::ProtectedDigestMismatch { generation });
+    }
+    *seen = true;
+    Ok(())
+}
+
+fn require_exact_protected_root(
+    replayed: &ReplayedRoot,
+    protected_state: &ProtectedUpdateRootState,
+) -> Result<(), UpdateRootStoreError> {
+    let stored_generation = replayed.trusted.generation();
+    if stored_generation < protected_state.generation {
+        return Err(UpdateRootStoreError::ProtectedRollback {
+            protected_generation: protected_state.generation,
+            stored_generation,
+        });
+    }
+    if stored_generation > protected_state.generation {
+        return Err(UpdateRootStoreError::ProtectionCommitPending {
+            protected_generation: protected_state.generation,
+            stored_generation,
+        });
+    }
+    let expected = ProtectedUpdateRootState::for_root(stored_generation, &replayed.root_bytes);
+    if &expected != protected_state {
+        return Err(UpdateRootStoreError::ProtectedDigestMismatch {
+            generation: stored_generation,
+        });
+    }
+    Ok(())
+}
+
+fn acceptance_for(
+    replayed: &ReplayedRoot,
+    protected_state: &ProtectedUpdateRootState,
+) -> Result<RootAcceptance, UpdateRootStoreError> {
+    let expected =
+        ProtectedUpdateRootState::for_root(replayed.trusted.generation(), &replayed.root_bytes);
+    if protected_state == &expected {
+        Ok(RootAcceptance::Active(expected))
+    } else if protected_state.generation < replayed.trusted.generation()
+        && replayed.protected_state_seen
+    {
+        Ok(RootAcceptance::ProtectionCommitRequired(expected))
+    } else {
+        require_exact_protected_root(replayed, protected_state)?;
+        unreachable!("exact protected root returned above")
+    }
 }
 
 fn parse_signatures(bytes: &[u8]) -> Result<DetachedUpdateSignatures, UpdateRootStoreError> {
@@ -564,6 +786,23 @@ fn require_payload(
     }
 }
 
+fn sha256_bytes(bytes: &[u8]) -> String {
+    let digest = Sha256::digest(bytes);
+    let mut output = String::with_capacity(64);
+    for byte in digest {
+        use fmt::Write as _;
+        write!(output, "{byte:02x}").expect("writing to a String cannot fail");
+    }
+    output
+}
+
+fn is_canonical_sha256(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
 fn write_new(
     path: &Path,
     bytes: &[u8],
@@ -629,6 +868,7 @@ pub enum UpdateRootStoreError {
         kind: &'static str,
         path: PathBuf,
     },
+    InvalidProtectedState(String),
     InvalidLayout(String),
     PayloadSize {
         kind: &'static str,
@@ -645,9 +885,19 @@ pub enum UpdateRootStoreError {
         expected: u64,
         actual: u64,
     },
-    Rollback {
-        minimum_generation: u64,
-        actual_generation: u64,
+    ProtectionCommitPending {
+        protected_generation: u64,
+        stored_generation: u64,
+    },
+    ProtectedRollback {
+        protected_generation: u64,
+        stored_generation: u64,
+    },
+    ProtectedDigestMismatch {
+        generation: u64,
+    },
+    ProtectedRootMissing {
+        generation: u64,
     },
     GenerationExists(u64),
     GenerationOverflow,
@@ -673,6 +923,9 @@ impl fmt::Display for UpdateRootStoreError {
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
+            Self::InvalidProtectedState(error) => {
+                write!(formatter, "protected update root state is invalid: {error}")
+            }
             Self::InvalidLayout(error) => {
                 write!(formatter, "update root store layout is invalid: {error}")
             }
@@ -696,12 +949,27 @@ impl fmt::Display for UpdateRootStoreError {
                 formatter,
                 "update root history expected generation {expected} but found {actual}"
             ),
-            Self::Rollback {
-                minimum_generation,
-                actual_generation,
+            Self::ProtectionCommitPending {
+                protected_generation,
+                stored_generation,
             } => write!(
                 formatter,
-                "update root generation {actual_generation} is below protected floor {minimum_generation}"
+                "stored root generation {stored_generation} cannot be used until protected state advances from {protected_generation}"
+            ),
+            Self::ProtectedRollback {
+                protected_generation,
+                stored_generation,
+            } => write!(
+                formatter,
+                "stored root generation {stored_generation} is below protected generation {protected_generation}"
+            ),
+            Self::ProtectedDigestMismatch { generation } => write!(
+                formatter,
+                "stored root generation {generation} does not match its protected digest"
+            ),
+            Self::ProtectedRootMissing { generation } => write!(
+                formatter,
+                "protected root generation {generation} is absent from stored history"
             ),
             Self::GenerationExists(generation) => {
                 write!(
@@ -739,6 +1007,7 @@ impl From<UpdateTrustError> for UpdateRootStoreError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::cell::RefCell;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use ed25519_dalek::{Signer, SigningKey};
@@ -757,6 +1026,7 @@ mod tests {
         root_c: SigningKey,
         root_d: SigningKey,
         role: SigningKey,
+        protected: RefCell<ProtectedUpdateRootState>,
     }
 
     impl Fixture {
@@ -781,6 +1051,7 @@ mod tests {
                 root_c: key(3),
                 root_d: key(4),
                 role: key(5),
+                protected: RefCell::new(ProtectedUpdateRootState::uninitialized()),
             }
         }
 
@@ -829,9 +1100,42 @@ mod tests {
 
         fn bootstrap(&self, expires: u64) {
             let (root, signatures) = self.first(expires);
-            self.store
-                .bootstrap(&root, &signatures, &self.anchors(), 7, NOW)
+            let outcome = self
+                .store
+                .bootstrap(
+                    &root,
+                    &signatures,
+                    &self.anchors(),
+                    &self.protected.borrow(),
+                    NOW,
+                )
                 .expect("bootstrap");
+            let RootAcceptance::ProtectionCommitRequired(state) = outcome else {
+                panic!("initial unprotected root requires a platform commit");
+            };
+            self.protected.replace(state);
+        }
+
+        fn rotate(&self, expires: u64, trusted_unix_seconds: u64) {
+            let (root, signatures) = self.second(expires);
+            let outcome = self
+                .store
+                .rotate(
+                    &root,
+                    &signatures,
+                    &self.anchors(),
+                    &self.protected.borrow(),
+                    trusted_unix_seconds,
+                )
+                .expect("rotate");
+            let RootAcceptance::ProtectionCommitRequired(state) = outcome else {
+                panic!("new root requires a platform commit");
+            };
+            self.protected.replace(state);
+        }
+
+        fn protected(&self) -> ProtectedUpdateRootState {
+            self.protected.borrow().clone()
         }
     }
 
@@ -896,14 +1200,132 @@ mod tests {
     }
 
     #[test]
+    fn protected_state_document_is_closed_bounded_and_canonical() {
+        assert_eq!(
+            ProtectedUpdateRootState::from_json_bytes(
+                br#"{"schemaVersion":1,"generation":0,"rootMetadataSha256":null}"#
+            )
+            .expect("uninitialized state"),
+            ProtectedUpdateRootState::uninitialized()
+        );
+        let digest = "ab".repeat(32);
+        let committed =
+            format!(r#"{{"schemaVersion":1,"generation":7,"rootMetadataSha256":"{digest}"}}"#);
+        assert_eq!(
+            ProtectedUpdateRootState::from_json_bytes(committed.as_bytes())
+                .expect("committed state")
+                .root_metadata_sha256(),
+            Some(digest.as_str())
+        );
+        for invalid in [
+            r#"{"schemaVersion":2,"generation":0,"rootMetadataSha256":null}"#.to_owned(),
+            format!(r#"{{"schemaVersion":1,"generation":0,"rootMetadataSha256":"{digest}"}}"#),
+            r#"{"schemaVersion":1,"generation":7,"rootMetadataSha256":null}"#.to_owned(),
+            format!(
+                r#"{{"schemaVersion":1,"generation":7,"rootMetadataSha256":"{}"}}"#,
+                digest.to_uppercase()
+            ),
+            r#"{"schemaVersion":1,"generation":0,"rootMetadataSha256":null,"extra":1}"#.to_owned(),
+        ] {
+            assert!(ProtectedUpdateRootState::from_json_bytes(invalid.as_bytes()).is_err());
+        }
+        assert!(
+            ProtectedUpdateRootState::from_json_bytes(&vec![
+                b'0';
+                MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES
+                    + 1
+            ])
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn rotated_root_is_unusable_until_exact_protected_commit_and_retry_is_idempotent() {
+        let fixture = Fixture::new();
+        fixture.bootstrap(NOW + 100);
+        let old_state = fixture.protected();
+        let (root, signatures) = fixture.second(NOW + 200);
+        let outcome = fixture
+            .store
+            .rotate(&root, &signatures, &fixture.anchors(), &old_state, NOW)
+            .expect("stage rotation");
+        let RootAcceptance::ProtectionCommitRequired(next_state) = outcome else {
+            panic!("new root must wait for protected commit");
+        };
+        assert_eq!(next_state.generation(), 8);
+        assert!(matches!(
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &old_state, NOW),
+            Err(UpdateRootStoreError::ProtectionCommitPending {
+                protected_generation: 7,
+                stored_generation: 8
+            })
+        ));
+        assert_eq!(
+            fixture
+                .store
+                .rotate(&root, &signatures, &fixture.anchors(), &old_state, NOW,)
+                .expect("retry pending rotation"),
+            RootAcceptance::ProtectionCommitRequired(next_state.clone())
+        );
+        assert_eq!(
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &next_state, NOW)
+                .expect("exact state activates root")
+                .generation(),
+            8
+        );
+        assert_eq!(
+            fixture
+                .store
+                .rotate(&root, &signatures, &fixture.anchors(), &next_state, NOW,)
+                .expect("active retry"),
+            RootAcceptance::Active(next_state)
+        );
+    }
+
+    #[test]
+    fn protected_digest_rejects_a_valid_same_generation_substitute() {
+        let fixture = Fixture::new();
+        fixture.bootstrap(NOW + 100);
+        let protected = fixture.protected();
+        let substitute = fixture.first(NOW + 200).0;
+        let substitute_signatures = signature_document(&[
+            ("root-a", &fixture.root_a, &substitute),
+            ("root-b", &fixture.root_b, &substitute),
+        ]);
+        let generation = fixture.root.join("generations/00000000000000000007");
+        fs::write(generation.join(ROOT_FILE), substitute).expect("replace root");
+        fs::write(generation.join(SIGNATURE_FILE), substitute_signatures)
+            .expect("replace signatures");
+        assert!(matches!(
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &protected, NOW),
+            Err(UpdateRootStoreError::ProtectedDigestMismatch { generation: 7 })
+        ));
+    }
+
+    #[test]
     fn bootstrap_persists_exact_bytes_and_reopens() {
         let fixture = Fixture::new();
         let (root, signatures) = fixture.first(NOW + 100);
         let trusted = fixture
             .store
-            .bootstrap(&root, &signatures, &fixture.anchors(), 7, NOW)
+            .bootstrap(
+                &root,
+                &signatures,
+                &fixture.anchors(),
+                &ProtectedUpdateRootState::uninitialized(),
+                NOW,
+            )
             .expect("bootstrap");
-        assert_eq!(trusted.generation(), 7);
+        let RootAcceptance::ProtectionCommitRequired(protected) = trusted else {
+            panic!("bootstrap requires protected commit");
+        };
+        assert_eq!(protected.generation(), 7);
         assert_eq!(
             fs::read(
                 fixture
@@ -919,7 +1341,7 @@ mod tests {
         .expect("reopen");
         assert_eq!(
             reopened
-                .load_current(&fixture.anchors(), 7, NOW)
+                .load_current(&fixture.anchors(), &protected, NOW)
                 .expect("load")
                 .generation(),
             7
@@ -930,15 +1352,11 @@ mod tests {
     fn rotation_replays_an_expired_historical_root() {
         let fixture = Fixture::new();
         fixture.bootstrap(NOW + 5);
-        let (root, signatures) = fixture.second(NOW + 100);
-        fixture
-            .store
-            .rotate(&root, &signatures, &fixture.anchors(), 7, NOW + 4)
-            .expect("rotation");
+        fixture.rotate(NOW + 100, NOW + 4);
         assert_eq!(
             fixture
                 .store
-                .load_current(&fixture.anchors(), 8, NOW + 10)
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW + 10)
                 .expect("historical expiry does not invalidate chain")
                 .generation(),
             8
@@ -950,18 +1368,24 @@ mod tests {
         let fixture = Fixture::new();
         fixture.bootstrap(NOW + 5);
         let (root, signatures) = fixture.second(NOW + 100);
+        let outcome = fixture
+            .store
+            .rotate(
+                &root,
+                &signatures,
+                &fixture.anchors(),
+                &fixture.protected(),
+                NOW + 5,
+            )
+            .expect("expired root still authenticates exact next root");
+        let RootAcceptance::ProtectionCommitRequired(protected) = outcome else {
+            panic!("rotation requires protected commit");
+        };
+        assert_eq!(protected.generation(), 8);
         assert_eq!(
             fixture
                 .store
-                .rotate(&root, &signatures, &fixture.anchors(), 7, NOW + 5)
-                .expect("expired root still authenticates exact next root")
-                .generation(),
-            8
-        );
-        assert_eq!(
-            fixture
-                .store
-                .load_current(&fixture.anchors(), 8, NOW + 5)
+                .load_current(&fixture.anchors(), &protected, NOW + 5)
                 .expect("candidate is current")
                 .generation(),
             8
@@ -973,7 +1397,9 @@ mod tests {
         let fixture = Fixture::new();
         fixture.bootstrap(NOW + 5);
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW + 5),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW + 5),
             Err(UpdateRootStoreError::Trust(
                 UpdateTrustError::RootExpired { .. }
             ))
@@ -981,14 +1407,18 @@ mod tests {
     }
 
     #[test]
-    fn protected_generation_floor_detects_rollback() {
+    fn protected_root_state_detects_rollback() {
         let fixture = Fixture::new();
         fixture.bootstrap(NOW + 100);
+        let (future_root, _) = fixture.second(NOW + 100);
+        let future_state = ProtectedUpdateRootState::for_root(8, &future_root);
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 8, NOW),
-            Err(UpdateRootStoreError::Rollback {
-                minimum_generation: 8,
-                actual_generation: 7
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &future_state, NOW),
+            Err(UpdateRootStoreError::ProtectedRollback {
+                protected_generation: 8,
+                stored_generation: 7
             })
         ));
     }
@@ -1004,7 +1434,9 @@ mod tests {
         changed[0] ^= 1;
         fs::write(root_path, changed).expect("change root");
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW),
             Err(UpdateRootStoreError::Trust(_))
         ));
     }
@@ -1013,18 +1445,16 @@ mod tests {
     fn history_gap_fails_closed() {
         let fixture = Fixture::new();
         fixture.bootstrap(NOW + 100);
-        let (root, signatures) = fixture.second(NOW + 100);
-        fixture
-            .store
-            .rotate(&root, &signatures, &fixture.anchors(), 7, NOW)
-            .expect("rotate");
+        fixture.rotate(NOW + 100, NOW);
         fs::rename(
             fixture.root.join("generations/00000000000000000008"),
             fixture.root.join("generations/00000000000000000009"),
         )
         .expect("create gap");
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW),
             Err(UpdateRootStoreError::HistoryGap {
                 expected: 8,
                 actual: 9
@@ -1042,14 +1472,16 @@ mod tests {
         fs::create_dir(&incoming).expect("incoming");
         fs::write(incoming.join(ROOT_FILE), b"partial").expect("partial root");
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW),
             Err(UpdateRootStoreError::RecoveryRequired)
         ));
         assert_eq!(fixture.store.recover().expect("recover"), 1);
         assert_eq!(
             fixture
                 .store
-                .load_current(&fixture.anchors(), 7, NOW)
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW)
                 .expect("load after recovery")
                 .generation(),
             7
@@ -1071,7 +1503,9 @@ mod tests {
         fixture.bootstrap(NOW + 100);
         fs::write(fixture.root.join("generations/current"), b"7").expect("unexpected");
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW),
             Err(UpdateRootStoreError::InvalidLayout(_))
         ));
     }
@@ -1087,7 +1521,9 @@ mod tests {
             .expect("open lock");
         fs4::FileExt::try_lock(&lock).expect("hold operation lock");
         assert!(matches!(
-            fixture.store.load_current(&fixture.anchors(), 7, NOW),
+            fixture
+                .store
+                .load_current(&fixture.anchors(), &fixture.protected(), NOW),
             Err(UpdateRootStoreError::Busy)
         ));
     }
@@ -1107,10 +1543,11 @@ mod tests {
             fixture.root.join("generations/00000000000000000007"),
         )
         .expect("commit rename");
+        let protected = ProtectedUpdateRootState::for_root(7, &root);
         assert_eq!(
             fixture
                 .store
-                .load_current(&fixture.anchors(), 7, NOW)
+                .load_current(&fixture.anchors(), &protected, NOW)
                 .expect("load committed rename")
                 .generation(),
             7

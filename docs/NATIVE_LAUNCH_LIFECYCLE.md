@@ -55,9 +55,16 @@ For an accepted intent, Rust:
 2. reserves a bounded lifecycle record before expensive work;
 3. resolves the game through the signature-verified target catalog;
 4. verifies the bound game manifest and exact runtime artifacts;
-5. builds and prepares the contained RetroArch plan;
+5. dispatches the catalog runtime and prepares the Libretro or native package
+   plan through one shared boundary;
 6. selects process-only or watchdog monitoring from the host-owned game configuration;
-7. starts the executable directly without a shell and transfers ownership to a bounded monitor thread.
+7. starts the executable directly without a shell and transfers ownership to a
+   bounded monitor thread.
+
+The native adapter accepts only the catalog-signed executable, supplies no
+package-controlled arguments, and derives its working and writable paths.
+This is process ownership, not an OS sandbox. See
+[the native package runtime contract](NATIVE_PACKAGE_RUNTIME.md).
 
 For a watchdog game, the host derives `vcg.heartbeat` below the already prepared private session directory and passes it in `VCG_HEARTBEAT_FILE`. Stale heartbeat data is removed before every attempt. The integrated path does not configure a resource-fault file: same-account direct children are not contained yet, so a trusted Linux cgroup/GPU producer cannot be distinguished from child spoofing at this boundary.
 

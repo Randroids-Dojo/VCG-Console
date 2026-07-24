@@ -1552,3 +1552,81 @@ high-water state, secure refreshed time, commit ordering with future monotonic
 hardware, checkpoint/retention policy, same-account write isolation, and
 target-Linux power-cut qualification remain open. Recovery must never lower the
 protected floor or accept an unauthenticated latest root.
+
+## 2026-07-24: exact protected-root commit binding
+
+### Delivered
+
+- Replaced the generation-only launcher floor with a strict bounded protected
+  state containing the exact accepted-root generation and metadata SHA-256.
+- Made root bootstrap/rotation publish durable history first and return the
+  exact state an external monotonic adapter must commit. The new root cannot
+  authorize artifacts while writable history is ahead of protected state.
+- Rejected protected state ahead of history, same-generation digest
+  substitution, missing protected history, malformed/unknown state fields, and
+  noncanonical hashes.
+- Made retry idempotent before and after the external commit. Maintenance
+  output reports `protected-commit-required` with the exact generation/digest;
+  it never rewrites the protected adapter itself.
+- Replaced launcher and maintenance generation-number flags with bounded
+  protected-state file inputs, while preserving the explicit warning that an
+  ordinary writable file is not protected provenance.
+
+### Verification evidence
+
+Fifteen focused root-store tests now include strict protected-state documents,
+two-phase pending/commit behavior, retry on both sides of the commit, and a
+valid same-generation root substitution attack. The launcher integration test
+loads the exact protected state before root replay.
+
+### Remaining boundary
+
+The software protocol is ready for a platform adapter but does not select or
+qualify TPM, secure-element, verified-boot, or authenticated remote state on
+either hardware tier. Trusted refreshed time, artifact-generation protection,
+physical power-cut injection across the two commits, recovery-media repair,
+and operator rotation/revocation drills remain open.
+
+## 2026-07-24: signed native-package runtime dispatch
+
+### Delivered
+
+- Extended the strict installed catalog with an exclusive `native` runtime
+  record containing one relative executable path and canonical SHA-256.
+- Required the bound signed manifest to agree on native runtime identity and
+  rejected missing, mixed Libretro/native, escaping, changed, and misbound
+  records.
+- Added a direct native planner with no shell or package-controlled arguments,
+  a working directory derived from the installed executable, and host-derived
+  profile/game runtime and persistent-data paths.
+- Added `PackageLaunchPlan` as the shared Libretro/native boundary used by
+  generation health, ordinary authenticated launch, and host-selected
+  watchdog preparation.
+- Kept health roots transaction-scoped so candidate native packages do not
+  receive the intended player's data path during promotion.
+- Added `NATIVE_PACKAGE_RUNTIME.md`, D-159, active I-094 evidence, and a
+  separate Q-128 through Q-131 owner-question record.
+
+### Verification evidence
+
+Native tests cover direct no-argument planning and storage preparation,
+artifact tamper, install-root escape, unsafe IDs/roots, signed catalog
+resolution, runtime-record confusion, missing records, manifest runtime
+misbinding, shared planner dispatch, candidate-health storage isolation, and
+live/watchdog lifecycle preparation. The runtime-independent lifecycle,
+watchdog, replay, cancellation, and generation-protection suites continue to
+exercise both plans through the shared interface.
+
+Final native verification passes 239 library tests with five intentional
+subprocess helpers ignored and all sixteen CLI tests. Rust formatting, strict
+all-target Clippy, and warning-denied Rustdoc pass.
+
+### Remaining boundary
+
+This is a process-only adapter. It does not select or qualify the production
+Linux sandbox, inherited environment allowlist, fixed runtime arguments,
+filesystem/network/device grants, immutable descriptor-bound execution,
+descendant cgroup cleanup, compositor surface readiness, reserved global
+controls, Godot packaging, or ARM64/x86-64 hardware behavior. A native catalog
+entry is executable authority under the desk host; it is not family-mode
+qualification or evidence that hostile native code is contained.

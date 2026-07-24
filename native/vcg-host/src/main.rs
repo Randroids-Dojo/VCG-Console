@@ -15,7 +15,10 @@ use vcg_host::package_generation::{
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
-use vcg_host::update_root_store::{UpdateRootStore, UpdateRootStoreConfig};
+use vcg_host::update_root_store::{
+    MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES, ProtectedUpdateRootState, RootAcceptance,
+    UpdateRootStore, UpdateRootStoreConfig,
+};
 use vcg_host::update_trust::{
     DetachedUpdateSignatures, MAX_UPDATE_ROOT_ANCHOR_BYTES, MAX_UPDATE_ROOT_METADATA_BYTES,
     MAX_UPDATE_SIGNATURE_BUNDLE_BYTES, RootTrustAnchorSet, TrustedUpdatePolicy,
@@ -89,7 +92,7 @@ struct LauncherOptions {
     watchdog_game_ids: Vec<String>,
     update_root_store: Option<PathBuf>,
     update_root_anchors: Option<PathBuf>,
-    update_root_min_generation: Option<u64>,
+    update_root_protected_state: Option<PathBuf>,
     update_channel: Option<String>,
     trusted_unix_seconds: Option<u64>,
 }
@@ -119,7 +122,7 @@ enum LauncherCatalogSourceOptions {
 struct LauncherUpdateTrustOptions {
     store_root: PathBuf,
     root_anchors: PathBuf,
-    minimum_generation: u64,
+    protected_state: PathBuf,
     channel: String,
     trusted_unix_seconds: u64,
 }
@@ -349,6 +352,12 @@ impl LauncherUpdateTrustOptions {
             "update root anchors",
         )?)
         .map_err(|error| error.to_string())?;
+        let protected_state = ProtectedUpdateRootState::from_json_bytes(&read_bounded_host_file(
+            &self.protected_state,
+            MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES,
+            "protected update root state",
+        )?)
+        .map_err(|error| error.to_string())?;
         let store = UpdateRootStore::open(UpdateRootStoreConfig {
             store_root: self.store_root,
         })
@@ -357,7 +366,7 @@ impl LauncherUpdateTrustOptions {
             .then(|| store.recover().map_err(|error| error.to_string()))
             .transpose()?;
         let root = store
-            .load_current(&anchors, self.minimum_generation, self.trusted_unix_seconds)
+            .load_current(&anchors, &protected_state, self.trusted_unix_seconds)
             .map_err(|error| error.to_string())?;
         let policy = TrustedUpdatePolicy::new(root, self.channel, self.trusted_unix_seconds)
             .map_err(|error| error.to_string())?;
@@ -378,7 +387,7 @@ struct UpdateRootOptions {
     root: Option<PathBuf>,
     root_signatures: Option<PathBuf>,
     root_anchors: Option<PathBuf>,
-    minimum_generation: Option<u64>,
+    protected_state: Option<PathBuf>,
     trusted_unix_seconds: Option<u64>,
 }
 
@@ -408,7 +417,7 @@ fn update_root(arguments: &[OsString]) -> Result<ExitCode, String> {
         if options.root.is_some()
             || options.root_signatures.is_some()
             || options.root_anchors.is_some()
-            || options.minimum_generation.is_some()
+            || options.protected_state.is_some()
             || options.trusted_unix_seconds.is_some()
         {
             return Err("update-root recover accepts only --store-root".to_owned());
@@ -440,9 +449,14 @@ fn update_root(arguments: &[OsString]) -> Result<ExitCode, String> {
         "update root anchors",
     )?)
     .map_err(|error| error.to_string())?;
-    let minimum_generation = options
-        .minimum_generation
-        .ok_or_else(|| "update-root requires --minimum-generation".to_owned())?;
+    let protected_state = ProtectedUpdateRootState::from_json_bytes(&read_bounded_host_file(
+        &options
+            .protected_state
+            .ok_or_else(|| "update-root requires --protected-state".to_owned())?,
+        MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES,
+        "protected update root state",
+    )?)
+    .map_err(|error| error.to_string())?;
     let trusted_unix_seconds = options
         .trusted_unix_seconds
         .ok_or_else(|| "update-root requires --trusted-unix-seconds".to_owned())?;
@@ -451,29 +465,40 @@ fn update_root(arguments: &[OsString]) -> Result<ExitCode, String> {
             &root,
             &root_signatures,
             &anchors,
-            minimum_generation,
+            &protected_state,
             trusted_unix_seconds,
         ),
         UpdateRootAction::Rotate => store.rotate(
             &root,
             &root_signatures,
             &anchors,
-            minimum_generation,
+            &protected_state,
             trusted_unix_seconds,
         ),
         UpdateRootAction::Recover => unreachable!("recover returned above"),
     }
     .map_err(|error| error.to_string())?;
-    println!(
-        "update-root:accepted generation={} operation={}",
-        accepted.generation(),
-        match action {
-            UpdateRootAction::Bootstrap => "bootstrap",
-            UpdateRootAction::Rotate => "rotate",
-            UpdateRootAction::Recover => unreachable!("recover returned above"),
-        }
-    );
+    report_root_acceptance(action, accepted);
     Ok(ExitCode::SUCCESS)
+}
+
+fn report_root_acceptance(action: UpdateRootAction, accepted: RootAcceptance) {
+    let operation = match action {
+        UpdateRootAction::Bootstrap => "bootstrap",
+        UpdateRootAction::Rotate => "rotate",
+        UpdateRootAction::Recover => unreachable!("recover returned above"),
+    };
+    let (status, state) = match accepted {
+        RootAcceptance::Active(state) => ("active", state),
+        RootAcceptance::ProtectionCommitRequired(state) => ("protected-commit-required", state),
+    };
+    println!(
+        "update-root:accepted operation={operation} status={status} generation={} root_sha256={}",
+        state.generation(),
+        state
+            .root_metadata_sha256()
+            .expect("an accepted root state always has a digest")
+    );
 }
 
 fn parse_update_root_option(
@@ -482,13 +507,6 @@ fn parse_update_root_option(
     option: &str,
     output: &mut UpdateRootOptions,
 ) -> Result<(), String> {
-    if option == "--minimum-generation" {
-        return set_number_option(
-            &mut output.minimum_generation,
-            required_next_number(arguments, cursor, option)?,
-            option,
-        );
-    }
     if option == "--trusted-unix-seconds" {
         return set_number_option(
             &mut output.trusted_unix_seconds,
@@ -501,6 +519,7 @@ fn parse_update_root_option(
         "--root" => &mut output.root,
         "--root-signatures" => &mut output.root_signatures,
         "--root-anchors" => &mut output.root_anchors,
+        "--protected-state" => &mut output.protected_state,
         value => return Err(format!("unknown update-root option: {value}")),
     };
     set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
@@ -564,7 +583,7 @@ fn launcher_catalog_options(
         || !options.watchdog_game_ids.is_empty()
         || options.update_root_store.is_some()
         || options.update_root_anchors.is_some()
-        || options.update_root_min_generation.is_some()
+        || options.update_root_protected_state.is_some()
         || options.update_channel.is_some()
         || options.trusted_unix_seconds.is_some();
     if !options.watchdog_game_ids.is_empty() && options.profile_ids.is_empty() {
@@ -590,8 +609,8 @@ fn launcher_catalog_options(
             root_anchors: options
                 .update_root_anchors
                 .ok_or_else(|| "launcher catalog requires --update-root-anchors".to_owned())?,
-            minimum_generation: options.update_root_min_generation.ok_or_else(|| {
-                "launcher catalog requires --update-root-min-generation".to_owned()
+            protected_state: options.update_root_protected_state.ok_or_else(|| {
+                "launcher catalog requires --update-root-protected-state".to_owned()
             })?,
             channel: options
                 .update_channel
@@ -709,13 +728,6 @@ fn parse_launcher_catalog_option(
             option,
         );
     }
-    if option == "--update-root-min-generation" {
-        return set_number_option(
-            &mut output.update_root_min_generation,
-            required_next_number(arguments, cursor, option)?,
-            option,
-        );
-    }
     if option == "--trusted-unix-seconds" {
         return set_number_option(
             &mut output.trusted_unix_seconds,
@@ -734,6 +746,7 @@ fn parse_launcher_catalog_option(
         "--launch-replay-root" => &mut output.launch_replay_root,
         "--update-root-store" => &mut output.update_root_store,
         "--update-root-anchors" => &mut output.update_root_anchors,
+        "--update-root-protected-state" => &mut output.update_root_protected_state,
         value => return Err(format!("unknown launcher option: {value}")),
     };
     set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
@@ -1254,22 +1267,23 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root-store <path> --update-root-anchors <path> --update-root-min-generation <generation> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --minimum-generation <generation> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--launch-replay-root <path> --profile-id <id>...] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        LauncherCatalogSourceOptions, LauncherUpdateTrustOptions, UpdateRootOptions,
-        launcher_request, parse_update_root_option, plan_launcher, retroarch_request, supervise,
-        supervise_plan, watchdog_plan,
+        LauncherCatalogSourceOptions, LauncherUpdateTrustOptions, ProtectedUpdateRootState,
+        UpdateRootOptions, launcher_request, parse_update_root_option, plan_launcher,
+        retroarch_request, supervise, supervise_plan, watchdog_plan,
     };
     use ed25519_dalek::{Signer, SigningKey};
     use std::ffi::OsString;
     use std::fs::{self, File};
     use std::sync::atomic::{AtomicU64, Ordering};
 
+    use sha2::{Digest, Sha256};
     use vcg_host::update_root_store::{UpdateRootStore, UpdateRootStoreConfig};
     use vcg_host::update_trust::{RootTrustAnchor, RootTrustAnchorSet};
 
@@ -1295,8 +1309,8 @@ mod tests {
             "/metadata/update-root-store",
             "--update-root-anchors",
             "/metadata/update-root-anchors.json",
-            "--update-root-min-generation",
-            "1",
+            "--update-root-protected-state",
+            "/metadata/update-root-protected-state.json",
             "--update-channel",
             "stable",
             "--trusted-unix-seconds",
@@ -1315,8 +1329,8 @@ mod tests {
             "/metadata/root.signatures.json",
             "--root-anchors",
             "/metadata/root-anchors.json",
-            "--minimum-generation",
-            "7",
+            "--protected-state",
+            "/metadata/protected-root-state.json",
             "--trusted-unix-seconds",
             "2000000000",
         ]);
@@ -1332,7 +1346,10 @@ mod tests {
             options.store_root.as_deref(),
             Some(std::path::Path::new("/metadata/update-root-store"))
         );
-        assert_eq!(options.minimum_generation, Some(7));
+        assert_eq!(
+            options.protected_state.as_deref(),
+            Some(std::path::Path::new("/metadata/protected-root-state.json"))
+        );
         assert_eq!(options.trusted_unix_seconds, Some(2_000_000_000));
 
         let duplicate = args(&[
@@ -1414,8 +1431,20 @@ mod tests {
             store_root: fixture.clone(),
         })
         .expect("open store");
+        let root_digest = lower_hex(&Sha256::digest(&root_bytes));
+        let protected_bytes =
+            format!(r#"{{"schemaVersion":1,"generation":1,"rootMetadataSha256":"{root_digest}"}}"#)
+                .into_bytes();
+        let protected_state =
+            ProtectedUpdateRootState::from_json_bytes(&protected_bytes).expect("protected state");
         store
-            .bootstrap(&root_bytes, &signature_bytes, &anchors, 1, 2_000_000_000)
+            .bootstrap(
+                &root_bytes,
+                &signature_bytes,
+                &anchors,
+                &protected_state,
+                2_000_000_000,
+            )
             .expect("bootstrap");
         let anchors_path = fixture.join("anchors.json");
         fs::write(
@@ -1426,11 +1455,13 @@ mod tests {
             ),
         )
         .expect("write anchors");
+        let protected_path = fixture.join("protected-root.json");
+        fs::write(&protected_path, protected_bytes).expect("write protected state");
 
         let options = || LauncherUpdateTrustOptions {
             store_root: fixture.clone(),
             root_anchors: anchors_path.clone(),
-            minimum_generation: 1,
+            protected_state: protected_path.clone(),
             channel: "stable".to_owned(),
             trusted_unix_seconds: 2_000_000_000,
         };

@@ -9,15 +9,13 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
-use crate::installed_catalog::{
-    CatalogError, ResolvedPackage, TrustedPackageCatalog, validate_intent_id,
-};
+use crate::installed_catalog::{CatalogError, TrustedPackageCatalog, validate_intent_id};
 use crate::native_launch_replay::{DurableLaunchRecord, LaunchReplayError, LaunchReplayJournal};
+use crate::package_launch::{PackageLaunchError, PackageLaunchPlan, plan as plan_package};
 use crate::process::{
     ControlledWatchdogOutcome, FileHealthProbe, LaunchError, ProcessSupervisor,
     WatchdogConfigError, WatchdogError, WatchdogEvent, WatchdogPolicy, WatchdogReason,
 };
-use crate::retroarch::{RetroArchError, RetroArchPlan, plan as plan_retroarch};
 
 const MAX_LAUNCH_RECORDS: usize = 64;
 const MONITOR_INTERVAL: Duration = Duration::from_millis(50);
@@ -194,7 +192,7 @@ impl Default for SharedLaunches {
 }
 
 enum PreparedLaunch {
-    Ready(Box<RetroArchPlan>),
+    Ready(Box<PackageLaunchPlan>),
     Failed(&'static str),
 }
 
@@ -525,8 +523,7 @@ impl NativeLaunchService {
         let Ok(resolved) = self.catalog.resolve(game_id, profile_id) else {
             return PreparedLaunch::Failed("PACKAGE_RESOLUTION_FAILED");
         };
-        let ResolvedPackage::Libretro(request) = resolved;
-        let Ok(plan) = plan_retroarch(&request) else {
+        let Ok(plan) = plan_package(&resolved) else {
             return PreparedLaunch::Failed("PACKAGE_PLAN_FAILED");
         };
         if plan.prepare().is_err() {
@@ -539,7 +536,7 @@ impl NativeLaunchService {
     fn activate_process(
         &self,
         request_id: &str,
-        plan: &RetroArchPlan,
+        plan: &PackageLaunchPlan,
         cancel: Arc<AtomicBool>,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
         let Ok(mut child) = ProcessSupervisor.launch(plan.launch()) else {
@@ -611,10 +608,10 @@ impl NativeLaunchService {
     fn activate_watchdog(
         &self,
         request_id: &str,
-        plan: &RetroArchPlan,
+        plan: &PackageLaunchPlan,
         cancel: &Arc<AtomicBool>,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
-        let heartbeat_path = plan.storage().session.join("vcg.heartbeat");
+        let heartbeat_path = plan.session_root().join("vcg.heartbeat");
         let probe = FileHealthProbe::new(&heartbeat_path, None)
             .map_err(NativeLaunchError::WatchdogConfiguration)?;
         let launch = plan
@@ -1147,7 +1144,7 @@ pub enum NativeLaunchError {
     ReplayUnavailable,
     RestartCleanupRequired,
     Catalog(CatalogError),
-    RetroArch(RetroArchError),
+    Package(PackageLaunchError),
     Launch(LaunchError),
     Io {
         operation: &'static str,
@@ -1195,7 +1192,7 @@ impl fmt::Display for NativeLaunchError {
             Self::RestartCleanupRequired => formatter
                 .write_str("native launch restart cleanup must be proven before another launch"),
             Self::Catalog(error) => write!(formatter, "package resolution failed: {error}"),
-            Self::RetroArch(error) => write!(formatter, "RetroArch planning failed: {error}"),
+            Self::Package(error) => write!(formatter, "package planning failed: {error}"),
             Self::Launch(error) => write!(formatter, "game process launch failed: {error}"),
             Self::Io { operation, source } => write!(formatter, "{operation} failed: {source}"),
             Self::StatePoisoned => formatter.write_str("launch state is unavailable"),
@@ -1207,7 +1204,7 @@ impl std::error::Error for NativeLaunchError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Catalog(error) => Some(error),
-            Self::RetroArch(error) => Some(error),
+            Self::Package(error) => Some(error),
             Self::Launch(error) => Some(error),
             Self::WatchdogConfiguration(error) => Some(error),
             Self::Io { source, .. } => Some(source),
@@ -1233,9 +1230,12 @@ mod tests {
 
     use super::{
         MAX_PERSISTED_WATCHDOG_RESTARTS, NativeLaunchError, NativeLaunchService, NativeLaunchState,
-        apply_watchdog_event,
+        PreparedLaunch, apply_watchdog_event,
     };
-    use crate::installed_catalog::tests::{signed_catalog, signed_launch_catalog};
+    use crate::installed_catalog::tests::{
+        signed_catalog, signed_launch_catalog, signed_native_catalog,
+    };
+    use crate::package_launch::PackageLaunchPlan;
     use crate::process::{WatchdogConfigError, WatchdogEvent, WatchdogPolicy};
 
     static REPLAY_FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
@@ -1321,6 +1321,30 @@ mod tests {
             ),
             Err(NativeLaunchError::WatchdogRestartLimit(_))
         ));
+    }
+
+    #[test]
+    fn prepares_signed_native_packages_for_live_and_watchdog_lifecycle_paths() {
+        let (_fixture, catalog) = signed_native_catalog();
+        let service = NativeLaunchService::with_watchdog_games(
+            Arc::new(catalog),
+            vec!["local-player".to_owned()],
+            vec!["retro-2048".to_owned()],
+            fast_watchdog_policy(1),
+        )
+        .expect("native launch service configures");
+
+        let PreparedLaunch::Ready(plan) = service.prepare_plan("retro-2048", "local-player") else {
+            panic!("signed native package must prepare");
+        };
+        let PackageLaunchPlan::Native(native) = plan.as_ref() else {
+            panic!("native package must dispatch to the native lifecycle plan");
+        };
+        assert!(native.storage().session.is_dir());
+        assert!(native.storage().cache.is_dir());
+        assert!(native.storage().logs.is_dir());
+        assert!(native.storage().data.is_dir());
+        assert_eq!(native.launch().arguments().count(), 0);
     }
 
     #[test]

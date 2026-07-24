@@ -11,7 +11,8 @@ The implemented slice can:
 - reject the document before JSON parsing when its signature fails;
 - validate target, generation, qualification, identifiers, hashes, and relative paths;
 - bind one installed game manifest to the signed package identity, version, runtime, and qualification;
-- resolve a fixed `{gameId, profileId}` intent into a trusted `RetroArchRequest`;
+- resolve a fixed `{gameId, profileId}` intent into a trusted Libretro or
+  native runtime request;
 - disclose only bounded id, version, runtime, and catalog-generation inventory to the authenticated trusted launcher;
 - start the resolved child only when the profile ID is in the host-owned allowlist.
 
@@ -27,7 +28,7 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 --install-root <absolute-installed-package-root>
 --update-root-store <absolute-accepted-root-store-path>
 --update-root-anchors <absolute-out-of-band-anchor-set-path>
---update-root-min-generation <protected-generation-floor>
+--update-root-protected-state <absolute-protected-state-path>
 --update-channel <host-selected-channel>
 --trusted-unix-seconds <trusted-time-snapshot>
 --runtime-root <absolute-ephemeral-runtime-root>
@@ -56,11 +57,10 @@ accepted root generation, channel, target, artifact family, and signer IDs with
 the parsed catalog. The launcher replays every stored root transition before
 creating this policy. Normal startup recovers only unpublished root directories
 first; dry-run refuses pending root recovery. The CLI representation does not
-itself prove that the anchor file, generation floor, or time snapshot came from
-protected storage. Target images still need verified provisioning plus
-protected generation/time adapters under I-112/I-141. A writable anchor file
-and operator-supplied floor beside writable history are not a production trust
-root.
+itself prove that the anchor file, exact root-state document, or time snapshot
+came from protected storage. Target images still need verified provisioning
+plus protected state/time adapters under I-112/I-141. A writable anchor or
+protected-state file beside writable history is not a production trust root.
 
 ## Signature envelope
 
@@ -135,7 +135,10 @@ Rules:
 - Package IDs are unique bounded lowercase package IDs. One catalog contains at most one active version of an ID.
 - Version text is 1–128 visible ASCII characters.
 - Only `qualification: qualified` is accepted.
-- Only the implemented `libretro` runtime is accepted.
+- The implemented runtimes are `libretro` and `native`.
+- A `libretro` entry requires exactly its `libretro` record and rejects a
+  `native` record. A `native` entry requires exactly
+  `native.executable.{path,sha256}` and rejects a `libretro` record.
 - Every catalog path is a non-empty relative normal path with no root, prefix, `.` or `..` component.
 - Hashes are canonical lowercase SHA-256.
 - A managed content record requires a configured managed content root.
@@ -146,14 +149,21 @@ Rules:
 
 1. resolves the bound manifest beneath the canonical install root;
 2. verifies the full manifest SHA-256;
-3. requires manifest schema `1` and exact signed id, version, `libretro` runtime, and `qualified` status;
-4. resolves and verifies the signed base configuration;
-5. creates a `RetroArchRequest` from host-owned roots and signed relative paths;
-6. lets the RetroArch adapter canonicalize and verify frontend, core, base configuration, and managed content immediately before it creates runtime state.
+3. requires manifest schema `1` and exact signed id, version, selected runtime,
+   and `qualified` status;
+4. resolves runtime-specific signed records;
+5. creates a `RetroArchRequest` or `NativePackageRequest` from host-owned roots
+   and signed relative paths;
+6. lets the selected adapter canonicalize and verify every executable/runtime
+   artifact immediately before it creates runtime state.
 
 The base-configuration digest is now required by the direct `vcg-host retroarch` CLI as well as by catalog resolution.
 
-The native authority also re-hashes the bound manifest before interpreting its 1,000–120,000 ms launch timeout and local `process` or `explicit-ready` health kind. It rejects HTTP/unknown health for the currently implemented installed Libretro lane. These signed fields drive candidate promotion health; they remain distinct from watchdog heartbeat and compositor/window readiness.
+The native authority also re-hashes the bound manifest before interpreting its
+1,000–120,000 ms launch timeout and local `process` or `explicit-ready` health
+kind. It rejects HTTP/unknown health for both installed runtime lanes. These
+signed fields drive candidate promotion health; they remain distinct from
+watchdog heartbeat and compositor/window readiness.
 
 Path canonicalization and repeated hashes narrow substitution risk, but target qualification still requires immutable package/content mounts or file-descriptor-bound execution and handoff. A compromised account able to rewrite artifacts between verification and process use can otherwise race path-based verification.
 
@@ -180,7 +190,22 @@ These metadata lookups prove only that a valid signed catalog contains each entr
 
 ## Evidence and remaining boundary
 
-Native tests cover delegated authority before parsing and retained role evidence, valid signed resolution, changed/cross-role signature denial, wrong target, unknown fields, duplicates, unsafe paths, malformed trust material, oversized catalogs, invalid launcher IDs, missing packages, canonical summaries, manifest tamper and misbinding, base-config tamper at resolve and adapter use, final RetroArch plan acceptance, profile allowlisting, and direct process start from resolved intent. Host-API tests verify conditional capabilities and metadata-only inventory disclosure. TypeScript tests reject duplicate, unsorted, excessive, version-mismatched, unknown-field, and otherwise malformed inventories. Playwright tests verify signed availability labeling and fixed-intent requests with no browser-provided path, hash, program, command, environment, or root fields.
+Native tests cover delegated authority before parsing and retained role
+evidence, valid signed Libretro/native resolution, runtime-record confusion,
+changed/cross-role signature denial, wrong target, unknown fields, duplicates,
+unsafe paths, malformed trust material, oversized catalogs, invalid launcher
+IDs, missing packages, canonical summaries, manifest tamper and runtime
+misbinding, executable/base-config tamper at adapter use, shared plan dispatch,
+profile allowlisting, candidate-health isolation, and lifecycle preparation.
+Host-API tests verify conditional capabilities and metadata-only inventory
+disclosure. TypeScript tests reject duplicate, unsorted, excessive,
+version-mismatched, unknown-field, and otherwise malformed inventories.
+Playwright tests verify signed availability labeling and fixed-intent requests
+with no browser-provided path, hash, program, command, environment, or root
+fields.
+
+See [the native package runtime adapter](NATIVE_PACKAGE_RUNTIME.md) for its
+storage contract and explicit process-only security boundary.
 
 Still required:
 

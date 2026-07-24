@@ -75,9 +75,14 @@ The production promotion entry point is `promote_health_checked`. Artifact-only 
 Before health execution, the native catalog authority re-hashes the bound manifest and extracts only:
 
 - `launch.timeoutMs`, bounded to 1,000–120,000 milliseconds; and
-- `healthCheck.type`, currently `process` or `explicit-ready` for the implemented local Libretro lane.
+- `healthCheck.type`, currently `process` or `explicit-ready` for the
+  implemented local Libretro and native lanes.
 
-No browser value or unsigned host default may select this policy. HTTP health remains a hosted/local-web service concern and is rejected for the current installed Libretro runtime.
+No browser value or unsigned host default may select this policy. HTTP health
+remains a hosted/local-web service concern and is rejected for installed
+Libretro and native runtimes. Both runtime lanes are planned through the same
+dispatcher, and candidate runtime/data roots are transaction-scoped so health
+cannot use the intended player storage.
 
 Each candidate package resolves through the same signed catalog and adapter as a real launch, but the host replaces its runtime and data roots with transaction/game-specific paths beneath the configured ephemeral runtime root. It never passes a player profile or persistent save root.
 
@@ -96,7 +101,7 @@ The native launcher accepts the generation store as an alternative to loose cata
 --package-store-root <absolute-store-root>
 --update-root-store <absolute-accepted-root-store-path>
 --update-root-anchors <absolute-out-of-band-anchor-set-path>
---update-root-min-generation <protected-generation-floor>
+--update-root-protected-state <absolute-protected-state-path>
 --update-channel <host-selected-channel>
 --trusted-unix-seconds <trusted-time-snapshot>
 --runtime-root <absolute-runtime-root>
@@ -108,11 +113,11 @@ Loose catalog options and `--package-store-root` are mutually exclusive. Profile
 
 The launcher bounds and parses the closed anchor document, explicitly recovers
 only unpublished accepted-root directories during normal startup, replays the
-complete root chain under the supplied generation floor and time, and creates
+complete root chain under the supplied exact protected state and time, and creates
 one `TrustedUpdatePolicy` snapshot used by every store revalidation in that
 startup transaction. Dry-run refuses pending root recovery. This CLI form is
-an integration boundary, not proof that anchors, the floor, or time came from
-protected storage. A host must obtain a fresh trustworthy time snapshot for
+an integration boundary, not proof that anchors, protected state, or time came
+from protected storage. A host must obtain a fresh trustworthy time snapshot for
 later update admission rather than treat an old process value as a permanent
 clock.
 
@@ -196,6 +201,6 @@ Still required:
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - automatic retention scheduling/byte policy, uninstall, managed-content garbage collection, and controller-confirmed save disposition;
-- protected provenance for the accepted-root floor, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel artifact monotonic state;
+- qualified provenance for exact accepted-root state, secure refreshed time, physical key-rotation/revocation drills, and protected per-channel artifact monotonic state;
 - immutable/read-only artifact handoff and target-Linux crash/power-loss/directory-synchronization qualification;
 - developer-namespace separation, target-Linux lock qualification, and hostile noncooperating-writer tests.

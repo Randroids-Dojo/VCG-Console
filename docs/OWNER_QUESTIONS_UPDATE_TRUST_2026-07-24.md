@@ -16,7 +16,9 @@ Safe default: use multiple independently held offline root keys with a threshold
 
 ## 3. Protected generation and time evidence
 
-Which qualified hardware or verified-boot mechanism will protect the highest accepted root/artifact generations and trustworthy time floor on both Raspberry Pi and x86-64 tiers?
+Which qualified hardware or verified-boot mechanism will protect the exact
+accepted-root generation/digest, artifact generations, and trustworthy time
+floor on both Raspberry Pi and x86-64 tiers?
 
 Safe default: treat ordinary writable files and browser/OS wall clocks as untrusted. When protected time is unavailable, deny new update acceptance while continuing the last healthy installed version. Do not select a secure element, TPM, or remote time-attestation design until it is supported on both target images and survives replacement-card recovery.
 
@@ -29,14 +31,14 @@ Safe default: before ordinary root rotation omits an old catalog key, activate a
 ## 5. Root-history provisioning and repair
 
 Which privileged service provisions and owns the accepted-root store, and what
-operator action is permitted when the protected generation floor is ahead of
+operator action is permitted when protected root state is ahead of
 the remaining writable history after media corruption or replacement?
 
 Safe default: give only the native update service write access, retain every
 committed root until a separately designed checkpoint format exists, and never
-lower the protected floor. If writable history is missing, stop update
+lower or replace protected state. If writable history is missing, stop update
 admission and require authenticated recovery media containing a complete chain
-from an independently trusted checkpoint at or above the floor. Do not fetch a
-single latest root or silently factory-reset trust state.
+that reaches the exact protected generation and digest. Do not fetch a single
+latest root or silently factory-reset trust state.
 
 These remain owner/security/operations selections under Q-069, I-112, I-113, and I-141.

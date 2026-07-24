@@ -713,7 +713,7 @@ fn write_launch_error(
             "Service Unavailable",
             "LAUNCH_RESTART_CLEANUP_REQUIRED",
         ),
-        NativeLaunchError::Catalog(_) | NativeLaunchError::RetroArch(_) => {
+        NativeLaunchError::Catalog(_) | NativeLaunchError::Package(_) => {
             (409, "Conflict", "PACKAGE_VERIFICATION_FAILED")
         }
         NativeLaunchError::NoProfiles

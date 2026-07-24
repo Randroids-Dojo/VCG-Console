@@ -8,8 +8,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use crate::installed_catalog::{PackageHealthCheck, PackageHealthPolicy};
+use crate::package_launch::{PackageLaunchError, PackageLaunchPlan};
 use crate::process::{LaunchError, LaunchSpec, ProcessSupervisor};
-use crate::retroarch::{RetroArchError, RetroArchPlan};
 
 const MAX_READY_BYTES: u64 = 4_096;
 
@@ -18,7 +18,7 @@ const MAX_READY_BYTES: u64 = 4_096;
 pub struct CandidateHealthRequest {
     pub game_id: String,
     pub policy: PackageHealthPolicy,
-    pub plan: RetroArchPlan,
+    pub plan: PackageLaunchPlan,
 }
 
 /// Executes candidate health checks without using a player's persistent data.
@@ -67,7 +67,7 @@ impl CandidateHealthChecker {
             .plan
             .prepare()
             .map_err(CandidateHealthError::Prepare)?;
-        let ready_path = request.plan.storage().session.join("vcg.ready");
+        let ready_path = request.plan.session_root().join("vcg.ready");
         remove_stale_ready_file(&ready_path)?;
         let launch = match request.policy.check {
             PackageHealthCheck::Process => request.plan.launch().clone(),
@@ -219,7 +219,7 @@ fn ready_token_exists(path: &Path) -> Result<bool, CandidateHealthError> {
 #[derive(Debug)]
 pub enum CandidateHealthError {
     InvalidPollInterval,
-    Prepare(RetroArchError),
+    Prepare(PackageLaunchError),
     Launch(LaunchError),
     Io {
         operation: &'static str,

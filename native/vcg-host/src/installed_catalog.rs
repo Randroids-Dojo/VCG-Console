@@ -13,6 +13,7 @@ use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
+use crate::native_package::NativePackageRequest;
 use crate::retroarch::{ExpectedSha256, RetroArchRequest};
 use crate::update_trust::{
     DetachedUpdateSignatures, TrustedUpdatePolicy, UpdateArtifactKind, VerifiedUpdateRole,
@@ -177,50 +178,13 @@ impl TrustedPackageCatalog {
             }
             validate_relative_file("manifest", &package.manifest.path)?;
             let manifest_sha256 = parse_hash("manifest", &package.manifest.sha256)?;
-            let installed_runtime = match package.runtime {
-                RuntimeKind::Libretro => {
-                    let libretro = package.libretro.ok_or_else(|| {
-                        CatalogError::InvalidRecord(format!(
-                            "libretro package {} is missing its launch record",
-                            package.id
-                        ))
-                    })?;
-                    validate_relative_file("frontend", &libretro.frontend.path)?;
-                    validate_relative_file("core", &libretro.core.path)?;
-                    validate_relative_file("base configuration", &libretro.base_config.path)?;
-                    let content = match libretro.content {
-                        ContentDocument::None => None,
-                        ContentDocument::Managed { path, sha256 } => {
-                            if roots.content_root.is_none() {
-                                return Err(CatalogError::InvalidRecord(format!(
-                                    "package {} requires a content root",
-                                    package.id
-                                )));
-                            }
-                            validate_relative_file("content", &path)?;
-                            Some(ManagedContent {
-                                path,
-                                sha256: parse_hash("content", &sha256)?,
-                            })
-                        }
-                    };
-                    InstalledRuntime::Libretro(LibretroPackage {
-                        frontend: InstalledFile {
-                            path: libretro.frontend.path,
-                            sha256: parse_hash("frontend", &libretro.frontend.sha256)?,
-                        },
-                        core: InstalledFile {
-                            path: libretro.core.path,
-                            sha256: parse_hash("core", &libretro.core.sha256)?,
-                        },
-                        base_config: InstalledFile {
-                            path: libretro.base_config.path,
-                            sha256: parse_hash("base configuration", &libretro.base_config.sha256)?,
-                        },
-                        content,
-                    })
-                }
-            };
+            let installed_runtime = parse_installed_runtime(
+                &package.id,
+                package.runtime,
+                package.libretro,
+                package.native,
+                roots.content_root.is_some(),
+            )?;
             packages.push(InstalledPackage {
                 id: package.id,
                 version: package.version,
@@ -296,6 +260,14 @@ impl TrustedPackageCatalog {
                         verify_sha256("content", &path, &content.sha256)?;
                     }
                 }
+                InstalledRuntime::Native(native) => {
+                    let path = resolve_managed_file(
+                        "native executable",
+                        &self.roots.install_root,
+                        &native.executable.path,
+                    )?;
+                    verify_sha256("native executable", &path, &native.executable.sha256)?;
+                }
             }
         }
         Ok(())
@@ -370,6 +342,7 @@ impl TrustedPackageCatalog {
             version: &package.version,
             runtime: match package.runtime {
                 InstalledRuntime::Libretro(_) => "libretro",
+                InstalledRuntime::Native(_) => "native",
             },
             generation: self.generation,
         })
@@ -391,6 +364,7 @@ impl TrustedPackageCatalog {
                 version: package.version.as_str(),
                 runtime: match package.runtime {
                     InstalledRuntime::Libretro(_) => "libretro",
+                    InstalledRuntime::Native(_) => "native",
                 },
                 generation: self.generation,
             })
@@ -449,7 +423,7 @@ impl TrustedPackageCatalog {
                 } else {
                     (None, None)
                 };
-                Ok(ResolvedPackage::Libretro(RetroArchRequest {
+                Ok(ResolvedPackage::Libretro(Box::new(RetroArchRequest {
                     install_root: self.roots.install_root.clone(),
                     content_root: self.roots.content_root.clone(),
                     runtime_root: self.roots.runtime_root.clone(),
@@ -464,8 +438,17 @@ impl TrustedPackageCatalog {
                     base_config_sha256: libretro.base_config.sha256,
                     profile_id: profile_id.to_owned(),
                     game_id: package.id.clone(),
-                }))
+                })))
             }
+            InstalledRuntime::Native(native) => Ok(ResolvedPackage::Native(NativePackageRequest {
+                install_root: self.roots.install_root.clone(),
+                runtime_root: self.roots.runtime_root.clone(),
+                data_root: self.roots.data_root.clone(),
+                executable: self.roots.install_root.join(&native.executable.path),
+                executable_sha256: native.executable.sha256,
+                profile_id: profile_id.to_owned(),
+                game_id: package.id.clone(),
+            })),
         }
     }
 }
@@ -473,7 +456,8 @@ impl TrustedPackageCatalog {
 /// Trusted native adapter request derived from an installed package.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ResolvedPackage {
-    Libretro(RetroArchRequest),
+    Libretro(Box<RetroArchRequest>),
+    Native(NativePackageRequest),
 }
 
 /// Signed package metadata safe to disclose to the trusted launcher.
@@ -520,6 +504,7 @@ struct InstalledPackage {
 #[derive(Clone, Debug)]
 enum InstalledRuntime {
     Libretro(LibretroPackage),
+    Native(NativePackage),
 }
 
 #[derive(Clone, Debug)]
@@ -528,6 +513,11 @@ struct LibretroPackage {
     core: InstalledFile,
     base_config: InstalledFile,
     content: Option<ManagedContent>,
+}
+
+#[derive(Clone, Debug)]
+struct NativePackage {
+    executable: InstalledFile,
 }
 
 #[derive(Clone, Debug)]
@@ -560,6 +550,7 @@ struct PackageDocument {
     runtime: RuntimeKind,
     manifest: FileDocument,
     libretro: Option<LibretroDocument>,
+    native: Option<NativeDocument>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -572,6 +563,7 @@ enum Qualification {
 #[serde(rename_all = "kebab-case")]
 enum RuntimeKind {
     Libretro,
+    Native,
 }
 
 #[derive(Debug, Deserialize)]
@@ -591,10 +583,91 @@ struct LibretroDocument {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct NativeDocument {
+    executable: FileDocument,
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(tag = "mode", rename_all = "kebab-case", deny_unknown_fields)]
 enum ContentDocument {
     None,
     Managed { path: PathBuf, sha256: String },
+}
+
+fn parse_installed_runtime(
+    package_id: &str,
+    runtime: RuntimeKind,
+    libretro: Option<LibretroDocument>,
+    native: Option<NativeDocument>,
+    has_content_root: bool,
+) -> Result<InstalledRuntime, CatalogError> {
+    match runtime {
+        RuntimeKind::Libretro => {
+            if native.is_some() {
+                return Err(CatalogError::InvalidRecord(format!(
+                    "libretro package {package_id} has a native launch record"
+                )));
+            }
+            let libretro = libretro.ok_or_else(|| {
+                CatalogError::InvalidRecord(format!(
+                    "libretro package {package_id} is missing its launch record"
+                ))
+            })?;
+            validate_relative_file("frontend", &libretro.frontend.path)?;
+            validate_relative_file("core", &libretro.core.path)?;
+            validate_relative_file("base configuration", &libretro.base_config.path)?;
+            let content = match libretro.content {
+                ContentDocument::None => None,
+                ContentDocument::Managed { path, sha256 } => {
+                    if !has_content_root {
+                        return Err(CatalogError::InvalidRecord(format!(
+                            "package {package_id} requires a content root"
+                        )));
+                    }
+                    validate_relative_file("content", &path)?;
+                    Some(ManagedContent {
+                        path,
+                        sha256: parse_hash("content", &sha256)?,
+                    })
+                }
+            };
+            Ok(InstalledRuntime::Libretro(LibretroPackage {
+                frontend: InstalledFile {
+                    path: libretro.frontend.path,
+                    sha256: parse_hash("frontend", &libretro.frontend.sha256)?,
+                },
+                core: InstalledFile {
+                    path: libretro.core.path,
+                    sha256: parse_hash("core", &libretro.core.sha256)?,
+                },
+                base_config: InstalledFile {
+                    path: libretro.base_config.path,
+                    sha256: parse_hash("base configuration", &libretro.base_config.sha256)?,
+                },
+                content,
+            }))
+        }
+        RuntimeKind::Native => {
+            if libretro.is_some() {
+                return Err(CatalogError::InvalidRecord(format!(
+                    "native package {package_id} has a libretro launch record"
+                )));
+            }
+            let native = native.ok_or_else(|| {
+                CatalogError::InvalidRecord(format!(
+                    "native package {package_id} is missing its launch record"
+                ))
+            })?;
+            validate_relative_file("native executable", &native.executable.path)?;
+            Ok(InstalledRuntime::Native(NativePackage {
+                executable: InstalledFile {
+                    path: native.executable.path,
+                    sha256: parse_hash("native executable", &native.executable.sha256)?,
+                },
+            }))
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -632,10 +705,14 @@ fn verify_bound_manifest(
     let bytes = read_bounded(path, MAX_CATALOG_BYTES, "bound game manifest")?;
     let manifest: BoundManifest = serde_json::from_slice(&bytes)
         .map_err(|error| CatalogError::InvalidBoundManifest(error.to_string()))?;
+    let expected_runtime = match package.runtime {
+        InstalledRuntime::Libretro(_) => "libretro",
+        InstalledRuntime::Native(_) => "native",
+    };
     if manifest.schema_version != 1
         || manifest.id != package.id
         || manifest.version != package.version
-        || manifest.runtime != "libretro"
+        || manifest.runtime != expected_runtime
         || manifest.compatibility_status != "qualified"
     {
         return Err(CatalogError::InvalidBoundManifest(format!(
@@ -1040,6 +1117,8 @@ pub(crate) mod tests {
         PackageSummary, ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog,
         current_target,
     };
+    use crate::native_package::{NativePackageError, plan as plan_native};
+    use crate::package_launch::{PackageLaunchPlan, plan as plan_package};
     use crate::retroarch::{RetroArchError, plan as plan_retroarch};
     use crate::update_trust::{
         DetachedUpdateSignature, DetachedUpdateSignatures, RootTrustAnchor, RootTrustAnchorSet,
@@ -1174,6 +1253,46 @@ pub(crate) mod tests {
             .into_bytes()
         }
 
+        fn native_document(&self) -> Vec<u8> {
+            let executable = self
+                .frontend
+                .strip_prefix(&self.install)
+                .expect("native executable is inside install root")
+                .to_string_lossy()
+                .replace('\\', "/");
+            serde_json::to_vec(&json!({
+                "schemaVersion": 1,
+                "generation": 7,
+                "target": current_target(),
+                "packages": [{
+                    "id": "retro-2048",
+                    "version": "1.0.0",
+                    "qualification": "qualified",
+                    "runtime": "native",
+                    "manifest": {
+                        "path": "packages/retro-2048/vcg-game.json",
+                        "sha256": digest_path(&self.manifest),
+                    },
+                    "native": {
+                        "executable": {
+                            "path": executable,
+                            "sha256": digest_path(&self.frontend),
+                        },
+                    },
+                }],
+            }))
+            .expect("native catalog serializes")
+        }
+
+        fn publish_native(&self) {
+            fs::write(
+                &self.manifest,
+                br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"native","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
+            )
+            .expect("write native manifest");
+            self.sign_catalog(&self.native_document());
+        }
+
         fn sign_catalog(&self, bytes: &[u8]) {
             fs::write(&self.catalog, bytes).expect("write catalog");
             let mut message = Vec::with_capacity(SIGNED_MESSAGE_PREFIX.len() + bytes.len());
@@ -1216,6 +1335,13 @@ pub(crate) mod tests {
         let catalog = fixture
             .load()
             .expect("launchable signed fixture catalog loads");
+        (fixture, catalog)
+    }
+
+    pub(crate) fn signed_native_catalog() -> (Fixture, TrustedPackageCatalog) {
+        let fixture = Fixture::new();
+        fixture.publish_native();
+        let catalog = fixture.load().expect("signed native fixture catalog loads");
         (fixture, catalog)
     }
 
@@ -1353,7 +1479,10 @@ pub(crate) mod tests {
 
         let ResolvedPackage::Libretro(request) = catalog
             .resolve("retro-2048", "player-one")
-            .expect("package resolves");
+            .expect("package resolves")
+        else {
+            panic!("fixture must resolve as libretro");
+        };
         assert_eq!(request.game_id, "retro-2048");
         assert_eq!(request.profile_id, "player-one");
         assert_eq!(
@@ -1361,6 +1490,119 @@ pub(crate) mod tests {
             fs::canonicalize(&fixture.base_config).expect("base configuration canonicalizes")
         );
         plan_retroarch(&request).expect("resolved request passes the adapter");
+    }
+
+    #[test]
+    fn verifies_and_resolves_a_signed_native_package() {
+        let fixture = Fixture::new();
+        fixture.publish_native();
+        let catalog = fixture.load().expect("native catalog loads");
+
+        assert_eq!(
+            catalog.package_summaries(),
+            vec![PackageSummary {
+                id: "retro-2048",
+                version: "1.0.0",
+                runtime: "native",
+                generation: 7,
+            }]
+        );
+        catalog
+            .verify_all_artifacts()
+            .expect("native artifacts verify");
+        let resolved = catalog
+            .resolve("retro-2048", "player-one")
+            .expect("native package resolves");
+        let PackageLaunchPlan::Native(plan) =
+            plan_package(&resolved).expect("shared package planner accepts native runtime")
+        else {
+            panic!("shared planner must dispatch to native");
+        };
+        assert_eq!(
+            plan.launch().program(),
+            fs::canonicalize(&fixture.frontend).expect("native executable canonicalizes")
+        );
+        assert_eq!(plan.launch().arguments().count(), 0);
+
+        let ResolvedPackage::Native(request) = resolved else {
+            panic!("fixture must resolve as native");
+        };
+        fs::write(&fixture.frontend, b"changed native executable")
+            .expect("tamper native executable");
+        assert!(matches!(
+            plan_native(&request),
+            Err(NativePackageError::HashMismatch { .. })
+        ));
+    }
+
+    #[test]
+    fn rejects_native_runtime_confusion_and_manifest_misbinding() {
+        let fixture = Fixture::new();
+        fixture.publish_native();
+        let mut document: serde_json::Value =
+            serde_json::from_slice(&fixture.native_document()).expect("native catalog parses");
+        let libretro: serde_json::Value = serde_json::from_slice(
+            &fixture.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+        )
+        .expect("libretro catalog parses");
+        document["packages"][0]["libretro"] = libretro["packages"][0]["libretro"].clone();
+        fixture.sign_catalog(&serde_json::to_vec(&document).expect("catalog serializes"));
+        assert!(matches!(
+            fixture.load(),
+            Err(CatalogError::InvalidRecord(_))
+        ));
+
+        let fixture = Fixture::new();
+        fixture.publish_native();
+        let mut document: serde_json::Value =
+            serde_json::from_slice(&fixture.native_document()).expect("native catalog parses");
+        document["packages"][0]
+            .as_object_mut()
+            .expect("package is an object")
+            .remove("native");
+        fixture.sign_catalog(&serde_json::to_vec(&document).expect("catalog serializes"));
+        assert!(matches!(
+            fixture.load(),
+            Err(CatalogError::InvalidRecord(_))
+        ));
+
+        let fixture = Fixture::new();
+        let document = {
+            let executable = fixture
+                .frontend
+                .strip_prefix(&fixture.install)
+                .expect("executable is installed")
+                .to_string_lossy()
+                .replace('\\', "/");
+            serde_json::to_vec(&json!({
+                "schemaVersion": 1,
+                "generation": 7,
+                "target": current_target(),
+                "packages": [{
+                    "id": "retro-2048",
+                    "version": "1.0.0",
+                    "qualification": "qualified",
+                    "runtime": "native",
+                    "manifest": {
+                        "path": "packages/retro-2048/vcg-game.json",
+                        "sha256": digest_path(&fixture.manifest),
+                    },
+                    "native": {
+                        "executable": {
+                            "path": executable,
+                            "sha256": digest_path(&fixture.frontend),
+                        },
+                    },
+                }],
+            }))
+            .expect("catalog serializes")
+        };
+        fixture.sign_catalog(&document);
+        let catalog = fixture.load().expect("catalog envelope loads");
+        assert!(matches!(
+            catalog.resolve("retro-2048", "player-one"),
+            Err(CatalogError::InvalidBoundManifest(_))
+        ));
     }
 
     #[test]
@@ -1408,7 +1650,10 @@ pub(crate) mod tests {
         let catalog = fixture.load().expect("catalog loads");
         let ResolvedPackage::Libretro(request) = catalog
             .resolve("retro-2048", "player-one")
-            .expect("package resolves");
+            .expect("package resolves")
+        else {
+            panic!("fixture must resolve as libretro");
+        };
         fs::write(&fixture.base_config, b"tampered configuration").expect("tamper config");
         assert!(matches!(
             plan_retroarch(&request),
@@ -1753,7 +1998,10 @@ mod more_tests {
         assert_eq!(catalog.target(), current_target());
         let ResolvedPackage::Libretro(request) = catalog
             .resolve("retro-2048", "player-one")
-            .expect("qualified package resolves");
+            .expect("qualified package resolves")
+        else {
+            panic!("fixture must resolve as libretro");
+        };
 
         assert_eq!(request.game_id, "retro-2048");
         assert_eq!(request.profile_id, "player-one");

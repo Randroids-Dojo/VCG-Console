@@ -33,7 +33,7 @@ vcg-host launcher \
   --watchdog-game-id retro-2048
 ```
 
-`--watchdog-game-id` is repeatable, unique, and must name a package in the signature-verified installed catalog. It applies identically across player profiles because heartbeat support belongs to the game's exact runtime wrapper. For this path the host derives only the heartbeat path below the prepared private RetroArch session directory. The browser request remains only `{requestId, gameId, profileId}` and cannot toggle watchdog behavior, change policy, or supply a path. Authenticated package launch does not configure the optional resource-fault file until a trusted OS producer and child containment exist.
+`--watchdog-game-id` is repeatable, unique, and must name a package in the signature-verified installed catalog. It applies identically across player profiles because heartbeat support belongs to the game's exact runtime wrapper. For this path the host derives only the heartbeat path below the selected runtime plan's prepared private session directory. The browser request remains only `{requestId, gameId, profileId}` and cannot toggle watchdog behavior, change policy, or supply a path. Authenticated package launch does not configure the optional resource-fault file until a trusted OS producer and child containment exist.
 
 ## Child environment
 

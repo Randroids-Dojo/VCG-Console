@@ -89,8 +89,8 @@ The staged descriptor receipt lets the transfer coordinator later prove that the
 
 ## Remaining boundary
 
-Network discovery/client behavior, HTTP range/TLS/mirror policy, protected
-protected generation-floor provenance, secure continuously refreshed time,
+Network discovery/client behavior, HTTP range/TLS/mirror policy, exact
+protected root-state provenance, secure continuously refreshed time,
 real disk reservation, cross-writer low-space coordination and cleanup,
 `tar-zstd` decompression, hostile concurrent destination mutation, target-Linux
 permission/mount qualification, and sudden-power campaigns remain open. See

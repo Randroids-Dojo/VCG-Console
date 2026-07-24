@@ -18,10 +18,10 @@ use crate::package_health::{CandidateHealthChecker, CandidateHealthError, Candid
 use crate::package_intake::{
     CapacityAdmission, PackageIntakeError, PackageIntakeStats, VerifiedPackageRelease,
 };
+use crate::package_launch::plan as plan_package;
 use crate::package_transfer::{
     PackageArchiveTransfer, PackageReleaseIdentity, PackageTransferCleanup, PackageTransferError,
 };
-use crate::retroarch::plan as plan_retroarch;
 use crate::update_trust::{
     DetachedUpdateSignatures, MAX_UPDATE_SIGNATURE_BUNDLE_BYTES, TrustedUpdatePolicy,
 };
@@ -1084,17 +1084,25 @@ impl PackageGenerationStore {
         let candidate = self.load_release(&stage)?;
         let expected_catalog_sha256 = candidate.catalog_sha256.clone();
         for package in candidate.catalog.package_health_policies()? {
-            let ResolvedPackage::Libretro(mut request) = candidate
-                .catalog
-                .resolve(&package.game_id, "package-health")?;
             let health_root = self
                 .runtime_root
                 .join("package-health")
                 .join(transaction_id)
                 .join(&package.game_id);
-            request.runtime_root = health_root.join("runtime");
-            request.data_root = health_root.join("data");
-            let plan = plan_retroarch(&request).map_err(CandidateHealthError::Prepare)?;
+            let mut resolved = candidate
+                .catalog
+                .resolve(&package.game_id, "package-health")?;
+            match &mut resolved {
+                ResolvedPackage::Libretro(request) => {
+                    request.runtime_root = health_root.join("runtime");
+                    request.data_root = health_root.join("data");
+                }
+                ResolvedPackage::Native(request) => {
+                    request.runtime_root = health_root.join("runtime");
+                    request.data_root = health_root.join("data");
+                }
+            }
+            let plan = plan_package(&resolved).map_err(CandidateHealthError::Prepare)?;
             check(&CandidateHealthRequest {
                 game_id: package.game_id,
                 policy: package.policy,
@@ -2424,6 +2432,62 @@ mod tests {
             release
         }
 
+        fn stage_native(&self, transaction: &str, generation: u64, version: &str) -> PathBuf {
+            let release = self.root.join("staging").join(transaction);
+            let install = release.join("install");
+            let package = install.join("packages").join("native-game");
+            fs::create_dir_all(&package).expect("native package directory creates");
+
+            let manifest = package.join("vcg-game.json");
+            let executable = package.join(format!("game{}", std::env::consts::EXE_SUFFIX));
+            fs::write(
+                &manifest,
+                format!(
+                    "{{\"schemaVersion\":1,\"id\":\"native-game\",\"version\":\"{version}\",\
+                     \"runtime\":\"native\",\"compatibilityStatus\":\"qualified\",\
+                     \"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
+                ),
+            )
+            .expect("native manifest writes");
+            fs::write(&executable, b"native executable").expect("native executable writes");
+
+            let executable_path =
+                format!("packages/native-game/game{}", std::env::consts::EXE_SUFFIX);
+            let document = json!({
+                "schemaVersion": 1,
+                "generation": generation,
+                "target": format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS),
+                "packages": [{
+                    "id": "native-game",
+                    "version": version,
+                    "qualification": "qualified",
+                    "runtime": "native",
+                    "manifest": {
+                        "path": "packages/native-game/vcg-game.json",
+                        "sha256": digest(&manifest),
+                    },
+                    "native": {
+                        "executable": {
+                            "path": executable_path,
+                            "sha256": digest(&executable),
+                        },
+                    },
+                }],
+            });
+            let catalog = serde_json::to_vec(&document).expect("native catalog serializes");
+            fs::write(release.join("installed-catalog.json"), &catalog)
+                .expect("native catalog writes");
+            let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+            message.extend_from_slice(&catalog);
+            let signature = self.catalog_signing_key.sign(&message);
+            fs::write(
+                release.join("installed-catalog.sig"),
+                signature_bundle("catalog-one", &signature.to_bytes()),
+            )
+            .expect("native catalog signature writes");
+            release
+        }
+
         fn package_tar(
             &self,
             generation: u64,
@@ -2906,20 +2970,58 @@ mod tests {
                 checks += 1;
                 assert_eq!(request.game_id, "retro-2048");
                 assert_eq!(request.policy.check, PackageHealthCheck::Process);
+                let crate::package_launch::PackageLaunchPlan::Libretro(plan) = &request.plan else {
+                    panic!("fixture must resolve as libretro");
+                };
                 assert!(
-                    request
-                        .plan
-                        .storage()
+                    plan.storage()
                         .saves
                         .starts_with(fixture.runtime.join("package-health/health-seven"))
                 );
                 assert!(
-                    !request.plan.storage().saves.starts_with(&fixture.data),
+                    !plan.storage().saves.starts_with(&fixture.data),
                     "candidate health must not use player save storage"
                 );
                 Ok(())
             })
             .expect("successful signed health gate promotes");
+
+        assert_eq!(checks, 1);
+        assert_eq!(outcome.active_generation, 7);
+    }
+
+    #[test]
+    fn health_gate_dispatches_native_packages_with_ephemeral_storage() {
+        let fixture = Fixture::new();
+        fixture.stage_native("native-health-seven", 7, "1.0.0");
+        let store = fixture.store();
+        let mut checks = 0;
+
+        let outcome = store
+            .promote_health_checked_with("native-health-seven", |request| {
+                checks += 1;
+                assert_eq!(request.game_id, "native-game");
+                assert_eq!(request.policy.check, PackageHealthCheck::Process);
+                let crate::package_launch::PackageLaunchPlan::Native(plan) = &request.plan else {
+                    panic!("native fixture must use the native planner");
+                };
+                let health_root = fixture
+                    .runtime
+                    .join("package-health/native-health-seven/native-game");
+                assert!(
+                    plan.storage()
+                        .session
+                        .starts_with(health_root.join("runtime"))
+                );
+                assert!(plan.storage().data.starts_with(health_root.join("data")));
+                assert!(
+                    !plan.storage().data.starts_with(&fixture.data),
+                    "candidate health must not use player data storage"
+                );
+                assert_eq!(plan.launch().arguments().count(), 0);
+                Ok(())
+            })
+            .expect("successful native health gate promotes");
 
         assert_eq!(checks, 1);
         assert_eq!(outcome.active_generation, 7);

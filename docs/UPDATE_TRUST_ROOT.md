@@ -2,7 +2,7 @@
 
 Status: bounded root/role verification, system-image/package integration, and
 launcher-integrated crash-recoverable accepted-root history implemented;
-protected high-water provenance, secure time, repository metadata, operator
+protected-state provenance, secure time, repository metadata, operator
 ceremony, and recovery drills remain open.
 
 ## Purpose
@@ -99,7 +99,7 @@ Anchor documents use:
 }
 ```
 
-The anchor file is not self-authenticating. It must come from verified read-only image or hardware provisioning. The CLI representation makes the boundary deterministic for integration tests; it does not make caller-selected paths, generation floors, channels, or time trustworthy.
+The anchor file is not self-authenticating. It must come from verified read-only image or hardware provisioning. The CLI representation makes the boundary deterministic for integration tests; it does not make caller-selected paths, protected-state contents, channels, or time trustworthy.
 
 Root signatures cover:
 
@@ -143,10 +143,11 @@ Removing a delegated key from the next root generation revokes it for subsequent
 accepted generation and retains prior roots across interrupted publication.
 The final directory rename is its commit point, and replay re-verifies every
 old-and-new-threshold link. Catalog-backed launcher startup now requires and
-replays this store before package recovery or browser startup. The writable
-history is not a protected high-water mark. Production still needs qualified
-platform provisioning, tamper-resistant monotonic state, and a physical
-recovery path. See `UPDATE_ROOT_STORE.md`.
+replays this store before package recovery or browser startup. Root use also
+requires an exact external generation/digest match, and new roots remain
+pending until that state is committed. Production still needs qualified
+provenance for the protected-state input and a physical recovery path. See
+`UPDATE_ROOT_STORE.md`.
 
 ## Time and offline behavior
 
@@ -172,7 +173,7 @@ The manifest parser still independently checks its internal target, generation, 
 
 The launcher no longer accepts `--catalog-public-key` or loose root candidate
 files. Catalog-backed startup requires `--update-root-store`,
-`--update-root-anchors`, `--update-root-min-generation`, `--update-channel`,
+`--update-root-anchors`, `--update-root-protected-state`, `--update-channel`,
 and `--trusted-unix-seconds`. Root candidates enter the store only through the
 separate `update-root bootstrap|rotate` maintenance command. These paths and
 values are host integration inputs. The current binary does not establish their
@@ -187,8 +188,8 @@ still requires all of the following:
 
 1. Start from a clean, independently verified computer and recovery-writing tool.
 2. Obtain immutable bootstrap anchors from a second trusted source and record their hashes and custodians.
-3. Read the console's protected root-generation floor without lowering or deleting it.
-4. Verify every exact root generation from that floor through the recovery media's current generation; never jump directly to the latest root.
+3. Read the console's exact protected root generation and digest without lowering or replacing it.
+4. Verify every exact root generation needed to reach that protected identity; never jump directly to an unrelated latest root.
 5. Verify the recovery-channel system-image manifest under its separate threshold, then verify the complete image length and hash.
 6. Write only the operator-selected replacement card or inactive recovery target, synchronize it, and read back the complete signed image bytes.
 7. Boot without network, validate target identity and all required health gates, and prove injected candidate failure still selects a known-good image.
@@ -223,20 +224,22 @@ Seventeen focused root-policy tests cover:
 
 Three artifact integration tests prove delegated role verification occurs before system-image, catalog, and release parsing and records accepted authority. A generation-store adversarial test proves changed descriptor bytes and a package-release signer presented as a catalog signer fail closed.
 
-Twelve accepted-root-store tests cover exact-byte persistence, consecutive
-rotation including recovery from an expired current root, replay with expired
-historical links, current expiry, protected-floor rollback, changed bytes,
-gaps, interruption/recovery, unexpected state, lock contention, and the
-directory-rename commit point. Two CLI tests cover explicit unique
-maintenance/store inputs plus read-only launcher replay and normal-startup
-recovery.
+Fifteen accepted-root-store tests cover exact-byte persistence, strict
+protected-state parsing, consecutive rotation including recovery from an
+expired current root, replay with expired historical links, current expiry,
+two-phase commit and idempotency, rollback, valid same-generation
+substitution, changed bytes, gaps, interruption/recovery, unexpected state,
+lock contention, and the directory-rename commit point. Two CLI tests cover
+explicit unique maintenance/store inputs plus read-only launcher replay and
+normal-startup recovery.
 
 ## Explicitly unproven
 
 - Root anchors are not pinned in a verified read-only image or hardware root.
-- Accepted root generations are persisted and replayed by the launcher through
-  the local root-store module, but its high-water mark is not protected against
-  privileged deletion or rollback.
+- Accepted root generations are persisted and replayed by the launcher, and
+  software requires an exact external generation/digest commit before use.
+  The repository does not establish that the supplied protected-state document
+  actually came from tamper-resistant hardware or verified boot.
 - Trusted time, clock rollback resistance, long-offline UX, and expiry policy are undefined.
 - Root/signature acquisition, consistent filenames, timestamp/snapshot metadata, mirrors, download-rate checks, and repository recovery are absent.
 - Threshold counts, signer custody, rotation cadence, emergency revocation, quorum loss, and offline ceremony are owner/security decisions.

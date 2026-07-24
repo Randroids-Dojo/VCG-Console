@@ -1,6 +1,6 @@
 # Signed System Image Manifest
 
-Status: delegated-role verification and crash-recoverable accepted-root replay implemented; protected high-water/time provenance, acquisition, block-device writer, boot control, and target qualification remain open.
+Status: delegated-role verification, crash-recoverable accepted-root replay, and exact protected-state binding implemented; protected state/time provenance, acquisition, block-device writer, boot control, and target qualification remain open.
 
 ## Purpose
 
@@ -96,7 +96,7 @@ Eleven focused Rust tests cover:
 
 This is a signed-file verifier, not a production update service.
 
-- The root primitives now model threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, revocation by omission, delegated package/catalog admission, and crash-recoverable exact-chain persistence/replay. Anchor and protected-floor provenance, trusted-time production, threshold selection, operator ceremony, and physical recovery remain Q-069/I-112/I-141.
+- The root primitives now model threshold bootstrap, exact dual-threshold rotation, expiration, distinct delegated roles, revocation by omission, delegated package/catalog admission, crash-recoverable exact-chain persistence/replay, and exact generation/digest binding before use. Anchor and protected-state provenance, trusted-time production, threshold selection, operator ceremony, and physical recovery remain Q-069/I-112/I-141.
 - The writable journal remains an unprotected high-water mark. A TPM/secure element/verified boot or another qualified monotonic anchor is still required.
 - No downloader, TLS metadata policy, resumable transfer, capacity reservation, or partial cleanup exists.
 - The verified source is a regular file. No raw block device is opened, erased, partitioned, written, or synchronized by this module.
