@@ -3937,6 +3937,21 @@ session-expiry, renderer kill, OS suspend, network loss, repeated soak,
 production launcher authority, signed permission admission, physical
 controller, real tracker, participant, target system, or latency evidence.
 
+## 2026-07-24: Q-050 prototype closure reconciliation
+
+The open-question register no longer lists Q-050 as unresolved. Its explicit
+closure checklist is now directly satisfied: bridge v2 implements a handshake,
+exact origin/source allowlisting, generated JSON schemas, bounded publication
+and expiry, reconnect, and runnable TypeScript and Godot samples. Generic
+Chrome fixtures cover hostile navigation and return; the actual Godot export
+adds exact-origin negotiation, ACK recovery, ordered degraded/ready health, and
+reload into one replacement session.
+
+This register change does not close I-076's production boundary. Signed-package
+permission wiring, hostile same-origin code, broader browser policy, native
+integration, and target measurements remain active under I-076/I-094/I-209;
+stall and process evidence remains I-084.
+
 ## 2026-07-24: shared retro import contract and native plain-file transaction
 
 ### Delivered
