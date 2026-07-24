@@ -95,6 +95,20 @@ The live Body Signal card reports the overall state, every region, and unavailab
 
 These fixtures prove deterministic software behavior, not tracker accuracy or a safe product threshold.
 
+## Seated, partial-body, and assisted-play exercise
+
+I-068 now layers a separate, strict camera-free support matrix over this
+availability view. The matrix preserves action-specific missing-landmark
+results, but it does not treat observed seated gameplay geometry or a
+helper-visible skeleton as authorization. It distinguishes synthetic motion
+paths, explicit existing-controller alternates, and unsupported paths across
+seven authored scenarios without adding body remaps, landmark extrapolation,
+or score normalization.
+
+See `SEATED_PARTIAL_ASSISTED_PLAY_EVIDENCE_2026-07-24.md` and the generated
+`play-support-matrix` schema. This is a conservative research disposition,
+not a production posture/helper detector or accessibility qualification.
+
 ## Remaining qualification boundary
 
 I-063 remains active. A strict research gate and hash-bound synthetic

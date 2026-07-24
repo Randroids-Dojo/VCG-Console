@@ -9,6 +9,7 @@ export * from "./optional-capabilities";
 export * from "./observation-confidence";
 export * from "./observation-confidence-benchmark";
 export * from "./player-availability";
+export * from "./play-support-matrix";
 export * from "./replay";
 export * from "./rtmo-adapter";
 export * from "./rule-baseline-benchmark";

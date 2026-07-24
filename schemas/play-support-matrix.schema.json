@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "vcg-seated-partial-assisted-synthetic-matrix-v1"
+    },
+    "evidenceClass": {
+      "type": "string",
+      "const": "camera-free-synthetic-contract-exercise"
+    },
+    "evidenceDate": {
+      "type": "string",
+      "const": "2026-07-24"
+    },
+    "qualification": {
+      "type": "string",
+      "const": "not-product-qualification"
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "seatedGameplayMotionAuthorized": {
+          "type": "boolean",
+          "const": false
+        },
+        "assistedBodyMotionAuthorized": {
+          "type": "boolean",
+          "const": false
+        },
+        "silentLandmarkExtrapolationAuthorized": {
+          "type": "boolean",
+          "const": false
+        },
+        "silentScoreNormalizationAuthorized": {
+          "type": "boolean",
+          "const": false
+        },
+        "newBodyAlternateMappingsAuthorized": {
+          "type": "boolean",
+          "const": false
+        },
+        "standardControllerFallbackRetained": {
+          "type": "boolean",
+          "const": true
+        },
+        "reservedHomeBackPauseRemappable": {
+          "type": "boolean",
+          "const": false
+        }
+      },
+      "required": [
+        "seatedGameplayMotionAuthorized",
+        "assistedBodyMotionAuthorized",
+        "silentLandmarkExtrapolationAuthorized",
+        "silentScoreNormalizationAuthorized",
+        "newBodyAlternateMappingsAuthorized",
+        "standardControllerFallbackRetained",
+        "reservedHomeBackPauseRemappable"
+      ]
+    },
+    "scenarios": {
+      "minItems": 7,
+      "maxItems": 7,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenarioId": {
+            "type": "string",
+            "enum": [
+              "standing-full-independent-controller",
+              "seated-full-independent-controller",
+              "seated-upper-body-controller",
+              "partial-legs-missing-controller",
+              "partial-left-side-no-controller",
+              "assisted-overlap-controller",
+              "assisted-overlap-no-controller"
+            ]
+          },
+          "posture": {
+            "type": "string",
+            "enum": [
+              "standing",
+              "seated"
+            ]
+          },
+          "assistance": {
+            "type": "string",
+            "enum": [
+              "independent",
+              "helper-visible-in-play-space"
+            ]
+          },
+          "hiddenLandmarks": {
+            "maxItems": 17,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "nose",
+                "left_eye",
+                "right_eye",
+                "left_ear",
+                "right_ear",
+                "left_shoulder",
+                "right_shoulder",
+                "left_elbow",
+                "right_elbow",
+                "left_wrist",
+                "right_wrist",
+                "left_hip",
+                "right_hip",
+                "left_knee",
+                "right_knee",
+                "left_ankle",
+                "right_ankle"
+              ]
+            }
+          },
+          "controllerAvailable": {
+            "type": "boolean"
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "full",
+              "partial",
+              "unavailable"
+            ]
+          },
+          "availableMotionControlCountBeforeSafetyGate": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "controls": {
+            "minItems": 6,
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "controlGroup": {
+                  "type": "string",
+                  "enum": [
+                    "menuSelect",
+                    "menuBackPause",
+                    "menuSwipe",
+                    "gameDodge",
+                    "gameDuck",
+                    "gameJump"
+                  ]
+                },
+                "observedPath": {
+                  "type": "string",
+                  "enum": [
+                    "available",
+                    "unavailable"
+                  ]
+                },
+                "safetyGate": {
+                  "type": "string",
+                  "enum": [
+                    "permitted",
+                    "blocked-seated-gameplay-unqualified",
+                    "blocked-assisted-identity-unqualified"
+                  ]
+                },
+                "supportLabel": {
+                  "type": "string",
+                  "enum": [
+                    "synthetic-motion-path",
+                    "controller-alternate-only",
+                    "unsupported"
+                  ]
+                },
+                "alternateMapping": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "mappingId": {
+                          "type": "string",
+                          "const": "canonical-controller-v1"
+                        },
+                        "route": {
+                          "type": "string",
+                          "enum": [
+                            "canonical-controller-confirm",
+                            "reserved-controller-back-pause",
+                            "canonical-controller-directional-navigation",
+                            "title-declared-controller-dodge",
+                            "title-declared-controller-duck",
+                            "title-declared-controller-jump"
+                          ]
+                        },
+                        "authority": {
+                          "type": "string",
+                          "const": "existing-controller-path-only"
+                        }
+                      },
+                      "required": [
+                        "mappingId",
+                        "route",
+                        "authority"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "controlGroup",
+                "observedPath",
+                "safetyGate",
+                "supportLabel",
+                "alternateMapping"
+              ]
+            }
+          }
+        },
+        "required": [
+          "scenarioId",
+          "posture",
+          "assistance",
+          "hiddenLandmarks",
+          "controllerAvailable",
+          "availabilityState",
+          "availableMotionControlCountBeforeSafetyGate",
+          "controls"
+        ]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "scenarioCount": {
+          "type": "number",
+          "const": 7
+        },
+        "controlAssessmentCount": {
+          "type": "number",
+          "const": 42
+        },
+        "syntheticMotionPathCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "controllerAlternateOnlyCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unsupportedCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "safetyBlockedCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "scenarioCount",
+        "controlAssessmentCount",
+        "syntheticMotionPathCount",
+        "controllerAlternateOnlyCount",
+        "unsupportedCount",
+        "safetyBlockedCount"
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "implementationPath": {
+          "type": "string",
+          "const": "packages/motion-contract/src/play-support-matrix.ts"
+        },
+        "implementationSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "generatorPath": {
+          "type": "string",
+          "const": "scripts/generate-play-support-matrix.mjs"
+        },
+        "generatorSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "validatorPath": {
+          "type": "string",
+          "const": "scripts/validate-play-support-matrix.mjs"
+        },
+        "validatorSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "implementationPath",
+        "implementationSha256",
+        "generatorPath",
+        "generatorSha256",
+        "validatorPath",
+        "validatorSha256"
+      ]
+    },
+    "claimBoundary": {
+      "type": "string",
+      "const": "Camera-free deterministic contract evidence only. It proves bounded software disposition for authored landmark-loss, posture, controller, and visible-helper inputs; it does not prove tracking accuracy, comfort, safety, accessibility, controller assignment, action accuracy, gameplay outcomes, or support for any person."
+    },
+    "limitations": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string",
+          "const": "No camera, tracker backend, target device, game, room, or participant was used."
+        },
+        {
+          "type": "string",
+          "const": "Seated and assisted gameplay motion remains blocked pending consented evidence and owner-approved mappings."
+        },
+        {
+          "type": "string",
+          "const": "A standard controller route is an explicit fallback, not proof that the controller is present, assigned, reachable, or usable by a participant."
+        },
+        {
+          "type": "string",
+          "const": "The visible-helper gate is a conservative policy exercise and is not yet integrated with multi-person identity tracking."
+        },
+        {
+          "type": "string",
+          "const": "No body-action substitution, threshold change, landmark extrapolation, or score normalization is authorized."
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "evidenceClass",
+    "evidenceDate",
+    "qualification",
+    "policy",
+    "scenarios",
+    "summary",
+    "provenance",
+    "claimBoundary",
+    "limitations"
+  ],
+  "$id": "urn:vcg:schema:play-support-matrix:1",
+  "title": "VCG seated, partial-body, and assisted play matrix v1",
+  "$comment": "Camera-free contract evidence only. This schema grants no product qualification, remapping authority, action authority, or score-normalization authority."
+}

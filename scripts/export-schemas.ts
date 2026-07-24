@@ -7,6 +7,7 @@ import {
   optionalMotionCapabilityInventoryJsonSchema,
   optionalMotionCapabilityNegotiationJsonSchema,
   optionalMotionCapabilityQueryJsonSchema,
+  playSupportMatrixJsonSchema,
   playerControlAvailabilityJsonSchema,
   trackerHealthEventJsonSchema,
 } from "@vcg/motion-contract";
@@ -26,6 +27,7 @@ async function main(): Promise<void> {
     ["motion-capability-query.schema.json", optionalMotionCapabilityQueryJsonSchema],
     ["motion-capability-negotiation.schema.json", optionalMotionCapabilityNegotiationJsonSchema],
     ["player-control-availability.schema.json", playerControlAvailabilityJsonSchema],
+    ["play-support-matrix.schema.json", playSupportMatrixJsonSchema],
     ["motion-benchmark-plan.schema.json", motionBenchmarkPlanJsonSchema],
     ["motion-benchmark-result.schema.json", motionBenchmarkResultJsonSchema],
     ["game-manifest.schema.json", gameManifestJsonSchema],

@@ -3317,3 +3317,50 @@ real bug reports, target traces, export/delete usability and filesystem
 inspection, and separately approved minimum evidence for physical cause,
 floor truth, exposure timing, discarded detector/association state, and target
 telemetry. Raw video remains excluded by default.
+
+## 2026-07-24: seated, partial-body, and assisted-play matrix
+
+### Delivered
+
+- Advanced I-068 from open to active with a strict camera-free capability
+  exercise covering seven full, seated, upper-body-only, missing-leg,
+  missing-side, and visible-helper conditions with and without a controller.
+- Kept landmark observation separate from action support: 42 assessments
+  produce 17 synthetic motion paths, 13 explicit existing-controller-only
+  alternates, and 12 unsupported paths.
+- Blocked 18 apparently observable paths under conservative seated-gameplay
+  and helper-identity gates instead of silently treating geometry as
+  authorization.
+- Preserved I-063 action-specific behavior, including unrelated upper-body and
+  hip controls when knees/ankles are missing, with no joint extrapolation.
+- Limited alternates to `canonical-controller-v1`; no new body mapping is
+  authorized, and Home/Back/Pause remain reserved and non-remappable.
+- Added a generated Draft 2020-12 schema and a hash-bound deterministic
+  artifact, generator, strict validator, and adversarial mutation suite.
+- Added Q-238 for supported scope, exact alternatives, participant scale, and
+  per-case safety/accessibility/performance gates.
+
+### Verification evidence
+
+- Nine focused Motion contract cases cover full standing, seated gating,
+  upper-body-only availability, missing legs, unsupported half-body input,
+  helper overlap, explicit reserved controller routes, bounded totals, schema
+  claims, and unknown-field rejection.
+- Eleven artifact-validator cases cover the exact artifact plus seated/helper
+  bypass, extrapolation, score normalization, new remap authority, reserved
+  remapping, implicit alternates, scenario substitution, stale provenance, and
+  undeclared fields.
+- All 432 workspace package unit tests, workspace typecheck, production build,
+  schema freshness, benchmark/transport/manifest validation, device-only data
+  exclusion, compliance inventory, and Godot 4.7 validation pass.
+
+### Remaining boundary
+
+I-068 remains active. This evidence used authored skeletons only: no camera,
+tracker backend, target device, room, game, or participant. It cannot support
+seated, partial-body, accessible-motion, or assisted-play claims. Q-238,
+accessibility/safety review, consented separately reported cohorts, exact
+camera/backend and both target tiers, action and full-latency measurements,
+comfort/fatigue and stop-rule evidence, deliberate controller assignment,
+visible-helper/identity/takeover testing with I-069, and TV-distance
+supported/unsupported communication remain required.
