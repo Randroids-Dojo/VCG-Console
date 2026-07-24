@@ -8,9 +8,10 @@ use std::path::{Component, Path, PathBuf};
 use fs4::TryLockError;
 use serde::{Deserialize, Serialize};
 
-use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
+use crate::package_intake::{PackageArchiveFormat, PackageIntakeError, VerifiedPackageRelease};
 
 const TRANSFER_SCHEMA_VERSION: u32 = 1;
+const TRANSFER_CLEANUP_SCHEMA_VERSION: u32 = 1;
 const MAX_STATE_BYTES: u64 = 1_024;
 const MAX_CHUNK_BYTES: usize = 8 * 1_024 * 1_024;
 
@@ -30,6 +31,60 @@ pub struct PackageTransferAppend {
     pub replayed: bool,
 }
 
+/// Explicit lifecycle reason for removing a durable transfer receipt.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PackageTransferCleanupKind {
+    AbandonedPartial,
+    ConsumedReady,
+}
+
+/// Path-free result of one explicit transfer cleanup.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PackageTransferCleanup {
+    pub kind: PackageTransferCleanupKind,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub(crate) struct PackageReleaseIdentity {
+    generation: u64,
+    archive_format: String,
+    archive_sha256: String,
+    archive_size_bytes: u64,
+    expanded_size_bytes: u64,
+    expanded_file_count: u64,
+    catalog_sha256: String,
+    catalog_size_bytes: u64,
+}
+
+impl PackageReleaseIdentity {
+    pub(crate) fn for_release(release: &VerifiedPackageRelease) -> Self {
+        Self {
+            generation: release.generation(),
+            archive_format: match release.archive_format() {
+                PackageArchiveFormat::Tar => "tar",
+                PackageArchiveFormat::TarZstd => "tar-zstd",
+            }
+            .to_owned(),
+            archive_sha256: encode_hex(&release.archive_sha256()),
+            archive_size_bytes: release.archive_size_bytes(),
+            expanded_size_bytes: release.expanded_size_bytes(),
+            expanded_file_count: release.expanded_file_count(),
+            catalog_sha256: encode_hex(&release.catalog_sha256()),
+            catalog_size_bytes: release.catalog_size_bytes(),
+        }
+    }
+
+    pub(crate) fn generation(&self) -> u64 {
+        self.generation
+    }
+
+    pub(crate) fn catalog_sha256(&self) -> &str {
+        &self.catalog_sha256
+    }
+}
+
 /// Exclusive receiver for one package archive transaction.
 #[derive(Debug)]
 pub struct PackageArchiveTransfer {
@@ -38,6 +93,7 @@ pub struct PackageArchiveTransfer {
     state_path: PathBuf,
     partial_path: PathBuf,
     ready_path: PathBuf,
+    cleanup_path: PathBuf,
     release: VerifiedPackageRelease,
     reserve_bytes: u64,
     _lock: File,
@@ -73,6 +129,7 @@ impl PackageArchiveTransfer {
         let state_path = root.join(format!(".transfer-{transaction_id}.json"));
         let partial_path = root.join(format!(".transfer-{transaction_id}.part"));
         let ready_path = root.join(format!("ready-{transaction_id}.archive"));
+        let cleanup_path = root.join(format!(".transfer-{transaction_id}.cleanup.json"));
         let lock_path = root.join(format!(".transfer-{transaction_id}.lock"));
         let lock = open_lock_file(&lock_path)?;
         match fs4::FileExt::try_lock(&lock) {
@@ -95,10 +152,16 @@ impl PackageArchiveTransfer {
             state_path,
             partial_path,
             ready_path,
+            cleanup_path,
             release: release.clone(),
             reserve_bytes,
             _lock: lock,
         };
+        if receiver.recover_cleanup()?.is_some() {
+            return Err(PackageTransferError::CleanupRecovered(
+                transaction_id.to_owned(),
+            ));
+        }
         receiver.initialize()?;
         let durable_received = receiver.progress()?.received_bytes;
         receiver.release.admit_remaining_transfer_capacity_at(
@@ -113,6 +176,59 @@ impl PackageArchiveTransfer {
     #[must_use]
     pub fn transaction_id(&self) -> &str {
         &self.transaction_id
+    }
+
+    /// Explicitly removes a closed transfer's incomplete archive and binding.
+    ///
+    /// The receiver's exclusive lock remains held throughout the operation.
+    /// A durable cleanup intent makes interruption recoverable on the next
+    /// open. A verified ready archive is never eligible for this operation.
+    ///
+    /// # Errors
+    ///
+    /// Rejects changed bindings, a published ready archive, unsafe files, or
+    /// persistence failures.
+    pub fn discard_abandoned(self) -> Result<PackageTransferCleanup, PackageTransferError> {
+        self.verify_binding()?;
+        if path_exists(&self.ready_path)? {
+            return Err(PackageTransferError::CleanupStateMismatch(
+                "a ready archive is not an abandoned partial".to_owned(),
+            ));
+        }
+        require_regular_file(&self.partial_path, "partial package archive")?;
+        let received = file_length(&self.partial_path)?;
+        if received > self.release.archive_size_bytes() {
+            return Err(PackageTransferError::PartialTooLarge {
+                actual_bytes: received,
+                expected_bytes: self.release.archive_size_bytes(),
+            });
+        }
+        self.begin_cleanup(PackageTransferCleanupKind::AbandonedPartial)?;
+        self.finish_cleanup(PackageTransferCleanupKind::AbandonedPartial)?;
+        Ok(PackageTransferCleanup {
+            kind: PackageTransferCleanupKind::AbandonedPartial,
+        })
+    }
+
+    pub(crate) fn release_identity(&self) -> PackageReleaseIdentity {
+        PackageReleaseIdentity::for_release(&self.release)
+    }
+
+    pub(crate) fn remove_consumed_ready(
+        self,
+    ) -> Result<PackageTransferCleanup, PackageTransferError> {
+        self.verify_binding()?;
+        if !path_exists(&self.ready_path)? {
+            return Err(PackageTransferError::NotReady);
+        }
+        require_regular_file(&self.ready_path, "ready package archive")?;
+        self.release.verify_archive(&self.ready_path)?;
+        self.cleanup_published_partial()?;
+        self.begin_cleanup(PackageTransferCleanupKind::ConsumedReady)?;
+        self.finish_cleanup(PackageTransferCleanupKind::ConsumedReady)?;
+        Ok(PackageTransferCleanup {
+            kind: PackageTransferCleanupKind::ConsumedReady,
+        })
     }
 
     /// Returns the ready archive only when it remains bound to the supplied
@@ -419,6 +535,68 @@ impl PackageArchiveTransfer {
         }
         sync_directory(&self.root)
     }
+
+    fn begin_cleanup(&self, kind: PackageTransferCleanupKind) -> Result<(), PackageTransferError> {
+        let intent = TransferCleanupIntent {
+            schema_version: TRANSFER_CLEANUP_SCHEMA_VERSION,
+            kind,
+            binding: TransferBinding::for_release(&self.transaction_id, &self.release),
+        };
+        write_cleanup_intent(&self.cleanup_path, &intent)?;
+        sync_directory(&self.root)
+    }
+
+    fn recover_cleanup(&self) -> Result<Option<PackageTransferCleanupKind>, PackageTransferError> {
+        if !path_exists(&self.cleanup_path)? {
+            return Ok(None);
+        }
+        require_regular_file(&self.cleanup_path, "package transfer cleanup intent")?;
+        let intent = read_cleanup_intent(&self.cleanup_path)?;
+        if intent.binding.transaction_id != self.transaction_id {
+            return Err(PackageTransferError::CleanupStateMismatch(
+                "cleanup transaction does not match its filename".to_owned(),
+            ));
+        }
+        if path_exists(&self.state_path)? {
+            require_regular_file(&self.state_path, "package transfer state")?;
+            if read_state(&self.state_path)? != intent.binding {
+                return Err(PackageTransferError::CleanupStateMismatch(
+                    "cleanup intent does not match transfer binding".to_owned(),
+                ));
+            }
+        }
+        self.finish_cleanup(intent.kind)?;
+        Ok(Some(intent.kind))
+    }
+
+    fn finish_cleanup(&self, kind: PackageTransferCleanupKind) -> Result<(), PackageTransferError> {
+        if kind == PackageTransferCleanupKind::AbandonedPartial && path_exists(&self.ready_path)? {
+            return Err(PackageTransferError::CleanupStateMismatch(
+                "abandoned cleanup found a ready archive".to_owned(),
+            ));
+        }
+        for (path, file_kind) in [
+            (&self.partial_path, "partial package archive"),
+            (&self.ready_path, "ready package archive"),
+            (&self.state_path, "package transfer state"),
+        ] {
+            if path_exists(path)? {
+                require_regular_file(path, file_kind)?;
+                fs::remove_file(path).map_err(|source| PackageTransferError::Io {
+                    operation: "remove package transfer cleanup target",
+                    path: path.clone(),
+                    source,
+                })?;
+            }
+        }
+        sync_directory(&self.root)?;
+        fs::remove_file(&self.cleanup_path).map_err(|source| PackageTransferError::Io {
+            operation: "remove package transfer cleanup intent",
+            path: self.cleanup_path.clone(),
+            source,
+        })?;
+        sync_directory(&self.root)
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -429,6 +607,14 @@ struct TransferBinding {
     generation: u64,
     archive_sha256: String,
     archive_size_bytes: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct TransferCleanupIntent {
+    schema_version: u32,
+    kind: PackageTransferCleanupKind,
+    binding: TransferBinding,
 }
 
 impl TransferBinding {
@@ -551,6 +737,30 @@ fn write_state(path: &Path, state: &TransferBinding) -> Result<(), PackageTransf
         })
 }
 
+fn write_cleanup_intent(
+    path: &Path,
+    intent: &TransferCleanupIntent,
+) -> Result<(), PackageTransferError> {
+    let bytes = serde_json::to_vec(intent)
+        .map_err(|error| PackageTransferError::InvalidState(error.to_string()))?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|source| PackageTransferError::Io {
+            operation: "create package transfer cleanup intent",
+            path: path.to_owned(),
+            source,
+        })?;
+    file.write_all(&bytes)
+        .and_then(|()| file.sync_all())
+        .map_err(|source| PackageTransferError::Io {
+            operation: "persist package transfer cleanup intent",
+            path: path.to_owned(),
+            source,
+        })
+}
+
 fn read_state(path: &Path) -> Result<TransferBinding, PackageTransferError> {
     let file = File::open(path).map_err(|source| PackageTransferError::Io {
         operation: "open package transfer state",
@@ -572,13 +782,49 @@ fn read_state(path: &Path) -> Result<TransferBinding, PackageTransferError> {
     }
     let state: TransferBinding = serde_json::from_slice(&bytes)
         .map_err(|error| PackageTransferError::InvalidState(error.to_string()))?;
+    validate_binding(&state)?;
+    Ok(state)
+}
+
+fn read_cleanup_intent(path: &Path) -> Result<TransferCleanupIntent, PackageTransferError> {
+    let file = File::open(path).map_err(|source| PackageTransferError::Io {
+        operation: "open package transfer cleanup intent",
+        path: path.to_owned(),
+        source,
+    })?;
+    let mut bytes = Vec::new();
+    file.take(MAX_STATE_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|source| PackageTransferError::Io {
+            operation: "read package transfer cleanup intent",
+            path: path.to_owned(),
+            source,
+        })?;
+    if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_STATE_BYTES {
+        return Err(PackageTransferError::InvalidState(
+            "cleanup intent exceeds size limit".to_owned(),
+        ));
+    }
+    let intent: TransferCleanupIntent = serde_json::from_slice(&bytes)
+        .map_err(|error| PackageTransferError::InvalidState(error.to_string()))?;
+    if intent.schema_version != TRANSFER_CLEANUP_SCHEMA_VERSION {
+        return Err(PackageTransferError::InvalidState(format!(
+            "unsupported cleanup schema {}",
+            intent.schema_version
+        )));
+    }
+    validate_binding(&intent.binding)?;
+    Ok(intent)
+}
+
+fn validate_binding(state: &TransferBinding) -> Result<(), PackageTransferError> {
+    validate_transaction_id(&state.transaction_id)?;
     if state.schema_version != TRANSFER_SCHEMA_VERSION {
         return Err(PackageTransferError::InvalidState(format!(
             "unsupported state schema {}",
             state.schema_version
         )));
     }
-    validate_transaction_id(&state.transaction_id)?;
     if state.generation == 0
         || state.archive_size_bytes == 0
         || state.archive_sha256.len() != 64
@@ -591,7 +837,7 @@ fn read_state(path: &Path) -> Result<TransferBinding, PackageTransferError> {
             "state binding is invalid".to_owned(),
         ));
     }
-    Ok(state)
+    Ok(())
 }
 
 fn path_exists(path: &Path) -> Result<bool, PackageTransferError> {
@@ -676,6 +922,8 @@ pub enum PackageTransferError {
     Busy(String),
     InvalidState(String),
     BindingMismatch,
+    CleanupStateMismatch(String),
+    CleanupRecovered(String),
     OrphanPartial(PathBuf),
     OrphanReady(PathBuf),
     PartialTooLarge {
@@ -729,6 +977,16 @@ impl fmt::Display for PackageTransferError {
             Self::BindingMismatch => {
                 formatter.write_str("package transfer state belongs to a different release")
             }
+            Self::CleanupStateMismatch(error) => {
+                write!(
+                    formatter,
+                    "package transfer cleanup state is invalid: {error}"
+                )
+            }
+            Self::CleanupRecovered(value) => write!(
+                formatter,
+                "package transfer cleanup completed during recovery: {value}"
+            ),
             Self::OrphanPartial(path) => write!(
                 formatter,
                 "partial package archive has no signed transfer binding: {}",
@@ -803,7 +1061,8 @@ mod adversarial_tests {
     use sha2::{Digest, Sha256};
 
     use super::{
-        MAX_CHUNK_BYTES, PackageArchiveTransfer, PackageTransferError, PackageTransferProgress,
+        MAX_CHUNK_BYTES, PackageArchiveTransfer, PackageTransferCleanup,
+        PackageTransferCleanupKind, PackageTransferError, PackageTransferProgress,
     };
     use crate::package_intake::VerifiedPackageRelease;
 
@@ -869,6 +1128,10 @@ mod adversarial_tests {
 
         fn ready_path(&self, transaction_id: &str) -> PathBuf {
             self.root.join(format!("ready-{transaction_id}.archive"))
+        }
+
+        fn cleanup_path(&self, transaction_id: &str) -> PathBuf {
+            self.transfer_path(transaction_id, "cleanup.json")
         }
     }
 
@@ -944,6 +1207,132 @@ mod adversarial_tests {
         assert!(reopened.progress().expect("ready progress reads").complete);
         assert!(reopened.append(0, first).is_err());
         assert_eq!(reopened.finalize().expect("ready finalizes again"), ready);
+    }
+
+    #[test]
+    fn explicitly_discards_only_an_abandoned_bound_partial() {
+        let fixture = Fixture::new();
+        let archive = b"abandoned signed package archive";
+        let release = fixture.release("abandoned-release", 8, archive);
+        let transaction_id = "abandoned-8";
+        let transfer = open(&fixture.root, transaction_id, &release);
+        transfer.append(0, &archive[..9]).expect("prefix appends");
+
+        assert_eq!(
+            transfer
+                .discard_abandoned()
+                .expect("abandoned transfer discards"),
+            PackageTransferCleanup {
+                kind: PackageTransferCleanupKind::AbandonedPartial,
+            }
+        );
+        assert!(!fixture.transfer_path(transaction_id, "part").exists());
+        assert!(!fixture.transfer_path(transaction_id, "json").exists());
+        assert!(!fixture.cleanup_path(transaction_id).exists());
+        assert!(fixture.transfer_path(transaction_id, "lock").is_file());
+
+        let restarted = open(&fixture.root, transaction_id, &release);
+        assert_eq!(
+            restarted
+                .progress()
+                .expect("new transfer reads")
+                .received_bytes,
+            0
+        );
+        restarted
+            .append(0, archive)
+            .expect("replacement archive appends");
+        restarted.finalize().expect("replacement finalizes");
+        assert!(matches!(
+            restarted.discard_abandoned(),
+            Err(PackageTransferError::CleanupStateMismatch(_))
+        ));
+        assert!(fixture.ready_path(transaction_id).is_file());
+        assert!(fixture.transfer_path(transaction_id, "json").is_file());
+    }
+
+    #[test]
+    fn recovers_interrupted_abandoned_and_consumed_cleanup_before_reuse() {
+        let fixture = Fixture::new();
+        let archive = b"cleanup recovery package archive";
+        let release = fixture.release("cleanup-release", 9, archive);
+
+        let abandoned_id = "recover-abandoned";
+        let abandoned = open(&fixture.root, abandoned_id, &release);
+        abandoned
+            .append(0, &archive[..7])
+            .expect("abandoned prefix appends");
+        abandoned
+            .begin_cleanup(PackageTransferCleanupKind::AbandonedPartial)
+            .expect("abandoned intent persists");
+        drop(abandoned);
+        assert!(matches!(
+            PackageArchiveTransfer::open_or_begin(&fixture.root, abandoned_id, &release, 1),
+            Err(PackageTransferError::CleanupRecovered(value)) if value == abandoned_id
+        ));
+        assert!(!fixture.transfer_path(abandoned_id, "part").exists());
+        assert!(!fixture.transfer_path(abandoned_id, "json").exists());
+        assert!(!fixture.cleanup_path(abandoned_id).exists());
+
+        let consumed_id = "recover-consumed";
+        let consumed = open(&fixture.root, consumed_id, &release);
+        consumed
+            .append(0, archive)
+            .expect("consumed archive appends");
+        consumed.finalize().expect("consumed archive finalizes");
+        consumed
+            .begin_cleanup(PackageTransferCleanupKind::ConsumedReady)
+            .expect("consumed intent persists");
+        fs::remove_file(fixture.transfer_path(consumed_id, "json"))
+            .expect("simulate state removal before interruption");
+        drop(consumed);
+        assert!(matches!(
+            PackageArchiveTransfer::open_or_begin(&fixture.root, consumed_id, &release, 1),
+            Err(PackageTransferError::CleanupRecovered(value)) if value == consumed_id
+        ));
+        assert!(!fixture.ready_path(consumed_id).exists());
+        assert!(!fixture.cleanup_path(consumed_id).exists());
+        assert_eq!(
+            open(&fixture.root, consumed_id, &release)
+                .progress()
+                .expect("transaction can restart after recovery")
+                .received_bytes,
+            0
+        );
+    }
+
+    #[test]
+    fn rejects_tampered_cleanup_intent_without_removing_bound_state() {
+        let fixture = Fixture::new();
+        let archive = b"cleanup tamper package archive";
+        let release = fixture.release("cleanup-tamper-release", 10, archive);
+        let transaction_id = "cleanup-tamper";
+        let transfer = open(&fixture.root, transaction_id, &release);
+        transfer
+            .append(0, &archive[..8])
+            .expect("tamper prefix appends");
+        transfer
+            .begin_cleanup(PackageTransferCleanupKind::AbandonedPartial)
+            .expect("cleanup intent persists");
+        let cleanup_path = fixture.cleanup_path(transaction_id);
+        let mut document: serde_json::Value =
+            serde_json::from_slice(&fs::read(&cleanup_path).expect("cleanup intent reads"))
+                .expect("cleanup intent parses");
+        document["unexpected"] = serde_json::json!(true);
+        fs::write(
+            &cleanup_path,
+            serde_json::to_vec(&document).expect("tampered cleanup serializes"),
+        )
+        .expect("cleanup intent tampers");
+        drop(transfer);
+
+        assert!(matches!(
+            PackageArchiveTransfer::open_or_begin(&fixture.root, transaction_id, &release, 1),
+            Err(PackageTransferError::InvalidState(_))
+        ));
+        assert!(fixture.transfer_path(transaction_id, "part").is_file());
+        assert!(fixture.transfer_path(transaction_id, "json").is_file());
+        assert!(cleanup_path.is_file());
     }
 
     #[test]

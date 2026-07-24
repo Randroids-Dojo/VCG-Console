@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-24
 
-No answer here blocks the implemented transport-neutral durable sink.
+No answer here blocks the implemented transport-neutral durable sink or its explicit fail-closed cleanup primitives.
 
 ## Q-120: production download transport
 
@@ -14,9 +14,9 @@ Safe default: implement no embedded network client until release discovery and s
 
 How long should incomplete package transfers remain resumable, and when may low-space cleanup remove them?
 
-Safe default: never remove an open/locked transfer; keep a closed partial until an explicit bounded age/space policy exists; expose only transaction-safe metadata; and delete state plus partial together under the same service ownership. Do not reclaim active generations, saves, managed content, or a verified ready archive as implicit transfer cleanup.
+Safe default: never remove an open/locked transfer from another owner; keep a closed partial until an explicit bounded age/space policy invokes the signed, exclusively locked `discard_abandoned` primitive; expose only transaction-safe metadata; and do not reclaim active generations, saves, managed content, or a verified ready archive as implicit transfer cleanup.
 
-A verified ready archive retains its immutable release-binding state after inert staging, serving as a durable receipt if coordination crashes immediately afterward. The future cleanup coordinator should remove the ready archive and binding together only after an explicit lifecycle point and replay policy are selected for that exact release.
+A verified ready archive retains its immutable release-binding state after inert staging, serving as a durable receipt if coordination crashes immediately afterward. The implemented explicit cleanup call removes it only while holding the transfer lock and after exact full-descriptor staging receipt verification; a durable cleanup intent makes interruption recoverable. The unanswered choice is when an update coordinator may invoke either primitive automatically and how long closed resumable state remains.
 
 ## Q-122: update bandwidth and scheduling
 

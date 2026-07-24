@@ -12,6 +12,7 @@ An already provisioned store has this shape:
 <store-root>/
   staging/
     <transaction-id>/
+      .vcg-transfer-receipt.json
       installed-catalog.json
       installed-catalog.sig
       install/
@@ -51,14 +52,11 @@ This is crash-monotonic selection, not tamper-resistant anti-rollback. The curre
 
 ## Signed archive intake
 
-`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. `stage_ready_transfer` keeps the receiver's exclusive lock, re-verifies the descriptor with the generation store key, requires the exact transfer/release binding, and re-hashes the ready archive before using the same intake path. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
+`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. `stage_ready_transfer` keeps the receiver's exclusive lock, re-verifies the descriptor with the generation store key, requires the exact transfer/release binding, and re-hashes the ready archive before using the same intake path. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, requires descriptor/catalog generation agreement, and synchronizes a strict host receipt for the complete signed descriptor identity.
 
 Only then is the private directory atomically renamed to `staging/<transaction-id>`. This creates an inert promotion candidate; it does not publish `promotion.intent`, run candidate health, or change active state. Failure validates and removes only the private incoming direct child.
 
-The handoff deliberately retains the ready archive and immutable transfer
-binding after successful staging. They are a durable receipt across a crash
-between staging and later coordination. A repeated handoff reports the existing
-staging transaction; consumed-receipt cleanup remains a separate policy.
+The handoff initially retains the ready archive and immutable transfer binding after successful staging. They are a durable receipt across a crash between staging and later coordination. A repeated handoff reports the existing staging transaction. A later explicit `cleanup_staged_transfer_receipt` call may remove only that ready archive and binding while holding the receiver lock and only after the exact staged descriptor receipt and release re-verify. A synchronized cleanup intent makes interruption recoverable. Automatic timing remains separate policy.
 
 ## Health-gated promotion
 
@@ -115,7 +113,7 @@ The marker file is synchronized before intent publication. On Unix, the store an
 
 ## Save and namespace boundary
 
-Package generations contain only the catalog, signature, and installed package/runtime artifacts. The optional console-managed content root and the persistent data/save root are configured separately from staging and generations. Promotion and recovery verify referenced managed content but never rename, copy, rewrite, or remove either external root; regression tests retain committed save bytes through installation and update.
+Package generations contain the catalog, signature, installed package/runtime artifacts, and the host-owned non-authoritative signed-descriptor receipt carried from staging. The optional console-managed content root and the persistent data/save root are configured separately from staging and generations. Promotion and recovery verify referenced managed content but never rename, copy, rewrite, or remove either external root; regression tests retain committed save bytes through installation and update.
 
 This is necessary but not sufficient for uninstall. Package/runtime garbage collection and the separate controller-confirmed choice to preserve or delete saves remain unimplemented. Developer deployments also remain a different namespace and authority under D-054/I-102; this production store accepts only signed qualified catalogs and does not provide an unsigned exception.
 
@@ -158,7 +156,7 @@ Planning never returns filesystem paths and never removes activation markers, ge
 Still required:
 
 - network discovery/client/TLS/range behavior, real capacity reservation, and low-space coordination/cleanup;
-- abandoned-transfer retention and cleanup;
+- automatic abandoned/consumed-transfer retention and cleanup scheduling;
 - bounded `tar-zstd` streaming qualification or a decision to retain uncompressed TAR;
 - automatic bad-release rollback expressed as a new signed generation;
 - bounded retention, uninstall, and garbage collection;

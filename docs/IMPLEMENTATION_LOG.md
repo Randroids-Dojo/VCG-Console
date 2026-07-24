@@ -761,6 +761,27 @@ This eliminates repository-local presentation drift and now reconciles exact sig
 
 Catalog membership is availability metadata, not proof that artifacts remain executable; launch re-verifies them. External museum consumption, admission/emergency-disable state, push-driven refresh while the shell remains continuously active, install/update UI, supervised exact-game deep links, and target-host lifecycle evidence remain open.
 
+## 2026-07-24: explicit package-transfer cleanup
+
+### Delivered
+
+- Added an explicit abandoned-transfer cleanup that requires the signature-bound receiver and its exclusive transaction lock, refuses any published ready archive, and removes only the partial plus immutable binding.
+- Added a full signed-descriptor receipt to every newly published inert staging transaction. It binds transaction, generation, archive format/hash/length, expanded byte/file facts, and catalog hash/length.
+- Added explicit consumed-ready cleanup that re-verifies the inert staging release and requires that complete receipt to match the locked transfer before removing the ready archive and binding. Generation/catalog coincidence alone cannot authorize deletion.
+- Both cleanup paths synchronize a strict cleanup intent before removing data. A later open completes an interrupted intent, returns `CleanupRecovered`, and does not silently accept new bytes in that call.
+- Cleanup paths are exact transaction-local regular files. They cannot name active generations, activation history, managed content, runtime state, or saves. Lock files remain inert.
+- D-145 records the mechanism while Q-121 continues to defer automatic age, pressure, and scheduling policy.
+
+### Verification evidence
+
+- Transfer tests prove explicit abandoned cleanup, refusal to treat a ready archive as abandoned, same-release restart after completion, and recovery from interrupted abandoned and consumed cleanup including state-first interruption.
+- Store tests prove successful cleanup only after exact staging, fail-closed behavior for a tampered staged receipt, and refusal when another signed release occupies the same transaction name.
+- Rust formatting and Clippy with warnings denied pass. The Rust workspace now contains 119 active library tests with five subprocess helpers ignored by the parent run, plus 14 CLI tests.
+
+### Remaining boundary
+
+The cleanup mechanism does not decide retention. No automatic age/space policy, low-space coordinator, network client, transfer scheduler, or generation deletion is enabled. Target-Linux directory synchronization/lock behavior, sudden-power removal, hostile noncooperating writers, service serialization, and operator-visible recovery still require qualification.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered

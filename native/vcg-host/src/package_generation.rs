@@ -16,13 +16,17 @@ use crate::package_health::{CandidateHealthChecker, CandidateHealthError, Candid
 use crate::package_intake::{
     CapacityAdmission, PackageIntakeError, PackageIntakeStats, VerifiedPackageRelease,
 };
-use crate::package_transfer::{PackageArchiveTransfer, PackageTransferError};
+use crate::package_transfer::{
+    PackageArchiveTransfer, PackageReleaseIdentity, PackageTransferCleanup, PackageTransferError,
+};
 use crate::retroarch::plan as plan_retroarch;
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
 const MAX_MARKER_BYTES: u64 = 1_024;
 const INTENT_FILE: &str = "promotion.intent";
 const STAGED_INTENT_FILE: &str = ".vcg-promotion-intent";
+const STAGED_TRANSFER_RECEIPT_FILE: &str = ".vcg-transfer-receipt.json";
+const STAGED_TRANSFER_RECEIPT_SCHEMA_VERSION: u32 = 1;
 const CATALOG_FILE: &str = "installed-catalog.json";
 const CATALOG_SIGNATURE_FILE: &str = "installed-catalog.sig";
 const INSTALL_DIRECTORY: &str = "install";
@@ -332,6 +336,52 @@ impl PackageGenerationStore {
         self.stage_verified_package_tar(transaction_id, &archive_path, reserve_bytes, &release)
     }
 
+    /// Removes a ready transfer archive and its binding only after the exact
+    /// signed release is present as a verified inert staging transaction.
+    ///
+    /// The transfer keeps its exclusive lock for the complete operation.
+    /// Cleanup uses a durable intent, so a later transfer open completes an
+    /// interrupted removal before accepting any new bytes. This operation
+    /// does not choose retention age or scheduling policy.
+    ///
+    /// # Errors
+    ///
+    /// Rejects pending promotion recovery, absent/changed staging state,
+    /// release mismatch, unsafe transfer files, or persistence failures.
+    pub fn cleanup_staged_transfer_receipt(
+        &self,
+        transfer: PackageArchiveTransfer,
+    ) -> Result<PackageTransferCleanup, GenerationError> {
+        let transaction_id = transfer.transaction_id();
+        validate_transaction_id(transaction_id)?;
+        if self.recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        let stage = self.canonical_stage(transaction_id)?;
+        let receipt_path = canonical_direct_file(
+            "staged transfer receipt",
+            &stage,
+            &stage.join(STAGED_TRANSFER_RECEIPT_FILE),
+        )?;
+        let receipt = read_staged_transfer_receipt(&receipt_path)?;
+        if receipt.transaction_id != transaction_id
+            || receipt.release != transfer.release_identity()
+        {
+            return Err(GenerationError::StagedTransferReceiptMismatch(
+                transaction_id.to_owned(),
+            ));
+        }
+        let candidate = self.load_release(&stage)?;
+        if candidate.generation != receipt.release.generation()
+            || candidate.catalog_sha256 != receipt.release.catalog_sha256()
+        {
+            return Err(GenerationError::StagedTransferReceiptMismatch(
+                transaction_id.to_owned(),
+            ));
+        }
+        transfer.remove_consumed_ready().map_err(Into::into)
+    }
+
     fn stage_verified_package_tar(
         &self,
         transaction_id: &str,
@@ -378,6 +428,12 @@ impl PackageGenerationStore {
                     candidate: candidate.generation,
                 });
             }
+            write_staged_transfer_receipt(
+                &incoming.join(STAGED_TRANSFER_RECEIPT_FILE),
+                transaction_id,
+                release,
+            )?;
+            sync_directory(&incoming)?;
             fs::rename(&incoming, &stage).map_err(|source| GenerationError::Io {
                 operation: "publish verified package staging transaction",
                 path: stage.clone(),
@@ -912,6 +968,76 @@ struct ActivationMarker {
     catalog_sha256: String,
 }
 
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct StagedTransferReceipt {
+    schema_version: u32,
+    transaction_id: String,
+    release: PackageReleaseIdentity,
+}
+
+fn write_staged_transfer_receipt(
+    path: &Path,
+    transaction_id: &str,
+    release: &VerifiedPackageRelease,
+) -> Result<(), GenerationError> {
+    let receipt = StagedTransferReceipt {
+        schema_version: STAGED_TRANSFER_RECEIPT_SCHEMA_VERSION,
+        transaction_id: transaction_id.to_owned(),
+        release: PackageReleaseIdentity::for_release(release),
+    };
+    let bytes = serde_json::to_vec(&receipt)
+        .map_err(|error| GenerationError::StagedTransferReceiptMismatch(error.to_string()))?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|source| GenerationError::Io {
+            operation: "create staged transfer receipt",
+            path: path.to_owned(),
+            source,
+        })?;
+    file.write_all(&bytes)
+        .and_then(|()| file.sync_all())
+        .map_err(|source| GenerationError::Io {
+            operation: "persist staged transfer receipt",
+            path: path.to_owned(),
+            source,
+        })
+}
+
+fn read_staged_transfer_receipt(path: &Path) -> Result<StagedTransferReceipt, GenerationError> {
+    require_regular_file(path, "staged transfer receipt")?;
+    let file = File::open(path).map_err(|source| GenerationError::Io {
+        operation: "open staged transfer receipt",
+        path: path.to_owned(),
+        source,
+    })?;
+    let mut bytes = Vec::new();
+    file.take(MAX_MARKER_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|source| GenerationError::Io {
+            operation: "read staged transfer receipt",
+            path: path.to_owned(),
+            source,
+        })?;
+    if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_MARKER_BYTES {
+        return Err(GenerationError::StagedTransferReceiptMismatch(
+            "receipt exceeds size limit".to_owned(),
+        ));
+    }
+    let receipt: StagedTransferReceipt = serde_json::from_slice(&bytes)
+        .map_err(|error| GenerationError::StagedTransferReceiptMismatch(error.to_string()))?;
+    if receipt.schema_version != STAGED_TRANSFER_RECEIPT_SCHEMA_VERSION {
+        return Err(GenerationError::StagedTransferReceiptMismatch(format!(
+            "unsupported receipt schema {}",
+            receipt.schema_version
+        )));
+    }
+    validate_transaction_id(&receipt.transaction_id)?;
+    Ok(receipt)
+}
+
 fn validate_marker(
     marker: &ActivationMarker,
     expected_generation: u64,
@@ -1266,6 +1392,7 @@ pub enum GenerationError {
     InvalidCleanupProtection(String),
     InvalidTransactionId(String),
     StagingTransactionExists(String),
+    StagedTransferReceiptMismatch(String),
     IntakeDescriptorMismatch(String),
     MarkerMismatch(String),
     RecoveryRequired,
@@ -1323,6 +1450,10 @@ impl fmt::Display for GenerationError {
                     "package staging transaction already exists: {value}"
                 )
             }
+            Self::StagedTransferReceiptMismatch(value) => write!(
+                formatter,
+                "staged package transaction does not match transfer receipt: {value}"
+            ),
             Self::IntakeDescriptorMismatch(error) => {
                 write!(formatter, "package intake descriptor mismatch: {error}")
             }
@@ -1414,12 +1545,16 @@ mod tests {
     use super::{
         ACTIVATION_SCHEMA_VERSION, ActivationMarker, CATALOG_FILE, GenerationError, INTENT_FILE,
         PackageGenerationConfig, PackageGenerationStore, PromotionOutcome, RecoveryOutcome,
-        STAGED_INTENT_FILE, prepare_staged_marker, publish_intent, read_marker,
+        STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, prepare_staged_marker, publish_intent,
+        read_marker,
     };
     use crate::installed_catalog::PackageHealthCheck;
     use crate::package_health::CandidateHealthChecker;
     use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
-    use crate::package_transfer::{PackageArchiveTransfer, PackageTransferError};
+    use crate::package_transfer::{
+        PackageArchiveTransfer, PackageTransferCleanup, PackageTransferCleanupKind,
+        PackageTransferError,
+    };
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
     const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
@@ -1684,7 +1819,7 @@ mod tests {
     }
 
     #[test]
-    fn stages_only_a_finalized_transfer_and_retains_its_durable_receipt() {
+    fn stages_then_explicitly_cleans_only_the_matching_durable_transfer_receipt() {
         let fixture = Fixture::new();
         let (descriptor, signature, archive, expanded_bytes, file_count) =
             fixture.package_tar(7, "1.0.0");
@@ -1730,6 +1865,38 @@ mod tests {
             store.stage_ready_transfer(&transfer, &descriptor, &signature, 1),
             Err(GenerationError::StagingTransactionExists(value)) if value == "ready-seven"
         ));
+        let receipt_path = fixture
+            .root
+            .join("staging/ready-seven")
+            .join(STAGED_TRANSFER_RECEIPT_FILE);
+        let receipt_bytes = fs::read(&receipt_path).expect("receipt reads");
+        fs::write(&receipt_path, b"{}").expect("receipt tampers");
+        assert!(matches!(
+            store.cleanup_staged_transfer_receipt(transfer),
+            Err(GenerationError::StagedTransferReceiptMismatch(_))
+        ));
+        assert!(ready.is_file());
+        assert!(transfer_root.join(".transfer-ready-seven.json").is_file());
+        fs::write(&receipt_path, receipt_bytes).expect("receipt restores");
+        let transfer =
+            PackageArchiveTransfer::open_or_begin(&transfer_root, "ready-seven", &release, 1)
+                .expect("transfer reopens");
+        assert_eq!(
+            store
+                .cleanup_staged_transfer_receipt(transfer)
+                .expect("staged receipt cleans"),
+            PackageTransferCleanup {
+                kind: PackageTransferCleanupKind::ConsumedReady,
+            }
+        );
+        assert!(fixture.root.join("staging/ready-seven").is_dir());
+        assert!(!ready.exists());
+        assert!(!transfer_root.join(".transfer-ready-seven.json").exists());
+        assert!(
+            !transfer_root
+                .join(".transfer-ready-seven.cleanup.json")
+                .exists()
+        );
     }
 
     #[test]
@@ -1758,6 +1925,49 @@ mod tests {
         assert!(!fixture.root.join("staging/bound-seven").exists());
         assert!(ready.is_file());
         assert!(transfer_root.join(".transfer-bound-seven.json").is_file());
+    }
+
+    #[test]
+    fn consumed_cleanup_rejects_a_different_staged_release() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, _, _) = fixture.package_tar(7, "1.0.0");
+        let store = fixture.store();
+        store
+            .stage_package_tar("receipt-mismatch", &descriptor, &signature, &archive, 1)
+            .expect("first release stages");
+
+        let (other_descriptor, other_signature, other_archive, _, _) =
+            fixture.package_tar(8, "2.0.0");
+        let other_release =
+            VerifiedPackageRelease::load(&other_descriptor, &other_signature, &fixture.public_key)
+                .expect("other release verifies");
+        let transfer_root = fixture.root.join("other-transfers");
+        fs::create_dir(&transfer_root).expect("other transfer root creates");
+        let transfer = PackageArchiveTransfer::open_or_begin(
+            &transfer_root,
+            "receipt-mismatch",
+            &other_release,
+            1,
+        )
+        .expect("other transfer opens");
+        let archive_bytes = fs::read(&other_archive).expect("other archive reads");
+        transfer
+            .append(0, &archive_bytes)
+            .expect("other archive appends");
+        let ready = transfer.finalize().expect("other archive finalizes");
+
+        assert!(matches!(
+            store.cleanup_staged_transfer_receipt(transfer),
+            Err(GenerationError::StagedTransferReceiptMismatch(value))
+                if value == "receipt-mismatch"
+        ));
+        assert!(fixture.root.join("staging/receipt-mismatch").is_dir());
+        assert!(ready.is_file());
+        assert!(
+            transfer_root
+                .join(".transfer-receipt-mismatch.json")
+                .is_file()
+        );
     }
 
     #[test]

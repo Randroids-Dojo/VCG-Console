@@ -45,14 +45,17 @@ Finalization requires the exact signed length and full archive SHA-256. The veri
 
 If interruption occurs after ready publication but before partial cleanup, reopening verifies the ready archive and matching state before completing cleanup. A ready archive without binding state fails closed. If publication did not commit, the synchronized partial remains resumable. A wrong complete hash remains inert and inspectable; no ready archive, staging transaction, promotion intent, or activation is created.
 
-Successful staging retains the ready archive and binding as a durable receipt.
-An incomplete transfer, changed descriptor binding, invalid reserve, or staging
-failure leaves the receipt/partial state intact and creates no active
-generation. Repeating a handoff after staging committed reports the existing
-staging transaction rather than extracting over it.
+Before publishing the inert staging directory, intake writes and synchronizes a strict host-owned receipt for the transaction ID and complete signed descriptor identity: generation, archive format/hash/length, expanded byte/file facts, and catalog hash/length. Successful staging initially retains the ready archive and binding. An incomplete transfer, changed descriptor binding, invalid reserve, or staging failure leaves the receipt/partial state intact and creates no active generation. Repeating a handoff after staging committed reports the existing staging transaction rather than extracting over it.
 
-The persistent lock file contains no authority or progress and may remain after completion. The future cleanup coordinator must remove a consumed ready archive and its binding together under the same exclusive service ownership.
+Cleanup is an explicit primitive, not an automatic retention policy:
+
+- `discard_abandoned` requires the still-locked, signature-bound receiver, refuses a ready archive, and removes only that transaction's partial plus binding.
+- `cleanup_staged_transfer_receipt` re-verifies the exact inert staging release and its full descriptor receipt before removing the still-locked ready archive plus binding.
+- Both operations first synchronize a strict cleanup intent. If interrupted, the next open completes only that recorded deletion and returns `CleanupRecovered` without silently beginning another transfer.
+- Missing, malformed, release-mismatched, symlinked, or unexpected cleanup/staging state fails closed. Active generations, activation history, managed content, runtime state, and saves are outside these paths.
+
+The persistent lock file contains no authority or progress and may remain after completion. No age, storage-pressure, or background scheduling policy invokes cleanup yet; Q-121 remains open.
 
 ## Remaining boundary
 
-Network transport and descriptor discovery, TLS/pinning/proxy/mirror policy, HTTP range semantics, retry/backoff, bandwidth limits, abandoned-partial and consumed-ready cleanup, low-space UI/coordination, hostile noncooperating writers, filesystem-lock behavior on target Linux, and sudden-power qualification remain open. See [the owner transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).
+Network transport and descriptor discovery, TLS/pinning/proxy/mirror policy, HTTP range semantics, retry/backoff, bandwidth limits, automatic cleanup scheduling/retention, low-space UI/coordination, hostile noncooperating writers, filesystem-lock behavior on target Linux, and sudden-power qualification remain open. See [the owner transfer questions](OWNER_QUESTIONS_PACKAGE_TRANSFER_2026-07-24.md).

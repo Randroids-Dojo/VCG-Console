@@ -64,10 +64,13 @@ Extraction must occur in a new private empty directory. Concurrent mutation of t
 5. bounded extraction into `.incoming-<transaction-id>`;
 6. exact expanded byte/file and extracted-catalog evidence checks;
 7. installed-catalog signature plus every referenced artifact verification;
-8. descriptor/catalog generation agreement and monotonic-generation check; and
-9. atomic rename to inert `staging/<transaction-id>`.
+8. descriptor/catalog generation agreement and monotonic-generation check;
+9. synchronized host receipt of the exact signed descriptor identity; and
+10. atomic rename to inert `staging/<transaction-id>`.
 
 Failure before the rename removes the private incoming directory after validating that it remains a direct staging child. Existing staging, activation markers, generations, managed content, and saves are not overwritten. Successful intake does not publish promotion intent or change the active generation; signed candidate health and ordinary promotion still run afterward.
+
+The staged descriptor receipt lets the transfer coordinator later prove that the exact generation, archive format/hash/length, expanded facts, and catalog hash/length reached inert staging before it removes a consumed ready archive. A catalog-generation/hash coincidence alone is insufficient.
 
 ## Remaining boundary
 
