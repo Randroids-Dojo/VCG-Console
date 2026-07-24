@@ -1131,6 +1131,27 @@ The public manifest is not signed launch authority by itself. Production still n
 
 Browser local storage is not the final console-managed per-game writable mount. Package isolation, quotas, low-space behavior, healthy update/rollback preservation, sudden-power durability, factory reset, profile lifecycle integration, and hostile-package access remain under I-189, I-191, I-202, and I-209. No public, remote, prize-bearing, or anti-cheat leaderboard is authorized by this work.
 
+## 2026-07-24: deterministic release-compliance inventory
+
+### Delivered
+
+- Added a deterministic CycloneDX 1.7 generator covering the project root, all first-party pnpm/Rust components, 81 installed npm packages, the complete 43-package locked Cargo graph, and both pinned runtime assets.
+- Added a generated human dependency notice inventory with reported licenses, source links, and required/development scope.
+- Added an evidence gate that rejects stale output, duplicate references, and any new unreviewed third-party license gap.
+- Added a deliberately failing release gate for the two known blockers: first-party license selection and model-specific Pose Landmarker redistribution evidence.
+- Documented target-architecture regeneration, notice/source collection, corresponding-source retention, OR-expression review, and required no-override release CI in `RELEASE_COMPLIANCE.md`.
+- Isolated the two decisions that cannot be made autonomously in `OWNER_QUESTIONS_RELEASE_COMPLIANCE_2026-07-24.md`; I-137 moves to active rather than being overstated as closed.
+
+### Verification evidence
+
+- `pnpm prepare:compliance` reproducibly emits 132 CycloneDX components and the human notices annex.
+- `pnpm validate:compliance` passes against the checked-in bytes and exact two-blocker set.
+- `pnpm validate:release-compliance` fails as designed with an explicit project-license/model-license error.
+
+### Remaining boundary
+
+The inventory is based on this Windows installation plus the complete Cargo lock graph. ARM64/x86-64 release jobs, exact license/NOTICE text bundling, first-party license selection, model terms, OS/browser/system packages, emulator cores, game content, firmware, and enclosure artifacts remain release blockers or future selected-artifact inputs. No public binary/image release is represented as compliant.
+
 ## 2026-07-24: forward-compatible optional Motion capability query
 
 ### Delivered

@@ -1,8 +1,10 @@
 # Third-party notices
 
-This file records notices for third-party material that VCG Console prepares for
-its runtime. It is not yet the complete software bill of materials or notices
-bundle required by I-137.
+This file records curated notices for third-party material that VCG Console
+prepares for its runtime. The generated package/crate inventory lives in
+`compliance/DEPENDENCY_NOTICES.md`, with the machine-readable CycloneDX 1.7
+inventory in `compliance/vcg-console.cdx.json`. A public release remains blocked
+on the repository license and exact pose-model redistribution evidence.
 
 ## OCR-A font 1.0
 
@@ -38,3 +40,14 @@ pinned record.
 This notice records upstream provenance and the upstream license label. It is
 not legal advice and does not close the separate glyph-coverage, TV-legibility,
 accessibility, or complete release-compliance work.
+
+## MediaPipe pose model blocker
+
+The prepared runtime downloads the exact 5,777,746-byte Pose Landmarker Lite
+float16 model whose SHA-256 is
+`59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a`.
+The npm runtime package reports Apache-2.0, but the repository does not yet have
+model-specific redistribution evidence for the separately downloaded `.task`
+file. The compliance SBOM therefore identifies the model and hash but leaves
+its license unresolved. It must not be represented as release-cleared until
+Q-RC-002 is closed.
