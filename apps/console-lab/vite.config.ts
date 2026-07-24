@@ -110,6 +110,29 @@ const hostilePolicyClientCsp = [
   "style-src 'none'",
 ].join("; ");
 
+const opaqueSandboxHostCsp = [
+  "default-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+  "frame-src 'self'",
+  "object-src 'none'",
+].join("; ");
+
+const opaqueSandboxClientCsp = [
+  "default-src 'none'",
+  "base-uri 'none'",
+  "connect-src 'none'",
+  "form-action 'none'",
+  "frame-ancestors http://127.0.0.1:4173",
+  "frame-src 'none'",
+  "img-src 'none'",
+  "media-src 'none'",
+  "object-src 'none'",
+  "script-src http://127.0.0.1:4173",
+  "style-src 'none'",
+].join("; ");
+
 const documentPolicies = new Map<string, string>([
   ["/", launcherDocumentCsp],
   ["/index.html", launcherDocumentCsp],
@@ -121,12 +144,25 @@ const documentPolicies = new Map<string, string>([
   ["/bridge-hostile-client.html", crossOriginBridgeClientCsp],
   ["/browser-policy-host.html", hostilePolicyHostCsp],
   ["/browser-policy-hostile.html", hostilePolicyClientCsp],
+  ["/browser-policy-opaque-host.html", opaqueSandboxHostCsp],
+  ["/browser-policy-opaque-child.html", opaqueSandboxClientCsp],
 ]);
 
-const crossOriginEmbeddableDocuments = new Set([
+const crossOriginEmbeddableResources = new Set([
   "/bridge-cross-origin-client.html",
   "/browser-policy-hostile.html",
+  "/browser-policy-opaque-child.html",
+  "/src/browser-policy-hostile-fixture.ts",
 ]);
+
+function isOpaqueFixtureScript(pathname: string): boolean {
+  return (
+    pathname === "/src/browser-policy-hostile-fixture.ts" ||
+    /^\/assets\/(?:browser-policy-hostile-fixture|modulepreload-polyfill)-[A-Za-z0-9_-]+\.js$/u.test(
+      pathname,
+    )
+  );
+}
 
 function browserBoundaryHeaders(): Plugin {
   const install = (middlewares: Connect.Server): void => {
@@ -137,8 +173,13 @@ function browserBoundaryHeaders(): Plugin {
       }
       response.setHeader(
         "Cross-Origin-Resource-Policy",
-        crossOriginEmbeddableDocuments.has(pathname) ? "cross-origin" : "same-origin",
+        crossOriginEmbeddableResources.has(pathname) || isOpaqueFixtureScript(pathname)
+          ? "cross-origin"
+          : "same-origin",
       );
+      if (isOpaqueFixtureScript(pathname)) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+      }
 
       const acceptsHtml = request.headers.accept?.includes("text/html") ?? false;
       const contentSecurityPolicy =
@@ -181,6 +222,12 @@ export default defineConfig({
         ),
         browserPolicyHostile: fileURLToPath(
           new URL("./browser-policy-hostile.html", import.meta.url),
+        ),
+        browserPolicyOpaqueHost: fileURLToPath(
+          new URL("./browser-policy-opaque-host.html", import.meta.url),
+        ),
+        browserPolicyOpaqueChild: fileURLToPath(
+          new URL("./browser-policy-opaque-child.html", import.meta.url),
         ),
       },
     },

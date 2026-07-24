@@ -70,6 +70,29 @@ The hostile child also receives `connect-src 'none'`, `form-action 'none'`,
 no frame descendants, no media or image loads, no objects, no base URL, and
 the parent document's deny-by-default Permissions Policy.
 
+### Same-server opaque sandbox
+
+A second fixture serves both parent and hostile child from
+`http://127.0.0.1:4173`, matching the origin relationship a future local-web
+bundle could otherwise inherit. Its iframe grants only `allow-scripts`; it
+does not grant `allow-same-origin`. The child therefore receives a unique
+opaque security origin even though `location.origin` still reports the URL's
+same-server origin.
+
+The host permits only a same-server frame. The child keeps the hostile
+fixture's deny-by-default CSP and explicitly names the fixture host only for
+its one test script. Because Vite emits that module and its preload helper as
+separate assets, the server grants wildcard CORS plus
+`Cross-Origin-Resource-Policy: cross-origin` only to the exact source path and
+hashed fixture/polyfill asset-name patterns. The child document itself also
+uses cross-origin resource policy so the opaque sandbox can consume it. No
+launcher bundle, host capability, model, font, general asset, or fallback HTML
+receives that exception.
+
+This demonstrates one possible iframe defense for an intentionally
+sandbox-compatible local page. It does not make arbitrary same-origin code
+safe, and it is not yet the signed local-package runtime required by I-181.
+
 ## Executable abuse evidence
 
 The Chrome test grants camera, microphone, and location permission to the
@@ -93,10 +116,19 @@ hostile child's origin before loading the fixture. It then proves:
 The test also reads the actual launcher, host, and child response headers. A
 meta tag or source comment alone is not accepted as proof.
 
+The same-server opaque-origin test repeats parent-DOM, camera, microphone,
+location, network, popup, top-navigation, download, form, fullscreen, and
+pointer-lock attempts after granting site permission to the URL origin.
+Parent DOM access still raises a security error, every sensitive/escape
+attempt remains blocked, the top URL does not move, and no escape request,
+popup, or download is observed. It also asserts the exact iframe sandbox,
+host/child CSP, and narrowly scoped CORS/CORP asset responses.
+
 Run the focused evidence with:
 
 ```sh
 pnpm --dir apps/console-lab exec playwright test --grep "browser policy denies"
+pnpm --dir apps/console-lab exec playwright test tests/browser-policy-opaque.spec.ts
 ```
 
 ## Residual boundary
@@ -106,6 +138,8 @@ This tranche does not prove:
 - containment of a hostile top-level hosted game;
 - protection from hostile code or XSS already executing at the trusted
   launcher origin;
+- proof that a real signed local-web package remains functional under an
+  opaque origin without requesting broader sandbox tokens;
 - enforcement by the future production loopback server, browser enterprise
   policy, compositor, or service manager;
 - post-launch redirect/origin containment, custom protocol or `file:`
