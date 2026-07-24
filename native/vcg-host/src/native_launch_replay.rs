@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::installed_catalog::validate_intent_id;
 
-const JOURNAL_SCHEMA_VERSION: u32 = 1;
+const JOURNAL_SCHEMA_VERSION: u32 = 2;
 const MAX_EVENT_BYTES: u64 = 2_048;
 const MAX_EVENTS_PER_RECORD: usize = 128;
 const REQUEST_ID_BYTES: usize = 16;
@@ -25,6 +25,7 @@ pub(crate) struct DurableLaunchRecord {
     pub request_id: String,
     pub game_id: String,
     pub profile_id: String,
+    pub catalog_generation: u64,
     pub sequence: u64,
     pub state: String,
     pub detail_code: String,
@@ -41,6 +42,7 @@ impl DurableLaunchRecord {
         request_id: &str,
         game_id: &str,
         profile_id: &str,
+        catalog_generation: u64,
         sequence: u64,
         state: &str,
         detail_code: &str,
@@ -52,6 +54,7 @@ impl DurableLaunchRecord {
             request_id: request_id.to_owned(),
             game_id: game_id.to_owned(),
             profile_id: profile_id.to_owned(),
+            catalog_generation,
             sequence,
             state: state.to_owned(),
             detail_code: detail_code.to_owned(),
@@ -66,9 +69,10 @@ impl DurableLaunchRecord {
                 self.schema_version
             )));
         }
-        if self.accepted_ordinal == 0 || self.sequence == 0 {
+        if self.accepted_ordinal == 0 || self.catalog_generation == 0 || self.sequence == 0 {
             return Err(LaunchReplayError::InvalidState(
-                "native launch replay ordinals and sequences must be nonzero".to_owned(),
+                "native launch replay ordinals, catalog generations, and sequences must be nonzero"
+                    .to_owned(),
             ));
         }
         validate_request_id(&self.request_id)?;
@@ -269,6 +273,7 @@ impl LaunchReplayJournal {
             || prior.request_id != record.request_id
             || prior.game_id != record.game_id
             || prior.profile_id != record.profile_id
+            || prior.catalog_generation != record.catalog_generation
             || prior.sequence != prior_sequence
             || !valid_state_transition(&prior.state, &record.state)
         {
@@ -492,6 +497,7 @@ fn load_active(
             if let Some(previous) = &latest {
                 if record.game_id != previous.game_id
                     || record.profile_id != previous.profile_id
+                    || record.catalog_generation != previous.catalog_generation
                     || record.accepted_ordinal != previous.accepted_ordinal
                     || record.request_id != previous.request_id
                 {
@@ -899,6 +905,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                7,
                 sequence,
                 state,
                 detail_code,
@@ -1031,6 +1038,29 @@ mod tests {
             let record = Fixture::record(ordinal, request_id, 1, "preparing", "PACKAGE_RESOLVING");
             write_event(&directory, &record).expect("record event writes");
         }
+        assert!(matches!(
+            LaunchReplayJournal::open(&fixture.root, 4),
+            Err(LaunchReplayError::InvalidState(_))
+        ));
+    }
+
+    #[test]
+    fn rejects_catalog_generation_changes_within_one_launch_record() {
+        let fixture = Fixture::new();
+        let (mut journal, _, _) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+        let accepted = Fixture::record(1, REQUEST_ONE, 1, "preparing", "PACKAGE_RESOLVING");
+        journal.accept(&accepted).expect("acceptance persists");
+        drop(journal);
+
+        let directory = fixture
+            .root
+            .join("active")
+            .join(record_directory_name(1, REQUEST_ONE));
+        let mut running = Fixture::record(1, REQUEST_ONE, 2, "running", "PROCESS_STARTED");
+        running.catalog_generation = 8;
+        write_event(&directory, &running).expect("conflicting event writes");
+
         assert!(matches!(
             LaunchReplayJournal::open(&fixture.root, 4),
             Err(LaunchReplayError::InvalidState(_))

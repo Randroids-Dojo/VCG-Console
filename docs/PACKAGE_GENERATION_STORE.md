@@ -1,6 +1,6 @@
 # Signed package generation store
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document defines the implemented host-owned signed-archive intake, staging, signed-policy candidate health, monotonic activation, interruption recovery, retention planning, and launcher-startup boundary for production game packages. It composes with the [signed release intake](PACKAGE_INTAKE.md) and [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md); it is not a network downloader, uninstall UI, live-runtime qualification, or target-hardware result.
 
@@ -142,13 +142,18 @@ Rust tests cover:
 
 `plan_cleanup(retain_count)` is a read-only host primitive. It accepts only a bounded count of at least two, refuses pending recovery, validates every activation marker and generation-directory name, requires every activated marker to retain a matching directory, and re-verifies the active generation.
 
+Trusted native coordination may instead call `plan_cleanup_with_protected_generations`. The supplied generation numbers come only from native launch ownership; they are not browser or package values. The planner rejects zero, duplicate, excessive, unactivated, or uninstalled protection and unions every valid protected generation with the ordinary newest-generation rollback set.
+
 The result exposes generation numbers only:
 
+- `protected_generations`: the sorted, validated native launch references supplied for this plan;
 - `retained_generations`: the newest requested activated snapshots, always including the active generation;
 - `retired_generations`: older activated snapshots that a future coordinator may consider;
 - `orphan_generations`: versioned directories with no activation marker.
 
-Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. Actual deletion remains disabled until the native coordinator can prove no running or restartable child references a candidate and the owner selects the count/byte policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md).
+The launch service binds the exact trusted catalog generation when accepting an intent. Preparing, running, and stopping records protect that generation. After restart, an indeterminate record continues protecting it until trusted native code proves old descendants gone and clears the durable cleanup barrier. Normal terminal history does not retain a generation.
+
+Planning never returns filesystem paths and never removes activation markers, generation directories, staging, managed content, or saves. Actual deletion remains disabled until the coordinator atomically obtains launch protection and a cleanup plan, serializes maintenance against launch/promotion, and the owner selects the count/byte and scheduling policy in [Q-113 and Q-114](OWNER_QUESTIONS_PACKAGE_RETENTION_2026-07-23.md) and [Q-126](OWNER_QUESTIONS_GENERATION_CLEANUP_2026-07-24.md).
 
 Still required:
 

@@ -1,6 +1,6 @@
 //! Host-owned package launch coordination for authenticated launcher intents.
 
-use std::collections::{HashSet, VecDeque};
+use std::collections::{BTreeSet, HashSet, VecDeque};
 use std::fmt;
 use std::io;
 use std::path::Path;
@@ -86,6 +86,7 @@ struct LaunchRecord {
     request_id: String,
     game_id: String,
     profile_id: String,
+    catalog_generation: u64,
     state: NativeLaunchState,
     sequence: u64,
     detail_code: &'static str,
@@ -110,6 +111,7 @@ impl LaunchRecord {
             &self.request_id,
             &self.game_id,
             &self.profile_id,
+            self.catalog_generation,
             self.sequence,
             self.state.name(),
             self.detail_code,
@@ -145,6 +147,7 @@ impl LaunchRecord {
             request_id: record.request_id,
             game_id: record.game_id,
             profile_id: record.profile_id,
+            catalog_generation: record.catalog_generation,
             state,
             sequence: record.sequence,
             detail_code,
@@ -358,6 +361,33 @@ impl NativeLaunchService {
         Ok(())
     }
 
+    /// Returns catalog generations that package maintenance must not remove.
+    ///
+    /// Active records protect their exact trusted catalog generation. While a
+    /// restart cleanup barrier is set, every recovered indeterminate record
+    /// remains protected until trusted descendant cleanup is acknowledged.
+    /// Paths and browser-supplied values never enter this result.
+    ///
+    /// # Errors
+    ///
+    /// Fails closed when replay persistence is unavailable.
+    pub fn protected_catalog_generations(&self) -> Result<Vec<u64>, NativeLaunchError> {
+        let shared = lock(&self.shared)?;
+        if shared.journal_faulted {
+            return Err(NativeLaunchError::ReplayUnavailable);
+        }
+        let mut generations = BTreeSet::new();
+        for record in &shared.records {
+            if record.state.active()
+                || (shared.restart_cleanup_required
+                    && record.detail_code == "HOST_RESTARTED_INDETERMINATE")
+            {
+                generations.insert(record.catalog_generation);
+            }
+        }
+        Ok(generations.into_iter().collect())
+    }
+
     /// Starts one package or returns the existing record for an identical
     /// request ID. Reusing an ID for different intent fails closed.
     ///
@@ -452,6 +482,7 @@ impl NativeLaunchService {
             request_id: request_id.to_owned(),
             game_id: game_id.to_owned(),
             profile_id: profile_id.to_owned(),
+            catalog_generation: self.catalog.generation(),
             state: NativeLaunchState::Preparing,
             sequence: 1,
             detail_code: "PACKAGE_RESOLVING",
@@ -964,6 +995,7 @@ fn transition_record(
         &shared.records[index].request_id,
         &shared.records[index].game_id,
         &shared.records[index].profile_id,
+        shared.records[index].catalog_generation,
         sequence,
         state.name(),
         detail_code,
@@ -1289,19 +1321,40 @@ mod tests {
     #[test]
     fn records_and_replays_a_failed_start_without_reexecuting_it() {
         let (_fixture, catalog) = signed_catalog();
+        let generation = catalog.generation();
         let service = NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
             .expect("launch service configures");
         let request_id = "11111111111111111111111111111111";
 
+        service
+            .reserve(
+                request_id,
+                "retro-2048",
+                "local-player",
+                Arc::new(AtomicBool::new(false)),
+            )
+            .expect("launch reserves");
+        assert_eq!(
+            service
+                .protected_catalog_generations()
+                .expect("active generation protection reads"),
+            vec![generation]
+        );
         let first = service
-            .start(request_id, "retro-2048", "local-player")
-            .expect("validated request receives a lifecycle record");
+            .failed_start(request_id, "PROCESS_START_FAILED")
+            .expect("reserved request fails terminally");
         assert_eq!(
             first.snapshot.state,
             NativeLaunchState::Failed { exit_code: None }
         );
         assert_eq!(first.snapshot.detail_code, "PROCESS_START_FAILED");
         assert!(!first.replayed);
+        assert!(
+            service
+                .protected_catalog_generations()
+                .expect("terminal generation protection reads")
+                .is_empty()
+        );
 
         let replay = service
             .start(request_id, "retro-2048", "local-player")
@@ -1375,6 +1428,7 @@ mod tests {
     #[test]
     fn restart_indeterminate_replay_blocks_fresh_launch_until_trusted_cleanup() {
         let (_fixture, catalog) = signed_catalog();
+        let generation = catalog.generation();
         let catalog = Arc::new(catalog);
         let journal_root = replay_root();
         let interrupted_id = "13131313131313131313131313131313";
@@ -1396,6 +1450,12 @@ mod tests {
                     Arc::new(AtomicBool::new(false)),
                 )
                 .expect("accepted intent persists before execution");
+            assert_eq!(
+                service
+                    .protected_catalog_generations()
+                    .expect("active generation protection reads"),
+                vec![generation]
+            );
         }
 
         {
@@ -1416,6 +1476,12 @@ mod tests {
                 NativeLaunchState::Failed { exit_code: None }
             );
             assert_eq!(replay.snapshot.detail_code, "HOST_RESTARTED_INDETERMINATE");
+            assert_eq!(
+                reopened
+                    .protected_catalog_generations()
+                    .expect("indeterminate generation protection reads"),
+                vec![generation]
+            );
             assert!(matches!(
                 reopened.start(fresh_id, "retro-2048", "local-player"),
                 Err(NativeLaunchError::RestartCleanupRequired)
@@ -1437,6 +1503,12 @@ mod tests {
         reopened
             .acknowledge_restart_cleanup()
             .expect("trusted process cleanup acknowledgement persists");
+        assert!(
+            reopened
+                .protected_catalog_generations()
+                .expect("cleared generation protection reads")
+                .is_empty()
+        );
         let fresh = reopened
             .start(fresh_id, "retro-2048", "local-player")
             .expect("fresh launch is admitted after cleanup proof");

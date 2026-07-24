@@ -1,5 +1,6 @@
 //! Crash-recoverable activation of fully verified signed package generations.
 
+use std::collections::BTreeSet;
 use std::fmt;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Write};
@@ -76,6 +77,7 @@ pub struct StagedPackageGeneration {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GenerationCleanupPlan {
     pub active_generation: Option<u64>,
+    pub protected_generations: Vec<u64>,
     pub retained_generations: Vec<u64>,
     pub retired_generations: Vec<u64>,
     pub orphan_generations: Vec<u64>,
@@ -168,9 +170,49 @@ impl PackageGenerationStore {
         &self,
         retain_count: usize,
     ) -> Result<GenerationCleanupPlan, GenerationError> {
+        self.plan_cleanup_with_protected_generations(retain_count, &[])
+    }
+
+    /// Classifies package generations while retaining exact generations that
+    /// trusted native launch coordination reports as still in use.
+    ///
+    /// Protection values are host-owned metadata, not browser input. Every
+    /// protected generation must be nonzero, unique, activated, and installed.
+    /// The list is bounded to the same maximum as the generation store.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid protection values in addition to the errors returned by
+    /// [`Self::plan_cleanup`].
+    pub fn plan_cleanup_with_protected_generations(
+        &self,
+        retain_count: usize,
+        protected_generations: &[u64],
+    ) -> Result<GenerationCleanupPlan, GenerationError> {
         if !(MIN_RETAINED_GENERATIONS..=MAX_GENERATION_ENTRIES).contains(&retain_count) {
             return Err(GenerationError::InvalidRetentionCount(retain_count));
         }
+        if protected_generations.len() > MAX_GENERATION_ENTRIES {
+            return Err(GenerationError::InvalidCleanupProtection(format!(
+                "protected generation count exceeds {MAX_GENERATION_ENTRIES}"
+            )));
+        }
+        let protected = protected_generations.iter().copied().try_fold(
+            BTreeSet::new(),
+            |mut generations, generation| {
+                if generation == 0 {
+                    return Err(GenerationError::InvalidCleanupProtection(
+                        "protected generation must be nonzero".to_owned(),
+                    ));
+                }
+                if !generations.insert(generation) {
+                    return Err(GenerationError::InvalidCleanupProtection(format!(
+                        "protected generation {generation} is duplicated"
+                    )));
+                }
+                Ok(generations)
+            },
+        )?;
         if self.recovery_required()? {
             return Err(GenerationError::RecoveryRequired);
         }
@@ -184,14 +226,27 @@ impl PackageGenerationStore {
                 )));
             }
         }
+        for generation in &protected {
+            if activated.binary_search(generation).is_err() {
+                return Err(GenerationError::InvalidCleanupProtection(format!(
+                    "protected generation {generation} is not activated"
+                )));
+            }
+        }
 
         let active_generation = activated.last().copied();
         if let Some(active) = active_generation {
             self.load_committed_generation(active)?;
         }
         let retained_start = activated.len().saturating_sub(retain_count);
-        let retired_generations = activated[..retained_start].to_vec();
-        let retained_generations = activated[retained_start..].to_vec();
+        let mut retained: BTreeSet<_> = activated[retained_start..].iter().copied().collect();
+        retained.extend(protected.iter().copied());
+        let retained_generations = retained.iter().copied().collect();
+        let retired_generations = activated
+            .iter()
+            .copied()
+            .filter(|generation| !retained.contains(generation))
+            .collect();
         let orphan_generations = installed
             .into_iter()
             .filter(|generation| activated.binary_search(generation).is_err())
@@ -199,6 +254,7 @@ impl PackageGenerationStore {
 
         Ok(GenerationCleanupPlan {
             active_generation,
+            protected_generations: protected.into_iter().collect(),
             retained_generations,
             retired_generations,
             orphan_generations,
@@ -1207,6 +1263,7 @@ pub enum GenerationError {
     },
     InvalidLayout(String),
     InvalidRetentionCount(usize),
+    InvalidCleanupProtection(String),
     InvalidTransactionId(String),
     StagingTransactionExists(String),
     IntakeDescriptorMismatch(String),
@@ -1254,6 +1311,9 @@ impl fmt::Display for GenerationError {
                 formatter,
                 "package retention count {count} is outside {MIN_RETAINED_GENERATIONS}..={MAX_GENERATION_ENTRIES}"
             ),
+            Self::InvalidCleanupProtection(error) => {
+                write!(formatter, "package cleanup protection is invalid: {error}")
+            }
             Self::InvalidTransactionId(value) => {
                 write!(formatter, "package transaction id is invalid: {value}")
             }
@@ -2100,6 +2160,7 @@ mod tests {
             store.plan_cleanup(2).expect("cleanup plan classifies"),
             super::GenerationCleanupPlan {
                 active_generation: Some(9),
+                protected_generations: Vec::new(),
                 retained_generations: vec![8, 9],
                 retired_generations: vec![7],
                 orphan_generations: vec![10],
@@ -2119,6 +2180,54 @@ mod tests {
                 .is_dir(),
             "planning must not remove orphan data"
         );
+    }
+
+    #[test]
+    fn cleanup_plan_unions_trusted_launch_protection_with_rollback_retention() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        for (transaction, generation, version) in [
+            ("install-seven", 7, "1.0.0"),
+            ("update-eight", 8, "1.1.0"),
+            ("update-nine", 9, "1.2.0"),
+        ] {
+            fixture.stage(transaction, generation, version);
+            store
+                .promote_without_health(transaction)
+                .expect("generation promotes");
+        }
+
+        assert_eq!(
+            store
+                .plan_cleanup_with_protected_generations(2, &[7])
+                .expect("live launch generation remains retained"),
+            super::GenerationCleanupPlan {
+                active_generation: Some(9),
+                protected_generations: vec![7],
+                retained_generations: vec![7, 8, 9],
+                retired_generations: Vec::new(),
+                orphan_generations: Vec::new(),
+            }
+        );
+    }
+
+    #[test]
+    fn cleanup_plan_rejects_untrusted_or_ambiguous_protection_values() {
+        let fixture = Fixture::new();
+        let store = fixture.store();
+        fixture.stage("install-seven", 7, "1.0.0");
+        store
+            .promote_without_health("install-seven")
+            .expect("generation promotes");
+        fs::create_dir(fixture.root.join("generations/00000000000000000008"))
+            .expect("orphan generation directory creates");
+
+        for protected in [&[0][..], &[7, 7][..], &[8][..], &[9][..]] {
+            assert!(matches!(
+                store.plan_cleanup_with_protected_generations(2, protected),
+                Err(GenerationError::InvalidCleanupProtection(_))
+            ));
+        }
     }
 
     #[test]

@@ -697,6 +697,27 @@ This is a durable local byte sink, not a network update client. Descriptor disco
 
 This is the durable at-most-once primitive, not production process-group recovery. A privileged service manager must own game descendants, prove their cgroup empty, and invoke the native-only acknowledgement. Boot-scoped root selection, age retention, protected directory ownership, target-Linux lock/rename/synchronization behavior, sudden-power testing, and operator reset/export policy remain open.
 
+## 2026-07-24: launch-aware package retention planning
+
+### Delivered
+
+- Every accepted native launch now binds the exact trusted catalog generation in its private durable event record. The value is immutable across transitions and omitted from browser lifecycle responses.
+- Native maintenance can obtain a sorted, deduplicated set of generations referenced by preparing, running, or stopping records. A recovered `HOST_RESTARTED_INDETERMINATE` record remains protected while the durable restart-cleanup barrier exists; trusted cleanup acknowledgement releases it.
+- Package cleanup planning accepts only a bounded, unique, nonzero set of activated and installed protected generations. It retains their union with the newest-generation rollback floor and reports the validated protection as path-free metadata.
+- Replay or protection ambiguity fails closed. The existing no-protection planner remains compatible and read-only; no activation marker, package directory, staging receipt, managed content, or save is deleted.
+- D-142 records the cross-boundary invariant. Q-126 preserves the owner choice for automatic cleanup scheduling.
+
+### Verification evidence
+
+- Replay tests reject a catalog-generation change inside one lifecycle record.
+- Integrated launch tests prove active generation protection, restart-indeterminate protection across another host instance, release after trusted cleanup acknowledgement, and no pinning by ordinary terminal history.
+- Generation-store tests prove an old protected generation is retained beyond the ordinary two-generation floor and reject zero, duplicate, orphan, or unknown protection.
+- Rust formatting and Clippy with warnings denied pass. The Rust workspace passes 115 active library tests with five subprocess helpers ignored by the parent run, plus 14 CLI tests.
+
+### Remaining boundary
+
+This is reference-safe classification, not garbage collection. A production coordinator must serialize launch admission, promotion/recovery, protection capture, filesystem mutation, and low-space accounting; recheck authority across interruption; preserve rollback and save boundaries; and pass target-Linux power-loss, lock, mount, and hostile-process tests before deletion is enabled.
+
 ## 2026-07-23: game trust tiers and admission lifecycle
 
 ### Delivered
