@@ -363,3 +363,18 @@ The host enforces integrity values but does not decide which manifest is trusted
 ### Remaining boundary
 
 This closes only authenticated discovery, not privileged launch IPC or target qualification. Signed installed-manifest resolution, narrow launch requests, event delivery and replay policy, navigation/process-inspection threat tests, compositor readiness, reserved Home/Back, target-Linux sandboxing, and service-manager recovery remain open under I-109 and I-209. D-129 is deliberately working and reversible.
+
+## 2026-07-23: first-prototype acceptance contract
+
+### Delivered
+
+- `PROTOTYPE_SUCCESS_CRITERIA.md` turns the existing room, launch, motion, latency, offline, escape, privacy, and recovery requirements into one pass/fail checklist scoped to an exact commit, configuration, room, and evidence bundle.
+- Timing paths require at least 20 complete trials, publish every failure plus p50/p95/worst, retain D-106's 5/60/15/30-second limits, and add a working 250 ms visible-feedback bound.
+- Required motion actions use pre-registered working gates of at least 95% precision and 90% recall per blocking persona and qualified placement. Privileged Back, Pause, Resume, and Exit require zero false activations during the scripted negative/idle run.
+- The latency row can pass only from camera exposure to game-API receipt at <= 120 ms p95. Capture-arrival and inference-only timing remain explicitly insufficient.
+- The checklist makes offline core behavior, 300 ms loss confirmation, two-second reacquisition, controller-only recovery, exact overlay focus, raw-frame/microphone boundaries, bounded restart, service recovery, 60-minute soak, school-age/adult standing personas, and the 8 x 8 ft room evidence independently auditable.
+- D-130 records feedback/sample/accuracy values as reversible working gates, and a new owner-question document preserves the three threshold choices without blocking evidence work.
+
+### Evidence boundary
+
+I-007 closes because the acceptance criteria and evidence rules now exist. No current desk, Windows, x86-64 Linux, Raspberry Pi, Hailo, Steam Machine, camera, room, or game configuration is represented as passing. Each configuration must still produce the linked I-001/I-002/I-015/I-023/I-053/I-109/I-134/I-155/I-194/I-209/I-210 evidence before it may use the checklist's passing claim.
