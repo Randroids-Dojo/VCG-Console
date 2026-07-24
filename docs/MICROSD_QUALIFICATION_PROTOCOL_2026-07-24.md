@@ -5,7 +5,7 @@ written, benchmarked, fault-injected, or accepted.
 
 Authority: D-047, D-048, D-049, D-050, D-089, D-109, D-151 through D-153,
 D-162, D-167, I-022, I-111 through I-114, I-162, I-191, I-200, I-202, and
-Q-086.
+Q-086, Q-193, Q-194, Q-195, and Q-196.
 
 ## Decision this campaign may support
 

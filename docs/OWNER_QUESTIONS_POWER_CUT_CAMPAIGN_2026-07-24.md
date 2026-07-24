@@ -1,11 +1,10 @@
 # Owner Questions: Sudden-Power Campaign
 
 These questions block the interpretation and physical execution of I-202, not
-continued fixture, oracle, or transition-instrumentation work. Stable `Q-`
-identifiers are intentionally deferred while another agent owns active shared
-worktree files; allocate the next available identifiers during reconciliation.
+continued fixture, oracle, or transition-instrumentation work. They follow the
+microSD qualification tranche's Q-193 through Q-196.
 
-## Reliability claim beyond the 200-trial floor
+## Q-197: reliability claim beyond the 200-trial floor
 
 Should the campaign make only the bounded claim “zero failures across this
 transition-complete frozen schedule,” or must it also support a numerical
@@ -23,7 +22,7 @@ failure probability or service reliability target, whether the claim is per
 boot/cut/hour/device, and the card/lot/environment sample design permitted by
 the lab budget.
 
-## Electrical event scope
+## Q-198: electrical event scope
 
 Should I-202 qualify only ordinary abrupt mains/input removal through the
 production-intended supply, or also deliberate brownout, short dropout,

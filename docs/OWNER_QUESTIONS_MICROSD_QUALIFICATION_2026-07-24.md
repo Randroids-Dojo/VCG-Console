@@ -1,11 +1,10 @@
 # Owner Questions: microSD Qualification
 
 These questions block a physical qualification conclusion, not continued
-protocol and harness work. Stable `Q-` identifiers are intentionally deferred
-while another agent is modifying the shared worktree; allocate the next
-available identifiers when the tree is reconciled.
+protocol and harness work. They follow the profile-management tranche's
+Q-188 through Q-192.
 
-## Exact card suffix and revision scope
+## Q-193: exact card suffix and revision scope
 
 May the quoted `SDSQQNR-256G-AN6IA` be accepted as the same qualification
 boundary as SanDisk's currently listed `SDSQQNR-256G-GN6IA`, and what proof is
@@ -21,7 +20,7 @@ Needed decision/evidence: acceptable regional/packaging aliases, approved
 seller evidence, permitted controller/date-code changes within a qualified
 lot, retest scope after a change, and return/replacement behavior.
 
-## Destructive cohort and lot budget
+## Q-194: destructive cohort and lot budget
 
 How many 256GB cards may the qualification campaign purchase and destroy, how
 many independent purchase lots must it cover, and should one unpowered control
@@ -37,7 +36,7 @@ from the delivered unit's $650 cap, sample count, lot count, retained-control
 duration, failed-card disposition, and whether destructive intake/endurance
 testing is authorized.
 
-## Service horizon and endurance margin
+## Q-195: service horizon and endurance margin
 
 What appliance service horizon, daily duty cycle, workload growth allowance,
 and safety margin must the selected card meet?
@@ -53,7 +52,7 @@ idle/on behavior, update cadence, household library churn, growth factor,
 required write margin, and whether the warranty period has any product-policy
 meaning beyond replacement eligibility.
 
-## USB SSD fallback trigger and comparison scope
+## Q-196: USB SSD fallback trigger and comparison scope
 
 Should any valid committed-state corruption or rollback/protected-state safety
 failure immediately reject microSD, or may an identified software defect be

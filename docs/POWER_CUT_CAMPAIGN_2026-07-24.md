@@ -7,7 +7,7 @@ results remain open.
 Authority: D-047, D-050, D-051, D-083, D-084, D-089, D-098, D-109, D-137,
 D-141, D-145, D-150 through D-153, D-156, D-158, D-161, D-162, D-165,
 I-022, I-110 through I-114, I-162, I-187, I-191, I-199, I-200, I-202,
-I-209, and Q-086.
+I-209, Q-086, Q-197, and Q-198.
 
 ## Outcome
 
