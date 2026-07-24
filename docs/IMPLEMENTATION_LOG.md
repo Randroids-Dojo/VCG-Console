@@ -2432,3 +2432,60 @@ misuse, child/guest/simultaneous-player/accessibility/TV tests, and both-target
 fault/power/update/storage campaigns remain under I-185/I-186/I-187/I-188 and
 Q-075/Q-099/Q-179 through Q-183. Non-photographic profile art remains the safe
 release fallback.
+
+## 2026-07-24: quote-date BOM and mini-PC procurement screens
+
+### Delivered
+
+- Recorded three same-time USD hardware BOMs: a $0 incremental owned-x86 reuse
+  lane, the selected Pi 5 8GB plus AI HAT+ 26 reference, and a public
+  Steam Machine premium comparison.
+- Bound the reference quote to exact seller/manufacturer identifiers for the
+  Pi, HAT, cooler, ABS case, 27W supply, HDMI cable, 256GB high-endurance card,
+  and finished UVC camera; also recorded included HAT hardware, case feet, and
+  cables so required parts are not silently omitted or bought twice.
+- Calculated the $576.23 reference merchandise subtotal and the exact
+  `$73.77` combined shipping-and-tax allowance under D-111. Destination tax,
+  PiShop weight-based shipping, and any price change feed one explicit
+  checkout predicate rather than an estimated delivered claim.
+- Isolated supplier ambiguity: the HAT page says `SC1791 (SC1468)`, and the
+  HDMI page says both 3ft and 6ft. Neither is silently normalized.
+- Recorded substitutions, explicit exclusions, receipt/requote evidence,
+  compatibility assumptions, and a six-part no-purchase gate. No cart,
+  checkout, or order was opened.
+- Assigned Q-184 through Q-187 to jurisdiction/evidence, Pi/HAT identity,
+  camera cost/coverage, and the actual-versus-public premium comparison.
+- Screened four manufacturer-direct low-power x86 mini-PC families against the
+  same $169.99 camera and $650 ceiling. Exact configured Radeon 680M/780M and
+  NPU candidates exceed the cap before tax/shipping; the only plausible budget
+  lead has an unavailable, internally contradictory barebone/configured page.
+- Advanced I-020, I-030, and I-203 to `active` without treating vendor
+  specifications, merchandise subtotals, or unknown checkout amounts as
+  physical qualification.
+
+### Verification evidence
+
+All 13 BOM source URLs and all four mini-PC manufacturer URLs were opened on
+2026-07-24. Local Markdown targets resolve. Independent arithmetic reproduces
+the $336.25 PiShop subtotal, $239.98 other-seller subtotal, $576.23 reference
+subtotal, $73.77 cap allowance, $1,225.44 premium subtotal, and every mini-PC
+comparison total. Content checks cover all D-111 categories, all three BOMs,
+governing decisions, exact identifiers, exclusions, no-purchase language, and
+the four owner questions. Git whitespace checks pass.
+
+### Remaining boundary
+
+I-030 and I-203 lack a delivered result until Q-184 supplies a non-sensitive
+quote jurisdiction and a fresh checkout records every seller's shipping and
+tax. Q-185 must resolve the HAT aliases and cable contradiction; Q-186/I-177
+must select and physically qualify the shared camera, enclosure/mount, room
+coverage, privacy, and both-platform capture behavior; Q-187 must provide the
+redacted actual Steam Machine invoice/configuration if that owner-specific
+comparison is wanted.
+
+I-020 remains a procurement screen only. No screened mini PC has been
+inventoried or measured. Native Linux drivers, accountless boot, recovery,
+exposure-to-action p50/p95/p99, complete concurrent workloads, wall watts,
+one-metre dBA, controller behavior, suspend/update/power-loss failure tests,
+and exact delivered cost remain required. Continue the $0 owned-hardware lane;
+purchase nothing from either screen.

@@ -232,4 +232,3 @@ For each seller, retain:
 
 Unresolved owner choices are isolated in
 [`OWNER_QUESTIONS_QUOTE_DATE_BOMS_2026-07-24.md`](OWNER_QUESTIONS_QUOTE_DATE_BOMS_2026-07-24.md).
-

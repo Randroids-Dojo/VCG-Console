@@ -1,10 +1,10 @@
 # Owner Questions: Quote-date Hardware BOMs
 
 These questions block a final delivered-cost result, not continued work on the
-$0 owned-hardware prototype. IDs are deliberately pending until concurrent
-documentation work releases the next question numbers.
+$0 owned-hardware prototype. They follow the profile-portrait tranche's
+Q-179 through Q-183.
 
-## Pending ID: checkout jurisdiction and quote evidence
+## Q-184: checkout jurisdiction and quote evidence
 
 Which US state and ZIP code should the project use for purchase-time shipping
 and tax quotes, and is the purchaser tax-exempt?
@@ -21,7 +21,7 @@ Needed decision/evidence: quote jurisdiction, tax status, permission to retain
 redacted cart screenshots, and whether the final evidence must use an
 authorized purchaser's live checkout or a nonbinding reseller quote.
 
-## Pending ID: Pi and HAT revision acceptance
+## Q-185: Pi and HAT revision acceptance
 
 Which exact label should be accepted for the first Pi/HAT order when the
 reseller identifies the Pi as `SC1112` but identifies the 26 TOPS AI HAT+ as
@@ -36,7 +36,7 @@ aliases, authoritative Raspberry Pi mapping between the identifiers, permitted
 silent board revisions, return response for a mismatch, and the hardware facts
 that must be captured at receipt.
 
-## Pending ID: final camera cost/coverage tradeoff
+## Q-186: final camera cost/coverage tradeoff
 
 Should the first complete reference quote continue using the finished Logitech
 Brio `960-001105` at $169.99, or should the project first qualify a lower-cost
@@ -56,7 +56,7 @@ requirements, whether camera enclosure/mount costs must fit within $650, and
 whether lower rolling-shutter distortion is valuable enough to test an
 industrial/global-shutter branch.
 
-## Pending ID: premium comparison authority
+## Q-187: premium comparison authority
 
 Should the premium BOM use the owner's actual Steam Machine preorder
 configuration and invoice, or remain a reproducible public comparison against
