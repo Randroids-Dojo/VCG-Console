@@ -528,11 +528,10 @@ impl RetroImportStore {
 
         let _operation = self.acquire_operation_lock()?;
         if let Some(pending) = self.read_pending()? {
-            if action != RetroNoCopyAction::CancelAndCleanup
-                || pending.intent.plan_id != intent.plan_id
-            {
+            if action != RetroNoCopyAction::CancelAndCleanup {
                 return Err(RetroImportError::RecoveryRequired);
             }
+            validate_pending_cancellation_binding(&pending, &intent, context)?;
             self.abort_pending(&pending)?;
         } else {
             self.remove_unpublished_temp_if_present()?;
@@ -625,7 +624,8 @@ impl RetroImportStore {
     ///
     /// Rejects an unsafe or mismatched plan ID, mutation already in progress,
     /// lock contention, unsafe state, or cleanup failure.
-    pub fn cancel_pending(&self, plan_id: &str) -> Result<bool, RetroImportError> {
+    #[cfg(test)]
+    fn cancel_pending(&self, plan_id: &str) -> Result<bool, RetroImportError> {
         validate_safe_id("plan ID", plan_id, 80)?;
         let _operation = self.acquire_operation_lock()?;
         let Some(pending) = self.read_pending()? else {
@@ -1692,6 +1692,39 @@ fn validate_pending(pending: &PendingInstall) -> Result<(), RetroImportError> {
         || entry.size_bytes > pending.policy.max_content_bytes
     {
         return Err(RetroImportError::PolicyBindingMismatch);
+    }
+    Ok(())
+}
+
+fn validate_pending_cancellation_binding(
+    pending: &PendingInstall,
+    cancellation: &RetroImportCommitIntent,
+    context: &RetroPlainImportContext,
+) -> Result<(), RetroImportError> {
+    let pending_intent = &pending.intent;
+    let pending_audit = &pending_intent.audit;
+    let cancellation_audit = &cancellation.audit;
+    if pending.inspection_id != context.inspection_id
+        || pending.plan_expires_at_ms != context.plan_expires_at_ms
+        || pending.policy != context.policy
+        || pending_intent.plan_id != cancellation.plan_id
+        || pending_intent.expected_library_generation != cancellation.expected_library_generation
+        || pending_intent.source_handle != cancellation.source_handle
+        || pending_intent.source_sha256 != cancellation.source_sha256
+        || pending_intent.cleanup_staging_after_terminal
+            != cancellation.cleanup_staging_after_terminal
+        || pending_audit.event != cancellation_audit.event
+        || pending_audit.plan_id != cancellation_audit.plan_id
+        || pending_audit.policy_id != cancellation_audit.policy_id
+        || pending_audit.policy_revision != cancellation_audit.policy_revision
+        || pending_audit.session_id != cancellation_audit.session_id
+        || pending_audit.transport != cancellation_audit.transport
+        || pending_audit.system_id != cancellation_audit.system_id
+        || pending_audit.content_sha256 != cancellation_audit.content_sha256
+        || pending_audit.entitlement_statement_version
+            != cancellation_audit.entitlement_statement_version
+    {
+        return Err(RetroImportError::IntentBindingMismatch);
     }
     Ok(())
 }
@@ -3887,19 +3920,113 @@ mod tests {
         let matching_authority = RetroPlainImportContext::authorize(
             &matching_cancel,
             INSPECTION_ID,
-            500,
+            10_000,
             true,
             policy(),
         )
         .expect("authorize staged cancellation");
         staged
             .store
-            .commit_without_copy(&matching_cancel, &matching_authority, 1_000)
+            .commit_without_copy(&matching_cancel, &matching_authority, 20_000)
             .expect("clean exact pending stage");
         assert!(!stage.exists());
         assert!(staged.pending().is_none());
         assert_eq!(staged.audit_files().len(), 1);
         assert_eq!(staged.library().generation, 1);
+    }
+
+    #[test]
+    fn cancellation_requires_the_exact_pending_transaction_binding() {
+        let fixture = Fixture::new();
+        let bytes = b"exact pending cancellation";
+        let pending = pending_for(&fixture, bytes, 1, "bound-cancel");
+        let stage = fixture.store.stage_directory(&pending);
+        fs::create_dir(&stage).expect("create pending stage");
+        fs::write(stage.join("payload"), b"partial").expect("write pending bytes");
+        let base: Value = serde_json::from_slice(&cancel_intent(bytes, 1, "bound-cancel"))
+            .expect("parse base cancellation");
+        let mut mismatches = Vec::new();
+
+        let mut source_handle = base.clone();
+        source_handle["sourceHandle"] = json!("rih-44444444444444444444444444444444");
+        mismatches.push((source_handle, INSPECTION_ID, 10_000, policy()));
+
+        let mut source_hash = base.clone();
+        source_hash["sourceSha256"] =
+            json!("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        source_hash["audit"]["contentSha256"] =
+            json!("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        mismatches.push((source_hash, INSPECTION_ID, 10_000, policy()));
+
+        let mut generation = base.clone();
+        generation["expectedLibraryGeneration"] = json!(2);
+        mismatches.push((generation, INSPECTION_ID, 10_000, policy()));
+
+        let mut session = base.clone();
+        session["audit"]["sessionId"] = json!("ris-44444444444444444444444444444444");
+        mismatches.push((session, INSPECTION_ID, 10_000, policy()));
+
+        let mut transport = base.clone();
+        transport["audit"]["transport"] = json!("paired-lan");
+        mismatches.push((transport, INSPECTION_ID, 10_000, policy()));
+
+        mismatches.push((
+            base.clone(),
+            "rii-44444444444444444444444444444444",
+            10_000,
+            policy(),
+        ));
+        mismatches.push((base.clone(), INSPECTION_ID, 9_999, policy()));
+        mismatches.push((
+            base,
+            INSPECTION_ID,
+            10_000,
+            RetroPlainSystemPolicy::new(
+                "retro-policy",
+                7,
+                "gb",
+                ".gb",
+                "different-core",
+                "game-boy-standard",
+                4 * 1024 * 1024,
+                128,
+                32 * 1024 * 1024,
+            )
+            .expect("alternate same-revision policy"),
+        ));
+
+        for (value, inspection_id, expires_at_ms, bound_policy) in mismatches {
+            let intent = serde_json::to_vec(&value).expect("serialize mismatched cancellation");
+            let authority = RetroPlainImportContext::authorize(
+                &intent,
+                inspection_id,
+                expires_at_ms,
+                true,
+                bound_policy,
+            )
+            .expect("authorize exact mismatched cancellation");
+            assert!(matches!(
+                fixture
+                    .store
+                    .commit_without_copy(&intent, &authority, 20_000),
+                Err(RetroImportError::IntentBindingMismatch)
+            ));
+            assert_eq!(fixture.pending().as_ref(), Some(&pending));
+            assert!(stage.exists());
+            assert!(fixture.audit_files().is_empty());
+        }
+
+        let matching = cancel_intent(bytes, 1, "bound-cancel");
+        let authority =
+            RetroPlainImportContext::authorize(&matching, INSPECTION_ID, 10_000, true, policy())
+                .expect("authorize matching cancellation");
+        fixture
+            .store
+            .commit_without_copy(&matching, &authority, 20_000)
+            .expect("cancel exact pending transaction");
+        assert!(fixture.pending().is_none());
+        assert!(!stage.exists());
+        assert_eq!(fixture.audit_files().len(), 1);
     }
 
     #[test]

@@ -108,10 +108,13 @@ requires active authority, the exact current library generation and entry,
 and a fresh full-hash check of the console-managed object. It writes an
 idempotent `retro-import-reused` audit record without copying or advancing the
 library. `cancel-and-cleanup` remains available after plan expiry or session
-revocation, removes only a same-plan pre-publication stage, never rolls back
-published content, and writes an idempotent `retro-import-cancelled` record.
-An exact retry returns the original audit generation even if unrelated
-imports have since advanced the library.
+revocation, but a pending cleanup requires the exact inspection, expiry,
+policy, generation, source, session, transport, system, entitlement, and audit
+bindings of that transaction rather than plan ID alone. It removes only that
+pre-publication stage, never rolls back published content, and writes an
+idempotent `retro-import-cancelled` record. The plan-ID-only cleanup helper is
+not public. An exact retry returns the original audit generation even if
+unrelated imports have since advanced the library.
 
 Store configuration can derive its exact `retro` and
 `staging/retro-imports` roots from `StorageNamespacePlan`; it does not accept
@@ -280,7 +283,7 @@ Twenty-four focused tests cover:
   expiry/revocation, and cleanup cancellation; and
 - exact emission of the checked-in plain-install fixture consumed by Rust.
 
-The native module adds seventeen Windows library tests and eighteen Linux tests.
+The native module adds eighteen Windows library tests and nineteen Linux tests.
 One test consumes that same TypeScript fixture, hashes its real UTF-8 payload,
 authorizes the exact intent, and commits it through the native store. The tests
 cover shared USB/LAN intent handling, strict/unknown/path-bearing input,
@@ -288,11 +291,12 @@ exact-intent authorization, expiry/revocation/policy/generation checks before
 mutation, source length/hash change, opened-source path replacement,
 clean/blocked/error/unavailable/misbound scanner behavior, capacity overflow,
 reported-free-space refusal before mutation, library history shape,
-nonblocking lock and exact cancellation, incomplete-copy cleanup, recovery
-after source removal, recovery across object/library publication windows,
-replacement ordering, duplicate reuse with missing/tampered object refusal,
-cancellation after expiry/revocation and after an unrelated generation
-advance, path-free audit persistence, shared storage-namespace derivation,
+nonblocking lock and exact cancellation, refusal of eight same-plan pending
+cancellation substitutions, incomplete-copy cleanup, recovery after source
+removal, recovery across object/library publication windows, replacement
+ordering, duplicate reuse with missing/tampered object refusal, cancellation
+after expiry/revocation and after an unrelated generation advance, path-free
+audit persistence, shared storage-namespace derivation,
 an actual derived-root import that preserves package/core/save/state/remap/
 profile/log/cache/package-staging sentinels, recovery-aware path-free library
 snapshots, and Linux symlink refusal. Strict Clippy and Rustdoc pass on the
