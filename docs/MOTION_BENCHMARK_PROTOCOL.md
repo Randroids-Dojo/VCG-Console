@@ -28,7 +28,7 @@ The canonical plan contains 14 trial blocks and 280 required attempts: 20 repeti
 
 Every plan trial declares a bounded duration, instruction, context, repetition count, and one strict expectation: timed trigger, no trigger, landmark-only, or timed session transition. Trigger/context mismatches, duplicate trial IDs, unknown fields, invalid windows, missing movement classes, raw-frame claims, and non-`0.4.0` Motion contracts fail validation.
 
-Punches deliberately remain landmark-only because Motion API `0.4.0` does not standardize punch actions. The protocol preserves those labeled movements for I-061 without inventing an action or silently treating another gesture as a punch.
+Punches deliberately remain landmark-only because Motion API `0.4.0` does not standardize punch actions. The protocol preserves those labeled movements for I-061 without inventing an action or silently treating another gesture as a punch. The camera-free rule-baseline artifact can score a separate internal Punch research label, but its validator explicitly rejects promoting that label into the standardized mapping.
 
 ## Result binding
 

@@ -66,6 +66,12 @@ Jump, duck, dodge, and swipe are discrete: they emit only `triggered`. Each uses
 
 The desk defaults retain the existing 650 ms per-action cooldown. Cooldown is keyed by action name, so a safe system action does not globally delay an unrelated action. Exact movement thresholds, smoothing, calibration inputs, accessibility variants, and backend parity remain action-profile qualification work; this temporal contract does not claim the current desk numbers fit real players.
 
+The separate camera-free `MOTION_RULE_BASELINES_2026-07-24.md` artifact now
+makes candidate Jump/Duck/Dodge thresholds and their failures executable
+without changing this lifecycle contract. Its Lean, Reach, and Punch outputs
+are research labels only: they are not Motion actions, are not advertised by
+either v1 action profile, and cannot authorize a client side effect.
+
 ## Confidence and time
 
 `confidence` is the recognizer's confidence for that sampled phase, bounded from zero to one. `cancelled` uses zero because the candidate is no longer accepted; `ended` retains the last accepted confidence. Confidence never authorizes a side effect without `phase: "triggered"`.

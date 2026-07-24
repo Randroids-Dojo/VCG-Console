@@ -7,6 +7,8 @@ export * from "./optional-capabilities";
 export * from "./player-availability";
 export * from "./replay";
 export * from "./rtmo-adapter";
+export * from "./rule-baseline-benchmark";
+export * from "./rule-baselines";
 export * from "./schema";
 export * from "./simulator";
 export * from "./smoothing";

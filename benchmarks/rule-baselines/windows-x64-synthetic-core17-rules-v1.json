@@ -1,0 +1,880 @@
+{
+  "format": "vcg-motion-rule-baseline-evidence",
+  "formatVersion": 1,
+  "generatedAt": "2026-07-24T17:51:21.293Z",
+  "sourceCommit": "02690cd813735ca64f304bd89880e6cafec54aab",
+  "workingTreeClean": false,
+  "motionApiSchemaVersion": "0.4.0",
+  "ruleBaselineVersion": "core17-rule-baselines/v1",
+  "implementation": {
+    "recognizerSha256": "6b6a847f9b9945eaed0fffa24c8ef78585204381c91042015da7003da78e653f",
+    "suiteSha256": "9c6da0922ec554579f69a97e37164f56233e2b467a7a54ce25b985da20126209",
+    "benchmarkSha256": "585793634d1a24a0bd95f94f10145835d75f82dd37a796815c9db7053902aad9"
+  },
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0"
+  },
+  "suite": {
+    "version": "core17-rule-baseline-synthetic/v1",
+    "serializedSuiteSha256": "808a3fa144065043dd3d3d90eb6373e5c0db3dab3aa30787596867ed789b5421",
+    "containsRawFrames": false,
+    "source": "deterministic generated normalized core17 skeleton-shape fixtures",
+    "updateCount": 2810,
+    "fixtures": [
+      {
+        "id": "adult-standing",
+        "description": "Nominal standing adult-shaped normalized skeleton fixture.",
+        "evidenceClass": "blocking-shape-fixture",
+        "calibrationSampleCount": 24,
+        "trialCount": 16,
+        "frameCount": 562,
+        "expectedEventTrials": 10,
+        "noEventTrials": 6,
+        "unavailableTrials": 0
+      },
+      {
+        "id": "child-standing",
+        "description": "Shorter standing child-shaped normalized skeleton fixture; not a child participant.",
+        "evidenceClass": "blocking-shape-fixture",
+        "calibrationSampleCount": 24,
+        "trialCount": 16,
+        "frameCount": 562,
+        "expectedEventTrials": 10,
+        "noEventTrials": 6,
+        "unavailableTrials": 0
+      },
+      {
+        "id": "tall-standing",
+        "description": "Taller standing boundary-shape normalized skeleton fixture.",
+        "evidenceClass": "blocking-shape-fixture",
+        "calibrationSampleCount": 24,
+        "trialCount": 16,
+        "frameCount": 562,
+        "expectedEventTrials": 10,
+        "noEventTrials": 6,
+        "unavailableTrials": 0
+      },
+      {
+        "id": "seated-exploratory",
+        "description": "Synthetic seated geometry with lower-body actions explicitly unavailable.",
+        "evidenceClass": "exploratory-shape-fixture",
+        "calibrationSampleCount": 24,
+        "trialCount": 16,
+        "frameCount": 562,
+        "expectedEventTrials": 6,
+        "noEventTrials": 6,
+        "unavailableTrials": 4
+      },
+      {
+        "id": "limited-range-exploratory",
+        "description": "Standing synthetic geometry with movement amplitude reduced to 45 percent.",
+        "evidenceClass": "exploratory-shape-fixture",
+        "calibrationSampleCount": 24,
+        "trialCount": 16,
+        "frameCount": 562,
+        "expectedEventTrials": 10,
+        "noEventTrials": 6,
+        "unavailableTrials": 0
+      }
+    ]
+  },
+  "method": {
+    "thresholds": {
+      "jumpEnterBodyHeights": 0.08,
+      "jumpExitBodyHeights": 0.04,
+      "squatEnterBodyHeights": 0.1,
+      "squatExitBodyHeights": 0.06,
+      "leanEnterShoulderWidths": 0.3,
+      "leanExitShoulderWidths": 0.18,
+      "stepEnterShoulderWidths": 0.45,
+      "stepExitShoulderWidths": 0.25,
+      "reachEnterTorsoLengths": 0.55,
+      "reachExitTorsoLengths": 0.35,
+      "punchMinimumExtensionGainTorsoLengths": 0.12,
+      "punchMinimumExtensionRateTorsoLengthsPerSecond": 1.8,
+      "minimumLandmarkConfidence": 0.5,
+      "cooldownMs": 500
+    },
+    "calibrationSamples": 24,
+    "warmupPasses": 10,
+    "measuredPasses": 100,
+    "latencyBoundary": "one rule-recognizer update over one pre-generated core17 skeleton",
+    "latencyTimer": "node-performance-now",
+    "latencySummaryMethod": "linear-interpolation-r7",
+    "truthVisibility": "expected movement exists only in evaluator trial metadata and is never passed to the recognizer",
+    "missingLandmarkPolicy": "a missing or below-confidence required landmark suppresses and releases only affected rules",
+    "outputAuthority": "exploratory research labels only; no MotionAction wire event or gameplay authority"
+  },
+  "mappingBoundary": {
+    "standardizedCandidates": {
+      "jump": "jump",
+      "squat": "duck",
+      "step_left": "dodge_left",
+      "step_right": "dodge_right"
+    },
+    "exploratoryOnly": [
+      "lean_left",
+      "lean_right",
+      "reach_left",
+      "reach_right",
+      "punch_left",
+      "punch_right"
+    ]
+  },
+  "evaluation": {
+    "fixtures": [
+      {
+        "fixtureId": "adult-standing",
+        "expectedTrials": 10,
+        "matchedTrials": 10,
+        "falseNegativeTrials": 0,
+        "emittedEvents": 11,
+        "truePositiveEvents": 10,
+        "falsePositiveEvents": 1,
+        "precision": 0.909091,
+        "recall": 1,
+        "trials": [
+          {
+            "id": "jump",
+            "expectation": "event",
+            "expectedMovement": "jump",
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": true
+          },
+          {
+            "id": "squat",
+            "expectation": "event",
+            "expectedMovement": "squat",
+            "emittedMovements": [
+              "squat"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_left",
+            "expectation": "event",
+            "expectedMovement": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_right",
+            "expectation": "event",
+            "expectedMovement": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_left",
+            "expectation": "event",
+            "expectedMovement": "step_left",
+            "emittedMovements": [
+              "step_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_right",
+            "expectation": "event",
+            "expectedMovement": "step_right",
+            "emittedMovements": [
+              "step_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_left",
+            "expectation": "event",
+            "expectedMovement": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_right",
+            "expectation": "event",
+            "expectedMovement": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_left",
+            "expectation": "event",
+            "expectedMovement": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_right",
+            "expectation": "event",
+            "expectedMovement": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "neutral",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-upward-shift",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": null
+          },
+          {
+            "id": "global-left-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-right-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "crossed-arms",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "wrist-occlusion",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          }
+        ]
+      },
+      {
+        "fixtureId": "child-standing",
+        "expectedTrials": 10,
+        "matchedTrials": 10,
+        "falseNegativeTrials": 0,
+        "emittedEvents": 11,
+        "truePositiveEvents": 10,
+        "falsePositiveEvents": 1,
+        "precision": 0.909091,
+        "recall": 1,
+        "trials": [
+          {
+            "id": "jump",
+            "expectation": "event",
+            "expectedMovement": "jump",
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": true
+          },
+          {
+            "id": "squat",
+            "expectation": "event",
+            "expectedMovement": "squat",
+            "emittedMovements": [
+              "squat"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_left",
+            "expectation": "event",
+            "expectedMovement": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_right",
+            "expectation": "event",
+            "expectedMovement": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_left",
+            "expectation": "event",
+            "expectedMovement": "step_left",
+            "emittedMovements": [
+              "step_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_right",
+            "expectation": "event",
+            "expectedMovement": "step_right",
+            "emittedMovements": [
+              "step_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_left",
+            "expectation": "event",
+            "expectedMovement": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_right",
+            "expectation": "event",
+            "expectedMovement": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_left",
+            "expectation": "event",
+            "expectedMovement": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_right",
+            "expectation": "event",
+            "expectedMovement": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "neutral",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-upward-shift",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": null
+          },
+          {
+            "id": "global-left-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-right-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "crossed-arms",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "wrist-occlusion",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          }
+        ]
+      },
+      {
+        "fixtureId": "tall-standing",
+        "expectedTrials": 10,
+        "matchedTrials": 10,
+        "falseNegativeTrials": 0,
+        "emittedEvents": 11,
+        "truePositiveEvents": 10,
+        "falsePositiveEvents": 1,
+        "precision": 0.909091,
+        "recall": 1,
+        "trials": [
+          {
+            "id": "jump",
+            "expectation": "event",
+            "expectedMovement": "jump",
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": true
+          },
+          {
+            "id": "squat",
+            "expectation": "event",
+            "expectedMovement": "squat",
+            "emittedMovements": [
+              "squat"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_left",
+            "expectation": "event",
+            "expectedMovement": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_right",
+            "expectation": "event",
+            "expectedMovement": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_left",
+            "expectation": "event",
+            "expectedMovement": "step_left",
+            "emittedMovements": [
+              "step_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_right",
+            "expectation": "event",
+            "expectedMovement": "step_right",
+            "emittedMovements": [
+              "step_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_left",
+            "expectation": "event",
+            "expectedMovement": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_right",
+            "expectation": "event",
+            "expectedMovement": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_left",
+            "expectation": "event",
+            "expectedMovement": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_right",
+            "expectation": "event",
+            "expectedMovement": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "neutral",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-upward-shift",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": null
+          },
+          {
+            "id": "global-left-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-right-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "crossed-arms",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "wrist-occlusion",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          }
+        ]
+      },
+      {
+        "fixtureId": "seated-exploratory",
+        "expectedTrials": 6,
+        "matchedTrials": 6,
+        "falseNegativeTrials": 0,
+        "emittedEvents": 7,
+        "truePositiveEvents": 6,
+        "falsePositiveEvents": 1,
+        "precision": 0.857143,
+        "recall": 1,
+        "trials": [
+          {
+            "id": "jump",
+            "expectation": "unavailable",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "squat",
+            "expectation": "unavailable",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "lean_left",
+            "expectation": "event",
+            "expectedMovement": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "lean_right",
+            "expectation": "event",
+            "expectedMovement": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "step_left",
+            "expectation": "unavailable",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "step_right",
+            "expectation": "unavailable",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "reach_left",
+            "expectation": "event",
+            "expectedMovement": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "reach_right",
+            "expectation": "event",
+            "expectedMovement": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_left",
+            "expectation": "event",
+            "expectedMovement": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_right",
+            "expectation": "event",
+            "expectedMovement": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "neutral",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-upward-shift",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": null
+          },
+          {
+            "id": "global-left-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-right-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "crossed-arms",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "wrist-occlusion",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          }
+        ]
+      },
+      {
+        "fixtureId": "limited-range-exploratory",
+        "expectedTrials": 10,
+        "matchedTrials": 2,
+        "falseNegativeTrials": 8,
+        "emittedEvents": 3,
+        "truePositiveEvents": 2,
+        "falsePositiveEvents": 1,
+        "precision": 0.666667,
+        "recall": 0.2,
+        "trials": [
+          {
+            "id": "jump",
+            "expectation": "event",
+            "expectedMovement": "jump",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "squat",
+            "expectation": "event",
+            "expectedMovement": "squat",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "lean_left",
+            "expectation": "event",
+            "expectedMovement": "lean_left",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "lean_right",
+            "expectation": "event",
+            "expectedMovement": "lean_right",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "step_left",
+            "expectation": "event",
+            "expectedMovement": "step_left",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "step_right",
+            "expectation": "event",
+            "expectedMovement": "step_right",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "reach_left",
+            "expectation": "event",
+            "expectedMovement": "reach_left",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "reach_right",
+            "expectation": "event",
+            "expectedMovement": "reach_right",
+            "emittedMovements": [],
+            "matched": false
+          },
+          {
+            "id": "punch_left",
+            "expectation": "event",
+            "expectedMovement": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "matched": true
+          },
+          {
+            "id": "punch_right",
+            "expectation": "event",
+            "expectedMovement": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "matched": true
+          },
+          {
+            "id": "neutral",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-upward-shift",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [
+              "jump"
+            ],
+            "matched": null
+          },
+          {
+            "id": "global-left-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "global-right-translation",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "crossed-arms",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          },
+          {
+            "id": "wrist-occlusion",
+            "expectation": "no-event",
+            "expectedMovement": null,
+            "emittedMovements": [],
+            "matched": null
+          }
+        ]
+      }
+    ],
+    "totals": {
+      "expectedTrials": 46,
+      "matchedTrials": 38,
+      "falseNegativeTrials": 8,
+      "emittedEvents": 43,
+      "truePositiveEvents": 38,
+      "falsePositiveEvents": 5,
+      "precision": 0.883721,
+      "recall": 0.826087
+    }
+  },
+  "latencyMicroseconds": {
+    "samples": 281000,
+    "mean": 13.122,
+    "p50": 12.6,
+    "p95": 13.6,
+    "p99": 24.7,
+    "worst": 280.2,
+    "measuredThroughputUpdatesPerSecond": 76205.843
+  },
+  "findings": {
+    "globalUpwardShiftFalseJumpFixtures": 5,
+    "limitedRangeMatchedTrials": 2,
+    "limitedRangeExpectedTrials": 10,
+    "seatedUnavailableLowerBodyTrials": 4
+  },
+  "claimBoundary": "Camera-free generated skeleton-shape method evidence only. It is not precision/recall across people, a child or accessibility result, floor-referenced jump proof, standardized-action qualification, perceived gameplay evidence, camera latency, or target-hardware evidence.",
+  "limitations": [
+    "Truth labels and landmark trajectories are generated by the same repository and are not independent annotation.",
+    "The standing fixtures vary scale but do not reproduce real body proportions, clothing, pose-estimator error, or movement style.",
+    "The child-shaped fixture is not evidence from or about a child participant.",
+    "The seated and limited-range fixtures are exploratory geometry, not accessibility qualification.",
+    "Image-space jump remains confounded with global camera or crop movement in every fixture.",
+    "Two-dimensional lateral punch is not a reliable model of a punch toward the camera.",
+    "Rule confidence is threshold distance, not calibrated event probability.",
+    "No smoothing, detector, identity association, floor calibration, action lifecycle, or game workload is included.",
+    "Per-update JavaScript timing excludes calibration, capture, inference, IPC, actions, and rendering.",
+    "One Windows x64 development host does not qualify native Rust or target-Linux performance.",
+    "No image, video frame, participant identifier, biometric template, or appearance descriptor is generated or retained."
+  ]
+}

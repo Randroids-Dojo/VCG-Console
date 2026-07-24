@@ -2785,6 +2785,63 @@ controls, pre-registered parameter grids and held-out scoring, action-level
 precision/recall and end-to-end latency, perceived gameplay evidence, and
 native Linux/Rust measurement under the full workload.
 
+## 2026-07-24: camera-free Motion rule baselines
+
+### Delivered
+
+- Advanced I-061 to `active` with ten strict core17 research labels: Jump,
+  Squat, anatomical left/right Lean, Step, Reach, and Punch.
+- Kept the recognizer outside MotionAction wire authority. Jump/Squat/Step
+  have documented candidate mappings to existing Jump/Duck/Dodge actions;
+  Lean/Reach/Punch remain exploratory and do not silently widen Motion
+  `0.4.0`.
+- Added exact 24-sample neutral calibration, closed bounded thresholds,
+  strictly increasing time, complete unique core17 intake, confidence gating,
+  non-degenerate named axes/scales, entry/exit hysteresis, per-label cooldown,
+  Punch/Reach mutual exclusion, and affected-rule-only missing-landmark
+  suppression.
+- Added five deterministic normalized skeleton-shape fixtures and 80 trials
+  totaling 2,810 rule updates. The suite covers all ten movements, neutral
+  jitter, global camera/crop-like upward shift, lateral translation, crossed
+  arms, missing wrists, seated lower-body unavailability, and 45%-amplitude
+  movement.
+- Retained adverse results: every fixture misclassifies global upward shift as
+  Jump, and the unchanged limited-range fixture matches only two of ten
+  intended movements. This makes floor/camera reference and accessible
+  calibration requirements executable rather than prose-only.
+- Recorded synthetic event precision/recall and strict per-update timing. The
+  aggregate `0.883721` / `0.826087` result is explicitly not real-person
+  accuracy and cannot pass product gates.
+- Added a hash-bound evidence report and validator covering exact
+  implementation/suite/benchmark bytes, suite digest, thresholds, all trial
+  results, arithmetic, candidate mappings, camera-shift failure, raw-frame
+  exclusion, timing shape, and claim limits.
+- Reserved Q-219 for whether Lean, Reach, or Punch belongs in the standardized
+  Motion vocabulary; the safe default keeps them at landmark/research level.
+
+### Verification evidence
+
+- The Motion package passes 112 tests, including strict calibration/input,
+  simulator Jump/Squat mapping, hysteresis/rearm, missing landmarks,
+  malformed time/shape/threshold rejection, deterministic fixture generation,
+  score arithmetic, seated unavailability, and the required camera-shift
+  failure.
+- TypeScript checking passes.
+- Ten adversarial report-validator tests cover raw-frame claims, truth
+  leakage, suite/implementation/result substitution, false Punch promotion,
+  hidden camera-shift evidence, non-monotonic timing, and undeclared fields.
+- The tracked Windows x86 report validates against its real implementation
+  hashes and exact deterministic evaluation digest.
+
+### Remaining boundary
+
+Generated skeleton shapes prove method, strictness, and known failure
+reproduction only. I-061 remains active pending consented separately reported
+child/adult evidence, approved seated/limited-range exploration, floor/camera
+reference, detector and backend parity, training/held-out threshold selection,
+standardized lifecycle integration, action/gameplay precision and recall,
+full exposure-to-game latency, and target Linux/native timing.
+
 ## 2026-07-24: exact-track Motion Lab action dispatch
 
 ### Delivered
