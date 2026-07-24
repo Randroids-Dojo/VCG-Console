@@ -9,7 +9,7 @@ to reproduce. The checked-in CycloneDX 1.7 companion is
 
 ## Release blockers
 
-- **project-license:** `pkg:npm/vcg-console@0.0.0`, `pkg:cargo/vcg-host@0.1.0`, `pkg:npm/%40vcg/console-lab@0.0.1`, `pkg:npm/%40vcg/game-manifest@0.0.1`, `pkg:npm/%40vcg/launcher-catalog@0.0.1`, `pkg:npm/%40vcg/motion-contract@0.0.1`, `pkg:npm/%40vcg/motion-web-bridge@0.0.1`
+- **project-license:** `pkg:npm/vcg-console@0.0.0`, `pkg:cargo/vcg-host@0.1.0`, `pkg:npm/%40vcg/console-lab@0.0.1`, `pkg:npm/%40vcg/game-manifest@0.0.1`, `pkg:npm/%40vcg/launcher-catalog@0.0.1`, `pkg:npm/%40vcg/motion-contract@0.0.1`, `pkg:npm/%40vcg/motion-web-bridge@0.0.1`, `pkg:npm/%40vcg/retro-import-contract@0.0.1`
 - **pose-model-license:** `asset:mediapipe-pose-landmarker-lite-float16-model@1`
 
 The evidence gate accepts only these named blockers and fails on any new
@@ -21,11 +21,11 @@ fails while either blocker remains.
 | Class | Components |
 |---|---:|
 | Project root | 1 |
-| First-party subcomponents | 6 |
+| First-party subcomponents | 7 |
 | npm dependencies | 82 |
 | Cargo packages | 42 |
 | Pinned assets | 2 |
-| Total | 133 |
+| Total | 134 |
 
 ## npm dependencies
 
