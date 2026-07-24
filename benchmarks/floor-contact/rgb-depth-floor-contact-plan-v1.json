@@ -1,0 +1,483 @@
+{
+  "format": "vcg-rgb-depth-floor-contact-campaign",
+  "formatVersion": 1,
+  "documentType": "plan",
+  "campaignId": "rgb-depth-floor-contact-v1",
+  "generatedAt": "2026-07-24T18:26:54.450Z",
+  "sourceCommit": "c49f57a82e3b349055a1abe4ae93634672de7b15",
+  "workingTreeClean": false,
+  "claimBoundary": "Pre-registered physical campaign only. No RGB strategy, depth device, contact reference, participant, room, camera position, event timing, floor contact, action accuracy, or target platform has passed.",
+  "privacy": {
+    "rawFramesRetainedByDefault": false,
+    "participantIdentityPolicy": "opaque session-local participant IDs; no name, portrait, face embedding, or durable body identity",
+    "permittedPersistentArtifacts": [
+      "bounded skeleton-only trace",
+      "bounded depth-derived event labels",
+      "bounded contact-reference event labels",
+      "configuration manifest",
+      "aggregate metrics"
+    ],
+    "prohibitedPersistentArtifacts": [
+      "rgb image",
+      "depth image",
+      "video",
+      "audio",
+      "face embedding",
+      "profile portrait"
+    ]
+  },
+  "configuration": {
+    "motionApiSchemaVersion": "0.4.0",
+    "rgbStrategies": [
+      "core17-2d-rule",
+      "mediapipe33-world-rule"
+    ],
+    "reference": {
+      "floorPlane": "depth-calibrated-floor-plane",
+      "footContact": "synchronized-independent-contact-reference",
+      "depthAloneQualifiesContactTruth": false
+    },
+    "timestamps": {
+      "requiredClock": "single-monotonic-clock-or-measured-affine-mapping",
+      "rgbTimestamp": "exposure timestamp or bounded exposure interval; capture-arrival time alone is invalid",
+      "depthTimestamp": "depth exposure timestamp or bounded exposure interval",
+      "contactTimestamp": "contact-reference sample timestamp on the campaign clock",
+      "maximumSynchronizationErrorMs": 5,
+      "maximumReferenceUncertaintyMs": 8
+    },
+    "devicesRequiredAtExecution": [
+      "exact RGB device, USB identity, firmware, format, FPS, controls, and mount",
+      "exact depth device, USB identity, firmware, SDK, mode, controls, and mount",
+      "exact independent contact-reference device, firmware, sample rate, and threshold",
+      "exact host, OS, clock source, capture stack, pose models, and model hashes"
+    ]
+  },
+  "matrix": {
+    "personaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "cameraPositions": [
+      "frame-center",
+      "frame-left-quarter",
+      "frame-right-quarter",
+      "frame-left-edge",
+      "frame-right-edge"
+    ],
+    "movementBlocks": [
+      {
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ]
+      },
+      {
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ]
+      },
+      {
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ]
+      }
+    ],
+    "attemptsPerCell": 20,
+    "negativeWindowSecondsPerPersonaPosition": 60,
+    "cells": [
+      {
+        "cellId": "school-age-child-standing--frame-center--jump",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-center",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-center--step-left",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-center",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-center--step-right",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-center",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-quarter--jump",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-quarter--step-left",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-quarter--step-right",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-quarter--jump",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-quarter--step-left",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-quarter--step-right",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-edge--jump",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-edge--step-left",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-left-edge--step-right",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-edge--jump",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-edge--step-left",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "school-age-child-standing--frame-right-edge--step-right",
+        "personaClass": "school-age-child-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-center--jump",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-center",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-center--step-left",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-center",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-center--step-right",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-center",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-quarter--jump",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-quarter--step-left",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-quarter--step-right",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-quarter",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-quarter--jump",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-quarter--step-left",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-quarter--step-right",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-quarter",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-edge--jump",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-edge--step-left",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-left-edge--step-right",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-left-edge",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-edge--jump",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "jump",
+        "eventTypes": [
+          "takeoff",
+          "apex",
+          "landing"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-edge--step-left",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "step-left",
+        "eventTypes": [
+          "left-contact-loss",
+          "left-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      },
+      {
+        "cellId": "adult-standing--frame-right-edge--step-right",
+        "personaClass": "adult-standing",
+        "cameraPosition": "frame-right-edge",
+        "movement": "step-right",
+        "eventTypes": [
+          "right-contact-loss",
+          "right-contact-gain"
+        ],
+        "scheduledAttempts": 20
+      }
+    ],
+    "scheduledMovementAttempts": 600,
+    "scheduledNegativeWindows": 10
+  },
+  "scoring": {
+    "eventMatching": "unique nearest prediction to each reference event inside the symmetric match window; one prediction cannot match two references",
+    "matchWindowMs": 250,
+    "signedErrorDefinition": "prediction timestamp minus reference timestamp in milliseconds",
+    "distributionMethod": "nearest-rank",
+    "requiredDistributionFields": [
+      "count",
+      "mean",
+      "p50",
+      "p95",
+      "p99",
+      "minimum",
+      "maximum",
+      "worstAbsolute"
+    ],
+    "requiredCountFields": [
+      "reference",
+      "predicted",
+      "matched",
+      "missed",
+      "spurious"
+    ],
+    "requiredRates": [
+      "precision",
+      "recall"
+    ],
+    "invalidAttemptPolicy": "retain and classify every scheduled attempt; invalid attempts never disappear from denominators",
+    "selectionPolicy": "no RGB strategy selection until every cell and negative window is complete, synchronization/reference uncertainty passes, per-persona/per-position distributions are reported separately, and owner event-error gates are recorded",
+    "eventTimingGateMs": null,
+    "actionLatencyGateMs": 120
+  },
+  "executionRequirements": [
+    "approved consent/assent and the selected room sheet",
+    "independent participant/session labeling with no durable identity",
+    "fixed and measured RGB/depth/contact geometry",
+    "floor-plane calibration residual and coverage before every position block",
+    "synchronization proof before and after every participant session",
+    "twenty retained scheduled attempts in every matrix cell",
+    "one retained negative window for every persona/position pair",
+    "detached configuration, skeleton-trace, depth-label, and contact-label SHA-256 values",
+    "separate invalid, missed, spurious, and matched counts",
+    "per-event signed and absolute error distributions by participant, persona, and camera position",
+    "full D-110 camera-to-action timing reported separately from event error",
+    "no aggregate-only claim and no depth-only foot-contact truth claim"
+  ]
+}

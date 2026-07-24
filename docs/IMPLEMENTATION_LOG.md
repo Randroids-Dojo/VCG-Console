@@ -3092,3 +3092,42 @@ broker-issued authenticated session/operation authority, protected revisions,
 exclusive camera leases, encrypted temporary/accepted portrait records, and
 one atomic registry/vault/save transaction with target crash, rollback,
 power-loss, household, accessibility, privacy, and legal evidence.
+
+## 2026-07-24: RGB/depth floor-contact campaign contract
+
+### Delivered
+
+- Advanced I-065 from open to active with a pinned plan for comparing core17
+  2D and MediaPipe-world RGB event estimates against a calibrated depth floor
+  plane plus an independent synchronized foot-contact reference.
+- Pre-registered two standing persona classes, five frame positions, Jump and
+  left/right Step blocks, twenty attempts per cell, 30 complete cells / 600
+  scheduled attempts, and ten 60-second negative windows.
+- Requires exposure/reference timestamp provenance, at most 5 ms measured
+  synchronization error, at most 8 ms reference uncertainty, exact device and
+  configuration identities, and detached skeleton/depth/contact label hashes.
+- Defines unique event matching and complete per-event counts, precision,
+  recall, and signed-error distributions by participant, persona, and position.
+- Added a strict plan/result validator that recomputes all totals, rates,
+  synchronization status, and selection eligibility.
+- Added Q-235 for the exact contact reference and owner-selected event-error
+  gates; selection remains impossible while that gate is null.
+
+### Verification evidence
+
+- The checked-in 30-cell / 600-attempt / 10-window plan validates.
+- Eleven adversarial tests accept a structurally complete result while still
+  refusing selection, and reject missing cells, arrival-only timing,
+  depth-only truth, retained raw frames, plan substitution, hidden count
+  changes, false synchronization summaries, persona substitution, and
+  undeclared result fields.
+- The result contract preserves failed/invalid evidence rather than requiring
+  only passing data.
+
+### Remaining boundary
+
+This is a campaign contract, not depth or RGB evidence. I-065 remains active
+pending Q-235, exact devices and room geometry, consented participants,
+qualified synchronization/reference uncertainty, all scheduled sessions,
+per-player/per-position distributions, D-110 full action latency, false-action
+scoring, backend parity, and ordinary x86-64 Linux/Raspberry Pi execution.
