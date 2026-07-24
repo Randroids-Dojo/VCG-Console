@@ -355,7 +355,7 @@ const launcher = new LauncherController({
 });
 
 function showLauncher(): void {
-  if (overlayKind) closeOverlay(false);
+  if (overlayKind) chooseOverlayAction("exit");
   motionLab.hidden = true;
   obstacle.setPaused(true);
   launcher.show();
@@ -435,7 +435,34 @@ function acceptFrame(rawFrame: MotionFrame): void {
   )) {
     handlePlayerSessionEvent(event);
   }
-  for (const action of frame.players[0]?.actions ?? []) handleAction(action);
+  const trackActions = frame.players.flatMap((player) =>
+    player.actions.map((action) => ({
+      action,
+      trackId: player.id,
+    })),
+  );
+  let manualPauseOpened = false;
+  if (
+    currentMode === "obstacle"
+    && !launcher.visible
+    && !overlayKind
+  ) {
+    const pauseEvent = playerSession.openPauseForTracks(
+      trackActions.flatMap(({ action, trackId }) =>
+        action.name === "pause" && action.phase === "triggered"
+          ? [{ trackId, completedAtMs: action.occurredAtMs }]
+          : [],
+      ),
+    );
+    if (pauseEvent?.type === "pause-opened") {
+      showOverlay("manual", pauseEvent.ownerSlot);
+      manualPauseOpened = true;
+    }
+  }
+  for (const { action, trackId } of trackActions) {
+    if (manualPauseOpened && action.name !== "pause") continue;
+    handleAction(action, trackId);
+  }
 
   if (performance.now() - lastMetricsPaint > 250) {
     lastMetricsPaint = performance.now();
@@ -461,28 +488,55 @@ function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
   }
 }
 
-function handleAction(action: MotionAction): void {
+function handleAction(action: MotionAction, trackId: string): void {
   required<HTMLElement>("#metric-action").textContent =
     `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
   paintActionFeedback(action);
   if (action.phase !== "triggered") return;
+  if (action.name === "player_join") {
+    joinPlayer(trackId);
+    return;
+  }
   if (launcher.visible) {
-    if (action.name === "player_join") joinPlayer();
+    if (playerSession.authorizeLauncherAction(trackId) === undefined) {
+      return;
+    }
     const launcherInput = launcherInputForMotionAction(action);
     if (launcherInput) launcher.handleInput(launcherInput);
     return;
   }
-  if (action.name === "player_join") joinPlayer();
-  if (["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)) obstacle.handleAction(action.name);
-  if (action.name === "pause" && currentMode === "obstacle") showOverlay("manual");
-  if (action.name === "menu_back") {
-    if (overlayKind) closeOverlay(false);
+  if (action.name === "pause") return;
+  if (
+    ["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)
+  ) {
+    if (
+      currentMode === "obstacle"
+      && playerSession.authorizeGameplayAction(trackId) !== undefined
+    ) {
+      obstacle.handleAction(action.name);
+    }
+    return;
+  }
+  const shellInput = launcherInputForMotionAction(action);
+  if (!shellInput) return;
+  const authorized =
+    overlayKind === "manual"
+      ? playerSession.authorizeOverlayAction(trackId) !== undefined
+      : overlayKind === "recovery"
+        ? playerSession.authorizeRecoveryAction(trackId)
+        : playerSession.authorizeLauncherAction(trackId) !== undefined;
+  if (!authorized) return;
+  if (shellInput === "back") {
+    if (overlayKind) chooseOverlayAction("exit", trackId);
     else if (currentMode !== "tracker") setMode("tracker");
     else showLauncher();
+  } else if (shellInput === "left") {
+    moveFocus(-1);
+  } else if (shellInput === "right") {
+    moveFocus(1);
+  } else if (shellInput === "select") {
+    selectFocused(trackId);
   }
-  if (action.name === "menu_swipe_left") moveFocus(-1);
-  if (action.name === "menu_swipe_right") moveFocus(1);
-  if (action.name === "menu_select") selectFocused();
 }
 
 function handleConsoleInput(action: ConsoleInputAction): void {
@@ -534,15 +588,19 @@ function handleConsoleInput(action: ConsoleInputAction): void {
   }
 }
 
-function joinPlayer(): void {
-  const candidate = latestFrame?.players[0];
+function joinPlayer(trackId?: string): void {
+  const candidate = trackId === undefined
+    ? latestFrame?.players[0]
+    : latestFrame?.players.find((player) => player.id === trackId);
   if (!candidate) {
     statusDetail.textContent = "No visible candidate is available to join.";
+    if (trackId !== undefined) synchronizeActionEngineAssignment();
     return;
   }
   try {
     playerSession.join(candidate.id);
   } catch (error) {
+    if (trackId !== undefined) synchronizeActionEngineAssignment();
     statusDetail.textContent = error instanceof Error ? error.message : String(error);
     return;
   }
@@ -550,6 +608,11 @@ function joinPlayer(): void {
   joinButton.disabled = false;
   joinButton.textContent = "LEAVE PLAYER 1";
   statusDetail.textContent = "Player 1 joined. Automatic standing calibration is collecting its initial baseline.";
+}
+
+function synchronizeActionEngineAssignment(): void {
+  if (playerSession.snapshot().players.length === 0) actionEngine.leave();
+  else actionEngine.join();
 }
 
 function leavePlayer(): void {
@@ -802,25 +865,37 @@ function moveFocus(direction: -1 | 1): void {
   for (const card of shellCards) card.classList.toggle("focused", card.dataset.shellTarget === modeButtons[focusedModeIndex]?.dataset.mode);
 }
 
-function selectFocused(): void {
+function selectFocused(trackId?: string): void {
   if (overlayKind) {
-    chooseOverlayAction(overlayFocus);
+    chooseOverlayAction(overlayFocus, trackId);
     return;
   }
   modeButtons[focusedModeIndex]?.click();
 }
 
-function showOverlay(kind: OverlayKind): void {
+function showOverlay(
+  kind: OverlayKind,
+  ownerSlot?: 1 | 2,
+): void {
   if (overlayKind) return;
   if (kind === "manual" && currentMode === "obstacle") obstacleRunPauseCount += 1;
   overlayKind = kind;
   overlay.hidden = false;
   obstacle.setPaused(true);
   overlayFocus = kind === "manual" ? "exit" : "resume";
-  required<HTMLElement>("#overlay-eyebrow").textContent = kind === "manual" ? "SYSTEM PAUSE / PLAYER 1" : "TRACKING RECOVERY";
+  required<HTMLElement>("#overlay-eyebrow").textContent =
+    kind === "manual"
+      ? ownerSlot === undefined
+        ? "SYSTEM PAUSE / CONTROLLER"
+        : `SYSTEM PAUSE / PLAYER ${ownerSlot}`
+      : "TRACKING RECOVERY";
   required<HTMLElement>("#overlay-title").textContent = kind === "manual" ? "GAME PAUSED" : "PLAYER LOST";
   required<HTMLElement>("#overlay-copy").textContent =
-    kind === "manual" ? "Player 1 opened the console menu. Exit is focused by default." : "Tracking did not recover in two seconds. Resume is focused by default.";
+    kind === "manual"
+      ? ownerSlot === undefined
+        ? "The recovery controller opened the console menu. Exit is focused by default."
+        : `Player ${ownerSlot} opened the console menu. Exit is focused by default.`
+      : "Tracking did not recover in two seconds. Resume is focused by default.";
   paintOverlayFocus();
 }
 
@@ -832,15 +907,24 @@ function paintOverlayFocus(): void {
   }
 }
 
-function chooseOverlayAction(action: "resume" | "exit"): void {
+function chooseOverlayAction(
+  action: "resume" | "exit",
+  recoveryTrackId?: string,
+): void {
+  const kind = overlayKind;
   if (action === "exit") {
-    if (overlayKind === "recovery") resetPlayerSession();
+    if (kind === "recovery") resetPlayerSession();
+    else closeOwnedPause("launcher");
     closeOverlay(false);
     setMode("tracker");
     return;
   }
-  if (overlayKind === "recovery") {
-    const candidate = latestFrame?.players[0];
+  if (kind === "recovery") {
+    const candidate = recoveryTrackId === undefined
+      ? latestFrame?.players[0]
+      : latestFrame?.players.find(
+          (player) => player.id === recoveryTrackId,
+        );
     if (!candidate) {
       statusDetail.textContent = "Resume requires a visible player candidate.";
       return;
@@ -851,8 +935,20 @@ function chooseOverlayAction(action: "resume" | "exit"): void {
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
       return;
     }
+  } else {
+    closeOwnedPause("game");
   }
   closeOverlay(true);
+}
+
+function closeOwnedPause(destination: "game" | "launcher"): void {
+  const snapshot = playerSession.snapshot();
+  if (
+    snapshot.phase === "paused"
+    && snapshot.overlayOwner !== undefined
+  ) {
+    playerSession.closePause(snapshot.overlayOwner, destination);
+  }
 }
 
 function paintActionFeedback(action: MotionAction): void {
@@ -883,7 +979,7 @@ function closeOverlay(resume: boolean): void {
 }
 
 function goBack(): void {
-  if (overlayKind) closeOverlay(false);
+  if (overlayKind) chooseOverlayAction("exit");
   else if (currentMode !== "tracker") setMode("tracker");
   else if (!replayRunning) startReplay();
   else showLauncher();

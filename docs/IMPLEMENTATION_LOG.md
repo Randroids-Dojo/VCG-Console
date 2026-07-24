@@ -2784,3 +2784,48 @@ remains active pending paired consented backend traces, exact native smoothing
 controls, pre-registered parameter grids and held-out scoring, action-level
 precision/recall and end-to-end latency, perceived gameplay evidence, and
 native Linux/Rust measurement under the full workload.
+
+## 2026-07-24: exact-track Motion Lab action dispatch
+
+### Delivered
+
+- Closed the gap between the pure I-056 authority controller and Motion Lab
+  dispatch. The runtime now carries each action with its producing opaque
+  track ID instead of consuming only the first detected player's action list.
+- Requires an exact visible joined track for obstacle actions; candidate
+  reordering cannot transfer gameplay authority.
+- Batches every same-frame triggered Pause completion through the controller's
+  deterministic completion-time/player-slot rule before opening the overlay.
+  Other actions from the opening frame are suppressed.
+- Restricts shared launcher actions to the current launcher owner and manual
+  overlay actions to the exact Pause owner. The overlay identifies the actual
+  player slot; a recovery controller remains visibly distinct.
+- Preserves D-070's deliberate one-player takeover by binding Resume to the
+  exact candidate that produced the selection action. Multiplayer recovery
+  navigation accepts only an original visible joined track, so an outsider
+  cannot move focus, exit, or replace a player.
+- Closes controller-owned Pause state on Resume/Exit and keeps failed Join
+  callbacks synchronized with the actual session roster.
+
+### Verification evidence
+
+- Fourteen player-session cases now cover gameplay, launcher, Pause-overlay,
+  one-player recovery, and multiplayer recovery authority independently.
+- A camera-free integration case places a triggered spectator ahead of the
+  joined player and proves only the exact joined track's action survives the
+  same runtime authorization used by the lab.
+- All 207 console unit tests pass; Svelte/TypeScript checking reports zero
+  diagnostics and the production build succeeds.
+- All 33 real-Chrome flows pass, including controller leave/re-entry,
+  tracking recovery, shell navigation, hostile browser policy, and motion
+  simulator coverage.
+
+### Remaining boundary
+
+This is fail-closed dispatch, not a two-player recognizer or tracker
+qualification. The current browser action engine still recognizes only its
+first player; a reordered active player therefore loses browser-derived
+actions rather than transferring them. I-054/I-056 still require calibrated
+per-player recognition, stable physical identity tracks, true simultaneous
+Pause races, two-player runtime/game-freeze integration, target tracker
+restart, and household adversarial evidence.

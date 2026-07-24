@@ -97,6 +97,23 @@ non-joined tracks have no gameplay authority. Observation batches and action
 completion batches are independently capped at 16 entries and reject overflow
 before changing authority state.
 
+The Motion Lab runtime applies those checks to every `(trackId, action)` pair,
+not merely the first detected body. It batches all same-frame Pause
+completions before opening the overlay, suppresses other actions from that
+opening frame, and accepts obstacle actions only from an exact currently
+authorized joined track. Candidate reordering therefore fails closed rather
+than transferring gameplay.
+
+Shared shell actions have narrower authority.
+`authorizeLauncherAction(trackId)` accepts only the visible joined launcher
+owner, while `authorizeOverlayAction(trackId)` accepts only the visible joined
+manual-Pause owner. During one-player recovery, any visible candidate may
+navigate and deliberately select Resume under D-070; the exact action track is
+also the takeover track. During multiplayer recovery, only an original
+visible joined track may navigate, and the existing complete-retained-roster
+checks still govern Resume. A spectator cannot move focus, exit, or replace a
+multiplayer player. Reserved controller recovery remains independent.
+
 ## Implemented evidence
 
 `PlayerSessionController` is a pure, clock-injected TypeScript state machine.
@@ -113,6 +130,9 @@ join/leave/re-entry/loss/recovery path. The previous boolean tracking-loss
 controller was removed so there is one behavioral authority. The action
 engine adds a focused release-gate case, and the real-Chrome simulator flow
 proves controller Join, focus, Leave, and fresh Join without opening a camera.
+The camera-free integration suite additionally reorders a spectator ahead of
+the joined track, gives both tracks triggered actions, and proves that only
+the exact joined track survives runtime authorization.
 
 The camera-free Session authority rehearsal adds five deterministic scenarios
 covering spectators, pets, mirrors, television people, passersby, deliberate

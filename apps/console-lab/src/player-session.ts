@@ -253,15 +253,43 @@ export class PlayerSessionController {
   }
 
   authorizeGameplayAction(trackId: string): PlayerSlot | undefined {
-    validTrackId(trackId);
-    if (this.#phase !== "playing") return undefined;
-    const player = [...this.#players.values()].find(
-      (candidate) =>
-        candidate.trackId === trackId &&
-        candidate.presence === "joined" &&
-        candidate.visible,
+    return this.#authorizeOwnedTrack(
+      trackId,
+      this.#phase === "playing",
+      undefined,
     );
-    return player?.slot;
+  }
+
+  authorizeLauncherAction(trackId: string): PlayerSlot | undefined {
+    return this.#authorizeOwnedTrack(
+      trackId,
+      this.#phase === "playing",
+      this.#launcherOwner,
+      true,
+    );
+  }
+
+  authorizeOverlayAction(trackId: string): PlayerSlot | undefined {
+    return this.#authorizeOwnedTrack(
+      trackId,
+      this.#phase === "paused",
+      this.#overlayOwner,
+      true,
+    );
+  }
+
+  authorizeRecoveryAction(trackId: string): boolean {
+    validTrackId(trackId);
+    if (
+      this.#phase !== "recovery"
+      || !this.#visibleTracks.has(trackId)
+    ) {
+      return false;
+    }
+    if (this.#players.size === 1) return true;
+    return [...this.#players.values()].some(
+      (player) => player.trackId === trackId && player.visible,
+    );
   }
 
   openPauseForTracks(
@@ -412,6 +440,26 @@ export class PlayerSessionController {
     for (const player of this.#players.values()) {
       player.visible = this.#visibleTracks.has(player.trackId);
     }
+  }
+
+  #authorizeOwnedTrack(
+    trackId: string,
+    phaseAllowed: boolean,
+    ownerSlot: PlayerSlot | undefined,
+    ownerRequired = false,
+  ): PlayerSlot | undefined {
+    validTrackId(trackId);
+    if (!phaseAllowed || (ownerRequired && ownerSlot === undefined)) {
+      return undefined;
+    }
+    const player = [...this.#players.values()].find(
+      (candidate) =>
+        candidate.trackId === trackId
+        && candidate.presence === "joined"
+        && candidate.visible
+        && (ownerSlot === undefined || candidate.slot === ownerSlot),
+    );
+    return player?.slot;
   }
 
   #unsafeSlots(): PlayerSlot[] {

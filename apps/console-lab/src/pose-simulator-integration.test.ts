@@ -1,6 +1,7 @@
 import { MotionPoseSimulator } from "@vcg/motion-contract";
 import { describe, expect, it } from "vitest";
 import { ActionEngine } from "./action-engine";
+import { PlayerSessionController } from "./player-session";
 
 function calibratedEngine(context: "shell" | "game" = "shell") {
   const engine = new ActionEngine();
@@ -71,5 +72,61 @@ describe("camera-free pose simulator integration", () => {
     expect(engine.enrich(simulator.frame(26, 640)).players).toEqual([]);
     simulator.setPlayerVisible(true);
     expect(engine.enrich(simulator.frame(27, 660)).players[0]?.id).toBe("simulator-player-1");
+  });
+
+  it("denies first-candidate actions after track reordering and retains exact joined authority", () => {
+    const { engine, simulator } = calibratedEngine("game");
+    const session = new PlayerSessionController();
+    const initial = simulator.frame(24, 600);
+    const activeTrack = initial.players[0]!.id;
+    session.observe(initial.publishedAtMs, [activeTrack]);
+    session.join(activeTrack);
+    engine.join();
+
+    simulator.setPose("dodge-right");
+    const base = simulator.frame(25, 800);
+    const candidate = base.players[0]!;
+    const reordered = engine.enrich({
+      ...base,
+      players: [
+        {
+          ...candidate,
+          id: "spectator-track",
+          actions: [],
+        },
+        {
+          ...candidate,
+          id: activeTrack,
+          actions: [{
+            name: "jump",
+            phase: "triggered",
+            confidence: 0.9,
+            occurredAtMs: 800,
+          }],
+        },
+      ],
+    }, "game");
+    session.observe(
+      reordered.publishedAtMs,
+      reordered.players.map(({ id }) => id),
+    );
+
+    expect(reordered.players[0]?.actions).toContainEqual(
+      expect.objectContaining({
+        name: "dodge_right",
+        phase: "triggered",
+      }),
+    );
+    const authorized = reordered.players.flatMap((player) =>
+      player.actions.flatMap((action) =>
+        session.authorizeGameplayAction(player.id) === undefined
+          ? []
+          : [{ trackId: player.id, action: action.name }],
+      ),
+    );
+    expect(authorized).toEqual([{
+      trackId: activeTrack,
+      action: "jump",
+    }]);
   });
 });

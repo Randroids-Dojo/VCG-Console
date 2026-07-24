@@ -136,6 +136,8 @@ describe("PlayerSessionController", () => {
     session.observe(200, []);
     session.observe(500, []);
     session.observe(2_500, ["track-c"]);
+    expect(session.authorizeRecoveryAction("track-c")).toBe(true);
+    expect(session.authorizeRecoveryAction("track-a")).toBe(false);
     expect(session.resumeRecovery("track-c")).toEqual({
       type: "recovery-resumed",
       ownerSlot: 1,
@@ -146,6 +148,7 @@ describe("PlayerSessionController", () => {
       phase: "playing",
       players: [{ slot: 1, trackId: "track-c", presence: "joined" }],
     });
+    expect(session.authorizeRecoveryAction("track-c")).toBe(false);
   });
 
   it("requires every retained multiplayer track or explicit roster reduction", () => {
@@ -153,7 +156,9 @@ describe("PlayerSessionController", () => {
     session.observe(100, ["track-a", "track-b"]);
     session.observe(200, ["track-b"]);
     session.observe(500, ["track-b"]);
-    session.observe(2_500, ["track-b"]);
+    session.observe(2_500, ["track-b", "spectator"]);
+    expect(session.authorizeRecoveryAction("track-b")).toBe(true);
+    expect(session.authorizeRecoveryAction("spectator")).toBe(false);
     expect(() => session.resumeRecovery("track-b")).toThrow("every retained");
     expect(session.resumeRecovery("track-b", [2])).toEqual({
       type: "recovery-resumed",
@@ -193,6 +198,9 @@ describe("PlayerSessionController", () => {
     expect(session.authorizeGameplayAction("track-b")).toBe(2);
     expect(session.authorizeGameplayAction("spectator")).toBeUndefined();
     expect(session.authorizeGameplayAction("pet")).toBeUndefined();
+    expect(session.authorizeLauncherAction("track-a")).toBe(1);
+    expect(session.authorizeLauncherAction("track-b")).toBeUndefined();
+    expect(session.authorizeLauncherAction("spectator")).toBeUndefined();
     expect(
       session.openPauseForTracks([
         { trackId: "spectator", completedAtMs: 90 },
@@ -201,6 +209,10 @@ describe("PlayerSessionController", () => {
       ]),
     ).toEqual({ type: "pause-opened", ownerSlot: 1 });
     expect(session.authorizeGameplayAction("track-a")).toBeUndefined();
+    expect(session.authorizeLauncherAction("track-a")).toBeUndefined();
+    expect(session.authorizeOverlayAction("track-a")).toBe(1);
+    expect(session.authorizeOverlayAction("track-b")).toBeUndefined();
+    expect(session.authorizeOverlayAction("spectator")).toBeUndefined();
   });
 
   it("withholds action authority during loss confirmation and recovery", () => {
