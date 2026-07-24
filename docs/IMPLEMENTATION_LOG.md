@@ -2728,3 +2728,59 @@ accessible number/pattern identities, real crossing and occlusion tracks,
 physical controller and motion leave/re-entry comprehension, two-player
 runtime/game-freeze integration, tracker restart on target Linux, and the
 validator-passing household interference campaign.
+
+## 2026-07-24: deterministic motion-smoothing comparison
+
+### Delivered
+
+- Advanced I-062 to `active` with a strict normalized two-dimensional point
+  smoother implementing passthrough, fixed-alpha EMA, One Euro, and
+  constant-velocity Kalman baselines.
+- Added bounded parameters and timestamps, normalized input validation,
+  explicit missing observations, no synthetic visible/control point during
+  loss, short-gap state retention, and exact reset-to-measurement after a
+  gap longer than 250 ms.
+- Added five deterministic 60 FPS scenarios totaling 1,140 frames: static
+  mixed-frequency jitter, abrupt step, constant-speed ramp, direction
+  reversal, and an eight-frame bounded dropout. Truth coordinates remain
+  evaluator-only and are stripped before every smoother call.
+- Recorded static RMS/p95/delta, step RMS/90%-response/overshoot, ramp signed
+  error, reversal maximum error, dropout reacquisition, and per-update
+  latency.
+- Made the tradeoff explicit: EMA and One Euro reduce static RMS by 59.3% and
+  81.3% but add 83.333 ms and 50 ms step response; the frozen Kalman default
+  is strongest on ramp/dropout but takes 383.333 ms and overshoots abrupt
+  motion by `0.113049`.
+- Kept backend-native smoothing as
+  `unmeasured-no-comparable-backend-series`; no synthetic proxy or metric is
+  presented as backend evidence, and no universal production filter is
+  selected.
+- Added a strict report validator binding the smoother/suite/benchmark
+  SHA-256 values, Motion `0.4.0`, exact suite digest, deterministic metrics,
+  timing shape, no-raw-frame policy, backend-native absence, and claim
+  limits.
+- Reserved Q-217 for smoothing acceptance/stream architecture and Q-218 for
+  a minimized shared consented evidence session.
+
+### Verification evidence
+
+- The Motion package passes 102 tests, including all four filter contracts,
+  bounded input and options, monotonic time, missing-output behavior,
+  short-/long-gap semantics, deterministic scenario coverage, and visible
+  jitter/step tradeoffs.
+- TypeScript checking passes.
+- Nine adversarial evidence-validator tests cover raw-frame claims, truth
+  leakage, suite and implementation substitution, deterministic metric
+  substitution, fabricated backend-native evidence, non-monotonic latency,
+  and undeclared fields.
+- The tracked Windows x86 report passes its real implementation-hash and
+  method validator.
+
+### Remaining boundary
+
+Generated points are method and regression evidence, not real tracking,
+action, gameplay, accessibility, or target-platform qualification. I-062
+remains active pending paired consented backend traces, exact native smoothing
+controls, pre-registered parameter grids and held-out scoring, action-level
+precision/recall and end-to-end latency, perceived gameplay evidence, and
+native Linux/Rust measurement under the full workload.

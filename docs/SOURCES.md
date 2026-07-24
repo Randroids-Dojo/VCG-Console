@@ -29,6 +29,8 @@ Prefer primary project repositories, official documentation, standards, and offi
 | [rtmlib](https://github.com/Tau-J/rtmlib) | Apache-2.0 lightweight RTMPose/RTMO deployment across ONNX Runtime, TensorRT, OpenVINO, and ncnn. |
 | [MMPose inference guide](https://github.com/open-mmlab/mmpose/blob/main/docs/en/user_guides/inference.md) | Documents multi-frame pose tracking and OKS-based tracking options. |
 | [ByteTrack](https://github.com/FoundationVision/ByteTrack) | Official multi-object tracking implementation worth comparing for stable player identity. |
+| [One Euro Filter](https://gery.casiez.net/1euro/) | The authors' official CHI 2012 companion page provides the paper, algorithm, reference implementations, and tuning procedure for its jitter/lag tradeoff. |
+| [Kalman 1960 filtering paper](https://cds.cern.ch/record/434680) | Primary basis for the small constant-velocity state-estimation baselines used in identity and smoothing comparisons. |
 | [MMAction2](https://github.com/open-mmlab/mmaction2) | Apache-2.0 action-recognition toolbox including skeleton-based recognition. |
 | [libfreenect](https://github.com/OpenKinect/libfreenect) and [libfreenect2](https://github.com/OpenKinect/libfreenect2) | Open Kinect v1/v2 capture drivers; useful as sensor references but not complete modern body-tracking platforms. |
 | [Azure Kinect lifecycle](https://learn.microsoft.com/en-us/lifecycle/products/azure-kinect-sdk) and [archived SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK) | Microsoft marks Azure Kinect SDK support ended in 2024 and the repository is archived. |

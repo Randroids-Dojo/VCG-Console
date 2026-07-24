@@ -1,0 +1,262 @@
+{
+  "format": "vcg-motion-smoothing-comparison",
+  "formatVersion": 1,
+  "generatedAt": "2026-07-24T17:40:12.821Z",
+  "sourceCommit": "5d9764af17c089d3fe6e3d2ee5865b59b30edd40",
+  "workingTreeClean": false,
+  "motionApiSchemaVersion": "0.4.0",
+  "implementation": {
+    "smootherSha256": "2f8d76b103d1449c6c5dd6abdf944253edbaa96216cb5359369590232c330f11",
+    "suiteSha256": "6cf54ee1627db3ff45941b312cb1b8082e96a3e378e9a67787ef87b83b9cc602",
+    "benchmarkSha256": "6aeff9341005bf55be878cf263e9ead6b8e1a019ee83c39ba43f414eda4becc7"
+  },
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0"
+  },
+  "suite": {
+    "version": "normalized-point-smoothing-synthetic/v1",
+    "serializedScenarioSha256": "3f8603ae1f21409d4c6d29e1475265c2b67981235d6ec0c2d47811015c8a6e6a",
+    "containsRawFrames": false,
+    "source": "deterministic generated normalized two-dimensional points",
+    "scenarios": [
+      {
+        "id": "static-jitter",
+        "description": "Stationary normalized point with deterministic mixed-frequency noise.",
+        "framesPerSecond": 60,
+        "frameCount": 300,
+        "missingObservationCount": 0
+      },
+      {
+        "id": "step",
+        "description": "Abrupt horizontal step from x=0.3 to x=0.7 at frame 60.",
+        "framesPerSecond": 60,
+        "frameCount": 180,
+        "missingObservationCount": 0
+      },
+      {
+        "id": "ramp",
+        "description": "Constant-speed horizontal ramp from x=0.2 to x=0.8.",
+        "framesPerSecond": 60,
+        "frameCount": 240,
+        "missingObservationCount": 0
+      },
+      {
+        "id": "reversal",
+        "description": "Horizontal triangle wave with an abrupt direction reversal.",
+        "framesPerSecond": 60,
+        "frameCount": 240,
+        "missingObservationCount": 0
+      },
+      {
+        "id": "dropout",
+        "description": "Constant-speed horizontal motion with eight consecutive missing observations.",
+        "framesPerSecond": 60,
+        "frameCount": 180,
+        "missingObservationCount": 8
+      }
+    ]
+  },
+  "method": {
+    "defaultParameters": {
+      "maxGapMs": 250,
+      "emaAlpha": 0.35,
+      "oneEuroMinCutoffHz": 1,
+      "oneEuroBeta": 4,
+      "oneEuroDerivativeCutoffHz": 1,
+      "kalmanProcessVariance": 0.002,
+      "kalmanMeasurementVariance": 0.001
+    },
+    "warmupPasses": 10,
+    "measuredPasses": 100,
+    "latencyBoundary": "one smoother update over one pre-generated point",
+    "latencyTimer": "node-performance-now",
+    "latencySummaryMethod": "linear-interpolation-r7",
+    "truthVisibility": "truth coordinates exist only in evaluator frames and are stripped before every smoother update",
+    "missingObservationPolicy": "missing observations produce no point; state resets after a gap longer than maxGapMs"
+  },
+  "results": [
+    {
+      "algorithm": "passthrough",
+      "classification": "unsmoothed normalized observation baseline",
+      "metrics": {
+        "overallRmsError": 0.005071,
+        "static": {
+          "rmsError": 0.009029,
+          "p95AbsoluteError": 0.013084,
+          "outputDeltaRms": 0.012425
+        },
+        "step": {
+          "rmsError": 0.001291,
+          "response90Milliseconds": 0,
+          "overshoot": 0.001885
+        },
+        "ramp": {
+          "rmsError": 0.002582,
+          "meanSignedXError": 0.000004
+        },
+        "reversal": {
+          "rmsError": 0.002582,
+          "maximumAbsoluteError": 0.004137
+        },
+        "dropout": {
+          "rmsError": 0.002582,
+          "missingOutputCount": 8,
+          "reacquisitionAbsoluteError": 0.002939,
+          "postReacquisitionRmsError": 0.002584
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 114000,
+        "mean": 0.649,
+        "p50": 0.6,
+        "p95": 0.8,
+        "p99": 1.1,
+        "worst": 156,
+        "measuredThroughputUpdatesPerSecond": 1541294.525
+      }
+    },
+    {
+      "algorithm": "ema",
+      "classification": "fixed-alpha exponential moving average",
+      "metrics": {
+        "overallRmsError": 0.011697,
+        "static": {
+          "rmsError": 0.003678,
+          "p95AbsoluteError": 0.005609,
+          "outputDeltaRms": 0.003597
+        },
+        "step": {
+          "rmsError": 0.025517,
+          "response90Milliseconds": 83.333333,
+          "overshoot": 0.000765
+        },
+        "ramp": {
+          "rmsError": 0.004738,
+          "meanSignedXError": -0.004583
+        },
+        "reversal": {
+          "rmsError": 0.009208,
+          "maximumAbsoluteError": 0.010829
+        },
+        "dropout": {
+          "rmsError": 0.006766,
+          "missingOutputCount": 8,
+          "reacquisitionAbsoluteError": 0.024156,
+          "postReacquisitionRmsError": 0.011775
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 114000,
+        "mean": 0.621,
+        "p50": 0.6,
+        "p95": 0.7,
+        "p99": 1.1,
+        "worst": 381.7,
+        "measuredThroughputUpdatesPerSecond": 1611523.809
+      }
+    },
+    {
+      "algorithm": "one-euro",
+      "classification": "speed-adaptive low-pass filter",
+      "metrics": {
+        "overallRmsError": 0.01551,
+        "static": {
+          "rmsError": 0.001687,
+          "p95AbsoluteError": 0.002064,
+          "outputDeltaRms": 0.00108
+        },
+        "step": {
+          "rmsError": 0.016943,
+          "response90Milliseconds": 50,
+          "overshoot": 0.000252
+        },
+        "ramp": {
+          "rmsError": 0.014727,
+          "meanSignedXError": -0.014584
+        },
+        "reversal": {
+          "rmsError": 0.021879,
+          "maximumAbsoluteError": 0.027542
+        },
+        "dropout": {
+          "rmsError": 0.017526,
+          "missingOutputCount": 8,
+          "reacquisitionAbsoluteError": 0.018271,
+          "postReacquisitionRmsError": 0.017893
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 114000,
+        "mean": 0.642,
+        "p50": 0.6,
+        "p95": 0.7,
+        "p99": 1,
+        "worst": 277.2,
+        "measuredThroughputUpdatesPerSecond": 1556603.001
+      }
+    },
+    {
+      "algorithm": "kalman",
+      "classification": "constant-velocity two-state linear Kalman filter per axis",
+      "metrics": {
+        "overallRmsError": 0.069022,
+        "static": {
+          "rmsError": 0.001579,
+          "p95AbsoluteError": 0.003416,
+          "outputDeltaRms": 0.001215
+        },
+        "step": {
+          "rmsError": 0.100393,
+          "response90Milliseconds": 383.333333,
+          "overshoot": 0.113049
+        },
+        "ramp": {
+          "rmsError": 0.000549,
+          "meanSignedXError": -0.000104
+        },
+        "reversal": {
+          "rmsError": 0.122096,
+          "maximumAbsoluteError": 0.211892
+        },
+        "dropout": {
+          "rmsError": 0.000701,
+          "missingOutputCount": 8,
+          "reacquisitionAbsoluteError": 0.000445,
+          "postReacquisitionRmsError": 0.000459
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 114000,
+        "mean": 0.72,
+        "p50": 0.6,
+        "p95": 0.9,
+        "p99": 1.8,
+        "worst": 822.7,
+        "measuredThroughputUpdatesPerSecond": 1388460.915
+      }
+    }
+  ],
+  "backendNative": {
+    "status": "unmeasured-no-comparable-backend-series",
+    "reason": "No selected pose backend currently exposes both raw and native-smoothed normalized landmark series over the same consented capture.",
+    "evidenceRequired": [
+      "paired raw and backend-native-smoothed landmark series from the same backend invocation",
+      "documented native smoothing controls and defaults",
+      "the same jitter, step, ramp, reversal, and dropout scoring boundary"
+    ]
+  },
+  "claimBoundary": "Camera-free deterministic normalized-point evidence only. It does not measure perceived gameplay quality, real pose noise, native backend smoothing, camera latency, full action latency, target hardware, or real players.",
+  "limitations": [
+    "Generated noise is deterministic and does not reproduce pose-estimator error distributions.",
+    "A single point does not represent articulated landmark covariance or confidence behavior.",
+    "Step, ramp, reversal, and dropout traces are synthetic rather than consented captures.",
+    "No gameplay task or human-perceived latency score is measured.",
+    "Backend-native smoothing is explicitly unmeasured because no comparable paired series is available.",
+    "Default parameters are illustrative baselines and are not qualified action-profile settings.",
+    "Per-update JavaScript timing excludes capture, inference, association, IPC, actions, and rendering.",
+    "One Windows x64 development host does not qualify native Rust or target-Linux performance.",
+    "No image, video frame, biometric template, identity label, or appearance descriptor is generated or retained."
+  ]
+}

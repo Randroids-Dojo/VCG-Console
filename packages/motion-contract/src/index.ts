@@ -9,3 +9,5 @@ export * from "./replay";
 export * from "./rtmo-adapter";
 export * from "./schema";
 export * from "./simulator";
+export * from "./smoothing";
+export * from "./smoothing-benchmark";
