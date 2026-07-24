@@ -25,7 +25,7 @@ Statuses are `evidence`, `open`, `active`, `blocked`, and `closed`. Priority P0 
 
 | ID | P | Status | Investigation | Required proof artifact | Links |
 |---|---:|---|---|---|---|
-| I-013 | P0 | open | Establish the x86-64 development baseline. | CPU/GPU/RAM/OS report plus benchmark result bundle. | D-007 |
+| I-013 | P0 | closed | Establish the x86-64 development baseline. | `X86_DEVELOPMENT_BASELINE_2026-07-24.md` and the strict `windows-wsl2-owned-2026-07-24.json` bundle bind a sanitized Ryzen 9 5900X/RTX 3080 Ti/63.9 GiB/Windows 11 inventory to all twelve checked-in Windows and WSL2 transport reports by path, byte length, SHA-256, environment, payload, and process layout. Capture/bundle validators and seven negative tests pass. This is development-host evidence only; ordinary native Linux, physical camera/controller, complete workloads, and the 120 ms end-to-end gate remain I-207/I-211/I-015. | D-007, D-036, D-126, I-015, I-207, I-211, Q-203, Q-204 |
 | I-014 | P0 | open | Benchmark Pi 5 CPU-only pose plus representative web and Godot workloads. | Reproducible script with p50/p95 latency, FPS, RAM, power, and thermals. | Q-012, D-012 |
 | I-015 | P0 | open | Benchmark end-to-end camera-to-action latency, not inference time alone. | Audited exposure-timestamp-to-game-API method with p50/p95/p99, drops, false actions, concurrent workload, and proof against the 120 ms p95 gate; high-speed visible-response validation where practical. | D-110 |
 | I-016 | P1 | open | Benchmark Pi 5 RAM pressure at 2 GB, 4 GB, and available larger sizes. | Memory traces and smallest safe configuration recommendation. | D-021 |

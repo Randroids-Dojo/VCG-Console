@@ -1,0 +1,306 @@
+{
+  "format": "vcg-x86-development-baseline-bundle",
+  "formatVersion": 1,
+  "assembledAt": "2026-07-24T16:31:55.8750581Z",
+  "role": "x86-64-development-host",
+  "hostCapture": {
+    "format": "vcg-x86-development-host-capture",
+    "formatVersion": 1,
+    "capturedAt": "2026-07-24T16:31:55.8750581Z",
+    "sourceCommit": "33b662ac671aa43d81730cae305c5f72a8042329",
+    "workingTreeClean": false,
+    "inventory": {
+      "operatingSystem": {
+        "name": "Microsoft Windows 11 Pro",
+        "version": "10.0.26200",
+        "build": "26200",
+        "architecture": "64-bit"
+      },
+      "cpu": {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "physicalCores": 12,
+        "logicalProcessors": 24
+      },
+      "memory": {
+        "physicalBytes": 68625489920
+      },
+      "graphics": {
+        "model": "NVIDIA GeForce RTX 3080 Ti",
+        "dedicatedMemoryMiB": 12288,
+        "driverVersion": "596.49",
+        "memoryEvidence": "nvidia-smi"
+      },
+      "cameras": [
+        {
+          "model": "HD Pro Webcam C920",
+          "usbVendorProduct": "046d:082d",
+          "status": "OK"
+        }
+      ],
+      "controllers": []
+    },
+    "runtimes": {
+      "node": "v24.18.0",
+      "projectPnpm": "10.30.3",
+      "projectPackageManager": "pnpm@10.30.3",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "git": "git version 2.55.0.windows.3"
+    },
+    "virtualizedLinux": {
+      "kind": "wsl2",
+      "distribution": "Ubuntu 26.04 LTS",
+      "distributionName": "Ubuntu",
+      "architecture": "x86_64",
+      "kernel": "6.6.87.2-microsoft-standard-WSL2",
+      "node": "v22.22.1",
+      "wslVersion": "2.6.3.0"
+    },
+    "privacy": {
+      "containsComputerName": false,
+      "containsUserName": false,
+      "containsDeviceInstanceIds": false,
+      "containsSerialNumbers": false,
+      "containsFilesystemPaths": false,
+      "containsNetworkAddresses": false
+    }
+  },
+  "evidence": [
+    {
+      "kind": "sanitized-host-report",
+      "repositoryPath": "docs/WINDOWS_QUALIFICATION_RESULT_2026-07-24.md",
+      "bytes": 4319,
+      "sha256": "6bb4be6d93bc536847d20439f379081cd647d1b480ad52f583776d7a6dbdc6bd",
+      "expect": {
+        "format": "markdown"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-2026-07-24.json",
+      "bytes": 3486,
+      "sha256": "b4d515315837c6b5be910e522de741ba60b1b43bd0f15a88fdf76b19928dda17",
+      "expect": {
+        "formatVersion": 1,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "legacy-opaque-bytes",
+        "payloadBytes": 4096,
+        "frameShape": null,
+        "processLayout": "same-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-child-process-2026-07-24.json",
+      "bytes": 4283,
+      "sha256": "b48cfaccbb7b5acab605a73771230d677d4dd7228a64d0903c452b6bc70f32d6",
+      "expect": {
+        "formatVersion": 1,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "legacy-opaque-bytes",
+        "payloadBytes": 4096,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-motion-json-actions-child-process-2026-07-24.json",
+      "bytes": 4741,
+      "sha256": "dd9d6d44f39a1dc0e6cb40b5bf8347e0ead7bb39f4c55acd10c9b4d5e2a534df",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "motion-json",
+        "payloadBytes": 2919,
+        "frameShape": "one synthetic joined player with body.core17 landmarks and ten standardized triggered actions",
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-motion-json-child-process-2026-07-24.json",
+      "bytes": 4714,
+      "sha256": "7138a10798975bf52f0da67f8e90295a9cbfdd3e24234e8a3c3c3b57272b25bd",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "motion-json",
+        "payloadBytes": 2010,
+        "frameShape": "one synthetic candidate with body.core17 landmarks and no actions",
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-motion-json-mediapipe33-world-child-process-2026-07-24.json",
+      "bytes": 4758,
+      "sha256": "64bb398375cb518d6134d5a648955ab5a1fc3d18143d49887e40fa9e58295154",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "motion-json",
+        "payloadBytes": 8353,
+        "frameShape": "one synthetic joined player with body.core17 plus body.mediapipe33 world landmarks and no actions",
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-opaque-2010-child-process-2026-07-24.json",
+      "bytes": 4512,
+      "sha256": "e8f10b6d8407cb2cb30f0cfc55b6c9b451fdec53abce5004b9923f8b0938f556",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "opaque-bytes",
+        "payloadBytes": 2010,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-opaque-2919-child-process-2026-07-24.json",
+      "bytes": 4514,
+      "sha256": "ed7e11888647034a10ab1c9dc2789d84be71902e5963842f99a872c80542f13e",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "opaque-bytes",
+        "payloadBytes": 2919,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/windows-x64-node24-opaque-8353-child-process-2026-07-24.json",
+      "bytes": 4522,
+      "sha256": "7c045ee3756382ee5793b598a809401f10e6c9bf739e57c8b69b3649d3b3311b",
+      "expect": {
+        "formatVersion": 2,
+        "platform": "win32",
+        "architecture": "x64",
+        "node": "v24.18.0",
+        "environmentKind": "unreported",
+        "payloadMode": "opaque-bytes",
+        "payloadBytes": 8353,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/wsl2-ubuntu-x64-node22-motion-json-child-process-2026-07-24.json",
+      "bytes": 4882,
+      "sha256": "3365de831feb4513a44f6be51bbbb478ccd17b141ebe2e0c7f7fd52bb6e6f81f",
+      "expect": {
+        "formatVersion": 3,
+        "platform": "linux",
+        "architecture": "x64",
+        "node": "v22.22.1",
+        "environmentKind": "wsl2",
+        "payloadMode": "motion-json",
+        "payloadBytes": 2010,
+        "frameShape": "one synthetic candidate with body.core17 landmarks and no actions",
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/wsl2-ubuntu-x64-node22-motion-json-mediapipe33-world-child-process-2026-07-24.json",
+      "bytes": 4924,
+      "sha256": "31d9c0030144d5d0455b2cf308f235eab30c761047b3d342dda15d878505fa91",
+      "expect": {
+        "formatVersion": 3,
+        "platform": "linux",
+        "architecture": "x64",
+        "node": "v22.22.1",
+        "environmentKind": "wsl2",
+        "payloadMode": "motion-json",
+        "payloadBytes": 8353,
+        "frameShape": "one synthetic joined player with body.core17 plus body.mediapipe33 world landmarks and no actions",
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/wsl2-ubuntu-x64-node22-opaque-2010-child-process-2026-07-24.json",
+      "bytes": 4678,
+      "sha256": "94df2eca6323dd66985566a3d5a1dbfc7e2b5a6180695f4fa818606476653e3d",
+      "expect": {
+        "formatVersion": 3,
+        "platform": "linux",
+        "architecture": "x64",
+        "node": "v22.22.1",
+        "environmentKind": "wsl2",
+        "payloadMode": "opaque-bytes",
+        "payloadBytes": 2010,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    },
+    {
+      "kind": "transport-benchmark",
+      "repositoryPath": "benchmarks/transport/wsl2-ubuntu-x64-node22-opaque-8353-child-process-2026-07-24.json",
+      "bytes": 4684,
+      "sha256": "c5a7165a0c7584a05606f0af59963c0e1e465539f82f9bf65e35afef5cd71f66",
+      "expect": {
+        "formatVersion": 3,
+        "platform": "linux",
+        "architecture": "x64",
+        "node": "v22.22.1",
+        "environmentKind": "wsl2",
+        "payloadMode": "opaque-bytes",
+        "payloadBytes": 8353,
+        "frameShape": null,
+        "processLayout": "child-process"
+      }
+    }
+  ],
+  "claimBoundary": {
+    "status": "established-development-only",
+    "establishes": [
+      "One sanitized exact Windows x86-64 development-host inventory with CPU, GPU, physical memory, operating system, camera presence, controller absence, and pinned project runtime versions.",
+      "Hash-bound same-host Windows and WSL2 local transport observations for opaque and schema-validated Motion payloads, including process-isolated socket and WebSocket cases."
+    ],
+    "doesNotEstablish": [
+      "An ordinary native x86-64 Linux premium reference, accountless appliance boot, compositor behavior, SDL3 input, or suspend and recovery.",
+      "Real-camera pose performance, camera exposure-to-game action latency, representative game performance, power, thermals, acoustics, or Raspberry Pi comparison."
+    ]
+  },
+  "limitations": [
+    "The tracked capture is sanitized and omits computer name, user name, unique device instance paths, serial numbers, filesystem paths, and network addresses.",
+    "The capture reports an unclean worktree because an independently owned profile-calibration tranche was active; source commit and every reused evidence file are bound explicitly.",
+    "Windows is the primary development environment represented here, not the ordinary native-Linux premium reference required by I-207.",
+    "WSL2 uses a virtualized Microsoft Linux kernel and cannot qualify physical camera, controller, compositor, kiosk, boot, suspend, or reserved-input behavior.",
+    "Transport reports measure deterministic local round trips and buffering, not camera-to-action latency or production scheduling under the complete workload.",
+    "The Motion payloads are synthetic and do not represent real player, room, lighting, camera, multi-player, or worst-case backend distributions.",
+    "The enumerated C920 was not opened and no raw camera frame or room video was captured for this baseline.",
+    "No controller was detected, and no controller compatibility claim is made.",
+    "No storage device was modified, repartitioned, formatted, selected for Linux, or qualified for appliance use.",
+    "No result in this bundle selects a production transport or changes any authority boundary."
+  ]
+}

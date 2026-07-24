@@ -2489,3 +2489,46 @@ exposure-to-action p50/p95/p99, complete concurrent workloads, wall watts,
 one-metre dBA, controller behavior, suspend/update/power-loss failure tests,
 and exact delivered cost remain required. Continue the $0 owned-hardware lane;
 purchase nothing from either screen.
+
+## 2026-07-24: hash-bound x86-64 development baseline
+
+### Delivered
+
+- Closed I-013 at its development-host boundary with a sanitized exact
+  Windows inventory: Ryzen 9 5900X, 12 cores / 24 threads, RTX 3080 Ti with
+  12,288 MiB vendor-tool evidence, 68,625,489,920 bytes of physical memory,
+  Windows 11 Pro build 26200, present C920, and no detected controller.
+- Added a PowerShell capture that emits a closed, path-free schema without
+  computer/user names, device instance IDs, serials, filesystem paths, or
+  network addresses. Optional output is constrained below repository root.
+- Bound the prior sanitized host report and all twelve Windows/WSL2 transport
+  reports by repository-relative path, byte length, SHA-256 digest, declared
+  environment, payload mode/size/shape, and process layout.
+- Kept WSL 2.6.3.0 / Ubuntu 26.04 / kernel 6.6.87.2 explicitly virtualized;
+  no WSL observation is promoted to native-Linux evidence.
+- Reserved Q-203 for native-Linux disk/recovery authority and Q-204 for the
+  hands-on camera/controller session. No disk, boot setting, camera stream, or
+  purchase was touched.
+
+### Verification evidence
+
+- Seven Node tests pass for valid evidence plus changed bytes, path traversal,
+  environment substitution, duplicate paths, captured filesystem paths, and
+  expanded capture-schema rejection.
+- The real baseline manifest passes its validator, including every evidence
+  digest and declared environment.
+- The independent transport gate passes five payload tests and validates all
+  twelve bound benchmark reports.
+- PowerShell parsing and a live sanitized capture succeed on the owned host;
+  Git whitespace checks pass.
+
+### Remaining boundary
+
+I-013 closes because its required CPU/GPU/RAM/OS report and benchmark bundle
+now exist. This does not close I-207 or I-211, select a production transport,
+or prove native Linux, SDL3/compositor behavior, real camera/controller use,
+accountless boot, representative games, 120 ms exposure-to-action latency,
+power, thermals, acoustics, storage, update/recovery, Raspberry Pi, Hailo, or
+SteamOS behavior. The tracked capture honestly records that unrelated
+profile-calibration edits were active in the shared worktree and binds its
+source commit and reused evidence bytes instead of claiming a clean tree.
