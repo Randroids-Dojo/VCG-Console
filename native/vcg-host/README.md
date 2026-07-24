@@ -87,7 +87,7 @@ the [signed generation-store contract](../../docs/PACKAGE_GENERATION_STORE.md).
 - `package_health`: save-isolated signed process/explicit-ready candidate execution with direct-child reaping and no compositor-readiness claim.
 - `package_transfer`: exclusively locked exact-offset archive receipt, byte-identical replay, restart resume, remaining-byte capacity checks, full-hash verification, and no-replace ready publication.
 - `package_intake`: signature-first release admission, capacity checks, exact archive/catalog evidence, and bounded portable regular-files-only TAR extraction.
-- `package_generation`: verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and path-free read-only retention planning.
+- `package_generation`: receiver-locked ready-archive intake, verify-before-intent and verify-after-move signed generation activation, deterministic interrupted-promotion recovery, and path-free read-only retention planning.
 - `native_launch`: profile-allowlisted idempotent intent, one active child, bounded lifecycle records, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
 - `retroarch`: installed-artifact/content containment and SHA-256 verification, per-profile storage, generated family-mode configuration, direct launch, and stable lifecycle lines.
 - future adapters: SDL3, compositor recovery controls and readiness, browser containment, system services, and native tracking.

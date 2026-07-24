@@ -51,9 +51,14 @@ This is crash-monotonic selection, not tamper-resistant anti-rollback. The curre
 
 ## Signed archive intake
 
-`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
+`stage_package_tar` accepts a completed archive only through the signature-first release descriptor defined in [PACKAGE_INTAKE.md](PACKAGE_INTAKE.md). The [resumable transfer sink](PACKAGE_TRANSFER.md) can durably publish that completed archive without granting staging authority. `stage_ready_transfer` keeps the receiver's exclusive lock, re-verifies the descriptor with the generation store key, requires the exact transfer/release binding, and re-hashes the ready archive before using the same intake path. Intake verifies exact archive evidence, admits extraction capacity with nonzero reserved headroom, extracts a narrow uncompressed TAR into a private incoming directory, checks exact signed expanded/catalog evidence, verifies the installed catalog and every artifact, and requires descriptor/catalog generation agreement.
 
 Only then is the private directory atomically renamed to `staging/<transaction-id>`. This creates an inert promotion candidate; it does not publish `promotion.intent`, run candidate health, or change active state. Failure validates and removes only the private incoming direct child.
+
+The handoff deliberately retains the ready archive and immutable transfer
+binding after successful staging. They are a durable receipt across a crash
+between staging and later coordination. A repeated handoff reports the existing
+staging transaction; consumed-receipt cleanup remains a separate policy.
 
 ## Health-gated promotion
 

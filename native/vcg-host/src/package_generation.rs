@@ -15,6 +15,7 @@ use crate::package_health::{CandidateHealthChecker, CandidateHealthError, Candid
 use crate::package_intake::{
     CapacityAdmission, PackageIntakeError, PackageIntakeStats, VerifiedPackageRelease,
 };
+use crate::package_transfer::{PackageArchiveTransfer, PackageTransferError};
 use crate::retroarch::plan as plan_retroarch;
 
 const ACTIVATION_SCHEMA_VERSION: u32 = 1;
@@ -237,6 +238,51 @@ impl PackageGenerationStore {
             descriptor_signature_path,
             &self.public_key_path,
         )?;
+        self.stage_verified_package_tar(transaction_id, archive_path, reserve_bytes, &release)
+    }
+
+    /// Admits a finalized archive directly from its still-locked durable
+    /// transfer into one inert staging transaction.
+    ///
+    /// The descriptor is independently verified with the generation store's
+    /// configured key. The transfer binding must match that exact release, and
+    /// the ready archive is re-hashed before extraction. Successful staging
+    /// deliberately retains the ready archive and immutable binding as a
+    /// durable receipt; cleanup policy is separate.
+    ///
+    /// # Errors
+    ///
+    /// Rejects pending recovery, descriptor/signature failure, a transfer
+    /// bound to another release, an incomplete/unpublished transfer, changed
+    /// archive bytes, or any normal staging failure.
+    pub fn stage_ready_transfer(
+        &self,
+        transfer: &PackageArchiveTransfer,
+        descriptor_path: &Path,
+        descriptor_signature_path: &Path,
+        reserve_bytes: u64,
+    ) -> Result<StagedPackageGeneration, GenerationError> {
+        let transaction_id = transfer.transaction_id();
+        validate_transaction_id(transaction_id)?;
+        if self.recovery_required()? {
+            return Err(GenerationError::RecoveryRequired);
+        }
+        let release = VerifiedPackageRelease::load(
+            descriptor_path,
+            descriptor_signature_path,
+            &self.public_key_path,
+        )?;
+        let archive_path = transfer.ready_archive_for(&release)?;
+        self.stage_verified_package_tar(transaction_id, &archive_path, reserve_bytes, &release)
+    }
+
+    fn stage_verified_package_tar(
+        &self,
+        transaction_id: &str,
+        archive_path: &Path,
+        reserve_bytes: u64,
+        release: &VerifiedPackageRelease,
+    ) -> Result<StagedPackageGeneration, GenerationError> {
         release.verify_archive(archive_path)?;
         let capacity = release.admit_extraction_capacity_at(&self.staging, reserve_bytes)?;
         let limits = release.extraction_limits()?;
@@ -1154,6 +1200,7 @@ pub enum GenerationError {
     Catalog(CatalogError),
     Health(CandidateHealthError),
     Intake(PackageIntakeError),
+    Transfer(PackageTransferError),
     UnsafePath {
         kind: &'static str,
         path: PathBuf,
@@ -1198,6 +1245,7 @@ impl fmt::Display for GenerationError {
             Self::Catalog(error) => write!(formatter, "{error}"),
             Self::Health(error) => write!(formatter, "{error}"),
             Self::Intake(error) => write!(formatter, "{error}"),
+            Self::Transfer(error) => write!(formatter, "{error}"),
             Self::UnsafePath { kind, path } => {
                 write!(formatter, "{kind} path is unsafe: {}", path.display())
             }
@@ -1261,6 +1309,7 @@ impl std::error::Error for GenerationError {
             Self::Catalog(error) => Some(error),
             Self::Health(error) => Some(error),
             Self::Intake(error) => Some(error),
+            Self::Transfer(error) => Some(error),
             Self::IntakeCleanupValidation { cleanup_error, .. } => Some(cleanup_error),
             _ => None,
         }
@@ -1285,6 +1334,12 @@ impl From<PackageIntakeError> for GenerationError {
     }
 }
 
+impl From<PackageTransferError> for GenerationError {
+    fn from(error: PackageTransferError) -> Self {
+        Self::Transfer(error)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::fs::{self, File};
@@ -1303,7 +1358,8 @@ mod tests {
     };
     use crate::installed_catalog::PackageHealthCheck;
     use crate::package_health::CandidateHealthChecker;
-    use crate::package_intake::PackageIntakeError;
+    use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
+    use crate::package_transfer::{PackageArchiveTransfer, PackageTransferError};
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
     const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
@@ -1565,6 +1621,83 @@ mod tests {
             7
         );
         assert!(store.load_active().expect("active lookup works").is_none());
+    }
+
+    #[test]
+    fn stages_only_a_finalized_transfer_and_retains_its_durable_receipt() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, expanded_bytes, file_count) =
+            fixture.package_tar(7, "1.0.0");
+        let release = VerifiedPackageRelease::load(&descriptor, &signature, &fixture.public_key)
+            .expect("release verifies");
+        let transfer_root = fixture.root.join("transfers");
+        fs::create_dir(&transfer_root).expect("transfer root creates");
+        let transfer =
+            PackageArchiveTransfer::open_or_begin(&transfer_root, "ready-seven", &release, 1)
+                .expect("transfer opens");
+        let archive_bytes = fs::read(&archive).expect("archive reads");
+        let split = archive_bytes.len() / 2;
+        transfer
+            .append(0, &archive_bytes[..split])
+            .expect("first chunk appends");
+        transfer
+            .append(split as u64, &archive_bytes[split..])
+            .expect("second chunk appends");
+        let store = fixture.store();
+
+        assert!(matches!(
+            store.stage_ready_transfer(&transfer, &descriptor, &signature, 1),
+            Err(GenerationError::Transfer(PackageTransferError::NotReady))
+        ));
+        assert!(!fixture.root.join("staging/ready-seven").exists());
+
+        let ready = transfer.finalize().expect("transfer finalizes");
+        assert!(matches!(
+            store.stage_ready_transfer(&transfer, &descriptor, &signature, 0),
+            Err(GenerationError::Intake(PackageIntakeError::InvalidReserve))
+        ));
+        assert!(ready.is_file());
+        let staged = store
+            .stage_ready_transfer(&transfer, &descriptor, &signature, 1)
+            .expect("ready transfer stages");
+        assert_eq!(staged.generation, 7);
+        assert_eq!(staged.intake.file_count, file_count);
+        assert_eq!(staged.intake.expanded_bytes, expanded_bytes);
+        assert!(fixture.root.join("staging/ready-seven").is_dir());
+        assert!(ready.is_file());
+        assert!(transfer_root.join(".transfer-ready-seven.json").is_file());
+        assert!(matches!(
+            store.stage_ready_transfer(&transfer, &descriptor, &signature, 1),
+            Err(GenerationError::StagingTransactionExists(value)) if value == "ready-seven"
+        ));
+    }
+
+    #[test]
+    fn ready_transfer_handoff_rejects_another_signed_release_binding() {
+        let fixture = Fixture::new();
+        let (descriptor, signature, archive, _, _) = fixture.package_tar(7, "1.0.0");
+        let release = VerifiedPackageRelease::load(&descriptor, &signature, &fixture.public_key)
+            .expect("release verifies");
+        let transfer_root = fixture.root.join("transfers");
+        fs::create_dir(&transfer_root).expect("transfer root creates");
+        let transfer =
+            PackageArchiveTransfer::open_or_begin(&transfer_root, "bound-seven", &release, 1)
+                .expect("transfer opens");
+        let archive_bytes = fs::read(&archive).expect("archive reads");
+        transfer.append(0, &archive_bytes).expect("archive appends");
+        let ready = transfer.finalize().expect("transfer finalizes");
+        let (other_descriptor, other_signature, _, _, _) = fixture.package_tar(8, "2.0.0");
+        let store = fixture.store();
+
+        assert!(matches!(
+            store.stage_ready_transfer(&transfer, &other_descriptor, &other_signature, 1),
+            Err(GenerationError::Transfer(
+                PackageTransferError::BindingMismatch
+            ))
+        ));
+        assert!(!fixture.root.join("staging/bound-seven").exists());
+        assert!(ready.is_file());
+        assert!(transfer_root.join(".transfer-bound-seven.json").is_file());
     }
 
     #[test]

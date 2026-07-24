@@ -659,13 +659,16 @@ This is local completed-archive intake, not an update client. Network transport/
 - Resume refuses gaps, partial overlap, conflicting replay, overrun, changed release binding, unsafe state, and unbound partial or ready files.
 - Opening and every new append recheck available capacity using remaining archive bytes plus complete expanded bytes plus a mandatory nonzero reserve, without charging the received prefix twice.
 - Finalization verifies the complete signed hash and publishes a no-replace hard-link ready name. The immutable binding remains for the ready archive's lifetime; reopening after ready-before-cleanup interruption verifies both and completes partial cleanup.
+- The generation store can consume a ready archive only while its receiver lock remains held. It independently verifies the descriptor with the store key, requires the exact transfer/release binding, and re-hashes before bounded extraction.
+- Successful staging retains the ready archive and binding as a durable receipt; incomplete, mismatched, low-space, and staging-failure paths preserve transfer evidence and never activate a generation.
 - D-140 records the transfer-neutral durability contract. Q-120 through Q-122 preserve network-source, abandoned-partial, and bandwidth/scheduling choices.
 
 ### Verification evidence
 
 - Transfer tests cover append, identical replay, restart resume, completion, repeated finalize, gap/overlap/conflict/overrun rejection, chunk bounds, lock contention, changed binding before and after publication, orphan partial/ready refusal, wrong-hash retention, zero-reserve no-mutation, unsafe IDs, and interruption after ready publication.
+- Handoff tests cover refusal before finalization, independent reserve enforcement, exact signed-release binding, successful inert staging, receipt retention, and no-replace replay after staging.
 - Capacity tests cover remaining-byte arithmetic, impossible received lengths, overflow, reserve, and real filesystem availability.
-- The Rust workspace passes 100 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
+- The Rust workspace passes 102 active library tests with five subprocess helpers ignored by the parent run, plus 13 CLI tests; formatting and Clippy with warnings denied pass.
 
 ### Remaining boundary
 

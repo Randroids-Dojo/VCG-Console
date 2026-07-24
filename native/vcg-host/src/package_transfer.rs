@@ -109,6 +109,43 @@ impl PackageArchiveTransfer {
         Ok(receiver)
     }
 
+    /// Returns the bounded transaction identifier owned by this receiver.
+    #[must_use]
+    pub fn transaction_id(&self) -> &str {
+        &self.transaction_id
+    }
+
+    /// Returns the ready archive only when it remains bound to the supplied
+    /// verified release.
+    ///
+    /// The receiver keeps its transaction lock while the returned path is
+    /// used. Callers must not retain the path after dropping the receiver.
+    /// This method never finalizes a complete partial transfer implicitly.
+    ///
+    /// # Errors
+    ///
+    /// Rejects a changed/missing binding, a release mismatch, an incomplete
+    /// or unpublished transfer, an unsafe ready path, or changed archive
+    /// bytes.
+    pub fn ready_archive_for(
+        &self,
+        release: &VerifiedPackageRelease,
+    ) -> Result<PathBuf, PackageTransferError> {
+        require_regular_file(&self.state_path, "package transfer state")?;
+        let actual = read_state(&self.state_path)?;
+        let receiver_binding = TransferBinding::for_release(&self.transaction_id, &self.release);
+        let requested_binding = TransferBinding::for_release(&self.transaction_id, release);
+        if actual != receiver_binding || actual != requested_binding {
+            return Err(PackageTransferError::BindingMismatch);
+        }
+        if !path_exists(&self.ready_path)? {
+            return Err(PackageTransferError::NotReady);
+        }
+        require_regular_file(&self.ready_path, "ready package archive")?;
+        release.verify_archive(&self.ready_path)?;
+        Ok(self.ready_path.clone())
+    }
+
     /// Returns current progress from the durable archive file length.
     ///
     /// # Errors
@@ -655,6 +692,7 @@ pub enum PackageTransferError {
     },
     ArchiveLengthExceeded,
     AlreadyComplete,
+    NotReady,
     Incomplete {
         received_bytes: u64,
         expected_bytes: u64,
@@ -724,6 +762,9 @@ impl fmt::Display for PackageTransferError {
                 formatter.write_str("package transfer exceeds signed archive length")
             }
             Self::AlreadyComplete => formatter.write_str("package transfer is already complete"),
+            Self::NotReady => {
+                formatter.write_str("package transfer has not published a ready archive")
+            }
             Self::Incomplete {
                 received_bytes,
                 expected_bytes,

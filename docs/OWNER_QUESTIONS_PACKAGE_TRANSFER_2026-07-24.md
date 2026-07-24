@@ -16,7 +16,7 @@ How long should incomplete package transfers remain resumable, and when may low-
 
 Safe default: never remove an open/locked transfer; keep a closed partial until an explicit bounded age/space policy exists; expose only transaction-safe metadata; and delete state plus partial together under the same service ownership. Do not reclaim active generations, saves, managed content, or a verified ready archive as implicit transfer cleanup.
 
-A verified ready archive retains its immutable release-binding state. The future intake coordinator should remove the ready archive and binding together only after it has durably consumed or deliberately abandoned that exact release.
+A verified ready archive retains its immutable release-binding state after inert staging, serving as a durable receipt if coordination crashes immediately afterward. The future cleanup coordinator should remove the ready archive and binding together only after an explicit lifecycle point and replay policy are selected for that exact release.
 
 ## Q-122: update bandwidth and scheduling
 

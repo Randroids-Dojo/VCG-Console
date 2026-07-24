@@ -16,6 +16,11 @@ One immutable state file binds:
 
 A nonblocking filesystem lock gives one cooperating receiver exclusive ownership. Existing state must match the same release. A partial file without binding state fails closed.
 
+The generation store's `stage_ready_transfer` handoff keeps that receiver and
+lock alive, independently verifies the descriptor with the store's configured
+key, requires the immutable transfer binding to match the exact verified
+release, and re-hashes the ready archive before extraction.
+
 ## Resume and replay
 
 Durable progress is the synchronized partial archive's file length. There is no separately mutable received-byte counter.
@@ -40,7 +45,13 @@ Finalization requires the exact signed length and full archive SHA-256. The veri
 
 If interruption occurs after ready publication but before partial cleanup, reopening verifies the ready archive and matching state before completing cleanup. A ready archive without binding state fails closed. If publication did not commit, the synchronized partial remains resumable. A wrong complete hash remains inert and inspectable; no ready archive, staging transaction, promotion intent, or activation is created.
 
-The persistent lock file contains no authority or progress and may remain after completion. The future intake coordinator must remove a consumed ready archive and its binding together under the same exclusive service ownership.
+Successful staging retains the ready archive and binding as a durable receipt.
+An incomplete transfer, changed descriptor binding, invalid reserve, or staging
+failure leaves the receipt/partial state intact and creates no active
+generation. Repeating a handoff after staging committed reports the existing
+staging transaction rather than extracting over it.
+
+The persistent lock file contains no authority or progress and may remain after completion. The future cleanup coordinator must remove a consumed ready archive and its binding together under the same exclusive service ownership.
 
 ## Remaining boundary
 
