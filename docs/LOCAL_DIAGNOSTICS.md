@@ -1,6 +1,10 @@
 # Local diagnostics and consented export
 
-Status: bounded volatile browser record, path-free health summary, exact-issued review, and consented export implemented; native persistent logging and health aggregation, retention policy, and support workflow remain open.
+Status: bounded volatile browser record, path-free health summary, exact-issued
+review, and consented export implemented; an unwired bounded native Rust store
+now supplies crash-recoverable closed-code records and store-bound producer
+leases, while production authentication, policy, UI, and support workflow
+remain open.
 
 ## Purpose
 
@@ -135,12 +139,29 @@ re-review and two-step download, expected filename and parsed schema, false
 privacy flags, absence of the active name/profile ID/URL secret, and complete
 clear. The full browser suite still observes no diagnostic upload.
 
+## Native foundation
+
+`NATIVE_DIAGNOSTIC_STORE.md` now defines and tests a separate native record
+boundary. The trusted host must select positive event, byte, and boot-epoch
+bounds; no product default is embedded. Move-only leases bind one exact
+in-process producer to one store, codes derive their producer, subsystem, and
+severity, and events contain only global ordinal, caller-supplied boot epoch,
+boot-relative uptime, and the closed vocabulary. Incoming-file publication,
+canonical reopen, oldest-first rotation, hard enumeration/record limits, and
+nonblocking single-writer exclusion are implemented.
+
+The native snapshot is not serializable and grants no clear or export
+authority. No runtime opens the store. The capability does not authenticate an
+OS peer, the boot epoch has no platform provenance, and the store is not
+rollback-protected security evidence.
+
 ## Remaining qualification
 
 I-116 remains incomplete. Closure requires the choices in
-`OWNER_QUESTIONS_DIAGNOSTICS_2026-07-24.md`, a bounded crash-safe native store,
-source authentication, redaction tests for every native producer, health
-summary UX, target filesystem/full-disk/power-loss behavior, final retention
-and rotation, safe clock/provenance policy, controller/accessibility review,
-and an independently reviewed export artifact proving that no prohibited data
-or credential can enter.
+`OWNER_QUESTIONS_DIAGNOSTICS_2026-07-24.md` and
+`OWNER_QUESTIONS_NATIVE_DIAGNOSTIC_STORE_2026-07-24.md`, runtime integration,
+OS source authentication, redaction tests for every real native producer,
+health summary UX, target filesystem/full-disk/power-loss behavior, final
+retention and rotation, safe boot/time provenance, admin clear/export
+authority, controller/accessibility review, and an independently reviewed
+artifact proving that no prohibited data or credential can enter.

@@ -5362,3 +5362,52 @@ GPIO, compositor wake path, boot-only recovery coordinator, or target
 suspend/resume/shutdown/power-cut/thermal/energy/endurance evidence is claimed.
 The Rust traits are privileged integration boundaries, not proof that an
 implementation returning `Complete` is trustworthy.
+
+## 2026-07-24: bounded native diagnostic persistence
+
+### Delivered
+
+- Added an exclusive Rust diagnostic store with explicit caller-selected
+  event, byte, and boot-epoch bounds inside fixed 4,096-event, 4-MiB, and
+  64-boot hard ceilings.
+- Added one closed producer and code vocabulary. Move-only leases bind an
+  exact producer to an exact store instance; code derives producer, subsystem,
+  and severity, leaving no arbitrary string, path, identifier, payload,
+  wall-clock, frame, skeleton, profile, save, or credential field.
+- Added positive global ordinals, positive caller-supplied boot epochs, and
+  producer-local monotonic boot-relative time. The store rejects epoch
+  rollback, time reversal, gaps, changed derived metadata, noncanonical names,
+  symlinks, and unexpected layout.
+- Added at-most-512-byte create-new incoming records, complete-file flush,
+  canonical rename publication, directory synchronization where available,
+  incomplete-incoming recovery, nonblocking exclusive locking, bounded
+  enumeration, and oldest-first complete-record rotation.
+- Added a path-free nonserializable snapshot with retained/bounded byte and
+  event facts, eviction count, fixed privacy exclusions, warning count, and
+  closed subsystem counts. The persistence layer grants no review, clear,
+  download, upload, share, or support authority.
+- Recorded D-175 and Q-246 without selecting the unresolved product retention,
+  privileged service/IPC, boot provenance, export destination, or support
+  workflow.
+
+### Verification evidence
+
+- Eleven focused Rust tests cover exact source/store binding, derived metadata,
+  producer-local monotonic time, committed reopen and ordinal continuation,
+  incomplete-write recovery, event/byte/boot eviction, path-free exclusions,
+  boot rollback, interleaved-source time and metadata tamper refusal, unsafe
+  policy/path/layout, and lock contention.
+- Rust formatting and strict all-target/all-feature Clippy pass for the
+  current shared tree.
+
+### Remaining boundary
+
+I-116 and I-108 remain active. No runtime opens the store or issues a real
+producer lease. The current capability is in-process separation, not OS peer
+authentication; the caller-supplied boot epoch has no platform provenance.
+There is no rollback protection, age policy, admin review/clear transaction,
+native export serializer, destination, support transport, health UI,
+real-producer canary suite, core-dump approval, or Raspberry Pi/SteamOS
+filesystem, full-disk, corruption, sudden-power-loss, and forensic evidence.
+Oldest-prefix deletion can resemble ordinary retention, so these records never
+grant launch, update, recovery, save, profile, or power authority.

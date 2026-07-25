@@ -2,6 +2,7 @@
 
 pub mod developer_artifact;
 pub mod developer_pairing;
+pub mod diagnostics;
 pub mod host_api;
 pub mod input;
 pub mod installed_catalog;

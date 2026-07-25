@@ -332,6 +332,20 @@ profile identity, URL secrets, frames, skeletons, credentials, personal
 identifiers, and free text, and observes no export request. This constrains the
 prototype but does not authenticate event truth or provide native persistence.
 
+An unwired native Rust store now adds crash-recoverable closed-code
+persistence behind move-only, exact-store, exact-producer leases. It derives
+producer/subsystem/severity from the code, accepts only boot epoch and
+boot-relative uptime, publishes each at-most-512-byte event through a flushed
+incoming file and rename, rejects malformed/gapped/unexpected layout, and
+rotates oldest complete events under caller-selected event/byte/boot bounds
+and fixed hard ceilings. Its read-only snapshot has no serialization, clear,
+upload, or export authority. This is not OS peer authentication or trusted
+boot provenance: any owner of the store is inside the trusted host boundary,
+the journal is not rollback protected, oldest-prefix deletion can resemble
+rotation, Windows directory durability is unproven, and no runtime or target
+adapter exists. Diagnostic failure must never become launch, recovery, update,
+save, profile, or power authority.
+
 The credential-free profile-management prototype keeps display text separate
 from opaque authority, permits duplicate names, and requires exact delayed
 confirmation for recalibration, reset, and deletion. Its deletion result
