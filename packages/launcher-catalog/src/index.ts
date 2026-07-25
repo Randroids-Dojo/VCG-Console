@@ -5,6 +5,8 @@ import {
 } from "@vcg/game-manifest";
 import { z } from "zod";
 
+export * from "./community-discovery";
+
 export const LAUNCHER_POLICY_SCHEMA_VERSION = 1 as const;
 
 const BoundedTextSchema = z.string().min(1).max(160);
