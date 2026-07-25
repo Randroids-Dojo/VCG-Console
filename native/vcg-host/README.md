@@ -153,11 +153,12 @@ modes cannot be combined. See the
   executes no operation.
 - `diagnostics`: exclusive bounded closed-code persistence with exact
   store/producer move-only leases, derived metadata, boot-relative time,
-  create-flush-rename publication, canonical incomplete-write recovery, and
-  oldest-first caller-selected event/byte/boot retention. Its snapshot is not
-  serializable and grants no clear/export authority; no runtime, OS peer
-  authentication, trusted boot provenance, rollback protection, product
-  policy, or target durability evidence is supplied.
+  create-flush-rename publication, canonical incomplete-write recovery,
+  durable bounded per-producer time watermarks, and oldest-first
+  caller-selected event/byte/boot retention. Its snapshot is not serializable
+  and grants no clear/export authority; no runtime, OS peer authentication,
+  trusted boot provenance, rollback protection, product policy, or target
+  durability evidence is supplied.
 - `input`: language-neutral shell actions, transactional bounded standard
   button/axis mapping with hysteresis, controller reconciliation, opaque
   session IDs, mapping confidence, deterministic edges/releases, and the

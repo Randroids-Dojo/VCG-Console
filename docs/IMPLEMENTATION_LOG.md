@@ -5386,17 +5386,23 @@ implementation returning `Complete` is trustworthy.
   event facts, eviction count, fixed privacy exclusions, warning count, and
   closed subsystem counts. The persistence layer grants no review, clear,
   download, upload, share, or support authority.
+- Added empty canonical per-producer time watermarks under a fixed 18-entry
+  ceiling. Event publication precedes watermark publication, which precedes
+  eviction; reopen reconstructs an interrupted missing watermark from retained
+  history before cleanup, so eviction plus restart cannot erase the monotonic
+  source-time floor.
 - Recorded D-175 and Q-246 without selecting the unresolved product retention,
   privileged service/IPC, boot provenance, export destination, or support
   workflow.
 
 ### Verification evidence
 
-- Eleven focused Rust tests cover exact source/store binding, derived metadata,
+- Fourteen focused Rust tests cover exact source/store binding, derived metadata,
   producer-local monotonic time, committed reopen and ordinal continuation,
   incomplete-write recovery, event/byte/boot eviction, path-free exclusions,
-  boot rollback, interleaved-source time and metadata tamper refusal, unsafe
-  policy/path/layout, and lock contention.
+  boot rollback, interleaved and evicted/restarted source time, missing
+  watermark reconstruction, legitimate new-boot reset, future-watermark and
+  metadata tamper refusal, unsafe policy/path/layout, and lock contention.
 - Rust formatting and strict all-target/all-feature Clippy pass for the
   current shared tree.
 

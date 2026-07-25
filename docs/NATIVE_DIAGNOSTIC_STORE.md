@@ -69,13 +69,24 @@ Global ordinals are contiguous after the oldest retained prefix. Boot epochs
 cannot move backward. The store does not claim its boot epoch is trustworthy:
 the future platform adapter must supply that provenance.
 
-An append writes one bounded incoming file with create-new semantics, flushes
+One empty canonical watermark file per producer persists the latest accepted
+boot epoch and uptime even after that producer's newest event is evicted.
+Watermark names use only the positive boot epoch, closed producer name, and
+boot-relative uptime. The directory is hard-bounded to eighteen entries;
+nonempty, noncanonical, unknown-producer, future-epoch, symlink, or excessive
+watermark state fails closed.
+
+An append writes one bounded incoming event with create-new semantics, flushes
 the complete file, renames it to its canonical ordinal name, and synchronizes
-the event directory where the platform exposes that primitive. Reopen removes
-only canonical incomplete incoming files, validates every retained file and
-its derived metadata, rejects gaps and unexpected layout, and continues the
-next ordinal. One nonblocking file lock excludes cooperating concurrent
-writers.
+the event directory where the platform exposes that primitive. It then
+publishes the new producer watermark before removing any retained event.
+Reopen removes only canonical incomplete incoming events, validates every
+retained file and its derived metadata, rejects gaps and unexpected layout,
+and continues the next ordinal. If interruption published an event but not its
+watermark, that still-retained event reconstructs and synchronizes the
+watermark before any retention cleanup. Superseded and prior-boot watermarks
+are removed only after the required current files exist. One nonblocking file
+lock excludes cooperating concurrent writers.
 
 Each retained event is at most 512 bytes. Directory enumeration stops beyond
 the hard event ceiling. Selected event, byte, and boot bounds are enforced
@@ -122,7 +133,7 @@ snapshots remain excluded.
 
 ## Automated evidence
 
-Eleven focused Rust tests cover:
+Fourteen focused Rust tests cover:
 
 - closed code/source/subsystem/severity derivation;
 - exact store and producer capability binding;
@@ -133,6 +144,9 @@ Eleven focused Rust tests cover:
 - path-free fixed privacy exclusions and summary counts;
 - boot rollback, interleaved-producer time reversal, and changed derived
   metadata refusal; and
+- monotonic producer watermarks across event eviction and restart;
+- recovery of a missing watermark before the source event is evicted;
+- future watermark epoch refusal and legitimate new-boot uptime reset; and
 - invalid bounds, relative paths, unexpected layout, and lock contention.
 
 Strict all-target/all-feature Clippy and the complete native suite remain

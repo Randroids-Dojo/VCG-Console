@@ -150,6 +150,11 @@ boot-relative uptime, and the closed vocabulary. Incoming-file publication,
 canonical reopen, oldest-first rotation, hard enumeration/record limits, and
 nonblocking single-writer exclusion are implemented.
 
+Empty bounded producer-watermark files preserve each source's latest
+boot-relative time across event eviction and host restart. Event publication
+precedes watermark publication, which precedes eviction; reopen reconstructs
+a missing watermark from the retained event before cleanup.
+
 The native snapshot is not serializable and grants no clear or export
 authority. No runtime opens the store. The capability does not authenticate an
 OS peer, the boot epoch has no platform provenance, and the store is not

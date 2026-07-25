@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 
 const EVENT_SCHEMA_VERSION: u32 = 1;
 const EVENTS_DIRECTORY: &str = "events";
+const WATERMARKS_DIRECTORY: &str = "watermarks";
 const LOCK_FILE: &str = "diagnostics.lock";
 const EVENT_SUFFIX: &str = ".json";
 const INCOMING_PREFIX: &str = ".incoming-";
@@ -23,6 +24,8 @@ const HARD_MAX_EVENTS: usize = 4_096;
 const HARD_MAX_BYTES: u64 = 4 * 1_024 * 1_024;
 const HARD_MAX_BOOT_EPOCHS: usize = 64;
 const MIN_BYTE_BUDGET: u64 = MAX_STORED_EVENT_BYTES;
+const PRODUCER_COUNT: usize = 6;
+const MAX_WATERMARK_ENTRIES: usize = PRODUCER_COUNT * 3;
 
 /// Trusted native component allowed to produce a closed subset of codes.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
@@ -34,6 +37,33 @@ pub enum DiagnosticProducer {
     PowerCoordinator,
     ProcessSupervisor,
     SystemUpdate,
+}
+
+impl DiagnosticProducer {
+    const fn file_name(self) -> &'static str {
+        match self {
+            Self::AccessController => "access-controller",
+            Self::Launcher => "launcher",
+            Self::PackageManager => "package-manager",
+            Self::PowerCoordinator => "power-coordinator",
+            Self::ProcessSupervisor => "process-supervisor",
+            Self::SystemUpdate => "system-update",
+        }
+    }
+
+    fn from_file_name(value: &str) -> Result<Self, NativeDiagnosticError> {
+        match value {
+            "access-controller" => Ok(Self::AccessController),
+            "launcher" => Ok(Self::Launcher),
+            "package-manager" => Ok(Self::PackageManager),
+            "power-coordinator" => Ok(Self::PowerCoordinator),
+            "process-supervisor" => Ok(Self::ProcessSupervisor),
+            "system-update" => Ok(Self::SystemUpdate),
+            _ => Err(invalid_store(
+                "native diagnostic watermark producer is invalid",
+            )),
+        }
+    }
 }
 
 /// Fixed diagnostic subsystem derived from the code.
@@ -363,6 +393,7 @@ struct RetainedEvent {
 #[derive(Debug)]
 pub struct NativeDiagnosticStore {
     events_directory: PathBuf,
+    watermarks_directory: PathBuf,
     config: NativeDiagnosticStoreConfig,
     boot_epoch: u64,
     next_ordinal: u64,
@@ -402,6 +433,7 @@ impl NativeDiagnosticStore {
         }
         let root = prepare_root(&config.store_root)?;
         let events_directory = prepare_events_directory(&root)?;
+        let watermarks_directory = prepare_child_directory(&root, WATERMARKS_DIRECTORY)?;
         let lock = open_lock(&root.join(LOCK_FILE))?;
         match fs4::FileExt::try_lock(&lock) {
             Ok(()) => {}
@@ -417,6 +449,8 @@ impl NativeDiagnosticStore {
         recover_incoming(&events_directory)?;
         let retained = load_events(&events_directory)?;
         validate_event_history(&retained, boot_epoch)?;
+        let last_uptime_by_producer =
+            recover_watermarks(&watermarks_directory, &retained, boot_epoch)?;
         let next_ordinal = retained.last().map_or(Ok(1), |event| {
             event
                 .stored
@@ -428,15 +462,15 @@ impl NativeDiagnosticStore {
         getrandom::fill(&mut nonce).map_err(NativeDiagnosticError::Random)?;
         let mut store = Self {
             events_directory,
+            watermarks_directory,
             config,
             boot_epoch,
             next_ordinal,
             store_nonce: nonce,
             retained,
-            last_uptime_by_producer: BTreeMap::new(),
+            last_uptime_by_producer,
             lock,
         };
-        store.rebuild_uptime_index();
         store.enforce_retention()?;
         Ok(store)
     }
@@ -511,6 +545,12 @@ impl NativeDiagnosticStore {
             bytes: u64::try_from(bytes.len()).unwrap_or(u64::MAX),
             path,
         });
+        advance_watermark(
+            &self.watermarks_directory,
+            self.boot_epoch,
+            lease.producer,
+            uptime_ms,
+        )?;
         self.enforce_retention()?;
         Ok(public)
     }
@@ -533,16 +573,6 @@ impl NativeDiagnosticStore {
             maximum_events: self.config.maximum_events,
             maximum_bytes: self.config.maximum_bytes,
             maximum_boot_epochs: self.config.maximum_boot_epochs,
-        }
-    }
-
-    fn rebuild_uptime_index(&mut self) {
-        self.last_uptime_by_producer.clear();
-        for event in &self.retained {
-            if event.stored.boot_epoch == self.boot_epoch {
-                self.last_uptime_by_producer
-                    .insert(event.stored.producer, event.stored.uptime_ms);
-            }
         }
     }
 
@@ -658,7 +688,7 @@ fn validate_root_entries(root: &Path) -> Result<(), NativeDiagnosticError> {
             .file_name()
             .into_string()
             .map_err(|_| invalid_store("native diagnostics root entry is not UTF-8"))?;
-        if name != EVENTS_DIRECTORY && name != LOCK_FILE {
+        if name != EVENTS_DIRECTORY && name != WATERMARKS_DIRECTORY && name != LOCK_FILE {
             return Err(invalid_store(
                 "native diagnostics root contains an unexpected entry",
             ));
@@ -668,7 +698,14 @@ fn validate_root_entries(root: &Path) -> Result<(), NativeDiagnosticError> {
 }
 
 fn prepare_events_directory(root: &Path) -> Result<PathBuf, NativeDiagnosticError> {
-    let path = root.join(EVENTS_DIRECTORY);
+    prepare_child_directory(root, EVENTS_DIRECTORY)
+}
+
+fn prepare_child_directory(
+    root: &Path,
+    name: &'static str,
+) -> Result<PathBuf, NativeDiagnosticError> {
+    let path = root.join(name);
     if !path_exists(&path)? {
         fs::create_dir(&path).map_err(|source| NativeDiagnosticError::Io {
             operation: "create native diagnostics event directory",
@@ -679,6 +716,241 @@ fn prepare_events_directory(root: &Path) -> Result<PathBuf, NativeDiagnosticErro
     }
     require_directory(&path, "native diagnostics event directory")?;
     Ok(path)
+}
+
+fn recover_watermarks(
+    directory: &Path,
+    retained: &[RetainedEvent],
+    boot_epoch: u64,
+) -> Result<BTreeMap<DiagnosticProducer, u64>, NativeDiagnosticError> {
+    let entries = read_watermark_entries(directory)?;
+    let mut recovered: BTreeMap<DiagnosticProducer, u64> = BTreeMap::new();
+    for entry in &entries {
+        let name = entry
+            .file_name()
+            .into_string()
+            .map_err(|_| invalid_store("native diagnostic watermark name is not UTF-8"))?;
+        let (entry_boot, producer, uptime_ms) = parse_watermark_name(&name)?;
+        require_regular_file(&entry.path(), "native diagnostic producer watermark")?;
+        if entry
+            .metadata()
+            .map_err(|source| NativeDiagnosticError::Io {
+                operation: "inspect native diagnostic producer watermark",
+                path: entry.path(),
+                source,
+            })?
+            .len()
+            != 0
+        {
+            return Err(invalid_store(
+                "native diagnostic producer watermark must be empty",
+            ));
+        }
+        if entry_boot > boot_epoch {
+            return Err(NativeDiagnosticError::BootEpochRollback);
+        }
+        if entry_boot == boot_epoch {
+            recovered
+                .entry(producer)
+                .and_modify(|current| *current = (*current).max(uptime_ms))
+                .or_insert(uptime_ms);
+        }
+    }
+    for event in retained {
+        if event.stored.boot_epoch == boot_epoch {
+            recovered
+                .entry(event.stored.producer)
+                .and_modify(|current| *current = (*current).max(event.stored.uptime_ms))
+                .or_insert(event.stored.uptime_ms);
+        }
+    }
+    let mut created = false;
+    for (producer, uptime_ms) in &recovered {
+        let desired = watermark_path(directory, boot_epoch, *producer, *uptime_ms);
+        if !path_exists(&desired)? {
+            if read_watermark_entries(directory)?.len() >= MAX_WATERMARK_ENTRIES {
+                return Err(NativeDiagnosticError::StoreLimitExceeded);
+            }
+            OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&desired)
+                .and_then(|file| file.sync_all())
+                .map_err(|source| NativeDiagnosticError::Io {
+                    operation: "recover native diagnostic producer watermark",
+                    path: desired,
+                    source,
+                })?;
+            created = true;
+        }
+    }
+    if created {
+        sync_directory(directory)?;
+    }
+    remove_stale_watermarks(directory, boot_epoch, &recovered)?;
+    Ok(recovered)
+}
+
+fn advance_watermark(
+    directory: &Path,
+    boot_epoch: u64,
+    producer: DiagnosticProducer,
+    uptime_ms: u64,
+) -> Result<(), NativeDiagnosticError> {
+    let desired = watermark_path(directory, boot_epoch, producer, uptime_ms);
+    if path_exists(&desired)? {
+        require_regular_file(&desired, "native diagnostic producer watermark")?;
+    } else {
+        if read_watermark_entries(directory)?.len() >= MAX_WATERMARK_ENTRIES {
+            return Err(NativeDiagnosticError::StoreLimitExceeded);
+        }
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&desired)
+            .and_then(|file| file.sync_all())
+            .map_err(|source| NativeDiagnosticError::Io {
+                operation: "persist native diagnostic producer watermark",
+                path: desired,
+                source,
+            })?;
+        sync_directory(directory)?;
+    }
+    let expected = BTreeMap::from([(producer, uptime_ms)]);
+    remove_stale_watermarks_for_producer(directory, boot_epoch, producer, &expected)
+}
+
+fn remove_stale_watermarks(
+    directory: &Path,
+    boot_epoch: u64,
+    expected: &BTreeMap<DiagnosticProducer, u64>,
+) -> Result<(), NativeDiagnosticError> {
+    let entries = read_watermark_entries(directory)?;
+    let mut removed = false;
+    for entry in entries {
+        let name = entry
+            .file_name()
+            .into_string()
+            .map_err(|_| invalid_store("native diagnostic watermark name is not UTF-8"))?;
+        let (entry_boot, producer, uptime_ms) = parse_watermark_name(&name)?;
+        if entry_boot != boot_epoch || expected.get(&producer) != Some(&uptime_ms) {
+            require_regular_file(&entry.path(), "native diagnostic producer watermark")?;
+            fs::remove_file(entry.path()).map_err(|source| NativeDiagnosticError::Io {
+                operation: "remove stale native diagnostic producer watermark",
+                path: entry.path(),
+                source,
+            })?;
+            removed = true;
+        }
+    }
+    if removed {
+        sync_directory(directory)?;
+    }
+    Ok(())
+}
+
+fn remove_stale_watermarks_for_producer(
+    directory: &Path,
+    boot_epoch: u64,
+    target: DiagnosticProducer,
+    expected: &BTreeMap<DiagnosticProducer, u64>,
+) -> Result<(), NativeDiagnosticError> {
+    let entries = read_watermark_entries(directory)?;
+    let mut removed = false;
+    for entry in entries {
+        let name = entry
+            .file_name()
+            .into_string()
+            .map_err(|_| invalid_store("native diagnostic watermark name is not UTF-8"))?;
+        let (entry_boot, producer, uptime_ms) = parse_watermark_name(&name)?;
+        if producer == target
+            && (entry_boot != boot_epoch || expected.get(&producer) != Some(&uptime_ms))
+        {
+            require_regular_file(&entry.path(), "native diagnostic producer watermark")?;
+            fs::remove_file(entry.path()).map_err(|source| NativeDiagnosticError::Io {
+                operation: "remove superseded native diagnostic producer watermark",
+                path: entry.path(),
+                source,
+            })?;
+            removed = true;
+        }
+    }
+    if removed {
+        sync_directory(directory)?;
+    }
+    Ok(())
+}
+
+fn read_watermark_entries(path: &Path) -> Result<Vec<fs::DirEntry>, NativeDiagnosticError> {
+    let mut entries = Vec::new();
+    for entry in fs::read_dir(path).map_err(|source| NativeDiagnosticError::Io {
+        operation: "enumerate native diagnostic producer watermarks",
+        path: path.to_owned(),
+        source,
+    })? {
+        if entries.len() >= MAX_WATERMARK_ENTRIES {
+            return Err(NativeDiagnosticError::StoreLimitExceeded);
+        }
+        entries.push(entry.map_err(|source| NativeDiagnosticError::Io {
+            operation: "read native diagnostic producer watermark entry",
+            path: path.to_owned(),
+            source,
+        })?);
+    }
+    Ok(entries)
+}
+
+fn watermark_path(
+    directory: &Path,
+    boot_epoch: u64,
+    producer: DiagnosticProducer,
+    uptime_ms: u64,
+) -> PathBuf {
+    directory.join(format!(
+        "{boot_epoch:020}-{}-{uptime_ms:020}",
+        producer.file_name()
+    ))
+}
+
+fn parse_watermark_name(
+    name: &str,
+) -> Result<(u64, DiagnosticProducer, u64), NativeDiagnosticError> {
+    if !name.is_ascii() || name.len() < 43 {
+        return Err(invalid_store(
+            "native diagnostic producer watermark name is invalid",
+        ));
+    }
+    let boot_epoch = parse_fixed_u64(&name[..20], "watermark boot epoch")?;
+    if boot_epoch == 0 {
+        return Err(invalid_store(
+            "native diagnostic watermark boot epoch must be nonzero",
+        ));
+    }
+    let remainder = name
+        .get(21..)
+        .ok_or_else(|| invalid_store("native diagnostic producer watermark name is invalid"))?;
+    if name.as_bytes().get(20) != Some(&b'-') {
+        return Err(invalid_store(
+            "native diagnostic producer watermark name is invalid",
+        ));
+    }
+    let separator = remainder
+        .rfind('-')
+        .ok_or_else(|| invalid_store("native diagnostic producer watermark producer is missing"))?;
+    let producer = DiagnosticProducer::from_file_name(&remainder[..separator])?;
+    let uptime_ms = parse_fixed_u64(&remainder[separator + 1..], "watermark uptime")?;
+    Ok((boot_epoch, producer, uptime_ms))
+}
+
+fn parse_fixed_u64(value: &str, kind: &str) -> Result<u64, NativeDiagnosticError> {
+    if value.len() != 20 || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return Err(invalid_store(&format!(
+            "native diagnostic {kind} is not canonical"
+        )));
+    }
+    value
+        .parse::<u64>()
+        .map_err(|_| invalid_store(&format!("native diagnostic {kind} is invalid")))
 }
 
 fn open_lock(path: &Path) -> Result<File, NativeDiagnosticError> {
@@ -1343,6 +1615,91 @@ mod tests {
             NativeDiagnosticStore::open(fixture.config(), 1),
             Err(NativeDiagnosticError::InvalidStore(_))
         ));
+    }
+
+    #[test]
+    fn evicted_producer_watermark_survives_restart() {
+        let fixture = Fixture::new();
+        let mut config = fixture.config();
+        config.maximum_events = 1;
+        {
+            let mut store = NativeDiagnosticStore::open(config.clone(), 1).expect("open");
+            let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+            let power = store.authorize_producer(DiagnosticProducer::PowerCoordinator);
+            store
+                .record(&launcher, NativeDiagnosticCode::LauncherReady, 10)
+                .expect("launcher");
+            store
+                .record(&power, NativeDiagnosticCode::PowerIdleStarted, 2)
+                .expect("evict launcher event");
+            assert_eq!(store.snapshot().events().len(), 1);
+        }
+        let mut reopened = NativeDiagnosticStore::open(config, 1).expect("reopen");
+        let launcher = reopened.authorize_producer(DiagnosticProducer::Launcher);
+        assert!(matches!(
+            reopened.record(&launcher, NativeDiagnosticCode::LaunchStarted, 9),
+            Err(NativeDiagnosticError::TimeReversal)
+        ));
+    }
+
+    #[test]
+    fn retained_event_recovers_a_missing_watermark_before_eviction() {
+        let fixture = Fixture::new();
+        let mut config = fixture.config();
+        config.maximum_events = 1;
+        {
+            let mut store = NativeDiagnosticStore::open(config.clone(), 1).expect("open");
+            let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+            store
+                .record(&launcher, NativeDiagnosticCode::LauncherReady, 10)
+                .expect("launcher");
+        }
+        let watermarks = fixture.root.join(WATERMARKS_DIRECTORY);
+        for entry in fs::read_dir(&watermarks).expect("watermarks") {
+            fs::remove_file(entry.expect("watermark").path()).expect("simulate interruption");
+        }
+        {
+            let mut recovered = NativeDiagnosticStore::open(config.clone(), 1).expect("recover");
+            let power = recovered.authorize_producer(DiagnosticProducer::PowerCoordinator);
+            recovered
+                .record(&power, NativeDiagnosticCode::PowerIdleStarted, 1)
+                .expect("evict recovered source event");
+        }
+        let mut reopened = NativeDiagnosticStore::open(config, 1).expect("reopen");
+        let launcher = reopened.authorize_producer(DiagnosticProducer::Launcher);
+        assert!(matches!(
+            reopened.record(&launcher, NativeDiagnosticCode::LaunchStarted, 9),
+            Err(NativeDiagnosticError::TimeReversal)
+        ));
+    }
+
+    #[test]
+    fn watermark_epoch_rollback_fails_and_new_boot_resets_uptime() {
+        let fixture = Fixture::new();
+        {
+            let mut store = NativeDiagnosticStore::open(fixture.config(), 1).expect("open");
+            let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+            store
+                .record(&launcher, NativeDiagnosticCode::LauncherReady, 50)
+                .expect("launcher");
+        }
+        let future = watermark_path(
+            &fixture.root.join(WATERMARKS_DIRECTORY),
+            2,
+            DiagnosticProducer::PowerCoordinator,
+            1,
+        );
+        File::create(&future).expect("future watermark");
+        assert!(matches!(
+            NativeDiagnosticStore::open(fixture.config(), 1),
+            Err(NativeDiagnosticError::BootEpochRollback)
+        ));
+        fs::remove_file(future).expect("remove future");
+        let mut next_boot = NativeDiagnosticStore::open(fixture.config(), 2).expect("new boot");
+        let launcher = next_boot.authorize_producer(DiagnosticProducer::Launcher);
+        next_boot
+            .record(&launcher, NativeDiagnosticCode::LaunchStarted, 0)
+            .expect("uptime resets on new boot");
     }
 
     #[test]
