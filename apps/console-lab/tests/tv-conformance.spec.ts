@@ -587,4 +587,81 @@ for (const resolution of RESOLUTIONS) {
     await expect(launch).toBeHidden();
     await expect(trigger).toBeFocused();
   });
+
+  test(`launcher Search contains a blocked remote-web preview and recovers at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.open = () => null;
+    });
+    await page.setViewportSize(resolution);
+    await page.clock.install({
+      time: new Date("2026-07-24T19:00:00-07:00"),
+    });
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await input.fill("vibecoded.games");
+    const result = page.getByRole("button", {
+      name: /Online VibeCoded Museum vibecoded\.games/,
+    });
+    await expect(result).toBeVisible();
+    await expect(page.locator("#search-results button")).toHaveCount(1);
+    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+
+    await result.focus();
+    await page.keyboard.press("Enter");
+    const launch = page.getByRole("dialog", { name: "VibeCoded Museum" });
+    await expect(launch).toHaveAttribute("data-launch-adapter", "remote-web");
+    await expect(launch.getByText("READY", { exact: true })).toBeVisible();
+    await expect(launch).toContainText("VIBECODED.GAMES / ONLINE");
+    await launch
+      .getByRole("button", { name: "Open unsupervised preview" })
+      .click();
+    await expect(launch).toBeVisible();
+    await expect(
+      page.getByText("The browser blocked the separate preview tab. Try again."),
+    ).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(launch).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test(`launcher Search exposes remote-web offline failure and recovers at ${resolution.id}`, async ({
+    page,
+    context,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.clock.install({
+      time: new Date("2026-07-24T19:00:00-07:00"),
+    });
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await input.fill("vibecoded.games");
+    const result = page.getByRole("button", {
+      name: /Online VibeCoded Museum vibecoded\.games/,
+    });
+    await expect(result).toBeVisible();
+    await expect(page.locator("#search-results button")).toHaveCount(1);
+    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await context.setOffline(true);
+
+    await result.focus();
+    await page.keyboard.press("Enter");
+    const launch = page.getByRole("dialog", { name: "VibeCoded Museum" });
+    await expect(launch).toHaveAttribute("data-launch-adapter", "remote-web");
+    await expect(launch.getByText("OFFLINE", { exact: true })).toBeVisible();
+    await expect(launch.getByText("No network connection")).toBeVisible();
+    await expect(launch.getByRole("button", { name: "Retry" })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(launch).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
 }

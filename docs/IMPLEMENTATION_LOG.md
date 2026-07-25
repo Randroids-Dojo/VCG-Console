@@ -5411,3 +5411,43 @@ real-producer canary suite, core-dump approval, or Raspberry Pi/SteamOS
 filesystem, full-disk, corruption, sudden-power-loss, and forensic evidence.
 Oldest-prefix deletion can resemble ordinary retention, so these records never
 grant launch, update, recovery, save, profile, or power authority.
+
+## 2026-07-24: Search remote-web failure and denial recovery
+
+### Delivered
+
+- Changed the canonical `VibeCoded Museum` Search result to enter its closed
+  remote-web launch supervisor directly after Search restores the exact
+  opener. Catalog-title results continue to enter the bounded Museum catalog.
+- Added exact ready/blocked-preview and offline-failure Museum Search states at
+  720p, 1080p, and 4K. Each state has one result, five marked critical-text
+  nodes, two marked actions, no overlap or overlay overflow, and the candidate
+  TV geometry floor.
+- Proved the ready supervisor exposes `VIBECODED.GAMES / ONLINE`, deliberately
+  forced the separate preview to be blocked, retained the launch dialog with a
+  visible denial, and restored Back focus to the Search trigger.
+- Proved activation after the already-loaded page context becomes offline
+  exposes `OFFLINE`, `No network connection`, and Retry without a remote
+  request, then restores Back focus to the same Search trigger.
+- Expanded the strict artifact to six states, eighteen observations and
+  screenshots, five distinct queries, and three activation classes. The
+  launcher contract and Search owner-question record now distinguish the
+  qualified launcher-side disclosure from unqualified remote content.
+
+### Verification evidence
+
+- Seven focused Chrome cases pass: one combined normal flow plus ready/denial
+  and offline-failure cases at all three resolutions.
+- The Home, representative-surface, Search, OCR-A structural, and OCR-A
+  platform-fallback artifacts were regenerated against the new production
+  source. All five strict validators and their eleven adversarial groups pass.
+- The complete root test command and workspace production build pass, followed
+  by all sixty-seven Playwright cases.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. No remote page opened, and no reachability,
+containment, remote gameplay, catalog title, physical TV/controller, target
+Linux, or native host was qualified. STV-004 still needs unavailable-package
+and destructive-settings activation and denial. STV-001 through STV-003 still
+own default density, query/localization, and no-result recovery policy.

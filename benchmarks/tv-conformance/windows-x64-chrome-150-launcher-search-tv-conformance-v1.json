@@ -2,11 +2,11 @@
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
-  "qualification": "candidate-four-search-states-and-two-local-activation-classes-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T01:31:01.714Z",
+  "qualification": "candidate-six-search-states-and-three-activation-classes-with-remote-failure-denial-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-25T01:48:53.386Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "8744b699c63ac5f2d160cfa850014a3296da07342ccf2f471244be3830191940"
+    "sha256": "313af0729208483d239a580e81271af123733ab13003c38f1e417387efc8508e"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -67,6 +67,8 @@
           "outcomeKind": "launcher-view",
           "outcomeLabel": "Who is playing?",
           "expectedAdapter": null,
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
           "backRecoveryFocus": "launcher-home-navigation"
         },
         "interactionTrace": [
@@ -91,12 +93,85 @@
           "outcomeKind": "launch-dialog",
           "outcomeLabel": "Obstacle",
           "expectedAdapter": "local-web",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
           "universal-search",
           "obstacle-result",
           "obstacle-launch-dialog",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "remote-web-ready-denial",
+        "query": "vibecoded.games",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "expectedAdapter": "remote-web",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": {
+            "statusLabel": "READY",
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "actionLabel": "Open unsupervised preview",
+            "failureMessage": null,
+            "retryAvailable": false,
+            "denial": {
+              "kind": "browser-popup-blocked",
+              "message": "The browser blocked the separate preview tab. Try again.",
+              "launchRetained": true
+            }
+          },
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "remote-web-offline-failure",
+        "query": "vibecoded.games",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "expectedAdapter": "remote-web",
+          "expectedNetworkOnline": false,
+          "remoteWebExpectation": {
+            "statusLabel": "OFFLINE",
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "actionLabel": "Open unsupervised preview",
+            "failureMessage": "No network connection",
+            "retryAvailable": true,
+            "denial": null
+          },
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
           "search-trigger"
         ]
       }
@@ -271,6 +346,8 @@
           "outcomeLabel": "Who is playing?",
           "outcomeVisible": true,
           "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -329,6 +406,8 @@
           "outcomeLabel": "Obstacle",
           "outcomeVisible": true,
           "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -336,6 +415,157 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
           "bytes": 54895,
           "sha256": "dac34d8dd8d15a54f51125998451bee19bc90516659e9c1ee76c3cef9ca98164"
+        }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
+          "bytes": 58647,
+          "sha256": "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
+          "bytes": 58647,
+          "sha256": "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9"
         }
       },
       {
@@ -484,6 +714,8 @@
           "outcomeLabel": "Who is playing?",
           "outcomeVisible": true,
           "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -542,6 +774,8 @@
           "outcomeLabel": "Obstacle",
           "outcomeVisible": true,
           "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -549,6 +783,157 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
           "bytes": 71230,
           "sha256": "3c4aeedabbd60f54d5dd7f23610bc70f97b31b614b3d738887e1d599a2b80ef2"
+        }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
+          "bytes": 74764,
+          "sha256": "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
+          "bytes": 74764,
+          "sha256": "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435"
         }
       },
       {
@@ -697,6 +1082,8 @@
           "outcomeLabel": "Who is playing?",
           "outcomeVisible": true,
           "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -755,6 +1142,8 @@
           "outcomeLabel": "Obstacle",
           "outcomeVisible": true,
           "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -763,20 +1152,171 @@
           "bytes": 177237,
           "sha256": "7b6f14c7547ed395d48069f40b2faf1923e5c0fecb2bbd756521d679897add0f"
         }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
+          "bytes": 184705,
+          "sha256": "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
+          "bytes": 184705,
+          "sha256": "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff"
+        }
       }
     ],
     "consoleErrorCount": 0,
     "pageErrorCount": 0,
     "requestFailureCount": 0,
     "requestCounts": {
-      "/": 12,
-      "/assets/main-Cws4Imhc.js": 12,
-      "/assets/main-DwOiNSRf.css": 12,
-      "/assets/modulepreload-polyfill-Dezn_h7o.js": 12,
-      "/assets/src-EbToTsJV.js": 12,
-      "/assets/synthetic-BTWSnpMo.js": 12,
-      "/assets/tracker-health--oynSZbv.js": 12,
-      "/fonts/OCRA.ttf": 12
+      "/": 18,
+      "/assets/main-BBirYakm.js": 18,
+      "/assets/main-DwOiNSRf.css": 18,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 18,
+      "/assets/src-EbToTsJV.js": 18,
+      "/assets/synthetic-BTWSnpMo.js": 18,
+      "/assets/tracker-health--oynSZbv.js": 18,
+      "/fonts/OCRA.ttf": 18
     }
   },
   "disposition": {
@@ -789,6 +1329,10 @@
     "arbitraryQueryVerified": false,
     "scrollingResultsVerified": true,
     "resultActivationVerified": true,
+    "remoteWebActivationVerified": true,
+    "remoteWebOfflineFailureVerified": true,
+    "externalOriginDisclosureVerified": true,
+    "blockedPreviewDenialVerified": true,
     "physicalTelevisionVerified": false,
     "physicalControllerVerified": false,
     "reservedHomeVerified": false,
@@ -800,11 +1344,14 @@
   },
   "summary": {
     "resolutionCount": 3,
-    "searchStateCount": 4,
-    "observationCount": 12,
-    "screenshotCount": 12,
-    "distinctQueryCount": 4,
-    "activatedResultClassCount": 2,
+    "searchStateCount": 6,
+    "observationCount": 18,
+    "screenshotCount": 18,
+    "distinctQueryCount": 5,
+    "activatedResultClassCount": 3,
+    "remoteWebOutcomeStateCount": 2,
+    "failureOutcomeStateCount": 1,
+    "denialOutcomeStateCount": 1,
     "physicalTelevisionCount": 0,
     "physicalControllerCount": 0,
     "participantCount": 0,
@@ -813,7 +1360,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "2f0a3ad7af0c22f213efcef847a02b8f1d876124edfb0d1c8c61826cace0e7c2",
+    "launcherPathSha256": "74bd7c64c360aa2ac1d9d22003eb9a6a3a36d03e7879b7fe5f07a7226e2c2af7",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "16bb38146a4a0234d8e21085c6cc78c115875bef5ea30eb0de54a6fbc293bbfa",
     "stylePath": "apps/console-lab/src/styles.css",
@@ -825,15 +1372,15 @@
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "f2e8e5bfd6119283037c43dd081b509b76f65cadc714278a3fee0293f15cc2b0",
+    "browserTestPathSha256": "223fb4990bad5164399b7fa5ab2fe5915f781dd49ab8c996db547201c6d3303d",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "8744b699c63ac5f2d160cfa850014a3296da07342ccf2f471244be3830191940",
+    "representativeEvidencePathSha256": "313af0729208483d239a580e81271af123733ab13003c38f1e417387efc8508e",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "c54a64a45505baba913c93597a346724bf943fe8e44e151a103136455d19c794",
+    "generatorPathSha256": "fd2de0af50d1c96fb736c71ce52728a6afda2d769ce36f434af05e82c3019d3c",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "cb6616e0f5c61851f9b90a2f59a33d4115bcaec72be77dc3f4fb8386816f836b",
+    "validatorPathSha256": "ade208b124395966c7fb14538ac488baed39dfc59a53dab6bac8bfb04db06fe5",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -851,13 +1398,13 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 127,
-      "sha256": "5fd0071dfd501425c9d07a43ef8954c399a8b62f78a8dcb2f618218f681cbbcd"
+      "sha256": "94549f5f9b5dec4fce5fe07569a1e3cb93bf502f35793b626d2b2a0488de084d"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, and exact one-result Obstacle query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination and recovers through Back, then separately keyboard-activates the offline local-web Obstacle launch surface and returns Back focus to the Search opener. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, completed gameplay, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, and exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, and remote-web Museum supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. It does not select the final empty-query product policy, qualify arbitrary localization or query text, unavailable or destructive result classes, completed gameplay, remote content, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
-    "Only four exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, and the lowercase one-result Obstacle query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-    "The activated results were limited to the local Profiles shell destination and the built-in local-web Obstacle launch surface, using programmatic focus followed by keyboard Enter and one Back recovery each. Completed gameplay, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and every other result remain untested.",
+    "Only six exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, and the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, and remote-web Museum supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. Unavailable-package and destructive-settings activation remain untested.",
     "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
     "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
     "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility."

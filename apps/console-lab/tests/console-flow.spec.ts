@@ -1885,6 +1885,58 @@ test("Search restores its opener before offline package launch and Back recovery
   await expect(trigger).toBeFocused();
 });
 
+test("Search remote-web launch contains denial and offline failure before restoring focus", async ({
+  page,
+  context,
+}) => {
+  await page.addInitScript(() => {
+    window.open = () => null;
+  });
+  await page.clock.install({
+    time: new Date("2026-07-24T19:00:00-07:00"),
+  });
+  await page.goto("/?skipBoot=1");
+  const trigger = page.getByRole("button", { name: /Search games/ });
+  const openMuseumFromSearch = async () => {
+    await trigger.focus();
+    await trigger.click();
+    await page.locator("#universal-search").fill("vibecoded.games");
+    const result = page.getByRole("button", {
+      name: /Online VibeCoded Museum vibecoded\.games/,
+    });
+    await result.focus();
+    await page.keyboard.press("Enter");
+    return page.getByRole("dialog", { name: "VibeCoded Museum" });
+  };
+
+  const readyLaunch = await openMuseumFromSearch();
+  await expect(readyLaunch).toHaveAttribute("data-launch-adapter", "remote-web");
+  await expect(readyLaunch.getByText("READY", { exact: true })).toBeVisible();
+  await expect(readyLaunch).toContainText("VIBECODED.GAMES / ONLINE");
+  await readyLaunch
+    .getByRole("button", { name: "Open unsupervised preview" })
+    .click();
+  await expect(readyLaunch).toBeVisible();
+  await expect(
+    page.getByText("The browser blocked the separate preview tab. Try again."),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(readyLaunch).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  const offlineActivation = openMuseumFromSearch();
+  await context.setOffline(true);
+  const offlineLaunch = await offlineActivation;
+  await expect(offlineLaunch.getByText("OFFLINE", { exact: true })).toBeVisible();
+  await expect(offlineLaunch.getByText("No network connection")).toBeVisible();
+  await expect(
+    offlineLaunch.getByRole("button", { name: "Retry" }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(offlineLaunch).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();

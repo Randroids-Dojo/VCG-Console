@@ -84,6 +84,8 @@ const EXPECTED_STATES = Object.freeze([
       outcomeKind: "launcher-view",
       outcomeLabel: "Who is playing?",
       expectedAdapter: null,
+      expectedNetworkOnline: true,
+      remoteWebExpectation: null,
       backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
@@ -108,12 +110,86 @@ const EXPECTED_STATES = Object.freeze([
       outcomeKind: "launch-dialog",
       outcomeLabel: "Obstacle",
       expectedAdapter: "local-web",
+      expectedNetworkOnline: true,
+      remoteWebExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
       "universal-search",
       "obstacle-result",
       "obstacle-launch-dialog",
+      "search-trigger",
+    ],
+  },
+  {
+    id: "remote-web-ready-denial",
+    query: "vibecoded.games",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "VibeCoded Museum",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "VibeCoded Museum",
+      expectedAdapter: "remote-web",
+      expectedNetworkOnline: true,
+      remoteWebExpectation: {
+        statusLabel: "READY",
+        originLabel: "VIBECODED.GAMES / ONLINE",
+        actionLabel: "Open unsupervised preview",
+        failureMessage: null,
+        retryAvailable: false,
+        denial: {
+          kind: "browser-popup-blocked",
+          message:
+            "The browser blocked the separate preview tab. Try again.",
+          launchRetained: true,
+        },
+      },
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "museum-result",
+      "remote-web-ready-dialog",
+      "fixed-origin-disclosure",
+      "blocked-preview-denial",
+      "search-trigger",
+    ],
+  },
+  {
+    id: "remote-web-offline-failure",
+    query: "vibecoded.games",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "VibeCoded Museum",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "VibeCoded Museum",
+      expectedAdapter: "remote-web",
+      expectedNetworkOnline: false,
+      remoteWebExpectation: {
+        statusLabel: "OFFLINE",
+        originLabel: "VIBECODED.GAMES / ONLINE",
+        actionLabel: "Open unsupervised preview",
+        failureMessage: "No network connection",
+        retryAvailable: true,
+        denial: null,
+      },
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "museum-result",
+      "remote-web-offline-failure",
+      "retry-action-visible",
       "search-trigger",
     ],
   },
@@ -140,6 +216,16 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 54895,
     sha256: "dac34d8dd8d15a54f51125998451bee19bc90516659e9c1ee76c3cef9ca98164",
   },
+  "remote-web-ready-denial/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
+    bytes: 58647,
+    sha256: "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9",
+  },
+  "remote-web-offline-failure/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
+    bytes: 58647,
+    sha256: "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9",
+  },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
     bytes: 105671,
@@ -160,6 +246,16 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 71230,
     sha256: "3c4aeedabbd60f54d5dd7f23610bc70f97b31b614b3d738887e1d599a2b80ef2",
   },
+  "remote-web-ready-denial/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
+    bytes: 74764,
+    sha256: "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435",
+  },
+  "remote-web-offline-failure/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
+    bytes: 74764,
+    sha256: "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435",
+  },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
     bytes: 256838,
@@ -179,6 +275,16 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
     bytes: 177237,
     sha256: "7b6f14c7547ed395d48069f40b2faf1923e5c0fecb2bbd756521d679897add0f",
+  },
+  "remote-web-ready-denial/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
+    bytes: 184705,
+    sha256: "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff",
+  },
+  "remote-web-offline-failure/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
+    bytes: 184705,
+    sha256: "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
@@ -225,6 +331,34 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "offline-package-activation/720p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "remote-web-ready-denial/720p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "remote-web-offline-failure/720p": {
     measuredCriticalTextCount: 5,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 687.766,
@@ -294,6 +428,34 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: null,
     },
   },
+  "remote-web-ready-denial/1080p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "remote-web-offline-failure/1080p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
   "motion-results/4k": {
     measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 48,
@@ -337,6 +499,34 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "offline-package-activation/4k": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "remote-web-ready-denial/4k": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "remote-web-offline-failure/4k": {
     measuredCriticalTextCount: 5,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1936.656,
@@ -413,15 +603,15 @@ function validateRequests(requestCounts) {
   );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
-  assert.equal(requestCounts["/"], 12);
-  assert.equal(requestCounts["/fonts/OCRA.ttf"], 12);
+  assert.equal(requestCounts["/"], 18);
+  assert.equal(requestCounts["/fonts/OCRA.ttf"], 18);
   const assets = entries.filter(([path]) => path.startsWith("/assets/"));
   assert.equal(assets.length, 6);
   assert.equal(assets.filter(([path]) => path.endsWith(".css")).length, 1);
   assert.equal(assets.filter(([path]) => path.endsWith(".js")).length, 5);
   for (const [path, count] of assets) {
     assert.match(path, /^\/assets\/[A-Za-z0-9_-]+\.(?:css|js)$/u);
-    assert.equal(count, 12);
+    assert.equal(count, 18);
   }
 }
 
@@ -569,6 +759,27 @@ async function validateObservation(observation, expectedState, resolution) {
   if (expectedState.activation === null) {
     assert.equal(observation.activation, null);
   } else {
+    const remoteExpectation =
+      expectedState.activation.remoteWebExpectation;
+    const remoteWebEvidence = remoteExpectation === null
+      ? null
+      : {
+          statusLabel: remoteExpectation.statusLabel,
+          statusVisible: true,
+          originLabel: remoteExpectation.originLabel,
+          originVisible: true,
+          actionLabel: remoteExpectation.actionLabel,
+          actionVisible: true,
+          failureMessage: remoteExpectation.failureMessage,
+          failureMessageVisible:
+            remoteExpectation.failureMessage === null ? null : true,
+          retryAvailable: remoteExpectation.retryAvailable,
+          denialKind: remoteExpectation.denial?.kind ?? null,
+          denialObserved: remoteExpectation.denial !== null,
+          denialMessage: remoteExpectation.denial?.message ?? null,
+          launchRetainedAfterDenial:
+            remoteExpectation.denial?.launchRetained ?? null,
+        };
     assert.deepEqual(observation.activation, {
       resultTitle: expectedState.activation.resultTitle,
       method: expectedState.activation.method,
@@ -577,6 +788,9 @@ async function validateObservation(observation, expectedState, resolution) {
       outcomeLabel: expectedState.activation.outcomeLabel,
       outcomeVisible: true,
       adapter: expectedState.activation.expectedAdapter,
+      networkOnlineAtActivation:
+        expectedState.activation.expectedNetworkOnline,
+      remoteWebEvidence,
       backRecoveryVerified: true,
       backRecoveryFocus: expectedState.activation.backRecoveryFocus,
     });
@@ -635,7 +849,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-four-search-states-and-two-local-activation-classes-only-not-tv-target-or-catalog-qualification",
+    "candidate-six-search-states-and-three-activation-classes-with-remote-failure-denial-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -675,7 +889,7 @@ export async function validateLauncherSearchTvEvidence(
     "browser",
   );
   assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
-  assert.equal(artifact.browser.observations.length, 12);
+  assert.equal(artifact.browser.observations.length, 18);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
     for (const state of EXPECTED_STATES) {
@@ -701,6 +915,10 @@ export async function validateLauncherSearchTvEvidence(
     arbitraryQueryVerified: false,
     scrollingResultsVerified: true,
     resultActivationVerified: true,
+    remoteWebActivationVerified: true,
+    remoteWebOfflineFailureVerified: true,
+    externalOriginDisclosureVerified: true,
+    blockedPreviewDenialVerified: true,
     physicalTelevisionVerified: false,
     physicalControllerVerified: false,
     reservedHomeVerified: false,
@@ -712,11 +930,14 @@ export async function validateLauncherSearchTvEvidence(
   });
   assert.deepEqual(artifact.summary, {
     resolutionCount: 3,
-    searchStateCount: 4,
-    observationCount: 12,
-    screenshotCount: 12,
-    distinctQueryCount: 4,
-    activatedResultClassCount: 2,
+    searchStateCount: 6,
+    observationCount: 18,
+    screenshotCount: 18,
+    distinctQueryCount: 5,
+    activatedResultClassCount: 3,
+    remoteWebOutcomeStateCount: 2,
+    failureOutcomeStateCount: 1,
+    denialOutcomeStateCount: 1,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

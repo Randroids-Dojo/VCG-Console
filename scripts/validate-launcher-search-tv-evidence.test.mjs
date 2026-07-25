@@ -35,7 +35,7 @@ async function validateMutation(mutator) {
 
 test("accepts the exact launcher Search TV evidence", async () => {
   const artifact = await validateLauncherSearchTvEvidence();
-  assert.equal(artifact.summary.observationCount, 12);
+  assert.equal(artifact.summary.observationCount, 18);
 });
 
 test("rejects format, base evidence, environment, or resolution substitution", async () => {
@@ -141,6 +141,34 @@ test("rejects interaction, scrolling, or activation drift", async () => {
       "obstacle-result";
   });
   await validateMutation((artifact) => {
+    artifact.browser.observations[4].activation.networkOnlineAtActivation =
+      false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[4]
+      .activation.remoteWebEvidence.originVisible = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[4]
+      .activation.remoteWebEvidence.denialObserved = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[4]
+      .activation.remoteWebEvidence.launchRetainedAfterDenial = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[5]
+      .activation.remoteWebEvidence.statusLabel = "READY";
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[5]
+      .activation.remoteWebEvidence.failureMessageVisible = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[5]
+      .activation.remoteWebEvidence.retryAvailable = false;
+  });
+  await validateMutation((artifact) => {
     artifact.browser.observations[10].resultsScroll.scrollHeightCssPx += 1;
   });
 });
@@ -193,10 +221,29 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     artifact.disposition.resultActivationVerified = false;
   });
   await validateMutation((artifact) => {
-    artifact.summary.distinctQueryCount = 3;
+    artifact.summary.distinctQueryCount = 4;
   });
   await validateMutation((artifact) => {
-    artifact.summary.activatedResultClassCount = 3;
+    artifact.summary.activatedResultClassCount = 4;
+  });
+  for (const key of [
+    "remoteWebActivationVerified",
+    "remoteWebOfflineFailureVerified",
+    "externalOriginDisclosureVerified",
+    "blockedPreviewDenialVerified",
+  ]) {
+    await validateMutation((artifact) => {
+      artifact.disposition[key] = false;
+    });
+  }
+  await validateMutation((artifact) => {
+    artifact.summary.remoteWebOutcomeStateCount = 1;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.failureOutcomeStateCount = 0;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.denialOutcomeStateCount = 0;
   });
   await validateMutation((artifact) => {
     artifact.summary.catalogGameCount = 1;

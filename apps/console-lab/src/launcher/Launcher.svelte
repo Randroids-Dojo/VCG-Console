@@ -173,7 +173,7 @@
     { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") },
     { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") },
     { title: "Session authority rehearsal", detail: "Synthetic spectator and takeover abuse suite", group: "Motion", terms: "candidate join spectator pet mirror television passerby takeover recovery", action: () => showView("session-adversarial") },
-    { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: () => showView("museum") },
+    { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: launchMuseum },
     ...launcherCatalog.entries.map((entry): SearchItem => ({
       title: entry.title,
       detail: entry.searchDetail,
