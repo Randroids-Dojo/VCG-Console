@@ -50,6 +50,297 @@ pub struct ControllerSnapshot {
     pub pressed_actions: Vec<ShellAction>,
 }
 
+/// Press threshold for a standard primary direction axis.
+pub const STANDARD_AXIS_PRESS_THRESHOLD: f32 = 0.55;
+/// Release threshold for a previously pressed standard primary direction
+/// axis.
+pub const STANDARD_AXIS_RELEASE_THRESHOLD: f32 = 0.35;
+
+/// Closed standard-gamepad buttons that map to canonical shell actions.
+///
+/// This is deliberately not a complete gameplay input vocabulary. A future
+/// SDL3 producer must identify a controller as standard before using these
+/// names, and a separate privileged runtime path must decide which non-shell
+/// gameplay controls a child may receive.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum StandardGamepadButton {
+    South,
+    East,
+    Start,
+    Guide,
+    DpadUp,
+    DpadDown,
+    DpadLeft,
+    DpadRight,
+}
+
+/// One complete raw observation from a future native standard-gamepad
+/// producer.
+///
+/// Axis values use the conventional `[-1.0, 1.0]` range. Ambiguous mappings
+/// must not supply standardized buttons or non-neutral axes.
+#[derive(Clone, Debug, PartialEq)]
+pub struct StandardGamepadObservation {
+    pub backend_instance_id: u32,
+    pub connection_epoch: u64,
+    pub mapping: ControllerMapping,
+    pub pressed_buttons: Vec<StandardGamepadButton>,
+    pub primary_x: f32,
+    pub primary_y: f32,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+enum AxisDirection {
+    Negative,
+    #[default]
+    Neutral,
+    Positive,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct AxisLatch {
+    horizontal: AxisDirection,
+    vertical: AxisDirection,
+}
+
+#[derive(Clone)]
+struct ValidatedStandardObservation {
+    connection_epoch: u64,
+    mapping: ControllerMapping,
+    pressed_buttons: BTreeSet<StandardGamepadButton>,
+    primary_x: f32,
+    primary_y: f32,
+}
+
+/// Stateful standard-gamepad conversion into complete semantic snapshots.
+///
+/// The mapper validates an entire poll before changing its hysteresis state.
+/// It emits only complete [`ControllerSnapshot`] values; edge assignment,
+/// opaque device IDs, disconnect synthesis, and replacement ordering remain
+/// the responsibility of [`ControllerRegistry`].
+#[derive(Debug, Default)]
+pub struct StandardShellControllerMapper {
+    axis_latches: BTreeMap<(u32, u64), AxisLatch>,
+}
+
+impl StandardShellControllerMapper {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Maps one complete standard-gamepad observation.
+    ///
+    /// # Errors
+    ///
+    /// Rejects excessive or duplicate devices, zero connection epochs,
+    /// duplicate buttons, non-finite or out-of-range axes, and standardized
+    /// signals from an ambiguous mapping. Rejection leaves all hysteresis
+    /// state unchanged.
+    pub fn map(
+        &mut self,
+        observations: &[StandardGamepadObservation],
+    ) -> Result<Vec<ControllerSnapshot>, StandardShellMappingError> {
+        let validated = validate_standard_observations(observations)?;
+        let mut next_latches = BTreeMap::new();
+        let mut snapshots = Vec::with_capacity(validated.len());
+
+        for (backend_instance_id, observation) in validated {
+            if observation.mapping == ControllerMapping::Ambiguous {
+                snapshots.push(ControllerSnapshot {
+                    backend_instance_id,
+                    connection_epoch: observation.connection_epoch,
+                    mapping: observation.mapping,
+                    pressed_actions: Vec::new(),
+                });
+                continue;
+            }
+
+            let key = (backend_instance_id, observation.connection_epoch);
+            let prior = self.axis_latches.get(&key).copied().unwrap_or_default();
+            let latch = AxisLatch {
+                horizontal: axis_direction(observation.primary_x, prior.horizontal),
+                vertical: axis_direction(observation.primary_y, prior.vertical),
+            };
+            let mut actions = observation
+                .pressed_buttons
+                .iter()
+                .copied()
+                .map(button_action)
+                .collect::<BTreeSet<_>>();
+            for (active, action) in [
+                (latch.vertical == AxisDirection::Negative, ShellAction::Up),
+                (latch.vertical == AxisDirection::Positive, ShellAction::Down),
+                (
+                    latch.horizontal == AxisDirection::Negative,
+                    ShellAction::Left,
+                ),
+                (
+                    latch.horizontal == AxisDirection::Positive,
+                    ShellAction::Right,
+                ),
+            ] {
+                if active {
+                    actions.insert(action);
+                }
+            }
+            next_latches.insert(key, latch);
+            snapshots.push(ControllerSnapshot {
+                backend_instance_id,
+                connection_epoch: observation.connection_epoch,
+                mapping: observation.mapping,
+                pressed_actions: actions.into_iter().collect(),
+            });
+        }
+
+        self.axis_latches = next_latches;
+        Ok(snapshots)
+    }
+
+    /// Clears every axis latch after adapter shutdown, sleep, or a declared
+    /// backend fault.
+    pub fn reset(&mut self) {
+        self.axis_latches.clear();
+    }
+}
+
+fn validate_standard_observations(
+    observations: &[StandardGamepadObservation],
+) -> Result<BTreeMap<u32, ValidatedStandardObservation>, StandardShellMappingError> {
+    if observations.len() > MAX_CONNECTED_CONTROLLERS {
+        return Err(StandardShellMappingError::TooManyControllers(
+            observations.len(),
+        ));
+    }
+    let mut validated = BTreeMap::new();
+    for observation in observations {
+        if observation.connection_epoch == 0 {
+            return Err(StandardShellMappingError::InvalidConnectionEpoch(
+                observation.backend_instance_id,
+            ));
+        }
+        if !valid_standard_axis(observation.primary_x)
+            || !valid_standard_axis(observation.primary_y)
+        {
+            return Err(StandardShellMappingError::InvalidAxis(
+                observation.backend_instance_id,
+            ));
+        }
+        let pressed_buttons = observation
+            .pressed_buttons
+            .iter()
+            .copied()
+            .collect::<BTreeSet<_>>();
+        if pressed_buttons.len() != observation.pressed_buttons.len() {
+            return Err(StandardShellMappingError::DuplicateButton(
+                observation.backend_instance_id,
+            ));
+        }
+        if observation.mapping == ControllerMapping::Ambiguous
+            && (!pressed_buttons.is_empty()
+                || observation.primary_x != 0.0
+                || observation.primary_y != 0.0)
+        {
+            return Err(StandardShellMappingError::AmbiguousMappingSignal(
+                observation.backend_instance_id,
+            ));
+        }
+        if validated
+            .insert(
+                observation.backend_instance_id,
+                ValidatedStandardObservation {
+                    connection_epoch: observation.connection_epoch,
+                    mapping: observation.mapping,
+                    pressed_buttons,
+                    primary_x: observation.primary_x,
+                    primary_y: observation.primary_y,
+                },
+            )
+            .is_some()
+        {
+            return Err(StandardShellMappingError::DuplicateController(
+                observation.backend_instance_id,
+            ));
+        }
+    }
+    Ok(validated)
+}
+
+fn valid_standard_axis(value: f32) -> bool {
+    value.is_finite() && (-1.0..=1.0).contains(&value)
+}
+
+fn axis_direction(value: f32, previous: AxisDirection) -> AxisDirection {
+    if value <= -STANDARD_AXIS_PRESS_THRESHOLD
+        || (previous == AxisDirection::Negative && value <= -STANDARD_AXIS_RELEASE_THRESHOLD)
+    {
+        AxisDirection::Negative
+    } else if value >= STANDARD_AXIS_PRESS_THRESHOLD
+        || (previous == AxisDirection::Positive && value >= STANDARD_AXIS_RELEASE_THRESHOLD)
+    {
+        AxisDirection::Positive
+    } else {
+        AxisDirection::Neutral
+    }
+}
+
+const fn button_action(button: StandardGamepadButton) -> ShellAction {
+    match button {
+        StandardGamepadButton::South => ShellAction::Select,
+        StandardGamepadButton::East => ShellAction::Back,
+        StandardGamepadButton::Start => ShellAction::Pause,
+        StandardGamepadButton::Guide => ShellAction::Home,
+        StandardGamepadButton::DpadUp => ShellAction::Up,
+        StandardGamepadButton::DpadDown => ShellAction::Down,
+        StandardGamepadButton::DpadLeft => ShellAction::Left,
+        StandardGamepadButton::DpadRight => ShellAction::Right,
+    }
+}
+
+/// Invalid or ambiguous standard-gamepad observation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum StandardShellMappingError {
+    TooManyControllers(usize),
+    DuplicateController(u32),
+    InvalidConnectionEpoch(u32),
+    DuplicateButton(u32),
+    InvalidAxis(u32),
+    AmbiguousMappingSignal(u32),
+}
+
+impl fmt::Display for StandardShellMappingError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::TooManyControllers(count) => write!(
+                formatter,
+                "standard controller observation count {count} exceeds {MAX_CONNECTED_CONTROLLERS}"
+            ),
+            Self::DuplicateController(instance_id) => write!(
+                formatter,
+                "standard controller backend instance {instance_id} is duplicated"
+            ),
+            Self::InvalidConnectionEpoch(instance_id) => write!(
+                formatter,
+                "standard controller backend instance {instance_id} has an invalid connection epoch"
+            ),
+            Self::DuplicateButton(instance_id) => write!(
+                formatter,
+                "standard controller backend instance {instance_id} repeats a button"
+            ),
+            Self::InvalidAxis(instance_id) => write!(
+                formatter,
+                "standard controller backend instance {instance_id} has an invalid primary axis"
+            ),
+            Self::AmbiguousMappingSignal(instance_id) => write!(
+                formatter,
+                "ambiguous controller backend instance {instance_id} cannot supply standardized signals"
+            ),
+        }
+    }
+}
+
+impl Error for StandardShellMappingError {}
+
 /// Complete-observation source implemented by a future SDL3 adapter.
 ///
 /// SDL handles, controller names, serials, paths, and binding-specific types
@@ -565,6 +856,8 @@ mod tests {
         ControllerRegistry, ControllerRegistryError, ControllerSnapshot, InputContext, InputEvent,
         InputTarget, MAX_CONNECTED_CONTROLLERS, MAX_INPUT_DEVICE_ID_BYTES, MAX_ROUTED_HELD_ACTIONS,
         ReservedInputRouter, ReservedInputRouterError, RoutedInputEvent, ShellAction,
+        StandardGamepadButton, StandardGamepadObservation, StandardShellControllerMapper,
+        StandardShellMappingError,
     };
 
     fn snapshot(
@@ -618,6 +911,259 @@ mod tests {
                 action,
                 pressed,
             },
+        }
+    }
+
+    fn standard_observation(
+        backend_instance_id: u32,
+        connection_epoch: u64,
+        mapping: ControllerMapping,
+        pressed_buttons: &[StandardGamepadButton],
+        primary_x: f32,
+        primary_y: f32,
+    ) -> StandardGamepadObservation {
+        StandardGamepadObservation {
+            backend_instance_id,
+            connection_epoch,
+            mapping,
+            pressed_buttons: pressed_buttons.to_vec(),
+            primary_x,
+            primary_y,
+        }
+    }
+
+    fn mapped_actions(
+        mapper: &mut StandardShellControllerMapper,
+        observation: StandardGamepadObservation,
+    ) -> Vec<ShellAction> {
+        mapper
+            .map(&[observation])
+            .expect("standard observation maps")
+            .into_iter()
+            .next()
+            .expect("one snapshot")
+            .pressed_actions
+    }
+
+    #[test]
+    fn standard_shell_mapping_is_closed_complete_and_deterministic() {
+        let mut mapper = StandardShellControllerMapper::new();
+        let observations = [
+            standard_observation(
+                9,
+                1,
+                ControllerMapping::Standard,
+                &[
+                    StandardGamepadButton::Start,
+                    StandardGamepadButton::DpadRight,
+                    StandardGamepadButton::South,
+                ],
+                -0.8,
+                -0.8,
+            ),
+            standard_observation(
+                2,
+                4,
+                ControllerMapping::Standard,
+                &[
+                    StandardGamepadButton::Guide,
+                    StandardGamepadButton::East,
+                    StandardGamepadButton::DpadDown,
+                    StandardGamepadButton::DpadLeft,
+                ],
+                0.8,
+                0.0,
+            ),
+        ];
+        let snapshots = mapper.map(&observations).expect("complete poll maps");
+        assert_eq!(
+            snapshots,
+            [
+                snapshot(
+                    2,
+                    4,
+                    ControllerMapping::Standard,
+                    &[
+                        ShellAction::Down,
+                        ShellAction::Left,
+                        ShellAction::Right,
+                        ShellAction::Back,
+                        ShellAction::Home,
+                    ],
+                ),
+                snapshot(
+                    9,
+                    1,
+                    ControllerMapping::Standard,
+                    &[
+                        ShellAction::Up,
+                        ShellAction::Left,
+                        ShellAction::Right,
+                        ShellAction::Select,
+                        ShellAction::Pause,
+                    ],
+                ),
+            ]
+        );
+    }
+
+    #[test]
+    fn standard_axes_use_hysteresis_and_fresh_connection_epochs() {
+        let mut mapper = StandardShellControllerMapper::new();
+        for (axis, expected) in [
+            (0.56, vec![ShellAction::Right]),
+            (0.40, vec![ShellAction::Right]),
+            (0.34, Vec::new()),
+            (-0.56, vec![ShellAction::Left]),
+            (-0.40, vec![ShellAction::Left]),
+            (-0.34, Vec::new()),
+        ] {
+            assert_eq!(
+                mapped_actions(
+                    &mut mapper,
+                    standard_observation(3, 7, ControllerMapping::Standard, &[], axis, 0.0,),
+                ),
+                expected
+            );
+        }
+        assert!(
+            mapped_actions(
+                &mut mapper,
+                standard_observation(3, 8, ControllerMapping::Standard, &[], 0.40, 0.0),
+            )
+            .is_empty()
+        );
+
+        let _ = mapped_actions(
+            &mut mapper,
+            standard_observation(3, 8, ControllerMapping::Standard, &[], 0.70, 0.0),
+        );
+        mapper.reset();
+        assert!(
+            mapped_actions(
+                &mut mapper,
+                standard_observation(3, 8, ControllerMapping::Standard, &[], 0.40, 0.0),
+            )
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn invalid_standard_poll_leaves_hysteresis_transactionally_unchanged() {
+        let mut mapper = StandardShellControllerMapper::new();
+        assert_eq!(
+            mapped_actions(
+                &mut mapper,
+                standard_observation(1, 1, ControllerMapping::Standard, &[], 0.70, 0.0),
+            ),
+            [ShellAction::Right]
+        );
+
+        let duplicate = standard_observation(
+            1,
+            1,
+            ControllerMapping::Standard,
+            &[StandardGamepadButton::South, StandardGamepadButton::South],
+            0.0,
+            0.0,
+        );
+        assert!(matches!(
+            mapper.map(&[duplicate]),
+            Err(StandardShellMappingError::DuplicateButton(1))
+        ));
+        assert_eq!(
+            mapped_actions(
+                &mut mapper,
+                standard_observation(1, 1, ControllerMapping::Standard, &[], 0.40, 0.0),
+            ),
+            [ShellAction::Right]
+        );
+
+        assert!(
+            mapper
+                .map(&[])
+                .expect("empty complete poll maps")
+                .is_empty()
+        );
+        assert!(
+            mapped_actions(
+                &mut mapper,
+                standard_observation(1, 1, ControllerMapping::Standard, &[], 0.40, 0.0),
+            )
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn ambiguous_standard_mapping_is_visible_but_has_no_signal_authority() {
+        let mut mapper = StandardShellControllerMapper::new();
+        assert_eq!(
+            mapper
+                .map(&[standard_observation(
+                    5,
+                    2,
+                    ControllerMapping::Ambiguous,
+                    &[],
+                    0.0,
+                    0.0,
+                )])
+                .expect("neutral ambiguous device remains visible"),
+            [snapshot(5, 2, ControllerMapping::Ambiguous, &[])]
+        );
+        for invalid in [
+            standard_observation(
+                5,
+                2,
+                ControllerMapping::Ambiguous,
+                &[StandardGamepadButton::South],
+                0.0,
+                0.0,
+            ),
+            standard_observation(5, 2, ControllerMapping::Ambiguous, &[], 0.7, 0.0),
+        ] {
+            assert!(matches!(
+                mapper.map(&[invalid]),
+                Err(StandardShellMappingError::AmbiguousMappingSignal(5))
+            ));
+        }
+    }
+
+    #[test]
+    fn standard_mapping_rejects_bounds_duplicates_epochs_and_invalid_axes() {
+        let mut mapper = StandardShellControllerMapper::new();
+        let normal = standard_observation(1, 1, ControllerMapping::Standard, &[], 0.0, 0.0);
+        let excessive = vec![normal.clone(); MAX_CONNECTED_CONTROLLERS + 1];
+        assert!(matches!(
+            mapper.map(&excessive),
+            Err(StandardShellMappingError::TooManyControllers(_))
+        ));
+        assert!(matches!(
+            mapper.map(&[normal.clone(), normal.clone()]),
+            Err(StandardShellMappingError::DuplicateController(1))
+        ));
+        assert!(matches!(
+            mapper.map(&[standard_observation(
+                1,
+                0,
+                ControllerMapping::Standard,
+                &[],
+                0.0,
+                0.0,
+            )]),
+            Err(StandardShellMappingError::InvalidConnectionEpoch(1))
+        ));
+        for invalid_axis in [f32::NAN, f32::INFINITY, -1.01, 1.01] {
+            assert!(matches!(
+                mapper.map(&[standard_observation(
+                    1,
+                    1,
+                    ControllerMapping::Standard,
+                    &[],
+                    invalid_axis,
+                    0.0,
+                )]),
+                Err(StandardShellMappingError::InvalidAxis(1))
+            ));
         }
     }
 

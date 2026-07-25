@@ -72,7 +72,39 @@ bounds, malformed events, stop cleanup, and rearmed input edges.
 
 ## Native qualification boundary
 
-The Rust host now adds a platform-neutral `ControllerSnapshotSource`/`ControllerRegistry` seam beside canonical `InputEvent` and `ShellAction`. A privileged adapter supplies a complete observation bounded to 16 controllers. The registry:
+The Rust host now adds a platform-neutral standard shell mapper plus a
+`ControllerSnapshotSource`/`ControllerRegistry` seam beside canonical
+`InputEvent` and `ShellAction`.
+
+`StandardShellControllerMapper` accepts a complete raw observation bounded to
+16 controllers. Only an adapter-qualified standard mapping may supply the
+closed button vocabulary:
+
+| Standard button/input | Canonical shell action |
+|---|---|
+| South | Select |
+| East | Back |
+| Start | Pause |
+| Guide | Home |
+| D-pad | Up / Down / Left / Right |
+| Primary X/Y axis | Left / Right / Up / Down |
+
+The primary axes press at absolute value `0.55` and release below `0.35`, so
+noise near the activation threshold cannot oscillate semantic state. The
+mapper:
+
+- validates the entire observation before changing hysteresis state;
+- rejects duplicate devices/buttons, zero connection epochs, non-finite or
+  out-of-range axes, and more than 16 devices;
+- orders output by backend instance rather than caller array order;
+- keys axis latches to exact backend instance plus volatile connection epoch;
+- drops latches for absent/replaced/ambiguous controllers and exposes an
+  explicit reset for shutdown, sleep, or backend fault; and
+- permits a neutral ambiguous device to remain visible but rejects any
+  standardized button or axis signal attributed to it.
+
+The mapper emits complete semantic snapshots. A privileged adapter supplies
+those snapshots to the registry, which:
 
 - validates the whole observation before mutation and rejects duplicate backend instances, zero connection epochs, duplicate semantic actions, or semantic input from an ambiguous mapping;
 - assigns only opaque session-local `controller-NNNN` IDs, never adapter names, serials, paths, or backend instance IDs;
@@ -98,7 +130,16 @@ The router records the recipient of each press and returns its release to that s
 
 Registry-to-router tests prove that a synthesized disconnect release returns to the game that received its press. Separate tests cover all reserved actions, all game-routable actions, context transitions, rearming, duplicate/orphan edges, deterministic release targets, and capacity rejection.
 
-This is the native lifecycle and routing policy state machine, not an SDL3 adapter or privileged compositor route. It is not yet connected to the host launch/runtime loop. Product qualification still requires:
+Nineteen focused native input cases now pass. Five mapper cases cover complete
+button/axis projection, deterministic ordering, press/release hysteresis,
+fresh connection epochs, explicit reset, transactional invalid-poll refusal,
+empty-poll latch removal, neutral ambiguous visibility, signal denial, and all
+declared observation bounds.
+
+This is the standard shell mapping, native lifecycle, and routing policy state
+machine, not an SDL3 adapter, complete gameplay-device projection, mapping
+database, or privileged compositor route. It is not yet connected to the host
+launch/runtime loop. Product qualification still requires:
 
 - SDL3 discovery, mapping-database behavior, hot-plug, reconnect, sleep/wake, and simultaneous-device tests on ARM64 and x86-64 Linux;
 - explicit player assignment and controller-accessible recovery for ambiguous mappings;

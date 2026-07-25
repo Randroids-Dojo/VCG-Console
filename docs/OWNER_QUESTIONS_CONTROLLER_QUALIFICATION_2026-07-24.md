@@ -3,7 +3,8 @@
 Last updated: 2026-07-24
 
 These questions block controller compatibility claims and the physical I-152
-campaign. They do not block the fail-closed browser adapter changes.
+campaign. They do not block the fail-closed browser adapter or the pure native
+standard-shell mapper. Neither is an SDL3 producer or physical-device result.
 
 ## Q-227: exact blocking controller sample set
 

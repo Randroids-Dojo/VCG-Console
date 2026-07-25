@@ -5182,3 +5182,41 @@ the authenticated maintenance migration/provisioning ceremony before v2 is
 wired into `main.rs`. No production writer, protected platform slot/CAS,
 profile broker, registry/vault/save transaction, deletion meaning, target
 rollback/power-loss evidence, or Linux-tier qualification is implemented.
+
+## 2026-07-24: transactional native standard shell mapping
+
+### Delivered
+
+- Added a stateful `StandardShellControllerMapper` before native controller
+  reconciliation.
+- Froze the closed standard shell projection: South to Select, East to Back,
+  Start to Pause, Guide to Home, D-pad to directions, and primary X/Y axes to
+  directions.
+- Added primary-axis hysteresis with a 0.55 press threshold and 0.35 release
+  threshold. Latches bind exact backend instance plus volatile connection
+  epoch and clear on absence, replacement, ambiguity, or explicit adapter
+  reset.
+- Made complete-poll validation transactional. Excessive/duplicate devices,
+  zero epochs, duplicate buttons, non-finite/out-of-range axes, and
+  standardized signals attributed to an ambiguous mapping change no latch
+  state.
+- Preserved neutral ambiguous-device visibility while granting it zero
+  semantic signal authority, and emitted complete snapshots in deterministic
+  backend order for the existing opaque-ID/edge registry.
+
+### Verification evidence
+
+- Nineteen focused native input cases pass. Five new cases cover complete
+  button/axis mapping, deterministic order, press/release hysteresis, fresh
+  connection epochs, fault reset, transactional invalid-poll refusal,
+  empty-poll latch removal, neutral ambiguity, standardized-signal denial, and
+  every declared observation bound.
+- This adds no controller names, serials, paths, transport addresses, profile
+  identity, or durable device association.
+
+### Remaining boundary
+
+I-151 and I-209 remain active. This is a pure standard shell mapper, not an
+SDL3 producer, SDL mapping database, complete gameplay-device projection,
+player assignment flow, glyph/battery layer, compositor-reserved Home/Back/
+Pause route, physical-device campaign, or ARM64/x86-64 Linux qualification.

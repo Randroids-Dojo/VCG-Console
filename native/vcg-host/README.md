@@ -137,7 +137,10 @@ modes cannot be combined. See the
   Push/Launch/ReadLogs/Restart/Rollback admission. It opens no listener,
   protects no private key, encrypts no traffic, installs no artifact, and
   executes no operation.
-- `input`: language-neutral shell actions, transactional bounded controller reconciliation, opaque session IDs, mapping confidence, deterministic edges/releases, and the complete-snapshot adapter trait that SDL3 will implement.
+- `input`: language-neutral shell actions, transactional bounded standard
+  button/axis mapping with hysteresis, controller reconciliation, opaque
+  session IDs, mapping confidence, deterministic edges/releases, and the
+  complete-snapshot adapter trait that SDL3 will implement.
 - `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.

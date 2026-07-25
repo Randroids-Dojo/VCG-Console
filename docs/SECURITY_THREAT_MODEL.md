@@ -54,7 +54,12 @@ The highest-level security objectives are to keep games from becoming console au
 - Normal tracking neither stores nor transmits raw frames, and microphone capture remains disabled by default.
 - A game receives only the derived Motion profiles explicitly granted to its exact reviewed origin/session; it never receives raw camera authority through an unknown manifest extension.
 - Hosted or local game code cannot capture or suppress the system's reserved recovery action.
-- Native controller observations are bounded and transactionally validated; ambiguous mappings cannot emit semantic actions, disconnect synthesizes releases, and only opaque session-local controller IDs cross into shell events.
+- Native standard shell observations are bounded and transactionally
+  validated before hysteresis state changes; ambiguous mappings cannot supply
+  standardized signals or emit semantic actions, reconnect/reset rearms axis
+  state, disconnect synthesizes releases, and only opaque session-local
+  controller IDs cross into shell events. No SDL3 producer or compositor
+  enforcement is claimed.
 - Web content cannot choose a native executable, filesystem path, hash, command, environment, writable root, qualification state, or signing identity.
 - Installed native execution requires valid, non-rolled-back, target-correct signed metadata and artifacts whose bytes still match their bound hashes at use time.
 - Paths derived from packages or imports remain beneath the intended canonical root despite traversal, symlink, archive, Unicode, case, or platform edge cases.
