@@ -28,10 +28,10 @@ import {
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, and current 18-destination empty-query Search states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p, exact no-overflow density at 4K, and keyboard activation of the local Profiles destination at all three resolutions. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, a game or package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, and exact one-result Obstacle query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination and recovers through Back, then separately keyboard-activates the offline local-web Obstacle launch surface and returns Back focus to the Search opener. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, completed gameplay, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
-  "Only three exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, and the current 18-destination empty query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-  "The only activated result was the local Profiles shell destination, using programmatic focus followed by keyboard Enter. Games, packages, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and Back restoration after activation were not exercised.",
+  "Only four exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, and the lowercase one-result Obstacle query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+  "The activated results were limited to the local Profiles shell destination and the built-in local-web Obstacle launch surface, using programmatic focus followed by keyboard Enter and one Back recovery each. Completed gameplay, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and every other result remain untested.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
   "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
   "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility.",
@@ -107,13 +107,40 @@ const SEARCH_STATES = Object.freeze([
     activation: {
       resultTitle: "Profiles",
       method: "keyboard-enter",
-      destinationHeading: "Who is playing?",
+      outcomeKind: "launcher-view",
+      outcomeLabel: "Who is playing?",
+      expectedAdapter: null,
+      backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
       "universal-search",
       "result-last",
       "profiles-result",
       "profiles-destination",
+      "launcher-home-navigation",
+    ],
+  },
+  {
+    id: "offline-package-activation",
+    query: "obstacle",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "Obstacle",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "Obstacle",
+      expectedAdapter: "local-web",
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "obstacle-result",
+      "obstacle-launch-dialog",
+      "search-trigger",
     ],
   },
 ]);
@@ -277,24 +304,43 @@ async function exerciseInteraction(page, state) {
     );
     await page.keyboard.press("Enter");
     const destination = page.getByRole("heading", {
-      name: state.activation.destinationHeading,
+      name: state.activation.outcomeLabel,
     });
     await destination.waitFor();
+    const searchOverlayHidden = await page.locator("#search-overlay").isHidden();
+    const outcomeVisible = await destination.isVisible();
+    assert.equal(searchOverlayHidden, true);
+    assert.equal(outcomeVisible, true);
+    await page.keyboard.press("Escape");
+    const home = page.getByRole("heading", { name: /Good evening/u });
+    await home.waitFor();
+    const homeNavigation = page.locator(
+      '.launcher-nav [data-view-target="home"]',
+    );
+    assert.equal(
+      await homeNavigation.evaluate(
+        (element) => element === document.activeElement,
+      ),
+      true,
+    );
     const activation = {
       resultTitle: state.activation.resultTitle,
       method: state.activation.method,
-      searchOverlayHidden: await page.locator("#search-overlay").isHidden(),
-      destinationHeading: state.activation.destinationHeading,
-      destinationVisible: await destination.isVisible(),
+      searchOverlayHidden,
+      outcomeKind: state.activation.outcomeKind,
+      outcomeLabel: state.activation.outcomeLabel,
+      outcomeVisible,
+      adapter: state.activation.expectedAdapter,
+      backRecoveryVerified: true,
+      backRecoveryFocus: state.activation.backRecoveryFocus,
     };
-    assert.equal(activation.searchOverlayHidden, true);
-    assert.equal(activation.destinationVisible, true);
     return {
       interactionTrace: [
         "universal-search",
         "result-last",
         "profiles-result",
         "profiles-destination",
+        "launcher-home-navigation",
       ],
       activation,
     };
@@ -303,6 +349,52 @@ async function exerciseInteraction(page, state) {
     await input.evaluate((element) => element === document.activeElement),
     true,
   );
+  if (state.id === "offline-package-activation") {
+    const obstacle = page.getByRole("button", {
+      name: /Motion Obstacle Motion game/u,
+    });
+    await obstacle.focus();
+    assert.equal(
+      await obstacle.evaluate((element) => element === document.activeElement),
+      true,
+    );
+    await page.keyboard.press("Enter");
+    const launch = page.getByRole("dialog", {
+      name: state.activation.outcomeLabel,
+    });
+    await launch.waitFor();
+    const searchOverlayHidden = await page.locator("#search-overlay").isHidden();
+    const outcomeVisible = await launch.isVisible();
+    const adapter = await launch.getAttribute("data-launch-adapter");
+    assert.equal(searchOverlayHidden, true);
+    assert.equal(outcomeVisible, true);
+    assert.equal(adapter, state.activation.expectedAdapter);
+    await page.keyboard.press("Escape");
+    await launch.waitFor({ state: "hidden" });
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.id),
+      state.activation.backRecoveryFocus,
+    );
+    return {
+      interactionTrace: [
+        "universal-search",
+        "obstacle-result",
+        "obstacle-launch-dialog",
+        "search-trigger",
+      ],
+      activation: {
+        resultTitle: state.activation.resultTitle,
+        method: state.activation.method,
+        searchOverlayHidden,
+        outcomeKind: state.activation.outcomeKind,
+        outcomeLabel: state.activation.outcomeLabel,
+        outcomeVisible,
+        adapter,
+        backRecoveryVerified: true,
+        backRecoveryFocus: state.activation.backRecoveryFocus,
+      },
+    };
+  }
   if (state.id === "motion-results") {
     await page.keyboard.press("ArrowDown");
     assert.equal(
@@ -538,7 +630,7 @@ export async function generateLauncherSearchTvEvidence() {
     evidenceClass:
       "windows-x64-headless-chrome-launcher-search-tv-conformance",
     qualification:
-      "candidate-three-search-states-and-one-local-activation-only-not-tv-target-or-catalog-qualification",
+      "candidate-four-search-states-and-two-local-activation-classes-only-not-tv-target-or-catalog-qualification",
     retrievedAtUtc,
     baseRepresentativeEvidence: {
       format:
@@ -582,11 +674,11 @@ export async function generateLauncherSearchTvEvidence() {
     },
     summary: {
       resolutionCount: 3,
-      searchStateCount: 3,
-      observationCount: 9,
-      screenshotCount: 9,
-      distinctQueryCount: 3,
-      activatedResultClassCount: 1,
+      searchStateCount: 4,
+      observationCount: 12,
+      screenshotCount: 12,
+      distinctQueryCount: 4,
+      activatedResultClassCount: 2,
       physicalTelevisionCount: 0,
       physicalControllerCount: 0,
       participantCount: 0,

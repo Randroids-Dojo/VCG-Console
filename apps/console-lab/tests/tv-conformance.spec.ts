@@ -546,5 +546,45 @@ for (const resolution of RESOLUTIONS) {
     await expect(
       page.getByRole("heading", { name: "Who is playing?" }),
     ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("heading", { name: /Good evening/ }),
+    ).toBeVisible();
+    await expect(
+      page.locator('.launcher-nav [data-view-target="home"]'),
+    ).toBeFocused();
+  });
+
+  test(`launcher Search activates the offline Obstacle package and recovers at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.clock.install({
+      time: new Date("2026-07-24T19:00:00-07:00"),
+    });
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await input.fill("obstacle");
+    const result = page.getByRole("button", {
+      name: /Motion Obstacle Motion game/,
+    });
+    await expect(result).toBeVisible();
+    await expect(page.locator("#search-results button")).toHaveCount(1);
+    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+
+    await result.focus();
+    await expect(result).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#search-overlay")).toBeHidden();
+    const launch = page.getByRole("dialog", { name: "Obstacle" });
+    await expect(launch).toBeVisible();
+    await expect(launch).toHaveAttribute("data-launch-adapter", "local-web");
+
+    await page.keyboard.press("Escape");
+    await expect(launch).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 }

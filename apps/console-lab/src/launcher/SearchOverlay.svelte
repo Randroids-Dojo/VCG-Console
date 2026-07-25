@@ -21,21 +21,26 @@
     input.focus();
   }
 
-  export function close(): void {
+  async function closeAndRestore(): Promise<void> {
     const restoreTarget = openedBy;
     openedBy = null;
     visible = false;
-    void tick().then(() => {
-      if (restoreTarget?.isConnected) restoreTarget.focus({ preventScroll: true });
-    });
+    await tick();
+    if (restoreTarget?.isConnected) {
+      restoreTarget.focus({ preventScroll: true });
+    }
+  }
+
+  export function close(): void {
+    void closeAndRestore();
   }
 
   export function isOpen(): boolean {
     return visible;
   }
 
-  function choose(item: SearchItem): void {
-    close();
+  async function choose(item: SearchItem): Promise<void> {
+    await closeAndRestore();
     item.action();
   }
 
@@ -104,7 +109,7 @@
     </div>
     <div bind:this={results} class="search-results" id="search-results">
       {#each matches as item (item.title)}
-        <button type="button" data-tv-action onclick={() => choose(item)}>
+        <button type="button" data-tv-action onclick={() => void choose(item)}>
           <span data-tv-critical-text>{item.group}</span><strong data-tv-critical-text>{item.title}</strong><small>{item.detail}</small><b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b>
         </button>
       {/each}

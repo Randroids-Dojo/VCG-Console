@@ -1857,6 +1857,34 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await expect(page.getByRole("heading", { name: "Who is playing?" })).toBeVisible();
 });
 
+test("Search restores its opener before offline package launch and Back recovery", async ({
+  page,
+}) => {
+  await page.clock.install({
+    time: new Date("2026-07-24T19:00:00-07:00"),
+  });
+  await page.goto("/?skipBoot=1");
+  const trigger = page.getByRole("button", { name: /Search games/ });
+  await trigger.focus();
+  await trigger.click();
+  const input = page.locator("#universal-search");
+  await input.fill("obstacle");
+  const result = page.getByRole("button", {
+    name: /Motion Obstacle Motion game/,
+  });
+  await result.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(page.locator("#search-overlay")).toBeHidden();
+  const launch = page.getByRole("dialog", { name: "Obstacle" });
+  await expect(launch).toBeVisible();
+  await expect(launch).toContainText("LOCAL WEB");
+
+  await page.keyboard.press("Escape");
+  await expect(launch).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();

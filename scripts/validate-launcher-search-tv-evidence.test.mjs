@@ -35,7 +35,7 @@ async function validateMutation(mutator) {
 
 test("accepts the exact launcher Search TV evidence", async () => {
   const artifact = await validateLauncherSearchTvEvidence();
-  assert.equal(artifact.summary.observationCount, 9);
+  assert.equal(artifact.summary.observationCount, 12);
 });
 
 test("rejects format, base evidence, environment, or resolution substitution", async () => {
@@ -128,10 +128,20 @@ test("rejects interaction, scrolling, or activation drift", async () => {
       .resultsScroll.lastResultInsideViewportAfterFocus = false;
   });
   await validateMutation((artifact) => {
-    artifact.browser.observations[2].activation.destinationVisible = false;
+    artifact.browser.observations[2].activation.outcomeVisible = false;
   });
   await validateMutation((artifact) => {
-    artifact.browser.observations[8].resultsScroll.scrollHeightCssPx += 1;
+    artifact.browser.observations[2].activation.backRecoveryVerified = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[3].activation.adapter = "native";
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[3].activation.backRecoveryFocus =
+      "obstacle-result";
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[10].resultsScroll.scrollHeightCssPx += 1;
   });
 });
 
@@ -153,7 +163,7 @@ test("rejects hidden browser errors or build-resource drift", async () => {
     artifact.browser.requestFailureCount = 1;
   });
   await validateMutation((artifact) => {
-    artifact.browser.requestCounts["/"] = 8;
+    artifact.browser.requestCounts["/"] = 11;
   });
   await validateMutation((artifact) => {
     artifact.browser.requestCounts["/unexpected"] = 6;
@@ -183,10 +193,10 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     artifact.disposition.resultActivationVerified = false;
   });
   await validateMutation((artifact) => {
-    artifact.summary.distinctQueryCount = 2;
+    artifact.summary.distinctQueryCount = 3;
   });
   await validateMutation((artifact) => {
-    artifact.summary.activatedResultClassCount = 2;
+    artifact.summary.activatedResultClassCount = 3;
   });
   await validateMutation((artifact) => {
     artifact.summary.catalogGameCount = 1;

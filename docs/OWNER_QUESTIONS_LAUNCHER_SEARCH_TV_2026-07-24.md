@@ -2,9 +2,9 @@
 
 Date opened: 2026-07-24
 
-These questions do not block the three fixed desk-only Search states or the
-single local-shell activation check. Q-242 and Q-243 remain authoritative for
-final physical-TV and output policy.
+These questions do not block the four fixed desk-only Search states or the
+local-shell and built-in offline local-web activation checks. Q-242 and Q-243
+remain authoritative for final physical-TV and output policy.
 
 ## STV-001: empty-query density
 
@@ -43,9 +43,16 @@ Recommended order: a local shell view, offline package, remote-web title,
 unavailable package, destructive settings route, and external-origin
 disclosure. Each must restore focus safely after Back, failure, and denial.
 
+Current desk evidence covers the first two classes at all three target
+resolutions. Profiles returns through Back to the focused Home navigation
+action. Obstacle opens the `LOCAL WEB` launch surface and Back returns focus to
+the exact Search opener. Remote web, unavailable content, destructive
+settings, external-origin disclosure, failure, denial, physical controllers,
+and physical televisions remain unqualified.
+
 ## Handoff
 
 Record selected behavior as later product decisions. Until then, retain the
-three exact states, one local-shell activation boundary, bounded claims,
-offline processing, and opener restoration documented in
+four exact states, two local activation classes, bounded claims, offline
+processing, and focus recovery documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).

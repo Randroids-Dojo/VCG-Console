@@ -81,13 +81,40 @@ const EXPECTED_STATES = Object.freeze([
     activation: {
       resultTitle: "Profiles",
       method: "keyboard-enter",
-      destinationHeading: "Who is playing?",
+      outcomeKind: "launcher-view",
+      outcomeLabel: "Who is playing?",
+      expectedAdapter: null,
+      backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
       "universal-search",
       "result-last",
       "profiles-result",
       "profiles-destination",
+      "launcher-home-navigation",
+    ],
+  },
+  {
+    id: "offline-package-activation",
+    query: "obstacle",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "Obstacle",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "Obstacle",
+      expectedAdapter: "local-web",
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "obstacle-result",
+      "obstacle-launch-dialog",
+      "search-trigger",
     ],
   },
 ]);
@@ -108,6 +135,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 126573,
     sha256: "efb12a4f0753c553b5ff66fe21abe71dd54069d84f30873a3f8f82a8e9d7e621",
   },
+  "offline-package-activation/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
+    bytes: 54895,
+    sha256: "dac34d8dd8d15a54f51125998451bee19bc90516659e9c1ee76c3cef9ca98164",
+  },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
     bytes: 105671,
@@ -123,6 +155,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 186803,
     sha256: "45166b11f5e76717540b8a7300177a366de970f88a08fd006d2a6aed2152503c",
   },
+  "offline-package-activation/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
+    bytes: 71230,
+    sha256: "3c4aeedabbd60f54d5dd7f23610bc70f97b31b614b3d738887e1d599a2b80ef2",
+  },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
     bytes: 256838,
@@ -137,6 +174,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
     bytes: 483802,
     sha256: "be299283c0a6976b1c7311d6a8a7cfd8ba3202d17838bacc19532ae874e97ee0",
+  },
+  "offline-package-activation/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
+    bytes: 177237,
+    sha256: "7b6f14c7547ed395d48069f40b2faf1923e5c0fecb2bbd756521d679897add0f",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
@@ -182,6 +224,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: true,
     },
   },
+  "offline-package-activation/720p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
   "motion-results/1080p": {
     measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 24,
@@ -224,6 +280,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: true,
     },
   },
+  "offline-package-activation/1080p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
   "motion-results/4k": {
     measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 48,
@@ -264,6 +334,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       finalScrollTopCssPx: 0,
       maximumScrollTopCssPx: 0,
       lastResultInsideViewportAfterFocus: true,
+    },
+  },
+  "offline-package-activation/4k": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
     },
   },
 });
@@ -329,15 +413,15 @@ function validateRequests(requestCounts) {
   );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
-  assert.equal(requestCounts["/"], 9);
-  assert.equal(requestCounts["/fonts/OCRA.ttf"], 9);
+  assert.equal(requestCounts["/"], 12);
+  assert.equal(requestCounts["/fonts/OCRA.ttf"], 12);
   const assets = entries.filter(([path]) => path.startsWith("/assets/"));
   assert.equal(assets.length, 6);
   assert.equal(assets.filter(([path]) => path.endsWith(".css")).length, 1);
   assert.equal(assets.filter(([path]) => path.endsWith(".js")).length, 5);
   for (const [path, count] of assets) {
     assert.match(path, /^\/assets\/[A-Za-z0-9_-]+\.(?:css|js)$/u);
-    assert.equal(count, 9);
+    assert.equal(count, 12);
   }
 }
 
@@ -489,8 +573,12 @@ async function validateObservation(observation, expectedState, resolution) {
       resultTitle: expectedState.activation.resultTitle,
       method: expectedState.activation.method,
       searchOverlayHidden: true,
-      destinationHeading: expectedState.activation.destinationHeading,
-      destinationVisible: true,
+      outcomeKind: expectedState.activation.outcomeKind,
+      outcomeLabel: expectedState.activation.outcomeLabel,
+      outcomeVisible: true,
+      adapter: expectedState.activation.expectedAdapter,
+      backRecoveryVerified: true,
+      backRecoveryFocus: expectedState.activation.backRecoveryFocus,
     });
   }
   assert.deepEqual(
@@ -547,7 +635,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-three-search-states-and-one-local-activation-only-not-tv-target-or-catalog-qualification",
+    "candidate-four-search-states-and-two-local-activation-classes-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -587,7 +675,7 @@ export async function validateLauncherSearchTvEvidence(
     "browser",
   );
   assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
-  assert.equal(artifact.browser.observations.length, 9);
+  assert.equal(artifact.browser.observations.length, 12);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
     for (const state of EXPECTED_STATES) {
@@ -624,11 +712,11 @@ export async function validateLauncherSearchTvEvidence(
   });
   assert.deepEqual(artifact.summary, {
     resolutionCount: 3,
-    searchStateCount: 3,
-    observationCount: 9,
-    screenshotCount: 9,
-    distinctQueryCount: 3,
-    activatedResultClassCount: 1,
+    searchStateCount: 4,
+    observationCount: 12,
+    screenshotCount: 12,
+    distinctQueryCount: 4,
+    activatedResultClassCount: 2,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

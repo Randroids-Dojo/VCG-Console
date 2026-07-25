@@ -5260,6 +5260,50 @@ SDL3 producer, SDL mapping database, complete gameplay-device projection,
 player assignment flow, glyph/battery layer, compositor-reserved Home/Back/
 Pause route, physical-device campaign, or ARM64/x86-64 Linux qualification.
 
+## 2026-07-24: Search offline-package activation and focus recovery
+
+### Delivered
+
+- Changed Search result activation to await overlay closure and exact opener
+  restoration before invoking the selected action. Launch supervisors no
+  longer capture a soon-hidden Search result as their Back return target.
+- Added one exact lowercase `obstacle` Search state at 720p, 1080p, and 4K.
+  Each observation verifies five marked critical-text nodes, two action
+  targets, no overlap or overlay overflow, and the existing candidate TV
+  geometry floor.
+- Focused the exact Obstacle result, pressed keyboard Enter, proved the
+  `LOCAL WEB` Obstacle launch dialog appeared, pressed Back, and proved the
+  dialog closed with focus restored to the Search trigger in every mode.
+- Extended the Profiles activation trace through Back to the focused Home
+  navigation action.
+- Added three pixel-bound Obstacle-result screenshots and expanded the strict
+  Search artifact to four states, twelve observations, four exact queries,
+  twelve screenshots, and two local activation classes.
+
+### Verification evidence
+
+- The normal Chrome Search launch/recovery flow passes with a frozen clock.
+- Six focused TV cases pass across Profiles Back recovery and Obstacle
+  activation/recovery at all three resolutions.
+- The strict Search validator and eleven adversarial test groups pass,
+  including activation outcome, adapter, Back focus, scroll geometry,
+  screenshots, provenance, and claim-promotion/demotion mutations.
+- The complete root test command, workspace production build, and all sixty
+  Playwright cases pass. The dependent OCR-A structural and Windows Chrome
+  platform-fallback artifacts were regenerated and both eleven-group
+  adversarial validators pass.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. This proves one built-in local-web launch surface,
+not a signed installed package, completed gameplay, native-host execution, or
+target runtime. STV-004 still requires remote-web, unavailable-package,
+destructive-settings, and external-origin result classes plus their
+failure/denial paths. Final empty-query policy, arbitrary/localized text,
+accessibility variants, physical controller/TV use, reserved Home, target
+Linux/compositors, overscan, output modes, seating-distance comprehension, and
+frame timing remain unqualified.
+
 ## 2026-07-24: native power ordering and launch exclusion
 
 ### Delivered

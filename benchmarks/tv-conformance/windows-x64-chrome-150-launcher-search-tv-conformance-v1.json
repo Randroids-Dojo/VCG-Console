@@ -2,11 +2,11 @@
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
-  "qualification": "candidate-three-search-states-and-one-local-activation-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T01:17:53.364Z",
+  "qualification": "candidate-four-search-states-and-two-local-activation-classes-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-25T01:31:01.714Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "c3ad16e8222bb6206648db214f6c31e386f69e962ef589e523c288731775bb1c"
+    "sha256": "8744b699c63ac5f2d160cfa850014a3296da07342ccf2f471244be3830191940"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -64,13 +64,40 @@
         "activation": {
           "resultTitle": "Profiles",
           "method": "keyboard-enter",
-          "destinationHeading": "Who is playing?"
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "expectedAdapter": null,
+          "backRecoveryFocus": "launcher-home-navigation"
         },
         "interactionTrace": [
           "universal-search",
           "result-last",
           "profiles-result",
-          "profiles-destination"
+          "profiles-destination",
+          "launcher-home-navigation"
+        ]
+      },
+      {
+        "id": "offline-package-activation",
+        "query": "obstacle",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "expectedAdapter": "local-web",
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
         ]
       }
     ],
@@ -233,19 +260,82 @@
           "universal-search",
           "result-last",
           "profiles-result",
-          "profiles-destination"
+          "profiles-destination",
+          "launcher-home-navigation"
         ],
         "activation": {
           "resultTitle": "Profiles",
           "method": "keyboard-enter",
           "searchOverlayHidden": true,
-          "destinationHeading": "Who is playing?",
-          "destinationVisible": true
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
           "bytes": 126573,
           "sha256": "efb12a4f0753c553b5ff66fe21abe71dd54069d84f30873a3f8f82a8e9d7e621"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
+          "bytes": 54895,
+          "sha256": "dac34d8dd8d15a54f51125998451bee19bc90516659e9c1ee76c3cef9ca98164"
         }
       },
       {
@@ -383,19 +473,82 @@
           "universal-search",
           "result-last",
           "profiles-result",
-          "profiles-destination"
+          "profiles-destination",
+          "launcher-home-navigation"
         ],
         "activation": {
           "resultTitle": "Profiles",
           "method": "keyboard-enter",
           "searchOverlayHidden": true,
-          "destinationHeading": "Who is playing?",
-          "destinationVisible": true
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
           "bytes": 186803,
           "sha256": "45166b11f5e76717540b8a7300177a366de970f88a08fd006d2a6aed2152503c"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
+          "bytes": 71230,
+          "sha256": "3c4aeedabbd60f54d5dd7f23610bc70f97b31b614b3d738887e1d599a2b80ef2"
         }
       },
       {
@@ -533,19 +686,82 @@
           "universal-search",
           "result-last",
           "profiles-result",
-          "profiles-destination"
+          "profiles-destination",
+          "launcher-home-navigation"
         ],
         "activation": {
           "resultTitle": "Profiles",
           "method": "keyboard-enter",
           "searchOverlayHidden": true,
-          "destinationHeading": "Who is playing?",
-          "destinationVisible": true
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
           "bytes": 483802,
           "sha256": "be299283c0a6976b1c7311d6a8a7cfd8ba3202d17838bacc19532ae874e97ee0"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
+          "bytes": 177237,
+          "sha256": "7b6f14c7547ed395d48069f40b2faf1923e5c0fecb2bbd756521d679897add0f"
         }
       }
     ],
@@ -553,14 +769,14 @@
     "pageErrorCount": 0,
     "requestFailureCount": 0,
     "requestCounts": {
-      "/": 9,
-      "/assets/main-D6m10Wbd.js": 9,
-      "/assets/main-DwOiNSRf.css": 9,
-      "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
-      "/assets/src-EbToTsJV.js": 9,
-      "/assets/synthetic-BTWSnpMo.js": 9,
-      "/assets/tracker-health--oynSZbv.js": 9,
-      "/fonts/OCRA.ttf": 9
+      "/": 12,
+      "/assets/main-Cws4Imhc.js": 12,
+      "/assets/main-DwOiNSRf.css": 12,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 12,
+      "/assets/src-EbToTsJV.js": 12,
+      "/assets/synthetic-BTWSnpMo.js": 12,
+      "/assets/tracker-health--oynSZbv.js": 12,
+      "/fonts/OCRA.ttf": 12
     }
   },
   "disposition": {
@@ -584,11 +800,11 @@
   },
   "summary": {
     "resolutionCount": 3,
-    "searchStateCount": 3,
-    "observationCount": 9,
-    "screenshotCount": 9,
-    "distinctQueryCount": 3,
-    "activatedResultClassCount": 1,
+    "searchStateCount": 4,
+    "observationCount": 12,
+    "screenshotCount": 12,
+    "distinctQueryCount": 4,
+    "activatedResultClassCount": 2,
     "physicalTelevisionCount": 0,
     "physicalControllerCount": 0,
     "participantCount": 0,
@@ -599,7 +815,7 @@
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
     "launcherPathSha256": "2f0a3ad7af0c22f213efcef847a02b8f1d876124edfb0d1c8c61826cace0e7c2",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-    "searchPathSha256": "10f4c45a27db30c975d2783f089a55ed1f75f8ef2d4c23de71d4d02655205dc7",
+    "searchPathSha256": "16bb38146a4a0234d8e21085c6cc78c115875bef5ea30eb0de54a6fbc293bbfa",
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b",
     "entryPath": "apps/console-lab/src/main.ts",
@@ -609,15 +825,15 @@
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "72c6eb571a32d057d4ea48e8fe85d03bb97b83bf9dc7942d7269f4ed5d422a59",
+    "browserTestPathSha256": "f2e8e5bfd6119283037c43dd081b509b76f65cadc714278a3fee0293f15cc2b0",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "c3ad16e8222bb6206648db214f6c31e386f69e962ef589e523c288731775bb1c",
+    "representativeEvidencePathSha256": "8744b699c63ac5f2d160cfa850014a3296da07342ccf2f471244be3830191940",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "cc3583f9949326f46ff2e54ea1a4b418a5b7008b3e2226fc2ded031f81a2b69a",
+    "generatorPathSha256": "c54a64a45505baba913c93597a346724bf943fe8e44e151a103136455d19c794",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "e5f7fef0640e83e0b459e4d18b35f6f7aef987c2eba4cd073771f863a73e103c",
+    "validatorPathSha256": "cb6616e0f5c61851f9b90a2f59a33d4115bcaec72be77dc3f4fb8386816f836b",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -635,13 +851,13 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 127,
-      "sha256": "482096eaf37beb1563450284832993fdce31c45890d15d98a28399ab3386f521"
+      "sha256": "5fd0071dfd501425c9d07a43ef8954c399a8b62f78a8dcb2f618218f681cbbcd"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, and current 18-destination empty-query Search states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p, exact no-overflow density at 4K, and keyboard activation of the local Profiles destination at all three resolutions. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, a game or package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, and exact one-result Obstacle query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination and recovers through Back, then separately keyboard-activates the offline local-web Obstacle launch surface and returns Back focus to the Search opener. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, completed gameplay, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
-    "Only three exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, and the current 18-destination empty query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-    "The only activated result was the local Profiles shell destination, using programmatic focus followed by keyboard Enter. Games, packages, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and Back restoration after activation were not exercised.",
+    "Only four exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, and the lowercase one-result Obstacle query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+    "The activated results were limited to the local Profiles shell destination and the built-in local-web Obstacle launch surface, using programmatic focus followed by keyboard Enter and one Back recovery each. Completed gameplay, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and every other result remain untested.",
     "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
     "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
     "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility."
