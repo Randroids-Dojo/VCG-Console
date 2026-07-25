@@ -2,8 +2,8 @@
 
 Last updated: 2026-07-25
 
-Status: strict family projection implemented; production feed, UI, and host
-integration remain open
+Status: strict family projection and controller-safe session implemented;
+production feed, rendered UI, and host integration remain open
 
 ## Purpose
 
@@ -30,6 +30,8 @@ turn public metadata into approval.
 - unique admission, game, and host-launch binding IDs;
 - strict game-ID order and unique sorted input profiles;
 - one literal `curated-community` trust tier; and
+- exact runtime/delivery coherence, network-required remote web, and no
+  external-service boundary on an offline release; and
 - a caller-supplied signature verifier accepting the exact canonical bytes,
   key ID, and generation.
 
@@ -80,12 +82,48 @@ Each visible entry contains only:
 The feed and projection contain no URL, origin, entrypoint, path, arbitrary
 action, browser target, package location, manifest body, signature, public
 key, or free-form emergency reason. Display text rejects controls,
-backslashes, and web addresses. A UI must render it as text rather than
-autolinking it.
+invisible Unicode formatting, line/paragraph separators, backslashes, and web
+addresses. A UI must render it as text rather than autolinking it.
 
 Hosted releases must declare `no-local-data` at this console projection
 boundary. Installed releases may say that local data is preserved or that
 removal requires a separate user choice. Neither declaration deletes data.
+
+## Controller-safe browse and detail session
+
+`FamilyCommunityDiscoveryController` accepts only the exact privately branded
+family projection. A clone, deserialized copy, plain object, or projection
+from outside the verifier-to-projector path is refused.
+
+The pure controller provides a bounded model for one eventual controller-first
+surface:
+
+- browse focus is either one exact approved game or `null` for an empty feed;
+- Previous and Next clamp at the first and last entry rather than wrapping;
+- Select opens only the focused approved detail;
+- Back returns detail to the same browse focus, then requests exit from the
+  Community collection;
+- Home returns a host-owned Home disposition and resets the internal route to
+  browse; and
+- invalid commands fail closed.
+
+The view contains only the sanitized family projection. It cannot accept or
+produce a URL, arbitrary destination, manifest, signature, package path,
+installation request, or candidate/developer/revoked record.
+
+Launch and Report require the current detail. Planning creates one deeply
+frozen intent bound to the exact catalog generation, game, version, and opaque
+host IDs. Only the exact same object may be dispatched once through the same
+controller. A clone, another controller, a replacement plan, navigation,
+re-entry, or feed refresh invalidates it. The controller consumes the intent
+before calling the host adapter, so reentrant replay is also refused.
+
+Feed replacement accepts only another exact verified family projection whose
+generation is strictly greater. It rejects rollback and same-generation
+substitution, invalidates every pending intent, returns to browse, and
+preserves focus only if that approved game remains visible. If an emergency
+generation disables or revokes the current game, the game and its action
+disappear together before another dispatch can occur.
 
 ## Install, launch, report, and removal separation
 
@@ -106,8 +144,8 @@ or transfer data to a replacement release.
 
 ## Executable coverage
 
-The launcher-catalog package has fourteen tests total, including eight
-community-discovery groups that prove:
+The launcher-catalog package has nineteen tests total, including thirteen
+community-discovery cases that prove:
 
 - exact active-approved projection;
 - candidate, temporarily disabled, revoked, and removed exclusion;
@@ -119,7 +157,14 @@ community-discovery groups that prove:
 - bounded canonical UTF-8, duplicate-key, unknown-field, and oversize
   rejection;
 - duplicate, reordered, unsafe-text, and unsorted-input rejection; and
-- launch, disable, hosted-data, and removal-state consistency.
+- launch, disable, hosted-data, and removal-state consistency;
+- deterministic browse/detail/Back/Home and empty-feed behavior;
+- exact same-controller, one-shot, non-reentrant launch/report dispatch;
+- clone, cross-controller, superseded-plan, invalid-command, invalid-action,
+  and invalid-dispatcher refusal;
+- navigation-driven intent invalidation; and
+- strict forward-only replacement, rollback/same-generation refusal, focus
+  repair, and emergency-disable invalidation.
 
 Run:
 
@@ -137,7 +182,8 @@ This tranche does not close I-106. Still required:
   policy;
 - an authenticated admission-record database and publication workflow;
 - exact joining to the native installed catalog and hosted origin policy;
-- the controller-first community browse/detail/report/removal UI;
+- rendering and controller/input wiring for the pure
+  browse/detail/launch/report session, plus the separate removal UI;
 - proof search, recommendations, Museum, recent history, deep links, stale
   cache, and developer mode cannot bypass the projection;
 - production report intake, moderation, appeal, reinstatement, emergency

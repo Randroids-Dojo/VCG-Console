@@ -5851,3 +5851,59 @@ or a signed package. RGO-003 and Q-051 still require ordinary gameplay/assets,
 input/audio, save/reset/quota/cache deletion, mixed-version update/rollback,
 source-to-deployment identity, hosted-service behavior, rights, operating-
 system network isolation, controller/recovery, and both target architectures.
+
+## 2026-07-24: controller-safe curated community discovery
+
+### Delivered
+
+- Kept the existing canonical, detached-signature, exact-generation
+  `vcg-community-discovery/v1` feed and URL-free approved-family projection as
+  the only input to a new pure discovery controller.
+- Required the exact privately branded projection; clones, deserialized
+  copies, plain objects, and unverified projections fail before navigation or
+  action planning.
+- Tightened the feed's safe disclosure boundary so invisible Unicode control
+  and formatting characters fail, remote-web records must be hosted and
+  network-required, non-remote runtimes must be installed, and offline
+  records cannot claim an external service boundary.
+- Added bounded browse focus, clamped Previous/Next, Select-to-detail,
+  detail-to-browse Back, collection exit Back, host-owned Home disposition,
+  and deterministic empty-feed behavior.
+- Bound Launch and Report to one exact frozen intent carrying the current
+  catalog generation, game, version, and opaque host identifiers. Only the
+  same controller may dispatch the same object once.
+- Consumed an intent before invoking the host callback, preventing reentrant
+  replay. Replacement planning, navigation, cloned objects, another
+  controller, and feed refresh invalidate the old intent.
+- Accepted feed replacement only from another exact verified family
+  projection with a strictly greater generation. Same-generation
+  substitution and rollback fail; a successful refresh returns to browse,
+  preserves focus only for a still-approved game, and removes a disabled or
+  revoked current game and action together.
+- Reused the existing dedicated CCD-001 through CCD-009 owner-question
+  register. This tranche introduced no additional owner choice.
+
+### Verification evidence
+
+- Thirteen focused community-discovery cases now cover the signed projection,
+  unsafe metadata and authority exclusion, deterministic navigation and empty
+  state, exact one-shot launch/report dispatch, clone/cross-controller/
+  superseded/reentrant refusal, navigation invalidation, and forward-only
+  emergency refresh.
+- All nineteen `@vcg/launcher-catalog` tests pass.
+- Package TypeScript typechecking passes.
+- Refreshed the OCR-A structural/platform-fallback and launcher
+  home/representative/Search provenance artifacts from an isolated snapshot
+  containing exactly HEAD plus this tranche.
+- Full workspace `pnpm typecheck`, `pnpm test`, and `pnpm build` pass in that
+  isolated snapshot.
+
+### Remaining boundary
+
+I-106 advances from open to active but does not close. This is a pure
+controller model, not a rendered or native-authoritative surface. Production
+feed keys, protected generation state, acquisition/offline expiry, admission
+publication, native installed-catalog and hosted-origin joins, controller and
+accessibility UI, report/removal/emergency operations, cross-surface bypass
+tests, runtime containment, target Linux evidence, and one actually reviewed
+community release remain under CCD-001 through CCD-009.

@@ -26,9 +26,9 @@ const DiscoveryTextSchema = z
   .refine((value) => value.trim() === value, "text must not have outer whitespace")
   .refine(
     (value) =>
-      !/[\u0000-\u001f\u007f\\]/u.test(value)
+      !/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\\]/u.test(value)
       && !/(?:https?:\/\/|www\.)/iu.test(value),
-    "text must not contain controls, paths, or web addresses",
+    "text must not contain controls, invisible formatting, paths, or web addresses",
   );
 const RuntimeSchema = z.enum([
   "remote-web",
@@ -93,6 +93,36 @@ const CommunityDiscoveryEntrySchema = z
   })
   .strict()
   .superRefine((entry, context) => {
+    if (
+      (entry.runtime === "remote-web" && entry.delivery !== "hosted")
+      || (entry.runtime !== "remote-web" && entry.delivery !== "installed")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["delivery"],
+        message: "delivery must match the reviewed runtime lane",
+      });
+    }
+    if (
+      entry.runtime === "remote-web"
+      && entry.network !== "required"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["network"],
+        message: "hosted remote-web discovery requires network",
+      });
+    }
+    if (
+      entry.network === "offline"
+      && entry.serviceBoundary !== "none"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["serviceBoundary"],
+        message: "offline discovery cannot claim an external service",
+      });
+    }
     if (
       entry.delivery === "hosted"
       && entry.removalPolicy !== "no-local-data"
@@ -275,6 +305,53 @@ export interface FamilyCommunityDiscoveryProjection {
   readonly entries: readonly Readonly<FamilyCommunityDiscoveryEntry>[];
 }
 
+export type FamilyCommunityDiscoveryCommand =
+  | "previous"
+  | "next"
+  | "select"
+  | "back"
+  | "home";
+
+export type FamilyCommunityDiscoveryView =
+  | Readonly<{
+      kind: "browse";
+      catalogGeneration: number;
+      entries: readonly Readonly<FamilyCommunityDiscoveryEntry>[];
+      focusedIndex: number | null;
+      focusedGameId: string | null;
+    }>
+  | Readonly<{
+      kind: "detail";
+      catalogGeneration: number;
+      entry: Readonly<FamilyCommunityDiscoveryEntry>;
+    }>;
+
+export interface FamilyCommunityDiscoveryNavigation {
+  readonly disposition: "handled" | "exit-community" | "home";
+  readonly view: FamilyCommunityDiscoveryView;
+}
+
+export type FamilyCommunityDiscoveryIntent =
+  | Readonly<{
+      kind: "launch";
+      catalogGeneration: number;
+      gameId: string;
+      version: string;
+      admissionId: string;
+      launchBindingId: string;
+    }>
+  | Readonly<{
+      kind: "report";
+      catalogGeneration: number;
+      gameId: string;
+      version: string;
+      reportRouteId: string;
+    }>;
+
+export type FamilyCommunityDiscoveryHostAction =
+  | FamilyCommunityDiscoveryEntry["launchAction"]
+  | FamilyCommunityDiscoveryEntry["reportAction"];
+
 export class CommunityDiscoveryError extends Error {
   public constructor(message: string) {
     super(message);
@@ -283,6 +360,7 @@ export class CommunityDiscoveryError extends Error {
 }
 
 const verifiedFeeds = new WeakSet<object>();
+const familyCommunityProjections = new WeakSet<object>();
 
 export async function verifyCommunityDiscoveryFeed(
   bytes: Uint8Array,
@@ -393,7 +471,7 @@ export function projectFamilyCommunityDiscovery(
     );
   }
 
-  return deepFreeze({
+  const projection = deepFreeze({
     schemaVersion: COMMUNITY_DISCOVERY_SCHEMA_VERSION,
     catalogGeneration: feed.catalogGeneration,
     surface: "family-community" as const,
@@ -451,6 +529,236 @@ export function projectFamilyCommunityDiscovery(
       },
     ),
   });
+  familyCommunityProjections.add(projection);
+  return projection;
+}
+
+/**
+ * Controller-safe navigation over one exact verified family projection.
+ *
+ * The controller exposes only the already-sanitized projection. It never
+ * accepts or returns a URL, manifest, signature, package path, or install
+ * request. Launch and report requests are one-shot object capabilities bound
+ * to the current detail and feed generation; navigation, refresh, replacement
+ * planning, cloning, or another controller invalidates them.
+ */
+export class FamilyCommunityDiscoveryController {
+  #projection: FamilyCommunityDiscoveryProjection;
+  #focusedGameId: string | null;
+  #route: "browse" | "detail" = "browse";
+  #issuedIntent: FamilyCommunityDiscoveryIntent | undefined;
+
+  public constructor(projection: FamilyCommunityDiscoveryProjection) {
+    requireExactFamilyCommunityProjection(projection);
+    this.#projection = projection;
+    this.#focusedGameId = projection.entries[0]?.gameId ?? null;
+  }
+
+  public view(): FamilyCommunityDiscoveryView {
+    const focused = this.#focusedEntry();
+    if (this.#route === "detail" && focused !== undefined) {
+      return deepFreeze({
+        kind: "detail" as const,
+        catalogGeneration: this.#projection.catalogGeneration,
+        entry: focused,
+      });
+    }
+    const focusedIndex =
+      focused === undefined
+        ? null
+        : this.#projection.entries.findIndex(
+            (entry) => entry.gameId === focused.gameId,
+          );
+    return deepFreeze({
+      kind: "browse" as const,
+      catalogGeneration: this.#projection.catalogGeneration,
+      entries: this.#projection.entries,
+      focusedIndex,
+      focusedGameId: focused?.gameId ?? null,
+    });
+  }
+
+  public navigate(
+    command: FamilyCommunityDiscoveryCommand,
+  ): FamilyCommunityDiscoveryNavigation {
+    this.#issuedIntent = undefined;
+    let disposition: FamilyCommunityDiscoveryNavigation["disposition"] =
+      "handled";
+
+    switch (command) {
+      case "previous":
+        if (this.#route === "browse") this.#moveFocus(-1);
+        break;
+      case "next":
+        if (this.#route === "browse") this.#moveFocus(1);
+        break;
+      case "select":
+        if (this.#route === "browse" && this.#focusedEntry() !== undefined) {
+          this.#route = "detail";
+        }
+        break;
+      case "back":
+        if (this.#route === "detail") {
+          this.#route = "browse";
+        } else {
+          disposition = "exit-community";
+        }
+        break;
+      case "home":
+        this.#route = "browse";
+        disposition = "home";
+        break;
+      default:
+        throw new CommunityDiscoveryError(
+          "community discovery navigation command is invalid",
+        );
+    }
+
+    return deepFreeze({
+      disposition,
+      view: this.view(),
+    });
+  }
+
+  public planIntent(
+    kind: FamilyCommunityDiscoveryIntent["kind"],
+  ): FamilyCommunityDiscoveryIntent {
+    const entry = this.#focusedEntry();
+    if (this.#route !== "detail" || entry === undefined) {
+      throw new CommunityDiscoveryError(
+        "community discovery actions require the current detail",
+      );
+    }
+
+    const intent: FamilyCommunityDiscoveryIntent =
+      kind === "launch"
+        ? deepFreeze({
+            kind: "launch" as const,
+            catalogGeneration: this.#projection.catalogGeneration,
+            gameId: entry.gameId,
+            version: entry.version,
+            admissionId: entry.launchAction.admissionId,
+            launchBindingId: entry.launchAction.launchBindingId,
+          })
+        : kind === "report"
+          ? deepFreeze({
+              kind: "report" as const,
+              catalogGeneration: this.#projection.catalogGeneration,
+              gameId: entry.gameId,
+              version: entry.version,
+              reportRouteId: entry.reportAction.reportRouteId,
+            })
+          : invalidIntentKind();
+    this.#issuedIntent = intent;
+    return intent;
+  }
+
+  public dispatchIntent<T>(
+    intent: FamilyCommunityDiscoveryIntent,
+    dispatch: (action: FamilyCommunityDiscoveryHostAction) => T,
+  ): T {
+    if (typeof dispatch !== "function") {
+      throw new CommunityDiscoveryError(
+        "community discovery dispatcher is invalid",
+      );
+    }
+    if (this.#issuedIntent !== intent) {
+      throw new CommunityDiscoveryError(
+        "community discovery intent was not issued by this controller",
+      );
+    }
+
+    const entry = this.#focusedEntry();
+    if (
+      this.#route !== "detail"
+      || entry === undefined
+      || intent.catalogGeneration !== this.#projection.catalogGeneration
+      || intent.gameId !== entry.gameId
+      || intent.version !== entry.version
+    ) {
+      this.#issuedIntent = undefined;
+      throw new CommunityDiscoveryError(
+        "community discovery intent is no longer current",
+      );
+    }
+
+    this.#issuedIntent = undefined;
+    return dispatch(
+      intent.kind === "launch"
+        ? entry.launchAction
+        : entry.reportAction,
+    );
+  }
+
+  public replaceProjection(
+    projection: FamilyCommunityDiscoveryProjection,
+  ): FamilyCommunityDiscoveryView {
+    requireExactFamilyCommunityProjection(projection);
+    if (
+      projection.catalogGeneration
+      <= this.#projection.catalogGeneration
+    ) {
+      throw new CommunityDiscoveryError(
+        "community discovery replacement generation must advance",
+      );
+    }
+
+    const previousFocus = this.#focusedGameId;
+    this.#projection = projection;
+    this.#route = "browse";
+    this.#issuedIntent = undefined;
+    this.#focusedGameId =
+      projection.entries.some((entry) => entry.gameId === previousFocus)
+        ? previousFocus
+        : projection.entries[0]?.gameId ?? null;
+    return this.view();
+  }
+
+  #focusedEntry(): Readonly<FamilyCommunityDiscoveryEntry> | undefined {
+    if (this.#focusedGameId === null) return undefined;
+    return this.#projection.entries.find(
+      (entry) => entry.gameId === this.#focusedGameId,
+    );
+  }
+
+  #moveFocus(delta: -1 | 1): void {
+    if (this.#projection.entries.length === 0) {
+      this.#focusedGameId = null;
+      return;
+    }
+    const current = this.#focusedEntry();
+    const currentIndex =
+      current === undefined
+        ? 0
+        : this.#projection.entries.findIndex(
+            (entry) => entry.gameId === current.gameId,
+          );
+    const nextIndex = Math.min(
+      this.#projection.entries.length - 1,
+      Math.max(0, currentIndex + delta),
+    );
+    this.#focusedGameId = this.#projection.entries[nextIndex]!.gameId;
+  }
+}
+
+function requireExactFamilyCommunityProjection(
+  projection: FamilyCommunityDiscoveryProjection,
+): void {
+  if (
+    typeof projection !== "object"
+    || projection === null
+    || !familyCommunityProjections.has(projection)
+  ) {
+    throw new CommunityDiscoveryError(
+      "community discovery requires the exact family projection",
+    );
+  }
+}
+
+function invalidIntentKind(): never {
+  throw new CommunityDiscoveryError(
+    "community discovery intent kind is invalid",
+  );
 }
 
 function runtimeLabel(
