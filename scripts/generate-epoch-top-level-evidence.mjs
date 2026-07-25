@@ -14,13 +14,13 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "benchmarks/hosted-browser/epoch-top-level-windows-v1.json",
+  "benchmarks/hosted-browser/epoch-top-level-windows-v2.json",
 );
 
 export const EPOCH_TOP_LEVEL_EVIDENCE_FORMAT =
   "vcg-epoch-top-level-evidence/v1";
 export const EPOCH_ENTRYPOINT = "https://epoch-theta.vercel.app/";
-export const EPOCH_EVIDENCE_DATE = "2026-07-24";
+export const EPOCH_EVIDENCE_DATE = "2026-07-25";
 export const EPOCH_EXPECTED_TITLE = "Epoch";
 export const EPOCH_CLAIM_BOUNDARY =
   "One live Windows x64 Chrome desk observation proves that Epoch returned the reviewed restrictive framing headers yet loaded as the sole supervised top-level page under its exact HTTPS origin, then Chrome exited cleanly and the ephemeral profile was removed. It does not prove gameplay readiness, controller input, audio, fullscreen, storage, network degradation, Home/Back recovery, target Linux behavior, or catalog qualification.";

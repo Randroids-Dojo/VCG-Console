@@ -10,8 +10,11 @@ const MAX_ALLOWED_ORIGINS = 8;
 const MAX_CDP_MESSAGE_BYTES = 1_048_576;
 const MAX_CDP_PENDING_COMMANDS = 128;
 const MAX_TOP_LEVEL_PROBE_URL_LENGTH = 4_096;
+const MAX_HEALTH_CHECK_PATH_LENGTH = 1_024;
 const CDP_COMMAND_TIMEOUT_MS = 5_000;
 const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
+const HEALTH_CHECK_ACCEPT =
+  "application/vnd.vcg.health+json, application/json;q=0.1";
 const DENIED_BROWSER_PERMISSIONS = Object.freeze([
   "camera",
   "geolocation",
@@ -190,22 +193,27 @@ export function createHostedBrowserPolicy(
       "hosted browser requires an HTTP health check",
     );
   }
-  const healthCheck = new URL(
-    manifest.launch.healthCheck.path ?? "/",
-    entrypoint,
+  const healthCheckPath = manifest.launch.healthCheck.path ?? "/";
+  if (
+    typeof healthCheckPath !== "string"
+    || healthCheckPath.length === 0
+    || healthCheckPath.length > MAX_HEALTH_CHECK_PATH_LENGTH
+    || !healthCheckPath.startsWith("/")
+    || healthCheckPath.startsWith("//")
+    || healthCheckPath.includes("\\")
+    || /[\u0000-\u001f\u007f]/u.test(healthCheckPath)
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser health-check path must be one bounded absolute URL path",
+    );
+  }
+  const healthCheck = requirePrivacySafeHealthUrl(
+    new URL(healthCheckPath, entrypoint).href,
+    "health check",
   );
   if (!uniqueOrigins.has(healthCheck.origin)) {
     throw new HostedBrowserPolicyError(
       "hosted browser health-check origin is not allowed",
-    );
-  }
-  if (
-    healthCheck.protocol !== "https:"
-    || healthCheck.username !== ""
-    || healthCheck.password !== ""
-  ) {
-    throw new HostedBrowserPolicyError(
-      "hosted browser health check must use credential-free HTTPS",
     );
   }
 
@@ -399,12 +407,19 @@ export async function requireHealthyHostedEndpoint(
   try {
     for (let redirects = 0; redirects <= 5; redirects += 1) {
       if (!allowedOrigins.has(current.origin)) {
-        throw new Error(
+        throw new HostedBrowserPolicyError(
           `health check origin is not allowed: ${safeUrlLabel(current)}`,
         );
       }
       const response = await fetchImpl(current, {
+        body: undefined,
+        cache: "no-store",
+        credentials: "omit",
+        headers: {
+          accept: HEALTH_CHECK_ACCEPT,
+        },
         method: "GET",
+        referrerPolicy: "no-referrer",
         redirect: "manual",
         signal: controller.signal,
       });
@@ -412,14 +427,16 @@ export async function requireHealthyHostedEndpoint(
         const location = response.headers.get("location");
         await response.body?.cancel();
         if (location === null) {
-          throw new Error(
+          throw new HostedBrowserPolicyError(
             `health check redirect ${response.status} omitted Location`,
           );
         }
         if (redirects === 5) {
-          throw new Error("health check exceeded five redirects");
+          throw new HostedBrowserPolicyError(
+            "health check exceeded five redirects",
+          );
         }
-        current = requireCredentialFreeHttpsUrl(
+        current = requirePrivacySafeHealthUrl(
           new URL(location, current).href,
           "health-check redirect",
         );
@@ -427,15 +444,21 @@ export async function requireHealthyHostedEndpoint(
       }
       await response.body?.cancel();
       if (!response.ok) {
-        throw new Error(`health check returned HTTP ${response.status}`);
+        throw new HostedBrowserPolicyError(
+          `health check returned HTTP ${response.status}`,
+        );
       }
       return;
     }
-    throw new Error("health check exceeded five redirects");
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
     throw new HostedBrowserPolicyError(
-      `hosted browser health check failed: ${detail}`,
+      "health check exceeded five redirects",
+    );
+  } catch (error) {
+    if (error instanceof HostedBrowserPolicyError) throw error;
+    throw new HostedBrowserPolicyError(
+      controller.signal.aborted
+        ? "hosted browser health check timed out"
+        : "hosted browser health check transport failed",
     );
   } finally {
     clearTimeout(timeout);
@@ -1529,6 +1552,21 @@ function requireCredentialFreeHttpsUrl(value: string, label: string): URL {
   ) {
     throw new HostedBrowserPolicyError(
       `hosted browser ${label} must use credential-free HTTPS`,
+    );
+  }
+  return parsed;
+}
+
+function requirePrivacySafeHealthUrl(value: string, label: string): URL {
+  const parsed = requireCredentialFreeHttpsUrl(value, label);
+  if (
+    parsed.search !== ""
+    || parsed.hash !== ""
+    || parsed.pathname.length === 0
+    || parsed.pathname.length > MAX_HEALTH_CHECK_PATH_LENGTH
+  ) {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} must omit query and fragment data`,
     );
   }
   return parsed;

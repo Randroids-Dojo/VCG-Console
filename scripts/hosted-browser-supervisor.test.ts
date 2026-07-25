@@ -217,9 +217,30 @@ describe("hosted browser policy", () => {
               },
             },
           }),
-        ),
-      /health-check origin is not allowed/,
+      ),
+      /health-check path/,
     );
+    for (const path of [
+      "health",
+      "//login.example/health",
+      "/health?profile=child",
+      "/health#private",
+      "/health\\private",
+      `/${"a".repeat(1_024)}`,
+    ]) {
+      assert.throws(
+        () =>
+          createHostedBrowserPolicy(
+            manifest({
+              launch: {
+                timeoutMs: 30_000,
+                healthCheck: { type: "http", path },
+              },
+            }),
+          ),
+        /health-check path|omit query and fragment/u,
+      );
+    }
   });
 });
 
@@ -347,6 +368,15 @@ describe("hosted browser health check", () => {
     const fakeFetch: typeof fetch = async (input, init) => {
       const url = String(input);
       seen.push(url);
+      assert.equal(init?.body, undefined);
+      assert.equal(init?.cache, "no-store");
+      assert.equal(init?.credentials, "omit");
+      assert.deepEqual(init?.headers, {
+        accept:
+          "application/vnd.vcg.health+json, application/json;q=0.1",
+      });
+      assert.equal(init?.method, "GET");
+      assert.equal(init?.referrerPolicy, "no-referrer");
       assert.equal(init?.redirect, "manual");
       if (url === "https://game.example/health") {
         return new Response(null, {
@@ -377,6 +407,69 @@ describe("hosted browser health check", () => {
       /health check origin is not allowed/,
     );
     assert.deepEqual(seen, ["https://game.example/health"]);
+  });
+
+  it("cancels response bytes without parsing or retaining them", async () => {
+    let canceled = false;
+    const body = new ReadableStream<Uint8Array>({
+      cancel() {
+        canceled = true;
+      },
+      start(controller) {
+        controller.enqueue(
+          new TextEncoder().encode(
+            '{"profile":"private","save":"must-not-be-read"}',
+          ),
+        );
+      },
+    });
+    await requireHealthyHostedEndpoint(
+      policy(),
+      async () =>
+        new Response(body, {
+          status: 200,
+          headers: {
+            "set-cookie": "private-session=must-not-be-retained",
+            "x-private-detail": "must-not-be-retained",
+          },
+        }),
+    );
+    assert.equal(canceled, true);
+  });
+
+  it("rejects redirect query data before a second request", async () => {
+    const seen: string[] = [];
+    await assert.rejects(
+      requireHealthyHostedEndpoint(
+        policy(),
+        async (input) => {
+          seen.push(String(input));
+          return new Response(null, {
+            status: 302,
+            headers: { location: "/ready?profile=private" },
+          });
+        },
+      ),
+      /omit query and fragment/,
+    );
+    assert.deepEqual(seen, ["https://game.example/health"]);
+  });
+
+  it("redacts arbitrary transport exceptions", async () => {
+    await assert.rejects(
+      requireHealthyHostedEndpoint(
+        policy(),
+        async () => {
+          throw new Error(
+            "socket failed for /users/private-profile?token=secret",
+          );
+        },
+      ),
+      (error: unknown) =>
+        error instanceof HostedBrowserPolicyError
+        && error.message
+          === "hosted browser health check transport failed",
+    );
   });
 
   it("rejects redirect loops, missing locations, and unhealthy responses", async () => {

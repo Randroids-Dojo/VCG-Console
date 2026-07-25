@@ -136,8 +136,11 @@ the exact selected browser rather than accepting that skip.
 
 ## Epoch top-level evidence
 
-`benchmarks/hosted-browser/epoch-top-level-windows-v1.json` records one live
-2026-07-24 Windows x64 run against
+`benchmarks/hosted-browser/epoch-top-level-windows-v1.json` preserves the
+original 2026-07-24 Windows x64 run.
+`benchmarks/hosted-browser/epoch-top-level-windows-v2.json` records the
+2026-07-25 successor against the privacy-hardened health-check request
+boundary. Both observations target
 `https://epoch-theta.vercel.app/`. The response returned HTTP 200 and retained:
 
 - `Content-Security-Policy: frame-ancestors 'self' https://randroid.dev https://www.randroid.dev`;
@@ -156,8 +159,9 @@ navigation guard, browser shutdown, and profile cleanup. Its result contains
 only final URL, title, ready state, browser product, exit status, and cleanup
 state. It does not inspect game content or confer readiness authority.
 
-The artifact binds the exact supervisor, live generator, and strict validator
-SHA-256 values. Eight mutation tests reject framing authorization, altered
+Each artifact binds the exact supervisor, live generator, and strict validator
+SHA-256 values. The active validator targets v2. Eight mutation tests reject
+framing authorization, altered
 headers or origins, weakened load/cleanup facts, fabricated play/controller/
 participant evidence, playability promotion, stale provenance, and unknown
 fields. Routine tests validate the recorded artifact; the live network and
@@ -169,8 +173,8 @@ pnpm validate:epoch-top-level
 pnpm exec tsx scripts/generate-epoch-top-level-evidence.mjs
 ```
 
-Evidence captured after 2026-07-24 requires a versioned successor rather than
-silently overwriting the date and claim boundary of this record.
+Evidence captured after 2026-07-25 requires another versioned successor rather
+than silently overwriting either dated record.
 
 I-090 is closed at the framing-mode boundary. Q-046, Q-048, Q-049, and I-180
 remain open for unstealable target-compositor Home/Back, hostile capture and
