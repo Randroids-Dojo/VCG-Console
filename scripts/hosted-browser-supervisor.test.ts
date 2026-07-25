@@ -14,6 +14,7 @@ import {
   requireHealthyHostedEndpoint,
   type HostedBrowserManifestInput,
   validateHostedBrowserProfilePath,
+  waitForExplicitHostedBrowserReadiness,
   waitForDevToolsEndpoint,
 } from "./hosted-browser-supervisor";
 
@@ -241,6 +242,57 @@ describe("hosted browser policy", () => {
         /health-check path|omit query and fragment/u,
       );
     }
+  });
+});
+
+describe("hosted browser explicit readiness", () => {
+  it("requires a bounded boolean probe and no document-load fallback", async () => {
+    await assert.rejects(
+      waitForExplicitHostedBrowserReadiness(
+        async () => true,
+        0,
+      ),
+      /explicit-readiness wait is invalid/,
+    );
+    await assert.rejects(
+      waitForExplicitHostedBrowserReadiness(
+        (async () => "ready") as unknown as () => Promise<boolean>,
+        100,
+      ),
+      /probe was not boolean/,
+    );
+  });
+
+  it("polls until the fixed producer reports readiness", async () => {
+    const observations = [false, false, true];
+    let calls = 0;
+    const ready = await waitForExplicitHostedBrowserReadiness(
+      async () => {
+        const value = observations[calls];
+        calls += 1;
+        return value ?? false;
+      },
+      500,
+    );
+    assert.equal(ready, true);
+    assert.equal(calls, 3);
+  });
+
+  it("returns a bounded timeout when readiness never arrives", async () => {
+    let calls = 0;
+    const started = performance.now();
+    const ready = await waitForExplicitHostedBrowserReadiness(
+      async () => {
+        calls += 1;
+        return false;
+      },
+      75,
+    );
+    const elapsed = performance.now() - started;
+    assert.equal(ready, false);
+    assert.ok(calls >= 2);
+    assert.ok(calls <= 3);
+    assert.ok(elapsed < 500);
   });
 });
 

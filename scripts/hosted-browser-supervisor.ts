@@ -13,6 +13,9 @@ const MAX_TOP_LEVEL_PROBE_URL_LENGTH = 4_096;
 const MAX_HEALTH_CHECK_PATH_LENGTH = 1_024;
 const CDP_COMMAND_TIMEOUT_MS = 5_000;
 const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
+const EXPLICIT_READY_POLL_INTERVAL_MS = 50;
+const EXPLICIT_READY_EXPRESSION =
+  'document.documentElement?.getAttribute("data-vcg-ready") === "1"';
 const HEALTH_CHECK_ACCEPT =
   "application/vnd.vcg.health+json, application/json;q=0.1";
 const DENIED_BROWSER_PERMISSIONS = Object.freeze([
@@ -61,6 +64,7 @@ export interface HostedBrowserRunResult {
   readonly code:
     | "BROWSER_CLOSED"
     | "BROWSER_CRASHED"
+    | "EXPLICIT_READY_TIMEOUT"
     | "LAUNCH_ABORTED"
     | "POLICY_VIOLATION";
   readonly exitCode: number | null;
@@ -81,6 +85,7 @@ export interface HostedBrowserStatus {
     | "browser-start"
     | "devtools-connect"
     | "navigation"
+    | "document-loaded"
     | "ready"
     | "stopping";
   readonly detail: string;
@@ -486,6 +491,8 @@ export async function runSupervisedHostedBrowser(
     },
   );
   const childExit = observeChildExit(child);
+  const readinessCancellation = new AbortController();
+  void childExit.finally(() => readinessCancellation.abort());
   let connection: CdpConnection | undefined;
   let stopRequested = false;
   let mainTargetClosed = false;
@@ -509,6 +516,7 @@ export async function runSupervisedHostedBrowser(
   const requestStop = (detail: string) => {
     if (stopRequested) return;
     stopRequested = true;
+    readinessCancellation.abort();
     report({
       phase: "stopping",
       detail,
@@ -558,7 +566,12 @@ export async function runSupervisedHostedBrowser(
       phase: "navigation",
       detail: "Navigating to the reviewed hosted origin",
     });
-    await ready.navigate();
+    const launchDeadline = performance.now() + options.policy.launchTimeoutMs;
+    await withDeadline(
+      ready.navigate(),
+      Math.max(1, remainingDeadlineMs(launchDeadline)),
+      "hosted browser did not begin its reviewed navigation",
+    );
     const initial = await withDeadline(
       Promise.race([
         ready.loaded.then(() => ({ kind: "loaded" as const })),
@@ -572,7 +585,7 @@ export async function runSupervisedHostedBrowser(
         abortedObserved.then(() => ({ kind: "aborted" as const })),
         childExit.then((exit) => ({ kind: "exit" as const, exit })),
       ]),
-      options.policy.launchTimeoutMs,
+      Math.max(1, remainingDeadlineMs(launchDeadline)),
       "hosted browser did not finish its initial document load",
     );
     if (initial.kind !== "loaded") {
@@ -621,9 +634,88 @@ export async function runSupervisedHostedBrowser(
       });
     }
     report({
+      phase: "document-loaded",
+      detail: "Allowed document loaded; waiting for explicit game readiness",
+    });
+
+    const readinessBudgetMs = remainingDeadlineMs(launchDeadline);
+    const readinessWait =
+      readinessBudgetMs <= 0
+        ? Promise.resolve(false)
+        : waitForExplicitHostedBrowserReadiness(
+            ready.explicitReady,
+            readinessBudgetMs,
+            readinessCancellation.signal,
+          );
+    const readiness = await Promise.race([
+      readinessWait.then((value) => ({
+        kind: value ? "ready" as const : "timeout" as const,
+      })),
+      violationObserved.then((value) => ({
+        kind: "violation" as const,
+        value,
+      })),
+      mainTargetClosedObserved.then(() => ({ kind: "closed" as const })),
+      abortedObserved.then(() => ({ kind: "aborted" as const })),
+      childExit.then((exit) => ({ kind: "exit" as const, exit })),
+    ]);
+    if (readiness.kind !== "ready") {
+      if (readiness.kind === "timeout") {
+        requestStop("Hosted game did not explicitly report readiness");
+        const exit = await (stopPromise ?? childExit);
+        return Object.freeze({
+          code: "EXPLICIT_READY_TIMEOUT" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      const exit =
+        readiness.kind === "exit"
+          ? readiness.exit
+          : await (stopPromise ?? childExit);
+      if (readiness.kind === "violation") {
+        return Object.freeze({
+          code: "POLICY_VIOLATION" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+          violation: readiness.value,
+        });
+      }
+      if (readiness.kind === "closed") {
+        return Object.freeze({
+          code: "BROWSER_CLOSED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      if (readiness.kind === "aborted") {
+        return Object.freeze({
+          code: "LAUNCH_ABORTED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      return Object.freeze({
+        code:
+          exit.code === 0 && exit.signal === null
+            ? "BROWSER_CLOSED" as const
+            : "BROWSER_CRASHED" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+      });
+    }
+    if (violation !== undefined) {
+      const exit = await (stopPromise ?? childExit);
+      return Object.freeze({
+        code: "POLICY_VIOLATION" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+        violation,
+      });
+    }
+    report({
       phase: "ready",
-      detail:
-        "Allowed document loaded; explicit in-game readiness remains unavailable",
+      detail: "Hosted game explicitly reported readiness",
     });
 
     const terminal = await Promise.race([
@@ -985,6 +1077,7 @@ async function superviseCdpSession(
   onMainTargetClosed: () => void,
 ): Promise<{
   readonly evaluate: (expression: string) => Promise<unknown>;
+  readonly explicitReady: () => Promise<boolean>;
   readonly loaded: Promise<void>;
   readonly navigate: (url?: string) => Promise<void>;
 }> {
@@ -1109,6 +1202,30 @@ async function superviseCdpSession(
   }
 
   return Object.freeze({
+    explicitReady: async () => {
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: false,
+          expression: EXPLICIT_READY_EXPRESSION,
+          returnByValue: true,
+          userGesture: false,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser explicit-readiness probe failed",
+        );
+      }
+      const value = objectField(result, "result")?.value;
+      if (typeof value !== "boolean") {
+        throw new HostedBrowserPolicyError(
+          "hosted browser explicit-readiness probe was not boolean",
+        );
+      }
+      return value;
+    },
     evaluate: async (expression: string) => {
       if (
         typeof expression !== "string"
@@ -1519,6 +1636,78 @@ async function withDeadline<T>(
   } finally {
     if (timeout !== undefined) clearTimeout(timeout);
   }
+}
+
+function remainingDeadlineMs(deadline: number): number {
+  return Math.ceil(deadline - performance.now());
+}
+
+export async function waitForExplicitHostedBrowserReadiness(
+  probe: () => Promise<boolean>,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  if (
+    typeof probe !== "function"
+    || !Number.isSafeInteger(timeoutMs)
+    || timeoutMs < 1
+    || timeoutMs > 120_000
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser explicit-readiness wait is invalid",
+    );
+  }
+  const deadline = performance.now() + timeoutMs;
+  for (;;) {
+    if (signal?.aborted) return pendingAfterReadinessCancellation();
+    const probeBudgetMs = Math.ceil(deadline - performance.now());
+    if (probeBudgetMs <= 0) return false;
+    let observation:
+      | { readonly kind: "probe"; readonly value: boolean }
+      | { readonly kind: "timeout" };
+    try {
+      observation = await Promise.race([
+        probe().then((value) => ({
+          kind: "probe" as const,
+          value,
+        })),
+        delay(
+          probeBudgetMs,
+          { kind: "timeout" as const },
+          signal === undefined ? undefined : { signal },
+        ),
+      ]);
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterReadinessCancellation();
+      throw error;
+    }
+    if (signal?.aborted) return pendingAfterReadinessCancellation();
+    if (observation.kind === "timeout") return false;
+    const ready = observation.value;
+    if (typeof ready !== "boolean") {
+      throw new HostedBrowserPolicyError(
+        "hosted browser explicit-readiness probe was not boolean",
+      );
+    }
+    if (ready) return true;
+
+    const remainingMs = Math.ceil(deadline - performance.now());
+    if (remainingMs <= 0) return false;
+    try {
+      await delay(
+        Math.min(EXPLICIT_READY_POLL_INTERVAL_MS, remainingMs),
+        undefined,
+        signal === undefined ? undefined : { signal },
+      );
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterReadinessCancellation();
+      throw error;
+    }
+  }
+}
+
+function pendingAfterReadinessCancellation(): Promise<never> {
+  return new Promise<never>(() => undefined);
 }
 
 function requireExactHttpsOrigin(value: unknown, label: string): string {

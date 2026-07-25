@@ -5692,6 +5692,39 @@ arbitrary/localized queries, spelling and fuzzy recovery, physical
 TV/controller behavior, target Linux, and every game remain unqualified.
 STV-001 through STV-003 remain owner decisions.
 
+## 2026-07-24: explicit hosted-browser initial readiness
+
+### Delivered
+
+- Removed the live runner's false `Page.loadEventFired` to `ready` transition.
+  Allowed load now emits only `document-loaded`.
+- Required one fixed top-level `html[data-vcg-ready="1"]` claim before `ready`;
+  the selector/value are host code and cannot be weakened by manifest input.
+- Bound navigation, initial load, and readiness polling to one remaining
+  monotonic launch deadline. Missing readiness returns stable
+  `EXPLICIT_READY_TIMEOUT`, stops the browser, and makes the CLI fail.
+- Added bounded boolean producer checks, exact polling success, and no-marker
+  timeout tests while preserving Epoch as explicitly load-only evidence.
+- Recorded D-182 and Q-250 without claiming post-ready heartbeat, hang/login/
+  offline recovery, compositor focus, playability, or target qualification.
+
+### Verification evidence
+
+- All 22 focused supervisor cases pass, including three readiness cases and
+  the real Chrome 150 navigation/popup/download containment probes.
+- A new immutable Epoch v3 successor binds the changed supervisor source while
+  preserving the load-only/no-playability boundary; its strict validator and
+  eight mutation cases pass without overwriting v1 or v2.
+- Complete TypeScript and Svelte workspace typechecking passes with zero
+  Svelte errors or warnings.
+
+### Remaining boundary
+
+I-180 remains active. Q-250 must select the reviewed signed wrapper, per-game
+deadline, post-ready challenge/recovery contract, login/offline states, and
+target timing. Native/service/cgroup/compositor authority and ordinary
+x86-64/ARM64 Linux qualification remain required.
+
 ## 2026-07-24: persistent native diagnostic data-exclusion integration
 
 ### Delivered

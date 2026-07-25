@@ -14,7 +14,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "benchmarks/hosted-browser/epoch-top-level-windows-v2.json",
+  "benchmarks/hosted-browser/epoch-top-level-windows-v3.json",
 );
 
 export const EPOCH_TOP_LEVEL_EVIDENCE_FORMAT =

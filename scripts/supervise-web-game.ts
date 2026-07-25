@@ -45,7 +45,7 @@ async function main() {
     browserArgs: buildHostedBrowserArguments("<ephemeral-profile>"),
     limitations: [
       "Back and Home are not yet global OS-level controls.",
-      "A successful document load is not explicit in-game readiness.",
+      "The game must set html[data-vcg-ready=\"1\"] within the shared launch deadline.",
       "Desk process-tree cleanup is not target service-manager or cgroup containment.",
       "Target Linux compositor, service-manager, resource, and crash qualification remain.",
     ],
@@ -80,6 +80,7 @@ async function main() {
     if (
       result.code === "POLICY_VIOLATION"
       || result.code === "BROWSER_CRASHED"
+      || result.code === "EXPLICIT_READY_TIMEOUT"
     ) {
       process.exitCode = 1;
     }
