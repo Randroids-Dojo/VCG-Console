@@ -58,7 +58,7 @@
 
   {#if !report}
     <div class="session-adversarial-notice">
-      <span aria-hidden="true">◇</span>
+      <span aria-hidden="true"></span>
       <div>
         <h2>Five interference classes. Zero identity claims.</h2>
         <p>
@@ -148,7 +148,7 @@
           <ul>
             {#each selectedScenario.checks as check}
               <li data-state={check.passed ? "passed" : "failed"}>
-                <span aria-hidden="true">{check.passed ? "✓" : "!"}</span>
+                <span aria-hidden="true">{check.passed ? "" : "!"}</span>
                 <div><strong>{check.id.replaceAll("-", " ")}</strong><p>{check.detail}</p></div>
               </li>
             {/each}

@@ -21,27 +21,17 @@ export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
 export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-25";
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
-  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 10 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
+  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
   "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
   "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
   "The observation covers one installed Chrome version and one Windows x64 font environment. OS updates, installed-font changes, browser engines, target Linux images, and compositor stacks may choose different fallback fonts.",
-  "No observed platform font is approved for bundling or redistribution by this artifact; deterministic fallback selection remains an explicit owner/release decision.",
+  "The zero-fallback result is limited to current static production-source characters; deterministic coverage for user-authored text and future localization remains an explicit owner/release decision.",
 ]);
 
 export const OCRA_FALLBACK_PROBES = Object.freeze([
   { id: "ascii-a", codePoint: "U+0041", character: "A", role: "OCR-A baseline" },
   { id: "middle-dot", codePoint: "U+00B7", character: "·", role: "covered separator" },
-  { id: "multiplication", codePoint: "U+00D7", character: "×", role: "status marker" },
-  { id: "em-dash", codePoint: "U+2014", character: "—", role: "separator/error copy" },
-  { id: "smart-apostrophe", codePoint: "U+2019", character: "’", role: "possessive copy" },
-  { id: "ellipsis", codePoint: "U+2026", character: "…", role: "scanning status" },
-  { id: "white-up-triangle", codePoint: "U+25B3", character: "△", role: "controller/status marker" },
-  { id: "black-diamond", codePoint: "U+25C6", character: "◆", role: "profile marker" },
-  { id: "white-diamond", codePoint: "U+25C7", character: "◇", role: "status marker" },
-  { id: "white-circle", codePoint: "U+25CB", character: "○", role: "empty/unassigned marker" },
-  { id: "black-circle", codePoint: "U+25CF", character: "●", role: "status marker" },
-  { id: "check-mark", codePoint: "U+2713", character: "✓", role: "passed check" },
 ]);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -122,7 +112,7 @@ async function installProbeGrid(page) {
       }
       #font-probe-grid {
         display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
       }
       .font-probe-card {
@@ -303,6 +293,13 @@ export async function generateOcraPlatformFallbackEvidence() {
   const screenshotBytes = await readFile(screenshotPath);
   const baseEvidence = JSON.parse(
     await readFile(resolve(root, baseEvidenceRelativePath), "utf8"),
+  );
+  assert.deepEqual(
+    OCRA_FALLBACK_PROBES.slice(1).map(({ codePoint }) => codePoint),
+    baseEvidence.coverage.productionSource.nonAsciiCodePoints.map(
+      ({ codePoint }) => codePoint,
+    ),
+    "platform-font probes must exactly cover current non-ASCII production source",
   );
   const fallbackObservations = observations.filter(
     (observation) => !observation.fonts.some((font) => font.customFont),

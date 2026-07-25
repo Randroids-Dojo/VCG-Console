@@ -46,7 +46,7 @@
             class:synthetic-portrait={portraitHandle !== null}
             data-portrait-handle={portraitHandle}
             aria-hidden="true"
-          >{portraitHandle ? "◆" : profile.name.slice(0, 1).toUpperCase()}</span><strong>{profile.name}</strong><small>{profile.id === activeId ? "Selected" : profile.detail}{portraitHandle ? " · Synthetic portrait" : ""}</small>
+          >{portraitHandle ? "" : profile.name.slice(0, 1).toUpperCase()}</span><strong>{profile.name}</strong><small>{profile.id === activeId ? "Selected" : profile.detail}{portraitHandle ? " · Synthetic portrait" : ""}</small>
         </button>
       {/each}
       <button class="create-profile" type="button" id="create-profile" onclick={() => onmanage(null)}>

@@ -89,6 +89,9 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.getByRole("button", { name: /RetroArch Retro library/ }).click();
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
   await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
+  const retroEmptyMark = page.locator(".empty-library .empty-glyph");
+  await expect(retroEmptyMark).toHaveText("");
+  await expect(retroEmptyMark).toHaveAttribute("aria-hidden", "true");
 
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Storage", exact: true }).click();
@@ -395,6 +398,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
   ).toBeFocused();
   await pressSyntheticGamepadButton(page, "__setPortraitGamepad", 0);
   await expect(profileTile.locator(".synthetic-portrait")).toHaveCount(1);
+  await expect(profileTile.locator(".synthetic-portrait")).toHaveText("");
   const acceptedHandle = await profileTile
     .locator(".synthetic-portrait")
     .getAttribute("data-portrait-handle");
@@ -815,6 +819,9 @@ test("session authority rehearsal contains synthetic household interference", as
     view.getByRole("heading", { name: "Detection is not control." }),
   ).toBeVisible();
   await expect(view.getByText("Five interference classes.")).toBeVisible();
+  const interferenceMark = view.locator(".session-adversarial-notice > span");
+  await expect(interferenceMark).toHaveText("");
+  await expect(interferenceMark).toHaveAttribute("aria-hidden", "true");
   expect(
     await page.evaluate(
       () =>
@@ -845,6 +852,11 @@ test("session authority rehearsal contains synthetic household interference", as
   await expect(
     view.getByText("Synthetic state-machine evidence only"),
   ).toBeVisible();
+  const passedCheckMark = view.locator(
+    '.session-scenario-detail li[data-state="passed"] > span',
+  ).first();
+  await expect(passedCheckMark).toHaveText("");
+  await expect(passedCheckMark).toHaveAttribute("aria-hidden", "true");
 
   await view
     .getByRole("button", {

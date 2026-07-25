@@ -40,7 +40,9 @@ test("accepts the exact OCR-A structural evidence", async () => {
   assert.equal(artifact.subject.bytes, 24_316);
   assert.equal(artifact.sfnt.cmap.mappingCount, 114);
   assert.equal(artifact.coverage.summary.printableAsciiMissingCount, 0);
-  assert.equal(artifact.coverage.summary.productionSourceNonAsciiMissingCount, 10);
+  assert.equal(artifact.coverage.summary.productionSourceNonAsciiMissingCount, 0);
+  assert.equal(artifact.coverage.summary.fallbackRequired, false);
+  assert.equal(artifact.disposition.allProductionSourceNonAsciiCoveredByOcra, true);
 });
 
 test("rejects format, date, subject, or parser-limit substitution", async () => {
@@ -88,18 +90,21 @@ test("rejects cmap selection, count, range, or code-point substitution", async (
   });
 });
 
-test("rejects coverage-set or summary promotion", async () => {
+test("rejects coverage-set or summary drift", async () => {
   await validateMutation((artifact) => {
-    artifact.coverage.sets[1].missing.pop();
+    artifact.coverage.sets[1].missing.push("U+2014");
   });
   await validateMutation((artifact) => {
     artifact.coverage.sets[3].fullyCovered = true;
   });
   await validateMutation((artifact) => {
-    artifact.coverage.summary.productionSourceNonAsciiMissingCount = 0;
+    artifact.coverage.summary.productionSourceNonAsciiMissingCount = 1;
   });
   await validateMutation((artifact) => {
-    artifact.coverage.summary.fallbackRequired = false;
+    artifact.coverage.summary.fallbackRequired = true;
+  });
+  await validateMutation((artifact) => {
+    artifact.disposition.allProductionSourceNonAsciiCoveredByOcra = false;
   });
 });
 
@@ -111,7 +116,7 @@ test("rejects source file, code-point, coverage, or occurrence drift", async () 
     artifact.coverage.productionSource.nonAsciiCodePoints[0].fontCovered = false;
   });
   await validateMutation((artifact) => {
-    artifact.coverage.productionSource.nonAsciiCodePoints[1].codePoint = "U+00F7";
+    artifact.coverage.productionSource.nonAsciiCodePoints[0].codePoint = "U+00F7";
   });
   await validateMutation((artifact) => {
     artifact.coverage.productionSource.nonAsciiCodePoints[0].occurrences[0].lines[0] += 1;
@@ -132,7 +137,6 @@ test("rejects provenance drift", async () => {
 
 test("rejects unsupported qualification or release claims", async () => {
   for (const key of [
-    "allProductionSourceNonAsciiCoveredByOcra",
     "fallbackIdentityVerified",
     "glyphShapesVerified",
     "tvLegibilityVerified",

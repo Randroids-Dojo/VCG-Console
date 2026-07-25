@@ -407,7 +407,7 @@ a:focus-visible {
 .launcher-nav button.active::after {
   margin-left: 10px;
   color: var(--accent);
-  content: "—";
+  content: "--";
 }
 
 .nav-spacer {
@@ -731,8 +731,12 @@ a:focus-visible {
 }
 
 .empty-glyph {
+  width: 42px;
+  height: 42px;
+  display: inline-block;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
   color: var(--accent);
-  font-size: 3rem;
 }
 
 .empty-library strong {
@@ -1101,9 +1105,13 @@ a:focus-visible {
 
 .portrait-capture-copy li::before {
   position: absolute;
-  left: 0;
-  content: "◇";
-  color: var(--accent);
+  top: 0.45em;
+  left: 3px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--accent);
+  content: "";
+  transform: rotate(45deg);
 }
 
 .portrait-family-gate {
@@ -2022,7 +2030,7 @@ a:focus-visible {
 }
 
 .unassigned-list b[data-compatibility="update-required"]::before {
-  content: "△ ";
+  content: "^ ";
 }
 
 .unassigned-list b[data-compatibility="package-unavailable"] {
@@ -2030,11 +2038,11 @@ a:focus-visible {
 }
 
 .unassigned-list b[data-compatibility="package-unavailable"]::before {
-  content: "× ";
+  content: "X ";
 }
 
 .unassigned-list b[data-compatibility="ready"]::before {
-  content: "● ";
+  content: "* ";
 }
 
 .unassigned-detail {
@@ -2152,8 +2160,12 @@ a:focus-visible {
 }
 
 .unassigned-empty > span {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
   color: var(--accent);
-  font-size: 2.2rem;
 }
 
 .unassigned-empty h2 {
@@ -4220,9 +4232,12 @@ kbd {
 }
 
 .session-adversarial-notice > span {
+  width: clamp(38px, 6vw, 72px);
+  height: clamp(38px, 6vw, 72px);
+  align-self: start;
+  border: 2px solid var(--accent);
   color: var(--accent);
-  font-size: clamp(2.8rem, 6vw, 5.6rem);
-  line-height: 0.8;
+  transform: rotate(45deg);
 }
 
 .session-adversarial-notice h2 {
@@ -4430,6 +4445,15 @@ kbd {
   place-items: center;
   border: 1px solid var(--accent);
   color: var(--accent);
+}
+
+.session-scenario-detail li[data-state="passed"] > span::before {
+  width: 6px;
+  height: 12px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: "";
+  transform: translateY(-1px) rotate(45deg);
 }
 
 .session-scenario-detail li[data-state="failed"] > span {

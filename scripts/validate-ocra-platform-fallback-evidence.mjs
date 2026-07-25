@@ -36,13 +36,13 @@ const PNG_SIGNATURE = Buffer.from([
 ]);
 const EXPECTED_SCREENSHOT = Object.freeze({
   path: "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
-  bytes: 70_215,
-  sha256: "e24887bb8dff9e6105b9670ce16a82202ff6dc32621a216db4e2f361883f1b75",
+  bytes: 37_017,
+  sha256: "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458",
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-BK6031cb.js": 1,
-  "/assets/main-IxDvZKFO.css": 1,
+  "/assets/main-D6m10Wbd.js": 1,
+  "/assets/main-DwOiNSRf.css": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
   "/assets/src-EbToTsJV.js": 1,
   "/assets/synthetic-BTWSnpMo.js": 1,
@@ -52,16 +52,6 @@ const EXPECTED_REQUEST_COUNTS = Object.freeze({
 const expectedFontByProbe = Object.freeze({
   "ascii-a": ["OCRA", "OCRA", true],
   "middle-dot": ["OCRA", "OCRA", true],
-  multiplication: ["Consolas", "Consolas", false],
-  "em-dash": ["Consolas", "Consolas", false],
-  "smart-apostrophe": ["Consolas", "Consolas", false],
-  ellipsis: ["Consolas", "Consolas", false],
-  "white-up-triangle": ["Cambria Math", "CambriaMath", false],
-  "black-diamond": ["Cambria Math", "CambriaMath", false],
-  "white-diamond": ["Cambria Math", "CambriaMath", false],
-  "white-circle": ["Consolas", "Consolas", false],
-  "black-circle": ["Consolas", "Consolas", false],
-  "check-mark": ["Segoe UI Symbol", "SegoeUISymbol", false],
 });
 const provenancePaths = Object.freeze({
   stylePath: "apps/console-lab/src/styles.css",
@@ -162,6 +152,12 @@ export async function validateOcraPlatformFallbackEvidence(
   });
 
   const baseEvidence = JSON.parse(await readFile(baseEvidencePath, "utf8"));
+  assert.deepEqual(
+    OCRA_FALLBACK_PROBES.slice(1).map(({ codePoint }) => codePoint),
+    baseEvidence.coverage.productionSource.nonAsciiCodePoints.map(
+      ({ codePoint }) => codePoint,
+    ),
+  );
   assert.deepEqual(artifact.baseStructuralEvidence, {
     path: "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
     format: baseEvidence.format,
@@ -176,7 +172,7 @@ export async function validateOcraPlatformFallbackEvidence(
   assert.deepEqual(artifact.probe, {
     cssFontFamily: "OCRA, ui-monospace, SFMono-Regular, monospace",
     cssFontSizePx: 88,
-    observationCount: 12,
+    observationCount: 2,
     observations: expectedObservations(),
     overflowCssPx: { horizontal: 0, vertical: 0 },
   });
@@ -189,11 +185,11 @@ export async function validateOcraPlatformFallbackEvidence(
   });
   await validateScreenshot(artifact.screenshot);
   assert.deepEqual(artifact.summary, {
-    probeCodePointCount: 12,
+    probeCodePointCount: 2,
     customFontObservationCount: 2,
-    platformFallbackObservationCount: 10,
-    distinctFamilyNames: ["Cambria Math", "Consolas", "OCRA", "Segoe UI Symbol"],
-    distinctPostScriptNames: ["CambriaMath", "Consolas", "OCRA", "SegoeUISymbol"],
+    platformFallbackObservationCount: 0,
+    distinctFamilyNames: ["OCRA"],
+    distinctPostScriptNames: ["OCRA"],
   });
   await validateProvenance(artifact.provenance);
   assert.deepEqual(artifact.disposition, {

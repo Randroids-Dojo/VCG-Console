@@ -36,13 +36,8 @@ async function validateMutation(mutator) {
 test("accepts the exact Windows Chrome OCR-A fallback observation", async () => {
   const artifact = await validateOcraPlatformFallbackEvidence();
   assert.equal(artifact.summary.customFontObservationCount, 2);
-  assert.equal(artifact.summary.platformFallbackObservationCount, 10);
-  assert.deepEqual(artifact.summary.distinctFamilyNames, [
-    "Cambria Math",
-    "Consolas",
-    "OCRA",
-    "Segoe UI Symbol",
-  ]);
+  assert.equal(artifact.summary.platformFallbackObservationCount, 0);
+  assert.deepEqual(artifact.summary.distinctFamilyNames, ["OCRA"]);
 });
 
 test("rejects format, date, platform, browser, or viewport substitution", async () => {
@@ -83,10 +78,10 @@ test("rejects probe stack, ordering, character, role, or overflow drift", async 
     artifact.probe.observations.reverse();
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[2].character = "÷";
+    artifact.probe.observations[1].character = "÷";
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[6].role = "previous";
+    artifact.probe.observations[1].role = "previous";
   });
   await validateMutation((artifact) => {
     artifact.probe.overflowCssPx.vertical = 1;
@@ -105,18 +100,18 @@ test("rejects custom OCR-A identity or glyph-count drift", async () => {
   });
 });
 
-test("rejects platform fallback identity or custom-font promotion", async () => {
+test("rejects a current-source platform fallback or missing font", async () => {
   await validateMutation((artifact) => {
-    artifact.probe.observations[2].fonts[0].familyName = "Arial";
+    artifact.probe.observations[1].fonts[0].familyName = "Consolas";
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[8].fonts[0].postScriptName = "Consolas";
+    artifact.probe.observations[1].fonts[0].postScriptName = "Consolas";
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[9].fonts[0].customFont = true;
+    artifact.probe.observations[1].fonts[0].customFont = false;
   });
   await validateMutation((artifact) => {
-    artifact.probe.observations[11].fonts = [];
+    artifact.probe.observations[1].fonts = [];
   });
 });
 
@@ -146,7 +141,7 @@ test("rejects screenshot or summary substitution", async () => {
     artifact.screenshot.bytes += 1;
   });
   await validateMutation((artifact) => {
-    artifact.summary.platformFallbackObservationCount = 9;
+    artifact.summary.platformFallbackObservationCount = 1;
   });
   await validateMutation((artifact) => {
     artifact.summary.distinctFamilyNames.pop();

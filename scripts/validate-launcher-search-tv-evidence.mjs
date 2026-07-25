@@ -69,33 +69,33 @@ const EXPECTED_STATES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-    bytes: 87322,
-    sha256: "9cf90168726fd0798f121951249af4e1759ea4d2deb7007e15a3421a82ac8287",
+    bytes: 87298,
+    sha256: "d6205d9f2ce3e1c8244c8202e16dcccec410d6fcf9b04d66e80cd4fa94527121",
   },
   "no-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-    bytes: 60488,
-    sha256: "c3593515baa954309d653560f2f21a8607d887857646c35408f80c15b1346a12",
+    bytes: 60495,
+    sha256: "842330707cdfb1440e5d68425f839a9789fc99d0907d9dddd131504e22eefa3e",
   },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-    bytes: 105601,
-    sha256: "39ff9d5f1e6f89cee0b769324cf40b259fbccfe6ef66c170aa289ca30f1ebfaf",
+    bytes: 105671,
+    sha256: "bc88fc38e70ec9c927961df3ce3479b69a4fb29da5790ace10c41179a5dfbc57",
   },
   "no-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-    bytes: 77616,
-    sha256: "99f5058c2d096bae92f083cccb04809e4f1eba32a2a2fc9c1deb1e9c1db95361",
+    bytes: 77671,
+    sha256: "bd2e1a90aa81e815404132dbedfbcffe598bb6eb5018e114d69365b38bf034ad",
   },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-    bytes: 256781,
-    sha256: "a7f322fc0fbbe0257b08d6b403e9d980e3c5c2606ebcd76259305aa890817340",
+    bytes: 256838,
+    sha256: "73726fe4531dd85be98216c8aafb25f3143b7a8b9d4be9b3248b300dcbccfc7f",
   },
   "no-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-    bytes: 191832,
-    sha256: "75149754866be9418894ab3a56c715678f412958a798be700cb16319fe97193f",
+    bytes: 191868,
+    sha256: "c3b1565a03946923f64424e06d6bb3f94580f99559c821e145900f76d2edb342",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({

@@ -332,7 +332,7 @@
       <button class="accessibility-reset" type="button" onclick={onaccessibilityreset}>Reset accessibility settings</button>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
-      <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning…" : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
+      <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
     </section>
     <section data-settings-panel="storage" hidden={panel !== "storage"}>
       <div class="storage-meter"><div><span style="width:15%"></span></div><p><strong>38 GB used</strong><span>218 GB available / 256 GB total</span></p></div>

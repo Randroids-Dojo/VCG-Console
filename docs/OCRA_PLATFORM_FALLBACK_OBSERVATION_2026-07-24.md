@@ -2,14 +2,14 @@
 
 ## Result
 
-Chrome’s platform-font report confirms that the current production CSS stack
-does not produce one coherent fallback family on the Windows x64 development
-host. The exact OCR-A custom font renders the ASCII baseline and middle dot.
-The 10 current production-source characters missing from OCR-A are divided
-among Consolas, Cambria Math, and Segoe UI Symbol.
+Chrome's platform-font report confirms that the exact current static production
+source needs no platform fallback on the Windows x64 development host. The
+exact OCR-A custom font renders both the ASCII baseline and the only current
+non-ASCII source character, the middle dot.
 
-This is useful current-host evidence for I-147/Q-077. It is not a fallback
-selection, a target-Linux result, or a font qualification.
+This is useful current-host regression evidence for I-147/Q-077. It is not
+proof of dynamically supplied text, a target-Linux result, or a font
+qualification.
 
 ## Reproduce
 
@@ -25,10 +25,11 @@ node --test scripts/validate-ocra-platform-fallback-evidence.test.mjs
 
 The generator builds the production console app, loads its real stylesheet and
 `OCRA.ttf`, injects a diagnostic-only 1920x1080 grid, waits for the font, and
-queries Chrome’s `CSS.getPlatformFontsForNode` DevTools method for each
-single-character probe. It records one selected font and one rendered glyph
-per probe, the exact resource requests, errors, source-tree commitment,
-structural-evidence digest, and pixel-bound screenshot.
+queries Chrome's `CSS.getPlatformFontsForNode` DevTools method for the ASCII
+baseline and every current non-ASCII source code point. The generator fails if
+the probe set and structural source inventory diverge. It records one selected
+font and one rendered glyph per probe, the exact resource requests, errors,
+source-tree commitment, structural-evidence digest, and pixel-bound screenshot.
 
 The strict artifact is
 `benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json`.
@@ -49,24 +50,20 @@ Environment:
 | Selected family | Kind | Exact probes |
 |---|---|---|
 | OCRA | prepared custom font | `A`, `·` |
-| Consolas | Windows platform font | `×`, `—`, `’`, `…`, `○`, `●` |
-| Cambria Math | Windows platform font | `△`, `◆`, `◇` |
-| Segoe UI Symbol | Windows platform font | `✓` |
 
-The custom-font count is 2 of 12 probes. The platform-fallback count is 10 of
-12, matching the structural artifact’s 10 missing current-source code points.
+The custom-font count is 2 of 2 probes. The platform-fallback count is 0,
+matching the structural artifact's zero missing current-source code points.
 
-The four removed probes were navigation decoration: `U+2190 LEFTWARDS ARROW`,
-`U+2192 RIGHTWARDS ARROW`, `U+2197 NORTH EAST ARROW`, and
-`U+21BB CLOCKWISE OPEN CIRCLE ARROW`. Production now draws those marks with a
-shared first-party CSS primitive, keeps visible text as the accessible
-authority, and marks each decorative icon `aria-hidden`.
+Production now draws navigation, Search, ring, diamond, and pass-check
+decoration with first-party CSS geometry and uses OCR-A-safe text for the
+former multiplication, dash, smart-apostrophe, ellipsis, triangle, and filled
+circle characters. Visible text remains the accessible authority and every
+decorative element is `aria-hidden`.
 
-The result is more specific than “monospace fallback”: even on this one host,
-the browser moves through three platform resources. Cambria Math and Segoe UI
-Symbol are not named in the application CSS; Windows/Chrome selects them after
-the named stack cannot supply a glyph. Their observed presence does not grant
-permission to redistribute them or predict their presence on a Linux image.
+The zero-fallback result is intentionally narrow. User-authored profile names,
+future localization, service responses, or other dynamic strings may contain
+characters outside OCR-A and still fall through the named stack to an
+OS-selected font.
 
 ## Validation
 
@@ -74,8 +71,8 @@ Eleven tests accept the exact observation and reject:
 
 - format, date, platform, browser, viewport, or base-evidence substitution;
 - CSS stack, probe ordering, character, role, or overflow drift;
-- OCR-A identity, custom/platform classification, glyph count, or fallback
-  family substitution;
+- OCR-A identity, custom/platform classification, glyph count, or introduction
+  of a current-source platform fallback;
 - hidden browser errors, failed or missing requests, screenshot substitution,
   or summary drift;
 - stale structural/source/generator/validator provenance; and
@@ -85,12 +82,12 @@ Eleven tests accept the exact observation and reject:
 
 ## Claim boundary
 
-The evidence proves what one installed Windows Chrome build reported for the
-exact diagnostic probe and current production stack. It does not prove that a
-glyph is semantically appropriate, visually consistent, legible at seating
-distance, unclipped in every UI context, available on another machine, or
-licensed for bundling. The diagnostic grid is not a production route and does
-not show that every launcher state rendered.
+The evidence proves that one installed Windows Chrome build selected the exact
+custom OCRA font for every code point in the source-bound diagnostic probe. It
+does not prove dynamically supplied text coverage, semantic appropriateness,
+visual consistency, seating-distance legibility, every runtime state, another
+machine, or redistribution approval. The diagnostic grid is not a production
+route.
 
 Decisions remain in
 `OWNER_QUESTIONS_OCRA_PLATFORM_FALLBACK_2026-07-24.md` and the broader

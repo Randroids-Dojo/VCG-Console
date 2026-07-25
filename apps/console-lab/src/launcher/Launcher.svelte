@@ -1106,18 +1106,18 @@
         <header class="view-header"><div><p class="view-kicker">RETRO HUB</p><h1>One library.<br />No clutter.</h1></div><p>RetroArch runs beneath the VCG shell so Home, loading, and recovery stay consistent.</p></header>
         {#if nativePackageInventoryState === "checking"}
           <div class="empty-library" aria-live="polite">
-            <span class="empty-glyph" aria-hidden="true">○</span>
+            <span class="empty-glyph" aria-hidden="true"></span>
             <div><strong>Checking installed retro catalog</strong><p>Waiting for the authenticated native console host.</p></div>
           </div>
         {:else if nativePackageInventoryState === "unavailable"}
           <div class="empty-library">
-            <span class="empty-glyph" aria-hidden="true">○</span>
+            <span class="empty-glyph" aria-hidden="true"></span>
             <div><strong>Installed retro catalog unavailable</strong><p>Connect the native console host to verify signed local packages.</p></div>
             <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
           </div>
         {:else if !hasInstalledRetroPackage()}
           <div class="empty-library">
-            <span class="empty-glyph" aria-hidden="true">○</span>
+            <span class="empty-glyph" aria-hidden="true"></span>
             <div><strong>No retro packages installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
             <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
           </div>

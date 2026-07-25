@@ -200,7 +200,7 @@
       <ul>
         <li>A visible three-second countdown comes before the fixture.</li>
         <li>The temporary preview is discarded on Retake, Back, Home, or expiry.</li>
-        <li>Accept replaces only this profile’s previous synthetic preview.</li>
+        <li>Accept replaces only this profile's previous synthetic preview.</li>
         <li>No face recognition, embedding, body matching, export, backup, cloud, diagnostics, support, or recovery-image path exists here.</li>
       </ul>
       <p class="portrait-family-gate">A real household portrait remains disabled until notice, adult consent and child assent where applicable, vault protection, deletion, exclusion, security, privacy, and legal gates pass.</p>

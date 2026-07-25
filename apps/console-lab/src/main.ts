@@ -1043,7 +1043,7 @@ function paintLeaderboard(): void {
     }
   }
   storageStatus.textContent = !snapshot.persistenceAvailable
-    ? "LOCAL STORAGE UNAVAILABLE — THIS SESSION'S SCORES WILL NOT SURVIVE RELOAD."
+    ? "LOCAL STORAGE UNAVAILABLE - THIS SESSION'S SCORES WILL NOT SURVIVE RELOAD."
     : snapshot.recoveredMalformedData
       ? "MALFORMED LOCAL SCORE DATA WAS REMOVED. THE BOARD RECOVERED EMPTY."
       : `${snapshot.entries.length} OF 20 LOCAL RUNS RETAINED.`;

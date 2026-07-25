@@ -307,7 +307,7 @@
         class:synthetic-portrait={profile.portraitPresent}
         class="managed-profile-orbit"
         aria-hidden="true"
-      >{profile.portraitPresent ? "◆" : profile.name.slice(0, 1).toUpperCase()}</div>
+      >{profile.portraitPresent ? "" : profile.name.slice(0, 1).toUpperCase()}</div>
       <div>
         <p class="view-kicker">SELECTED OPAQUE PROFILE</p>
         <h2 id="managed-profile-title">{profile.name}</h2>

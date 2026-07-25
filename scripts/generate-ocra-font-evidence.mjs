@@ -13,11 +13,11 @@ import {
 export const OCRA_EVIDENCE_FORMAT = "vcg-ocra-font-structural-evidence/v1";
 export const OCRA_EVIDENCE_DATE = "2026-07-24";
 export const OCRA_CLAIM_BOUNDARY =
-  "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and fallback requirement for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove glyph shape, rendered fallback identity, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.";
+  "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and direct font coverage for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove dynamically supplied text coverage, glyph shape, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.";
 export const OCRA_LIMITATIONS = Object.freeze([
   "The audit reads sfnt tables and source text; it does not rasterize glyphs, compare shapes, measure readability, or exercise a physical television.",
   "Non-ASCII source inventory includes code points present in production .css, .svelte, and .ts files, but source presence does not prove every runtime state rendered or every dynamically supplied string.",
-  "The CSS fallback stack names platform families rather than a pinned redistributable fallback, so missing-glyph appearance can vary by operating system and installed fonts.",
+  "Current static production-source text is directly covered, but dynamically supplied profile names or future localization may still use the platform fallback stack and vary by operating system and installed fonts.",
   "The upstream Public Domain label and repository notice are provenance evidence, not a legal conclusion or final redistribution approval.",
 ]);
 

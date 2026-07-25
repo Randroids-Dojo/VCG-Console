@@ -66,13 +66,13 @@ const EXPECTED_SURFACES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-catalog/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
-    bytes: 159541,
-    sha256: "c0e6f5d21e7e32497419146516f9ce2f5ef8787688dac6a4d3f2f2565ef434ac",
+    bytes: 159596,
+    sha256: "3e59a409c553ca3d5b2c786cbd776d344e39bb06016abe00876fa14d20dc54c9",
   },
   "wifi-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 154367,
-    sha256: "c946b7bf18be01d5aa662faeee8395e86be3def0076263ac81c5261d022ccb3a",
+    bytes: 154468,
+    sha256: "c0e204a2862780b4d27aa00dbb7a0c010181e3e0a024a005d750ee92a9aafaca",
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
@@ -81,13 +81,13 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "motion-catalog/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
-    bytes: 244293,
-    sha256: "1e4c4009e112e0baf512a2d4dfb90a5e5ac2a44afec894926b0bd6d37b5f6aa6",
+    bytes: 244646,
+    sha256: "d1dd7fdc603a476fae056c577928c5ed88cc6e1b7c08999cd7a52229e5e35645",
   },
   "wifi-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 233525,
-    sha256: "37c4be7c7db20f3f361511697e9ccc5ec891ceeff99017175342a03dad649359",
+    bytes: 233643,
+    sha256: "48c6799e3bfdf93b3726761935e147f6372626f670fbbc0e50f3f660def550b2",
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
@@ -96,13 +96,13 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "motion-catalog/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
-    bytes: 616931,
-    sha256: "e8b16c68dc583fdbac05362c66e1f38868ba3ff52f3f02ab814da6de3d830f82",
+    bytes: 617270,
+    sha256: "e16f9ec60d3d3f65b9eb32ddb23504a9b07b4322ddda2350c54ec032552e5db6",
   },
   "wifi-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 628063,
-    sha256: "5bcd0db137c5778dd8aab82bf2464ec1b66eb8886b95dae867cd29cbd9f73cb5",
+    bytes: 628313,
+    sha256: "75c6e8b43420a637809ab0a693420acf34efadc53cd79f089886ee686af40df7",
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",

@@ -4,14 +4,14 @@ These questions are isolated from the reproducible observation. No answer is
 required to retain the evidence, but the current Windows result must not be
 promoted into a release font policy without them.
 
-## PFO-001: Mixed platform appearance
+## PFO-001: Dynamic platform fallback
 
-Is it acceptable for current launcher symbols to come from three visually
-different platform fonts on Windows?
+May user-authored profile names, future localization, or other dynamic strings
+fall through to OS-installed fonts when OCR-A lacks a character?
 
-Safe default: no. Treat the current result as a defect-discovery observation,
-not approval. Require one pinned, rights-reviewed fallback or first-party icon
-set before visual qualification.
+Safe default: no for release qualification. The current static source has zero
+observed platform fallbacks, but a pinned, rights-reviewed dynamic-text fallback
+or an explicitly narrower input/locale contract is still required.
 
 ## PFO-002: Navigation-critical symbols
 
@@ -23,10 +23,12 @@ glyphs hidden from assistive technology, and replace navigation-critical
 decoration with a small first-party SVG set whose geometry is tested at every
 required scale.
 
-Current prototype status: Search, Back, Continue/Open, Retry, and external
-navigation now use shared first-party CSS geometry with visible adjacent text
-and `aria-hidden` decoration. The remaining decision is whether that primitive
-is the release asset or an interim implementation before a versioned icon set.
+Current prototype status: all current static navigation, status, profile,
+controller, empty-state, and pass-check decoration either uses shared
+first-party CSS geometry or OCR-A-safe text. Visible adjacent text remains the
+authority and decoration is `aria-hidden`. The remaining decision is whether
+that primitive is the release asset or an interim implementation before a
+versioned icon set.
 
 ## PFO-003: Target-image dependency
 

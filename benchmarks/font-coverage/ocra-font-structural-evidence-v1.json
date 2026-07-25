@@ -552,36 +552,15 @@
       {
         "id": "console-source-non-ascii",
         "description": "Every non-ASCII code point present in console-lab production CSS, Svelte, and TypeScript source.",
-        "codePointCount": 11,
+        "codePointCount": 1,
         "codePoints": [
-          "U+00B7",
-          "U+00D7",
-          "U+2014",
-          "U+2019",
-          "U+2026",
-          "U+25B3",
-          "U+25C6",
-          "U+25C7",
-          "U+25CB",
-          "U+25CF",
-          "U+2713"
+          "U+00B7"
         ],
         "covered": [
           "U+00B7"
         ],
-        "missing": [
-          "U+00D7",
-          "U+2014",
-          "U+2019",
-          "U+2026",
-          "U+25B3",
-          "U+25C6",
-          "U+25C7",
-          "U+25CB",
-          "U+25CF",
-          "U+2713"
-        ],
-        "fullyCovered": false,
+        "missing": [],
+        "fullyCovered": true,
         "disposition": "Missing code points require a fallback or non-font asset; this audit does not approve either."
       },
       {
@@ -746,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 814322,
+      "totalBytes": 814869,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -865,23 +844,23 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 53746,
-          "sha256": "7382861197feee6d7bf318a9f889979085b3452baee9f63c12d857f21f303e70"
+          "bytes": 53737,
+          "sha256": "2f0a3ad7af0c22f213efcef847a02b8f1d876124edfb0d1c8c61826cace0e7c2"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
-          "bytes": 8692,
-          "sha256": "35960c6fb36400c989e15ad1c57f5ce5511772c6cc160833aa573e7b817bcd7c"
+          "bytes": 8690,
+          "sha256": "74cb896df485c9cb383029b81ef9f8feb4f1e91023f0f46f3421ae33360bcd8a"
         },
         {
           "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
-          "bytes": 19418,
-          "sha256": "d62fb51edd3b8b88a7b519ed11ecc6e01396aac6283c2d33628d22151f5fd960"
+          "bytes": 19415,
+          "sha256": "66eb4f66e6fc1b181ee7855e074c1334ee51a464b8a867355712b13ea5afd675"
         },
         {
           "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
-          "bytes": 2825,
-          "sha256": "d88a63848e8e4e9e1958c47935bbfc7febf064011abe4ad683ab3443c9072dd0"
+          "bytes": 2822,
+          "sha256": "be11867da2c4c62e27c207a6f4caf58ec188658c6a6fa9cbd10577f50f5c3c38"
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
@@ -890,18 +869,18 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
-          "bytes": 6211,
-          "sha256": "94f792ed93b0bbcca495f7c96157da65239095d474001198cee4421092fe6d3d"
+          "bytes": 6205,
+          "sha256": "024545c85403fb1e83a6aaa1d2164c3e92d3fcef8fd47b113913fb8cce6d76a0"
         },
         {
           "path": "apps/console-lab/src/launcher/SettingsView.svelte",
           "bytes": 22458,
-          "sha256": "bd5ce022b10823daeacd27a5c67abdc8d3e4c78e4f141971a01abfc190a8a231"
+          "sha256": "93cb8fcb8b7521ae96b7ddf921d482bd396a38911ff6a7c22ba6138e29ef38f3"
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-          "bytes": 14419,
-          "sha256": "32e46d42024288beb3532606597fa0df150db8a17f0ca915f9d8205ac6aa0a13"
+          "bytes": 14408,
+          "sha256": "7542a7c53bf86b5e763aa8fcd10862141b7f6f85605877ddde4c39957b3e7cb9"
         },
         {
           "path": "apps/console-lab/src/launcher/accessibility-preferences.test.ts",
@@ -1045,8 +1024,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 52667,
-          "sha256": "3f756b74a73b15bcb56909c1f50326c80857624b8df6feba0127e5389f24e487"
+          "bytes": 52665,
+          "sha256": "de5d57356fb3cd851896b8b86685802cc3255d097c70c02ecdd6f6abad385aa7"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1120,8 +1099,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 99987,
-          "sha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10"
+          "bytes": 100570,
+          "sha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1297,169 +1276,6 @@
               ]
             }
           ]
-        },
-        {
-          "codePoint": "U+00D7",
-          "character": "×",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                2033
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2014",
-          "character": "—",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/main.ts",
-              "lines": [
-                1046
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                410
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2019",
-          "character": "’",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
-              "lines": [
-                203
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-              "lines": [
-                354,
-                364
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2026",
-          "character": "…",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/SettingsView.svelte",
-              "lines": [
-                335
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+25B3",
-          "character": "△",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                2025
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+25C6",
-          "character": "◆",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
-              "lines": [
-                310
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
-              "lines": [
-                49
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+25C7",
-          "character": "◇",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
-              "lines": [
-                61
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                1105
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+25CB",
-          "character": "○",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/Launcher.svelte",
-              "lines": [
-                1109,
-                1114,
-                1120
-              ]
-            },
-            {
-              "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-              "lines": [
-                265
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+25CF",
-          "character": "●",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/styles.css",
-              "lines": [
-                2037
-              ]
-            }
-          ]
-        },
-        {
-          "codePoint": "U+2713",
-          "character": "✓",
-          "fontCovered": false,
-          "occurrences": [
-            {
-              "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
-              "lines": [
-                151
-              ]
-            }
-          ]
         }
       ]
     },
@@ -1467,10 +1283,10 @@
       "fontCodePointCount": 114,
       "printableAsciiCodePointCount": 95,
       "printableAsciiMissingCount": 0,
-      "productionSourceNonAsciiCodePointCount": 11,
+      "productionSourceNonAsciiCodePointCount": 1,
       "productionSourceNonAsciiCoveredCount": 1,
-      "productionSourceNonAsciiMissingCount": 10,
-      "fallbackRequired": true
+      "productionSourceNonAsciiMissingCount": 0,
+      "fallbackRequired": false
     }
   },
   "provenance": {
@@ -1479,11 +1295,11 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10",
+    "stylePathSha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
-    "generatorPathSha256": "fa6a2c8a0ee69416ab91de78b41f32364bcb07086b907488de2e57018a749ef2",
+    "generatorPathSha256": "3747a813df98cc59f97b8585af7a510d8d47058c99e10745201ed83c6048a44c",
     "validatorPath": "scripts/validate-ocra-font-evidence.mjs",
     "validatorPathSha256": "1d5d3183f3ed3e7620bb805fec8afcd5febdb03276197a77befa4a35a90555bd"
   },
@@ -1491,8 +1307,8 @@
     "structuralInventoryVerified": true,
     "exactFontIdentityVerified": true,
     "printableAsciiCovered": true,
-    "allProductionSourceNonAsciiCoveredByOcra": false,
-    "fallbackRequired": true,
+    "allProductionSourceNonAsciiCoveredByOcra": true,
+    "fallbackRequired": false,
     "fallbackIdentityVerified": false,
     "glyphShapesVerified": false,
     "tvLegibilityVerified": false,
@@ -1501,11 +1317,11 @@
     "redistributionApproved": false,
     "productionReady": false
   },
-  "claimBoundary": "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and fallback requirement for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove glyph shape, rendered fallback identity, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.",
+  "claimBoundary": "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and direct font coverage for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove dynamically supplied text coverage, glyph shape, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.",
   "limitations": [
     "The audit reads sfnt tables and source text; it does not rasterize glyphs, compare shapes, measure readability, or exercise a physical television.",
     "Non-ASCII source inventory includes code points present in production .css, .svelte, and .ts files, but source presence does not prove every runtime state rendered or every dynamically supplied string.",
-    "The CSS fallback stack names platform families rather than a pinned redistributable fallback, so missing-glyph appearance can vary by operating system and installed fonts.",
+    "Current static production-source text is directly covered, but dynamically supplied profile names or future localization may still use the platform fallback stack and vary by operating system and installed fonts.",
     "The upstream Public Domain label and repository notice are provenance evidence, not a legal conclusion or final redistribution approval."
   ]
 }

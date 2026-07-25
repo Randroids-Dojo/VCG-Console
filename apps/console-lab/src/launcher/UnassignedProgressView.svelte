@@ -262,7 +262,7 @@
 
 {#if snapshot.entries.length === 0}
   <section class="unassigned-empty" aria-live="polite">
-    <span aria-hidden="true">○</span>
+    <span aria-hidden="true"></span>
     <div>
       <h2>No unassigned progress</h2>
       <p>Deleting or resetting a profile may preserve compatible console-managed saves here without retaining the deleted profile identity.</p>
@@ -351,7 +351,7 @@
             </button>
           {/if}
           <button class="danger" type="button" onclick={() => resolveConflict("replace")}>
-            <strong>Replace profile slot</strong><small>Permanently remove the profile’s current slot</small>
+          <strong>Replace profile slot</strong><small>Permanently remove the profile's current slot</small>
           </button>
           <button type="button" onclick={() => closeFlow()}>
             <strong>Keep current profile progress</strong><small>Cancel this claim safely</small>
@@ -361,7 +361,7 @@
         <p class="view-kicker">CLAIM / CONFIRM</p>
         <h2 id="unassigned-dialog-title">Claim {selected.slotLabel} to {targetProfile.name}?</h2>
         {#if pendingClaim.conflictResolution === "replace"}
-          <p class="dialog-warning">This would permanently replace {targetProfile.name}’s existing {selected.gameTitle} slot. There is no backup or undo.</p>
+        <p class="dialog-warning">This would permanently replace {targetProfile.name}'s existing {selected.gameTitle} slot. There is no backup or undo.</p>
         {:else if pendingClaim.conflictResolution === "keep-both"}
           <p>The existing profile slot remains, and this progress becomes a separate recovered slot.</p>
         {:else}
