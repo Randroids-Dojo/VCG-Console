@@ -10,6 +10,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
+use std::sync::{Arc, Mutex};
 
 use ed25519_dalek::{Signature, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -497,6 +498,12 @@ struct ActiveDeveloperSession {
     session_ordinal: u64,
 }
 
+#[derive(Debug)]
+struct DeveloperSessionLiveness {
+    active: bool,
+    expires_at_ms: u64,
+}
+
 /// Unforgeable-by-data capability returned only after successful signature
 /// verification. It is deliberately non-serializable.
 #[derive(Debug)]
@@ -522,6 +529,7 @@ pub struct DeveloperSessionAuthority {
     pending_challenge: Option<DeveloperSessionChallenge>,
     active_session: Option<ActiveDeveloperSession>,
     used_request_ids: BTreeSet<String>,
+    liveness: Arc<Mutex<DeveloperSessionLiveness>>,
     closed: bool,
 }
 
@@ -558,6 +566,10 @@ impl DeveloperSessionAuthority {
             pending_challenge: None,
             active_session: None,
             used_request_ids: BTreeSet::new(),
+            liveness: Arc::new(Mutex::new(DeveloperSessionLiveness {
+                active: true,
+                expires_at_ms,
+            })),
             closed: false,
         })
     }
@@ -699,6 +711,7 @@ impl DeveloperSessionAuthority {
             workstation_id: capability.workstation_id.clone(),
             session_ordinal: capability.session_ordinal,
             request,
+            liveness: Arc::clone(&self.liveness),
         })
     }
 
@@ -741,6 +754,10 @@ impl DeveloperSessionAuthority {
 
     /// Closes developer mode and invalidates every challenge/capability.
     pub fn close(&mut self) {
+        match self.liveness.lock() {
+            Ok(mut liveness) => liveness.active = false,
+            Err(poisoned) => poisoned.into_inner().active = false,
+        }
         self.closed = true;
         self.pending_challenge = None;
         self.active_session = None;
@@ -751,11 +768,26 @@ impl DeveloperSessionAuthority {
         if self.closed {
             return Err(DeveloperPairingError::DeveloperSessionClosed);
         }
+        let liveness_active = self
+            .liveness
+            .lock()
+            .map_err(|_| DeveloperPairingError::SessionStatePoisoned)?
+            .active;
+        if !liveness_active {
+            self.close();
+            return Err(DeveloperPairingError::DeveloperSessionExpired);
+        }
         if now_ms >= self.expires_at_ms {
             self.close();
             return Err(DeveloperPairingError::DeveloperSessionExpired);
         }
         Ok(())
+    }
+}
+
+impl Drop for DeveloperSessionAuthority {
+    fn drop(&mut self) {
+        self.close();
     }
 }
 
@@ -845,11 +877,12 @@ impl DeveloperOperationRequest {
 }
 
 /// Exact operation admitted by one live developer session.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug)]
 pub struct AuthorizedDeveloperOperation {
     workstation_id: String,
     session_ordinal: u64,
     request: DeveloperOperationRequest,
+    liveness: Arc<Mutex<DeveloperSessionLiveness>>,
 }
 
 impl AuthorizedDeveloperOperation {
@@ -866,6 +899,24 @@ impl AuthorizedDeveloperOperation {
     #[must_use]
     pub const fn request(&self) -> &DeveloperOperationRequest {
         &self.request
+    }
+
+    pub(crate) fn with_live_session<T>(
+        &self,
+        now_ms: u64,
+        operation: impl FnOnce() -> T,
+    ) -> Result<T, DeveloperPairingError> {
+        let mut liveness = self
+            .liveness
+            .lock()
+            .map_err(|_| DeveloperPairingError::SessionStatePoisoned)?;
+        if now_ms >= liveness.expires_at_ms {
+            liveness.active = false;
+        }
+        if !liveness.active {
+            return Err(DeveloperPairingError::StaleSessionCapability);
+        }
+        Ok(operation())
     }
 }
 
@@ -984,6 +1035,7 @@ pub enum DeveloperPairingError {
     ChallengeExpired,
     InvalidSessionSignature,
     StaleSessionCapability,
+    SessionStatePoisoned,
     InvalidIdentifier {
         kind: &'static str,
         value: String,
@@ -1090,6 +1142,9 @@ impl fmt::Display for DeveloperPairingError {
             Self::StaleSessionCapability => {
                 formatter.write_str("developer session capability is stale")
             }
+            Self::SessionStatePoisoned => {
+                formatter.write_str("developer session liveness state is unavailable")
+            }
             Self::InvalidIdentifier { kind, value } => {
                 write!(formatter, "{kind} ID is invalid: {value}")
             }
@@ -1111,6 +1166,9 @@ impl Error for DeveloperPairingError {}
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+    use std::thread;
+
     use ed25519_dalek::{Signer, SigningKey};
 
     use super::*;
@@ -1405,6 +1463,113 @@ mod tests {
             .expect("operation admitted");
         assert_eq!(authorized.workstation_id(), workstation_id);
         assert_eq!(authorized.session_ordinal(), 1);
+    }
+
+    #[test]
+    fn authorized_operations_share_volatile_close_drop_and_expiry_state() {
+        for mode in ["close", "drop", "expiry"] {
+            let key = SigningKey::from_bytes(&[27; 32]);
+            let (mut authority, capability, _) = authenticated_session(&key);
+            let authorized = authority
+                .authorize_operation(
+                    &capability,
+                    DeveloperOperationRequest::new(
+                        format!("request-{mode}"),
+                        DeveloperOperation::Launch {
+                            deployment_id: "build-1".to_owned(),
+                        },
+                    )
+                    .expect("request"),
+                    130,
+                )
+                .expect("operation admitted");
+            assert_eq!(
+                authorized
+                    .with_live_session(140, || "live")
+                    .expect("session live"),
+                "live"
+            );
+            let now_ms = match mode {
+                "close" => {
+                    authority.close();
+                    141
+                }
+                "drop" => {
+                    drop(authority);
+                    141
+                }
+                "expiry" => 1_000,
+                _ => unreachable!(),
+            };
+            assert!(matches!(
+                authorized.with_live_session(now_ms, || ()),
+                Err(DeveloperPairingError::StaleSessionCapability)
+            ));
+        }
+    }
+
+    #[test]
+    fn authority_close_linearizes_after_current_operation_use() {
+        let key = SigningKey::from_bytes(&[28; 32]);
+        let (mut authority, capability, _) = authenticated_session(&key);
+        let authorized = authority
+            .authorize_operation(
+                &capability,
+                DeveloperOperationRequest::new(
+                    "request-linearized-close",
+                    DeveloperOperation::Push {
+                        deployment_id: "build-1".to_owned(),
+                        artifact_sha256: "ab".repeat(32),
+                        artifact_bytes: 1,
+                    },
+                )
+                .expect("request"),
+                130,
+            )
+            .expect("operation admitted");
+        let (entered_tx, entered_rx) = mpsc::channel();
+        let (release_tx, release_rx) = mpsc::channel();
+        let (closed_for_worker_tx, closed_for_worker_rx) = mpsc::channel();
+        let (stale_tx, stale_rx) = mpsc::channel();
+        let worker = thread::spawn(move || {
+            authorized
+                .with_live_session(140, || {
+                    entered_tx.send(()).expect("report entered gate");
+                    release_rx.recv().expect("release gate");
+                })
+                .expect("current operation finishes");
+            closed_for_worker_rx
+                .recv()
+                .expect("close completion reaches worker");
+            stale_tx
+                .send(matches!(
+                    authorized.with_live_session(141, || ()),
+                    Err(DeveloperPairingError::StaleSessionCapability)
+                ))
+                .expect("report stale");
+        });
+        entered_rx.recv().expect("operation holds gate");
+
+        let (attempting_tx, attempting_rx) = mpsc::channel();
+        let (closed_tx, closed_rx) = mpsc::channel();
+        let closer = thread::spawn(move || {
+            attempting_tx.send(()).expect("report close attempt");
+            authority.close();
+            closed_tx.send(()).expect("report close");
+        });
+        attempting_rx.recv().expect("close attempted");
+        assert!(matches!(
+            closed_rx.try_recv(),
+            Err(mpsc::TryRecvError::Empty)
+        ));
+        release_tx.send(()).expect("release current operation");
+        closed_rx.recv().expect("close completes after release");
+        closed_for_worker_tx
+            .send(())
+            .expect("report close completion to worker");
+        assert!(stale_rx.recv().expect("stale result"));
+        worker.join().expect("worker");
+        closer.join().expect("closer");
     }
 
     #[test]

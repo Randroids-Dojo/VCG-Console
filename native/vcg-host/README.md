@@ -114,16 +114,19 @@ modes cannot be combined. See the
 
 ## Boundary
 
-- `developer_artifact`: consumes one authorized Push, receives exact bounded
-  bytes, verifies SHA-256, atomically publishes a canonical path-free receipt
-  plus inert developer-only blob, fully revalidates a retained handle, blocks
-  durable request replay, and explicitly removes only safe incomplete staging.
-  It selects no transport/archive, extracts nothing, installs nothing, grants
-  no production authority, executes nothing, and has no retention/removal
-  policy.
+- `developer_artifact`: consumes one authorized Push into a non-cloneable
+  transfer that shares volatile session liveness, receives bounded retryable
+  same-process chunks, supports exact cancellation, verifies incremental and
+  full-readback SHA-256, atomically publishes a canonical path-free receipt
+  plus inert developer-only blob only while live, fully revalidates a retained
+  handle, blocks durable request replay, and explicitly removes only safe
+  incomplete staging. It selects no transport/archive or durable resume,
+  extracts nothing, installs nothing, grants no production authority, executes
+  nothing, and has no retention/removal policy.
 - `developer_pairing`: strict canonical key-derived workstation registry,
   exact external generation/digest protection, two-phase pair/revoke
-  transitions, volatile Ed25519 possession challenges, and replay-bounded
+  transitions, volatile Ed25519 possession challenges, shared operation
+  liveness through close/drop/expiry, and replay-bounded
   Push/Launch/ReadLogs/Restart/Rollback admission. It opens no listener,
   protects no private key, encrypts no traffic, installs no artifact, and
   executes no operation.

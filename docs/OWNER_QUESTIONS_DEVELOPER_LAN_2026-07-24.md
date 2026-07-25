@@ -98,9 +98,11 @@ terminal states, and cleanup of every uncommitted partial object.
 
 Current evidence: whole-artifact Push receipt now uses the session request ID
 as a durable no-replay key, verifies exact length/hash, publishes atomically,
-and discards incomplete staging rather than resuming it after the volatile
-session is lost. Chunked encrypted transport retry and the other four
-operations remain unselected.
+and shares volatile liveness with its originating session. The native handoff
+supports nonempty chunks up to 1 MiB, retry after a proven no-write failure,
+exact cancellation even after session loss, and discard rather than writable
+resume after process/session loss. Network framing, acknowledgements, durable
+cross-process resume, and the other four operations remain unselected.
 
 ## DL-010: workflow acceptance gate
 

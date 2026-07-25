@@ -1,8 +1,9 @@
 # Developer-only artifact receipt
 
-Status: native inert receipt implemented; encrypted transport, archive format,
-installation, sandbox, launch, logs, rollback, cleanup policy, and target
-qualification are not implemented.
+Status: native session-bound inert receipt, same-process chunk retry, and
+explicit cancellation implemented; encrypted transport, durable cross-process
+resume, archive format, installation, sandbox, launch, logs, rollback, cleanup
+policy, and target qualification are not implemented.
 
 ## Purpose
 
@@ -51,8 +52,11 @@ That unforgeable-by-data object is created only after:
 3. an exact Ed25519 possession challenge; and
 4. an unused bounded operation request ID.
 
-The object is consumed at receipt admission. The canonical receipt retains
-only:
+The object is consumed into a non-cloneable, non-serializable pending-transfer
+capability at receipt admission. Authorization and transfer share one volatile
+session-liveness gate. Closing, dropping, or expiring the session authority
+waits for any current store mutation, then prevents every later append and
+publication. The canonical receipt retains only:
 
 - schema version;
 - request ID;
@@ -66,7 +70,7 @@ There is no path, IP address, username, profile identity, package authority,
 command, argument, environment, URL, credential, secret, arbitrary method, or
 free text.
 
-## Receipt and publication
+## Receipt, retry, cancellation, and publication
 
 One nonblocking store lock serializes cooperating mutations and reads.
 Publication:
@@ -76,19 +80,35 @@ Publication:
 3. caps ready request directories at 1,024;
 4. creates, synchronizes, and re-canonicalizes one exact direct staging
    directory;
-5. writes and synchronizes the canonical receipt;
-6. reads at most the declared byte length plus one;
-7. requires the exact nonzero length, up to the admission layer's 8 GiB
+5. writes and synchronizes the canonical receipt and empty artifact;
+6. accepts only nonempty same-process chunks no larger than 1 MiB, with fresh
+   trusted monotonic time for every call;
+7. revalidates the exact receipt, staging layout, and current file length
+   before every append;
+8. permits the identical chunk to be retried only after an error such as lock
+   contention proves that no byte was written;
+9. requires the exact nonzero total length, up to the admission layer's 8 GiB
    ceiling;
-8. calculates SHA-256 while writing and requires the exact authorized digest;
-9. synchronizes the inert artifact and transaction directory;
-10. atomically renames the complete transaction into `ready`; and
-11. synchronizes the staging and ready parents where the platform exposes
+10. calculates incremental SHA-256 and requires the exact authorized digest;
+11. completely reopens and rehashes the staged artifact before publication;
+12. holds the volatile session gate through that readback and the atomic
+    staging-directory rename into `ready`; and
+13. synchronizes the staging and ready parents where the platform exposes
     directory synchronization.
 
 Short, long, changed, or unreadable sources never publish. Their partial
 transaction remains in `staging`, blocks later publication, and requires
 explicit recovery.
+
+Explicit cancellation consumes the pending capability and removes only its
+exact canonical receipt and current-length artifact under the same store lock.
+It remains available after session loss. Any ambiguous I/O or changed staging
+state fails closed and leaves recovery to the stricter whole-staging pass.
+
+Retry is deliberately not durable. Incremental SHA-256 and session authority
+exist only in memory. Dropping the transfer, losing the process, leaving
+developer mode, or rebooting never reconstructs authority from writable
+staging; the next open must discard the validated incomplete directory.
 
 ## Recovery
 
@@ -123,11 +143,18 @@ immutability after the handle leaves this module.
 
 ## Automated evidence
 
-Eight Rust tests cover:
+Fifteen Rust tests cover:
 
 - exact receipt, publication, retained-handle read, and reload;
 - non-Push denial before mutation;
 - short, long, and changed sources plus explicit recovery;
+- lock-contention retry without duplicated bytes;
+- close, authority drop, and expiry stopping later chunks;
+- live-session enforcement through final publication;
+- empty, excessive, overrun, and cross-store chunk refusal before mutation;
+- wrong complete digest remaining inert;
+- exact explicit cancellation; and
+- dropped-transfer refusal plus restart-style recovery;
 - durable cross-session request replay refusal;
 - artifact, receipt, and extra-file tamper rejection;
 - nonblocking operation-lock contention;
@@ -141,9 +168,9 @@ Focused tests, crate formatting, and strict Clippy pass.
 This is inert receipt, not developer deployment. I-102 still requires:
 
 - the reviewed mutually authenticated encrypted receiver;
-- active-session cancellation during a slow or disconnected receive;
 - target-protected keys and monotonic trust state;
-- durable authenticated transfer retry semantics chosen under DL-009;
+- durable authenticated cross-process transfer retry semantics chosen under
+  DL-009, if the selected transport needs them;
 - a selected inert archive format and hostile parser;
 - capacity reservation and real developer namespace quota;
 - malware/content review policy where required;
@@ -154,4 +181,3 @@ This is inert receipt, not developer deployment. I-102 still requires:
 - bounded audit UI and controller-only recovery; and
 - hostile-LAN, same-account writer, reboot, disk-full, corruption, and sudden
   power-loss evidence on ARM64 and x86-64 Linux.
-

@@ -28,6 +28,7 @@ const ARTIFACT_FILE: &str = "artifact.bin";
 const MAX_RECEIPT_BYTES: u64 = 4 * 1_024;
 const COPY_BUFFER_BYTES: usize = 64 * 1_024;
 pub const MAX_READY_DEVELOPER_ARTIFACTS: usize = 1_024;
+pub const MAX_DEVELOPER_TRANSFER_CHUNK_BYTES: usize = 1_024 * 1_024;
 
 /// Preprovisioned developer-only artifact store.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -103,9 +104,47 @@ impl ReadyDeveloperArtifact {
     }
 }
 
+/// Volatile authority for one incomplete developer artifact receipt.
+///
+/// This value is deliberately non-serializable and non-cloneable. It retains
+/// the exact authorized Push plus incremental SHA-256 state. Dropping it never
+/// publishes or removes bytes; explicit cancellation or restart recovery must
+/// discard its inert staging directory.
+#[derive(Debug)]
+pub struct PendingDeveloperArtifact {
+    authorization: AuthorizedDeveloperOperation,
+    receipt: DeveloperArtifactReceipt,
+    store_root: PathBuf,
+    received_bytes: u64,
+    hasher: Sha256,
+}
+
+impl PendingDeveloperArtifact {
+    #[must_use]
+    pub fn request_id(&self) -> &str {
+        &self.receipt.request_id
+    }
+
+    #[must_use]
+    pub fn deployment_id(&self) -> &str {
+        &self.receipt.deployment_id
+    }
+
+    #[must_use]
+    pub const fn expected_bytes(&self) -> u64 {
+        self.receipt.artifact_bytes
+    }
+
+    #[must_use]
+    pub const fn received_bytes(&self) -> u64 {
+        self.received_bytes
+    }
+}
+
 /// Serialized inert developer-artifact receipt store.
 #[derive(Clone, Debug)]
 pub struct DeveloperArtifactStore {
+    root: PathBuf,
     staging: PathBuf,
     ready: PathBuf,
     operation_lock: PathBuf,
@@ -141,6 +180,7 @@ impl DeveloperArtifactStore {
             &root.join(OPERATION_LOCK_FILE),
         )?;
         Ok(Self {
+            root,
             staging,
             ready,
             operation_lock,
@@ -160,14 +200,145 @@ impl DeveloperArtifactStore {
     /// requests, full stores, short/long/changed input, unsafe state, or I/O
     /// failure. Any failed transfer remains inert in `staging` until explicit
     /// recovery; no failed byte becomes ready.
-    pub fn publish_authorized_push(
+    pub fn publish_authorized_push<C>(
         &self,
         authorization: AuthorizedDeveloperOperation,
         source: &mut impl Read,
-    ) -> Result<ReadyDeveloperArtifact, DeveloperArtifactError> {
+        mut trusted_now_ms: C,
+    ) -> Result<ReadyDeveloperArtifact, DeveloperArtifactError>
+    where
+        C: FnMut() -> u64,
+    {
+        let mut transfer = self.begin_authorized_push(authorization, trusted_now_ms())?;
+        let mut buffer = vec![0_u8; COPY_BUFFER_BYTES];
+        loop {
+            let count = source
+                .read(&mut buffer)
+                .map_err(|_| DeveloperArtifactError::SourceRead)?;
+            if count == 0 {
+                break;
+            }
+            self.append_authorized_push(&mut transfer, &buffer[..count], trusted_now_ms())?;
+        }
+        self.finalize_authorized_push(transfer, trusted_now_ms())
+    }
+
+    /// Starts one same-process, session-bound developer Push.
+    ///
+    /// The authorization is consumed into a non-serializable transfer. The
+    /// canonical receipt and an empty artifact are synchronized in staging,
+    /// but nothing becomes ready.
+    ///
+    /// # Errors
+    ///
+    /// Rejects inactive/non-Push authority, lock contention, pending recovery,
+    /// duplicate requests, full stores, or unsafe state.
+    pub fn begin_authorized_push(
+        &self,
+        authorization: AuthorizedDeveloperOperation,
+        now_ms: u64,
+    ) -> Result<PendingDeveloperArtifact, DeveloperArtifactError> {
         let receipt = receipt_from_authorization(&authorization)?;
-        drop(authorization);
-        self.with_lock(|store| store.publish_locked(&receipt, source))
+        authorization
+            .with_live_session(now_ms, || {
+                self.with_lock(|store| store.begin_locked(&receipt))
+            })
+            .map_err(|_| DeveloperArtifactError::SessionInactive)??;
+        Ok(PendingDeveloperArtifact {
+            authorization,
+            receipt,
+            store_root: self.root.clone(),
+            received_bytes: 0,
+            hasher: Sha256::new(),
+        })
+    }
+
+    /// Appends one bounded retryable chunk to an active Push.
+    ///
+    /// A caller may retry the same chunk only when this method returns before
+    /// writing it, such as `Busy`. Any I/O ambiguity leaves staging inert and
+    /// requires cancellation or recovery. Fresh trusted monotonic time is
+    /// required for every call.
+    ///
+    /// # Errors
+    ///
+    /// Rejects an inactive session, another store, empty/excessive/overrun
+    /// chunks, changed staging state, lock contention, or I/O failure.
+    pub fn append_authorized_push(
+        &self,
+        transfer: &mut PendingDeveloperArtifact,
+        chunk: &[u8],
+        now_ms: u64,
+    ) -> Result<u64, DeveloperArtifactError> {
+        self.require_transfer_store(transfer)?;
+        if chunk.is_empty() {
+            return Err(DeveloperArtifactError::EmptyChunk);
+        }
+        if chunk.len() > MAX_DEVELOPER_TRANSFER_CHUNK_BYTES {
+            return Err(DeveloperArtifactError::ChunkTooLarge {
+                maximum: MAX_DEVELOPER_TRANSFER_CHUNK_BYTES,
+            });
+        }
+        let PendingDeveloperArtifact {
+            authorization,
+            receipt,
+            received_bytes,
+            hasher,
+            ..
+        } = transfer;
+        authorization
+            .with_live_session(now_ms, || {
+                self.with_lock(|store| store.append_locked(receipt, received_bytes, hasher, chunk))
+            })
+            .map_err(|_| DeveloperArtifactError::SessionInactive)?
+    }
+
+    /// Publishes one complete Push while its originating session is live.
+    ///
+    /// The incremental digest and a complete readback must both match the
+    /// authorization. Publication is the staging-directory rename.
+    ///
+    /// # Errors
+    ///
+    /// Rejects inactive authority, incomplete/changed bytes, another store,
+    /// lock contention, unsafe state, or I/O failure.
+    pub fn finalize_authorized_push(
+        &self,
+        transfer: PendingDeveloperArtifact,
+        now_ms: u64,
+    ) -> Result<ReadyDeveloperArtifact, DeveloperArtifactError> {
+        self.require_transfer_store(&transfer)?;
+        let PendingDeveloperArtifact {
+            authorization,
+            receipt,
+            received_bytes,
+            hasher,
+            ..
+        } = transfer;
+        authorization
+            .with_live_session(now_ms, || {
+                self.with_lock(|store| store.finalize_locked(&receipt, received_bytes, &hasher))
+            })
+            .map_err(|_| DeveloperArtifactError::SessionInactive)?
+    }
+
+    /// Explicitly discards one incomplete Push, including after session loss.
+    ///
+    /// # Errors
+    ///
+    /// Rejects another store, changed or unsafe staging state, lock
+    /// contention, or I/O failure.
+    pub fn cancel_authorized_push(
+        &self,
+        transfer: PendingDeveloperArtifact,
+    ) -> Result<(), DeveloperArtifactError> {
+        self.require_transfer_store(&transfer)?;
+        let PendingDeveloperArtifact {
+            receipt,
+            received_bytes,
+            ..
+        } = transfer;
+        self.with_lock(|store| store.cancel_locked(&receipt, received_bytes))
     }
 
     /// Reloads and completely revalidates one ready receipt and artifact.
@@ -199,11 +370,10 @@ impl DeveloperArtifactStore {
         self.with_lock(Self::recover_locked)
     }
 
-    fn publish_locked(
+    fn begin_locked(
         &self,
         receipt: &DeveloperArtifactReceipt,
-        source: &mut impl Read,
-    ) -> Result<ReadyDeveloperArtifact, DeveloperArtifactError> {
+    ) -> Result<(), DeveloperArtifactError> {
         if !self.staging_entries()?.is_empty() {
             return Err(DeveloperArtifactError::RecoveryRequired);
         }
@@ -235,8 +405,109 @@ impl DeveloperArtifactStore {
         let receipt_path = staging_path.join(RECEIPT_FILE);
         write_receipt(&receipt_path, receipt)?;
         let artifact_path = staging_path.join(ARTIFACT_FILE);
-        receive_exact_artifact(&artifact_path, receipt, source)?;
+        let artifact = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&artifact_path)
+            .map_err(|source| DeveloperArtifactError::Io {
+                operation: "create developer artifact bytes",
+                path: artifact_path,
+                source,
+            })?;
+        artifact
+            .sync_all()
+            .map_err(|source| DeveloperArtifactError::Io {
+                operation: "synchronize empty developer artifact",
+                path: staging_path.join(ARTIFACT_FILE),
+                source,
+            })?;
         sync_directory(&staging_path)?;
+        Ok(())
+    }
+
+    fn append_locked(
+        &self,
+        receipt: &DeveloperArtifactReceipt,
+        received_bytes: &mut u64,
+        hasher: &mut Sha256,
+        chunk: &[u8],
+    ) -> Result<u64, DeveloperArtifactError> {
+        let next_received = received_bytes
+            .checked_add(u64::try_from(chunk.len()).map_err(|_| {
+                DeveloperArtifactError::InvalidReceipt(
+                    "developer artifact chunk length overflowed".to_owned(),
+                )
+            })?)
+            .ok_or_else(|| {
+                DeveloperArtifactError::InvalidReceipt(
+                    "developer artifact byte count overflowed".to_owned(),
+                )
+            })?;
+        if next_received > receipt.artifact_bytes {
+            return Err(DeveloperArtifactError::ArtifactLengthMismatch {
+                expected: receipt.artifact_bytes,
+                actual: next_received,
+            });
+        }
+        let transaction = self.validate_pending(receipt, *received_bytes)?;
+        let artifact_path = transaction.join(ARTIFACT_FILE);
+        let mut artifact = OpenOptions::new()
+            .append(true)
+            .open(&artifact_path)
+            .map_err(|source| DeveloperArtifactError::Io {
+                operation: "open incomplete developer artifact",
+                path: artifact_path.clone(),
+                source,
+            })?;
+        artifact
+            .write_all(chunk)
+            .and_then(|()| artifact.sync_data())
+            .map_err(|source| DeveloperArtifactError::Io {
+                operation: "append developer artifact chunk",
+                path: artifact_path,
+                source,
+            })?;
+        hasher.update(chunk);
+        *received_bytes = next_received;
+        Ok(next_received)
+    }
+
+    fn finalize_locked(
+        &self,
+        receipt: &DeveloperArtifactReceipt,
+        received_bytes: u64,
+        hasher: &Sha256,
+    ) -> Result<ReadyDeveloperArtifact, DeveloperArtifactError> {
+        if received_bytes != receipt.artifact_bytes {
+            return Err(DeveloperArtifactError::ArtifactLengthMismatch {
+                expected: receipt.artifact_bytes,
+                actual: received_bytes,
+            });
+        }
+        if encode_hex(&hasher.clone().finalize()) != receipt.artifact_sha256 {
+            return Err(DeveloperArtifactError::ArtifactDigestMismatch);
+        }
+        let staging_path = self.validate_pending(receipt, received_bytes)?;
+        let artifact_path = canonical_direct_file(
+            "incomplete developer artifact bytes",
+            &staging_path,
+            &staging_path.join(ARTIFACT_FILE),
+        )?;
+        let mut artifact =
+            File::open(&artifact_path).map_err(|source| DeveloperArtifactError::Io {
+                operation: "open complete developer artifact",
+                path: artifact_path.clone(),
+                source,
+            })?;
+        verify_artifact(&mut artifact, &artifact_path, receipt)?;
+        drop(artifact);
+        sync_directory(&staging_path)?;
+        let ready_path = self.ready.join(&receipt.request_id);
+        if path_exists(&ready_path)? {
+            return Err(DeveloperArtifactError::DuplicateRequest(
+                receipt.request_id.clone(),
+            ));
+        }
         fs::rename(&staging_path, &ready_path).map_err(|source| DeveloperArtifactError::Io {
             operation: "publish ready developer artifact",
             path: ready_path.clone(),
@@ -245,6 +516,71 @@ impl DeveloperArtifactStore {
         sync_directory(&self.staging)?;
         sync_directory(&self.ready)?;
         self.load_ready_locked(&receipt.request_id)
+    }
+
+    fn cancel_locked(
+        &self,
+        receipt: &DeveloperArtifactReceipt,
+        received_bytes: u64,
+    ) -> Result<(), DeveloperArtifactError> {
+        let transaction = self.validate_pending(receipt, received_bytes)?;
+        fs::remove_dir_all(&transaction).map_err(|source| DeveloperArtifactError::Io {
+            operation: "cancel incomplete developer artifact",
+            path: transaction,
+            source,
+        })?;
+        sync_directory(&self.staging)
+    }
+
+    fn validate_pending(
+        &self,
+        receipt: &DeveloperArtifactReceipt,
+        received_bytes: u64,
+    ) -> Result<PathBuf, DeveloperArtifactError> {
+        let transaction = canonical_direct_directory(
+            "incomplete developer artifact",
+            &self.staging,
+            &self.staging.join(&receipt.request_id),
+        )?;
+        require_exact_children(&transaction, &[ARTIFACT_FILE, RECEIPT_FILE])?;
+        let receipt_path = canonical_direct_file(
+            "incomplete developer artifact receipt",
+            &transaction,
+            &transaction.join(RECEIPT_FILE),
+        )?;
+        if read_receipt(&receipt_path)? != *receipt {
+            return Err(DeveloperArtifactError::ReceiptBindingMismatch);
+        }
+        let artifact_path = canonical_direct_file(
+            "incomplete developer artifact bytes",
+            &transaction,
+            &transaction.join(ARTIFACT_FILE),
+        )?;
+        let actual = fs::metadata(&artifact_path)
+            .map_err(|source| DeveloperArtifactError::Io {
+                operation: "inspect incomplete developer artifact",
+                path: artifact_path,
+                source,
+            })?
+            .len();
+        if actual != received_bytes {
+            return Err(DeveloperArtifactError::ArtifactLengthMismatch {
+                expected: received_bytes,
+                actual,
+            });
+        }
+        Ok(transaction)
+    }
+
+    fn require_transfer_store(
+        &self,
+        transfer: &PendingDeveloperArtifact,
+    ) -> Result<(), DeveloperArtifactError> {
+        if transfer.store_root == self.root {
+            Ok(())
+        } else {
+            Err(DeveloperArtifactError::TransferStoreMismatch)
+        }
     }
 
     fn load_ready_locked(
@@ -365,82 +701,6 @@ fn receipt_from_authorization(
     };
     validate_receipt(&receipt)?;
     Ok(receipt)
-}
-
-fn receive_exact_artifact(
-    path: &Path,
-    receipt: &DeveloperArtifactReceipt,
-    source: &mut impl Read,
-) -> Result<(), DeveloperArtifactError> {
-    let mut artifact = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(path)
-        .map_err(|source| DeveloperArtifactError::Io {
-            operation: "create developer artifact bytes",
-            path: path.to_owned(),
-            source,
-        })?;
-    let mut hasher = Sha256::new();
-    let mut received = 0_u64;
-    let mut buffer = vec![0_u8; COPY_BUFFER_BYTES];
-    loop {
-        let remaining_plus_one = receipt
-            .artifact_bytes
-            .saturating_sub(received)
-            .saturating_add(1);
-        let limit = usize::try_from(remaining_plus_one)
-            .unwrap_or(usize::MAX)
-            .min(buffer.len());
-        let count = source
-            .read(&mut buffer[..limit])
-            .map_err(|_| DeveloperArtifactError::SourceRead)?;
-        if count == 0 {
-            break;
-        }
-        received = received
-            .checked_add(u64::try_from(count).map_err(|_| {
-                DeveloperArtifactError::InvalidReceipt(
-                    "developer artifact read count overflowed".to_owned(),
-                )
-            })?)
-            .ok_or_else(|| {
-                DeveloperArtifactError::InvalidReceipt(
-                    "developer artifact byte count overflowed".to_owned(),
-                )
-            })?;
-        if received > receipt.artifact_bytes {
-            return Err(DeveloperArtifactError::ArtifactLengthMismatch {
-                expected: receipt.artifact_bytes,
-                actual: received,
-            });
-        }
-        artifact
-            .write_all(&buffer[..count])
-            .map_err(|source| DeveloperArtifactError::Io {
-                operation: "write developer artifact bytes",
-                path: path.to_owned(),
-                source,
-            })?;
-        hasher.update(&buffer[..count]);
-    }
-    if received != receipt.artifact_bytes {
-        return Err(DeveloperArtifactError::ArtifactLengthMismatch {
-            expected: receipt.artifact_bytes,
-            actual: received,
-        });
-    }
-    let actual_digest = encode_hex(&hasher.finalize());
-    if actual_digest != receipt.artifact_sha256 {
-        return Err(DeveloperArtifactError::ArtifactDigestMismatch);
-    }
-    artifact
-        .sync_all()
-        .map_err(|source| DeveloperArtifactError::Io {
-            operation: "synchronize developer artifact bytes",
-            path: path.to_owned(),
-            source,
-        })
 }
 
 fn verify_artifact(
@@ -884,6 +1144,12 @@ pub enum DeveloperArtifactError {
     },
     InvalidReceipt(String),
     PushAuthorityRequired,
+    SessionInactive,
+    TransferStoreMismatch,
+    EmptyChunk,
+    ChunkTooLarge {
+        maximum: usize,
+    },
     Busy,
     RecoveryRequired,
     DuplicateRequest(String),
@@ -925,6 +1191,19 @@ impl fmt::Display for DeveloperArtifactError {
             }
             Self::PushAuthorityRequired => {
                 formatter.write_str("developer artifact receipt requires Push authority")
+            }
+            Self::SessionInactive => {
+                formatter.write_str("developer artifact session is no longer active")
+            }
+            Self::TransferStoreMismatch => {
+                formatter.write_str("developer artifact transfer belongs to another store")
+            }
+            Self::EmptyChunk => formatter.write_str("developer artifact transfer chunk is empty"),
+            Self::ChunkTooLarge { maximum } => {
+                write!(
+                    formatter,
+                    "developer artifact transfer chunk exceeds {maximum} bytes"
+                )
             }
             Self::Busy => formatter.write_str("developer artifact store is busy"),
             Self::RecoveryRequired => {
@@ -1039,7 +1318,7 @@ mod tests {
     fn authorized_operation(
         request_id: &str,
         operation: DeveloperOperation,
-    ) -> AuthorizedDeveloperOperation {
+    ) -> (DeveloperSessionAuthority, AuthorizedDeveloperOperation) {
         let key = SigningKey::from_bytes(&[71; 32]);
         let registry = active_registry(&key);
         let workstation_id = registry
@@ -1060,20 +1339,21 @@ mod tests {
                 120,
             )
             .expect("authenticate");
-        authority
+        let operation = authority
             .authorize_operation(
                 &capability,
                 DeveloperOperationRequest::new(request_id, operation).expect("request"),
                 130,
             )
-            .expect("authorize")
+            .expect("authorize");
+        (authority, operation)
     }
 
     fn authorized_push(
         request_id: &str,
         deployment_id: &str,
         bytes: &[u8],
-    ) -> AuthorizedDeveloperOperation {
+    ) -> (DeveloperSessionAuthority, AuthorizedDeveloperOperation) {
         authorized_operation(
             request_id,
             DeveloperOperation::Push {
@@ -1088,12 +1368,10 @@ mod tests {
     fn publishes_exact_authorized_bytes_and_revalidates_a_retained_handle() {
         let fixture = StoreFixture::new();
         let bytes = b"exact developer artifact";
+        let (_authority, operation) = authorized_push("request-1", "build-1", bytes);
         let mut ready = fixture
             .store
-            .publish_authorized_push(
-                authorized_push("request-1", "build-1", bytes),
-                &mut Cursor::new(bytes),
-            )
+            .publish_authorized_push(operation, &mut Cursor::new(bytes), || 130)
             .expect("artifact publishes");
         assert_eq!(ready.request_id(), "request-1");
         assert_eq!(ready.deployment_id(), "build-1");
@@ -1125,7 +1403,7 @@ mod tests {
     #[test]
     fn rejects_non_push_authority_before_store_mutation() {
         let fixture = StoreFixture::new();
-        let authority = authorized_operation(
+        let (_authority, operation) = authorized_operation(
             "request-launch",
             DeveloperOperation::Launch {
                 deployment_id: "build-1".to_owned(),
@@ -1134,7 +1412,7 @@ mod tests {
         assert!(matches!(
             fixture
                 .store
-                .publish_authorized_push(authority, &mut Cursor::new(b"unused")),
+                .publish_authorized_push(operation, &mut Cursor::new(b"unused"), || 130),
             Err(DeveloperArtifactError::PushAuthorityRequired)
         ));
         assert!(fixture.store.staging_entries().expect("staging").is_empty());
@@ -1150,10 +1428,11 @@ mod tests {
         ] {
             let fixture = StoreFixture::new();
             let request_id = format!("request-{ordinal}");
-            let result = fixture.store.publish_authorized_push(
-                authorized_push(&request_id, "build-1", declared),
-                &mut Cursor::new(actual),
-            );
+            let (_authority, operation) = authorized_push(&request_id, "build-1", declared);
+            let result =
+                fixture
+                    .store
+                    .publish_authorized_push(operation, &mut Cursor::new(actual), || 130);
             assert!(matches!(
                 result,
                 Err(DeveloperArtifactError::ArtifactLengthMismatch { .. }
@@ -1161,10 +1440,15 @@ mod tests {
             ));
             assert!(fixture.store.ready_entries().expect("ready").is_empty());
             assert!(matches!(
-                fixture.store.publish_authorized_push(
-                    authorized_push("request-next", "build-2", b"next"),
-                    &mut Cursor::new(b"next"),
-                ),
+                {
+                    let (_next_authority, next_operation) =
+                        authorized_push("request-next", "build-2", b"next");
+                    fixture.store.publish_authorized_push(
+                        next_operation,
+                        &mut Cursor::new(b"next"),
+                        || 130,
+                    )
+                },
                 Err(DeveloperArtifactError::RecoveryRequired)
             ));
             assert_eq!(fixture.store.recover_incomplete().expect("recover"), 1);
@@ -1176,20 +1460,254 @@ mod tests {
     fn durable_request_identity_rejects_cross_session_replay() {
         let fixture = StoreFixture::new();
         let bytes = b"developer build";
+        let (_authority, operation) = authorized_push("request-replay", "build-1", bytes);
         fixture
             .store
-            .publish_authorized_push(
-                authorized_push("request-replay", "build-1", bytes),
-                &mut Cursor::new(bytes),
-            )
+            .publish_authorized_push(operation, &mut Cursor::new(bytes), || 130)
             .expect("first push");
+        let (_replay_authority, replay_operation) =
+            authorized_push("request-replay", "build-2", b"other");
         assert!(matches!(
             fixture.store.publish_authorized_push(
-                authorized_push("request-replay", "build-2", b"other"),
+                replay_operation,
                 &mut Cursor::new(b"other"),
+                || 130,
             ),
             Err(DeveloperArtifactError::DuplicateRequest(_))
         ));
+    }
+
+    #[test]
+    fn chunked_transfer_retries_only_an_uncommitted_chunk() {
+        let fixture = StoreFixture::new();
+        let bytes = b"retryable developer build";
+        let (_authority, operation) = authorized_push("request-chunks", "build-1", bytes);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        assert_eq!(transfer.request_id(), "request-chunks");
+        assert_eq!(transfer.deployment_id(), "build-1");
+        assert_eq!(transfer.expected_bytes(), bytes.len() as u64);
+        assert_eq!(transfer.received_bytes(), 0);
+
+        let operation_lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(fixture.root.join(OPERATION_LOCK_FILE))
+            .expect("lock file");
+        fs4::FileExt::try_lock(&operation_lock).expect("hold operation lock");
+        assert!(matches!(
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, &bytes[..9], 140),
+            Err(DeveloperArtifactError::Busy)
+        ));
+        assert_eq!(transfer.received_bytes(), 0);
+        fs4::FileExt::unlock(&operation_lock).expect("release operation lock");
+
+        assert_eq!(
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, &bytes[..9], 141)
+                .expect("retry succeeds"),
+            9
+        );
+        assert_eq!(
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, &bytes[9..], 142)
+                .expect("remainder succeeds"),
+            bytes.len() as u64
+        );
+        let mut ready = fixture
+            .store
+            .finalize_authorized_push(transfer, 143)
+            .expect("complete transfer publishes");
+        let mut actual = Vec::new();
+        ready
+            .reader()
+            .expect("ready reader")
+            .read_to_end(&mut actual)
+            .expect("read ready");
+        assert_eq!(actual, bytes);
+    }
+
+    #[test]
+    fn session_close_drop_and_expiry_stop_incomplete_transfers() {
+        for mode in ["close", "drop", "expiry"] {
+            let fixture = StoreFixture::new();
+            let bytes = b"session-bound build";
+            let (mut authority, operation) = authorized_push("request-session", "build-1", bytes);
+            let mut transfer = fixture
+                .store
+                .begin_authorized_push(operation, 130)
+                .expect("transfer begins");
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, &bytes[..7], 140)
+                .expect("first chunk");
+            let next_time = match mode {
+                "close" => {
+                    authority.close();
+                    141
+                }
+                "drop" => {
+                    drop(authority);
+                    141
+                }
+                "expiry" => 1_000,
+                _ => unreachable!(),
+            };
+            assert!(matches!(
+                fixture
+                    .store
+                    .append_authorized_push(&mut transfer, &bytes[7..], next_time),
+                Err(DeveloperArtifactError::SessionInactive)
+            ));
+            assert_eq!(transfer.received_bytes(), 7);
+            assert!(fixture.store.ready_entries().expect("ready").is_empty());
+            fixture
+                .store
+                .cancel_authorized_push(transfer)
+                .expect("inactive transfer cancels");
+            assert!(fixture.store.staging_entries().expect("staging").is_empty());
+        }
+    }
+
+    #[test]
+    fn session_must_remain_live_through_atomic_publication() {
+        let fixture = StoreFixture::new();
+        let bytes = b"complete but not published";
+        let (mut authority, operation) =
+            authorized_push("request-close-finalize", "build-1", bytes);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        fixture
+            .store
+            .append_authorized_push(&mut transfer, bytes, 140)
+            .expect("complete bytes");
+        authority.close();
+        assert!(matches!(
+            fixture.store.finalize_authorized_push(transfer, 141),
+            Err(DeveloperArtifactError::SessionInactive)
+        ));
+        assert!(fixture.store.ready_entries().expect("ready").is_empty());
+        assert_eq!(fixture.store.recover_incomplete().expect("recover"), 1);
+    }
+
+    #[test]
+    fn chunk_bounds_overrun_and_store_binding_fail_before_writing() {
+        let fixture = StoreFixture::new();
+        let other = StoreFixture::new();
+        let bytes = b"bounded";
+        let (_authority, operation) = authorized_push("request-bounds", "build-1", bytes);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        assert!(matches!(
+            other.store.append_authorized_push(&mut transfer, b"x", 131),
+            Err(DeveloperArtifactError::TransferStoreMismatch)
+        ));
+        assert!(matches!(
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, b"", 132),
+            Err(DeveloperArtifactError::EmptyChunk)
+        ));
+        assert!(matches!(
+            fixture.store.append_authorized_push(
+                &mut transfer,
+                &vec![0; MAX_DEVELOPER_TRANSFER_CHUNK_BYTES + 1],
+                133
+            ),
+            Err(DeveloperArtifactError::ChunkTooLarge { .. })
+        ));
+        assert!(matches!(
+            fixture
+                .store
+                .append_authorized_push(&mut transfer, b"bounded-overrun", 134),
+            Err(DeveloperArtifactError::ArtifactLengthMismatch { .. })
+        ));
+        assert_eq!(transfer.received_bytes(), 0);
+        fixture
+            .store
+            .append_authorized_push(&mut transfer, bytes, 135)
+            .expect("valid chunk remains usable");
+        fixture
+            .store
+            .finalize_authorized_push(transfer, 136)
+            .expect("valid transfer publishes");
+    }
+
+    #[test]
+    fn wrong_complete_digest_remains_inert_until_recovery() {
+        let fixture = StoreFixture::new();
+        let declared = b"declared";
+        let changed = b"changed!";
+        let (_authority, operation) = authorized_push("request-digest", "build-1", declared);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        fixture
+            .store
+            .append_authorized_push(&mut transfer, changed, 131)
+            .expect("same-length changed bytes append");
+        assert!(matches!(
+            fixture.store.finalize_authorized_push(transfer, 132),
+            Err(DeveloperArtifactError::ArtifactDigestMismatch)
+        ));
+        assert!(fixture.store.ready_entries().expect("ready").is_empty());
+        assert_eq!(fixture.store.recover_incomplete().expect("recover"), 1);
+    }
+
+    #[test]
+    fn explicit_cancellation_removes_only_its_bound_incomplete_receipt() {
+        let fixture = StoreFixture::new();
+        let bytes = b"cancel this transfer";
+        let (_authority, operation) = authorized_push("request-cancel", "build-1", bytes);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        fixture
+            .store
+            .append_authorized_push(&mut transfer, &bytes[..6], 131)
+            .expect("partial bytes");
+        fixture
+            .store
+            .cancel_authorized_push(transfer)
+            .expect("exact cancellation");
+        assert!(fixture.store.staging_entries().expect("staging").is_empty());
+        assert!(fixture.store.ready_entries().expect("ready").is_empty());
+    }
+
+    #[test]
+    fn dropped_transfer_is_never_resumed_from_writable_staging() {
+        let fixture = StoreFixture::new();
+        let bytes = b"restart boundary";
+        let (_authority, operation) = authorized_push("request-dropped", "build-1", bytes);
+        let mut transfer = fixture
+            .store
+            .begin_authorized_push(operation, 130)
+            .expect("transfer begins");
+        fixture
+            .store
+            .append_authorized_push(&mut transfer, &bytes[..7], 131)
+            .expect("partial bytes");
+        drop(transfer);
+
+        let (_next_authority, next_operation) = authorized_push("request-next", "build-2", b"next");
+        assert!(matches!(
+            fixture.store.begin_authorized_push(next_operation, 132),
+            Err(DeveloperArtifactError::RecoveryRequired)
+        ));
+        assert_eq!(fixture.store.recover_incomplete().expect("recover"), 1);
+        assert!(fixture.store.staging_entries().expect("staging").is_empty());
     }
 
     #[test]
@@ -1197,12 +1715,10 @@ mod tests {
         for mutation in ["artifact", "receipt", "extra"] {
             let fixture = StoreFixture::new();
             let bytes = b"developer build";
+            let (_authority, operation) = authorized_push("request-tamper", "build-1", bytes);
             fixture
                 .store
-                .publish_authorized_push(
-                    authorized_push("request-tamper", "build-1", bytes),
-                    &mut Cursor::new(bytes),
-                )
+                .publish_authorized_push(operation, &mut Cursor::new(bytes), || 130)
                 .expect("push");
             let ready = fixture.root.join(READY_DIRECTORY).join("request-tamper");
             match mutation {

@@ -5042,10 +5042,58 @@ controller-only time to first launch.
 
 ### Remaining boundary
 
-This is an inert whole-artifact handoff, not a LAN receiver or developer
-package system. Encrypted transport, active-transfer cancellation and retry,
-target-protected keys/state, archive selection/parsing, capacity reservation,
-installer/activation, immutable execution handoff, sandbox, launch/log/restart/
-rollback/removal, retention/save/audit policy, hostile same-account writers,
+At this checkpoint the whole-artifact handoff was not a LAN receiver or
+developer package system. The following D-172 tranche closes only
+same-process active-transfer retry/cancellation and live-session publication.
+Encrypted transport/durable resume, target-protected keys/state, archive
+selection/parsing, capacity reservation, installer/activation, immutable
+execution handoff, sandbox, launch/log/restart/rollback/removal,
+retention/save/audit policy, hostile same-account writers,
 disk-full/corruption/power-loss behavior, and both target tiers remain under
 I-102 and the dedicated owner questions.
+
+## 2026-07-24: session-bound developer transfer control
+
+### Delivered
+
+- Extended every authorized developer operation with shared volatile session
+  liveness. Closing, dropping, or expiring the developer authority waits for a
+  current admitted mutation and prevents every later use of the operation.
+- Replaced one-shot receipt internals with a non-cloneable,
+  non-serializable pending Push capability that retains its exact authorization,
+  receipt binding, current length, and incremental SHA-256 only in memory.
+- Added nonempty same-process chunks capped at 1 MiB. Every append requires
+  fresh trusted monotonic time, the originating live session, the exact store,
+  the exact canonical receipt/layout, and the current file length.
+- Made retry explicit and narrow: lock contention proves no byte was written,
+  so the same chunk may be retried; any write/synchronization ambiguity leaves
+  staging inert for exact cancellation or recovery.
+- Required the live-session gate through complete staged readback, exact
+  incremental/full digest agreement, and the publication rename. Windows
+  verification closes the pre-publication handle before directory rename, then
+  ready loading opens and completely revalidates the published bytes.
+- Added exact cancellation that consumes the pending capability and removes
+  only its bound canonical incomplete receipt/artifact, including after
+  session loss. Dropped transfers and reboot never reconstruct authority or
+  SHA state from writable staging.
+- Recorded D-172 and updated DL-009 without selecting network framing,
+  acknowledgements, or durable cross-process resume.
+
+### Verification evidence
+
+- Thirteen pairing tests and fifteen artifact tests pass. New adversarial cases
+  cover shared close/drop/expiry liveness, close linearization against a
+  current mutation, lock-contention retry without duplicate bytes, publication
+  after close, empty/oversized/overrun chunks, cross-store transfer misuse,
+  wrong complete digest, exact cancellation, and dropped-transfer recovery.
+- Explicit-file formatting and strict crate Clippy pass.
+
+### Remaining boundary
+
+I-102 remains active. This tranche controls a same-process inert receipt; it
+does not provide the mutually authenticated encrypted listener, protected
+console/workstation keys and monotonic state, durable network resume, reserved
+input/UI, archive parsing, installation/activation, sandbox, launch/log/restart/
+rollback/removal, capacity/retention/audit policy, hostile same-account
+containment, target-filesystem power-loss evidence, or either Linux-tier
+qualification.

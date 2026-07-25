@@ -265,20 +265,24 @@ operations and exact request replay state. This rejects writable trust
 rollback, same-generation substitution, unexplained jumps, wrong/stale keys,
 expiry, and arbitrary command/path/URL authority. It still opens no listener,
 encrypts no traffic, protects no private key or monotonic state, consumes no
-reserved input, stores no developer artifact, and executes no operation.
+reserved input, and executes no operation by itself.
 Hostile-LAN, stolen-key, link/reboot/interruption, logging, namespace, and
 target-platform evidence therefore remain blocking.
 
 An isolated developer-artifact store now consumes only the admitted Push
-object, binds its request/workstation/session/deployment/length/digest into a
-canonical receipt, accepts exact bytes only, atomically publishes an inert blob
-after synchronization, completely rehashes its retained handle on reload, and
-removes only prevalidated incomplete staging after session loss. Short, long,
-changed, replayed, tampered, foreign-layout, and lock-contention cases fail
-closed. The store has no archive parser, installer, executable handoff,
-sandbox, log, rollback, retention/removal policy, production catalog
-authority, active-transfer cancellation, hostile same-account race defense, or
-target durability evidence.
+object into a non-cloneable transfer that shares the session's volatile
+liveness gate. Close, authority drop, or expiry linearizes against each
+mutation and blocks later chunks or publication. The store binds
+request/workstation/session/deployment/length/digest into a canonical receipt,
+accepts at most 1 MiB per same-process retryable chunk, supports exact
+cancellation after session loss, atomically publishes only after incremental
+and full-readback hashes match, completely rehashes its retained handle on
+reload, and removes only prevalidated incomplete staging after process loss.
+Short, long, changed, replayed, tampered, foreign-layout, cross-store, expired,
+and lock-contention cases fail closed. The store has no encrypted transport,
+durable resume, archive parser, installer, executable handoff, sandbox, log,
+rollback, retention/removal policy, production catalog authority, hostile
+same-account race defense, or target durability evidence.
 
 The browser also retains at most 256 closed diagnostic codes in memory. Codes
 derive subsystem/severity and have no caller text or payload field. A frozen

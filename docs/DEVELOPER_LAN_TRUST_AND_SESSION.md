@@ -104,7 +104,10 @@ Only an exact Ed25519 signature from the currently protected workstation key
 opens a non-serializable capability. Wrong-key, substituted, stale, expired,
 unknown-workstation, duplicate, and concurrent challenge attempts fail closed.
 Closing or expiring the authority clears the challenge, live session, and
-request replay set. Reboot cannot restore any of them from disk.
+request replay set. Every admitted operation shares a volatile liveness gate
+with that authority. Closing, dropping, or expiring the authority waits for a
+current admitted mutation and then rejects all later use of the operation.
+Reboot cannot restore any of them from disk.
 
 The signature proves key possession for this console-generated volatile
 challenge. It does not provide confidentiality, channel binding, peer-address
@@ -142,12 +145,14 @@ process services. It does not:
 - enter the family or production catalog.
 
 The separate `developer_artifact` module now consumes only an authorized Push,
-receives the complete declared bytes, verifies exact length and SHA-256, and
+retains its volatile liveness in a non-serializable pending transfer, receives
+bounded retryable same-process chunks, verifies exact length and SHA-256, and
 atomically publishes one inert developer-only blob plus a canonical path-free
-receipt. It revalidates the complete blob through a retained handle before
-reuse and explicitly discards only safe incomplete staging state after a lost
-session. See `DEVELOPER_ARTIFACT_RECEIPT.md`. It does not implement any of the
-install, execution, log, restart, rollback, or removal operations above.
+receipt only while the session remains live. It supports exact cancellation,
+revalidates the complete blob through a retained handle before reuse, and
+explicitly discards safe incomplete staging after a lost process/session. See
+`DEVELOPER_ARTIFACT_RECEIPT.md`. It does not implement durable transport
+resume or any install, execution, log, restart, rollback, or removal operation.
 
 ## Required integration behavior
 
@@ -172,7 +177,7 @@ A conforming future service must:
 
 ## Automated evidence
 
-Eleven Rust tests cover:
+Thirteen Rust tests cover:
 
 - the sole canonical empty registry and rejection of unknown/noncanonical
   fields;
@@ -184,6 +189,9 @@ Eleven Rust tests cover:
 - exact trusted-key signature admission;
 - unknown, wrong-key, substituted, and expired challenges;
 - close, expiry, invalid randomness, and excessive lifetime;
+- shared operation-liveness invalidation on authority close, drop, and expiry;
+- close waiting for a current authorized mutation before later use becomes
+  stale;
 - immediate capability invalidation before any trust mutation is published;
   and
 - the closed operation vocabulary, unsafe IDs/digests/sizes, and request
@@ -202,6 +210,7 @@ I-102 remains active. Closure still requires the choices in
 encrypted transport, target-protected console and workstation keys, real
 listener lifecycle, reserved-input integration, pairing and revocation UI,
 developer archive/extraction/install/launch/log/rollback/removal services,
-capacity and retention policy, audit retention,
+durable cross-process transport retry if selected, capacity and retention
+policy, audit retention,
 hostile-LAN and stolen-key tests, interruption/reboot tests, target ARM64 and
 x86-64 Linux evidence, and measured controller-only time to first launch.
