@@ -5649,3 +5649,35 @@ fixtures do not inject kernel OOM. Q-247/Q-248 still require exact systemd
 scope creation, atomic attachment and anti-escape/entry rules, memory
 controller/limit/group policy, non-reuse, recovery selection, real target OOM
 and hostile-descendant campaigns, and separate qualified GPU evidence.
+
+## 2026-07-24: persistent native diagnostic data-exclusion integration
+
+### Delivered
+
+- Added a qualification-only Rust example that materializes the actual
+  bounded `NativeDiagnosticStore` with one fixed closed code from every
+  producer and accepts no diagnostic text, identity, or payload.
+- Added an I-186 integration that inventories the complete released
+  13-file/15-entry layout, requires every file to stay bounded, scans it twice
+  for a repeatable path-free commitment, and rejects five synthetic field
+  canaries, two stable vault path segments, and an exact seeded-source digest.
+- Added a separate materialized positive tree that must find all eight signal
+  IDs without disclosing canary or path values.
+- Recorded D-181 and Q-249 without adding native export authority or claiming
+  production support, crash, RAM/swap/core, target, or general
+  personal-information absence.
+
+### Verification evidence
+
+- The ten reusable verifier-contract cases, native persistent-store
+  integration, and existing volatile browser-export integration pass through
+  `pnpm validate:data-exclusion`.
+- The native integration covers all six closed producer types and invokes the
+  actual Rust persistence code through a disposable host fixture.
+
+### Remaining boundary
+
+I-186 remains active. Production producer wiring, exact quiesced/read-only
+materialization, signed evidence envelope, support/export/crash inventory,
+RAM/swap/core-dump policy, target filesystem faults, and Raspberry
+Pi/ordinary-Linux evidence remain under Q-155 through Q-158 and Q-249.

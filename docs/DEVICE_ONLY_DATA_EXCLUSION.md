@@ -17,11 +17,12 @@ system-slot, game-storage, developer, or factory-reset outputs.
 The verifier does not claim that most product paths exist or are safe today.
 It proves only that a complete, stable, materialized directory tree does or
 does not contain the supplied synthetic canaries in the representations it
-recognizes. The current volatile browser diagnostic exporter now has one
-producer-specific negative scan plus a separately failing positive control.
-Every other producer still needs an integration that seeds all sensitive
-fields, creates the real target artifact, materializes every opaque layer with
-a separately trusted format-specific tool, and submits the complete result.
+recognizes. The current volatile browser diagnostic exporter and persistent
+native diagnostic store each have a producer-specific negative scan plus a
+separately failing positive control. Every other producer still needs an
+integration that seeds all sensitive fields, creates the real target artifact,
+materializes every opaque layer with a separately trusted format-specific
+tool, and submits the complete result.
 
 Never put real household data, names, portraits, measurements, credentials, or
 secrets in a scan manifest. Canary values must be synthetic strings beginning
@@ -239,6 +240,36 @@ that arbitrary personal information is absent, or cover native logs, crash
 dumps, support bundles, downloads after browser compromise, RAM, swap, or
 network traffic.
 
+## Current producer integration: persistent native diagnostics
+
+`scripts/native-diagnostics-data-exclusion.test.mjs` invokes the
+qualification-only Rust example
+`native/vcg-host/examples/native_diagnostics_exclusion_fixture.rs`. The
+example accepts only a new absolute root, emits one fixed closed code from
+each of the six native producers, checks the complete retained snapshot, and
+accepts no caller event text, identity, path, or payload.
+
+The integration inventories the exact store layout after the writer releases
+its lock: six canonical event JSON files, six empty monotonic watermark files,
+and the fixed lock file under the two expected directories. It rejects any
+unexpected type, requires all 13 files to remain individually bounded, then
+scans the complete 15-entry tree twice. Both scans must produce the same
+path-free content-tree commitment and a complete zero-finding result.
+
+The negative scan uses five distinct synthetic field canaries, forbids the
+stable `profile-vault` and `portraits` path segments, and forbids the exact
+SHA-256 of the seeded source fixture. A separate materialized positive tree
+contains every canary, both forbidden path segments, and that exact source
+file. It must fail while naming all eight signal IDs without serializing a
+canary or forbidden path value.
+
+This qualifies only the current fixed persistent store shape on the test
+host. It does not turn that store into an export API, prove a future support
+bundle or crash collector, establish that production producers exercise every
+relevant code, inspect RAM/swap/core dumps, or provide Raspberry Pi/ordinary
+Linux target evidence. Q-249 owns the exact production materialization and
+release-evidence envelope.
+
 ## I-186 coverage ledger
 
 | Required path/event | Current verifier contribution | Still required |
@@ -248,7 +279,7 @@ network traffic.
 | Save backup/restore | `backup` and `game-storage` kinds are defined | Console backup is intentionally absent; prove no hidden path and inspect every runtime's saves |
 | Game export | `export` and `game-storage` trees can be scanned | Real web/native/Godot/Libretro export and storage brokers |
 | Developer mode | `developer` trees can be scanned | Paired deployment does not exist; future staging, logs, keys, and workstation traffic |
-| Logs and diagnostics | Actual volatile browser export passes five-field negative scan; separate source fixture finds all five positive controls | Native producers/store, hostile-browser/download boundary, crash/log/support artifacts, and target evidence |
+| Logs and diagnostics | Actual volatile browser export and persistent native store each pass five-field negative scans with separate complete positive controls; native scan additionally forbids two stable paths and the exact seeded source digest | Production producer wiring, support/export materialization, hostile-browser/download boundary, crash/log artifacts, RAM/swap policy, and target evidence |
 | Support bundle | `support-bundle` trees can be scanned | Final bundle builder, review UI, materializer, and independent redaction review |
 | Recovery image and reflash | Refuses an opaque image until fully materialized | Exact Pi/PC images, partitions, free-space model, flash/replacement tests |
 | Cloud path | `cloud-sync` trees can be scanned | Prove no console profile service/path and inspect each hosted game's separate service behavior |
@@ -257,8 +288,9 @@ network traffic.
 | Factory reset | Post-reset materialized roots can be scanned | Exact retained partitions/content, key destruction, flash behavior, target evidence |
 | Replacement console | Import/materialized roots can be scanned | Prove no profile recovery/migration and no save-driven identity reassociation |
 
-The current ten-test fixture suite proves the verifier contract, not any row
-in the rightmost column.
+The reusable ten-test fixture suite proves the verifier contract. The two
+producer integrations prove only their exact browser-export and persistent
+native-store cells, not any row in the rightmost column.
 
 ## Explicit limits
 
@@ -288,7 +320,8 @@ in the rightmost column.
 ## Automated evidence
 
 `pnpm validate:data-exclusion` runs the ten verifier-contract cases plus the
-browser-diagnostic producer integration. Together they cover:
+browser-export and persistent-native-store producer integrations. Together
+they cover:
 
 - exact manifest fields, schema, identifiers, paths, counts, and limits;
 - deterministic clean-tree evidence;
@@ -303,8 +336,13 @@ browser-diagnostic producer integration. Together they cover:
 - actual closed diagnostic-export materialization and byte accounting;
 - distinct profile, portrait, calibration, body-profile, and progress-link
   negative canaries; and
-- a separately materialized positive control that must find all five signal
-  IDs without value disclosure.
+- separate materialized positive controls that must find every configured
+  signal ID without value disclosure;
+- the native store's exact 13-file/15-entry layout across all six closed
+  producers, individual file limits, and repeatable content-tree commitment;
+  and
+- forbidden native-vault path segments and exact seeded-source digest absence.
 
-These tests use disposable synthetic fixtures and the actual volatile
-diagnostic serializer only. They do not contain real household data.
+These tests use disposable synthetic fixtures, the actual volatile browser
+serializer, and the actual persistent Rust store. They do not contain real
+household data.

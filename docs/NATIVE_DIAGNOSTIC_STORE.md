@@ -149,8 +149,39 @@ No runtime currently opens the store or hands a lease to a real producer.
 There is no authenticated cross-process adapter, trusted boot epoch, admin
 review/clear transaction, consented export destination, support workflow,
 age-based retention, health UI, target filesystem/full-disk/power-cut test,
-or independently inspected production artifact. General core dumps and memory
-snapshots remain excluded.
+or independently inspected production artifact. A qualification-only example
+now materializes the exact persistent layout for an I-186 synthetic exclusion
+scan, but it is not runtime wiring or an export surface. General core dumps
+and memory snapshots remain excluded.
+
+## Device-only-data exclusion evidence
+
+The qualification example
+`native/vcg-host/examples/native_diagnostics_exclusion_fixture.rs` accepts
+only one new absolute root and persists one fixed closed code from each of the
+six producers. It accepts no diagnostic text, profile identity, portrait,
+calibration, body-profile, progress link, arbitrary path, or payload.
+
+`scripts/native-diagnostics-data-exclusion.test.mjs` waits for the writer and
+lock to close, inventories the complete fixed store, and submits the whole
+tree to the reusable I-186 verifier. The test requires:
+
+- the fixed lock, six canonical event files, six empty producer watermarks,
+  and no other file;
+- 13 bounded files in a 15-entry tree;
+- two identical complete path-free content-tree results;
+- no match for five synthetic device-only field canaries;
+- no `profile-vault` or `portraits` segment;
+- no exact byte-for-byte copy of the seeded source fixture; and
+- a separate positive tree that finds all five canaries, both path signals,
+  and the exact source digest without disclosing their values.
+
+This evidence is host-fixture-specific. It proves the current persistent
+serializer and layout do not contain the configured synthetic signals. It
+does not prove production producer wiring, arbitrary personal-data absence,
+support/export artifacts, crash dumps, RAM, swap, core collection, a complete
+raw-artifact envelope, or either target. Q-249 records the remaining
+materialization and evidence-owner decisions.
 
 ## Automated evidence
 

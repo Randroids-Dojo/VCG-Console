@@ -32,7 +32,7 @@
     "validate:body-profile-prediction": "tsx scripts/validate-body-profile-prediction-evidence.mjs && tsx --test scripts/validate-body-profile-prediction-evidence.test.mjs",
     "validate:community-admission": "node scripts/validate-community-admission-evidence.mjs && node --test scripts/validate-community-admission-evidence.test.mjs",
     "validate:compliance": "node scripts/generate-compliance.mjs --check",
-    "validate:data-exclusion": "node --test scripts/device-only-data-exclusion.test.mjs && tsx --test scripts/local-diagnostics-data-exclusion.test.ts",
+    "validate:data-exclusion": "node --test scripts/device-only-data-exclusion.test.mjs scripts/native-diagnostics-data-exclusion.test.mjs && tsx --test scripts/local-diagnostics-data-exclusion.test.ts",
     "validate:epoch-top-level": "tsx scripts/validate-epoch-top-level-evidence.mjs && tsx --test scripts/validate-epoch-top-level-evidence.test.mjs",
     "validate:first-party-game-rights": "node scripts/validate-first-party-game-rights-screen.mjs && node --test scripts/validate-first-party-game-rights-screen.test.mjs",
     "validate:full-catalog-candidates": "node scripts/validate-full-catalog-candidate-ledger.mjs && node --test scripts/validate-full-catalog-candidate-ledger.test.mjs",
