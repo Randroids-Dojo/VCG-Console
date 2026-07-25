@@ -1770,7 +1770,9 @@ test("museum launch uses the real browser network state and retries", async ({ p
   ]);
 });
 
-test("universal search traps focus and restores its opener", async ({ page }) => {
+test("universal search traps focus, scrolls, activates, and restores its opener", async ({
+  page,
+}) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   const trigger = page.getByRole("button", { name: /Search games/ });
@@ -1788,6 +1790,25 @@ test("universal search traps focus and restores its opener", async ({ page }) =>
   await page.keyboard.press("Escape");
   await expect(trigger).toBeFocused();
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+
+  await trigger.click();
+  await expect(input).toHaveValue("");
+  const allResults = page.locator("#search-results button");
+  await expect(allResults).toHaveCount(18);
+  const resultList = page.locator("#search-results");
+  expect(
+    await resultList.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    ),
+  ).toBe(true);
+  await allResults.last().focus();
+  await expect(allResults.last()).toBeFocused();
+  expect(await resultList.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+
+  await input.fill("profiles");
+  await page.getByRole("button", { name: /Profiles Players on this console/ }).click();
+  await expect(page.locator("#search-overlay")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Who is playing?" })).toBeVisible();
 });
 
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {

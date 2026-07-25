@@ -18,10 +18,12 @@ five-percent CSS safe rectangle. Marked text is at least 24 CSS px, the input
 and result actions are at least 48 x 48 CSS px, marked text does not overlap,
 and the overlay has no horizontal or vertical overflow.
 
-This proves two fixed Search states on one Windows desk. It does not prove
-unfiltered or scrolling result sets, arbitrary or localized queries, result
-activation, any game, every overlay, physical TV/controller behavior, target
-Linux output, or frame timing.
+The strict television artifact proves two fixed Search states on one Windows
+desk. It does not prove unfiltered or scrolling result sets, arbitrary or
+localized queries, result activation, any game, every overlay, physical
+TV/controller behavior, target Linux output, or frame timing. A separate
+Chrome flow now exercises one exact empty-query scroller and one exact
+non-game result activation without promoting either into the TV artifact.
 
 ## Frozen observations
 
@@ -33,12 +35,12 @@ production resources, and six PNG files.
 
 | State | Mode | Results | Critical text | Minimum text | Actions | Minimum action |
 |---|---|---:|---:|---:|---:|---:|
-| Motion results | 1280 x 720 | 5 | 18 | 24 px | 6 | 691.766 x 48 px |
-| No results | 1280 x 720 | 0 | 4 | 24 px | 1 | 691.766 x 48 px |
-| Motion results | 1920 x 1080 | 5 | 18 | 24 px | 6 | 955.328 x 48 px |
-| No results | 1920 x 1080 | 0 | 4 | 24 px | 1 | 955.328 x 48 px |
-| Motion results | 3840 x 2160 | 5 | 18 | 48 px | 6 | 1940.656 x 61 px |
-| No results | 3840 x 2160 | 0 | 4 | 48 px | 1 | 1940.656 x 62 px |
+| Motion results | 1280 x 720 | 5 | 13 | 24 px | 6 | 687.766 x 48 px |
+| No results | 1280 x 720 | 0 | 4 | 24 px | 1 | 687.766 x 48 px |
+| Motion results | 1920 x 1080 | 5 | 13 | 24 px | 6 | 951.328 x 48 px |
+| No results | 1920 x 1080 | 0 | 4 | 24 px | 1 | 951.328 x 48 px |
+| Motion results | 3840 x 2160 | 5 | 13 | 48 px | 6 | 1936.656 x 61 px |
+| No results | 3840 x 2160 | 0 | 4 | 48 px | 1 | 1936.656 x 62 px |
 
 All six observations record complete document state, every marked item inside
 the safe rectangle, zero marked-text overlaps, zero overlay overflow, and zero
@@ -59,6 +61,14 @@ Search and restores the exact opener.
 
 The result actions were not activated. The artifact therefore makes no claim
 about the selected destination, launch adapter, package, or game.
+
+The broader Console Lab Chrome suite separately proves that opening Search with
+an empty query exposes exactly 18 current destinations, the results container
+has real internal overflow, focusing its last result advances `scrollTop`, and
+the exact `Profiles` result closes Search and opens the `Who is playing?`
+destination. This is one current catalog and normal-viewport browser flow. It
+does not add a third measured TV state, prove arbitrary query text, or activate
+a game or package.
 
 ## Pixel captures
 
@@ -93,8 +103,10 @@ errors, resources, provenance, limitations, unknown claims, and promotion.
 
 ## Remaining boundary
 
-I-098/Q-056 remain active. Search still needs empty-query/scrolling density,
-long strings, localization, large text/high contrast/reduced motion,
-controller directional navigation, result activation, physical-TV viewing,
-reserved Home, native-host recovery, and both target Linux display stacks.
-Q-242/Q-243 and STV-001 through STV-004 retain the final policy choices.
+I-098/Q-056 remain active. The strict TV record still needs measured
+empty-query/scrolling density and activation at every target resolution.
+Search also needs long strings, localization, large text/high
+contrast/reduced motion, controller directional navigation, game/package
+activation, physical-TV viewing, reserved Home, native-host recovery, and both
+target Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain
+the final policy choices.
