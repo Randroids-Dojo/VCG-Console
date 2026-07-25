@@ -118,6 +118,9 @@ function hostFor(
 function clientFor(
   link: ReturnType<typeof fakeLink>,
   now?: () => number,
+  onChallenge?: ConstructorParameters<
+    typeof LocalWebReadinessClient
+  >[0]["onChallenge"],
 ) {
   return new LocalWebReadinessClient({
     receiver: link.gameReceiver,
@@ -125,6 +128,7 @@ function clientFor(
     targetOrigin: link.consoleOrigin,
     ...release,
     ...(now === undefined ? {} : { now }),
+    ...(onChallenge === undefined ? {} : { onChallenge }),
   });
 }
 
@@ -153,7 +157,11 @@ describe("local-web explicit readiness", () => {
   it("binds starting and ready to one host challenge and exact release", () => {
     const link = fakeLink();
     const observed: string[] = [];
-    const client = clientFor(link);
+    let challenged = false;
+    const client = clientFor(link, undefined, (challenge) => {
+      challenged = true;
+      expect(Object.isFrozen(challenge)).toBe(true);
+    });
     const host = hostFor(link, {
       onStateChange: (snapshot) => observed.push(snapshot.state),
     });
@@ -184,6 +192,7 @@ describe("local-web explicit readiness", () => {
       expiresAfterMs: 30_000,
     });
     expect(link.hostMessages).toHaveLength(2);
+    expect(challenged).toBe(true);
   });
 
   it("supports bounded degraded recovery and terminal failure", () => {
@@ -432,6 +441,17 @@ describe("local-web explicit readiness", () => {
 
   it("requires safe release identity, high-entropy IDs, exact origins, and monotonic time", () => {
     const link = fakeLink();
+    expect(() =>
+      new LocalWebReadinessHost({
+        receiver: link.hostReceiver,
+        target: link.gameTarget,
+        targetOrigin: "http://localhost:4173",
+        ...release,
+        instanceId,
+        expiresAfterMs: 30_000,
+        createChallengeId: () => challengeOne,
+      }),
+    ).not.toThrow();
     expect(() =>
       new LocalWebReadinessHost({
         receiver: link.hostReceiver,

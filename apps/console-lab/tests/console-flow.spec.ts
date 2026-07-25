@@ -2247,6 +2247,15 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
   await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
   await expect(game.locator("#client-origin")).toHaveText("http://localhost:4173");
   await expect(page.locator("#host-status")).toHaveText("CONNECTED");
+  await expect(game.locator("#readiness-state")).toHaveText("READY");
+  await expect(page.locator("#readiness-state")).toHaveText("READY / NONE / 1");
+
+  await game.getByRole("button", { name: "DEGRADE READINESS" }).click();
+  await expect(page.locator("#readiness-state")).toHaveText(
+    "DEGRADED / RECOVERING / 2",
+  );
+  await game.getByRole("button", { name: "RECOVER READINESS" }).click();
+  await expect(page.locator("#readiness-state")).toHaveText("READY / NONE / 3");
 
   await page.getByRole("button", { name: "PUBLISH DEGRADED HEALTH" }).click();
   await expect(game.locator("#health-state")).toHaveText("HEALTH OVERLOAD / LANDMARKS-ONLY");
@@ -2260,6 +2269,7 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
   });
   await expect(game.locator("#hostile-status")).toHaveText("NO RESPONSE");
   await expect(page.locator("#hostile-count")).toHaveText("1");
+  await expect(page.locator("#readiness-state")).toContainText("WAITING");
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(page.locator("#host-status")).toHaveText("PUBLISHED 1 TO 1");
   await expect(game.locator("#hostile-status")).toHaveText("NO RESPONSE");
@@ -2269,6 +2279,13 @@ test("cross-origin motion bridge survives sandboxing and rejects navigation orig
   });
   await expect(game.locator("#client-status")).toHaveText("CONNECTED");
   await expect(game.locator("#health-state")).toHaveText("HEALTH HEALTHY / FULL");
+  await expect(game.locator("#readiness-state")).toHaveText("READY");
+  await expect(page.locator("#readiness-state")).toHaveText("READY / NONE / 1");
+  await expect
+    .poll(async () =>
+      Number(await page.locator("#readiness-generation").textContent()),
+    )
+    .toBeGreaterThanOrEqual(3);
   await page.getByRole("button", { name: "PUBLISH FRAME" }).click();
   await expect(game.locator("#frame-sequence")).toHaveText("FRAME 2");
 });

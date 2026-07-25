@@ -242,13 +242,13 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "c520da2aa6b27359398d82a3419a367704d41a1f6418a003d7a04351284e9d10",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "7d09bc0612c1a42aa858f44d93620ad05ec8aae5c696ce101059aa4b5ea1cd8b",
+    "baseEvidencePathSha256": "eab146e2fda9540c7e381275a62dbfb5e5c197b2a32994039c8d33a39bee4158",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
     "generatorPathSha256": "60eeebcf48c298d6fda36743184e08622b5a990a388373a83f0068d9f0308200",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
     "validatorPathSha256": "f6b22e92e8f2734f1a23f729875c2e8f93de06c4a14c592cf4af5f6f6cd01b20",
     "baseEvidenceBytes": 43129,
-    "baseEvidenceSha256": "7d09bc0612c1a42aa858f44d93620ad05ec8aae5c696ce101059aa4b5ea1cd8b",
+    "baseEvidenceSha256": "eab146e2fda9540c7e381275a62dbfb5e5c197b2a32994039c8d33a39bee4158",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -266,7 +266,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 127,
-      "sha256": "c79d4091255f63a0739da3786a529663d993de89854588feaa2c1b7163088171"
+      "sha256": "11c7e46de82d63c118be2e27ef788eefcd706bd19dd36095871b1699b622ca89"
     }
   },
   "disposition": {

@@ -746,7 +746,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 811453,
+      "totalBytes": 814322,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -785,13 +785,13 @@
         },
         {
           "path": "apps/console-lab/src/bridge-cross-origin-client-fixture.ts",
-          "bytes": 1380,
-          "sha256": "4154efbe9b7ed2b5ec7fd7d55766a2c1ae0410239677b4fcf451c3f4b0c561ba"
+          "bytes": 2724,
+          "sha256": "1c8f144998bd5143004a60dd1269f6daf737bb7112f39242544752eab09565ce"
         },
         {
           "path": "apps/console-lab/src/bridge-cross-origin-host-fixture.ts",
-          "bytes": 2654,
-          "sha256": "2856bf2ea082a7a9d63ef3d92872f5a0243f2823a48654315dde2f618d76133a"
+          "bytes": 4179,
+          "sha256": "0a989937d6c5816bfcfa9aadb0ec099f7f84629b006d97c1324e4b87d23da248"
         },
         {
           "path": "apps/console-lab/src/bridge-host-fixture.ts",

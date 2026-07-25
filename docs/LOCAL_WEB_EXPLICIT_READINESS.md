@@ -26,8 +26,8 @@ watchdog, and process cleanup.
 
 The host:
 
-1. selects the exact local-web target window and its exact HTTPS or numeric
-   loopback origin;
+1. selects the exact local-web target window and its exact HTTPS origin or
+   exact HTTP loopback origin (`localhost`, `127.0.0.1`, or `[::1]`);
 2. binds game ID, version, manifest SHA-256, and a host-issued runtime
    instance ID;
 3. creates a fresh 32-to-96-character high-entropy challenge ID;
@@ -118,6 +118,14 @@ pnpm --filter @vcg/motion-web-bridge typecheck
 pnpm --filter @vcg/motion-web-bridge test
 ```
 
+The Console Lab cross-origin Chrome fixture composes the readiness protocol
+with the existing Motion iframe exercise. It proves that a host on
+`http://127.0.0.1:4173` can bind a game on `http://localhost:4173`, observe
+starting and ready, observe a bounded degraded/recovered sequence, invalidate
+the old challenge when the iframe navigates to a hostile origin, and establish
+a fresh challenge only after the expected game origin returns. This is
+development-browser evidence, not a production host qualification.
+
 ## Remaining I-099 work
 
 The protocol is not yet wired to a production local-package server, browser
@@ -132,7 +140,7 @@ wrapper, native host, launcher, or compositor. Still required:
   behavior;
 - bounded launcher failure projection;
 - target ARM64 and ordinary Linux x86-64 evidence; and
-- proof against a deliberately dishonest, hung, navigated, hidden, or
+- production-host proof against a deliberately dishonest, hung, hidden, or
   replaced page.
 
 Native/Godot and Libretro readiness remain separate adapters. Hosted HTTP

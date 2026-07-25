@@ -1,13 +1,32 @@
-import { MotionBridgeClient, type BridgeMessageReceiver, type BridgePostTarget } from "@vcg/motion-web-bridge";
+import {
+  LocalWebReadinessClient,
+  MotionBridgeClient,
+  type BridgeMessageReceiver,
+  type BridgePostTarget,
+} from "@vcg/motion-web-bridge";
 
 const status = document.querySelector<HTMLElement>("#client-status");
 const origin = document.querySelector<HTMLOutputElement>("#client-origin");
 const health = document.querySelector<HTMLOutputElement>("#health-state");
 const output = document.querySelector<HTMLOutputElement>("#frame-sequence");
+const readinessState = document.querySelector<HTMLOutputElement>("#readiness-state");
+const degradeReadiness = document.querySelector<HTMLButtonElement>("#degrade-readiness");
+const recoverReadiness = document.querySelector<HTMLButtonElement>("#recover-readiness");
+const failReadiness = document.querySelector<HTMLButtonElement>("#fail-readiness");
 const consoleOrigin = document.querySelector<HTMLMetaElement>(
   'meta[name="vcg-console-origin"]',
 )?.content;
-if (!status || !origin || !health || !output || !consoleOrigin) {
+if (
+  !status
+  || !origin
+  || !health
+  || !output
+  || !readinessState
+  || !degradeReadiness
+  || !recoverReadiness
+  || !failReadiness
+  || !consoleOrigin
+) {
   throw new Error("Cross-origin bridge client fixture is incomplete");
 }
 
@@ -29,4 +48,34 @@ const client = new MotionBridgeClient({
   },
 });
 client.start();
-window.addEventListener("pagehide", () => client.stop());
+
+const readiness = new LocalWebReadinessClient({
+  receiver: window as unknown as BridgeMessageReceiver,
+  target: window.parent as unknown as BridgePostTarget,
+  targetOrigin: consoleOrigin,
+  gameId: "cross-origin-fixture",
+  version: "1.0.0",
+  manifestSha256: "f".repeat(64),
+  onChallenge: () => {
+    readiness.publishReady();
+    readinessState.textContent = "READY";
+  },
+});
+readiness.start();
+degradeReadiness.addEventListener("click", () => {
+  readiness.publishDegraded("recovering");
+  readinessState.textContent = "DEGRADED / RECOVERING";
+});
+recoverReadiness.addEventListener("click", () => {
+  readiness.publishReady();
+  readinessState.textContent = "READY";
+});
+failReadiness.addEventListener("click", () => {
+  readiness.publishFailed("runtime-error");
+  readinessState.textContent = "FAILED / RUNTIME-ERROR";
+});
+
+window.addEventListener("pagehide", () => {
+  readiness.stop();
+  client.stop();
+});

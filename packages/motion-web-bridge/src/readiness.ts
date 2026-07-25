@@ -173,6 +173,9 @@ export interface LocalWebReadinessClientOptions
   readonly target: BridgePostTarget;
   readonly targetOrigin: string;
   readonly now?: () => number;
+  readonly onChallenge?: (
+    challenge: Readonly<LocalWebReadinessChallenge>,
+  ) => void;
 }
 
 export class LocalWebReadinessError extends Error {
@@ -385,6 +388,9 @@ export class LocalWebReadinessClient {
   readonly #targetOrigin: string;
   readonly #release: LocalWebReleaseIdentity;
   readonly #now: () => number;
+  readonly #onChallenge:
+    | ((challenge: Readonly<LocalWebReadinessChallenge>) => void)
+    | undefined;
   #challenge: LocalWebReadinessChallenge | undefined;
   #deadlineMs: number | undefined;
   #lastNowMs = -Infinity;
@@ -401,6 +407,7 @@ export class LocalWebReadinessClient {
     this.#targetOrigin = exactLocalWebOrigin(options.targetOrigin);
     this.#release = parseReleaseIdentity(options);
     this.#now = options.now ?? (() => performance.now());
+    this.#onChallenge = options.onChallenge;
   }
 
   public start(): void {
@@ -454,6 +461,7 @@ export class LocalWebReadinessClient {
     this.#sequence = -1;
     this.#phase = undefined;
     this.#publish("starting", "none");
+    this.#onChallenge?.(this.#challenge);
   }
 
   #publish(
@@ -533,7 +541,11 @@ function exactLocalWebOrigin(value: string): string {
   }
   const loopbackHttp =
     url.protocol === "http:"
-    && (url.hostname === "127.0.0.1" || url.hostname === "[::1]");
+    && (
+      url.hostname === "localhost"
+      || url.hostname === "127.0.0.1"
+      || url.hostname === "[::1]"
+    );
   if (
     url.origin !== value
     || url.username !== ""
