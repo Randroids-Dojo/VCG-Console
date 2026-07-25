@@ -265,8 +265,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 126,
-      "sha256": "84aa6d743b07012174fa4976af78fdc3f492af4563888cfd3d37710c672c70d8"
+      "fileCount": 127,
+      "sha256": "c79d4091255f63a0739da3786a529663d993de89854588feaa2c1b7163088171"
     }
   },
   "disposition": {
