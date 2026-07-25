@@ -5391,18 +5391,23 @@ implementation returning `Complete` is trustworthy.
   eviction; reopen reconstructs an interrupted missing watermark from retained
   history before cleanup, so eviction plus restart cannot erase the monotonic
   source-time floor.
+- Added a consuming complete-clear transaction with a fixed flushed marker as
+  the deletion commit point. It validates the whole event/watermark scope
+  before removal, completes after restart, resets sequence/eviction/time, and
+  grants no browser or producer clear authority.
 - Recorded D-175 and Q-246 without selecting the unresolved product retention,
   privileged service/IPC, boot provenance, export destination, or support
   workflow.
 
 ### Verification evidence
 
-- Fourteen focused Rust tests cover exact source/store binding, derived metadata,
+- Seventeen focused Rust tests cover exact source/store binding, derived metadata,
   producer-local monotonic time, committed reopen and ordinal continuation,
   incomplete-write recovery, event/byte/boot eviction, path-free exclusions,
   boot rollback, interleaved and evicted/restarted source time, missing
   watermark reconstruction, legitimate new-boot reset, future-watermark and
-  metadata tamper refusal, unsafe policy/path/layout, and lock contention.
+  metadata tamper refusal, complete and interrupted clear, pre-delete scope
+  validation, unsafe policy/path/layout, and lock contention.
 - Rust formatting and strict all-target/all-feature Clippy pass for the
   current shared tree.
 

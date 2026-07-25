@@ -106,9 +106,30 @@ credentials, and free text. It reports retained bytes, configured bounds,
 oldest-prefix eviction count, warning count, and closed-subsystem counts.
 
 The snapshot is intentionally not serializable and grants no export, upload,
-share, clear, or support authority. The browser's existing reviewed 64-KiB
-export is a separate volatile prototype and is not backed by this native
-store.
+share, or support authority. The store supplies a low-level consuming
+`clear()` transaction, but does not authenticate or confirm who may call it.
+The browser's existing reviewed 64-KiB export is a separate volatile prototype
+and is not backed by this native store.
+
+## Complete clear
+
+Complete native clear first creates and flushes a fixed empty
+`clear-required` marker and synchronizes the root. That marker is the deletion
+commit point. The transaction validates every event, incoming-event, and
+producer-watermark name and file type before deleting any file. It then removes
+the complete event set, synchronizes it, removes the complete watermark set,
+synchronizes it, removes the marker, and synchronizes the root.
+
+`clear()` consumes the open store. Success returns the same exclusive store
+with empty history, eviction count, sequence, and producer-time state. Failure
+drops the consumed store; the marker remains and the next open must finish the
+same exact clear before exposing a snapshot. An unexpected or unsafe entry is
+never swept into deletion and keeps recovery visibly blocked.
+
+This is deletion mechanics, not admin authority. The integrating privileged
+service must bind review, confirmation, and the exact store to owner-selected
+local administration under Q-246. No browser, game, diagnostic producer lease,
+or support peer receives clear authority.
 
 ## Failure and attacker boundaries
 
@@ -133,7 +154,7 @@ snapshots remain excluded.
 
 ## Automated evidence
 
-Fourteen focused Rust tests cover:
+Seventeen focused Rust tests cover:
 
 - closed code/source/subsystem/severity derivation;
 - exact store and producer capability binding;
@@ -146,7 +167,10 @@ Fourteen focused Rust tests cover:
   metadata refusal; and
 - monotonic producer watermarks across event eviction and restart;
 - recovery of a missing watermark before the source event is evicted;
-- future watermark epoch refusal and legitimate new-boot uptime reset; and
+- future watermark epoch refusal and legitimate new-boot uptime reset;
+- complete clear of events, watermarks, sequence, eviction, and time state;
+- interrupted clear-marker completion on reopen; and
+- whole-scope validation before deletion of any retained file; and
 - invalid bounds, relative paths, unexpected layout, and lock contention.
 
 Strict all-target/all-feature Clippy and the complete native suite remain

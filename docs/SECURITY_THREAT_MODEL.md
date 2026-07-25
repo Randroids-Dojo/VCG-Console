@@ -350,6 +350,15 @@ durability is unproven, and no runtime or target adapter exists. Diagnostic
 failure must never become launch, recovery, update, save, profile, or power
 authority.
 
+Native diagnostic deletion uses a fixed flushed `clear-required` marker as its
+commit point. It validates the complete event and watermark scope before
+deleting anything, completes a published clear before reopen exposes state,
+and consumes the store on failure so a caller cannot continue from a partial
+view. This provides crash-recoverable deletion mechanics only. No browser,
+game, producer lease, or support peer receives clear authority; production
+still needs privileged local-admin authentication, exact confirmation, target
+mount permissions, and power-loss evidence.
+
 The credential-free profile-management prototype keeps display text separate
 from opaque authority, permits duplicate names, and requires exact delayed
 confirmation for recalibration, reset, and deletion. Its deletion result

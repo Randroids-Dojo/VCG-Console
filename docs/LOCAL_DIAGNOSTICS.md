@@ -155,10 +155,13 @@ boot-relative time across event eviction and host restart. Event publication
 precedes watermark publication, which precedes eviction; reopen reconstructs
 a missing watermark from the retained event before cleanup.
 
-The native snapshot is not serializable and grants no clear or export
-authority. No runtime opens the store. The capability does not authenticate an
-OS peer, the boot epoch has no platform provenance, and the store is not
-rollback-protected security evidence.
+The native snapshot is not serializable and grants no export authority. A
+fixed crash-recoverable marker now supports complete low-level store clear,
+including events, watermarks, sequence, eviction count, and producer time, but
+the persistence layer does not authenticate or confirm the caller. No runtime
+opens the store. The capability does not authenticate an OS peer, the boot
+epoch has no platform provenance, and the store is not rollback-protected
+security evidence.
 
 ## Remaining qualification
 

@@ -17,6 +17,7 @@ const EVENT_SCHEMA_VERSION: u32 = 1;
 const EVENTS_DIRECTORY: &str = "events";
 const WATERMARKS_DIRECTORY: &str = "watermarks";
 const LOCK_FILE: &str = "diagnostics.lock";
+const CLEAR_REQUIRED_FILE: &str = "clear-required";
 const EVENT_SUFFIX: &str = ".json";
 const INCOMING_PREFIX: &str = ".incoming-";
 const MAX_STORED_EVENT_BYTES: u64 = 512;
@@ -392,6 +393,7 @@ struct RetainedEvent {
 /// Exclusive crash-recoverable native diagnostic store.
 #[derive(Debug)]
 pub struct NativeDiagnosticStore {
+    root: PathBuf,
     events_directory: PathBuf,
     watermarks_directory: PathBuf,
     config: NativeDiagnosticStoreConfig,
@@ -446,6 +448,7 @@ impl NativeDiagnosticStore {
                 });
             }
         }
+        recover_clear(&root, &events_directory, &watermarks_directory)?;
         recover_incoming(&events_directory)?;
         let retained = load_events(&events_directory)?;
         validate_event_history(&retained, boot_epoch)?;
@@ -461,6 +464,7 @@ impl NativeDiagnosticStore {
         let mut nonce = [0_u8; 16];
         getrandom::fill(&mut nonce).map_err(NativeDiagnosticError::Random)?;
         let mut store = Self {
+            root,
             events_directory,
             watermarks_directory,
             config,
@@ -576,6 +580,43 @@ impl NativeDiagnosticStore {
         }
     }
 
+    /// Durably clears the complete diagnostic record and returns the reopened
+    /// empty in-memory state.
+    ///
+    /// Publishing the fixed marker commits the clear. If later deletion fails,
+    /// this consumed store drops and the next open completes the exact clear
+    /// before exposing a snapshot. The caller must authenticate and confirm
+    /// clear authority outside this persistence layer.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for unsafe retained layout or any marker, deletion, or
+    /// synchronization failure. Once the marker exists, reopen continues clear
+    /// rather than restoring partially removed history.
+    pub fn clear(mut self) -> Result<Self, NativeDiagnosticError> {
+        let marker = self.root.join(CLEAR_REQUIRED_FILE);
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&marker)
+            .and_then(|file| file.sync_all())
+            .map_err(|source| NativeDiagnosticError::Io {
+                operation: "publish native diagnostic clear marker",
+                path: marker,
+                source,
+            })?;
+        sync_directory(&self.root)?;
+        finish_clear(
+            &self.root,
+            &self.events_directory,
+            &self.watermarks_directory,
+        )?;
+        self.retained.clear();
+        self.last_uptime_by_producer.clear();
+        self.next_ordinal = 1;
+        Ok(self)
+    }
+
     fn enforce_retention(&mut self) -> Result<(), NativeDiagnosticError> {
         let mut remove_count = 0;
         let boot_epochs = self
@@ -688,7 +729,11 @@ fn validate_root_entries(root: &Path) -> Result<(), NativeDiagnosticError> {
             .file_name()
             .into_string()
             .map_err(|_| invalid_store("native diagnostics root entry is not UTF-8"))?;
-        if name != EVENTS_DIRECTORY && name != WATERMARKS_DIRECTORY && name != LOCK_FILE {
+        if name != EVENTS_DIRECTORY
+            && name != WATERMARKS_DIRECTORY
+            && name != LOCK_FILE
+            && name != CLEAR_REQUIRED_FILE
+        {
             return Err(invalid_store(
                 "native diagnostics root contains an unexpected entry",
             ));
@@ -699,6 +744,97 @@ fn validate_root_entries(root: &Path) -> Result<(), NativeDiagnosticError> {
 
 fn prepare_events_directory(root: &Path) -> Result<PathBuf, NativeDiagnosticError> {
     prepare_child_directory(root, EVENTS_DIRECTORY)
+}
+
+fn recover_clear(
+    root: &Path,
+    events: &Path,
+    watermarks: &Path,
+) -> Result<(), NativeDiagnosticError> {
+    let marker = root.join(CLEAR_REQUIRED_FILE);
+    if !path_exists(&marker)? {
+        return Ok(());
+    }
+    require_regular_file(&marker, "native diagnostic clear marker")?;
+    if fs::metadata(&marker)
+        .map_err(|source| NativeDiagnosticError::Io {
+            operation: "inspect native diagnostic clear marker",
+            path: marker.clone(),
+            source,
+        })?
+        .len()
+        != 0
+    {
+        return Err(invalid_store(
+            "native diagnostic clear marker must be empty",
+        ));
+    }
+    finish_clear(root, events, watermarks)
+}
+
+fn finish_clear(
+    root: &Path,
+    events: &Path,
+    watermarks: &Path,
+) -> Result<(), NativeDiagnosticError> {
+    let event_entries = read_directory_bounded(events)?;
+    for entry in &event_entries {
+        let name = entry
+            .file_name()
+            .into_string()
+            .map_err(|_| invalid_store("native diagnostic event name is not UTF-8"))?;
+        if name.starts_with(INCOMING_PREFIX) {
+            parse_incoming_name(&name)?;
+        } else {
+            parse_event_name(&name)?;
+        }
+        require_regular_file(&entry.path(), "native diagnostic clear event")?;
+    }
+    let watermark_entries = read_watermark_entries(watermarks)?;
+    for entry in &watermark_entries {
+        let name = entry
+            .file_name()
+            .into_string()
+            .map_err(|_| invalid_store("native diagnostic watermark name is not UTF-8"))?;
+        parse_watermark_name(&name)?;
+        require_regular_file(&entry.path(), "native diagnostic clear watermark")?;
+        if fs::metadata(entry.path())
+            .map_err(|source| NativeDiagnosticError::Io {
+                operation: "inspect native diagnostic clear watermark",
+                path: entry.path(),
+                source,
+            })?
+            .len()
+            != 0
+        {
+            return Err(invalid_store(
+                "native diagnostic producer watermark must be empty",
+            ));
+        }
+    }
+    for entry in event_entries {
+        fs::remove_file(entry.path()).map_err(|source| NativeDiagnosticError::Io {
+            operation: "clear native diagnostic event",
+            path: entry.path(),
+            source,
+        })?;
+    }
+    sync_directory(events)?;
+    for entry in watermark_entries {
+        fs::remove_file(entry.path()).map_err(|source| NativeDiagnosticError::Io {
+            operation: "clear native diagnostic producer watermark",
+            path: entry.path(),
+            source,
+        })?;
+    }
+    sync_directory(watermarks)?;
+    let marker = root.join(CLEAR_REQUIRED_FILE);
+    fs::remove_file(&marker).map_err(|source| NativeDiagnosticError::Io {
+        operation: "complete native diagnostic clear",
+        path: marker,
+        source,
+    })?;
+    sync_directory(root)
 }
 
 fn prepare_child_directory(
@@ -1700,6 +1836,77 @@ mod tests {
         next_boot
             .record(&launcher, NativeDiagnosticCode::LaunchStarted, 0)
             .expect("uptime resets on new boot");
+    }
+
+    #[test]
+    fn complete_clear_resets_events_watermarks_sequence_and_time() {
+        let fixture = Fixture::new();
+        let mut store = NativeDiagnosticStore::open(fixture.config(), 1).expect("open");
+        let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+        store
+            .record(&launcher, NativeDiagnosticCode::LauncherReady, 50)
+            .expect("record");
+        let mut cleared = store.clear().expect("clear");
+        assert!(cleared.snapshot().events().is_empty());
+        assert_eq!(cleared.snapshot().evicted_events(), 0);
+        assert_eq!(
+            fs::read_dir(fixture.root.join(EVENTS_DIRECTORY))
+                .expect("events")
+                .count(),
+            0
+        );
+        assert_eq!(
+            fs::read_dir(fixture.root.join(WATERMARKS_DIRECTORY))
+                .expect("watermarks")
+                .count(),
+            0
+        );
+        assert!(!fixture.root.join(CLEAR_REQUIRED_FILE).exists());
+        let launcher = cleared.authorize_producer(DiagnosticProducer::Launcher);
+        let event = cleared
+            .record(&launcher, NativeDiagnosticCode::LaunchStarted, 1)
+            .expect("record after clear");
+        assert_eq!(event.ordinal(), 1);
+    }
+
+    #[test]
+    fn published_clear_marker_completes_on_reopen() {
+        let fixture = Fixture::new();
+        {
+            let mut store = NativeDiagnosticStore::open(fixture.config(), 1).expect("open");
+            let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+            store
+                .record(&launcher, NativeDiagnosticCode::LauncherReady, 10)
+                .expect("record");
+        }
+        File::create(fixture.root.join(CLEAR_REQUIRED_FILE)).expect("clear marker");
+        let reopened = NativeDiagnosticStore::open(fixture.config(), 1).expect("recover clear");
+        assert!(reopened.snapshot().events().is_empty());
+        assert_eq!(
+            fs::read_dir(fixture.root.join(WATERMARKS_DIRECTORY))
+                .expect("watermarks")
+                .count(),
+            0
+        );
+    }
+
+    #[test]
+    fn clear_validates_complete_scope_before_deleting_any_file() {
+        let fixture = Fixture::new();
+        let mut store = NativeDiagnosticStore::open(fixture.config(), 1).expect("open");
+        let launcher = store.authorize_producer(DiagnosticProducer::Launcher);
+        store
+            .record(&launcher, NativeDiagnosticCode::LauncherReady, 1)
+            .expect("record");
+        let unexpected = fixture.root.join(EVENTS_DIRECTORY).join("do-not-delete");
+        fs::write(&unexpected, b"foreign").expect("unexpected");
+        assert!(matches!(
+            store.clear(),
+            Err(NativeDiagnosticError::InvalidStore(_))
+        ));
+        assert!(unexpected.exists());
+        assert!(event_path(&fixture.root.join(EVENTS_DIRECTORY), 1).exists());
+        assert!(fixture.root.join(CLEAR_REQUIRED_FILE).exists());
     }
 
     #[test]
