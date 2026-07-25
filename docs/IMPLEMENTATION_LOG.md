@@ -5434,10 +5434,10 @@ grant launch, update, recovery, save, profile, or power authority.
 
 ### Verification evidence
 
-- Eight focused Rust tests cover exact browser-v1 round trip, parser/bound
+- Nine focused Rust tests cover exact browser-v1 round trip, parser/bound
   refusal, defaults, atomic save/reopen/cleanup, incomplete publication,
-  rejected-state replacement, reset recovery, unsafe path/layout, and lock
-  contention.
+  rejected-state replacement, reset recovery, pre-publication directory
+  headroom refusal, unsafe path/layout, and lock contention.
 
 ### Remaining boundary
 

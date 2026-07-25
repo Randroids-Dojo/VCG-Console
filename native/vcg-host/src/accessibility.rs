@@ -314,6 +314,12 @@ impl AccessibilityStore {
         &mut self,
         preferences: AccessibilityPreferences,
     ) -> Result<AccessibilitySnapshot, AccessibilityStoreError> {
+        let existing = committed_generations(&self.generations)?;
+        if existing.len() >= MAX_DIRECTORY_ENTRIES {
+            return Err(invalid_layout(
+                "accessibility generation directory has no publication headroom",
+            ));
+        }
         let bytes = preferences.to_json_bytes()?;
         let incoming = self
             .generations
@@ -940,5 +946,29 @@ mod tests {
             AccessibilityStore::open(&fixture.root),
             Err(AccessibilityStoreError::InvalidLayout(_))
         ));
+    }
+
+    #[test]
+    fn save_refuses_exhausted_directory_before_publication() {
+        let fixture = Fixture::new();
+        let mut store = AccessibilityStore::open(&fixture.root).expect("open");
+        let generations = fixture.root.join(GENERATIONS_DIRECTORY);
+        for ordinal in 1..=MAX_DIRECTORY_ENTRIES {
+            fs::write(
+                generation_path(&generations, u64::try_from(ordinal).expect("ordinal")),
+                AccessibilityPreferences::default()
+                    .to_json_bytes()
+                    .expect("document"),
+            )
+            .expect("generation");
+        }
+        assert!(matches!(
+            store.save(changed()),
+            Err(AccessibilityStoreError::InvalidLayout(_))
+        ));
+        assert_eq!(
+            fs::read_dir(generations).expect("generations").count(),
+            MAX_DIRECTORY_ENTRIES
+        );
     }
 }

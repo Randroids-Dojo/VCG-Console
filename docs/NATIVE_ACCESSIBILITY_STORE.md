@@ -42,8 +42,11 @@ superseded complete generations.
 The rename is the publication point. A crash before it leaves an incoming file
 that reopen validates by name and removes. A crash after it leaves a complete
 newest generation; reopen selects it and removes older complete generations.
-The directory is capped at four entries before parsing. Symlinks, relative
-roots, noncanonical names, non-files, and unexpected root entries fail closed.
+The directory is capped at four entries before parsing. Save rechecks that
+publication headroom exists before creating an incoming file, so repeated
+cleanup failure cannot push the store beyond that hard bound. Symlinks,
+relative roots, noncanonical names, non-files, and unexpected root entries
+fail closed.
 
 Reset first publishes and flushes a fixed `reset-required` marker. It then
 validates every accessibility generation name and type, removes only those
@@ -73,7 +76,8 @@ export, or secret field.
 
 ## Automated evidence
 
-Eight Rust tests cover exact browser-v1 round trip, strict parser and byte
+Nine Rust tests cover exact browser-v1 round trip, strict parser and byte
 bound, conservative defaults, atomic save/reopen/superseded cleanup,
 incomplete publication recovery, rejected-state disclosure and replacement,
-reset-marker recovery, unsafe path/layout, and lock contention.
+reset-marker recovery, pre-publication directory-headroom refusal, unsafe
+path/layout, and lock contention.
