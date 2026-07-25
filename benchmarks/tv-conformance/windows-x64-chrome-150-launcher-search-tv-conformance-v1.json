@@ -2,11 +2,11 @@
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
-  "qualification": "candidate-seven-search-states-and-four-activation-classes-with-remote-and-unavailable-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T02:02:28.965Z",
+  "qualification": "candidate-eight-search-states-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-25T02:20:11.388Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "29eced49370e97068136a45f547e2ee4ca1e61b5cb548c54476b7715fc266501"
+    "sha256": "7bcea5e64165ef3bd7d70f5ee67e4f7f42f2e5d6e2dee167b28933572755092b"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -70,6 +70,7 @@
           "expectedNetworkOnline": true,
           "remoteWebExpectation": null,
           "unavailableExpectation": null,
+          "destructiveExpectation": null,
           "backRecoveryFocus": "launcher-home-navigation"
         },
         "interactionTrace": [
@@ -97,6 +98,7 @@
           "expectedNetworkOnline": true,
           "remoteWebExpectation": null,
           "unavailableExpectation": null,
+          "destructiveExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -134,6 +136,7 @@
             }
           },
           "unavailableExpectation": null,
+          "destructiveExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -169,6 +172,7 @@
             "denial": null
           },
           "unavailableExpectation": null,
+          "destructiveExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -201,6 +205,7 @@
             "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
             "retryAvailable": true
           },
+          "destructiveExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -210,6 +215,50 @@
           "package-release-mismatch-diagnostic",
           "retry-action-visible",
           "search-trigger"
+        ]
+      },
+      {
+        "id": "destructive-settings-denial",
+        "query": "delete local progress",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "expectedAdapter": null,
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": null,
+          "destructiveExpectation": {
+            "selectedEntryTitle": "Obstacle",
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
         ]
       }
     ],
@@ -386,6 +435,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -447,6 +497,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -524,6 +575,7 @@
             "launchRetainedAfterDenial": true
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -600,6 +652,7 @@
             "launchRetainedAfterDenial": null
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -671,6 +724,7 @@
             "diagnosticVisible": true,
             "retryAvailable": true
           },
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -678,6 +732,89 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
           "bytes": 52347,
           "sha256": "80bf319294ddec55f6c22dc5969739441ace61bc44a32b5f207c01024c123d04"
+        }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
+          "bytes": 61440,
+          "sha256": "405ef1a10f4937cd37964647fe2c90e656e761fc0fe8c3daacbd90ebb5aa5b56"
         }
       },
       {
@@ -829,6 +966,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -890,6 +1028,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -967,6 +1106,7 @@
             "launchRetainedAfterDenial": true
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1043,6 +1183,7 @@
             "launchRetainedAfterDenial": null
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1114,6 +1255,7 @@
             "diagnosticVisible": true,
             "retryAvailable": true
           },
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1121,6 +1263,89 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
           "bytes": 68473,
           "sha256": "3586fe1ef663991551d0cc3922e78aaa45ab3680c23ab03a2539367cd32f3c38"
+        }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
+          "bytes": 77643,
+          "sha256": "7a54d18c7484e982fc6ee4e6dfdd4cd761a66d741c5a671aa907047b6a9322e8"
         }
       },
       {
@@ -1272,6 +1497,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -1333,6 +1559,7 @@
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1410,6 +1637,7 @@
             "launchRetainedAfterDenial": true
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1486,6 +1714,7 @@
             "launchRetainedAfterDenial": null
           },
           "unavailableEvidence": null,
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1557,6 +1786,7 @@
             "diagnosticVisible": true,
             "retryAvailable": true
           },
+          "destructiveEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1565,20 +1795,103 @@
           "bytes": 173631,
           "sha256": "fe31f2804129ee4f50114a7ab7f54304ff74a57777db3d5f03918deb2122d029"
         }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
+          "bytes": 192574,
+          "sha256": "9e83e787cd1b1ef3e4d660a7690b188fd1775896f9c713edc87381c38e1e3621"
+        }
       }
     ],
     "consoleErrorCount": 0,
     "pageErrorCount": 0,
     "requestFailureCount": 0,
     "requestCounts": {
-      "/": 21,
-      "/assets/main-DJbcQdKd.js": 21,
-      "/assets/main-DwOiNSRf.css": 21,
-      "/assets/modulepreload-polyfill-Dezn_h7o.js": 21,
-      "/assets/src-EbToTsJV.js": 21,
-      "/assets/synthetic-BTWSnpMo.js": 21,
-      "/assets/tracker-health--oynSZbv.js": 21,
-      "/fonts/OCRA.ttf": 21
+      "/": 24,
+      "/assets/main-2gC7vlBL.js": 24,
+      "/assets/main-DwOiNSRf.css": 24,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
+      "/assets/src-EbToTsJV.js": 24,
+      "/assets/synthetic-BTWSnpMo.js": 24,
+      "/assets/tracker-health--oynSZbv.js": 24,
+      "/fonts/OCRA.ttf": 24
     }
   },
   "disposition": {
@@ -1596,6 +1909,7 @@
     "externalOriginDisclosureVerified": true,
     "blockedPreviewDenialVerified": true,
     "unavailablePackageDenialVerified": true,
+    "destructiveSettingsDenialVerified": true,
     "physicalTelevisionVerified": false,
     "physicalControllerVerified": false,
     "reservedHomeVerified": false,
@@ -1607,15 +1921,16 @@
   },
   "summary": {
     "resolutionCount": 3,
-    "searchStateCount": 7,
-    "observationCount": 21,
-    "screenshotCount": 21,
-    "distinctQueryCount": 6,
-    "activatedResultClassCount": 4,
+    "searchStateCount": 8,
+    "observationCount": 24,
+    "screenshotCount": 24,
+    "distinctQueryCount": 7,
+    "activatedResultClassCount": 5,
     "remoteWebOutcomeStateCount": 2,
     "unavailableOutcomeStateCount": 1,
+    "destructiveOutcomeStateCount": 1,
     "failureOutcomeStateCount": 2,
-    "denialOutcomeStateCount": 2,
+    "denialOutcomeStateCount": 3,
     "physicalTelevisionCount": 0,
     "physicalControllerCount": 0,
     "participantCount": 0,
@@ -1627,6 +1942,10 @@
     "launcherPathSha256": "99abd39efcb507746c8edb49df80029ccc2cf81b1f4fbf2ab045eb7801b5e18d",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "16bb38146a4a0234d8e21085c6cc78c115875bef5ea30eb0de54a6fbc293bbfa",
+    "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
+    "unassignedViewPathSha256": "0ef5a820c62c6995762bb5ec16b5868d89d51c361aad98b752a8774b432fca9d",
+    "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
+    "unassignedControllerPathSha256": "711b55c414610721af48a157cf6d90c014c8426cd3474816ec550c69a83bb52e",
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b",
     "entryPath": "apps/console-lab/src/main.ts",
@@ -1636,15 +1955,15 @@
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "a531d9483307cfbc2ff6ea0fc3dd3eb7c084951975f8672a4bf0a20f109b2b72",
+    "browserTestPathSha256": "ac74b325d3a1b4762dfde356884fe447b7a1429abe64a7b9c4b7d986158d67ee",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "29eced49370e97068136a45f547e2ee4ca1e61b5cb548c54476b7715fc266501",
+    "representativeEvidencePathSha256": "7bcea5e64165ef3bd7d70f5ee67e4f7f42f2e5d6e2dee167b28933572755092b",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "c92ed27359d9d276d51bd3544ab363e82b377d418a30140b50a7241e79c7d648",
+    "generatorPathSha256": "f7adde11c87f2850303469b3ff99ce365ef7c1dbce0dbdf01247708703cff6bf",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "362cdda37ee18c540a0e51f27abd0fcf7e2fd85b33b766ab8d8654b7962db3ae",
+    "validatorPathSha256": "5b40c430bb91a1513a32cbe99a8976b07a251e926ef71eba631eedd51b36c633",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -1662,13 +1981,13 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 127,
-      "sha256": "9e568c86ac22ac95b18df5efae19b3c6010799939b711cad4cb68f669b4a8f49"
+      "sha256": "ac3b5aac11d17e84f5c9415cfb3b3d50f79bd6335fb1195744ba81a6ebb8ae80"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, and exact one-result 2048 unavailable-package query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. It does not select the final empty-query product policy, qualify arbitrary localization or query text, destructive-setting activation, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query product policy, qualify arbitrary localization or query text, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
-    "Only seven exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, and the exact one-result 2048 unavailable-package query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. Destructive-settings activation remains untested.",
+    "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
     "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
     "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
     "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility."

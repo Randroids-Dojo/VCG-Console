@@ -310,7 +310,7 @@
         <div class="unassigned-actions">
           <button type="button" disabled={selected.compatibility !== "ready"} onclick={play}>Play unassigned</button>
           <button type="button" onclick={beginClaim}>Claim to profile</button>
-          <button class="danger" type="button" onclick={beginDelete}>Delete permanently</button>
+          <button id="delete-unassigned-progress" class="danger" type="button" onclick={beginDelete}>Delete permanently</button>
         </div>
       </section>
     {/if}
@@ -381,8 +381,8 @@
           <p>Hosted-service account data remains separate and is not affected.</p>
         {/if}
         <div class="dialog-actions">
-          <button class="danger" type="button" onclick={confirmDelete}>Delete this progress</button>
-          <button type="button" onclick={() => closeFlow()}>Cancel</button>
+          <button id="cancel-unassigned-progress-delete" type="button" onclick={() => closeFlow()}>Cancel</button>
+          <button id="confirm-unassigned-progress-delete" class="danger" type="button" onclick={confirmDelete}>Delete this progress</button>
         </div>
       {/if}
       <p class="dialog-prototype-boundary">Prototype only · no filesystem mutation</p>

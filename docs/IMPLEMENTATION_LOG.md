@@ -5571,3 +5571,45 @@ Q-247 still requires exact systemd units/identities, atomic child attachment,
 anti-escape and anti-entry enforcement, durable scope/barrier binding,
 production polling behavior, cleanup/removal, hostile-descendant evidence,
 and qualification on ordinary x86-64 Linux and Raspberry Pi OS.
+
+## 2026-07-24: Search destructive-settings denial
+
+### Delivered
+
+- Made the Unassigned progress permanent-delete review fail safe by default:
+  Cancel is the initially focused action, while the destructive confirmation
+  retains its separate exact control.
+- Added the exact `delete local progress` Search state at 720p, 1080p, and 4K
+  with one result, five marked critical-text nodes, two marked actions, no
+  overlap or overlay overflow, and the candidate TV geometry floor.
+- Proved keyboard activation opens the exact synthetic Unassigned progress
+  route with Obstacle focused. The permanent-delete review discloses no
+  backup, export, cloud copy, migration, or undo and states that no filesystem
+  mutation occurs.
+- Proved controller Back denies the deletion, preserves all four entries,
+  restores focus to `Delete permanently`, and a second Back returns to focused
+  Profiles navigation at all three resolutions.
+- Expanded the strict Search artifact to eight states, twenty-four
+  observations and screenshots, seven distinct queries, and five activation
+  classes. The recommended STV-004 desk sequence is now covered without
+  claiming a real destructive storage operation.
+
+### Verification evidence
+
+- Four focused Chrome cases pass: one normal destructive denial plus the same
+  activation, safe-default, retained-entry, and recovery path at all three
+  resolutions.
+- Svelte reports zero errors and warnings.
+- The Home, representative-surface, Search, OCR-A structural, and OCR-A
+  platform-fallback artifacts were regenerated against the new launcher build.
+  All five strict validators and their eleven adversarial groups pass.
+- The complete root test command and workspace production build pass, followed
+  by all seventy-five Playwright cases.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. No filesystem deletion, native save broker,
+destructive persistence, restart/power-loss recovery, physical TV/controller,
+or target Linux environment was qualified. STV-001 through STV-003 still own
+default density, query/localization, and no-result recovery policy, and
+STV-004 remains an owner selection rather than a final product decision.

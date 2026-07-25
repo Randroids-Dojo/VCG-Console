@@ -1969,6 +1969,62 @@ test("Search unavailable package denial retains diagnostics and restores focus",
   await expect(trigger).toBeFocused();
 });
 
+test("Search destructive progress route defaults to denial and preserves the entry", async ({
+  page,
+}) => {
+  await page.goto("/?skipBoot=1");
+  const trigger = page.getByRole("button", { name: /Search games/ });
+  await trigger.focus();
+  await trigger.click();
+  await page.locator("#universal-search").fill("delete local progress");
+  const result = page.getByRole("button", {
+    name: /System Unassigned progress Device-only saves without a profile/,
+  });
+  await expect(page.locator("#search-results button")).toHaveCount(1);
+  await result.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(page.locator("#search-overlay")).toBeHidden();
+  const view = page.locator('[data-launcher-view="unassigned"]');
+  await expect(
+    view.getByRole("heading", { name: "Progress without a profile." }),
+  ).toBeVisible();
+  const obstacle = view.getByRole("button", { name: /Obstacle/ });
+  await expect(obstacle).toBeFocused();
+  const deleteAction = view.getByRole("button", {
+    name: "Delete permanently",
+  });
+  await deleteAction.focus();
+  await page.keyboard.press("Enter");
+
+  const dialog = page.getByRole("dialog", {
+    name: /Delete Obstacle .* Checkpoint 12/,
+  });
+  await expect(dialog).toContainText(
+    "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+  );
+  await expect(dialog).toContainText("Prototype only");
+  await expect(
+    dialog.getByRole("button", { name: "Cancel", exact: true }),
+  ).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(obstacle).toBeVisible();
+  await expect(deleteAction).toBeFocused();
+  await expect(page.locator("#launcher-toast")).not.toContainText(
+    "Prototype deletion completed",
+  );
+
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("heading", { name: "Who is playing?" }),
+  ).toBeVisible();
+  await expect(
+    page.locator('.launcher-nav [data-view-target="profiles"]'),
+  ).toBeFocused();
+});
+
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();

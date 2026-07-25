@@ -7,7 +7,7 @@ Scope: I-098 and Q-056
 ## Outcome
 
 The production-built launcher Search overlay now applies the candidate
-television floor to seven exact states:
+television floor to eight exact states:
 
 1. the lowercase `motion` query with five results;
 2. `no-such-vcg-destination` with no results;
@@ -21,7 +21,10 @@ television floor to seven exact states:
 6. the same exact Museum result activated after the browser context is made
    offline, producing the explicit offline failure and Retry action; and
 7. the exact `2048` query with one result and a signed-inventory unavailable
-   package denial.
+   package denial; and
+8. the exact `delete local progress` query with one Unassigned progress result,
+   safe-default permanent-delete review, controller-Back denial, retained
+   entry, and bounded focus recovery.
 
 At 1280 x 720, 1920 x 1080, and 3840 x 2160, every explicitly marked label,
 query, result group/title/action, and no-result message remains inside the
@@ -33,7 +36,7 @@ results viewport has 387 CSS px of internal overflow at 720p, 79 CSS px at
 maximum scroll position where overflow exists and leaves that result fully
 inside the results viewport at all three resolutions.
 
-The strict television artifact proves seven fixed Search states, keyboard
+The strict television artifact proves eight fixed Search states, keyboard
 activation and Back recovery for the local Profiles shell view, and keyboard
 activation plus opener-focus recovery for the built-in offline Obstacle launch
 surface on one Windows desk. It also activates the canonical Museum result
@@ -44,17 +47,23 @@ Back in every mode. It does not open or qualify the remote page, select the
 final empty-query policy, or prove arbitrary or localized queries. The exact
 2048 result also enters the `RETRO` supervisor, refuses the absent signed
 release with `PACKAGE_RELEASE_MISMATCH`, exposes Retry, and restores focus
-without contacting a package runtime. No signed package, destructive setting,
-gameplay, physical TV/controller behavior, target Linux output, or frame
-timing is qualified.
+without contacting a package runtime. The destructive result opens the
+synthetic Unassigned progress route, selects the exact Obstacle sample, opens
+its permanent-delete review with Cancel focused, and uses controller Back to
+retain all four entries and restore the destructive action. A second Back
+returns to focused Profiles navigation. This is in-memory denial evidence,
+not a filesystem or native save-broker mutation. No signed package, real
+destructive storage operation, gameplay, physical TV/controller behavior,
+target Linux output, or frame timing is qualified.
 
 ## Frozen observations
 
 The strict artifact is
 [`windows-x64-chrome-150-launcher-search-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json).
 It binds the exact production source tree, Search and launcher sources,
-generator, validator, browser test, base representative-state artifact,
-production resources, and twenty-one PNG files.
+Unassigned progress view/controller, generator, validator, browser test, base
+representative-state artifact, production resources, and twenty-four PNG
+files.
 
 | State | Mode | Results | Measured visible / total critical text | Minimum text | Actions | Minimum action |
 |---|---|---:|---:|---:|---:|---:|
@@ -65,6 +74,7 @@ production resources, and twenty-one PNG files.
 | Museum ready / blocked preview | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Museum offline failure | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | 2048 unavailable denial | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
+| Destructive progress denial | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Motion results | 1920 x 1080 | 5 | 13 / 13 | 24 px | 6 | 951.328 x 48 px |
 | No results | 1920 x 1080 | 0 | 4 / 4 | 24 px | 1 | 951.328 x 48 px |
 | Empty query, scrolled | 1920 x 1080 | 18 | 35 / 39 | 24 px | 19 | 951.328 x 48 px |
@@ -72,6 +82,7 @@ production resources, and twenty-one PNG files.
 | Museum ready / blocked preview | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Museum offline failure | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | 2048 unavailable denial | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
+| Destructive progress denial | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Motion results | 3840 x 2160 | 5 | 13 / 13 | 48 px | 6 | 1936.656 x 61 px |
 | No results | 3840 x 2160 | 0 | 4 / 4 | 48 px | 1 | 1936.656 x 62 px |
 | Empty query, exact fit | 3840 x 2160 | 18 | 39 / 39 | 48 px | 19 | 1936.656 x 61 px |
@@ -79,8 +90,9 @@ production resources, and twenty-one PNG files.
 | Museum ready / blocked preview | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 | Museum offline failure | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 | 2048 unavailable denial | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
+| Destructive progress denial | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 
-All twenty-one observations record complete document state, every measured
+All twenty-four observations record complete document state, every measured
 visible marked item inside the safe rectangle, zero measured marked-text
 overlaps, zero overlay overflow, and zero console errors, page errors, or
 failed requests. Offscreen critical text in the two internally scrolling
@@ -136,6 +148,17 @@ package runtime. Back closes the denial and restores the Search trigger at all
 three resolutions. This proves launcher-side unavailable-package refusal, not
 the presence, authenticity, execution, or compatibility of a package.
 
+The `delete local progress` trace focuses its only result and presses Enter.
+The exact Unassigned progress view opens with Obstacle focused. Enter on
+`Delete permanently` opens the exact save-deletion review, which discloses no
+backup, export, cloud copy, migration, or undo and labels the operation as a
+prototype with no filesystem mutation. Cancel has initial focus. Controller
+Back dismisses the review, leaves all four entries present, and restores focus
+to `Delete permanently`; a second Back returns to the Profiles destination
+with its navigation action focused. This proves one synthetic destructive
+denial and focus path, not deletion, native persistence, crash recovery,
+power-loss behavior, or permanent-loss semantics.
+
 The broader Console Lab Chrome suite separately proves that opening Search with
 an empty query exposes exactly 18 current destinations, the results container
 has real internal overflow, focusing its last result advances `scrollTop`, and
@@ -157,6 +180,7 @@ qualifies a game or package.
 | Museum result before ready / denial activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png) |
 | Museum result before offline activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png) |
 | 2048 result before unavailable denial | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png) |
+| Unassigned progress before destructive denial | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png) |
 
 The frozen browser clock advances by exactly one second after the state is
 ready so entrance animation is complete before capture. This is deterministic
@@ -188,13 +212,16 @@ provenance, limitations, unknown claims, promotion, and demotion.
 I-098/Q-056 remain active. The strict TV record now covers current empty-query
 density plus local-shell, built-in offline local-web, and canonical remote-web
 supervisor activation at every target resolution, plus unavailable-package
-refusal for the 2048 candidate. The remote result exposes its fixed origin,
-offline failure, Retry action, and blocked-preview denial without opening
-remote content. The unavailable result exposes signed-inventory refusal,
-diagnostics, Retry, and Back without contacting a package runtime. STV-001
-must still choose whether the default list remains, becomes curated, or
-requires a query. Search also needs long strings, localization, large
-text/high contrast/reduced motion, physical-controller directional navigation,
-the destructive-settings STV-004 result class and denial, physical-TV viewing,
-reserved Home, native-host recovery, and both target Linux display stacks.
-Q-242/Q-243 and STV-001 through STV-004 retain the final policy choices.
+refusal for the 2048 candidate and one synthetic destructive-progress denial.
+The remote result exposes its fixed origin, offline failure, Retry action, and
+blocked-preview denial without opening remote content. The unavailable result
+exposes signed-inventory refusal, diagnostics, Retry, and Back without
+contacting a package runtime. The destructive result defaults to Cancel,
+retains the selected entry on Back, and restores focus without a filesystem
+mutation. STV-001 must still choose whether the default list remains, becomes
+curated, or requires a query. Search also needs long strings, localization,
+large text/high contrast/reduced motion, physical-controller directional
+navigation, real destructive-storage integration and failure recovery,
+physical-TV viewing, reserved Home, native-host recovery, and both target
+Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain the final
+policy choices.

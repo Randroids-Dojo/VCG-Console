@@ -87,6 +87,7 @@ const EXPECTED_STATES = Object.freeze([
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
       unavailableExpectation: null,
+      destructiveExpectation: null,
       backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
@@ -114,6 +115,7 @@ const EXPECTED_STATES = Object.freeze([
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
       unavailableExpectation: null,
+      destructiveExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -152,6 +154,7 @@ const EXPECTED_STATES = Object.freeze([
         },
       },
       unavailableExpectation: null,
+      destructiveExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -187,6 +190,7 @@ const EXPECTED_STATES = Object.freeze([
         denial: null,
       },
       unavailableExpectation: null,
+      destructiveExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -220,6 +224,7 @@ const EXPECTED_STATES = Object.freeze([
         diagnosticCode: "PACKAGE_RELEASE_MISMATCH",
         retryAvailable: true,
       },
+      destructiveExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -229,6 +234,51 @@ const EXPECTED_STATES = Object.freeze([
       "package-release-mismatch-diagnostic",
       "retry-action-visible",
       "search-trigger",
+    ],
+  },
+  {
+    id: "destructive-settings-denial",
+    query: "delete local progress",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "Unassigned progress",
+      method: "keyboard-enter",
+      outcomeKind: "launcher-view",
+      outcomeLabel: "Progress without a profile.",
+      expectedAdapter: null,
+      expectedNetworkOnline: true,
+      remoteWebExpectation: null,
+      unavailableExpectation: null,
+      destructiveExpectation: {
+        selectedEntryTitle: "Obstacle",
+        actionLabel: "Delete permanently",
+        dialogLabel: "Delete Obstacle · Checkpoint 12?",
+        warning:
+          "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+        prototypeBoundary: "Prototype only · no filesystem mutation",
+        safeDefaultLabel: "Cancel",
+        safeDefaultInitiallyFocused: true,
+        denialKind: "controller-back-cancelled",
+        confirmationDismissed: true,
+        entryRetainedAfterDenial: true,
+        denialRecoveryFocus: "delete-unassigned-progress",
+      },
+      backRecoveryFocus: "profiles-navigation",
+    },
+    interactionTrace: [
+      "universal-search",
+      "unassigned-progress-result",
+      "unassigned-progress-view",
+      "obstacle-delete-action",
+      "safe-cancel-default",
+      "controller-back-denial",
+      "obstacle-entry-retained",
+      "delete-action-focus-restored",
+      "profiles-navigation",
     ],
   },
 ]);
@@ -269,6 +319,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 52347,
     sha256: "80bf319294ddec55f6c22dc5969739441ace61bc44a32b5f207c01024c123d04",
   },
+  "destructive-settings-denial/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
+    bytes: 61440,
+    sha256: "405ef1a10f4937cd37964647fe2c90e656e761fc0fe8c3daacbd90ebb5aa5b56",
+  },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
     bytes: 105671,
@@ -304,6 +359,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 68473,
     sha256: "3586fe1ef663991551d0cc3922e78aaa45ab3680c23ab03a2539367cd32f3c38",
   },
+  "destructive-settings-denial/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
+    bytes: 77643,
+    sha256: "7a54d18c7484e982fc6ee4e6dfdd4cd761a66d741c5a671aa907047b6a9322e8",
+  },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
     bytes: 256838,
@@ -338,6 +398,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
     bytes: 173631,
     sha256: "fe31f2804129ee4f50114a7ab7f54304ff74a57777db3d5f03918deb2122d029",
+  },
+  "destructive-settings-denial/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
+    bytes: 192574,
+    sha256: "9e83e787cd1b1ef3e4d660a7690b188fd1775896f9c713edc87381c38e1e3621",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
@@ -439,6 +504,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: null,
     },
   },
+  "destructive-settings-denial/720p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
   "motion-results/1080p": {
     measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 24,
@@ -524,6 +603,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "unavailable-package-denial/1080p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "destructive-settings-denial/1080p": {
     measuredCriticalTextCount: 5,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 951.328,
@@ -635,10 +728,28 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: null,
     },
   },
+  "destructive-settings-denial/4k": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
 });
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
   searchPath: "apps/console-lab/src/launcher/SearchOverlay.svelte",
+  unassignedViewPath:
+    "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
+  unassignedControllerPath:
+    "apps/console-lab/src/launcher/unassigned-progress.ts",
   stylePath: "apps/console-lab/src/styles.css",
   entryPath: "apps/console-lab/src/main.ts",
   documentPath: "apps/console-lab/index.html",
@@ -698,15 +809,15 @@ function validateRequests(requestCounts) {
   );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
-  assert.equal(requestCounts["/"], 21);
-  assert.equal(requestCounts["/fonts/OCRA.ttf"], 21);
+  assert.equal(requestCounts["/"], 24);
+  assert.equal(requestCounts["/fonts/OCRA.ttf"], 24);
   const assets = entries.filter(([path]) => path.startsWith("/assets/"));
   assert.equal(assets.length, 6);
   assert.equal(assets.filter(([path]) => path.endsWith(".css")).length, 1);
   assert.equal(assets.filter(([path]) => path.endsWith(".js")).length, 5);
   for (const [path, count] of assets) {
     assert.match(path, /^\/assets\/[A-Za-z0-9_-]+\.(?:css|js)$/u);
-    assert.equal(count, 21);
+    assert.equal(count, 24);
   }
 }
 
@@ -888,6 +999,31 @@ async function validateObservation(observation, expectedState, resolution) {
           diagnosticVisible: true,
           retryAvailable: unavailableExpectation.retryAvailable,
         };
+    const destructiveExpectation =
+      expectedState.activation.destructiveExpectation;
+    const destructiveEvidence = destructiveExpectation === null
+      ? null
+      : {
+          selectedEntryTitle: destructiveExpectation.selectedEntryTitle,
+          entryCountBeforeDenial: 4,
+          actionLabel: destructiveExpectation.actionLabel,
+          dialogLabel: destructiveExpectation.dialogLabel,
+          warning: destructiveExpectation.warning,
+          warningVisible: true,
+          prototypeBoundary: destructiveExpectation.prototypeBoundary,
+          prototypeBoundaryVisible: true,
+          safeDefaultLabel: destructiveExpectation.safeDefaultLabel,
+          safeDefaultInitiallyFocused:
+            destructiveExpectation.safeDefaultInitiallyFocused,
+          denialKind: destructiveExpectation.denialKind,
+          confirmationDismissed:
+            destructiveExpectation.confirmationDismissed,
+          entryRetainedAfterDenial:
+            destructiveExpectation.entryRetainedAfterDenial,
+          entryCountAfterDenial: 4,
+          denialRecoveryFocus:
+            destructiveExpectation.denialRecoveryFocus,
+        };
     assert.deepEqual(observation.activation, {
       resultTitle: expectedState.activation.resultTitle,
       method: expectedState.activation.method,
@@ -900,6 +1036,7 @@ async function validateObservation(observation, expectedState, resolution) {
         expectedState.activation.expectedNetworkOnline,
       remoteWebEvidence,
       unavailableEvidence,
+      destructiveEvidence,
       backRecoveryVerified: true,
       backRecoveryFocus: expectedState.activation.backRecoveryFocus,
     });
@@ -958,7 +1095,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-seven-search-states-and-four-activation-classes-with-remote-and-unavailable-failure-denial-only-not-tv-target-or-catalog-qualification",
+    "candidate-eight-search-states-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -998,7 +1135,7 @@ export async function validateLauncherSearchTvEvidence(
     "browser",
   );
   assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
-  assert.equal(artifact.browser.observations.length, 21);
+  assert.equal(artifact.browser.observations.length, 24);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
     for (const state of EXPECTED_STATES) {
@@ -1029,6 +1166,7 @@ export async function validateLauncherSearchTvEvidence(
     externalOriginDisclosureVerified: true,
     blockedPreviewDenialVerified: true,
     unavailablePackageDenialVerified: true,
+    destructiveSettingsDenialVerified: true,
     physicalTelevisionVerified: false,
     physicalControllerVerified: false,
     reservedHomeVerified: false,
@@ -1040,15 +1178,16 @@ export async function validateLauncherSearchTvEvidence(
   });
   assert.deepEqual(artifact.summary, {
     resolutionCount: 3,
-    searchStateCount: 7,
-    observationCount: 21,
-    screenshotCount: 21,
-    distinctQueryCount: 6,
-    activatedResultClassCount: 4,
+    searchStateCount: 8,
+    observationCount: 24,
+    screenshotCount: 24,
+    distinctQueryCount: 7,
+    activatedResultClassCount: 5,
     remoteWebOutcomeStateCount: 2,
     unavailableOutcomeStateCount: 1,
+    destructiveOutcomeStateCount: 1,
     failureOutcomeStateCount: 2,
-    denialOutcomeStateCount: 2,
+    denialOutcomeStateCount: 3,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

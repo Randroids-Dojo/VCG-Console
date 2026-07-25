@@ -35,7 +35,7 @@ async function validateMutation(mutator) {
 
 test("accepts the exact launcher Search TV evidence", async () => {
   const artifact = await validateLauncherSearchTvEvidence();
-  assert.equal(artifact.summary.observationCount, 21);
+  assert.equal(artifact.summary.observationCount, 24);
 });
 
 test("rejects format, base evidence, environment, or resolution substitution", async () => {
@@ -185,6 +185,23 @@ test("rejects interaction, scrolling, or activation drift", async () => {
       .activation.unavailableEvidence.retryAvailable = false;
   });
   await validateMutation((artifact) => {
+    artifact.browser.observations[7]
+      .activation.destructiveEvidence.safeDefaultInitiallyFocused = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[7]
+      .activation.destructiveEvidence.confirmationDismissed = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[7]
+      .activation.destructiveEvidence.entryCountAfterDenial = 3;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[7]
+      .activation.destructiveEvidence.denialRecoveryFocus =
+        "confirm-unassigned-progress-delete";
+  });
+  await validateMutation((artifact) => {
     artifact.browser.observations[10].resultsScroll.scrollHeightCssPx += 1;
   });
 });
@@ -237,10 +254,10 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     artifact.disposition.resultActivationVerified = false;
   });
   await validateMutation((artifact) => {
-    artifact.summary.distinctQueryCount = 5;
+    artifact.summary.distinctQueryCount = 6;
   });
   await validateMutation((artifact) => {
-    artifact.summary.activatedResultClassCount = 5;
+    artifact.summary.activatedResultClassCount = 4;
   });
   for (const key of [
     "remoteWebActivationVerified",
@@ -248,6 +265,7 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     "externalOriginDisclosureVerified",
     "blockedPreviewDenialVerified",
     "unavailablePackageDenialVerified",
+    "destructiveSettingsDenialVerified",
   ]) {
     await validateMutation((artifact) => {
       artifact.disposition[key] = false;
@@ -258,6 +276,9 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
   });
   await validateMutation((artifact) => {
     artifact.summary.unavailableOutcomeStateCount = 0;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.destructiveOutcomeStateCount = 0;
   });
   await validateMutation((artifact) => {
     artifact.summary.failureOutcomeStateCount = 0;

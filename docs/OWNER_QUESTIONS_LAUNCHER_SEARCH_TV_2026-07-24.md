@@ -2,10 +2,11 @@
 
 Date opened: 2026-07-24
 
-These questions do not block the seven fixed desk-only Search states or the
+These questions do not block the eight fixed desk-only Search states or the
 local-shell, built-in offline local-web, and remote-web supervisor activation
-checks, or the unavailable retro-package refusal. Q-242 and Q-243 remain
-authoritative for final physical-TV and output policy.
+checks, the unavailable retro-package refusal, or the synthetic destructive
+progress denial. Q-242 and Q-243 remain authoritative for final physical-TV
+and output policy.
 
 ## STV-001: empty-query density
 
@@ -44,7 +45,7 @@ Recommended order: a local shell view, offline package, remote-web title,
 unavailable package, destructive settings route, and external-origin
 disclosure. Each must restore focus safely after Back, failure, and denial.
 
-Current desk evidence covers the first four activation classes at all three
+Current desk evidence covers the first five activation classes at all three
 target resolutions. Profiles returns through Back to the focused Home
 navigation action. Obstacle opens the `LOCAL WEB` launch surface and Back
 returns focus to the exact Search opener. The canonical Museum result enters
@@ -53,14 +54,21 @@ destination, contains a forced blocked-preview denial, exposes offline failure
 and Retry, and returns Back focus to the same Search opener. No remote content
 was opened or qualified. The exact 2048 result enters the retro supervisor
 and refuses the absent signed release with a closed diagnostic and Retry
-before restoring Back focus.
-No package or native host was contacted or qualified. Destructive settings,
-their denial path, physical controllers, and physical televisions remain
-unqualified.
+before restoring Back focus. The exact `delete local progress` result opens
+Unassigned progress, places Cancel first in the permanent-delete review, uses
+controller Back to retain the selected Obstacle entry, restores focus to the
+destructive action, and returns through Back to focused Profiles navigation.
+This also retains the fixed external-origin disclosure within the remote-web
+class, completing the recommended desk sequence without opening remote
+content.
+
+No package or native host was contacted or qualified, and no filesystem
+deletion occurred. Real destructive storage, failure/restart recovery,
+physical controllers, and physical televisions remain unqualified.
 
 ## Handoff
 
 Record selected behavior as later product decisions. Until then, retain the
-seven exact states, four activation classes, bounded claims, offline query
+eight exact states, five activation classes, bounded claims, offline query
 processing, and focus recovery documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).

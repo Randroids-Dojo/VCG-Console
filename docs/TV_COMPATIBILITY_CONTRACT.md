@@ -120,11 +120,12 @@ states and every game remain outside the result.
 
 ## Launcher Search states
 
-The production Search overlay now has seven exact candidate-TV checks: a
+The production Search overlay now has eight exact candidate-TV checks: a
 five-result `motion` query, a no-result query, the current 18-destination
 empty query, one Obstacle result, and one canonical Museum result in both
 ready/blocked-preview and offline-failure modes, plus one unavailable 2048
-candidate. Twenty-one captures bind marked labels, query text, result
+candidate and one destructive Unassigned progress result. Twenty-four captures
+bind marked labels, query text, result
 group/title/action copy, empty-state copy, input and result targets, zero
 overlap/overflow, scrolling, activation, failure, denial, diagnostics, Retry,
 Back, and exact focus restoration.
@@ -136,10 +137,12 @@ its
 and
 [STV-001 through STV-004](OWNER_QUESTIONS_LAUNCHER_SEARCH_TV_2026-07-24.md).
 The result records current empty-query density, scrolling, local-shell,
-built-in local-web, and remote-web-supervisor activation. It does not select
-the final density policy, prove arbitrary or localized queries, open or
-qualify remote content, qualify an unavailable package, activate destructive
-settings, or qualify physical TV/controller behavior.
+built-in local-web, remote-web-supervisor, unavailable-package, and synthetic
+destructive-progress activation. The destructive review defaults to Cancel,
+retains the selected entry on Back, and restores focus without a filesystem
+mutation. It does not select the final density policy, prove arbitrary or
+localized queries, open or qualify remote content, qualify a signed package
+or real destructive storage, or qualify physical TV/controller behavior.
 
 ## Author checklist
 

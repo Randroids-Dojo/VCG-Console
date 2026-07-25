@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 815224,
+      "totalBytes": 815335,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -879,8 +879,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
-          "bytes": 14408,
-          "sha256": "7542a7c53bf86b5e763aa8fcd10862141b7f6f85605877ddde4c39957b3e7cb9"
+          "bytes": 14519,
+          "sha256": "0ef5a820c62c6995762bb5ec16b5868d89d51c361aad98b752a8774b432fca9d"
         },
         {
           "path": "apps/console-lab/src/launcher/accessibility-preferences.test.ts",
