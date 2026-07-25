@@ -5757,6 +5757,48 @@ materialization, signed evidence envelope, support/export/crash inventory,
 RAM/swap/core-dump policy, target filesystem faults, and Raspberry
 Pi/ordinary-Linux evidence remain under Q-155 through Q-158 and Q-249.
 
+## 2026-07-24: tracker worker runtime-crash recovery
+
+### Delivered
+
+- Made every live worker inference fault, uncaught runtime error, and
+  frame-transfer failure discard the poisoned worker backend before exposing
+  the existing blocked `backend-fault` state.
+- The fault path now releases and resets one-frame backpressure, advances the
+  run identity, stops every camera track, clears the video source, removes
+  worker listeners, terminates the worker, and restores the explicit Start
+  Camera control.
+- Each asynchronous frame transfer is bound to the worker and run that started
+  it, so completion after a stop, fault, or retry cannot feed a stale frame to
+  the replacement backend.
+- An explicit retry constructs a new worker rather than reusing the failed
+  backend. Worker initialization failure still enters the already disclosed
+  landmarks-only main-thread fallback.
+- Kept automatic retry and repeated-crash policy open in
+  `OWNER_QUESTIONS_TRACKER_WORKER_RECOVERY_2026-07-24.md`; no runtime fault can
+  silently resume motion authority.
+
+### Verification evidence
+
+- A real Chrome case starts the pinned live worker, injects an uncaught
+  exception inside that worker, observes the blocked fault and enabled retry,
+  proves retry creates a distinct worker that reaches Ready, and proves a
+  frame transfer held across the fault is closed rather than posted to the
+  replacement worker.
+- The normal worker lifecycle, unavailable-worker fallback, and runtime-crash
+  retry cases pass together.
+- All 232 console unit tests pass, and Svelte reports zero errors and warnings.
+- The complete root test command and workspace production build pass, followed
+  by all seventy-seven Playwright cases.
+
+### Remaining boundary
+
+I-208 remains active. Synthetic browser-camera evidence does not qualify real
+camera faults, repeated crashes, automatic recovery, UI responsiveness under
+load, exposure timestamps, native-process comparison, target x86-64 Linux, or
+Raspberry Pi. Product retry ceilings and fallback timing remain owner
+questions.
+
 ## 2026-07-24: remote-game cold offline browser restart
 
 ### Delivered

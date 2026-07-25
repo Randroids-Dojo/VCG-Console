@@ -2480,6 +2480,101 @@ test("reports and survives an unavailable worker with the explicit fallback", as
   await expect(page.locator("#status-detail")).toContainText("Worker initialization failed");
 });
 
+test("fails closed on a worker crash and retries with a fresh backend", async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalCreateImageBitmap = window.createImageBitmap.bind(window);
+    const originalClose = ImageBitmap.prototype.close;
+    let heldBitmap: ImageBitmap | undefined;
+    let releaseHeldBitmap: (() => void) | undefined;
+    let heldBitmapClosed = false;
+
+    Object.defineProperty(ImageBitmap.prototype, "close", {
+      configurable: true,
+      value(this: ImageBitmap) {
+        if (this === heldBitmap) heldBitmapClosed = true;
+        originalClose.call(this);
+      },
+    });
+    Object.defineProperty(window, "createImageBitmap", {
+      configurable: true,
+      value: async (...args: unknown[]) => {
+        const bitmap = await (originalCreateImageBitmap as (...callArgs: unknown[]) => Promise<ImageBitmap>)(...args);
+        if (!heldBitmap) {
+          heldBitmap = bitmap;
+          await new Promise<void>((resolve) => {
+            releaseHeldBitmap = resolve;
+          });
+        }
+        return bitmap;
+      },
+    });
+    (
+      window as unknown as {
+        __trackerTransferHarness: {
+          hasHeldBitmap: () => boolean;
+          releaseHeldBitmap: () => void;
+          heldBitmapWasClosed: () => boolean;
+        };
+      }
+    ).__trackerTransferHarness = {
+      hasHeldBitmap: () => heldBitmap !== undefined,
+      releaseHeldBitmap: () => releaseHeldBitmap?.(),
+      heldBitmapWasClosed: () => heldBitmapClosed,
+    };
+  });
+  await openMotionLab(page);
+  const firstWorkerPromise = page.waitForEvent("worker");
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  const firstWorker = await firstWorkerPromise;
+  await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              __trackerTransferHarness: { hasHeldBitmap: () => boolean };
+            }
+          ).__trackerTransferHarness.hasHeldBitmap(),
+      ),
+    )
+    .toBe(true);
+  await firstWorker.evaluate(() => {
+    setTimeout(() => {
+      throw new Error("forced tracker worker runtime crash");
+    }, 0);
+  });
+  await expect(page.locator("#health-badge")).toHaveText("FAULT", { timeout: 15_000 });
+  await expect(page.locator("#status-detail")).toContainText("Worker runtime failed");
+  await expect(page.getByRole("button", { name: "START CAMERA" })).toBeEnabled();
+
+  const secondWorkerPromise = page.waitForEvent("worker");
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  const secondWorker = await secondWorkerPromise;
+  expect(secondWorker).not.toBe(firstWorker);
+  await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
+  await expect(page.locator("#metric-tracker")).toContainText("WORKER", { timeout: 15_000 });
+  await page.evaluate(() =>
+    (
+      window as unknown as {
+        __trackerTransferHarness: { releaseHeldBitmap: () => void };
+      }
+    ).__trackerTransferHarness.releaseHeldBitmap(),
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              __trackerTransferHarness: { heldBitmapWasClosed: () => boolean };
+            }
+          ).__trackerTransferHarness.heldBitmapWasClosed(),
+      ),
+    )
+    .toBe(true);
+});
+
 test("cooperative web game negotiates, receives a frame, and reconnects after reload", async ({ page }) => {
   await page.goto("/bridge-host.html");
   const game = page.frameLocator("#game");

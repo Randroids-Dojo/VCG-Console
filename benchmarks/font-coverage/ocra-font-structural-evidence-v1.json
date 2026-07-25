@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 817635,
+      "totalBytes": 818502,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1139,8 +1139,8 @@
         },
         {
           "path": "apps/console-lab/src/tracker.ts",
-          "bytes": 11837,
-          "sha256": "df1dbd26c2a88a322410c5b017e8e15e129997137bb73af0e96043a95924c2a9"
+          "bytes": 12704,
+          "sha256": "49e8df4c9ee37f5bd01cab6662631d9cdf103436a9b56671c0799b88e665e62d"
         }
       ],
       "nonAsciiCodePoints": [

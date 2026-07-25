@@ -119,8 +119,7 @@ export class MediaPipeTracker {
 
   async close(): Promise<void> {
     this.stop();
-    this.#worker?.terminate();
-    this.#worker = undefined;
+    this.#discardWorkerBackend();
     this.#landmarker?.close();
     this.#landmarker = undefined;
     this.#backend = undefined;
@@ -134,8 +133,7 @@ export class MediaPipeTracker {
       this.#delegate = `worker / ${delegate}`;
     } catch (workerError) {
       this.#backendFallbackReason = workerError instanceof Error ? workerError.message : String(workerError);
-      this.#worker?.terminate();
-      this.#worker = undefined;
+      this.#discardWorkerBackend();
       this.callbacks.onStatus("loading", `Worker initialization failed; preparing the main-thread fallback (${String(workerError)})`);
       this.#landmarker = await this.#createMainThreadLandmarker();
       this.#backend = "main-thread";
@@ -187,13 +185,16 @@ export class MediaPipeTracker {
     if (event.data.type === "fault" && event.data.stage === "inference") {
       if (!this.#running || event.data.runId !== this.#runId) return;
       this.#frameGate.release();
+      this.#discardWorkerBackend();
       this.#failRunningTracker(`Worker inference failed: ${event.data.message}`);
     }
   };
 
   readonly #handleWorkerRuntimeError = (event: ErrorEvent): void => {
-    if (!this.#running) return;
+    if (!this.#running || event.currentTarget !== this.#worker) return;
+    event.preventDefault();
     this.#frameGate.release();
+    this.#discardWorkerBackend();
     this.#failRunningTracker(`Worker runtime failed: ${event.message || "unknown worker error"}`);
   };
 
@@ -255,20 +256,29 @@ export class MediaPipeTracker {
         this.#scheduleFrame();
         return;
       }
+      const worker = this.#worker;
+      const runId = this.#runId;
+      if (!worker) {
+        this.#frameGate.release();
+        this.#discardWorkerBackend();
+        this.#failRunningTracker("Worker tracker backend is unavailable");
+        return;
+      }
       try {
         const sourceTimestampMs = monotonicTimestampMs();
         const image = await createImageBitmap(this.#video);
-        if (!this.#running || !this.#worker) {
+        if (!this.#running || this.#worker !== worker || this.#runId !== runId) {
           image.close();
-          this.#frameGate.release();
           return;
         }
-        this.#worker.postMessage(
-          { type: "frame", runId: this.#runId, sequence: this.#sequence++, sourceTimestampMs, image },
+        worker.postMessage(
+          { type: "frame", runId, sequence: this.#sequence++, sourceTimestampMs, image },
           [image],
         );
       } catch (error) {
+        if (!this.#running || this.#worker !== worker || this.#runId !== runId) return;
         this.#frameGate.release();
+        this.#discardWorkerBackend();
         this.#failRunningTracker(`Could not transfer a camera frame to the worker: ${error instanceof Error ? error.message : String(error)}`);
         return;
       }
@@ -304,6 +314,8 @@ export class MediaPipeTracker {
 
   #failRunningTracker(detail: string, reason: "camera-disconnected" | "backend-fault" = "backend-fault"): void {
     this.#running = false;
+    this.#runId += 1;
+    this.#frameGate.reset();
     for (const track of this.#stream?.getTracks() ?? []) track.stop();
     this.#stream = undefined;
     this.#video.srcObject = null;
@@ -315,5 +327,19 @@ export class MediaPipeTracker {
     const event = trackerHealthFixture(reason, this.#healthSequence++, monotonicTimestampMs(), "mediapipe-web");
     this.#healthStatus = event.status;
     this.callbacks.onHealth(event);
+  }
+
+  #discardWorkerBackend(): void {
+    const worker = this.#worker;
+    if (worker) {
+      worker.removeEventListener("message", this.#handleWorkerMessage);
+      worker.removeEventListener("error", this.#handleWorkerRuntimeError);
+      worker.terminate();
+      this.#worker = undefined;
+    }
+    if (this.#backend === "worker") {
+      this.#backend = undefined;
+      this.#delegate = "uninitialized";
+    }
   }
 }

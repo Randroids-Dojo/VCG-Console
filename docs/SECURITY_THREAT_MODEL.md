@@ -101,8 +101,10 @@ Relevant classes include unintended capture, raw-frame retention or egress, micr
 
 Present controls include `audio: false`, no rendered tracking-camera pixels,
 one-frame backpressure, run IDs, local worker inference with main-thread
-fallback disclosed, image closure, schema validation, bounded core17-only v2
-traces with trace-local IDs and stable health reasons, a closed
+fallback disclosed, image closure, poisoned-worker termination, listener
+removal, run invalidation, and explicit fresh-backend retry after a worker
+fault. Schema validation, bounded core17-only v2 traces with trace-local IDs
+and stable health reasons, a closed
 game-permission vocabulary, explicit host profile grants
 before Motion negotiation, per-profile frame projection, acknowledgement
 backpressure, and session expiry. The synthetic portrait rehearsal additionally

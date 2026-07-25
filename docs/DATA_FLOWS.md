@@ -166,9 +166,9 @@ The source audit separately checks the only pixel-bearing protocol field (`Image
 | Failure | Required behavior | Current evidence |
 |---|---|---|
 | Worker unavailable | Terminate failed worker and use visible main-thread fallback without persistence/egress | Browser fallback test |
-| Worker inference/runtime fault | Release frame gate, stop capture tracks, clear video source, show fault | Source path and regression tests |
+| Worker inference/runtime fault | Release/reset frame gate, stop capture tracks, clear video source, terminate and forget the poisoned worker, show fault, and require an explicit retry that creates a fresh backend | Source path plus real-worker crash/retry regression test |
 | Stop or page close | Stop all media tracks, clear video source, terminate worker on close | Tracker lifecycle implementation |
-| Late prior-run worker message | Reject by run ID and current running state | Worker response guard |
+| Late prior-run worker message or frame transfer | Bind each transfer to its original worker and run ID, then reject after either identity changes; remove listeners and advance the run ID when a fault closes the run | Worker request/response guards and crash/retry regression tests |
 | Backpressure | Drop new work rather than queue raw frames | `FrameGate` tests and one-frame transfer path |
 | Explicit trace export | Export schema-validated skeleton/action JSON only | Motion trace schema and export implementation |
 | Cooperative game disconnect | Clear/expire session and retain no queued frame stream | Bridge goodbye, acknowledgement, and TTL tests |
