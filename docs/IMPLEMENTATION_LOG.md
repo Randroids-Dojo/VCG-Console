@@ -4959,3 +4959,52 @@ hot-plug/reconnect/replacement, battery/sleep, simultaneous devices,
 keyboard/pointer/touch/text requirements, reserved Home/Back authority,
 fullscreen/focus/hang/crash behavior, physical-TV/audio behavior, or either
 target tier. The dedicated owner-question document retains the decisions.
+
+## 2026-07-24: paired developer trust and session admission
+
+### Delivered
+
+- Added a new isolated native `developer_pairing` authority module without
+  opening a LAN listener or integrating browser-controlled mode state.
+- Defined one canonical 16 KiB registry with at most 32 key-derived Ed25519
+  workstation identities and no names, addresses, paths, URLs, secrets,
+  profiles, or arbitrary permissions.
+- Bound usable trust to exact external generation and registry SHA-256. Pairing
+  and revocation publish the next predecessor-bound registry first and require
+  the platform to commit the exact returned state before it can authenticate a
+  workstation.
+- Added a non-persistent developer-mode epoch capped at 15 minutes, exact
+  60-second domain-separated key-possession challenges, single active
+  workstation authority, close/expiry invalidation, and 1,024 request-ID replay
+  bounds.
+- Restricted output to integrity-bound Push plus fixed Launch, ReadLogs,
+  Restart, and Rollback operations. No path, command, argument, environment,
+  URL, credential, production package, profile, arbitrary method, or free-text
+  log authority exists in the request type.
+- Recorded D-170 and isolated transport, key-storage, pairing-ceremony,
+  listener, namespace, audit, recovery, semantics, and workflow choices in a
+  new owner-question document.
+
+### Verification evidence
+
+- Eleven focused Rust tests pass across canonical intake, key/entry/byte
+  bounds, two-phase pairing,
+  rollback/substitution/jump/predecessor refusal, two-phase revocation,
+  protected-state strictness, exact signatures, wrong/stale/expired challenges,
+  close/expiry/randomness bounds, immediate trust-change invalidation, unsafe
+  operations, and exact replay capacity.
+- Explicit-file Rust formatting and strict crate Clippy pass.
+- The complete native suite passes with 302 library tests, five intentional
+  helper ignores, and 19 CLI tests. Workspace typecheck, production build, 33
+  launcher evidence tests, and 22 OCR-A evidence tests also pass.
+
+### Remaining boundary
+
+I-102 is active, not closed. This admission layer is neither an authenticated
+encrypted transport nor a deployment service. Production still needs
+reserved-input enable/pair/revoke authority; target-protected console and
+workstation keys plus monotonic state; listener/discovery/firewall/link
+lifecycle; complete receipt hashing; developer-only storage, install, sandbox,
+launch, logs, restart, rollback, cleanup, and audit; family/reboot closure;
+hostile-LAN/stolen-key/interruption tests; both Linux tiers; and measured
+controller-only time to first launch.

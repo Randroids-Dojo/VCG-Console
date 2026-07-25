@@ -257,6 +257,18 @@ authority; same-origin code can still synthesize browser events. Production
 must authenticate administration and accept confirmation through privileged
 reserved input before a paired-LAN service can use this state.
 
+The native host now adds a strict canonical paired-workstation registry with
+external generation/digest protection, publish-before-protect pairing and
+revocation, and volatile Ed25519 possession challenges. A live capability is
+bounded to fixed integrity-hashed Push, Launch, ReadLogs, Restart, and Rollback
+operations and exact request replay state. This rejects writable trust
+rollback, same-generation substitution, unexplained jumps, wrong/stale keys,
+expiry, and arbitrary command/path/URL authority. It still opens no listener,
+encrypts no traffic, protects no private key or monotonic state, consumes no
+reserved input, stores no developer artifact, and executes no operation.
+Hostile-LAN, stolen-key, link/reboot/interruption, logging, namespace, and
+target-platform evidence therefore remain blocking.
+
 The browser also retains at most 256 closed diagnostic codes in memory. Codes
 derive subsystem/severity and have no caller text or payload field. A frozen
 at-most-64-KiB JSON export follows exact review, local admin gating, and

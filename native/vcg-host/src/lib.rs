@@ -1,5 +1,6 @@
 //! Native appliance boundaries for VCG Console.
 
+pub mod developer_pairing;
 pub mod host_api;
 pub mod input;
 pub mod installed_catalog;

@@ -1,6 +1,9 @@
 # Console operating modes
 
-Status: fail-closed launcher policy and controller-operable desk prototype implemented; privileged authentication, persistence, pairing, and deployment remain native-service work.
+Status: fail-closed launcher policy, controller-operable desk prototype, and
+native paired-workstation/session admission primitives implemented; privileged
+authentication, encrypted transport, target key protection, listener, and
+deployment remain native-service work.
 
 ## Purpose
 
@@ -59,8 +62,11 @@ The pure `ConsoleOperatingModeController` exposes three derived policy facts:
 | Admin | Yes | No | No |
 | Developer | Yes | Yes | Yes |
 
-These facts are admission inputs, not proof that a transport or authority
-exists. The current repository has no pairing listener or deployment endpoint.
+These facts are admission inputs, not proof that a transport exists. The
+native host now has a separately tested strict protected-state workstation
+registry, signed volatile session challenge, and closed developer-operation
+capability. The current repository still has no pairing listener, encrypted
+channel, platform key store, or deployment endpoint.
 
 ## Launcher prototype
 
@@ -100,6 +106,11 @@ operations behind a privileged native coordinator:
 
 No browser flag, local storage value, query parameter, profile field, or
 hosted-game response may enable the native transport.
+
+The native admission primitive does not consume this browser state. Its
+constructor is intentionally the future privileged adapter boundary and must
+be reached only after authenticated reserved local input. See
+`DEVELOPER_LAN_TRUST_AND_SESSION.md`.
 
 Non-privileged accessibility preferences remain available in family mode and
 before profile selection. Their bounded local prototype document changes only
