@@ -69,7 +69,11 @@ Add an absolute `--launch-replay-root <path>` and a strict
 `--profile-registry <path>` to enable `trusted-package-launch` for exactly its
 validated host-owned opaque IDs. Repeated `--profile-id` remains a mutually
 exclusive development fallback. An empty registry leaves the catalog
-discovery-only. See the
+discovery-only. This CLI path currently reads legacy unprotected v1. The
+library separately validates canonical protected v2 with exact external
+identity/generation/digest state and withholds a one-step publication until
+that state commits; platform protection, migration, and launcher wiring remain
+absent. See the
 [profile-registry contract](../../docs/PROFILE_REGISTRY.md) and
 [native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
 The host durably accepts each launch before execution and replays retained

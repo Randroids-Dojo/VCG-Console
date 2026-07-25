@@ -111,6 +111,16 @@ unassigns local progress and same-name recreation receives no links. The
 browser test suite observes no external requests or persistent browser stores
 during normal camera mode.
 
+The native profile-registry library now has a separate protected v2 intake
+boundary. Canonical bytes bind one random registry identity, monotonic
+generation, predecessor SHA-256, and exact current SHA-256 to externally
+protected state. A writable one-step publication exposes no launchable IDs
+until the exact returned state commits; rollback, same-generation
+substitution, jumps, scope drift, broken predecessors, sensitive fields, and
+noncanonical bytes fail closed. The launcher still consumes unprotected v1,
+and no platform protector or profile/vault/save transaction exists, so this is
+not yet a production identity boundary.
+
 The calibration rehearsal binds every observation to an exact
 session/attempt/profile/environment/camera reference, requires contiguous
 bounded samples, blocks any unsafe-zone/camera-movement/no-player/multi-player

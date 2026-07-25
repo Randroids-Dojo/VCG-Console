@@ -37,6 +37,14 @@ but do not claim tamper resistance. Before family qualification, threat-model
 whether rollback can revive a deleted identity or re-enable access and bind
 the required generation/digest to qualified protected state if needed.
 
+Current evidence: D-174 and `PROFILE_REGISTRY.md` add a canonical protected v2
+library boundary with a random registry identity, monotonic generation,
+predecessor digest, exact registry digest, and no authority while writable
+state is one generation ahead. This confirms that rollback protection is
+required, but it does not supply the platform slot, compare-and-swap, writer,
+launcher wiring, or target evidence. Q-244 separately selects how legacy v1 is
+provisioned into that boundary.
+
 ## Q-135: removal, saves, and sensitive data
 
 What exact transaction removes a profile from launch authority while

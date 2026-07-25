@@ -6,9 +6,9 @@ Status: bounded in-memory lifecycle rehearsal implemented; native
 transactions, durable progress unassignment, target fault evidence, household
 abuse qualification, and legal review remain disabled
 
-Authority: D-061, D-062, D-081, D-083, D-084, D-085, D-086, D-087, I-072,
-I-184, I-185, I-186, I-187, I-188, I-189, I-190, I-191, Q-098, Q-099, and
-Q-103
+Authority: D-061, D-062, D-081, D-083, D-084, D-085, D-086, D-087, D-174,
+I-072, I-184, I-185, I-186, I-187, I-188, I-189, I-190, I-191, Q-098,
+Q-099, Q-103, and Q-244
 
 ## Claim boundary
 
@@ -34,6 +34,12 @@ The implementation does not call the native profile registry, profile vault,
 save broker, game runtime, camera, network, hosted service, filesystem, or
 browser persistence. It therefore proves the UI and pure state-policy shape,
 not a durable deletion or power-loss-safe transaction.
+
+The native library separately has a protected v2 registry loader that withholds
+new launch IDs until an exact external generation/digest commit. That loader
+does not accept this browser plan, mutate a registry, delete identity data, or
+coordinate vault and save state. Q-244 and Q-191 remain required before the two
+boundaries can be connected.
 
 Its synthetic progress links are not the four independent records shown by
 the Unassigned Progress screen. The completion toast says that list is

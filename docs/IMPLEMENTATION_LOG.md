@@ -5141,3 +5141,44 @@ service-manager/cgroup owner, descendant containment, forced termination and
 empty inspection, boot-epoch/age retention, protected service configuration,
 launcher restart policy, hostile-descendant and service-crash tests, target
 filesystem/power-loss evidence, and ordinary x86-64/ARM64 Linux qualification.
+
+## 2026-07-24: rollback-resistant profile-registry intake
+
+### Delivered
+
+- Added a separate canonical protected profile-registry v2 without changing
+  the launcher's current legacy v1 input.
+- Bound every provisioned registry to a strict random 128-bit registry
+  identity, monotonic generation, exact predecessor SHA-256, and complete
+  canonical registry SHA-256.
+- Added a closed 512-byte protected-state adapter document containing only
+  schema, registry identity, generation, and digest. Generation zero is one
+  canonical empty authority-free registry.
+- Implemented publish-before-protect recovery: writable state exactly one
+  generation ahead returns only `ProtectionCommitRequired`; its profile IDs
+  cannot become launch authority until exact protected state is committed and
+  read back.
+- Reject rollback, same-generation byte substitution, jumps, cross-registry
+  scope, broken predecessor chains, noncanonical/padded/open state, sensitive
+  or unknown registry fields, invalid IDs, duplicates, and existing size/count
+  violations.
+- Recorded D-174 and Q-244. The protected-state JSON remains only an adapter
+  boundary; storing it beside writable registry bytes is explicitly
+  insufficient.
+
+### Verification evidence
+
+- Seven focused Rust cases pass. Four protected-v2 cases cover canonical and
+  bounded state, safe empty initialization, pre-commit denial, exact
+  post-commit activation, rollback, substitution, jumps, scope drift,
+  predecessor drift, sensitive fields, and noncanonical bytes.
+- The three existing v1/launcher cases continue to prove ordered opaque IDs,
+  strict legacy input, and the existing authenticated launch-capability path.
+
+### Remaining boundary
+
+The launcher intentionally still consumes unprotected v1. Q-244 must select
+the authenticated maintenance migration/provisioning ceremony before v2 is
+wired into `main.rs`. No production writer, protected platform slot/CAS,
+profile broker, registry/vault/save transaction, deletion meaning, target
+rollback/power-loss evidence, or Linux-tier qualification is implemented.

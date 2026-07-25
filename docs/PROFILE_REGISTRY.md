@@ -2,9 +2,11 @@
 
 Last updated: 2026-07-24
 
-Status: strict read-only registry intake and launcher source selection are
-implemented. Profile creation, mutation, deletion, save unassignment,
-encryption, backup exclusion, and target authorization remain open.
+Status: strict legacy v1 read-only launcher intake and a separate
+rollback-resistant protected v2 loader are implemented. The launcher is not
+yet wired to v2. Profile creation, mutation, deletion, save unassignment,
+encryption, backup exclusion, platform protection, and target authorization
+remain open.
 
 ## Purpose
 
@@ -55,6 +57,63 @@ Registry parsing occurs before accepted-root or package-generation recovery.
 An invalid profile document therefore cannot cause those recovery mutations
 and then fail later during launch-service construction.
 
+## Protected registry v2
+
+The native library now also accepts a separate canonical protected form:
+
+```json
+{
+  "schemaVersion": 2,
+  "registryId": "11111111111111111111111111111111",
+  "generation": 1,
+  "previousRegistrySha256": "<lowercase SHA-256>",
+  "profiles": [
+    {
+      "id": "profile-randy"
+    }
+  ]
+}
+```
+
+Its exact external protected-state adapter document is:
+
+```json
+{
+  "schemaVersion": 1,
+  "registryId": "11111111111111111111111111111111",
+  "generation": 1,
+  "registrySha256": "<lowercase SHA-256>"
+}
+```
+
+The 128-bit random registry identity is scope, not a person or credential.
+Generation is monotonic. Each nonzero registry record binds the exact prior
+canonical registry SHA-256, and protected state binds the complete current
+canonical bytes.
+
+Generation zero is one canonical empty registry with null identity and
+predecessor. It grants no launch authority. A writable generation exactly one
+step ahead of protected state is returned only as
+`ProtectionCommitRequired`; none of its IDs are exposed for launch until the
+platform protector commits the exact returned identity, generation, and
+digest. Exact retry after that commit becomes `Active`.
+
+The loader rejects:
+
+- rollback behind protected generation;
+- a same-generation byte or digest substitution;
+- a jump of more than one generation;
+- registry-identity substitution;
+- a broken predecessor digest;
+- noncanonical, padded, oversized, open, or malformed JSON;
+- invalid or duplicate profile IDs; and
+- display names, portraits, paths, or any other undeclared field.
+
+This is a library boundary only. The current launcher still reads unprotected
+v1 through `--profile-registry`; it does not accept a protected-state option
+or activate v2. That integration must wait for an explicit migration and a
+qualified platform protected-state adapter.
+
 ## Authority and privacy boundary
 
 A registry ID authorizes only the existing minimal launch-intent profile field.
@@ -62,11 +121,11 @@ The host still re-resolves the signed installed package and derives all paths.
 The document cannot select a package, executable, catalog, trust root, update
 channel, runtime argument, environment name, or filesystem path.
 
-The file representation is not self-protecting. Production must establish
+Neither file representation is self-protecting. Production must establish
 which privileged component writes it, its filesystem ownership and mode, how
-updates are synchronized, and how a hostile same-account writer is excluded.
-The current parser supplies deterministic fail-closed intake, not protected
-identity storage.
+updates are synchronized, how a hostile same-account writer is excluded, and
+which protected platform slot performs durable atomic compare-and-swap. A
+protected-state JSON file beside the registry is explicitly insufficient.
 
 An empty or removed record does not define deletion. In particular, registry
 absence must not delete saves, attach unassigned progress to another person,
@@ -81,6 +140,11 @@ Focused Rust tests cover:
 - unknown document and record fields;
 - unsupported schema, unsafe IDs, duplicates, excessive entries, and payload
   size;
+- canonical bounded protected state and safe empty generation zero;
+- publish-before-protect denial followed by exact post-commit activation;
+- rollback, same-generation substitution, generation jump, registry-scope
+  drift, and predecessor substitution;
+- protected-v2 rejection of sensitive fields and noncanonical bytes;
 - launcher parsing, registry/development-ID mutual exclusion, and invalid-file
   denial; and
 - passing only validated IDs into the existing authenticated launch-capability
@@ -89,8 +153,10 @@ Focused Rust tests cover:
 ## Explicitly unproven
 
 - No production writer or mutation transaction exists.
-- No registry version rollback, deletion journal, or protected high-water state
-  exists.
+- The protected high-water parser exists, but no platform protected-state
+  adapter, slot, compare-and-swap, or launcher integration exists.
+- No automatic v1-to-v2 migration exists.
+- No deletion journal exists.
 - No profile display metadata, portrait, calibration, body-profile prediction,
   or encrypted vault is implemented here.
 - No save unassignment, claim, deletion, reset, factory-reset, backup, support,
@@ -102,3 +168,5 @@ Focused Rust tests cover:
 
 Owner selections are recorded separately in
 [the profile-registry questions](OWNER_QUESTIONS_PROFILE_REGISTRY_2026-07-24.md).
+The remaining v1 provisioning/migration choice is isolated in
+[the protected-registry handoff](OWNER_QUESTIONS_PROFILE_REGISTRY_PROTECTION_2026-07-24.md).
