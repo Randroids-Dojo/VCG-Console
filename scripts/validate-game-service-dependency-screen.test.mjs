@@ -64,6 +64,13 @@ test("rejects provenance substitution", () => {
   const browser = clone();
   browser.provenance.remoteOfflineObservationSha256 = "0".repeat(64);
   assert.throws(() => validateGameServiceDependencyScreen(browser));
+
+  const noncanonicalTime = clone();
+  noncanonicalTime.observedAtUtc = "2026-07-24T20:20:40.000-07:00";
+  assert.throws(
+    () => validateGameServiceDependencyScreen(noncanonicalTime),
+    /observedAtUtc/u,
+  );
 });
 
 test("rejects degradation, offline, or catalog promotion", () => {

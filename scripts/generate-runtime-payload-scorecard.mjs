@@ -12,7 +12,7 @@ import { validateTrackedRemoteGameInputSurfaceEvidence } from "./validate-remote
 import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game-offline-evidence.mjs";
 
 export const RUNTIME_PAYLOAD_SCORECARD_FORMAT =
-  "vcg-runtime-payload-scorecard-desk-baseline/v1";
+  "vcg-runtime-payload-scorecard-desk-baseline/v2";
 export const RUNTIME_PAYLOAD_SCORECARD_DATE = "2026-07-24";
 export const RUNTIME_PAYLOAD_SCORECARD_SUBJECT_IDS = Object.freeze([
   "vibebots",
@@ -115,7 +115,7 @@ export const RUNTIME_PAYLOAD_SCORECARD_LIMITATIONS = Object.freeze([
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v1.json",
+  "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
 );
 const godotArtifactPath = resolve(
   root,

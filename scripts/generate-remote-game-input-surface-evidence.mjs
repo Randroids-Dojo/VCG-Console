@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game-offline-evidence.mjs";
 
 export const REMOTE_GAME_INPUT_EVIDENCE_FORMAT =
-  "vcg-remote-game-input-surface-observation/v1";
+  "vcg-remote-game-input-surface-observation/v2";
 export const REMOTE_GAME_INPUT_EVIDENCE_DATE = "2026-07-24";
 export const REMOTE_GAME_INPUT_LIMITATIONS = Object.freeze([
   "This is a fresh-context headless Windows Chrome observation of initial-route listener registration, DOM controls, and neutral synthetic Gamepad API polling. It is not physical-controller, remote, keyboard, pointer, touch, gameplay, focus, mapping, latency, reserved-action, accessibility, or target-Linux qualification.",
@@ -16,13 +16,14 @@ export const REMOTE_GAME_INPUT_LIMITATIONS = Object.freeze([
   "No key, button, pointer, touch, form, permission, login, or game action was performed. Listeners and controls created only after start, play, consent, authentication, another route, or delayed asset loading can remain undiscovered.",
   "Framework delegation can register keyboard, click, pointer, input, or change listeners even when the title does not expose that input to players. Conversely, direct property handlers, WebAssembly, native browser behavior, and dynamically constructed paths can evade the bounded instrumentation.",
   "Every title remains input-unverified. A physical controller-only living-room session with console-owned Home/Back/Exit and recovery is still required.",
+  "The artifact binds the current remote-offline v2 observation for exact catalog identity and offline-claim context. The neutral input observation does not reuse its persistent profiles or convert its one cold document load into input or offline-play evidence.",
 ]);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const appRoot = resolve(root, "apps/console-lab");
 const outputPath = resolve(
   root,
-  "compliance/game-input/remote-game-input-surface-observation-v1.json",
+  "compliance/game-input/remote-game-input-surface-observation-v2.json",
 );
 const NAVIGATION_TIMEOUT_MS = 30_000;
 const SETTLE_MS = 4_000;

@@ -23,7 +23,7 @@ function reseal(artifact) {
   artifact.summary = buildRemoteGameOfflineSummary(artifact.games);
 }
 
-test("accepts the tracked 26-game fresh-profile observation", () => {
+test("accepts the tracked 26-game fresh-profile and cold-restart observation", () => {
   const artifact = validateRemoteGameOfflineEvidence(clone());
   assert.equal(artifact.games.length, 26);
   assert.equal(artifact.summary.offlinePackageQualifiedCount, 0);
@@ -121,6 +121,53 @@ test("rejects inconsistent endpoint and service-worker records", () => {
   assert.throws(
     () => validateRemoteGameOfflineEvidence(updates),
     /update totals/u,
+  );
+});
+
+test("rejects fabricated or malformed cold-restart evidence", () => {
+  const noRestart = clone();
+  noRestart.games[0].coldOfflineRestart.browserRestarted = false;
+  reseal(noRestart);
+  assert.throws(
+    () => validateRemoteGameOfflineEvidence(noRestart),
+    /browserRestarted/u,
+  );
+
+  const lateOffline = clone();
+  lateOffline.games[0].coldOfflineRestart.offlineConfiguredBeforeNavigation =
+    false;
+  reseal(lateOffline);
+  assert.throws(
+    () => validateRemoteGameOfflineEvidence(lateOffline),
+    /offlineConfiguredBeforeNavigation/u,
+  );
+
+  const retainedProfile = clone();
+  retainedProfile.games[0].coldOfflineRestart.profileRemoved = false;
+  reseal(retainedProfile);
+  assert.throws(
+    () => validateRemoteGameOfflineEvidence(retainedProfile),
+    /profileRemoved/u,
+  );
+
+  const leakedValues = clone();
+  leakedValues.games[0].coldOfflineRestart.offlineRestart.state
+    .localStorageValues = { token: "secret" };
+  reseal(leakedValues);
+  assert.throws(
+    () => validateRemoteGameOfflineEvidence(leakedValues),
+    /unknown or missing fields/u,
+  );
+
+  const impossibleCounts = clone();
+  impossibleCounts.games[0].coldOfflineRestart.offlineRestart
+    .requestFailureCount =
+      impossibleCounts.games[0].coldOfflineRestart.offlineRestart.requestCount
+      + 1;
+  reseal(impossibleCounts);
+  assert.throws(
+    () => validateRemoteGameOfflineEvidence(impossibleCounts),
+    /failure count/u,
   );
 });
 

@@ -15,7 +15,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "compliance/hosted-game-offline/remote-game-offline-observation-v1.json",
+  "compliance/hosted-game-offline/remote-game-offline-observation-v2.json",
 );
 export const REMOTE_GAME_OFFLINE_MAX_BYTES = 1024 * 1024;
 
@@ -301,6 +301,7 @@ function validateGame(value, expected, index) {
       "manifest",
       "serviceWorker",
       "offlineReload",
+      "coldOfflineRestart",
     ],
     label,
   );
@@ -436,6 +437,100 @@ function validateGame(value, expected, index) {
   if (value.offlineReload.outcome === "loaded") {
     assert.equal(value.offlineReload.state.documentAccessible, true, label);
   }
+
+  exactKeys(
+    value.coldOfflineRestart,
+    [
+      "onlinePrime",
+      "cleanOnlineClose",
+      "browserRestarted",
+      "offlineConfiguredBeforeNavigation",
+      "offlineRestart",
+      "cleanOfflineClose",
+      "profileRemoved",
+    ],
+    `${label}.coldOfflineRestart`,
+  );
+  exactKeys(
+    value.coldOfflineRestart.onlinePrime,
+    ["firstLoad", "secondLoad", "state"],
+    `${label}.coldOfflineRestart.onlinePrime`,
+  );
+  validateLoad(
+    value.coldOfflineRestart.onlinePrime.firstLoad,
+    `${label}.coldOfflineRestart.onlinePrime.firstLoad`,
+  );
+  validateLoad(
+    value.coldOfflineRestart.onlinePrime.secondLoad,
+    `${label}.coldOfflineRestart.onlinePrime.secondLoad`,
+  );
+  validateBrowserState(
+    value.coldOfflineRestart.onlinePrime.state,
+    `${label}.coldOfflineRestart.onlinePrime.state`,
+  );
+  for (const field of [
+    "cleanOnlineClose",
+    "browserRestarted",
+    "offlineConfiguredBeforeNavigation",
+    "cleanOfflineClose",
+    "profileRemoved",
+  ]) {
+    assert.equal(
+      value.coldOfflineRestart[field],
+      true,
+      `${label}.coldOfflineRestart.${field}`,
+    );
+  }
+  exactKeys(
+    value.coldOfflineRestart.offlineRestart,
+    [
+      "outcome",
+      "error",
+      "requestCount",
+      "responseCount",
+      "requestFailureCount",
+      "state",
+    ],
+    `${label}.coldOfflineRestart.offlineRestart`,
+  );
+  validateLoad(
+    {
+      outcome: value.coldOfflineRestart.offlineRestart.outcome,
+      error: value.coldOfflineRestart.offlineRestart.error,
+    },
+    `${label}.coldOfflineRestart.offlineRestart`,
+  );
+  for (const field of [
+    "requestCount",
+    "responseCount",
+    "requestFailureCount",
+  ]) {
+    integer(
+      value.coldOfflineRestart.offlineRestart[field],
+      `${label}.coldOfflineRestart.offlineRestart.${field}`,
+    );
+  }
+  assert.ok(
+    value.coldOfflineRestart.offlineRestart.responseCount
+      <= value.coldOfflineRestart.offlineRestart.requestCount,
+    `${label}.coldOfflineRestart.offlineRestart response count`,
+  );
+  assert.ok(
+    value.coldOfflineRestart.offlineRestart.requestFailureCount
+      <= value.coldOfflineRestart.offlineRestart.requestCount,
+    `${label}.coldOfflineRestart.offlineRestart failure count`,
+  );
+  validateBrowserState(
+    value.coldOfflineRestart.offlineRestart.state,
+    `${label}.coldOfflineRestart.offlineRestart.state`,
+  );
+  if (value.coldOfflineRestart.offlineRestart.outcome === "loaded") {
+    assert.equal(
+      value.coldOfflineRestart.offlineRestart.state.documentAccessible,
+      true,
+      label,
+    );
+  }
 }
 
 export function parseCanonicalRemoteGameOfflineEvidence(bytes) {
@@ -478,7 +573,10 @@ export function validateRemoteGameOfflineEvidence(value) {
       && !Number.isNaN(Date.parse(value.observedAtUtc)),
     "observedAtUtc is invalid",
   );
-  assert.equal(value.evidenceClass, "fresh-profile-live-browser-observation");
+  assert.equal(
+    value.evidenceClass,
+    "fresh-profile-live-browser-observation-with-cold-restart",
+  );
   assert.equal(
     value.qualification,
     "observation-only-no-offline-package-qualified",
@@ -535,7 +633,7 @@ export function validateRemoteGameOfflineEvidence(value) {
     catalogSnapshotDate: "2026-07-19",
     expectedGameCount: REMOTE_GAMES.length,
     lifecycle:
-      "fresh profile, online navigation, online reload, service-worker update request, endpoint GET probes, offline reload",
+      "fresh anonymous context, online navigation, online reload, service-worker update request, endpoint GET probes, same-context offline reload; separate persistent profile, online navigation, online reload, clean close, same-profile browser restart offline before navigation, clean close, profile removal",
     interactionPolicy:
       "navigation-and-browser-lifecycle-only; no play, login, consent, permission, purchase, or form interaction",
     storedDataPolicy:
@@ -572,7 +670,7 @@ export async function validateTrackedRemoteGameOfflineEvidence() {
 async function main() {
   const artifact = await validateTrackedRemoteGameOfflineEvidence();
   console.log(
-    `validated remote game offline evidence; games=${artifact.summary.gameCount}; offline-loaded=${artifact.summary.offlineReloadLoadedCount}; qualified=${artifact.summary.offlinePackageQualifiedCount}`,
+    `validated remote game offline evidence; games=${artifact.summary.gameCount}; offline-reload=${artifact.summary.offlineReloadLoadedCount}; cold-offline-restart=${artifact.summary.coldOfflineRestartLoadedCount}; qualified=${artifact.summary.offlinePackageQualifiedCount}`,
   );
 }
 

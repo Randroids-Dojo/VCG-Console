@@ -18,7 +18,7 @@ import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "compliance/catalog-candidates/full-catalog-candidate-ledger-v1.json",
+  "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
 );
 export const FULL_CATALOG_CANDIDATE_MAX_BYTES = 256 * 1024;
 const [rightsReference, offlineReference, serviceReference] = await Promise.all([

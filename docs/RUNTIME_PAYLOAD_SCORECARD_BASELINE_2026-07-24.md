@@ -24,10 +24,12 @@ produces 20 explicit cells. All 20 remain unqualified, all five selections
 remain blocked, and no maintenance estimate, admission authority, host
 authority, package approval, or production catalog mutation is recorded.
 
-The authoritative artifact is
-[`runtime-payload-scorecard-desk-baseline-v1.json`](../compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v1.json).
+The authoritative current artifact is
+[`runtime-payload-scorecard-desk-baseline-v2.json`](../compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json).
 Its five subject records are bound by SHA-256
-`6363eca6e34a531374cff91f8a72be4d5858ab6f4bb0cc978faae928ee0fe45b`.
+`6006c502279694c0a326ffc5c8f440fa8ecab18ef94dbb7bb51babb3d6efc67b`.
+The zero-selection result is unchanged; v2 binds the complete offline/input/
+service/catalog successor chain and leaves v1 immutable.
 
 ## Rubric
 
@@ -57,7 +59,7 @@ candidate-ledger observations.
 
 | Title | Exact source | Files | Source archive | Runtime dependencies | API routes | Asset-like files | Online requests | Offline reload | Gamepad polls |
 |---|---|---:|---:|---:|---:|---:|---:|---|---:|
-| VibeBots | `f9b988ca72bbd2f2083ad3530366f8c57847e482` | 702 | 8,039,484 B | 13 | 73 | 70 | 61 | Failed | 341 |
+| VibeBots | `f9b988ca72bbd2f2083ad3530366f8c57847e482` | 702 | 8,039,484 B | 13 | 73 | 70 | 66 | Failed | 250 |
 | Mi Casa Es Su Casa | `c296f181d94d594ffd8be855d8d0f4a808f19374` | 136 | 334,252 B | 6 | 7 | 2 | 23 | Failed | 0 |
 | Determined | `7d9a38dc2c64915808c4a0a7081133ebb1865eec` | 46 | 158,802 B | 1 | 3 | 0 | 79 | Failed | 0 |
 

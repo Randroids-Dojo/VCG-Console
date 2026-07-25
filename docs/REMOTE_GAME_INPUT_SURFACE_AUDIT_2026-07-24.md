@@ -25,10 +25,12 @@ During the bounded initial-route window:
 - no title made a mutating HTTP request; and
 - zero titles received an input qualification.
 
-The authoritative artifact is
-[`remote-game-input-surface-observation-v1.json`](../compliance/game-input/remote-game-input-surface-observation-v1.json).
+The authoritative current artifact is
+[`remote-game-input-surface-observation-v2.json`](../compliance/game-input/remote-game-input-surface-observation-v2.json).
 Its 26 records are bound by SHA-256
-`0550c6d5a91364fd48e3e15fbdc86b4b6e4d0a443aadc85bcabb1660227d7a8d`.
+`81dae4f12644140f6fb1a58a37e7238c0bd07be21e48df65cd22d5c797be1dd2`
+and bind the exact remote-offline v2 format/digest. The v1 input artifact
+remains immutable historical evidence.
 
 ## Claim boundary
 
@@ -78,9 +80,9 @@ required-input or playability declaration.
 
 | Game | G | Polls | K | P | T | Text |
 |---|---:|---:|---:|---:|---:|---:|
-| VibeBots | Yes | 341 | Yes | Yes | Yes | — |
+| VibeBots | Yes | 250 | Yes | Yes | Yes | — |
 | VibePinball | — | 0 | Yes | Yes | Yes | — |
-| VibeRacer | Yes | 91 | Yes | Yes | Yes | — |
+| VibeRacer | Yes | 89 | Yes | Yes | Yes | — |
 | VibePins | — | 0 | Yes | Yes | — | Yes |
 | Bone Cleaver | Yes | 200 | Yes | Yes | — | Yes |
 | Vibeman (Hangman) | — | 0 | Yes | — | — | — |
@@ -91,7 +93,7 @@ required-input or playability declaration.
 | Block Punch Kick | — | 0 | Yes | Yes | Yes | — |
 | Epoch | — | 0 | Yes | Yes | Yes | — |
 | GameTape | — | 0 | Yes | — | — | Yes |
-| GoPit | Yes | 54 | Yes | Yes | Yes | Yes |
+| GoPit | Yes | 50 | Yes | Yes | Yes | Yes |
 | Block-You | — | 0 | Yes | Yes | Yes | Yes |
 | Determined | — | 0 | Yes | — | — | — |
 | SoftwareDevSim | — | 0 | Yes | Yes | Yes | — |
@@ -103,7 +105,7 @@ required-input or playability declaration.
 | Text Racer | — | 0 | Yes | — | — | Yes |
 | Drop Dead Keep | — | 0 | Yes | Yes | Yes | Yes |
 | Streamer Billboard | — | 0 | Yes | Yes | Yes | — |
-| GoDig | Yes | 118 | Yes | Yes | Yes | Yes |
+| GoDig | Yes | 137 | Yes | Yes | Yes | Yes |
 
 Bone Cleaver, GoPit, and GoDig registered `gamepadconnected` listeners and
 polled. VibeBots and VibeRacer polled without an observed connection listener.
@@ -192,10 +194,11 @@ node scripts/validate-remote-game-input-surface-evidence.mjs
 node --test scripts/validate-remote-game-input-surface-evidence.test.mjs
 ```
 
-The validator binds the prior catalog/offline inventory, requires the exact
-environment and 26 identities, closed listener/handler/gamepad/control counts,
-derived signals, zero mutating requests, zero qualifications, a game-record
-digest, derived summary, exact limitations, and bounded canonical UTF-8 JSON.
+The validator binds the current catalog/offline v2 inventory and digest,
+requires the exact environment, canonical UTC timestamp, and 26 identities,
+closed listener/handler/gamepad/control counts, derived signals, zero mutating
+requests, zero qualifications, a game-record digest, derived summary, exact
+limitations, and bounded canonical UTF-8 JSON.
 Eight adversarial test groups prevent inventory substitution, qualification or
 signal promotion, fabricated observations, unsafe captured data, mutating
 requests, provenance/environment/digest/summary drift, unknown fields, and

@@ -35,10 +35,12 @@ The reconciliation is deliberately fail-closed:
 - no manifest, launcher policy, production catalog, or package was changed by
   this work.
 
-The authoritative artifact is
-[`full-catalog-candidate-ledger-v1.json`](../compliance/catalog-candidates/full-catalog-candidate-ledger-v1.json).
+The authoritative current artifact is
+[`full-catalog-candidate-ledger-v2.json`](../compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json).
 Its 26 records are bound by SHA-256
 `65798f7bcb3f08e3b6f2dceb0c28e0ea382091352ff72c480e822b9f68bee245`.
+The record digest and zero-authority result are unchanged; v2 advances the
+offline/service provenance chain and leaves v1 immutable.
 
 ## Authority boundary
 
@@ -70,7 +72,7 @@ The ledger is derived exactly from:
 | Evidence | Bound observation SHA-256 |
 |---|---|
 | First-party repository rights screen | `a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81` |
-| Remote manifest/service-worker/offline observation | `b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973` |
+| Remote manifest/service-worker/offline observation | `8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0` |
 | Catalog service-dependency signal screen | `16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9` |
 
 Changing any predecessor record invalidates deterministic validation until the

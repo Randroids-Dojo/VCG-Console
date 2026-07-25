@@ -129,6 +129,13 @@ test("rejects provenance, environment, digest, or summary drift", () => {
   environment.environment.headless = false;
   assert.throws(() => validateRemoteGameInputSurfaceEvidence(environment));
 
+  const noncanonicalTime = clone();
+  noncanonicalTime.observedAtUtc = "2026-07-24T20:18:40.210-07:00";
+  assert.throws(
+    () => validateRemoteGameInputSurfaceEvidence(noncanonicalTime),
+    /observedAtUtc/u,
+  );
+
   const digest = clone();
   digest.games[0].observation.requestCount += 1;
   assert.throws(

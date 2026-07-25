@@ -1,19 +1,21 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 export const REMOTE_GAME_OFFLINE_EVIDENCE_FORMAT =
-  "vcg-remote-game-offline-observation/v1";
+  "vcg-remote-game-offline-observation/v2";
 export const REMOTE_GAME_OFFLINE_EVIDENCE_DATE = "2026-07-24";
 export const REMOTE_GAME_OFFLINE_LIMITATIONS = Object.freeze([
-  "This is a single fresh-profile Windows x64 headless Google Chrome desk observation of the 26 URLs in the 2026-07-19 VibeCoded.Games snapshot. It is not target-Linux, physical-TV, controller, game-play, account, backend, source, license, or redistribution qualification.",
-  "Navigation, one online reload, browser-managed service-worker update checks, storage inventory, endpoint GET probes, and one offline reload were exercised without game interaction. Features reached only after play, login, consent, notification permission, or another route can remain undiscovered.",
+  "This is a Windows x64 headless Google Chrome desk observation of the 26 URLs in the 2026-07-19 VibeCoded.Games snapshot. Each main observation uses a new anonymous context, and each cold-restart observation uses a separate new persistent profile that is removed after the same-profile relaunch. It is not target-Linux, physical-TV, controller, game-play, account, backend, source, license, or redistribution qualification.",
+  "Navigation, one online reload, browser-managed service-worker update checks, storage inventory, endpoint GET probes, one same-context offline reload, and one separately primed two-load cold offline browser restart were exercised without game interaction. Features reached only after play, login, consent, notification permission, or another route can remain undiscovered.",
   "A loaded offline document, manifest, service-worker registration, cache, or fetch handler does not prove complete offline play, correct save behavior, installable packaging, or safe updates. No title is promoted to an offline package by this artifact.",
   "Endpoint hashes identify the public bytes observed during this run only. Hosted deployments can change without a repository commit or console release, so the observations must be repeated for admission and release qualification.",
   "Only storage container names and keys from a new anonymous profile are recorded; values, cookies, request paths, query strings, response bodies, console messages, and identifiers are deliberately excluded.",
+  "Offline behavior is induced with the browser-context network emulation boundary before navigation. It is not an operating-system network namespace, cable-disconnect, DNS-failure, captive-portal, intermittent-network, or target service-supervisor test.",
 ]);
 
 export const REMOTE_GAMES = Object.freeze([
@@ -153,12 +155,13 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const appRoot = resolve(root, "apps/console-lab");
 const outputPath = resolve(
   root,
-  "compliance/hosted-game-offline/remote-game-offline-observation-v1.json",
+  "compliance/hosted-game-offline/remote-game-offline-observation-v2.json",
 );
 const ONLINE_TIMEOUT_MS = 30_000;
 const OFFLINE_TIMEOUT_MS = 15_000;
 const SETTLE_MS = 1_500;
 const MAX_PROBE_BYTES = 2 * 1024 * 1024;
+const COLD_RESTART_PROFILE_PREFIX = "vcg-remote-offline-";
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
@@ -638,6 +641,165 @@ async function observeGame(browser, game) {
   return result;
 }
 
+async function onlyPersistentPage(context) {
+  const pages = context.pages();
+  assert.ok(
+    pages.length <= 1,
+    "persistent cold-restart context opened unexpected extra pages",
+  );
+  return pages[0] ?? context.newPage();
+}
+
+async function removeColdRestartProfile(profilePath) {
+  const resolvedTemp = resolve(tmpdir());
+  const resolvedProfile = resolve(profilePath);
+  assert.equal(
+    dirname(resolvedProfile),
+    resolvedTemp,
+    "cold-restart profile is not a direct child of the temporary directory",
+  );
+  assert.match(
+    basename(resolvedProfile),
+    /^vcg-remote-offline-[A-Za-z0-9_-]{6,}$/u,
+    "cold-restart profile name is not branded",
+  );
+  const metadata = await lstat(resolvedProfile);
+  assert.ok(
+    metadata.isDirectory() && !metadata.isSymbolicLink(),
+    "cold-restart profile is not a real directory",
+  );
+  await rm(resolvedProfile, {
+    recursive: true,
+    force: false,
+    maxRetries: 3,
+    retryDelay: 100,
+  });
+  await assert.rejects(
+    lstat(resolvedProfile),
+    (error) => error?.code === "ENOENT",
+    "cold-restart profile was not removed",
+  );
+}
+
+async function launchPersistentObservationContext(
+  chromium,
+  chromePath,
+  profilePath,
+) {
+  return chromium.launchPersistentContext(profilePath, {
+    executablePath: chromePath,
+    headless: true,
+    args: ["--disable-gpu"],
+    viewport: { width: 1920, height: 1080 },
+    deviceScaleFactor: 1,
+    serviceWorkers: "allow",
+  });
+}
+
+async function observeColdOfflineRestart(chromium, chromePath, game) {
+  const profilePath = await mkdtemp(
+    resolve(tmpdir(), COLD_RESTART_PROFILE_PREFIX),
+  );
+  let onlineContext;
+  let offlineContext;
+  let profileRemoved = false;
+  try {
+    onlineContext = await launchPersistentObservationContext(
+      chromium,
+      chromePath,
+      profilePath,
+    );
+    const onlinePage = await onlyPersistentPage(onlineContext);
+    let firstLoad = { outcome: "loaded", error: null };
+    let secondLoad = { outcome: "loaded", error: null };
+    try {
+      await onlinePage.goto(game.entrypoint, {
+        waitUntil: "domcontentloaded",
+        timeout: ONLINE_TIMEOUT_MS,
+      });
+      await onlinePage.waitForTimeout(SETTLE_MS);
+    } catch (error) {
+      firstLoad = { outcome: "failed", error: navigationFailure(error) };
+    }
+    try {
+      await onlinePage.reload({
+        waitUntil: "domcontentloaded",
+        timeout: ONLINE_TIMEOUT_MS,
+      });
+      await onlinePage.waitForTimeout(SETTLE_MS);
+    } catch (error) {
+      secondLoad = { outcome: "failed", error: navigationFailure(error) };
+    }
+    const onlinePrimeState = normalizedState(await pageState(onlinePage));
+    await onlineContext.close();
+    onlineContext = undefined;
+
+    offlineContext = await launchPersistentObservationContext(
+      chromium,
+      chromePath,
+      profilePath,
+    );
+    await offlineContext.setOffline(true);
+    const offlinePage = await onlyPersistentPage(offlineContext);
+    let requestCount = 0;
+    let responseCount = 0;
+    let requestFailureCount = 0;
+    offlinePage.on("request", () => {
+      requestCount += 1;
+    });
+    offlinePage.on("response", () => {
+      responseCount += 1;
+    });
+    offlinePage.on("requestfailed", () => {
+      requestFailureCount += 1;
+    });
+    let offlineRestart = { outcome: "loaded", error: null };
+    try {
+      await offlinePage.goto(game.entrypoint, {
+        waitUntil: "domcontentloaded",
+        timeout: OFFLINE_TIMEOUT_MS,
+      });
+      await offlinePage.waitForTimeout(500);
+    } catch (error) {
+      offlineRestart = {
+        outcome: "failed",
+        error: navigationFailure(error),
+      };
+    }
+    const offlineRestartState = normalizedState(await pageState(offlinePage));
+    await offlineContext.close();
+    offlineContext = undefined;
+    await removeColdRestartProfile(profilePath);
+    profileRemoved = true;
+
+    return {
+      onlinePrime: {
+        firstLoad,
+        secondLoad,
+        state: onlinePrimeState,
+      },
+      cleanOnlineClose: true,
+      browserRestarted: true,
+      offlineConfiguredBeforeNavigation: true,
+      offlineRestart: {
+        ...offlineRestart,
+        requestCount,
+        responseCount,
+        requestFailureCount,
+        state: offlineRestartState,
+      },
+      cleanOfflineClose: true,
+      profileRemoved: true,
+    };
+  } finally {
+    await onlineContext?.close().catch(() => {});
+    await offlineContext?.close().catch(() => {});
+    if (!profileRemoved) {
+      await removeColdRestartProfile(profilePath);
+    }
+  }
+}
+
 export function buildRemoteGameOfflineSummary(games) {
   const has = (game, predicate) => (predicate(game) ? 1 : 0);
   return {
@@ -701,6 +863,17 @@ export function buildRemoteGameOfflineSummary(games) {
         count + has(game, (value) => value.offlineReload.outcome === "loaded"),
       0,
     ),
+    coldOfflineRestartLoadedCount: games.reduce(
+      (count, game) =>
+        count
+        + has(
+          game,
+          (value) =>
+            value.coldOfflineRestart.onlinePrime.secondLoad.outcome === "loaded"
+            && value.coldOfflineRestart.offlineRestart.outcome === "loaded",
+        ),
+      0,
+    ),
     localStorageGameCount: games.reduce(
       (count, game) =>
         count
@@ -757,13 +930,23 @@ export async function generateRemoteGameOfflineEvidence() {
   try {
     for (const [index, game] of REMOTE_GAMES.entries()) {
       console.log(`[${index + 1}/${REMOTE_GAMES.length}] ${game.title}`);
-      games.push(await observeGame(browser, game));
+      const observation = await observeGame(browser, game);
+      const coldOfflineRestart = await observeColdOfflineRestart(
+        chromium,
+        chromePath,
+        game,
+      );
+      games.push({
+        ...observation,
+        coldOfflineRestart,
+      });
     }
     return {
       format: REMOTE_GAME_OFFLINE_EVIDENCE_FORMAT,
       evidenceDate: REMOTE_GAME_OFFLINE_EVIDENCE_DATE,
       observedAtUtc,
-      evidenceClass: "fresh-profile-live-browser-observation",
+      evidenceClass:
+        "fresh-profile-live-browser-observation-with-cold-restart",
       qualification: "observation-only-no-offline-package-qualified",
       environment: {
         platform: process.platform,
@@ -781,7 +964,7 @@ export async function generateRemoteGameOfflineEvidence() {
         catalogSnapshotDate: "2026-07-19",
         expectedGameCount: REMOTE_GAMES.length,
         lifecycle:
-          "fresh profile, online navigation, online reload, service-worker update request, endpoint GET probes, offline reload",
+          "fresh anonymous context, online navigation, online reload, service-worker update request, endpoint GET probes, same-context offline reload; separate persistent profile, online navigation, online reload, clean close, same-profile browser restart offline before navigation, clean close, profile removal",
         interactionPolicy:
           "navigation-and-browser-lifecycle-only; no play, login, consent, permission, purchase, or form interaction",
         storedDataPolicy:
@@ -802,7 +985,7 @@ async function main() {
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`);
   console.log(
-    `wrote ${outputPath}; games=${artifact.summary.gameCount}; offline-loaded=${artifact.summary.offlineReloadLoadedCount}; qualified=${artifact.summary.offlinePackageQualifiedCount}`,
+    `wrote ${outputPath}; games=${artifact.summary.gameCount}; offline-reload=${artifact.summary.offlineReloadLoadedCount}; cold-offline-restart=${artifact.summary.coldOfflineRestartLoadedCount}; qualified=${artifact.summary.offlinePackageQualifiedCount}`,
   );
 }
 

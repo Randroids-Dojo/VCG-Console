@@ -19,7 +19,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v1.json",
+  "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
 );
 export const RUNTIME_PAYLOAD_SCORECARD_MAX_BYTES = 256 * 1024;
 const expected = await generateRuntimePayloadScorecard();

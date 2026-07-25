@@ -10,10 +10,21 @@ Qualification result: zero offline packages qualified
 
 All 26 URLs in the 2026-07-19 VibeCoded.Games snapshot completed an initial
 online navigation and a second online reload in a new anonymous browser
-context. Only Block-You loaded a document after the browser was taken offline.
-That result does not establish complete offline play: the captured document had
-the expected title and a small text surface, but no game interaction, save,
-audio, asset-completeness, restart, or update-rollback path was exercised.
+context. Only Block-You loaded a document after that context was taken
+offline.
+
+The v2 successor separately gave every title a new persistent profile, loaded
+it online twice, closed the browser, relaunched Chrome against the same profile
+with context-level offline mode set before navigation, and removed the profile
+after the restarted browser closed. All 26 two-load primes and all cleanup
+steps succeeded. Only Block-You loaded a document after the cold browser
+restart; the other 25 failed with `net::ERR_INTERNET_DISCONNECTED`.
+
+Neither result establishes complete offline play. Block-You reached
+`document.readyState=complete` with its active `/sw.js` controller and
+`block-you-v1` cache after restart, but the run did not interact with gameplay,
+input, audio, saves, required assets, quota, cache reset, update/rollback, or
+recovery.
 
 Three titles linked a parseable web manifest:
 
@@ -30,17 +41,19 @@ offline reload failed. VibeBots exposed a push/notification worker without a
 fetch handler, did not register it during this route, and failed its offline
 reload.
 
-The authoritative evidence is
-[`remote-game-offline-observation-v1.json`](../compliance/hosted-game-offline/remote-game-offline-observation-v1.json).
+The authoritative current evidence is
+[`remote-game-offline-observation-v2.json`](../compliance/hosted-game-offline/remote-game-offline-observation-v2.json).
 It binds all 26 observation records with SHA-256
-`b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973`.
-The artifact explicitly records `offlinePackageQualifiedCount: 0`.
+`8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0`
+and explicitly records `offlinePackageQualifiedCount: 0`.
+[`remote-game-offline-observation-v1.json`](../compliance/hosted-game-offline/remote-game-offline-observation-v1.json)
+remains immutable historical evidence for the earlier same-context-only run.
 
 ## Exact procedure
 
 The generator used installed Google Chrome `150.0.7871.182`, Node `24.18.0`,
-Windows x64, a 1920 x 1080 viewport, and a separate new Playwright browser
-context for each title. For every entry it:
+Windows x64, and a 1920 x 1080 viewport. For every entry, the anonymous-context
+branch:
 
 1. navigated online to the catalog URL and waited for
    `DOMContentLoaded` plus 1.5 seconds;
@@ -56,14 +69,33 @@ context for each title. For every entry it:
    reload with a 15-second timeout; and
 7. destroyed the anonymous context.
 
+The separate cold-restart branch then:
+
+1. created one branded fresh persistent profile under the operating-system
+   temporary directory;
+2. navigated online and performed a second online reload, each through
+   `DOMContentLoaded` plus 1.5 seconds;
+3. recorded only the same bounded browser-state names and counts;
+4. cleanly closed the first persistent browser;
+5. relaunched Chrome against the exact same profile;
+6. set Playwright context-level offline mode before navigating to the
+   entrypoint;
+7. recorded the bounded load result, state, and aggregate
+   request/response/failure counts;
+8. cleanly closed the restarted browser; and
+9. verified removal of the branded real-directory profile.
+
 No game was played. No form, login, consent, notification, purchase, or
 permission surface was used. The observed request set contained no method
 other than GET/HEAD/OPTIONS. Browser storage values, cookie values, response
 bodies, console messages, and personal identifiers are excluded.
 
-The context is headless and browser-isolated, which Chrome reports as
-incognito for installability diagnostics. The run therefore observes the web
-manifest and service-worker lifecycle, not an operating-system PWA install.
+The main context is headless and browser-isolated, which Chrome reports as
+incognito for installability diagnostics. The separate cold branch uses a
+normal persistent profile only for its two browser processes, then deletes it.
+Neither branch performs an operating-system PWA install. Context-level offline
+mode is not an operating-system network namespace, cable pull, DNS failure,
+captive portal, or intermittent-network test.
 
 ## Catalog-wide results
 
@@ -100,6 +132,24 @@ only that the origin created that container.
 | Streamer Billboard | No | No | None | Failed: disconnected |
 | GoDig | No | No | `/userfs` IndexedDB | Failed: disconnected |
 
+## Cold browser-restart result
+
+Every title completed both persistent-profile online loads, cleanly closed the
+priming browser, relaunched the same profile with offline mode applied before
+navigation, cleanly closed the restarted browser, and removed its profile.
+
+| Result | Titles |
+|---|---|
+| Loaded a document after cold offline restart | Block-You |
+| Failed with `net::ERR_INTERNET_DISCONNECTED` | The other 25 titles |
+
+Block-You's restarted offline document retained title `Block-You`, complete
+ready state, active `https://block-you.vercel.app/sw.js`, and cache name
+`block-you-v1`. The observation recorded eight requests, eight browser
+responses, and zero request failures; those counts describe the browser's
+service-worker/cache path and do not establish that every gameplay asset or
+feature was exercised.
+
 The VibeBots route wrote:
 
 - `vibebots-last-played-app-build`;
@@ -123,6 +173,9 @@ The validator distinguishes a real manifest/JavaScript response from the many
 deployments that return an HTML application shell for arbitrary
 `/manifest.json`, `/manifest.webmanifest`, `/sw.js`, or `/service-worker.js`
 paths. An HTTP 200 HTML fallback is not counted as a manifest or worker.
+All six meaningful manifest/worker byte identities above were unchanged from
+v1. Several mutable 404 response bodies changed without changing their 404
+classification and confer no endpoint or offline capability.
 
 ## Fail-closed interpretation
 
@@ -148,7 +201,8 @@ I-096 cannot close from this run. Each title still needs:
 
 - ordinary gameplay and all required assets exercised before and after a
   network drop;
-- cold offline launch, restart, save/load, reset, quota, and migration checks;
+- complete cold offline gameplay plus save/load, reset, quota, cache deletion,
+  and migration checks; v2 proves only a restarted document load;
 - declared behavior for hosted identity, persistence, leaderboard, AI,
   messaging, media, analytics, notification, and other service routes;
 - an exact source/build/deployment identity rather than only mutable public
@@ -167,8 +221,9 @@ Decisions needed from the project owner are isolated in
 
 ## Reproduction and validation
 
-The live generator intentionally rewrites the dated observation and should be
-run only when refreshing evidence:
+The live generator intentionally writes the v2 successor and should be run
+only when refreshing that evidence. The v1 historical artifact is not
+overwritten:
 
 ```text
 node scripts/generate-remote-game-offline-evidence.mjs
@@ -183,9 +238,9 @@ node --test scripts/validate-remote-game-offline-evidence.test.mjs
 
 The validator requires canonical bounded UTF-8 JSON, the exact 26-entry
 inventory and endpoints, closed fields, privacy-safe URLs, internally
-consistent lifecycle records, a game-record digest, derived summary counts,
-the zero-qualification result, and the exact claim limitations. Eight
-adversarial test groups cover catalog substitution, promotion, digest and
-summary drift, captured-secret-shaped fields, unsafe URLs, inconsistent
-endpoint/update records, unknown fields, environment drift, and encoding/size
-bounds.
+consistent same-context and cold-restart lifecycle records, exact close/
+restart/offline-before-navigation/profile-removal facts, a game-record digest,
+derived summary counts, the zero-qualification result, and the exact claim
+limitations. Nine adversarial test groups additionally reject fabricated
+restart/cleanup, late offline configuration, impossible request counts, and
+hidden values in the persistent-profile observation.

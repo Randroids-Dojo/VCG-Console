@@ -29,7 +29,7 @@ import { validateTrackedFirstPartyGameRightsScreen } from "./validate-first-part
 import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game-offline-evidence.mjs";
 
 export const GAME_SERVICE_SCREEN_FORMAT =
-  "vcg-game-service-dependency-screen/v1";
+  "vcg-game-service-dependency-screen/v2";
 export const GAME_SERVICE_SCREEN_DATE = "2026-07-24";
 export const GAME_SERVICE_SCREEN_LIMITATIONS = Object.freeze([
   "This is a bounded static source-signal and fresh-profile browser-origin screen. It is not a complete runtime call graph, backend inventory, data-flow assessment, secret review, authenticated-session test, gameplay test, or service-owner attestation.",
@@ -42,7 +42,7 @@ export const GAME_SERVICE_SCREEN_LIMITATIONS = Object.freeze([
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "compliance/game-services/game-service-dependency-screen-v1.json",
+  "compliance/game-services/game-service-dependency-screen-v2.json",
 );
 const execFileAsync = promisify(execFile);
 const MAX_ARCHIVE_BYTES = 192 * 1024 * 1024;

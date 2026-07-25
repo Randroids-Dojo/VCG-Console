@@ -5756,3 +5756,56 @@ I-186 remains active. Production producer wiring, exact quiesced/read-only
 materialization, signed evidence envelope, support/export/crash inventory,
 RAM/swap/core-dump policy, target filesystem faults, and Raspberry
 Pi/ordinary-Linux evidence remain under Q-155 through Q-158 and Q-249.
+
+## 2026-07-24: remote-game cold offline browser restart
+
+### Delivered
+
+- Preserved the existing 26-title v1 same-context observation as immutable
+  history and added a v2 successor with one separate persistent profile per
+  title.
+- Primed every persistent profile through two online loads, cleanly closed
+  Chrome, relaunched the exact same profile with context-level offline mode set
+  before navigation, cleanly closed again, and verified profile removal.
+- Kept the persistent-profile evidence bounded to browser-state names/counts,
+  stable load errors, and aggregate request/response/failure counts; no
+  storage values, cookies, request paths, queries, bodies, messages, or direct
+  identifiers enter the artifact.
+- Extended the closed validator and mutation suite for exact restart,
+  offline-before-navigation, cleanup, request-count, and hidden-value refusal.
+- Preserved the input, service, candidate-ledger, and runtime-scorecard v1
+  artifacts, then generated v2 successors in dependency order so every
+  downstream provenance edge binds offline v2 without rewriting history.
+- Corrected two live-evidence validators that falsely required a UTC timestamp
+  to share the Pacific evidence-date calendar day; both now require exact
+  canonical UTC ISO timestamps.
+
+### Verification evidence
+
+- All 26 titles completed both persistent-profile online loads and every
+  close/restart/profile-removal step.
+- Block-You alone loaded a complete worker-controlled document after the cold
+  offline restart; the other 25 returned
+  `net::ERR_INTERNET_DISCONNECTED`.
+- The same three manifests, one active worker, two caches, one same-context
+  offline load, and all six meaningful manifest/worker byte identities remain
+  consistent with v1.
+- The strict validator reports 26 games, one cold-restart document load, zero
+  offline packages qualified, and all nine adversarial groups passing.
+- Input v2 retains 26 loads, five neutral Gamepad API signals, and zero input
+  qualifications; service v2 retains 23 exact-source screens and zero
+  degradation/offline qualifications; ledger v2 retains 26 blocked entries
+  and zero authority; runtime scorecard v2 retains 20 unqualified target cells
+  and zero payload selections. Their 8/9/8/9 adversarial groups all pass.
+- The complete root test gate passes through all evidence validators, 164
+  research tests, every package suite, and all 232 console tests. Workspace
+  typechecking reports zero Svelte errors/warnings, and the production build
+  passes.
+
+### Remaining boundary
+
+I-096 remains active. A cached restarted document is not complete offline play
+or a signed package. RGO-003 and Q-051 still require ordinary gameplay/assets,
+input/audio, save/reset/quota/cache deletion, mixed-version update/rollback,
+source-to-deployment identity, hosted-service behavior, rights, operating-
+system network isolation, controller/recovery, and both target architectures.

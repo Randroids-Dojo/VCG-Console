@@ -17,7 +17,7 @@ import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "compliance/game-input/remote-game-input-surface-observation-v1.json",
+  "compliance/game-input/remote-game-input-surface-observation-v2.json",
 );
 export const REMOTE_GAME_INPUT_MAX_BYTES = 256 * 1024;
 const offlineReference = await validateTrackedRemoteGameOfflineEvidence();
@@ -251,10 +251,11 @@ export function validateRemoteGameInputSurfaceEvidence(value) {
   );
   assert.equal(value.format, REMOTE_GAME_INPUT_EVIDENCE_FORMAT);
   assert.equal(value.evidenceDate, REMOTE_GAME_INPUT_EVIDENCE_DATE);
+  const observedAt = new Date(value.observedAtUtc);
   assert.ok(
     typeof value.observedAtUtc === "string"
-      && value.observedAtUtc.startsWith(`${REMOTE_GAME_INPUT_EVIDENCE_DATE}T`)
-      && !Number.isNaN(Date.parse(value.observedAtUtc)),
+      && !Number.isNaN(observedAt.getTime())
+      && observedAt.toISOString() === value.observedAtUtc,
     "observedAtUtc is invalid",
   );
   assert.equal(

@@ -27,10 +27,12 @@ The screen covers all 26 entries in the 2026-07-19 VibeCoded.Games snapshot:
 - no title has a verified service-degradation contract or offline
   qualification.
 
-The authoritative artifact is
-[`game-service-dependency-screen-v1.json`](../compliance/game-services/game-service-dependency-screen-v1.json).
+The authoritative current artifact is
+[`game-service-dependency-screen-v2.json`](../compliance/game-services/game-service-dependency-screen-v2.json).
 Its 26 game records are bound by SHA-256
 `16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9`.
+The record digest is unchanged because the bounded source/browser signals did
+not change; v2 advances the predecessor binding and leaves v1 immutable.
 
 The screen is also bound to:
 
@@ -38,7 +40,7 @@ The screen is also bound to:
   `a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81`;
   and
 - remote manifest/offline observation
-  `b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973`.
+  `8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0`.
 
 ## Claim boundary
 

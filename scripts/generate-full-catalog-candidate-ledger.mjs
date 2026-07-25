@@ -8,7 +8,7 @@ import { validateTrackedGameServiceDependencyScreen } from "./validate-game-serv
 import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game-offline-evidence.mjs";
 
 export const FULL_CATALOG_CANDIDATE_FORMAT =
-  "vcg-full-catalog-candidate-ledger/v1";
+  "vcg-full-catalog-candidate-ledger/v2";
 export const FULL_CATALOG_CANDIDATE_DATE = "2026-07-24";
 export const FULL_CATALOG_CANDIDATE_LIMITATIONS = Object.freeze([
   "This ledger reconciles evidence into non-authoritative candidate records. It is not a public game manifest, signed installed catalog, launcher policy, admission record, package descriptor, permission grant, browser allowlist, or owner authorization.",
@@ -21,7 +21,7 @@ export const FULL_CATALOG_CANDIDATE_LIMITATIONS = Object.freeze([
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "compliance/catalog-candidates/full-catalog-candidate-ledger-v1.json",
+  "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
 );
 const checkedInMuseumIds = new Set([
   "determined",

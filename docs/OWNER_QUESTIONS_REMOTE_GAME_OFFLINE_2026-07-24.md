@@ -4,7 +4,9 @@ Date opened: 2026-07-24
 
 Related work: I-096, Q-051, D-013, D-034, D-051, D-056
 
-The live 26-title browser observation qualifies zero offline packages. These
+The v2 live 26-title browser observation qualifies zero offline packages.
+Block-You alone loaded a document after a clean browser close and same-profile
+offline restart, but no gameplay or complete-asset path was exercised. These
 questions must be answered before expanding the claim or product lane. Until
 then, keep mutable hosted deployments supervised, network-required, and
 separate from independently signed local packages.
@@ -42,6 +44,14 @@ session, every required asset, save/reload, audio, network loss during play,
 cold offline restart, cache deletion, quota failure, worker update, mixed
 versions, and recovery. Keep `network: required` and make no offline package
 until rights and exact build authority are also resolved.
+
+Current bounded evidence: the candidate completed two online priming loads,
+cleanly closed, relaunched the same temporary profile with browser-context
+offline mode set before navigation, loaded a complete document controlled by
+its active worker, cleanly closed again, and removed the profile. This closes
+only the document-restart observation. It does not answer the requested
+ordinary-session, asset, input, audio, save, quota, update, mixed-version,
+recovery, target-network-isolation, rights, or build-authority evidence.
 
 ## RGO-004: source-to-deployment identity
 

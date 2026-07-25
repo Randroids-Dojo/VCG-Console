@@ -1,0 +1,2516 @@
+{
+  "format": "vcg-game-service-dependency-screen/v2",
+  "evidenceDate": "2026-07-24",
+  "observedAtUtc": "2026-07-25T03:20:40.074Z",
+  "evidenceClass": "exact-source-and-fresh-browser-service-signal-screen",
+  "qualification": "zero-verified-degradation-or-offline-claims",
+  "policy": {
+    "signalsGrantNoRuntimeAuthority": true,
+    "signalsGrantNoDataCollectionAuthority": true,
+    "signalsGrantNoOfflineClaim": true,
+    "productionCatalogMutation": false
+  },
+  "provenance": {
+    "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
+    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "remoteOfflineFormat": "vcg-remote-game-offline-observation/v2",
+    "remoteOfflineObservationSha256": "8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0"
+  },
+  "scope": {
+    "catalogSnapshotDate": "2026-07-19",
+    "gameCount": 26,
+    "sourceArchiveMaximumBytes": 201326592,
+    "textFileMaximumBytes": 524288,
+    "sourceFileMaximumCount": 20000,
+    "signalMaximumItems": 512,
+    "storedData": "public package names/specifications, environment-variable names, API route paths, origin names, source archive identity/counts, and prior privacy-bounded browser counts only",
+    "excludedFromTextScan": "AGENTS.md; hidden/tooling, documentation, test, build, dependency, and vendor directories; symlinks; unsupported extensions; and text files larger than the declared bound"
+  },
+  "games": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibebots.randroid.dev",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeBots",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibeBots",
+        "commit": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeBots/zip/f9b988ca72bbd2f2083ad3530366f8c57847e482",
+        "archiveBytes": 8039484,
+        "archiveSha256": "1cb50daac586dc6bc2a4a003a1101e9ec4ff1917b696237b6008f9acf24c4f0d",
+        "sourceFileCount": 702,
+        "screenedTextFileCount": 679,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@clerk/nextjs",
+            "specifications": [
+              "^7.5.12"
+            ]
+          },
+          {
+            "name": "@dimforge/rapier3d-deterministic-compat",
+            "specifications": [
+              "0.19.3"
+            ]
+          },
+          {
+            "name": "@neondatabase/serverless",
+            "specifications": [
+              "^1.1.0"
+            ]
+          },
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.3.0"
+            ]
+          },
+          {
+            "name": "@react-three/drei",
+            "specifications": [
+              "^10.7.7"
+            ]
+          },
+          {
+            "name": "@react-three/fiber",
+            "specifications": [
+              "9.6.1"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "16.2.11"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.2.7"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.2.7"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "0.185.1"
+            ]
+          },
+          {
+            "name": "web-push",
+            "specifications": [
+              "^3.6.7"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^4.4.3"
+            ]
+          },
+          {
+            "name": "zustand",
+            "specifications": [
+              "^5.0.14"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "AUTH_SECRET",
+          "AUTOPLAY_BASE",
+          "AUTOPLAY_PORT",
+          "AUTOPLAY_SEED",
+          "BUY_CARGO",
+          "CI",
+          "CI_CASE_COMMIT_SHA",
+          "CI_CASE_RESULTS_PATH",
+          "CI_REPRO_REPORT_DIR",
+          "CLERK_AFTER_SIGN_IN_URL",
+          "CLERK_AFTER_SIGN_UP_URL",
+          "CLERK_SECRET_KEY",
+          "CLERK_SIGN_IN_FORCE_REDIRECT_URL",
+          "CLERK_SIGN_UP_FORCE_REDIRECT_URL",
+          "DATABASE_URL",
+          "E2E_GLOBAL_TIMEOUT_MS",
+          "E2E_SOFTWARE_GL",
+          "NEXT_PUBLIC_APP_BUILD",
+          "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
+          "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
+          "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+          "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
+          "NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL",
+          "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+          "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
+          "NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL",
+          "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+          "NOTIFICATION_ADMIN_TOKEN",
+          "PLAYTEST_BASE",
+          "PLAYWRIGHT_BASE_URL",
+          "PLAYWRIGHT_HOST",
+          "PLAYWRIGHT_PORT",
+          "PLAYWRIGHT_WORKERS",
+          "PORT",
+          "PW_CHROMIUM_PATH",
+          "VAPID_PRIVATE_KEY",
+          "VAPID_PUBLIC_KEY",
+          "VERCEL_ENV",
+          "VERCEL_GIT_COMMIT_SHA",
+          "WEB_PUSH_CONTACT_EMAIL"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/account/account-routes.test.ts",
+          "src/app/api/account/claim/route.ts",
+          "src/app/api/account/handoff-routes.test.ts",
+          "src/app/api/account/handoff/finish/route.ts",
+          "src/app/api/account/handoff/start/route.ts",
+          "src/app/api/account/load/route.ts",
+          "src/app/api/account/status/route.ts",
+          "src/app/api/account/trip/route.test.ts",
+          "src/app/api/account/trip/route.ts",
+          "src/app/api/achievements/route.test.ts",
+          "src/app/api/achievements/route.ts",
+          "src/app/api/bunker/claim/route.ts",
+          "src/app/api/bunker/collect/route.ts",
+          "src/app/api/bunker/excavate/route.ts",
+          "src/app/api/bunker/parts/buy/route.ts",
+          "src/app/api/bunker/parts/move/route.ts",
+          "src/app/api/bunker/parts/place/route.ts",
+          "src/app/api/bunker/parts/remove/route.ts",
+          "src/app/api/bunker/raid/forfeit/route.ts",
+          "src/app/api/bunker/raid/resolve/route.ts",
+          "src/app/api/bunker/raid/start/route.ts",
+          "src/app/api/bunker/repair/route.ts",
+          "src/app/api/bunker/reset/route.ts",
+          "src/app/api/bunker/route.test.ts",
+          "src/app/api/bunker/route.ts",
+          "src/app/api/bunker/skin/route.ts",
+          "src/app/api/bunker/start-fresh/route.ts",
+          "src/app/api/client-errors/route.test.ts",
+          "src/app/api/client-errors/route.ts",
+          "src/app/api/consumables/buy/route.test.ts",
+          "src/app/api/consumables/buy/route.ts",
+          "src/app/api/designs/route.ts",
+          "src/app/api/elevator/upgrade/route.test.ts",
+          "src/app/api/elevator/upgrade/route.ts",
+          "src/app/api/feedback/route.test.ts",
+          "src/app/api/feedback/route.ts",
+          "src/app/api/gear/route.test.ts",
+          "src/app/api/gear/route.ts",
+          "src/app/api/gear/upgrade/route.test.ts",
+          "src/app/api/gear/upgrade/route.ts",
+          "src/app/api/match/opponent/route.test.ts",
+          "src/app/api/match/opponent/route.ts",
+          "src/app/api/match/records/route.ts",
+          "src/app/api/match/resolve/route.test.ts",
+          "src/app/api/match/resolve/route.ts",
+          "src/app/api/mine/bank/route.test.ts",
+          "src/app/api/mine/bank/route.ts",
+          "src/app/api/mine/base-teleport/route.test.ts",
+          "src/app/api/mine/base-teleport/route.ts",
+          "src/app/api/mine/diagnostics/route.test.ts",
+          "src/app/api/mine/diagnostics/route.ts",
+          "src/app/api/mine/world/route.test.ts",
+          "src/app/api/mine/world/route.ts",
+          "src/app/api/mine/world/version/route.test.ts",
+          "src/app/api/mine/world/version/route.ts",
+          "src/app/api/notifications/config/route.ts",
+          "src/app/api/notifications/release/route.ts",
+          "src/app/api/notifications/route.test.ts",
+          "src/app/api/notifications/subscription/route.ts",
+          "src/app/api/performance/insights/route.test.ts",
+          "src/app/api/performance/insights/route.ts",
+          "src/app/api/performance/route.test.ts",
+          "src/app/api/performance/route.ts",
+          "src/app/api/performance/trace/route.test.ts",
+          "src/app/api/performance/trace/route.ts",
+          "src/app/api/save-slots/route.test.ts",
+          "src/app/api/save-slots/route.ts",
+          "src/app/api/shop/buy/route.ts",
+          "src/app/api/shop/route.ts",
+          "src/app/api/sim/verify/route.test.ts",
+          "src/app/api/sim/verify/route.ts",
+          "src/app/api/version/route.test.ts",
+          "src/app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://127.0.0.1:3000",
+          "http://127.0.0.1:3860",
+          "http://127.0.0.1:3862",
+          "http://127.0.0.1:59999",
+          "http://localhost",
+          "http://localhost:3000",
+          "https://accounts.example.test",
+          "https://accounts.vibebots.test",
+          "https://app",
+          "https://biomejs.dev",
+          "https://evil.test",
+          "https://push.example",
+          "https://push.example.test",
+          "https://remote-playtest.test",
+          "https://vibe-bots.test",
+          "https://vibebots.randroid.dev",
+          "https://vibebots.test",
+          "https://vibecoded.games",
+          "https://www.googleapis.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibebots.randroid.dev/mine",
+        "observedOrigins": [
+          "https://vibebots.randroid.dev"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 3,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [
+          "dependency:@clerk/nextjs",
+          "environment:AUTH_SECRET",
+          "environment:CLERK_AFTER_SIGN_IN_URL",
+          "environment:CLERK_AFTER_SIGN_UP_URL",
+          "environment:CLERK_SECRET_KEY",
+          "environment:CLERK_SIGN_IN_FORCE_REDIRECT_URL",
+          "environment:CLERK_SIGN_UP_FORCE_REDIRECT_URL",
+          "environment:NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
+          "environment:NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
+          "environment:NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL",
+          "environment:NEXT_PUBLIC_CLERK_SIGN_UP_URL"
+        ],
+        "database": [
+          "environment:DATABASE_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [
+          "dependency:web-push",
+          "environment:VAPID_PRIVATE_KEY",
+          "environment:VAPID_PUBLIC_KEY",
+          "environment:WEB_PUSH_CONTACT_EMAIL"
+        ],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://127.0.0.1:3000",
+          "origin:http://127.0.0.1:3860",
+          "origin:http://127.0.0.1:3862",
+          "origin:http://127.0.0.1:59999",
+          "origin:http://localhost",
+          "origin:http://localhost:3000",
+          "origin:https://accounts.example.test",
+          "origin:https://accounts.vibebots.test",
+          "origin:https://app",
+          "origin:https://biomejs.dev",
+          "origin:https://evil.test",
+          "origin:https://push.example",
+          "origin:https://push.example.test",
+          "origin:https://remote-playtest.test",
+          "origin:https://vibe-bots.test",
+          "origin:https://vibebots.test",
+          "origin:https://vibecoded.games",
+          "origin:https://www.googleapis.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibe-pinball",
+      "title": "VibePinball",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibe-pinball.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibePinball",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibePinball",
+        "commit": "a9c324d13dac567fb1c490f345cad16dc5bba136",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibePinball/zip/a9c324d13dac567fb1c490f345cad16dc5bba136",
+        "archiveBytes": 394718,
+        "archiveSha256": "5407d8be8f24a56c8bbeba41968c49e7b1cbbaeff43b0d6743e1b6969ced47eb",
+        "sourceFileCount": 61,
+        "screenedTextFileCount": 54,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@dimforge/rapier3d-compat",
+            "specifications": [
+              "0.19.3"
+            ]
+          },
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.2.3"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "16.2.9"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "19.2.7"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "19.2.7"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "0.184.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "4.4.3"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "PORT"
+        ],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://www.w3.org",
+          "https://nextjs.org",
+          "https://vibe-pinball.vercel.app"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibe-pinball.vercel.app/",
+        "observedOrigins": [
+          "https://vibe-pinball.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://www.w3.org",
+          "origin:https://nextjs.org"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibe-racer",
+      "title": "VibeRacer",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibe-racer-three.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeRacer",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibeRacer",
+        "commit": "4ff30a43d52f0b7588398c7e6d84e1babeabc011",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeRacer/zip/4ff30a43d52f0b7588398c7e6d84e1babeabc011",
+        "archiveBytes": 7523298,
+        "archiveSha256": "9b0003cfc4289c5cb5474d89ebfdbe0393aa413a622acd0a9d1a2f3892d5783a",
+        "sourceFileCount": 392,
+        "screenedTextFileCount": 327,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.2.0"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.5.18"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.183.2"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^3.23.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "GITHUB_PAT",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "LEADERBOARD_ADMIN_TOKEN",
+          "NEXT_PUBLIC_APP_VERSION",
+          "PORT",
+          "RACE_SIGNING_SECRET",
+          "VERCEL_GIT_COMMIT_SHA"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/admin/leaderboard/route.ts",
+          "src/app/api/derby/leaderboard/route.ts",
+          "src/app/api/derby/start/route.ts",
+          "src/app/api/derby/submit/route.ts",
+          "src/app/api/feedback/route.ts",
+          "src/app/api/leaderboard/route.ts",
+          "src/app/api/race/start/route.ts",
+          "src/app/api/race/submit/route.ts",
+          "src/app/api/replay/byNonce/route.ts",
+          "src/app/api/replay/top/route.ts",
+          "src/app/api/track/[slug]/music/route.ts",
+          "src/app/api/track/[slug]/route.ts",
+          "src/app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "https://w3c.github.io"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibe-racer-three.vercel.app/",
+        "observedOrigins": [
+          "https://vibe-racer-three.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://w3c.github.io"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibe-pins",
+      "title": "VibePins",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibe-pins.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibePins",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibePins",
+        "commit": "554da94c403e49124ae708d37f41b05ef44ae1c3",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibePins/zip/554da94c403e49124ae708d37f41b05ef44ae1c3",
+        "archiveBytes": 631137,
+        "archiveSha256": "e373eeba5dc46d7a42999b13a71e4f9f78b573a6bbe54baf95bf6a2aa549b618",
+        "sourceFileCount": 68,
+        "screenedTextFileCount": 61,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@dimforge/rapier3d-compat",
+            "specifications": [
+              "0.19.3"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.38.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "0.184.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^4.4.3"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "UPSTASH_REDIS_REST_TOKEN",
+          "UPSTASH_REDIS_REST_URL"
+        ],
+        "apiRoutePaths": [
+          "api/leaderboard.ts",
+          "api/match.ts",
+          "api/schemas.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "https://openapi.vercel.sh"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibe-pins.vercel.app/",
+        "observedOrigins": [
+          "https://vibe-pins.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL",
+          "environment:UPSTASH_REDIS_REST_TOKEN",
+          "environment:UPSTASH_REDIS_REST_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://openapi.vercel.sh"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "fracking-asteroids",
+      "title": "Fracking Asteroids",
+      "catalogClass": "first-party",
+      "liveUrl": "https://fracking-asteroids.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "FrackingAsteroids",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/FrackingAsteroids",
+        "commit": "02e3804487b0e4ac4e9998017f2a43020b34b9bb",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/FrackingAsteroids/zip/02e3804487b0e4ac4e9998017f2a43020b34b9bb",
+        "archiveBytes": 438808,
+        "archiveSha256": "7001cbe7c55ae3719fb62235e2ee01746ac73218a906f16ed0dd8c15ae265a54",
+        "sourceFileCount": 146,
+        "screenedTextFileCount": 112,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.2.0"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.183.2"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^3.23.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "NEXT_PUBLIC_APP_VERSION"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/feedback/route.ts",
+          "src/app/api/game/[id]/route.ts",
+          "src/app/api/health/route.ts",
+          "src/app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://localhost:3000",
+          "http://www.w3.org",
+          "https://github.com",
+          "https://react.dev"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://fracking-asteroids.vercel.app/",
+        "observedOrigins": [
+          "https://fracking-asteroids.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:3000",
+          "origin:http://www.w3.org",
+          "origin:https://github.com",
+          "origin:https://react.dev"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "hoops",
+      "title": "Hoops",
+      "catalogClass": "first-party",
+      "liveUrl": "https://hoops-kappa.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Hoops",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/Hoops",
+        "commit": "49eee13a3855e2cdc299cece6910d7d098133fda",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/Hoops/zip/49eee13a3855e2cdc299cece6910d7d098133fda",
+        "archiveBytes": 619585,
+        "archiveSha256": "57b75353de2ab92e287871579fea257d4fda7bcf214a648eae54e35b94bbf327",
+        "sourceFileCount": 56,
+        "screenedTextFileCount": 47,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.2.3"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "cannon-es",
+            "specifications": [
+              "^0.20.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.160.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^4.4.3"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "APP_VERSION",
+          "BASE_URL",
+          "GITHUB_PAT",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "UPSTASH_REDIS_REST_TOKEN",
+          "UPSTASH_REDIS_REST_URL",
+          "VERCEL_GIT_COMMIT_SHA"
+        ],
+        "apiRoutePaths": [
+          "api/feedback.js",
+          "api/leaderboard.js",
+          "api/version.js"
+        ],
+        "sourceLiteralOrigins": [],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://hoops-kappa.vercel.app/",
+        "observedOrigins": [
+          "https://hoops-kappa.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL",
+          "environment:UPSTASH_REDIS_REST_TOKEN",
+          "environment:UPSTASH_REDIS_REST_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": []
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "catalogClass": "first-party",
+      "liveUrl": "https://mi-casa-es-su-casa.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "mi-casa-es-su-casa",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/mi-casa-es-su-casa",
+        "commit": "c296f181d94d594ffd8be855d8d0f4a808f19374",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/mi-casa-es-su-casa/zip/c296f181d94d594ffd8be855d8d0f4a808f19374",
+        "archiveBytes": 334252,
+        "archiveSha256": "93c89828e6e61bf6b0b5e994be4916bdf64e6b08e445d9386efb9e53829b6105",
+        "sourceFileCount": 136,
+        "screenedTextFileCount": 68,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@vercel/kv",
+            "specifications": [
+              "^3.0.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.171.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^4.3.6"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "BASE_URL",
+          "CI",
+          "GITHUB_PAT_MI_CASA",
+          "KV_REST_API_READ_ONLY_TOKEN",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "KV_URL",
+          "NAME_BLOCKLIST",
+          "NEXT_PUBLIC_APP_VERSION"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/character/[name]/messages/route.ts",
+          "src/app/api/character/[name]/route.ts",
+          "src/app/api/characters/search/route.ts",
+          "src/app/api/feedback/route.ts",
+          "src/app/api/health/route.ts",
+          "src/app/api/layout/[name]/route.ts",
+          "src/app/api/validate-name/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://localhost:3000",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://mi-casa-es-su-casa.vercel.app/",
+        "observedOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com",
+          "https://mi-casa-es-su-casa.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@vercel/kv",
+          "environment:KV_REST_API_READ_ONLY_TOKEN",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL",
+          "environment:KV_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:3000",
+          "origin:https://fonts.googleapis.com",
+          "origin:https://fonts.gstatic.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "block-punch-kick",
+      "title": "Block Punch Kick",
+      "catalogClass": "first-party",
+      "liveUrl": "https://block-punch-kick.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "BlockPunchKick",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/BlockPunchKick",
+        "commit": "cf6b48c239de7cd046d2ccfff01391d763346352",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/BlockPunchKick/zip/cf6b48c239de7cd046d2ccfff01391d763346352",
+        "archiveBytes": 260533,
+        "archiveSha256": "18325f6d3362c742d1151ffdccf42e04f311adb8c7f8a31d3e4199fd7012efa3",
+        "sourceFileCount": 31,
+        "screenedTextFileCount": 19,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@gltf-transform/cli",
+            "specifications": [
+              "^4.3.0"
+            ]
+          },
+          {
+            "name": "@gltf-transform/core",
+            "specifications": [
+              "^4.3.0"
+            ]
+          },
+          {
+            "name": "@gltf-transform/extensions",
+            "specifications": [
+              "^4.3.0"
+            ]
+          },
+          {
+            "name": "@gltf-transform/functions",
+            "specifications": [
+              "^4.3.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://localhost:8080",
+          "https://unpkg.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://block-punch-kick.vercel.app/",
+        "observedOrigins": [
+          "https://block-punch-kick.vercel.app",
+          "https://unpkg.com"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://unpkg.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:8080",
+          "origin:https://unpkg.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch",
+      "catalogClass": "first-party",
+      "liveUrl": "https://epoch-theta.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "epoch",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/epoch",
+        "commit": "6fb5052954f38593c8290e02da5fda6bfff3fda6",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/epoch/zip/6fb5052954f38593c8290e02da5fda6bfff3fda6",
+        "archiveBytes": 344656,
+        "archiveSha256": "9edb5ac2f58674acd59eab9e608f3de1a1cfdd150c5d4a391f4635dce6739c74",
+        "sourceFileCount": 78,
+        "screenedTextFileCount": 67,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "next",
+            "specifications": [
+              "15.2.9"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "BASE_URL",
+          "CI",
+          "GITHUB_PAT",
+          "NEXT_PUBLIC_APP_VERSION",
+          "SLOW_MO"
+        ],
+        "apiRoutePaths": [
+          "app/api/feedback/route.ts",
+          "app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://localhost:3000",
+          "https://nextjs.org",
+          "https://randroid.dev",
+          "https://www.randroid.dev"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://epoch-theta.vercel.app/",
+        "observedOrigins": [
+          "https://epoch-theta.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:3000",
+          "origin:https://nextjs.org",
+          "origin:https://randroid.dev",
+          "origin:https://www.randroid.dev"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "game-tape",
+      "title": "GameTape",
+      "catalogClass": "first-party",
+      "liveUrl": "https://game-tape.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GameTape",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/GameTape",
+        "commit": "22f5a48ac0a6fd0ee8f9136eba81cf787e85ce99",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/GameTape/zip/22f5a48ac0a6fd0ee8f9136eba81cf787e85ce99",
+        "archiveBytes": 27080,
+        "archiveSha256": "a23b5e42a3c28e2074558f217b8a05cbbe183db8a2976ac09acae46c08683062",
+        "sourceFileCount": 4,
+        "screenedTextFileCount": 3,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://www.w3.org"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://game-tape.vercel.app/",
+        "observedOrigins": [
+          "https://api.github.com",
+          "https://game-tape.vercel.app",
+          "https://raw.githubusercontent.com"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://api.github.com",
+          "https://raw.githubusercontent.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://www.w3.org",
+          "origin:https://api.github.com",
+          "origin:https://raw.githubusercontent.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "go-pit",
+      "title": "GoPit",
+      "catalogClass": "first-party",
+      "liveUrl": "https://go-pit.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GoPit",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/GoPit",
+        "commit": "3210032b0b805d6a77ca5b560c027ad0f7ede3b3",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/GoPit/zip/3210032b0b805d6a77ca5b560c027ad0f7ede3b3",
+        "archiveBytes": 782269,
+        "archiveSha256": "eea0566abc82e5a67553ac1c05056a0e96a0326d8f7e2faef20b0f932f03017a",
+        "sourceFileCount": 480,
+        "screenedTextFileCount": 106,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "https://github.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://go-pit.vercel.app/",
+        "observedOrigins": [
+          "https://go-pit.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 1
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://github.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "block-you",
+      "title": "Block-You",
+      "catalogClass": "first-party",
+      "liveUrl": "https://block-you.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Block-You",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/Block-You",
+        "commit": "f018849999666af05535c2ffd17c524b25e5a187",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/Block-You/zip/f018849999666af05535c2ffd17c524b25e5a187",
+        "archiveBytes": 56117,
+        "archiveSha256": "dd8f9f4f1b874c430cd43613692bac2e8f5cd7b55c8c5e049e941f368126fd3d",
+        "sourceFileCount": 15,
+        "screenedTextFileCount": 9,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://www.w3.org",
+          "https://unpkg.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://block-you.vercel.app/",
+        "observedOrigins": [
+          "https://block-you.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 1,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://www.w3.org",
+          "origin:https://unpkg.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "catalogClass": "first-party",
+      "liveUrl": "https://determined-khaki.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Determined",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/Determined",
+        "commit": "7d9a38dc2c64915808c4a0a7081133ebb1865eec",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/Determined/zip/7d9a38dc2c64915808c4a0a7081133ebb1865eec",
+        "archiveBytes": 158802,
+        "archiveSha256": "b4ccb50a18a5f2021723b9725ec74ffc16e6f75eaff6bc8480235dcf89afec68",
+        "sourceFileCount": 46,
+        "screenedTextFileCount": 42,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@vercel/kv",
+            "specifications": [
+              "^1.0.1"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "GROQ_API_KEY"
+        ],
+        "apiRoutePaths": [
+          "api/generate.js",
+          "api/leaderboard.js",
+          "api/random-words.js"
+        ],
+        "sourceLiteralOrigins": [
+          "https://api.groq.com",
+          "https://cdn.jsdelivr.net"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://determined-khaki.vercel.app/",
+        "observedOrigins": [
+          "https://cdn.jsdelivr.net",
+          "https://determined-khaki.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://cdn.jsdelivr.net"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@vercel/kv"
+        ],
+        "ai": [
+          "environment:GROQ_API_KEY"
+        ],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://api.groq.com",
+          "origin:https://cdn.jsdelivr.net"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "software-dev-sim",
+      "title": "SoftwareDevSim",
+      "catalogClass": "first-party",
+      "liveUrl": "https://software-dev-sim.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "SoftwareDevSim",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/SoftwareDevSim",
+        "commit": "2fc19ea64f5e35cdc11048a1899abe2b0519876e",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/SoftwareDevSim/zip/2fc19ea64f5e35cdc11048a1899abe2b0519876e",
+        "archiveBytes": 195787,
+        "archiveSha256": "cc33537e8555115021000a247e9a60ad890cb869be30d5913c2931ac622f919e",
+        "sourceFileCount": 76,
+        "screenedTextFileCount": 39,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.183.2"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^3.23.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "GITHUB_FEEDBACK_REPO",
+          "GITHUB_FEEDBACK_TOKEN",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/feedback/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://localhost:3000",
+          "https://raw.githubusercontent.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://software-dev-sim.vercel.app/",
+        "observedOrigins": [
+          "https://software-dev-sim.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:3000",
+          "origin:https://raw.githubusercontent.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "baby-piano",
+      "title": "Baby Piano",
+      "catalogClass": "first-party",
+      "liveUrl": "https://baby-piano-eight.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "BabyPiano",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/BabyPiano",
+        "commit": "f4e286eac374303e62ca63af91c78d0f1f336d40",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/BabyPiano/zip/f4e286eac374303e62ca63af91c78d0f1f336d40",
+        "archiveBytes": 68364,
+        "archiveSha256": "1f0a96144d4f0076786e6757b8bbcf276a4bd68ecc1244cbc17b5de3d5a1958a",
+        "sourceFileCount": 17,
+        "screenedTextFileCount": 14,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "NEXT_PUBLIC_APP_VERSION"
+        ],
+        "apiRoutePaths": [
+          "app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "https://nextjs.org"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://baby-piano-eight.vercel.app/",
+        "observedOrigins": [
+          "https://baby-piano-eight.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://nextjs.org"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "clankers",
+      "title": "Clankers",
+      "catalogClass": "first-party",
+      "liveUrl": "https://clankers-mocha.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Clankers",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/Clankers",
+        "commit": "9e2bae34a7357067f6cd2fd86c418fa5deaa7224",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/Clankers/zip/9e2bae34a7357067f6cd2fd86c418fa5deaa7224",
+        "archiveBytes": 69686,
+        "archiveSha256": "4a32ed602e2478e3d77742d82d63fa94e1774cdef54a2fff57be7ff74694a36d",
+        "sourceFileCount": 20,
+        "screenedTextFileCount": 10,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://clankers-mocha.vercel.app/",
+        "observedOrigins": [
+          "https://clankers-mocha.vercel.app",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://fonts.googleapis.com",
+          "origin:https://fonts.gstatic.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibe-city",
+      "title": "VibeCity",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibe-city-weld.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeCity",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibeCity",
+        "commit": "8c8896f4ba5305e68d365a44d54e1ef02bb3b6c5",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeCity/zip/8c8896f4ba5305e68d365a44d54e1ef02bb3b6c5",
+        "archiveBytes": 1435089,
+        "archiveSha256": "f2f12b9b6c31fe23a7673ea30de435f2a156c6b58c5998affe1ef6c0fbd9273a",
+        "sourceFileCount": 226,
+        "screenedTextFileCount": 122,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#4950f9b3a16896dec9fdcb5cc3a1c5accd2e6fc6"
+            ]
+          },
+          {
+            "name": "@types/three",
+            "specifications": [
+              "^0.184.0"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.184.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^3.25.76"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "NEXT_PUBLIC_APP_VERSION",
+          "PLAYWRIGHT_PORT",
+          "VERCEL_GIT_COMMIT_SHA"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/city/[slug]/events/route.ts",
+          "src/app/api/city/[slug]/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://www.w3.org",
+          "https://example.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibe-city-weld.vercel.app/",
+        "observedOrigins": [
+          "https://vibe-city-weld.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://www.w3.org",
+          "origin:https://example.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "flatline",
+      "title": "Flatline",
+      "catalogClass": "first-party",
+      "liveUrl": "https://flatline-gamma.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Flatline",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/Flatline",
+        "commit": "8f2ecf4720c15e224a4b3b389ee7a1fb700fd3fb",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/Flatline/zip/8f2ecf4720c15e224a4b3b389ee7a1fb700fd3fb",
+        "archiveBytes": 480522,
+        "archiveSha256": "9cb6e24e9de5b9fddd47a26c642632b3099c25c80dc038e5557bb02c5df5807f",
+        "sourceFileCount": 104,
+        "screenedTextFileCount": 48,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#v0.2.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^16.2.6"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "three",
+            "specifications": [
+              "^0.181.0"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^4.4.1"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "NODE_ENV",
+          "PLAYWRIGHT_CHROMIUM_PATH"
+        ],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://127.0.0.1:3100",
+          "https://nextjs.org"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://flatline-gamma.vercel.app/",
+        "observedOrigins": [
+          "https://flatline-gamma.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://127.0.0.1:3100",
+          "origin:https://nextjs.org"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibe-gear-2",
+      "title": "VibeGear2",
+      "catalogClass": "first-party",
+      "liveUrl": "https://vibe-gear2.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeGear2",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/VibeGear2",
+        "commit": "6f1eda21bbe2152ecd43ed0de05522a8c58c726c",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeGear2/zip/6f1eda21bbe2152ecd43ed0de05522a8c58c726c",
+        "archiveBytes": 3117908,
+        "archiveSha256": "632c7014f808d4064fac3c7c42d6d9fe40ea5a67721abb58407c827743066302",
+        "sourceFileCount": 918,
+        "screenedTextFileCount": 406,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@randroids-dojo/vibekit",
+            "specifications": [
+              "github:Randroids-Dojo/VibeKit#3f5193a2b144503ac7b25bce9ea09005c7085c60"
+            ]
+          },
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.37.0"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.0.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^18.3.1"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^18.3.1"
+            ]
+          },
+          {
+            "name": "zod",
+            "specifications": [
+              "^3.23.8"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "CI",
+          "FEEDBACK_REPO",
+          "GIT_SHA",
+          "GITHUB_PAT",
+          "LEADERBOARD_BACKEND",
+          "LEADERBOARD_SIGNING_KEY",
+          "LIGHTHOUSE_PORT",
+          "LIGHTHOUSE_ROUTE_ATTEMPTS",
+          "NEXT_PUBLIC_BUILD_ID",
+          "NEXT_PUBLIC_BUILD_VERSION",
+          "NEXT_PUBLIC_LEADERBOARD_ENABLED",
+          "NEXT_PUBLIC_VG_FEATURE_TRACK_EDITOR",
+          "NODE_ENV",
+          "PLAYWRIGHT_CROSS_BROWSER",
+          "PLAYWRIGHT_PORT",
+          "RELEASE_FUN_EXPECTED_VERSION",
+          "RELEASE_FUN_PLAYTEST",
+          "RELEASE_FUN_PRODUCTION_URL",
+          "RELEASE_MEDIA_BASE_URL",
+          "RELEASE_MEDIA_OUT"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/feedback/route.ts",
+          "src/app/api/leaderboard/[trackId]/route.ts",
+          "src/app/api/leaderboard/submit/route.ts",
+          "src/app/api/version/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://127.0.0.1:3000",
+          "http://www.w3.org",
+          "https://api.github.com",
+          "https://docs.coderabbit.ai",
+          "https://example.invalid",
+          "https://openapi.vercel.sh",
+          "https://w3c.github.io"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://vibe-gear2.vercel.app/",
+        "observedOrigins": [
+          "https://vibe-gear2.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@upstash/redis"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://127.0.0.1:3000",
+          "origin:http://www.w3.org",
+          "origin:https://api.github.com",
+          "origin:https://docs.coderabbit.ai",
+          "origin:https://example.invalid",
+          "origin:https://openapi.vercel.sh",
+          "origin:https://w3c.github.io"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "text-racer",
+      "title": "Text Racer",
+      "catalogClass": "first-party",
+      "liveUrl": "https://text-racer.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "text-racer",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/text-racer",
+        "commit": "385cf6c39867dab0c70bdf7563995a2ede2f4ee1",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/text-racer/zip/385cf6c39867dab0c70bdf7563995a2ede2f4ee1",
+        "archiveBytes": 15943,
+        "archiveSha256": "dc63cdf08ba820621b2a68d496471991063ddcf2f20e55cc9a3f7b6e2cc685f4",
+        "sourceFileCount": 12,
+        "screenedTextFileCount": 10,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@vercel/kv",
+            "specifications": [
+              "^3.0.0"
+            ]
+          }
+        ],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [
+          "api/wins.js"
+        ],
+        "sourceLiteralOrigins": [],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://text-racer.vercel.app/",
+        "observedOrigins": [
+          "https://text-racer.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@vercel/kv"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": []
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "drop-dead-keep",
+      "title": "Drop Dead Keep",
+      "catalogClass": "first-party",
+      "liveUrl": "https://drop-dead-keep.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "drop-dead-keep",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/drop-dead-keep",
+        "commit": "f814e8702cfc338d166c01eff41571d1ec24da1c",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/drop-dead-keep/zip/f814e8702cfc338d166c01eff41571d1ec24da1c",
+        "archiveBytes": 95450,
+        "archiveSha256": "1c85129167edcffeecc8e75026b4d613f8b679dd14fcebbc9cc0bbacb51fbee4",
+        "sourceFileCount": 35,
+        "screenedTextFileCount": 32,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@vercel/kv",
+            "specifications": [
+              "^1.0.1"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "GITHUB_PAT"
+        ],
+        "apiRoutePaths": [
+          "api/feedback.js",
+          "api/leaderboard.js",
+          "api/version.js"
+        ],
+        "sourceLiteralOrigins": [
+          "https://cdnjs.cloudflare.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://drop-dead-keep.vercel.app/",
+        "observedOrigins": [
+          "https://cdnjs.cloudflare.com",
+          "https://drop-dead-keep.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://cdnjs.cloudflare.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [
+          "dependency:@vercel/kv"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://cdnjs.cloudflare.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "streamer-billboard",
+      "title": "Streamer Billboard",
+      "catalogClass": "first-party",
+      "liveUrl": "https://streamer-billboard.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "StreamerBillboard",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/StreamerBillboard",
+        "commit": "4260e913855cce70f14b634a7132f7e8edef56a6",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/StreamerBillboard/zip/4260e913855cce70f14b634a7132f7e8edef56a6",
+        "archiveBytes": 111288,
+        "archiveSha256": "cecc4b56458d118c0052682b9b258f2bdc7126d77cfaf1934c1222e0e697c937",
+        "sourceFileCount": 49,
+        "screenedTextFileCount": 45,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [
+          "package.json"
+        ],
+        "runtimeDependencies": [
+          {
+            "name": "@upstash/redis",
+            "specifications": [
+              "^1.36.3"
+            ]
+          },
+          {
+            "name": "next",
+            "specifications": [
+              "^15.3.0"
+            ]
+          },
+          {
+            "name": "react",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "react-dom",
+            "specifications": [
+              "^19.0.0"
+            ]
+          },
+          {
+            "name": "tmi.js",
+            "specifications": [
+              "^1.8.5"
+            ]
+          }
+        ],
+        "environmentVariableNames": [
+          "APP_URL",
+          "AUTH_SECRET",
+          "CRON_SECRET",
+          "KV_REST_API_TOKEN",
+          "KV_REST_API_URL",
+          "NODE_ENV",
+          "TWITCH_CLIENT_ID",
+          "TWITCH_CLIENT_SECRET",
+          "TWITCH_EVENTSUB_SECRET",
+          "YOUTUBE_API_KEY",
+          "YOUTUBE_CHANNEL_ID"
+        ],
+        "apiRoutePaths": [
+          "src/app/api/chat/route.ts",
+          "src/app/api/cron/youtube/route.ts",
+          "src/app/api/dashboard/control/route.ts",
+          "src/app/api/dashboard/login/route.ts",
+          "src/app/api/dashboard/logout/route.ts",
+          "src/app/api/dashboard/status/route.ts",
+          "src/app/api/ingest/route.ts",
+          "src/app/api/state/route.ts",
+          "src/app/api/state/stream/route.ts",
+          "src/app/api/twitch/auth/callback/route.ts",
+          "src/app/api/twitch/auth/redirect/route.ts",
+          "src/app/api/twitch/auth/route.ts",
+          "src/app/api/twitch/eventsub/route.ts"
+        ],
+        "sourceLiteralOrigins": [
+          "http://localhost:3000",
+          "https://api.twitch.tv",
+          "https://baby-piano-eight.vercel.app",
+          "https://block-punch-kick.vercel.app",
+          "https://block-you.vercel.app",
+          "https://determined-khaki.vercel.app",
+          "https://epoch-theta.vercel.app",
+          "https://example.com",
+          "https://go-dig.vercel.app",
+          "https://go-pit.vercel.app",
+          "https://id.twitch.tv",
+          "https://mi-casa-es-su-casa.vercel.app",
+          "https://openapi.vercel.sh",
+          "https://streamer-billboard.vercel.app",
+          "https://text-racer.vercel.app",
+          "https://www.googleapis.com"
+        ],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://streamer-billboard.vercel.app/",
+        "observedOrigins": [
+          "https://streamer-billboard.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [
+          "environment:AUTH_SECRET"
+        ],
+        "database": [
+          "dependency:@upstash/redis",
+          "environment:KV_REST_API_TOKEN",
+          "environment:KV_REST_API_URL"
+        ],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://localhost:3000",
+          "origin:https://api.twitch.tv",
+          "origin:https://baby-piano-eight.vercel.app",
+          "origin:https://block-punch-kick.vercel.app",
+          "origin:https://block-you.vercel.app",
+          "origin:https://determined-khaki.vercel.app",
+          "origin:https://epoch-theta.vercel.app",
+          "origin:https://example.com",
+          "origin:https://go-dig.vercel.app",
+          "origin:https://go-pit.vercel.app",
+          "origin:https://id.twitch.tv",
+          "origin:https://mi-casa-es-su-casa.vercel.app",
+          "origin:https://openapi.vercel.sh",
+          "origin:https://text-racer.vercel.app",
+          "origin:https://www.googleapis.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "go-dig",
+      "title": "GoDig",
+      "catalogClass": "first-party",
+      "liveUrl": "https://go-dig.vercel.app",
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GoDig",
+        "repositoryUrl": "https://github.com/Randroids-Dojo/GoDig",
+        "commit": "bbb1271d18128468172362389dbc4c0db79f666f",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/GoDig/zip/bbb1271d18128468172362389dbc4c0db79f666f",
+        "archiveBytes": 2495608,
+        "archiveSha256": "5ac2c81bd32702c622868c26d584c9893380429e8159cad12b290d91f5632d3d",
+        "sourceFileCount": 1322,
+        "screenedTextFileCount": 162,
+        "skippedOversizeTextFileCount": 0,
+        "unreadableTextFileCount": 0,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [
+          "http://127.0.0.1:8188",
+          "https://api.anthropic.com"
+        ],
+        "submodulePaths": [
+          "dots"
+        ]
+      },
+      "browser": {
+        "finalOnlineUrl": "https://go-dig.vercel.app/",
+        "observedOrigins": [
+          "https://go-dig.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 1
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:http://127.0.0.1:8188",
+          "origin:https://api.anthropic.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "bone-cleaver",
+      "title": "Bone Cleaver",
+      "catalogClass": "promoted-community",
+      "liveUrl": "https://bonecleaver.vercel.app/",
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "repositoryUrl": null,
+        "commit": null,
+        "archiveUrl": null,
+        "archiveBytes": null,
+        "archiveSha256": null,
+        "sourceFileCount": null,
+        "screenedTextFileCount": null,
+        "skippedOversizeTextFileCount": null,
+        "unreadableTextFileCount": null,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://bonecleaver.vercel.app/",
+        "observedOrigins": [
+          "https://bonecleaver.vercel.app",
+          "https://unpkg.com"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://unpkg.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 1,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://unpkg.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "vibeman-hangman",
+      "title": "Vibeman (Hangman)",
+      "catalogClass": "promoted-community",
+      "liveUrl": "https://hangman-exe.vercel.app/",
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "repositoryUrl": null,
+        "commit": null,
+        "archiveUrl": null,
+        "archiveBytes": null,
+        "archiveSha256": null,
+        "sourceFileCount": null,
+        "screenedTextFileCount": null,
+        "skippedOversizeTextFileCount": null,
+        "unreadableTextFileCount": null,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://hangman-exe.vercel.app/",
+        "observedOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com",
+          "https://hangman-exe.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 0,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": [
+          "origin:https://fonts.googleapis.com",
+          "origin:https://fonts.gstatic.com"
+        ]
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    },
+    {
+      "id": "asymptotic-bitrot",
+      "title": "Asymptotic Bitrot",
+      "catalogClass": "promoted-community",
+      "liveUrl": "https://asymptoticbitrot-um9i.vercel.app",
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "repositoryUrl": null,
+        "commit": null,
+        "archiveUrl": null,
+        "archiveBytes": null,
+        "archiveSha256": null,
+        "sourceFileCount": null,
+        "screenedTextFileCount": null,
+        "skippedOversizeTextFileCount": null,
+        "unreadableTextFileCount": null,
+        "packageManifestPaths": [],
+        "runtimeDependencies": [],
+        "environmentVariableNames": [],
+        "apiRoutePaths": [],
+        "sourceLiteralOrigins": [],
+        "submodulePaths": []
+      },
+      "browser": {
+        "finalOnlineUrl": "https://asymptoticbitrot-um9i.vercel.app/",
+        "observedOrigins": [
+          "https://asymptoticbitrot-um9i.vercel.app"
+        ],
+        "observedThirdPartyOrigins": [],
+        "mutatingRequestCount": 0,
+        "localStorageKeyCount": 0,
+        "cacheStorageNameCount": 1,
+        "indexedDbNameCount": 0
+      },
+      "serviceSignals": {
+        "auth": [],
+        "database": [],
+        "ai": [],
+        "analytics": [],
+        "notifications": [],
+        "payments": [],
+        "externalNetwork": []
+      },
+      "consoleNetworkRecommendation": "required-pending-per-title-review",
+      "degradationStatus": "unverified-source-signal-only",
+      "offlineQualification": "none"
+    }
+  ],
+  "observationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9",
+  "summary": {
+    "gameCount": 26,
+    "exactSourceScreenedCount": 23,
+    "sourceUnavailableCount": 3,
+    "authSignalGameCount": 2,
+    "databaseSignalGameCount": 13,
+    "aiSignalGameCount": 1,
+    "analyticsSignalGameCount": 0,
+    "notificationSignalGameCount": 1,
+    "paymentSignalGameCount": 0,
+    "externalNetworkSignalGameCount": 23,
+    "apiRouteGameCount": 15,
+    "environmentVariableGameCount": 16,
+    "verifiedDegradationGameCount": 0,
+    "offlineQualifiedGameCount": 0,
+    "productionCatalogMutationCount": 0
+  },
+  "limitations": [
+    "This is a bounded static source-signal and fresh-profile browser-origin screen. It is not a complete runtime call graph, backend inventory, data-flow assessment, secret review, authenticated-session test, gameplay test, or service-owner attestation.",
+    "Source matching can miss generated, obfuscated, dynamically constructed, remotely configured, post-login, post-consent, native, binary, submodule, and deployment-only dependencies. A signal can also be development-only or unused.",
+    "Environment-variable names, package names, route paths, and origin names are evidence locators, not proof that a service is required, safe, available, correctly configured, or covered by a privacy/retention agreement.",
+    "The three promoted community games lack first-party repository links in the catalog snapshot. Their browser observations are retained, but their implementation and service closure remain unavailable.",
+    "No game receives an offline, local-package, degradation, privacy, or admission qualification from this artifact. Exact owner declarations and interactive network-loss/update evidence remain required."
+  ]
+}

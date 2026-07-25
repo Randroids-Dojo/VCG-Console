@@ -19,7 +19,7 @@ import { validateTrackedRemoteGameOfflineEvidence } from "./validate-remote-game
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "compliance/game-services/game-service-dependency-screen-v1.json",
+  "compliance/game-services/game-service-dependency-screen-v2.json",
 );
 export const GAME_SERVICE_SCREEN_MAX_BYTES = 512 * 1024;
 const references = await Promise.all([
@@ -445,10 +445,11 @@ export function validateGameServiceDependencyScreen(value) {
   );
   assert.equal(value.format, GAME_SERVICE_SCREEN_FORMAT);
   assert.equal(value.evidenceDate, GAME_SERVICE_SCREEN_DATE);
+  const observedAt = new Date(value.observedAtUtc);
   assert.ok(
     typeof value.observedAtUtc === "string"
-      && value.observedAtUtc.startsWith(`${GAME_SERVICE_SCREEN_DATE}T`)
-      && !Number.isNaN(Date.parse(value.observedAtUtc)),
+      && !Number.isNaN(observedAt.getTime())
+      && observedAt.toISOString() === value.observedAtUtc,
     "observedAtUtc is invalid",
   );
   assert.equal(
