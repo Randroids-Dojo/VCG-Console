@@ -127,7 +127,7 @@ modes cannot be combined. See the
 
 `supervise` invokes the selected executable directly and never passes arguments through a shell. A managed child is killed and reaped if its Rust supervisor is dropped before normal exit.
 
-`watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. See [the native watchdog contract](../../docs/NATIVE_WATCHDOG.md) before integrating a wrapper.
+`watchdog` additionally owns startup and heartbeat timeouts, force-reaps an unhealthy child, and performs one bounded restart by default. It passes only the host-selected heartbeat path to the child through `VCG_HEARTBEAT_FILE`; a separate trusted operating-system adapter owns the optional resource-fault path. An unwired Linux cgroup-v2 candidate binds hierarchical `memory.events`, baselines `oom_kill` for each attempt, and checks terminal OOM evidence before generic exit classification. It does not configure or contain the scope. See the [native watchdog contract](../../docs/NATIVE_WATCHDOG.md) and [cgroup memory-health contract](../../docs/NATIVE_CGROUP_MEMORY_HEALTH.md) before integrating a wrapper.
 
 `retroarch` accepts only artifacts below the console package root and content below the optional console content root. It verifies the exact signed SHA-256 for the frontend, core, base configuration, and managed content before creating runtime state. It then generates a private per-session append configuration, separates saves/states/remaps by profile and game, disables mutable/network-facing menu features, and launches RetroArch directly. See [the RetroArch integration contract](../../docs/RETROARCH_INTEGRATION.md). Direct RetroArch remains process-only unless the signed frontend is a host-qualified cooperative wrapper for a watchdog game. A compositor/window probe is still required before readiness can be claimed.
 
@@ -170,7 +170,9 @@ modes cannot be combined. See the
 - `process`: direct process launch, observation, heartbeat/resource-fault
   supervision, bounded restart, termination, cleanup, and a host-owned atomic
   watchdog launch boundary used to close power admission before another
-  attempt can spawn.
+  attempt can spawn. Linux additionally has an unwired retained-handle
+  cgroup-v2 `oom_kill` candidate with per-attempt baselines and terminal-fault
+  precedence; it does not configure or qualify a memory scope.
 - `power`: non-serializable native idle/wake/restart/shutdown coordination,
   exact epoch/operation/deadline binding, launch-admission-first ordering,
   closed privileged service/input/wake/platform adapters, terminal ambiguity,

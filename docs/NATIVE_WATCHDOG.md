@@ -1,10 +1,10 @@
 # Native game watchdog contract
 
-Status: implemented desk contract
+Status: implemented desk contract with unwired Linux cgroup-v2 OOM candidate
 
 Last updated: 2026-07-23
 
-The Rust host owns a game child so a crash, silence, or explicit resource fault cannot strand the console inside that process. This contract is intentionally narrow: it defines child lifecycle and recovery signals, not compositor containment or Linux GPU/OOM detection.
+The Rust host owns a game child so a crash, silence, or explicit resource fault cannot strand the console inside that process. This contract is intentionally narrow: it defines child lifecycle and recovery signals plus a candidate Linux OOM detector, not compositor containment, GPU-reset detection, or target qualification.
 
 ## Invocation
 
@@ -50,7 +50,20 @@ The launcher configures a separate trusted operating-system adapter with the fau
 - `gpu-reset`;
 - `out-of-memory`.
 
-Unknown, non-UTF-8, or oversized values fail inspection explicitly. The game must not self-report these tokens as authoritative platform diagnosis. Linux cgroup and driver-specific producers are not implemented or qualified yet.
+Unknown, non-UTF-8, or oversized values fail inspection explicitly. The game
+must not self-report these tokens as authoritative platform diagnosis.
+
+`CgroupV2MemoryHealthProbe` is an unwired Linux alternative for
+`out-of-memory`. It retains the exact no-follow hierarchical `memory.events`
+control, snapshots `oom_kill` before each attempt, and reports OOM only when
+that counter increases. It also checks the counter after child exit so kernel
+OOM evidence cannot race into a generic process-exit reason. Counter reversal,
+malformed/duplicate/oversized state, missing reset, or unavailable controls
+fail closed. See `NATIVE_CGROUP_MEMORY_HEALTH.md`.
+
+This does not configure the memory controller, choose a cgroup, contain
+descendants, select memory limits, or implement GPU detection. Q-247 and Q-248
+must be resolved before authenticated package launch can use it.
 
 ## Recovery semantics
 
@@ -94,11 +107,11 @@ Failure reports `watchdog:failed attempts=<n> reason=<reason>`. Cancellation rep
 
 ## Qualification boundary
 
-The desk tests inject fault signals, real subprocess failures, active-attempt cancellation, and cancellation during restart backoff. They prove bounded direct-child ownership, termination, reaping, retry policy, no post-cancel spawn, and event ordering on the development host. Native-launch tests also prove that a host-selected installed game retries inside one retained request record and reports the terminal watchdog reason.
+The desk tests inject fault signals, real subprocess failures, active-attempt cancellation, and cancellation during restart backoff. They prove bounded direct-child ownership, termination, reaping, retry policy, no post-cancel spawn, and event ordering on the development host. Native-launch tests also prove that a host-selected installed game retries inside one retained request record and reports the terminal watchdog reason. Portable and Ubuntu WSL2 tests separately cover strict cgroup memory parsing, per-attempt baselines, terminal OOM precedence, heartbeat coexistence, counter reversal, malformed state, symlinks, and path replacement.
 
 They do not prove:
 
-- Linux cgroup OOM classification;
+- real Linux cgroup OOM injection and production scope/controller binding;
 - GPU-reset detection for any driver;
 - compositor, browser, or whole-session recovery;
 - descendant process-group/cgroup containment beyond the direct child;

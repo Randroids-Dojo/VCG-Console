@@ -4,12 +4,18 @@ use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{self, Read};
+#[cfg(target_os = "linux")]
+use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
 use std::thread;
 use std::time::{Duration, Instant};
 
 const MAX_PROBE_BYTES: u64 = 4_096;
+#[cfg(any(target_os = "linux", test))]
+const MAX_CGROUP_MEMORY_EVENT_BYTES: usize = 1_024;
+#[cfg(target_os = "linux")]
+const MAX_CGROUP_MEMORY_EVENT_READ_BYTES: u64 = 1_025;
 
 /// Validated process launch parameters.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -315,6 +321,21 @@ impl ProcessSupervisor {
                 operation: "inspect child status",
                 source,
             })? {
+                let terminal_fault = match probe.terminal_resource_fault() {
+                    Ok(fault) => fault,
+                    Err(source) if source.kind() == io::ErrorKind::InvalidData => {
+                        return Ok(AttemptResult::Recover(WatchdogReason::InvalidProbeData));
+                    }
+                    Err(source) => {
+                        return Err(WatchdogError::Io {
+                            operation: "inspect terminal resource fault",
+                            source,
+                        });
+                    }
+                };
+                if let Some(fault) = terminal_fault {
+                    return Ok(AttemptResult::Recover(WatchdogReason::ResourceFault(fault)));
+                }
                 return Ok(if status.success() {
                     AttemptResult::Completed(status)
                 } else {
@@ -529,6 +550,21 @@ pub trait HealthProbe {
     ///
     /// Returns an I/O error when current health state cannot be read safely.
     fn poll(&mut self) -> io::Result<HealthSignal>;
+
+    /// Inspects only trusted resource-fault evidence after the direct child
+    /// has exited and been reaped.
+    ///
+    /// The default preserves ordinary heartbeat-only completion. A platform
+    /// probe may override this to prevent an OOM/GPU fault racing into a
+    /// generic process-exit classification.
+    ///
+    /// # Errors
+    ///
+    /// Returns an I/O error when authoritative terminal fault evidence cannot
+    /// be read safely.
+    fn terminal_resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+        Ok(None)
+    }
 }
 
 /// File-backed heartbeat and resource-fault boundary for wrapper processes.
@@ -592,6 +628,27 @@ impl FileHealthProbe {
         }
         Ok(bytes)
     }
+
+    fn read_resource_fault(&self) -> io::Result<Option<ResourceFault>> {
+        let Some(path) = &self.fault_path else {
+            return Ok(None);
+        };
+        let bytes = match Self::read_bounded(path) {
+            Ok(bytes) => bytes,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => return Err(error),
+        };
+        let value = String::from_utf8(bytes)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        match value.trim() {
+            "gpu-reset" => Ok(Some(ResourceFault::GpuReset)),
+            "out-of-memory" => Ok(Some(ResourceFault::OutOfMemory)),
+            _ => Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "unknown resource fault signal",
+            )),
+        }
+    }
 }
 
 impl HealthProbe for FileHealthProbe {
@@ -605,25 +662,8 @@ impl HealthProbe for FileHealthProbe {
     }
 
     fn poll(&mut self) -> io::Result<HealthSignal> {
-        if let Some(path) = &self.fault_path {
-            match Self::read_bounded(path) {
-                Ok(bytes) => {
-                    let value = String::from_utf8(bytes)
-                        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-                    return match value.trim() {
-                        "gpu-reset" => Ok(HealthSignal::ResourceFault(ResourceFault::GpuReset)),
-                        "out-of-memory" => {
-                            Ok(HealthSignal::ResourceFault(ResourceFault::OutOfMemory))
-                        }
-                        _ => Err(io::Error::new(
-                            io::ErrorKind::InvalidData,
-                            "unknown resource fault signal",
-                        )),
-                    };
-                }
-                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
-                Err(error) => return Err(error),
-            }
+        if let Some(fault) = self.read_resource_fault()? {
+            return Ok(HealthSignal::ResourceFault(fault));
         }
 
         match Self::read_bounded(&self.heartbeat_path) {
@@ -644,6 +684,167 @@ impl HealthProbe for FileHealthProbe {
             Err(error) => Err(error),
         }
     }
+
+    fn terminal_resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+        self.read_resource_fault()
+    }
+}
+
+/// Linux cgroup-v2 OOM evidence combined with the existing heartbeat probe.
+///
+/// The exact hierarchical `memory.events` control is opened relative to a
+/// retained no-follow scope descriptor. Each watchdog attempt snapshots
+/// `oom_kill`; a later increase is authoritative only for this candidate
+/// scope and maps to [`ResourceFault::OutOfMemory`]. The scope and heartbeat
+/// path remain trusted host configuration.
+#[cfg(target_os = "linux")]
+#[derive(Debug)]
+pub struct CgroupV2MemoryHealthProbe {
+    heartbeat: FileHealthProbe,
+    memory_events: File,
+    baseline_oom_kill: Option<u64>,
+}
+
+#[cfg(target_os = "linux")]
+impl CgroupV2MemoryHealthProbe {
+    /// Binds one existing cgroup-v2 scope and heartbeat path.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for a relative/unavailable scope, a symlink or
+    /// non-regular `memory.events` control, or malformed initial counters.
+    pub fn open(heartbeat_path: impl Into<PathBuf>, scope_directory: &Path) -> io::Result<Self> {
+        use rustix::fs::{CWD, FileType, Mode, OFlags, fstat, openat};
+
+        if !scope_directory.is_absolute() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "cgroup memory scope must be absolute",
+            ));
+        }
+        let directory = openat(
+            CWD,
+            scope_directory,
+            OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::empty(),
+        )
+        .map_err(|error| io::Error::from_raw_os_error(error.raw_os_error()))?;
+        let memory_events = openat(
+            &directory,
+            "memory.events",
+            OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+            Mode::empty(),
+        )
+        .map_err(|error| io::Error::from_raw_os_error(error.raw_os_error()))?;
+        if !FileType::from_raw_mode(
+            fstat(&memory_events)
+                .map_err(|error| io::Error::from_raw_os_error(error.raw_os_error()))?
+                .st_mode,
+        )
+        .is_file()
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "cgroup memory events control is not regular",
+            ));
+        }
+        let mut probe = Self {
+            heartbeat: FileHealthProbe {
+                heartbeat_path: heartbeat_path.into(),
+                fault_path: None,
+                last_heartbeat: None,
+            },
+            memory_events: memory_events.into(),
+            baseline_oom_kill: None,
+        };
+        probe.read_oom_kill()?;
+        Ok(probe)
+    }
+
+    fn read_oom_kill(&mut self) -> io::Result<u64> {
+        self.memory_events.seek(SeekFrom::Start(0))?;
+        let mut bytes = Vec::new();
+        Read::by_ref(&mut self.memory_events)
+            .take(MAX_CGROUP_MEMORY_EVENT_READ_BYTES)
+            .read_to_end(&mut bytes)?;
+        parse_cgroup_oom_kill(&bytes).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
+                "invalid cgroup memory events evidence",
+            )
+        })
+    }
+
+    fn resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+        let baseline = self.baseline_oom_kill.ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
+                "cgroup memory probe was not reset for this attempt",
+            )
+        })?;
+        let current = self.read_oom_kill()?;
+        match current.cmp(&baseline) {
+            std::cmp::Ordering::Less => Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "cgroup oom_kill counter decreased",
+            )),
+            std::cmp::Ordering::Equal => Ok(None),
+            std::cmp::Ordering::Greater => Ok(Some(ResourceFault::OutOfMemory)),
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl HealthProbe for CgroupV2MemoryHealthProbe {
+    fn reset(&mut self) -> io::Result<()> {
+        self.heartbeat.reset()?;
+        self.baseline_oom_kill = Some(self.read_oom_kill()?);
+        Ok(())
+    }
+
+    fn poll(&mut self) -> io::Result<HealthSignal> {
+        if let Some(fault) = self.resource_fault()? {
+            return Ok(HealthSignal::ResourceFault(fault));
+        }
+        self.heartbeat.poll()
+    }
+
+    fn terminal_resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+        self.resource_fault()
+    }
+}
+
+#[cfg(any(target_os = "linux", test))]
+fn parse_cgroup_oom_kill(bytes: &[u8]) -> Option<u64> {
+    if bytes.is_empty() || bytes.len() > MAX_CGROUP_MEMORY_EVENT_BYTES {
+        return None;
+    }
+    let document = std::str::from_utf8(bytes).ok()?;
+    let mut oom_kill = None;
+    for line in document.lines() {
+        let (key, value) = line.split_once(' ')?;
+        if key.is_empty()
+            || value.is_empty()
+            || key
+                .bytes()
+                .any(|byte| !byte.is_ascii_lowercase() && byte != b'_')
+            || !is_canonical_decimal(value)
+        {
+            return None;
+        }
+        let counter = value.parse::<u64>().ok()?;
+        if key == "oom_kill" && oom_kill.replace(counter).is_some() {
+            return None;
+        }
+    }
+    oom_kill
+}
+
+#[cfg(any(target_os = "linux", test))]
+fn is_canonical_decimal(value: &str) -> bool {
+    !value.is_empty()
+        && value.bytes().all(|byte| byte.is_ascii_digit())
+        && (value == "0" || !value.starts_with('0'))
 }
 
 /// Why a running game was stopped or restarted.
@@ -882,8 +1083,8 @@ mod tests {
 
     use super::{
         ControlledWatchdogOutcome, FileHealthProbe, HealthProbe, HealthSignal, LaunchError,
-        LaunchSpec, ProcessSupervisor, ResourceFault, WatchdogError, WatchdogEvent, WatchdogPolicy,
-        WatchdogReason,
+        LaunchSpec, MAX_CGROUP_MEMORY_EVENT_BYTES, ProcessSupervisor, ResourceFault, WatchdogError,
+        WatchdogEvent, WatchdogPolicy, WatchdogReason, parse_cgroup_oom_kill,
     };
 
     #[derive(Debug)]
@@ -929,6 +1130,43 @@ mod tests {
             Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 "malformed test signal",
+            ))
+        }
+    }
+
+    #[derive(Debug)]
+    struct TerminalFaultProbe;
+
+    impl HealthProbe for TerminalFaultProbe {
+        fn reset(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+
+        fn poll(&mut self) -> io::Result<HealthSignal> {
+            Ok(HealthSignal::Quiet)
+        }
+
+        fn terminal_resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+            Ok(Some(ResourceFault::OutOfMemory))
+        }
+    }
+
+    #[derive(Debug)]
+    struct InvalidTerminalFaultProbe;
+
+    impl HealthProbe for InvalidTerminalFaultProbe {
+        fn reset(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+
+        fn poll(&mut self) -> io::Result<HealthSignal> {
+            Ok(HealthSignal::Quiet)
+        }
+
+        fn terminal_resource_fault(&mut self) -> io::Result<Option<ResourceFault>> {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "malformed terminal fault",
             ))
         }
     }
@@ -1106,6 +1344,12 @@ mod tests {
             probe.poll().expect("resource fault is read"),
             HealthSignal::ResourceFault(ResourceFault::OutOfMemory)
         );
+        assert_eq!(
+            probe
+                .terminal_resource_fault()
+                .expect("terminal resource fault is read"),
+            Some(ResourceFault::OutOfMemory)
+        );
         fs::remove_file(&fault).expect("fault is cleared");
 
         for invalid_heartbeat in [Vec::new(), vec![0xff], vec![b'x'; 4_097]] {
@@ -1125,6 +1369,220 @@ mod tests {
         );
 
         fs::remove_dir_all(directory).expect("test directory is removed");
+    }
+
+    #[test]
+    fn cgroup_memory_events_parser_requires_one_canonical_oom_kill_counter() {
+        assert_eq!(
+            parse_cgroup_oom_kill(b"low 0\nhigh 1\nmax 2\noom 3\noom_kill 4\noom_group_kill 0\n"),
+            Some(4)
+        );
+        assert_eq!(
+            parse_cgroup_oom_kill(b"future_counter 9\noom_kill 18446744073709551615\n"),
+            Some(u64::MAX)
+        );
+        for invalid in [
+            b"".as_slice(),
+            b"oom 1\n",
+            b"oom_kill 1\noom_kill 2\n",
+            b"oom_kill 01\n",
+            b"oom_kill -1\n",
+            b"oom-kill 1\n",
+            b"oom_kill 1 extra\n",
+            b"oom_kill\t1\n",
+            b"oom_kill 18446744073709551616\n",
+            b"oom_kill 1\n\n",
+            b"\xff",
+        ] {
+            assert_eq!(parse_cgroup_oom_kill(invalid), None, "{invalid:?}");
+        }
+        assert_eq!(
+            parse_cgroup_oom_kill(&vec![b'a'; MAX_CGROUP_MEMORY_EVENT_BYTES + 1]),
+            None
+        );
+    }
+
+    #[test]
+    fn terminal_resource_fault_precedes_generic_process_exit() {
+        let directory = test_directory("terminal-resource-fault");
+        fs::create_dir_all(&directory).expect("test directory is created");
+        let counter = directory.join("counter");
+        let executable = env::current_exe().expect("current test executable");
+        let spec = LaunchSpec::new(executable)
+            .expect("valid executable")
+            .args([
+                "--exact",
+                "process::tests::watchdog_crash_once_helper",
+                "--ignored",
+            ])
+            .env("VCG_WATCHDOG_TEST_COUNTER", counter.as_os_str());
+
+        let error = ProcessSupervisor
+            .watch(&spec, &fast_policy(0), TerminalFaultProbe, |_| {})
+            .expect_err("terminal OOM must consume the recovery budget");
+        assert!(matches!(
+            error,
+            WatchdogError::RecoveryExhausted {
+                reason: WatchdogReason::ResourceFault(ResourceFault::OutOfMemory),
+                attempts: 1
+            }
+        ));
+        fs::remove_dir_all(directory).expect("test directory is removed");
+    }
+
+    #[test]
+    fn malformed_terminal_fault_is_bounded_recovery_not_host_io_failure() {
+        let directory = test_directory("invalid-terminal-resource-fault");
+        fs::create_dir_all(&directory).expect("test directory is created");
+        let counter = directory.join("counter");
+        let executable = env::current_exe().expect("current test executable");
+        let spec = LaunchSpec::new(executable)
+            .expect("valid executable")
+            .args([
+                "--exact",
+                "process::tests::watchdog_crash_once_helper",
+                "--ignored",
+            ])
+            .env("VCG_WATCHDOG_TEST_COUNTER", counter.as_os_str());
+
+        let error = ProcessSupervisor
+            .watch(&spec, &fast_policy(0), InvalidTerminalFaultProbe, |_| {})
+            .expect_err("invalid terminal evidence consumes recovery");
+        assert!(matches!(
+            error,
+            WatchdogError::RecoveryExhausted {
+                reason: WatchdogReason::InvalidProbeData,
+                attempts: 1
+            }
+        ));
+        fs::remove_dir_all(directory).expect("test directory is removed");
+    }
+
+    #[cfg(target_os = "linux")]
+    mod cgroup_memory {
+        use super::*;
+        use crate::process::CgroupV2MemoryHealthProbe;
+        use std::os::unix::fs::symlink;
+        use std::path::Path;
+
+        struct Fixture {
+            root: PathBuf,
+            heartbeat: PathBuf,
+        }
+
+        impl Fixture {
+            fn new(oom_kill: u64) -> Self {
+                let root = test_directory("cgroup-memory");
+                fs::create_dir(&root).expect("fixture root");
+                write_events(&root, oom_kill);
+                let heartbeat = root.with_extension("heartbeat");
+                Self { root, heartbeat }
+            }
+        }
+
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                let _ = fs::remove_dir_all(&self.root);
+                let _ = fs::remove_file(&self.heartbeat);
+            }
+        }
+
+        fn write_events(root: &Path, oom_kill: u64) {
+            fs::write(
+                root.join("memory.events"),
+                format!("low 0\nhigh 0\nmax 0\noom 0\noom_kill {oom_kill}\noom_group_kill 0\n"),
+            )
+            .expect("memory events");
+        }
+
+        #[test]
+        fn attempt_baseline_detects_only_an_increase_and_preserves_heartbeat() {
+            let fixture = Fixture::new(3);
+            let mut probe =
+                CgroupV2MemoryHealthProbe::open(&fixture.heartbeat, &fixture.root).expect("open");
+            probe.reset().expect("baseline");
+            assert_eq!(probe.poll().expect("quiet"), HealthSignal::Quiet);
+            fs::write(&fixture.heartbeat, "1").expect("heartbeat");
+            assert_eq!(probe.poll().expect("heartbeat"), HealthSignal::Heartbeat);
+            write_events(&fixture.root, 4);
+            assert_eq!(
+                probe.poll().expect("oom"),
+                HealthSignal::ResourceFault(ResourceFault::OutOfMemory)
+            );
+            assert_eq!(
+                probe.terminal_resource_fault().expect("terminal oom"),
+                Some(ResourceFault::OutOfMemory)
+            );
+        }
+
+        #[test]
+        fn counter_decrease_and_malformed_events_fail_closed() {
+            let fixture = Fixture::new(3);
+            let mut probe =
+                CgroupV2MemoryHealthProbe::open(&fixture.heartbeat, &fixture.root).expect("open");
+            probe.reset().expect("baseline");
+            write_events(&fixture.root, 2);
+            assert_eq!(
+                probe.poll().expect_err("counter reversal").kind(),
+                io::ErrorKind::InvalidData
+            );
+
+            let malformed = Fixture::new(0);
+            let mut probe = CgroupV2MemoryHealthProbe::open(&malformed.heartbeat, &malformed.root)
+                .expect("open");
+            probe.reset().expect("baseline");
+            fs::write(malformed.root.join("memory.events"), b"oom_kill invalid\n")
+                .expect("malform");
+            assert_eq!(
+                probe.poll().expect_err("malformed evidence").kind(),
+                io::ErrorKind::InvalidData
+            );
+        }
+
+        #[test]
+        fn retained_events_handle_resists_scope_path_replacement() {
+            let fixture = Fixture::new(0);
+            let mut probe =
+                CgroupV2MemoryHealthProbe::open(&fixture.heartbeat, &fixture.root).expect("open");
+            probe.reset().expect("baseline");
+            let original = fixture.root.with_extension("original");
+            fs::rename(&fixture.root, &original).expect("rename original");
+            fs::create_dir(&fixture.root).expect("replacement");
+            write_events(&fixture.root, 9);
+            fs::write(
+                original.join("memory.events"),
+                b"low 0\nhigh 0\nmax 0\noom 0\noom_kill 1\n",
+            )
+            .expect("advance original");
+            assert_eq!(
+                probe.poll().expect("retained original"),
+                HealthSignal::ResourceFault(ResourceFault::OutOfMemory)
+            );
+            fs::remove_dir_all(&fixture.root).expect("remove replacement");
+            fs::rename(original, &fixture.root).expect("restore original");
+        }
+
+        #[test]
+        fn relative_missing_and_symlink_memory_events_are_rejected() {
+            assert_eq!(
+                CgroupV2MemoryHealthProbe::open("heartbeat", Path::new("relative"))
+                    .expect_err("relative scope")
+                    .kind(),
+                io::ErrorKind::InvalidInput
+            );
+            let missing = Fixture::new(0);
+            fs::remove_file(missing.root.join("memory.events")).expect("remove events");
+            assert!(CgroupV2MemoryHealthProbe::open(&missing.heartbeat, &missing.root).is_err());
+
+            let linked = Fixture::new(0);
+            fs::rename(
+                linked.root.join("memory.events"),
+                linked.root.join("real-events"),
+            )
+            .expect("rename");
+            symlink("real-events", linked.root.join("memory.events")).expect("symlink");
+            assert!(CgroupV2MemoryHealthProbe::open(&linked.heartbeat, &linked.root).is_err());
+        }
     }
 
     #[test]

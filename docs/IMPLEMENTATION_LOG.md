@@ -5613,3 +5613,39 @@ destructive persistence, restart/power-loss recovery, physical TV/controller,
 or target Linux environment was qualified. STV-001 through STV-003 still own
 default density, query/localization, and no-result recovery policy, and
 STV-004 remains an owner selection rather than a final product decision.
+
+## 2026-07-24: Native cgroup-v2 OOM evidence candidate
+
+### Delivered
+
+- Added an unwired Linux health probe that retains the exact hierarchical
+  cgroup-v2 `memory.events` control and baselines canonical `oom_kill` before
+  each watchdog attempt.
+- Reports `out-of-memory` only when the kernel counter increases. Counter
+  reversal, missing reset, duplicate/missing/overflowing counters, malformed
+  or non-UTF-8 state, symlinks, unavailable controls, and documents above
+  1,024 bytes fail closed.
+- Added a terminal resource-fault hook so trusted OOM evidence observed with a
+  reaped child takes precedence over a generic process-exit reason. The
+  default remains no terminal fault, and the fixed file probe inspects only
+  its separate fault token rather than heartbeat state.
+- Recorded D-180 and Q-248 without selecting memory limits, group-kill,
+  service/cgroup attachment, restart entitlement, user messaging, GPU
+  evidence, or target qualification.
+
+### Verification evidence
+
+- Four portable tests cover strict memory-events parsing, fixed terminal
+  fault tokens, invalid terminal evidence, and OOM precedence over a nonzero
+  process exit.
+- Four Ubuntu WSL2 tests cover per-attempt baselines, heartbeat coexistence,
+  OOM increase, counter reversal, malformed state, retained-handle path
+  replacement, relative paths, missing controls, and symlink controls.
+
+### Remaining boundary
+
+I-109/I-209 remain active. The adapter is unwired and regular-file WSL2
+fixtures do not inject kernel OOM. Q-247/Q-248 still require exact systemd
+scope creation, atomic attachment and anti-escape/entry rules, memory
+controller/limit/group policy, non-reuse, recovery selection, real target OOM
+and hostile-descendant campaigns, and separate qualified GPU evidence.

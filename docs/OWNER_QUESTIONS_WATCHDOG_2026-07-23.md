@@ -17,3 +17,7 @@ Should the production heartbeat come from a cooperative signed wrapper, a compos
 Safe default: use a signed least-privilege wrapper for runtime liveness and a separate trusted compositor observer for the visible contained window. Require both where the runtime supports cooperation; never let either signal substitute for the other. Protect host probe channels from the child before accepting GPU/OOM or compositor events as authoritative.
 
 Cross-restart replay and authoritative readiness remain Q-108 and Q-109 in [the native-launch questions](OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md).
+The unwired retained-handle cgroup-v2 candidates leave service/scope lifecycle
+under Q-247 and memory-controller/OOM recovery policy under Q-248 in
+`OWNER_QUESTIONS_CGROUP_RESTART_CLEANUP_2026-07-24.md` and
+`OWNER_QUESTIONS_CGROUP_RESOURCE_FAULTS_2026-07-24.md`.
