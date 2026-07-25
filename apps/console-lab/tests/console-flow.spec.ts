@@ -25,6 +25,42 @@ async function pressSyntheticGamepadButton(
   await page.waitForTimeout(50);
 }
 
+async function installSyntheticStandardGamepad(
+  page: Page,
+  setterName: string,
+  id: string,
+): Promise<void> {
+  await page.addInitScript(
+    ({ name, gamepadId }) => {
+      let gamepad: Gamepad | null = null;
+      Object.defineProperty(navigator, "getGamepads", {
+        configurable: true,
+        value: () => [gamepad],
+      });
+      (
+        window as unknown as Record<string, (buttons: number[]) => void>
+      )[name] = (buttons) => {
+        gamepad = {
+          axes: [0, 0],
+          buttons: Array.from({ length: 17 }, (_, index) => ({
+            pressed: buttons.includes(index),
+            touched: buttons.includes(index),
+            value: buttons.includes(index) ? 1 : 0,
+          })),
+          connected: true,
+          hapticActuators: [],
+          id: gamepadId,
+          index: 0,
+          mapping: "standard",
+          timestamp: performance.now(),
+          vibrationActuator: null,
+        } as unknown as Gamepad;
+      };
+    },
+    { name: setterName, gamepadId: id },
+  );
+}
+
 test("boots into a purposeful launcher", async ({ page }) => {
   await page.goto("/?holdBoot=1");
   await expect(page.locator("#boot-screen")).toBeVisible();
@@ -1773,6 +1809,11 @@ test("museum launch uses the real browser network state and retries", async ({ p
 test("universal search traps focus, scrolls, activates, and restores its opener", async ({
   page,
 }) => {
+  await installSyntheticStandardGamepad(
+    page,
+    "__setSearchGamepad",
+    "Playwright Search controller",
+  );
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   const trigger = page.getByRole("button", { name: /Search games/ });
@@ -1806,7 +1847,12 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   expect(await resultList.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
 
   await input.fill("profiles");
-  await page.getByRole("button", { name: /Profiles Players on this console/ }).click();
+  const profilesResult = page.getByRole("button", {
+    name: /Profiles Players on this console/,
+  });
+  await pressSyntheticGamepadButton(page, "__setSearchGamepad", 13);
+  await expect(profilesResult).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setSearchGamepad", 0);
   await expect(page.locator("#search-overlay")).toBeHidden();
   await expect(page.getByRole("heading", { name: "Who is playing?" })).toBeVisible();
 });

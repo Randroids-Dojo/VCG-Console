@@ -65,10 +65,11 @@ about the selected destination, launch adapter, package, or game.
 The broader Console Lab Chrome suite separately proves that opening Search with
 an empty query exposes exactly 18 current destinations, the results container
 has real internal overflow, focusing its last result advances `scrollTop`, and
-the exact `Profiles` result closes Search and opens the `Who is playing?`
+synthetic standard-gamepad Down focuses the exact filtered `Profiles` result.
+Synthetic Select then closes Search and opens the `Who is playing?`
 destination. This is one current catalog and normal-viewport browser flow. It
-does not add a third measured TV state, prove arbitrary query text, or activate
-a game or package.
+does not add a third measured TV state, prove arbitrary query text, qualify a
+physical controller, or activate a game or package.
 
 ## Pixel captures
 
@@ -106,7 +107,7 @@ errors, resources, provenance, limitations, unknown claims, and promotion.
 I-098/Q-056 remain active. The strict TV record still needs measured
 empty-query/scrolling density and activation at every target resolution.
 Search also needs long strings, localization, large text/high
-contrast/reduced motion, controller directional navigation, game/package
-activation, physical-TV viewing, reserved Home, native-host recovery, and both
-target Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain
-the final policy choices.
+contrast/reduced motion, physical-controller directional navigation,
+game/package activation, physical-TV viewing, reserved Home, native-host
+recovery, and both target Linux display stacks. Q-242/Q-243 and STV-001
+through STV-004 retain the final policy choices.
