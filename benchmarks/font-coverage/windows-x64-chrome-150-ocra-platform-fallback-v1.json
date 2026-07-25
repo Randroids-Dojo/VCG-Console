@@ -67,8 +67,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/": 1,
-      "/assets/main-9x_XT-em.css": 1,
-      "/assets/main-DNItA6B9.js": 1,
+      "/assets/main-cuL3yQCD.js": 1,
+      "/assets/main-DzE-miaR.css": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-EbToTsJV.js": 1,
       "/assets/synthetic-BTWSnpMo.js": 1,
@@ -94,15 +94,15 @@
   },
   "provenance": {
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "edafba853bd48422b18b9d7413725d6765134b43f022a88aba377aa8c9ef0dc3",
+    "stylePathSha256": "8a34a24c93ba2b51bcc4cb557a67d82f429f139398ba00ec391fd27c50d361d9",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "0937d09d5682d5500b0554cc3fca84eb61cc62b7efa5fac1c837049c9f5236a6",
+    "baseEvidencePathSha256": "cfdcccf3f432503b7dec9783f86e67219b3996294176ec9392545bcefd74ab3d",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
     "generatorPathSha256": "a728a7f9b039c7e6eb7b5700d2c64ee9cc13116661b8114348c4dbcc5703e634",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "c805319a7da2d198d10a2a5f467cc25d12ef8a46fb861c5d27aca6a8b5a21868",
-    "baseEvidenceBytes": 38744,
-    "baseEvidenceSha256": "0937d09d5682d5500b0554cc3fca84eb61cc62b7efa5fac1c837049c9f5236a6",
+    "validatorPathSha256": "8abee3619db64c83408bea7149bb1641f3b4cfa993811513a59ed1c776198d04",
+    "baseEvidenceBytes": 39133,
+    "baseEvidenceSha256": "cfdcccf3f432503b7dec9783f86e67219b3996294176ec9392545bcefd74ab3d",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -119,8 +119,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 127,
-      "sha256": "53ff9a898daecd405095cad0a54c929850ef6085a36b48f0a57679fca507bb99"
+      "fileCount": 129,
+      "sha256": "164bc14aed095fe7107f2cca2b79fe3ffa0255894c4923a719e7d519bb0d2267"
     }
   },
   "disposition": {

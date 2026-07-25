@@ -8,21 +8,62 @@
 
 :root {
   color-scheme: dark;
-  font-family: OCRA, ui-monospace, SFMono-Regular, monospace;
+  --vcg-token-version: "1";
+  --vcg-font-shell: OCRA, ui-monospace, SFMono-Regular, monospace;
+  --vcg-grid-step: 32px;
+  --vcg-control-min: 48px;
+  --vcg-focus-width: 3px;
+  --vcg-focus-offset: 4px;
+  --vcg-motion-immediate: 80ms;
+  --vcg-motion-feedback: 120ms;
+  --vcg-motion-view: 180ms;
+  --vcg-motion-ambient: 1200ms;
+  --vcg-space-1: 8px;
+  --vcg-space-2: 16px;
+  --vcg-space-3: 24px;
+  --vcg-space-4: 32px;
+  --vcg-space-5: 48px;
+  --vcg-space-6: 64px;
 
-  --ink: #090b0c;
-  --panel: #101315;
-  --rail: #171b1d;
-  --line: #303638;
-  --paper: #efeee6;
-  --muted: #778084;
-  --accent: #53dac3;
-  --fault: #ff765f;
+  --vcg-color-ink: #090b0c;
+  --vcg-color-panel: #101315;
+  --vcg-color-rail: #171b1d;
+  --vcg-color-line: #303638;
+  --vcg-color-paper: #efeee6;
+  --vcg-color-muted: #778084;
+  --vcg-color-fault: #ff765f;
+  --vcg-accent-standard: #53dac3;
+  --vcg-accent-high: #7affe5;
+
+  --ink: var(--vcg-color-ink);
+  --panel: var(--vcg-color-panel);
+  --rail: var(--vcg-color-rail);
+  --line: var(--vcg-color-line);
+  --paper: var(--vcg-color-paper);
+  --muted: var(--vcg-color-muted);
+  --accent: var(--vcg-accent-standard);
+  --fault: var(--vcg-color-fault);
+  font-family: var(--vcg-font-shell);
   background: var(--ink);
   color: var(--paper);
   font-synthesis: none;
   /* stylelint-disable-next-line value-keyword-case -- Preserve the canonical CSS spelling. */
   text-rendering: geometricPrecision;
+}
+
+:root[data-vcg-accent="cyan"] {
+  --vcg-accent-standard: #53dac3;
+  --vcg-accent-high: #7affe5;
+}
+
+:root[data-vcg-accent="amber"] {
+  --vcg-accent-standard: #f1c75b;
+  --vcg-accent-high: #ffe089;
+}
+
+:root[data-vcg-accent="violet"] {
+  --vcg-accent-standard: #b8a7ff;
+  --vcg-accent-high: #d9d0ff;
 }
 
 :root[data-vcg-text-scale="standard"] {
@@ -119,14 +160,15 @@
 }
 
 :root[data-vcg-contrast="high"] {
-  --ink: #000;
-  --panel: #070808;
-  --rail: #0d0f0f;
-  --line: #d8d8d0;
-  --paper: #fff;
-  --muted: #d5d5ce;
-  --accent: #7affe5;
-  --fault: #ff9b84;
+  --vcg-color-ink: #000;
+  --vcg-color-panel: #070808;
+  --vcg-color-rail: #0d0f0f;
+  --vcg-color-line: #d8d8d0;
+  --vcg-color-paper: #fff;
+  --vcg-color-muted: #d5d5ce;
+  --vcg-color-fault: #ff9b84;
+  --vcg-focus-width: 4px;
+  --accent: var(--vcg-accent-high);
 }
 
 * {
@@ -148,7 +190,7 @@ body {
     linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
     var(--ink);
-  background-size: 32px 32px;
+  background-size: var(--vcg-grid-step) var(--vcg-grid-step);
 }
 
 button,
@@ -158,8 +200,8 @@ a {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 4px;
+  outline: var(--vcg-focus-width) solid var(--accent);
+  outline-offset: var(--vcg-focus-offset);
 }
 
 .boot-screen[hidden],
@@ -395,7 +437,9 @@ a:focus-visible {
   font-size: 0.7rem;
   letter-spacing: 0.04em;
   text-align: left;
-  transition: color 120ms ease, transform 120ms ease;
+  transition:
+    color var(--vcg-motion-feedback) ease,
+    transform var(--vcg-motion-feedback) ease;
 }
 
 .launcher-nav button:hover,
@@ -422,7 +466,7 @@ a:focus-visible {
 
 .launcher-view {
   min-height: calc(100vh - 152px);
-  animation: view-enter 180ms ease both;
+  animation: view-enter var(--vcg-motion-view) ease both;
 }
 
 @keyframes view-enter {
@@ -855,7 +899,7 @@ a:focus-visible {
 }
 
 .profile-editor input {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   padding: 0 14px;
   border: 1px solid #41494b;
   border-radius: 0;
@@ -1130,7 +1174,7 @@ a:focus-visible {
 .portrait-actions button,
 .portrait-countdown button,
 .portrait-capture-unavailable button {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   padding: 0 16px;
   border: 1px solid #4a5355;
   background: transparent;
@@ -1343,7 +1387,7 @@ a:focus-visible {
 
 .profile-management-panel input,
 .profile-create-panel input {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   padding: 0 14px;
   border: 1px solid #41494b;
   border-radius: 0;
@@ -1542,7 +1586,7 @@ a:focus-visible {
 }
 
 .profile-confirmation-status {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   display: flex;
   align-items: center;
   margin-top: 20px;
@@ -1562,7 +1606,7 @@ a:focus-visible {
 }
 
 .profile-management-dialog-actions button {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   padding: 0 16px;
   border: 1px solid #4a5355;
   background: transparent;
@@ -1790,7 +1834,7 @@ a:focus-visible {
 
 .calibration-phase-actions button,
 .calibration-invalidated > button {
-  min-height: 48px;
+  min-height: var(--vcg-control-min);
   padding: 0 16px;
   border: 1px solid #4a5355;
   background: transparent;
@@ -2680,7 +2724,7 @@ a:focus-visible {
     linear-gradient(90deg, transparent calc(100% - 1px), rgba(255, 255, 255, 0.025) calc(100% - 1px)) 0 0 / 8.333% 100%,
     radial-gradient(ellipse at 68% 43%, rgba(83, 218, 195, 0.06), transparent 35%),
     #080a0b;
-  animation: launch-arrive 180ms ease both;
+  animation: launch-arrive var(--vcg-motion-view) ease both;
 }
 
 .launch-header {
@@ -2760,7 +2804,7 @@ a:focus-visible {
   background: var(--accent);
   box-shadow: 0 0 20px rgba(83, 218, 195, 0.42);
   content: "";
-  animation: launch-pulse 1.2s ease-in-out infinite;
+  animation: launch-pulse var(--vcg-motion-ambient) ease-in-out infinite;
 }
 
 .launch-ready .launch-state-mark::after {
@@ -3989,7 +4033,7 @@ h1 {
   width: 0;
   height: 100%;
   background: var(--accent);
-  transition: width 80ms linear;
+  transition: width var(--vcg-motion-immediate) linear;
 }
 
 .gesture-feedback p {
@@ -4171,8 +4215,8 @@ h1 {
   border-color: var(--accent);
   background: var(--accent);
   color: var(--ink);
-  outline: 3px solid var(--accent);
-  outline-offset: 4px;
+  outline: var(--vcg-focus-width) solid var(--accent);
+  outline-offset: var(--vcg-focus-offset);
 }
 
 .overlay-help {
@@ -4634,8 +4678,8 @@ kbd {
   }
 
   .launcher [data-tv-action] {
-    min-width: 48px;
-    min-height: 48px;
+    min-width: var(--vcg-control-min);
+    min-height: var(--vcg-control-min);
   }
 
   .launcher-nav button[data-tv-action] {

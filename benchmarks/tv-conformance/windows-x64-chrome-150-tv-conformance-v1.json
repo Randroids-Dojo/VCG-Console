@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
   "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
-  "retrievedAtUtc": "2026-07-25T00:04:06.113Z",
+  "retrievedAtUtc": "2026-07-25T04:16:41.304Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -111,7 +111,7 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.7,
+          "p95DeltaMs": 16.8,
           "worstDeltaMs": 16.8,
           "negativeDeltaCount": 0
         },
@@ -154,7 +154,7 @@
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
           "p95DeltaMs": 16.7,
-          "worstDeltaMs": 66.6,
+          "worstDeltaMs": 66.7,
           "negativeDeltaCount": 0
         },
         "screenshot": {

@@ -5907,3 +5907,49 @@ publication, native installed-catalog and hosted-origin joins, controller and
 accessibility UI, report/removal/emergency operations, cross-surface bypass
 tests, runtime containment, target Linux evidence, and one actually reviewed
 community release remain under CCD-001 through CCD-009.
+
+## 2026-07-24: versioned monochrome visual-token contract
+
+### Delivered
+
+- Added a closed immutable `visual-tokens` v1 contract and applied its exact
+  version plus default cyan accent to the document root before application
+  rendering.
+- Bound the production stylesheet to named shell font, surface, spacing, grid,
+  48 CSS-pixel control, focus, motion, fault, standard accent, and
+  high-contrast accent tokens without changing the intended default visual
+  result.
+- Added exact cyan, amber, and violet standard/high-contrast candidate pairs.
+  Unknown accent values fail before root state changes, and only one accent is
+  active at a time.
+- Tokenized the shared grid, focus outlines, representative control floors,
+  view/feedback/progress/ambient motion, and retained both system and explicit
+  reduced-motion paths.
+- Documented the semantic fault exception, redundant-state rules, evidence
+  boundary, remaining target work, and VTS-001 through VTS-006 owner choices.
+
+### Verification evidence
+
+- Five focused tests bind the immutable TypeScript contract to exact
+  production CSS values, reject unknown accents, require root version/accent
+  markers, enforce at least 7:1 accent-to-ink ratios, retain paper/ink and
+  muted/panel contrast floors, and require redundant focus, minimum-control,
+  grid, and reduced-motion rules.
+- All 237 console-lab tests pass; focused console-lab typechecking reports zero
+  Svelte errors or warnings, and the production application build passes.
+- Refreshed seven exact OCR-A, legacy/launcher TV, and runtime-scorecard
+  artifacts plus the two frozen build-resource validators from an isolated
+  snapshot containing exactly HEAD and this tranche. The 39 tracked TV
+  screenshots remained pixel-identical.
+- Full workspace `pnpm typecheck`, `pnpm test`, and `pnpm build` pass in that
+  isolated snapshot.
+
+### Remaining boundary
+
+I-148 advances from open to active but does not close. Computed sRGB contrast
+and Windows browser regressions are not target-TV or participant evidence.
+Representative state audit, fallback/icon qualification, actual accent/fault
+policy, sound and illustration systems, seating-distance and
+low-vision/color-vision testing, child/adult comprehension, animation/GPU
+measurement, both reference tiers, release review, Q-077, I-206, and
+VTS-001 through VTS-006 remain.

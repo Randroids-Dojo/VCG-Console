@@ -42,6 +42,7 @@ import { syntheticFrame } from "./synthetic";
 import { TraceBuffer } from "./trace-buffer";
 import { MediaPipeTracker, type TrackerStatus } from "./tracker";
 import { trackerHealthFixture, trackerHealthPresentation } from "./tracker-health";
+import { applyVisualTokens } from "./visual-tokens";
 
 type AppMode = "tracker" | "obstacle" | "shell";
 type OverlayKind = "manual" | "recovery";
@@ -71,6 +72,7 @@ const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string 
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Application root is missing");
+applyVisualTokens(document.documentElement);
 const accessibilityPreferences = new AccessibilityPreferenceController(localStorage);
 applyAccessibilityPreferences(
   document.documentElement,
