@@ -50,7 +50,7 @@ test("rejects format, date, platform, browser, or viewport substitution", async 
     artifact.format = "vcg-ocra-platform-fallback-observation/v2";
   });
   await validateMutation((artifact) => {
-    artifact.evidenceDate = "2026-07-25";
+    artifact.evidenceDate = "2026-07-26";
   });
   await validateMutation((artifact) => {
     artifact.environment.platform = "linux-x64";

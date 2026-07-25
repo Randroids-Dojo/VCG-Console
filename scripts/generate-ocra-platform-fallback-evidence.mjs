@@ -19,7 +19,7 @@ import {
 
 export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
-export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-24";
+export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-25";
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
   "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual platform font selected for one ASCII baseline, the one OCR-A-covered non-ASCII launcher character, and the 10 OCR-A-missing non-ASCII code points inventoried in current console-lab production source. The probe uses the production CSS font stack after a production build, but injects a diagnostic-only grid. It does not select or qualify a fallback, prove glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
