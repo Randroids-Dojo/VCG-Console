@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T04:19:26.734Z",
+  "retrievedAtUtc": "2026-07-25T04:23:43.329Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -238,8 +238,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 129,
-      "sha256": "164bc14aed095fe7107f2cca2b79fe3ffa0255894c4923a719e7d519bb0d2267"
+      "fileCount": 130,
+      "sha256": "17b43f81c4daa0cadb6f576c0e3c3f46debe8a4776a16f87a0a9d30aed8ec99a"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

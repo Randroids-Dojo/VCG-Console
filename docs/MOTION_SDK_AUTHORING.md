@@ -97,6 +97,14 @@ floor-contact, exposure-latency, or upstream association causes.
   Motion control and reports Waiting rather than silently replaying stale
   input.
 
+Backend implementers must also preserve honest source provenance. The
+provider-specific Hailo projection validates an already-normalized named
+COCO-17 input and exposes only `body.core17`, but intentionally does not create
+a Motion `0.4.0` frame because that version has no Hailo source value. Do not
+cast the projection to a frame or relabel it as MediaPipe, RTMO, replay, or
+synthetic. A visible schema version must add the source before Hailo frames can
+enter the bridge.
+
 ## Controller fallback
 
 Controller and Motion commands enter the same game state through

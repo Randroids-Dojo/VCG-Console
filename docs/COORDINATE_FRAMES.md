@@ -117,4 +117,9 @@ Every capture/tracker adapter records:
 5. which calibration produced a floor homography and when it expires;
 6. parity tests against the same conformance fixtures used by other backends.
 
-The current MediaPipe adapter declares the conservative provider-world identifier. Hailo mapping and cross-backend world-axis parity remain open under I-073/I-161.
+The current MediaPipe adapter declares the conservative provider-world
+identifier. The Hailo pre-wire projection accepts only an explicitly versioned
+already-normalized top-left image-coordinate input; it does not infer
+coordinates from an unpinned Hailo runtime object and exposes no world
+coordinates. Raw Hailo post-processing conversion, honest Motion-frame source
+versioning, and cross-backend world-axis parity remain open under I-073/I-161.

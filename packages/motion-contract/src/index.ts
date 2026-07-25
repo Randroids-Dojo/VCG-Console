@@ -3,6 +3,7 @@ export * from "./body-profile-prediction";
 export * from "./coordinates";
 export * from "./controller-mapping";
 export * from "./gamepad-emulation";
+export * from "./hailo-core17";
 export * from "./identity-benchmark";
 export * from "./identity-tracking";
 export * from "./laterality-guard";
