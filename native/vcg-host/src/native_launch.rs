@@ -165,6 +165,36 @@ struct SharedLaunches {
     journal_faulted: bool,
     restart_cleanup_required: bool,
     restart_cleanup_identity: Option<Arc<RestartCleanupBarrierIdentity>>,
+    power_admission_identity: Option<Arc<PowerLaunchAdmissionIdentity>>,
+}
+
+#[derive(Debug)]
+struct PowerLaunchAdmissionIdentity {
+    _private: (),
+}
+
+/// Non-cloneable host-owned closure of fresh launch admission.
+///
+/// Dropping this value does not reopen admission. Only an exact consuming
+/// reopen after successful wake readiness can clear the matching closure.
+#[derive(Debug)]
+pub(crate) struct PowerLaunchAdmissionLease {
+    shared: Arc<Mutex<SharedLaunches>>,
+    identity: Arc<PowerLaunchAdmissionIdentity>,
+}
+
+impl PowerLaunchAdmissionLease {
+    pub(crate) fn reopen(self) -> Result<(), NativeLaunchError> {
+        let mut shared = lock(&self.shared)?;
+        let Some(active) = shared.power_admission_identity.as_ref() else {
+            return Err(NativeLaunchError::PowerAdmissionProofMismatch);
+        };
+        if !Arc::ptr_eq(active, &self.identity) {
+            return Err(NativeLaunchError::PowerAdmissionProofMismatch);
+        }
+        shared.power_admission_identity = None;
+        Ok(())
+    }
 }
 
 /// Host-only lease that freezes launch admission while package maintenance
@@ -192,6 +222,7 @@ impl Default for SharedLaunches {
             journal_faulted: false,
             restart_cleanup_required: false,
             restart_cleanup_identity: None,
+            power_admission_identity: None,
         }
     }
 }
@@ -210,6 +241,7 @@ pub struct NativeLaunchService {
     watchdog_games: HashSet<String>,
     watchdog_policy: WatchdogPolicy,
     shared: Arc<Mutex<SharedLaunches>>,
+    activation: Arc<Mutex<()>>,
     stop: Arc<AtomicBool>,
     workers: Mutex<Vec<JoinHandle<()>>>,
 }
@@ -337,6 +369,7 @@ impl NativeLaunchService {
                 restart_cleanup_required,
                 restart_cleanup_identity: restart_cleanup_required
                     .then(RestartCleanupBarrierIdentity::new),
+                power_admission_identity: None,
             }
         } else {
             SharedLaunches::default()
@@ -347,6 +380,7 @@ impl NativeLaunchService {
             watchdog_games,
             watchdog_policy,
             shared: Arc::new(Mutex::new(shared)),
+            activation: Arc::new(Mutex::new(())),
             stop: Arc::new(AtomicBool::new(false)),
             workers: Mutex::new(Vec::new()),
         })
@@ -449,6 +483,34 @@ impl NativeLaunchService {
         })
     }
 
+    /// Closes fresh launch admission for one privileged power operation.
+    ///
+    /// The returned lease is intentionally non-cloneable and does not reopen
+    /// admission when dropped. The power coordinator retains it through idle,
+    /// terminal ambiguity, or the platform handoff and consumes it only after
+    /// exact wake readiness.
+    pub(crate) fn close_power_admission(
+        &self,
+    ) -> Result<PowerLaunchAdmissionLease, NativeLaunchError> {
+        let identity = Arc::new(PowerLaunchAdmissionIdentity { _private: () });
+        let _activation = lock(&self.activation)?;
+        let mut shared = lock(&self.shared)?;
+        if shared.power_admission_identity.is_some() {
+            return Err(NativeLaunchError::PowerTransitionActive);
+        }
+        shared.power_admission_identity = Some(Arc::clone(&identity));
+        for record in &shared.records {
+            if record.state.active() {
+                record.cancel.store(true, Ordering::Release);
+            }
+        }
+        drop(shared);
+        Ok(PowerLaunchAdmissionLease {
+            shared: Arc::clone(&self.shared),
+            identity,
+        })
+    }
+
     /// Starts one package or returns the existing record for an identical
     /// request ID. Reusing an ID for different intent fails closed.
     ///
@@ -527,6 +589,9 @@ impl NativeLaunchService {
                 replayed: true,
             }));
         }
+        if shared.power_admission_identity.is_some() {
+            return Err(NativeLaunchError::PowerTransitionActive);
+        }
         if shared.restart_cleanup_required {
             return Err(NativeLaunchError::RestartCleanupRequired);
         }
@@ -585,21 +650,19 @@ impl NativeLaunchService {
         plan: &PackageLaunchPlan,
         cancel: Arc<AtomicBool>,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
-        let Ok(mut child) = ProcessSupervisor.launch(plan.launch()) else {
-            return self.failed_start(request_id, "PROCESS_START_FAILED");
-        };
-        let accepted_snapshot = {
+        let (mut child, accepted_snapshot) = {
+            let activation = lock(&self.activation)?;
             let mut shared = lock(&self.shared)?;
             let Some(index) = shared
                 .records
                 .iter()
                 .position(|record| record.request_id == request_id)
             else {
-                let _ = child.terminate();
                 return Err(NativeLaunchError::RequestNotFound(request_id.to_owned()));
             };
-            if shared.records[index].cancel.load(Ordering::Acquire) {
-                let _ = child.terminate();
+            if shared.power_admission_identity.is_some()
+                || shared.records[index].cancel.load(Ordering::Acquire)
+            {
                 transition_record(
                     &mut shared,
                     index,
@@ -611,6 +674,11 @@ impl NativeLaunchService {
                     replayed: false,
                 });
             }
+            let Ok(mut child) = ProcessSupervisor.launch(plan.launch()) else {
+                drop(shared);
+                drop(activation);
+                return self.failed_start(request_id, "PROCESS_START_FAILED");
+            };
             if let Err(error) = transition_record(
                 &mut shared,
                 index,
@@ -620,7 +688,7 @@ impl NativeLaunchService {
                 let _ = child.terminate();
                 return Err(error);
             }
-            shared.records[index].snapshot()
+            (child, shared.records[index].snapshot())
         };
 
         let shared = Arc::clone(&self.shared);
@@ -696,6 +764,7 @@ impl NativeLaunchService {
         }
         let policy = self.watchdog_policy.clone();
         let shared = Arc::clone(&self.shared);
+        let activation = Arc::clone(&self.activation);
         let stop = Arc::clone(&self.stop);
         let worker_cancel = Arc::clone(cancel);
         let worker_request_id = request_id.to_owned();
@@ -706,10 +775,13 @@ impl NativeLaunchService {
                     &launch,
                     &policy,
                     probe,
-                    &shared,
-                    &stop,
-                    &worker_cancel,
-                    &worker_request_id,
+                    &WatchdogMonitorContext {
+                        shared: &shared,
+                        activation: &activation,
+                        stop: &stop,
+                        cancel: &worker_cancel,
+                        request_id: &worker_request_id,
+                    },
                 );
             })
             .map_err(|source| {
@@ -834,21 +906,41 @@ impl Drop for NativeLaunchService {
     }
 }
 
+struct WatchdogMonitorContext<'a> {
+    shared: &'a Mutex<SharedLaunches>,
+    activation: &'a Mutex<()>,
+    stop: &'a AtomicBool,
+    cancel: &'a AtomicBool,
+    request_id: &'a str,
+}
+
 fn monitor_watchdog(
     launch: &crate::process::LaunchSpec,
     policy: &WatchdogPolicy,
     probe: FileHealthProbe,
-    shared: &Mutex<SharedLaunches>,
-    stop: &AtomicBool,
-    cancel: &AtomicBool,
-    request_id: &str,
+    context: &WatchdogMonitorContext<'_>,
 ) {
-    let result = ProcessSupervisor.watch_controlled(
+    let result = ProcessSupervisor::watch_controlled_with_launcher(
         launch,
         policy,
         probe,
-        |event| apply_watchdog_event(shared, request_id, event),
-        || stop.load(Ordering::Acquire) || cancel.load(Ordering::Acquire),
+        |event| apply_watchdog_event(context.shared, context.request_id, event),
+        || context.stop.load(Ordering::Acquire) || context.cancel.load(Ordering::Acquire),
+        |launch_spec| {
+            let Ok(_activation) = context.activation.lock() else {
+                return Ok(None);
+            };
+            let Ok(shared) = context.shared.lock() else {
+                return Ok(None);
+            };
+            if shared.power_admission_identity.is_some()
+                || context.stop.load(Ordering::Acquire)
+                || context.cancel.load(Ordering::Acquire)
+            {
+                return Ok(None);
+            }
+            ProcessSupervisor.launch(launch_spec).map(Some)
+        },
     );
     match result {
         Ok(
@@ -856,14 +948,14 @@ fn monitor_watchdog(
         )
         | Err(WatchdogError::RecoveryExhausted { .. }) => {}
         Err(WatchdogError::Launch(_)) => update_state(
-            shared,
-            request_id,
+            context.shared,
+            context.request_id,
             NativeLaunchState::Failed { exit_code: None },
             "PROCESS_START_FAILED",
         ),
         Err(WatchdogError::Configuration(_) | WatchdogError::Io { .. }) => update_state(
-            shared,
-            request_id,
+            context.shared,
+            context.request_id,
             NativeLaunchState::Failed { exit_code: None },
             "WATCHDOG_INTERNAL_FAILURE",
         ),
@@ -1190,6 +1282,8 @@ pub enum NativeLaunchError {
     ReplayUnavailable,
     RestartCleanupRequired,
     RestartCleanupProofMismatch,
+    PowerTransitionActive,
+    PowerAdmissionProofMismatch,
     Catalog(CatalogError),
     Package(PackageLaunchError),
     Launch(LaunchError),
@@ -1240,6 +1334,10 @@ impl fmt::Display for NativeLaunchError {
                 .write_str("native launch restart cleanup must be proven before another launch"),
             Self::RestartCleanupProofMismatch => formatter
                 .write_str("native launch restart cleanup proof does not match the active barrier"),
+            Self::PowerTransitionActive => formatter
+                .write_str("fresh native launch admission is closed for a power transition"),
+            Self::PowerAdmissionProofMismatch => formatter
+                .write_str("power launch-admission proof does not match the active closure"),
             Self::Catalog(error) => write!(formatter, "package resolution failed: {error}"),
             Self::Package(error) => write!(formatter, "package planning failed: {error}"),
             Self::Launch(error) => write!(formatter, "game process launch failed: {error}"),
@@ -1583,6 +1681,58 @@ mod tests {
                 .expect("accepted generation protection reads"),
             vec![generation]
         );
+    }
+
+    #[test]
+    fn power_admission_closure_cancels_pending_work_and_requires_exact_reopen() {
+        let (_fixture, catalog) = signed_catalog();
+        let service = NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
+            .expect("launch service configures");
+        let cancel = Arc::new(AtomicBool::new(false));
+        service
+            .reserve(
+                "11111111111111111111111111111110",
+                "retro-2048",
+                "local-player",
+                Arc::clone(&cancel),
+            )
+            .expect("launch reservation succeeds");
+        let closure = service
+            .close_power_admission()
+            .expect("power admission closes");
+        assert!(
+            cancel.load(Ordering::Acquire),
+            "pending activation must be cancelled while closure is serialized"
+        );
+        assert!(matches!(
+            service.reserve(
+                "11111111111111111111111111111112",
+                "retro-2048",
+                "local-player",
+                Arc::new(AtomicBool::new(false))
+            ),
+            Err(NativeLaunchError::PowerTransitionActive)
+        ));
+        closure.reopen().expect("exact closure reopens admission");
+
+        let (_fixture, catalog) = signed_catalog();
+        let fail_closed =
+            NativeLaunchService::new(Arc::new(catalog), vec!["local-player".to_owned()])
+                .expect("second launch service configures");
+        drop(
+            fail_closed
+                .close_power_admission()
+                .expect("second power admission closes"),
+        );
+        assert!(matches!(
+            fail_closed.reserve(
+                "11111111111111111111111111111114",
+                "retro-2048",
+                "local-player",
+                Arc::new(AtomicBool::new(false))
+            ),
+            Err(NativeLaunchError::PowerTransitionActive)
+        ));
     }
 
     #[test]

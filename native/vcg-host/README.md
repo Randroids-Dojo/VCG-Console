@@ -85,6 +85,15 @@ acknowledgement. The browser has no request/proof/acknowledgement route. See
 the [restart-cleanup proof contract](../../docs/RESTART_CLEANUP_PROOF.md).
 A production service-manager/cgroup adapter and boot-retention policy remain
 required.
+The library's `power` coordinator now closes fresh native launch admission
+before any quiescence adapter runs, serializes that closure against both direct
+and watchdog process activation, binds every gate and platform handoff to one
+epoch/operation/deadline, and reopens admission only after all exact wake
+readiness gates complete. Its service, input, wake, and platform traits are
+privileged adapter boundaries, not browser acknowledgements or working
+systemd/firmware implementations. The launcher CLI and loopback API do not
+expose this coordinator yet. See the
+[power and recovery contract](../../docs/POWER_RECOVERY_STATE_MACHINE.md).
 An optional repeated `--watchdog-game-id <opaque-id>` must name a package in the
 verified installed catalog and applies bounded heartbeat/restart supervision to
 that game for every player profile. Other games remain process-only when they
@@ -141,7 +150,15 @@ modes cannot be combined. See the
   button/axis mapping with hysteresis, controller reconciliation, opaque
   session IDs, mapping confidence, deterministic edges/releases, and the
   complete-snapshot adapter trait that SDL3 will implement.
-- `process`: direct process launch, observation, heartbeat/resource-fault supervision, bounded restart, termination, and cleanup.
+- `process`: direct process launch, observation, heartbeat/resource-fault
+  supervision, bounded restart, termination, cleanup, and a host-owned atomic
+  watchdog launch boundary used to close power admission before another
+  attempt can spawn.
+- `power`: non-serializable native idle/wake/restart/shutdown coordination,
+  exact epoch/operation/deadline binding, launch-admission-first ordering,
+  closed privileged service/input/wake/platform adapters, terminal ambiguity,
+  and exact wake-only admission reopen. It implements no OS, hardware, IPC, or
+  boot-recovery adapter.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.
 - `package_launch`: shared Libretro/native dispatch for candidate health and
@@ -167,7 +184,11 @@ modes cannot be combined. See the
   exact externally protected channel/target/generation/catalog-digest gating,
   deterministic interrupted-promotion recovery, and launch-frozen path-free
   retention planning and explicit cleanup.
-- `native_launch`: profile-allowlisted durable idempotent intent, one active child, bounded append-only replay, restart-indeterminate cleanup barrier, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
+- `native_launch`: profile-allowlisted durable idempotent intent, one active
+  child, bounded append-only replay, restart-indeterminate cleanup barrier,
+  optional game-bound watchdog recovery, polling, cancellation, shutdown
+  cleanup, and a fail-closed non-droppable power-admission closure serialized
+  against direct and watchdog process activation.
 - `restart_cleanup`: opaque exact-service barrier requests, one closed
   privileged `Empty`/`NotEmpty`/`Unavailable` inspection, and a consumed
   non-serializable proof required by cleanup acknowledgement. It contains no

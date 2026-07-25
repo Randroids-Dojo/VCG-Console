@@ -1,7 +1,8 @@
 # Power and Recovery State Machine
 
-Status: bounded policy prototype and abuse tests; native coordinator, physical
-controls, OS adapters, and target qualification remain open.
+Status: bounded browser policy plus native ordering/launch-exclusion
+coordination and abuse tests; production IPC, physical controls, OS adapters,
+and target qualification remain open.
 
 ## Scope
 
@@ -13,11 +14,26 @@ defines two pure controllers:
 - `BootMaintenanceGate` separates cold-boot service/recovery authority from
   controller, browser, game, and normal runtime input.
 
-Neither controller changes operating-system power state, reads GPIO, controls a
-camera, stops a process, synchronizes storage, commits protected update state,
-or starts recovery. A future privileged native coordinator must authenticate
-every acknowledgement and perform those effects. Importing this module into a
-page would not make page-supplied claims trustworthy.
+[`power.rs`](../native/vcg-host/src/power.rs) now supplies the privileged
+in-process ordering boundary for the runtime half. It:
+
+- closes fresh native launch admission before exposing quiescence;
+- serializes that closure against direct and watchdog process activation;
+- cancels an already-reserved activation before it can pass the same gate;
+- invokes host-selected service adapters for the six remaining gates instead
+  of accepting a public gate acknowledgement;
+- retains a non-cloneable, non-serializable launch closure through idle,
+  terminal fault, unclean loss, or restart/shutdown handoff; and
+- consumes that exact closure only after all three wake readiness adapters
+  complete.
+
+The TypeScript controllers still change no operating-system state. The Rust
+coordinator provides traits rather than concrete tracker, camera, input,
+storage, update, display, input-source, systemd, firmware, or GPIO adapters.
+Those production implementations must authenticate their own provenance and
+exact operation binding. Importing the TypeScript model into a page, or
+implementing a Rust trait with an untrusted page response, would not make the
+claim trustworthy.
 
 This design implements the policy slice selected by D-095:
 
@@ -82,6 +98,17 @@ cross-operation, cross-restart, wrong-epoch, and extra-field messages fail
 without advancing the state. The privileged coordinator must provision a
 non-repeating epoch for its retained message lifetime.
 
+The native coordinator enforces the same relationship with positive `u64`
+identifiers, a caller-supplied nondecreasing monotonic millisecond value,
+checked deadlines, and closed Rust enums. Operation references are routing
+identifiers, not authority: only the coordinator constructs adapter requests,
+each request exposes its exact observation time and deadline, and a completion
+must carry a nondecreasing monotonic observation still inside that window.
+Late service, wake, and platform completions become terminal without advancing
+the gate. Completion is accepted only in the same synchronous host call for
+the exact live operation. There is no JSON deserializer or loopback route for
+a page-supplied acknowledgement.
+
 Restart and shutdown confirmation lasts 30 seconds. Quiescence, including the
 platform handoff from `transition-ready`, lasts 60 seconds. Wake readiness lasts
 30 seconds. The caller supplies a monotonic clock; rollback, invalid values, and
@@ -98,8 +125,9 @@ Quiescence requires all seven closed gates:
 6. `writes-quiesced`; and
 7. `update-state-safe`.
 
-Launch admission must close before any other gate is accepted. The future
-coordinator must hold that exclusion through the OS handoff. The game gate
+Launch admission must close before any other gate is accepted. The native
+coordinator holds a fail-closed lease through the OS handoff and idle; dropping
+the lease cannot reopen admission. The game gate
 means the exact title reached its manifest-selected safe suspend/checkpoint or
 was completely stopped and reaped. The camera gate includes ending capture and
 its capture-active indication; it does not infer the position of an
@@ -219,20 +247,35 @@ contains nineteen deterministic cases covering:
   partial recovery authority; and
 - wrong-boot, stale, reordered, forged-source, and unknown physical evidence.
 
+The native suite adds thirteen coordinator cases plus two supporting
+launch/process cases covering launch-admission-first snapshots, exact gate
+requests, both tier targets, duplicate-idempotent adapters, negative and
+ambiguous terminal results, exact confirmation, no cancel after quiescence,
+handoff-within-deadline, input qualification, wake-only reopen, retained
+closure on fault/drop/unclean loss, cross-epoch/stale refusal, clock and
+identifier bounds, pending-activation cancellation, and an atomic watchdog
+pre-spawn denial. Dedicated coverage proves late service, platform, and wake
+completion cannot advance.
+
 Run:
 
 ```powershell
 pnpm --filter @vcg/console-lab exec vitest run src/launcher/power-lifecycle.test.ts
 pnpm --filter @vcg/console-lab typecheck
+cargo test -p vcg-host power --lib
+cargo test -p vcg-host atomic_watchdog_launch_boundary_can_cancel_before_spawn --lib
 ```
 
 ## Explicitly unproven
 
 I-029 is active rather than closed. This repository still lacks:
 
-- a privileged native power coordinator and IPC protocol;
-- real launch-admission leases spanning every browser/native game path;
-- authenticated tracker, camera, input, storage, and update acknowledgements;
+- production wiring for the native coordinator and an authenticated IPC
+  protocol;
+- proof that every launcher/browser/native game admission path shares the
+  native launch closure;
+- concrete authenticated tracker, camera, input, storage, update, display, and
+  platform adapters behind the existing privileged traits;
 - manifest vocabulary and implementation for safe per-title suspend,
   checkpoint, or close;
 - systemd/logind, firmware, SteamOS, or Raspberry Pi power adapters;
@@ -244,6 +287,10 @@ I-029 is active rather than closed. This repository still lacks:
 - target clock, suspend/resume, process, camera-indicator, protected-state,
   filesystem, power-cut, thermal, energy, and endurance campaigns; and
 - controller-only cold-boot-through-shutdown evidence.
+
+Q-245 records the unresolved privileged process, peer-authentication, IPC,
+epoch provisioning, and target-adapter boundary. The safe default is no
+runtime wiring or browser route until that boundary is selected and qualified.
 
 Until those gates pass, this is an executable ordering contract and abuse-tested
 design—not evidence that either target can safely suspend, shut down, or

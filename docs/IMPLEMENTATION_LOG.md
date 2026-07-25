@@ -5259,3 +5259,62 @@ I-151 and I-209 remain active. This is a pure standard shell mapper, not an
 SDL3 producer, SDL mapping database, complete gameplay-device projection,
 player assignment flow, glyph/battery layer, compositor-reserved Home/Back/
 Pause route, physical-device campaign, or ARM64/x86-64 Linux qualification.
+
+## 2026-07-24: native power ordering and launch exclusion
+
+### Delivered
+
+- Added a non-serializable Rust `PowerCoordinator` for the D-166 runtime
+  protocol with positive coordinator epoch, monotonic operation IDs, checked
+  30/60/30-second confirmation/quiescence/wake windows, closed phases, exact
+  operation references, both tier idle targets, and terminal ambiguity.
+- Closed fresh `NativeLaunchService` admission before exposing quiescence.
+  The non-cloneable closure does not reopen on drop and remains retained
+  through idle, fault, unclean loss, and restart/shutdown handoff.
+- Serialized power admission closure against direct process spawn and every
+  watchdog attempt. Closing admission cancels already-reserved active work;
+  the direct and watchdog paths recheck under the same activation boundary
+  before spawning.
+- Made launch admission the automatic first gate. The other six quiescence
+  gates and three wake gates invoke host-selected Rust adapter traits with an
+  exact operation-bound request; no public string/JSON acknowledgement exists.
+- Made duplicate successful gates idempotent without reinvoking an adapter.
+  Failed, unavailable, or incorrectly placed unsafe-update results enter a
+  terminal fault and retain launch exclusion.
+- Required a host-selected input adapter to qualify a short physical power
+  press and all wake sources. Only completion of launcher, display, and input
+  readiness consumes the exact launch closure and returns to Active.
+- Added stable host-API handling for a launch attempted during a power
+  transition without exposing a power-control route.
+- Added Q-245 for the unresolved privileged-process, authenticated-IPC,
+  coordinator-epoch, service-adapter, and tier handoff decision.
+
+### Verification evidence
+
+- Thirteen focused coordinator tests cover launch-admission-first state, exact
+  adapter requests, both idle targets, duplicate behavior, unsafe/ambiguous
+  terminal results, restart confirmation/expiry/no-late-cancel, transition
+  deadline, physical-input qualification, all wake gates, wake-only reopen,
+  platform failure and one-shot transfer, stale/cross-epoch refusal, monotonic
+  clock/deadline/identifier bounds, late service/platform/wake completion
+  refusal, and honest unclean loss.
+- One native-launch test proves closure cancels pending activation, rejects
+  fresh admission, reopens only by exact consuming authority, and remains
+  closed when that authority is dropped.
+- One process test proves the atomic watchdog launch callback can cancel before
+  any child spawn.
+- Repository formatting and strict all-target/all-feature Clippy pass. The
+  complete native suite passes with 346 library tests, five intentional
+  subprocess helpers ignored, and all 19 CLI tests. Workspace typecheck,
+  production build, and the complete root test command also pass against the
+  current shared tree.
+
+### Remaining boundary
+
+I-029 remains active. No launcher/daemon wiring, authenticated IPC, concrete
+tracker/camera/input/storage/update/display adapter, per-game signed suspend
+policy, systemd/logind/firmware/SteamOS/Raspberry Pi adapter, physical button,
+GPIO, compositor wake path, boot-only recovery coordinator, or target
+suspend/resume/shutdown/power-cut/thermal/energy/endurance evidence is claimed.
+The Rust traits are privileged integration boundaries, not proof that an
+implementation returning `Complete` is trustworthy.

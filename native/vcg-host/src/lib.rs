@@ -14,6 +14,7 @@ pub mod package_health;
 pub mod package_intake;
 pub mod package_launch;
 pub mod package_transfer;
+pub mod power;
 pub mod process;
 pub mod profile_registry;
 pub mod recovery_image;

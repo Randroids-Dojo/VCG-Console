@@ -715,6 +715,9 @@ fn write_launch_error(
             "Service Unavailable",
             "LAUNCH_RESTART_CLEANUP_REQUIRED",
         ),
+        NativeLaunchError::PowerTransitionActive => {
+            (503, "Service Unavailable", "LAUNCH_POWER_TRANSITION_ACTIVE")
+        }
         NativeLaunchError::Catalog(_) | NativeLaunchError::Package(_) => {
             (409, "Conflict", "PACKAGE_VERIFICATION_FAILED")
         }
@@ -726,6 +729,7 @@ fn write_launch_error(
         | NativeLaunchError::WatchdogConfiguration(_)
         | NativeLaunchError::WatchdogRestartLimit(_)
         | NativeLaunchError::RecordLimit
+        | NativeLaunchError::PowerAdmissionProofMismatch
         | NativeLaunchError::Launch(_)
         | NativeLaunchError::Io { .. }
         | NativeLaunchError::StatePoisoned => {

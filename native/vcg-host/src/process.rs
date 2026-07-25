@@ -180,14 +180,39 @@ impl ProcessSupervisor {
         &self,
         spec: &LaunchSpec,
         policy: &WatchdogPolicy,
-        mut probe: P,
-        mut emit: F,
-        mut cancelled: C,
+        probe: P,
+        emit: F,
+        cancelled: C,
     ) -> Result<ControlledWatchdogOutcome, WatchdogError>
     where
         P: HealthProbe,
         F: FnMut(&WatchdogEvent),
         C: FnMut() -> bool,
+    {
+        Self::watch_controlled_with_launcher(spec, policy, probe, emit, cancelled, |launch_spec| {
+            self.launch(launch_spec).map(Some)
+        })
+    }
+
+    /// Runs a cancellation-aware watchdog with a host-owned atomic launch
+    /// boundary.
+    ///
+    /// Returning `Ok(None)` from `launch_child` cancels before a new process is
+    /// started. The native launcher uses this to serialize each watchdog start
+    /// against privileged power admission closure.
+    pub(crate) fn watch_controlled_with_launcher<P, F, C, L>(
+        spec: &LaunchSpec,
+        policy: &WatchdogPolicy,
+        mut probe: P,
+        mut emit: F,
+        mut cancelled: C,
+        mut launch_child: L,
+    ) -> Result<ControlledWatchdogOutcome, WatchdogError>
+    where
+        P: HealthProbe,
+        F: FnMut(&WatchdogEvent),
+        C: FnMut() -> bool,
+        L: FnMut(&LaunchSpec) -> Result<Option<ManagedChild>, LaunchError>,
     {
         policy.validate().map_err(WatchdogError::Configuration)?;
         let mut attempt = 0;
@@ -210,7 +235,14 @@ impl ProcessSupervisor {
                     attempts: attempt - 1,
                 });
             }
-            let mut child = self.launch(spec).map_err(WatchdogError::Launch)?;
+            let Some(mut child) = launch_child(spec).map_err(WatchdogError::Launch)? else {
+                emit(&WatchdogEvent::Cancelled {
+                    attempt: attempt - 1,
+                });
+                return Ok(ControlledWatchdogOutcome::Cancelled {
+                    attempts: attempt - 1,
+                });
+            };
             emit(&WatchdogEvent::Started {
                 attempt,
                 process_id: child.id(),
@@ -966,6 +998,32 @@ mod tests {
             LaunchSpec::new(""),
             Err(LaunchError::EmptyProgram)
         ));
+    }
+
+    #[test]
+    fn atomic_watchdog_launch_boundary_can_cancel_before_spawn() {
+        let spec = LaunchSpec::new("must-not-start").expect("nonempty program is valid");
+        let mut events = Vec::new();
+        let mut launch_calls = 0;
+        let outcome = ProcessSupervisor::watch_controlled_with_launcher(
+            &spec,
+            &fast_policy(1),
+            QuietProbe,
+            |event| events.push(event.clone()),
+            || false,
+            |_| {
+                launch_calls += 1;
+                Ok(None)
+            },
+        )
+        .expect("host launch boundary cancels cleanly");
+
+        assert!(matches!(
+            outcome,
+            ControlledWatchdogOutcome::Cancelled { attempts: 0 }
+        ));
+        assert_eq!(launch_calls, 1);
+        assert_eq!(events, vec![WatchdogEvent::Cancelled { attempt: 0 }]);
     }
 
     #[test]
