@@ -5008,3 +5008,44 @@ lifecycle; complete receipt hashing; developer-only storage, install, sandbox,
 launch, logs, restart, rollback, cleanup, and audit; family/reboot closure;
 hostile-LAN/stolen-key/interruption tests; both Linux tiers; and measured
 controller-only time to first launch.
+
+## 2026-07-24: developer-only artifact receipt
+
+### Delivered
+
+- Added an isolated native `developer_artifact` store that accepts only the
+  non-serializable Push authority produced by the paired-session layer.
+- Required an absolute preprovisioned root with exact real `staging`, `ready`,
+  and inert regular lock children; one nonblocking lock serializes cooperating
+  receipt, load, and recovery operations.
+- Consumed the authorization, retained only a canonical path-free
+  request/workstation/session/deployment/length/SHA-256 receipt, read at most
+  declared length plus one, and synchronized exact bytes before an atomic
+  staging-directory rename.
+- Blocked all later publication while incomplete session state exists. Explicit
+  recovery prevalidates every staging name/type/child before removing only
+  those direct incomplete directories and never touches ready artifacts.
+- Reopened ready state through exact direct canonical children, rejected extra
+  files or noncanonical receipt bytes, completely rehashed the retained open
+  artifact handle, and rewound it before returning.
+- Recorded D-171 and updated the existing DL-006/DL-009 owner questions without
+  turning the 8 GiB/1,024-entry parser ceilings into product quota or retention
+  choices.
+
+### Verification evidence
+
+- Eight focused Rust tests pass for exact publication/reload, non-Push denial,
+  short/long/changed source refusal, recovery barrier and cleanup, durable
+  request replay, artifact/receipt/layout tamper, lock contention, provisioned
+  path boundaries, and foreign staging refusal.
+- Explicit-file formatting and strict crate Clippy pass.
+
+### Remaining boundary
+
+This is an inert whole-artifact handoff, not a LAN receiver or developer
+package system. Encrypted transport, active-transfer cancellation and retry,
+target-protected keys/state, archive selection/parsing, capacity reservation,
+installer/activation, immutable execution handoff, sandbox, launch/log/restart/
+rollback/removal, retention/save/audit policy, hostile same-account writers,
+disk-full/corruption/power-loss behavior, and both target tiers remain under
+I-102 and the dedicated owner questions.

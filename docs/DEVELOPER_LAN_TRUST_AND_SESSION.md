@@ -132,7 +132,7 @@ method name, arbitrary JSON, or free-text log field.
 The vocabulary is authorization input for future developer-only storage and
 process services. It does not:
 
-- accept archive bytes or prove the declared length/hash;
+- choose or parse an archive format;
 - select extraction rules or a sandbox;
 - write a package generation;
 - launch a child;
@@ -140,6 +140,14 @@ process services. It does not:
 - choose rollback retention;
 - grant retro-import authority; or
 - enter the family or production catalog.
+
+The separate `developer_artifact` module now consumes only an authorized Push,
+receives the complete declared bytes, verifies exact length and SHA-256, and
+atomically publishes one inert developer-only blob plus a canonical path-free
+receipt. It revalidates the complete blob through a retained handle before
+reuse and explicitly discards only safe incomplete staging state after a lost
+session. See `DEVELOPER_ARTIFACT_RECEIPT.md`. It does not implement any of the
+install, execution, log, restart, rollback, or removal operations above.
 
 ## Required integration behavior
 
@@ -193,6 +201,7 @@ I-102 remains active. Closure still requires the choices in
 `OWNER_QUESTIONS_DEVELOPER_LAN_2026-07-24.md`, a reviewed authenticated
 encrypted transport, target-protected console and workstation keys, real
 listener lifecycle, reserved-input integration, pairing and revocation UI,
-developer storage/install/launch/log/rollback services, audit retention,
+developer archive/extraction/install/launch/log/rollback/removal services,
+capacity and retention policy, audit retention,
 hostile-LAN and stolen-key tests, interruption/reboot tests, target ARM64 and
 x86-64 Linux evidence, and measured controller-only time to first launch.

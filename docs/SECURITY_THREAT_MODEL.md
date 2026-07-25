@@ -269,6 +269,17 @@ reserved input, stores no developer artifact, and executes no operation.
 Hostile-LAN, stolen-key, link/reboot/interruption, logging, namespace, and
 target-platform evidence therefore remain blocking.
 
+An isolated developer-artifact store now consumes only the admitted Push
+object, binds its request/workstation/session/deployment/length/digest into a
+canonical receipt, accepts exact bytes only, atomically publishes an inert blob
+after synchronization, completely rehashes its retained handle on reload, and
+removes only prevalidated incomplete staging after session loss. Short, long,
+changed, replayed, tampered, foreign-layout, and lock-contention cases fail
+closed. The store has no archive parser, installer, executable handoff,
+sandbox, log, rollback, retention/removal policy, production catalog
+authority, active-transfer cancellation, hostile same-account race defense, or
+target durability evidence.
+
 The browser also retains at most 256 closed diagnostic codes in memory. Codes
 derive subsystem/severity and have no caller text or payload field. A frozen
 at-most-64-KiB JSON export follows exact review, local admin gating, and

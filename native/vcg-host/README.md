@@ -2,7 +2,7 @@
 
 `vcg-host` is the Rust boundary for privileged console behavior. The Svelte launcher and games remain clients of versioned contracts; they do not own global input, child-process recovery, operating-system settings, or raw camera frames.
 
-The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, strict protected-state developer-workstation trust and volatile signed-session admission, durable resumable package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable exact protected-state package-generation activation, strict persistent opaque profile intake, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable exact protected-state A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim a qualified platform mechanism or provenance for developer/update-root/package-generation/system-update protected state and trusted time, a paired-LAN listener or encrypted transport, protected developer private keys, a developer artifact/install service, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, a qualified profile writer/deletion lifecycle, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
+The host implements direct child-process supervision, bounded heartbeat recovery, an operating-system resource-fault boundary, a bounded platform-neutral controller lifecycle/edge registry, an authenticated launcher channel, strict protected-state developer-workstation trust and volatile signed-session admission, exact inert developer-only artifact receipt, durable resumable production-package receipt, signature-first bounded package and system-image intake, strict installed-package resolution, crash-recoverable exact protected-state package-generation activation, strict persistent opaque profile intake, idempotent profile-allowlisted launch/cancel lifecycle, crash-recoverable exact protected-state A/B system-update metadata, threshold root/delegated system-image/catalog/release authority, launcher-integrated crash-recoverable accepted-root history, bounded storage-layout/capacity planning, a contained RetroArch launch adapter, and a signed process-only native-executable adapter. It does not yet claim a qualified platform mechanism or provenance for developer/update-root/package-generation/system-update protected state and trusted time, a paired-LAN listener or encrypted transport, protected developer private keys, a developer archive/install/runtime/retention service, a repository/downloader/block-device writer, physical partitioner/mounter, bootloader adapter, SDL3, compositor-reserved input, compositor readiness, navigation containment, a qualified profile writer/deletion lifecycle, native/RetroArch artifact and window qualification, OS sandboxing, environment/device/network filtering, Wi-Fi, general storage services, tracker, or target-Linux resource-detector qualification.
 
 ## Commands
 
@@ -114,6 +114,13 @@ modes cannot be combined. See the
 
 ## Boundary
 
+- `developer_artifact`: consumes one authorized Push, receives exact bounded
+  bytes, verifies SHA-256, atomically publishes a canonical path-free receipt
+  plus inert developer-only blob, fully revalidates a retained handle, blocks
+  durable request replay, and explicitly removes only safe incomplete staging.
+  It selects no transport/archive, extracts nothing, installs nothing, grants
+  no production authority, executes nothing, and has no retention/removal
+  policy.
 - `developer_pairing`: strict canonical key-derived workstation registry,
   exact external generation/digest protection, two-phase pair/revoke
   transitions, volatile Ed25519 possession challenges, and replay-bounded

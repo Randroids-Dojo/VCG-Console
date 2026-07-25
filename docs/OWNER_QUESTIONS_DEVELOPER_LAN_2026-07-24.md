@@ -64,6 +64,11 @@ Safe default: one strict inert archive format, 2 GiB per-build and 8 GiB total
 quota within the existing 8 GiB admission ceiling, two rollback generations,
 no production-catalog mutation, and separately marked disposable saves.
 
+Current evidence: the native receipt layer caps one authorized inert blob at
+8 GiB and the store at 1,024 ready request directories only as parser/resource
+bounds. Those are not a product quota or retention selection. No archive is
+parsed and no ready artifact is automatically removed.
+
 ## DL-007: logs and audit retention
 
 Which closed codes and bounded metrics may `ReadLogs` return, how long are
@@ -90,6 +95,12 @@ Restart, and Rollback to a developer generation and partial-transfer retry?
 Safe default: complete-hash publication before install, one idempotent durable
 request record per operation, no arbitrary command or argument, explicit
 terminal states, and cleanup of every uncommitted partial object.
+
+Current evidence: whole-artifact Push receipt now uses the session request ID
+as a durable no-replay key, verifies exact length/hash, publishes atomically,
+and discards incomplete staging rather than resuming it after the volatile
+session is lost. Chunked encrypted transport retry and the other four
+operations remain unselected.
 
 ## DL-010: workflow acceptance gate
 
