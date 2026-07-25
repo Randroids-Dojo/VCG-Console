@@ -86,6 +86,7 @@ const EXPECTED_STATES = Object.freeze([
       expectedAdapter: null,
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
+      unavailableExpectation: null,
       backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
@@ -112,6 +113,7 @@ const EXPECTED_STATES = Object.freeze([
       expectedAdapter: "local-web",
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -149,6 +151,7 @@ const EXPECTED_STATES = Object.freeze([
           launchRetained: true,
         },
       },
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -183,12 +186,47 @@ const EXPECTED_STATES = Object.freeze([
         retryAvailable: true,
         denial: null,
       },
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
       "universal-search",
       "museum-result",
       "remote-web-offline-failure",
+      "retry-action-visible",
+      "search-trigger",
+    ],
+  },
+  {
+    id: "unavailable-package-denial",
+    query: "2048",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "2048",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "2048",
+      expectedAdapter: "retro",
+      expectedNetworkOnline: true,
+      remoteWebExpectation: null,
+      unavailableExpectation: {
+        statusLabel: "NOT AVAILABLE",
+        detail:
+          "The selected release is not present in the current signed package inventory",
+        diagnosticCode: "PACKAGE_RELEASE_MISMATCH",
+        retryAvailable: true,
+      },
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "retro-2048-result",
+      "unavailable-package-denial",
+      "package-release-mismatch-diagnostic",
       "retry-action-visible",
       "search-trigger",
     ],
@@ -226,6 +264,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 58647,
     sha256: "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9",
   },
+  "unavailable-package-denial/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
+    bytes: 52347,
+    sha256: "80bf319294ddec55f6c22dc5969739441ace61bc44a32b5f207c01024c123d04",
+  },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
     bytes: 105671,
@@ -256,6 +299,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 74764,
     sha256: "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435",
   },
+  "unavailable-package-denial/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
+    bytes: 68473,
+    sha256: "3586fe1ef663991551d0cc3922e78aaa45ab3680c23ab03a2539367cd32f3c38",
+  },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
     bytes: 256838,
@@ -285,6 +333,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
     bytes: 184705,
     sha256: "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff",
+  },
+  "unavailable-package-denial/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
+    bytes: 173631,
+    sha256: "fe31f2804129ee4f50114a7ab7f54304ff74a57777db3d5f03918deb2122d029",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
@@ -359,6 +412,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "remote-web-offline-failure/720p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "unavailable-package-denial/720p": {
     measuredCriticalTextCount: 5,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 687.766,
@@ -456,6 +523,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: null,
     },
   },
+  "unavailable-package-denial/1080p": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 48,
+      scrollHeightCssPx: 48,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
   "motion-results/4k": {
     measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 48,
@@ -540,6 +621,20 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
       lastResultInsideViewportAfterFocus: null,
     },
   },
+  "unavailable-package-denial/4k": {
+    measuredCriticalTextCount: 5,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 61,
+      scrollHeightCssPx: 61,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
 });
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
@@ -603,15 +698,15 @@ function validateRequests(requestCounts) {
   );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
-  assert.equal(requestCounts["/"], 18);
-  assert.equal(requestCounts["/fonts/OCRA.ttf"], 18);
+  assert.equal(requestCounts["/"], 21);
+  assert.equal(requestCounts["/fonts/OCRA.ttf"], 21);
   const assets = entries.filter(([path]) => path.startsWith("/assets/"));
   assert.equal(assets.length, 6);
   assert.equal(assets.filter(([path]) => path.endsWith(".css")).length, 1);
   assert.equal(assets.filter(([path]) => path.endsWith(".js")).length, 5);
   for (const [path, count] of assets) {
     assert.match(path, /^\/assets\/[A-Za-z0-9_-]+\.(?:css|js)$/u);
-    assert.equal(count, 18);
+    assert.equal(count, 21);
   }
 }
 
@@ -780,6 +875,19 @@ async function validateObservation(observation, expectedState, resolution) {
           launchRetainedAfterDenial:
             remoteExpectation.denial?.launchRetained ?? null,
         };
+    const unavailableExpectation =
+      expectedState.activation.unavailableExpectation;
+    const unavailableEvidence = unavailableExpectation === null
+      ? null
+      : {
+          statusLabel: unavailableExpectation.statusLabel,
+          statusVisible: true,
+          detail: unavailableExpectation.detail,
+          detailVisible: true,
+          diagnosticCode: unavailableExpectation.diagnosticCode,
+          diagnosticVisible: true,
+          retryAvailable: unavailableExpectation.retryAvailable,
+        };
     assert.deepEqual(observation.activation, {
       resultTitle: expectedState.activation.resultTitle,
       method: expectedState.activation.method,
@@ -791,6 +899,7 @@ async function validateObservation(observation, expectedState, resolution) {
       networkOnlineAtActivation:
         expectedState.activation.expectedNetworkOnline,
       remoteWebEvidence,
+      unavailableEvidence,
       backRecoveryVerified: true,
       backRecoveryFocus: expectedState.activation.backRecoveryFocus,
     });
@@ -849,7 +958,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-six-search-states-and-three-activation-classes-with-remote-failure-denial-only-not-tv-target-or-catalog-qualification",
+    "candidate-seven-search-states-and-four-activation-classes-with-remote-and-unavailable-failure-denial-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -889,7 +998,7 @@ export async function validateLauncherSearchTvEvidence(
     "browser",
   );
   assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
-  assert.equal(artifact.browser.observations.length, 18);
+  assert.equal(artifact.browser.observations.length, 21);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
     for (const state of EXPECTED_STATES) {
@@ -919,6 +1028,7 @@ export async function validateLauncherSearchTvEvidence(
     remoteWebOfflineFailureVerified: true,
     externalOriginDisclosureVerified: true,
     blockedPreviewDenialVerified: true,
+    unavailablePackageDenialVerified: true,
     physicalTelevisionVerified: false,
     physicalControllerVerified: false,
     reservedHomeVerified: false,
@@ -930,14 +1040,15 @@ export async function validateLauncherSearchTvEvidence(
   });
   assert.deepEqual(artifact.summary, {
     resolutionCount: 3,
-    searchStateCount: 6,
-    observationCount: 18,
-    screenshotCount: 18,
-    distinctQueryCount: 5,
-    activatedResultClassCount: 3,
+    searchStateCount: 7,
+    observationCount: 21,
+    screenshotCount: 21,
+    distinctQueryCount: 6,
+    activatedResultClassCount: 4,
     remoteWebOutcomeStateCount: 2,
-    failureOutcomeStateCount: 1,
-    denialOutcomeStateCount: 1,
+    unavailableOutcomeStateCount: 1,
+    failureOutcomeStateCount: 2,
+    denialOutcomeStateCount: 2,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

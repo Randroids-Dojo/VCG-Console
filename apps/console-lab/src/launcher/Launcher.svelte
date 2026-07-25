@@ -179,7 +179,17 @@
       detail: entry.searchDetail,
       group: entry.surface === "museum" ? "Game" : "Retro",
       terms: [entry.id, entry.runtime, entry.network, entry.compatibilityStatus, ...entry.searchTerms].join(" "),
-      action: () => showView(entry.surface),
+      action: () => {
+        if (entry.surface === "retro") {
+          launchHostedAdapter("retro", entry.title, {
+            gameId: entry.id,
+            version: entry.version,
+            runtime: entry.runtime,
+          });
+          return;
+        }
+        void showView(entry.surface);
+      },
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },

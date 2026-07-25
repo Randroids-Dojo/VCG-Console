@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 814961,
+      "totalBytes": 815224,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -844,8 +844,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 53725,
-          "sha256": "74bd7c64c360aa2ac1d9d22003eb9a6a3a36d03e7879b7fe5f07a7226e2c2af7"
+          "bytes": 53988,
+          "sha256": "99abd39efcb507746c8edb49df80029ccc2cf81b1f4fbf2ab045eb7801b5e18d"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -1158,13 +1158,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                727,
-                794,
-                811,
-                824,
-                908,
-                1078,
-                1097
+                737,
+                804,
+                821,
+                834,
+                918,
+                1088,
+                1107
               ]
             },
             {

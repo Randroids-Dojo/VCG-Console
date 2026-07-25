@@ -2,11 +2,11 @@
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
-  "qualification": "candidate-six-search-states-and-three-activation-classes-with-remote-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T01:48:53.386Z",
+  "qualification": "candidate-seven-search-states-and-four-activation-classes-with-remote-and-unavailable-failure-denial-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-25T02:02:28.965Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "313af0729208483d239a580e81271af123733ab13003c38f1e417387efc8508e"
+    "sha256": "29eced49370e97068136a45f547e2ee4ca1e61b5cb548c54476b7715fc266501"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -69,6 +69,7 @@
           "expectedAdapter": null,
           "expectedNetworkOnline": true,
           "remoteWebExpectation": null,
+          "unavailableExpectation": null,
           "backRecoveryFocus": "launcher-home-navigation"
         },
         "interactionTrace": [
@@ -95,6 +96,7 @@
           "expectedAdapter": "local-web",
           "expectedNetworkOnline": true,
           "remoteWebExpectation": null,
+          "unavailableExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -131,6 +133,7 @@
               "launchRetained": true
             }
           },
+          "unavailableExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
@@ -165,12 +168,46 @@
             "retryAvailable": true,
             "denial": null
           },
+          "unavailableExpectation": null,
           "backRecoveryFocus": "search-trigger"
         },
         "interactionTrace": [
           "universal-search",
           "museum-result",
           "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "unavailable-package-denial",
+        "query": "2048",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "expectedAdapter": "retro",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": {
+            "statusLabel": "NOT AVAILABLE",
+            "detail": "The selected release is not present in the current signed package inventory",
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "retryAvailable": true
+          },
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
           "retry-action-visible",
           "search-trigger"
         ]
@@ -348,6 +385,7 @@
           "adapter": null,
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -408,6 +446,7 @@
           "adapter": "local-web",
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -484,6 +523,7 @@
             "denialMessage": "The browser blocked the separate preview tab. Try again.",
             "launchRetainedAfterDenial": true
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -559,6 +599,7 @@
             "denialMessage": null,
             "launchRetainedAfterDenial": null
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -566,6 +607,77 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
           "bytes": 58647,
           "sha256": "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9"
+        }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "2048",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
+          "bytes": 52347,
+          "sha256": "80bf319294ddec55f6c22dc5969739441ace61bc44a32b5f207c01024c123d04"
         }
       },
       {
@@ -716,6 +828,7 @@
           "adapter": null,
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -776,6 +889,7 @@
           "adapter": "local-web",
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -852,6 +966,7 @@
             "denialMessage": "The browser blocked the separate preview tab. Try again.",
             "launchRetainedAfterDenial": true
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -927,6 +1042,7 @@
             "denialMessage": null,
             "launchRetainedAfterDenial": null
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -934,6 +1050,77 @@
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
           "bytes": 74764,
           "sha256": "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435"
+        }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "2048",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
+          "bytes": 68473,
+          "sha256": "3586fe1ef663991551d0cc3922e78aaa45ab3680c23ab03a2539367cd32f3c38"
         }
       },
       {
@@ -1084,6 +1271,7 @@
           "adapter": null,
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "launcher-home-navigation"
         },
@@ -1144,6 +1332,7 @@
           "adapter": "local-web",
           "networkOnlineAtActivation": true,
           "remoteWebEvidence": null,
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1220,6 +1409,7 @@
             "denialMessage": "The browser blocked the separate preview tab. Try again.",
             "launchRetainedAfterDenial": true
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1295,6 +1485,7 @@
             "denialMessage": null,
             "launchRetainedAfterDenial": null
           },
+          "unavailableEvidence": null,
           "backRecoveryVerified": true,
           "backRecoveryFocus": "search-trigger"
         },
@@ -1303,20 +1494,91 @@
           "bytes": 184705,
           "sha256": "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff"
         }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "2048",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
+          "bytes": 173631,
+          "sha256": "fe31f2804129ee4f50114a7ab7f54304ff74a57777db3d5f03918deb2122d029"
+        }
       }
     ],
     "consoleErrorCount": 0,
     "pageErrorCount": 0,
     "requestFailureCount": 0,
     "requestCounts": {
-      "/": 18,
-      "/assets/main-BBirYakm.js": 18,
-      "/assets/main-DwOiNSRf.css": 18,
-      "/assets/modulepreload-polyfill-Dezn_h7o.js": 18,
-      "/assets/src-EbToTsJV.js": 18,
-      "/assets/synthetic-BTWSnpMo.js": 18,
-      "/assets/tracker-health--oynSZbv.js": 18,
-      "/fonts/OCRA.ttf": 18
+      "/": 21,
+      "/assets/main-DJbcQdKd.js": 21,
+      "/assets/main-DwOiNSRf.css": 21,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 21,
+      "/assets/src-EbToTsJV.js": 21,
+      "/assets/synthetic-BTWSnpMo.js": 21,
+      "/assets/tracker-health--oynSZbv.js": 21,
+      "/fonts/OCRA.ttf": 21
     }
   },
   "disposition": {
@@ -1333,6 +1595,7 @@
     "remoteWebOfflineFailureVerified": true,
     "externalOriginDisclosureVerified": true,
     "blockedPreviewDenialVerified": true,
+    "unavailablePackageDenialVerified": true,
     "physicalTelevisionVerified": false,
     "physicalControllerVerified": false,
     "reservedHomeVerified": false,
@@ -1344,14 +1607,15 @@
   },
   "summary": {
     "resolutionCount": 3,
-    "searchStateCount": 6,
-    "observationCount": 18,
-    "screenshotCount": 18,
-    "distinctQueryCount": 5,
-    "activatedResultClassCount": 3,
+    "searchStateCount": 7,
+    "observationCount": 21,
+    "screenshotCount": 21,
+    "distinctQueryCount": 6,
+    "activatedResultClassCount": 4,
     "remoteWebOutcomeStateCount": 2,
-    "failureOutcomeStateCount": 1,
-    "denialOutcomeStateCount": 1,
+    "unavailableOutcomeStateCount": 1,
+    "failureOutcomeStateCount": 2,
+    "denialOutcomeStateCount": 2,
     "physicalTelevisionCount": 0,
     "physicalControllerCount": 0,
     "participantCount": 0,
@@ -1360,7 +1624,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "74bd7c64c360aa2ac1d9d22003eb9a6a3a36d03e7879b7fe5f07a7226e2c2af7",
+    "launcherPathSha256": "99abd39efcb507746c8edb49df80029ccc2cf81b1f4fbf2ab045eb7801b5e18d",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "16bb38146a4a0234d8e21085c6cc78c115875bef5ea30eb0de54a6fbc293bbfa",
     "stylePath": "apps/console-lab/src/styles.css",
@@ -1372,15 +1636,15 @@
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "223fb4990bad5164399b7fa5ab2fe5915f781dd49ab8c996db547201c6d3303d",
+    "browserTestPathSha256": "a531d9483307cfbc2ff6ea0fc3dd3eb7c084951975f8672a4bf0a20f109b2b72",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "313af0729208483d239a580e81271af123733ab13003c38f1e417387efc8508e",
+    "representativeEvidencePathSha256": "29eced49370e97068136a45f547e2ee4ca1e61b5cb548c54476b7715fc266501",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "fd2de0af50d1c96fb736c71ce52728a6afda2d769ce36f434af05e82c3019d3c",
+    "generatorPathSha256": "c92ed27359d9d276d51bd3544ab363e82b377d418a30140b50a7241e79c7d648",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "ade208b124395966c7fb14538ac488baed39dfc59a53dab6bac8bfb04db06fe5",
+    "validatorPathSha256": "362cdda37ee18c540a0e51f27abd0fcf7e2fd85b33b766ab8d8654b7962db3ae",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -1398,13 +1662,13 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 127,
-      "sha256": "94549f5f9b5dec4fce5fe07569a1e3cb93bf502f35793b626d2b2a0488de084d"
+      "sha256": "9e568c86ac22ac95b18df5efae19b3c6010799939b711cad4cb68f669b4a8f49"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, and exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, and remote-web Museum supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. It does not select the final empty-query product policy, qualify arbitrary localization or query text, unavailable or destructive result classes, completed gameplay, remote content, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, and exact one-result 2048 unavailable-package query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. It does not select the final empty-query product policy, qualify arbitrary localization or query text, destructive-setting activation, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
-    "Only six exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, and the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, and remote-web Museum supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. Unavailable-package and destructive-settings activation remain untested.",
+    "Only seven exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, and the exact one-result 2048 unavailable-package query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. Destructive-settings activation remains untested.",
     "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
     "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
     "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility."

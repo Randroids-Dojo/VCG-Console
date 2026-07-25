@@ -2,10 +2,10 @@
 
 Date opened: 2026-07-24
 
-These questions do not block the six fixed desk-only Search states or the
+These questions do not block the seven fixed desk-only Search states or the
 local-shell, built-in offline local-web, and remote-web supervisor activation
-checks. Q-242 and Q-243 remain authoritative for final physical-TV and output
-policy.
+checks, or the unavailable retro-package refusal. Q-242 and Q-243 remain
+authoritative for final physical-TV and output policy.
 
 ## STV-001: empty-query density
 
@@ -44,20 +44,23 @@ Recommended order: a local shell view, offline package, remote-web title,
 unavailable package, destructive settings route, and external-origin
 disclosure. Each must restore focus safely after Back, failure, and denial.
 
-Current desk evidence covers the first three activation classes at all three
+Current desk evidence covers the first four activation classes at all three
 target resolutions. Profiles returns through Back to the focused Home
 navigation action. Obstacle opens the `LOCAL WEB` launch surface and Back
 returns focus to the exact Search opener. The canonical Museum result enters
 the `REMOTE WEB` supervisor, exposes its fixed `VIBECODED.GAMES / ONLINE`
 destination, contains a forced blocked-preview denial, exposes offline failure
 and Retry, and returns Back focus to the same Search opener. No remote content
-was opened or qualified. Unavailable content, destructive settings, their
-denial paths, physical controllers, and physical televisions remain
+was opened or qualified. The exact 2048 result enters the retro supervisor
+and refuses the absent signed release with a closed diagnostic and Retry
+before restoring Back focus.
+No package or native host was contacted or qualified. Destructive settings,
+their denial path, physical controllers, and physical televisions remain
 unqualified.
 
 ## Handoff
 
 Record selected behavior as later product decisions. Until then, retain the
-six exact states, three activation classes, bounded claims, offline query
+seven exact states, four activation classes, bounded claims, offline query
 processing, and focus recovery documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).

@@ -664,4 +664,43 @@ for (const resolution of RESOLUTIONS) {
     await expect(launch).toBeHidden();
     await expect(trigger).toBeFocused();
   });
+
+  test(`launcher Search exposes unavailable package denial and recovers at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.clock.install({
+      time: new Date("2026-07-24T19:00:00-07:00"),
+    });
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await input.fill("2048");
+    const result = page.getByRole("button", {
+      name: /Retro 2048 Retro qualification candidate/,
+    });
+    await expect(result).toBeVisible();
+    await expect(page.locator("#search-results button")).toHaveCount(1);
+    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+
+    await result.focus();
+    await page.keyboard.press("Enter");
+    const launch = page.getByRole("dialog", { name: "2048" });
+    await expect(launch).toHaveAttribute("data-launch-adapter", "retro");
+    await expect(
+      launch.getByText("NOT AVAILABLE", { exact: true }),
+    ).toBeVisible();
+    await expect(launch).toContainText(
+      "The selected release is not present in the current signed package inventory",
+    );
+    await launch.getByRole("button", { name: "Details" }).click();
+    await expect(launch.getByText("PACKAGE_RELEASE_MISMATCH")).toBeVisible();
+    await expect(launch.getByRole("button", { name: "Retry" })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(launch).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
 }

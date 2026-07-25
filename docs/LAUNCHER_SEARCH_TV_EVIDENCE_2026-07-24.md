@@ -7,7 +7,7 @@ Scope: I-098 and Q-056
 ## Outcome
 
 The production-built launcher Search overlay now applies the candidate
-television floor to six exact states:
+television floor to seven exact states:
 
 1. the lowercase `motion` query with five results;
 2. `no-such-vcg-destination` with no results;
@@ -17,9 +17,11 @@ television floor to six exact states:
    activation;
 5. the exact `vibecoded.games` query with one result, remote-web readiness,
    fixed-origin disclosure, and a deliberately blocked separate-preview
-   denial; and
+   denial;
 6. the same exact Museum result activated after the browser context is made
-   offline, producing the explicit offline failure and Retry action.
+   offline, producing the explicit offline failure and Retry action; and
+7. the exact `2048` query with one result and a signed-inventory unavailable
+   package denial.
 
 At 1280 x 720, 1920 x 1080, and 3840 x 2160, every explicitly marked label,
 query, result group/title/action, and no-result message remains inside the
@@ -31,7 +33,7 @@ results viewport has 387 CSS px of internal overflow at 720p, 79 CSS px at
 maximum scroll position where overflow exists and leaves that result fully
 inside the results viewport at all three resolutions.
 
-The strict television artifact proves six fixed Search states, keyboard
+The strict television artifact proves seven fixed Search states, keyboard
 activation and Back recovery for the local Profiles shell view, and keyboard
 activation plus opener-focus recovery for the built-in offline Obstacle launch
 surface on one Windows desk. It also activates the canonical Museum result
@@ -39,10 +41,12 @@ directly into the `REMOTE WEB` supervisor, verifies the visible
 `VIBECODED.GAMES / ONLINE` destination, contains a forced popup-block denial,
 exposes offline failure and Retry, and restores the exact Search opener after
 Back in every mode. It does not open or qualify the remote page, select the
-final empty-query policy, prove arbitrary or localized queries, activate an
-unavailable package or destructive setting, complete gameplay, or qualify
-every overlay, physical TV/controller behavior, target Linux output, or frame
-timing.
+final empty-query policy, or prove arbitrary or localized queries. The exact
+2048 result also enters the `RETRO` supervisor, refuses the absent signed
+release with `PACKAGE_RELEASE_MISMATCH`, exposes Retry, and restores focus
+without contacting a package runtime. No signed package, destructive setting,
+gameplay, physical TV/controller behavior, target Linux output, or frame
+timing is qualified.
 
 ## Frozen observations
 
@@ -50,7 +54,7 @@ The strict artifact is
 [`windows-x64-chrome-150-launcher-search-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json).
 It binds the exact production source tree, Search and launcher sources,
 generator, validator, browser test, base representative-state artifact,
-production resources, and eighteen PNG files.
+production resources, and twenty-one PNG files.
 
 | State | Mode | Results | Measured visible / total critical text | Minimum text | Actions | Minimum action |
 |---|---|---:|---:|---:|---:|---:|
@@ -60,24 +64,28 @@ production resources, and eighteen PNG files.
 | Obstacle activation | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Museum ready / blocked preview | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Museum offline failure | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
+| 2048 unavailable denial | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Motion results | 1920 x 1080 | 5 | 13 / 13 | 24 px | 6 | 951.328 x 48 px |
 | No results | 1920 x 1080 | 0 | 4 / 4 | 24 px | 1 | 951.328 x 48 px |
 | Empty query, scrolled | 1920 x 1080 | 18 | 35 / 39 | 24 px | 19 | 951.328 x 48 px |
 | Obstacle activation | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Museum ready / blocked preview | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Museum offline failure | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
+| 2048 unavailable denial | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Motion results | 3840 x 2160 | 5 | 13 / 13 | 48 px | 6 | 1936.656 x 61 px |
 | No results | 3840 x 2160 | 0 | 4 / 4 | 48 px | 1 | 1936.656 x 62 px |
 | Empty query, exact fit | 3840 x 2160 | 18 | 39 / 39 | 48 px | 19 | 1936.656 x 61 px |
 | Obstacle activation | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 | Museum ready / blocked preview | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 | Museum offline failure | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
+| 2048 unavailable denial | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 
-All eighteen observations record complete document state, every measured visible
-marked item inside the safe rectangle, zero measured marked-text overlaps,
-zero overlay overflow, and zero console errors, page errors, or failed
-requests. Offscreen critical text in the two internally scrolling observations
-is counted but is not misrepresented as visible or safe-area measured.
+All twenty-one observations record complete document state, every measured
+visible marked item inside the safe rectangle, zero measured marked-text
+overlaps, zero overlay overflow, and zero console errors, page errors, or
+failed requests. Offscreen critical text in the two internally scrolling
+observations is counted but is not misrepresented as visible or safe-area
+measured.
 
 ## Input evidence
 
@@ -120,6 +128,14 @@ qualify the launcher-side disclosure, failure, denial, and focus behavior on
 the Windows desk only; they never open remote content and do not qualify the
 Museum or any catalog title.
 
+The `2048` trace focuses its only result and presses Enter. The exact retro
+catalog identity enters the `RETRO` supervisor, which refuses the absent
+signed release as `NOT AVAILABLE`, exposes the bounded
+`PACKAGE_RELEASE_MISMATCH` diagnostic and Retry action, and never contacts a
+package runtime. Back closes the denial and restores the Search trigger at all
+three resolutions. This proves launcher-side unavailable-package refusal, not
+the presence, authenticity, execution, or compatibility of a package.
+
 The broader Console Lab Chrome suite separately proves that opening Search with
 an empty query exposes exactly 18 current destinations, the results container
 has real internal overflow, focusing its last result advances `scrollTop`, and
@@ -140,6 +156,7 @@ qualifies a game or package.
 | Obstacle result before activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png) |
 | Museum result before ready / denial activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png) |
 | Museum result before offline activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png) |
+| 2048 result before unavailable denial | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png) |
 
 The frozen browser clock advances by exactly one second after the state is
 ready so entrance animation is complete before capture. This is deterministic
@@ -170,13 +187,14 @@ provenance, limitations, unknown claims, promotion, and demotion.
 
 I-098/Q-056 remain active. The strict TV record now covers current empty-query
 density plus local-shell, built-in offline local-web, and canonical remote-web
-supervisor activation at every target resolution. The remote result exposes
-its fixed origin, offline failure, Retry action, and blocked-preview denial,
-but does not open or qualify remote content. STV-001 must still choose whether
-the default list remains, becomes curated, or requires a query. Search also
-needs long strings, localization, large text/high contrast/reduced motion,
-physical-controller directional navigation, unavailable-package and
-destructive-settings STV-004 result classes and their denial paths,
-physical-TV viewing, reserved Home, native-host recovery, and both target
-Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain the final
-policy choices.
+supervisor activation at every target resolution, plus unavailable-package
+refusal for the 2048 candidate. The remote result exposes its fixed origin,
+offline failure, Retry action, and blocked-preview denial without opening
+remote content. The unavailable result exposes signed-inventory refusal,
+diagnostics, Retry, and Back without contacting a package runtime. STV-001
+must still choose whether the default list remains, becomes curated, or
+requires a query. Search also needs long strings, localization, large
+text/high contrast/reduced motion, physical-controller directional navigation,
+the destructive-settings STV-004 result class and denial, physical-TV viewing,
+reserved Home, native-host recovery, and both target Linux display stacks.
+Q-242/Q-243 and STV-001 through STV-004 retain the final policy choices.

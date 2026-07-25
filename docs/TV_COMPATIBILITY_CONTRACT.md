@@ -120,13 +120,14 @@ states and every game remain outside the result.
 
 ## Launcher Search states
 
-The production Search overlay now has six exact candidate-TV checks: a
+The production Search overlay now has seven exact candidate-TV checks: a
 five-result `motion` query, a no-result query, the current 18-destination
 empty query, one Obstacle result, and one canonical Museum result in both
-ready/blocked-preview and offline-failure modes. Eighteen captures bind marked
-labels, query text, result group/title/action copy, empty-state copy, input and
-result targets, zero overlap/overflow, scrolling, activation, failure,
-denial, Back, and exact focus restoration.
+ready/blocked-preview and offline-failure modes, plus one unavailable 2048
+candidate. Twenty-one captures bind marked labels, query text, result
+group/title/action copy, empty-state copy, input and result targets, zero
+overlap/overflow, scrolling, activation, failure, denial, diagnostics, Retry,
+Back, and exact focus restoration.
 
 See
 [the Search evidence](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md),
@@ -137,8 +138,8 @@ and
 The result records current empty-query density, scrolling, local-shell,
 built-in local-web, and remote-web-supervisor activation. It does not select
 the final density policy, prove arbitrary or localized queries, open or
-qualify remote content, activate unavailable/destructive classes, or qualify
-physical TV/controller behavior.
+qualify remote content, qualify an unavailable package, activate destructive
+settings, or qualify physical TV/controller behavior.
 
 ## Author checklist
 

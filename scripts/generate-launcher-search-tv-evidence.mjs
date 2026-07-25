@@ -28,10 +28,10 @@ import {
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, and exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, and remote-web Museum supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. It does not select the final empty-query product policy, qualify arbitrary localization or query text, unavailable or destructive result classes, completed gameplay, remote content, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, and exact one-result 2048 unavailable-package query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. It does not select the final empty-query product policy, qualify arbitrary localization or query text, destructive-setting activation, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
-  "Only six exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, and the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
-  "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, and remote-web Museum supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. Unavailable-package and destructive-settings activation remain untested.",
+  "Only seven exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, and the exact one-result 2048 unavailable-package query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+  "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, and unavailable 2048 retro-package supervisor, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. Destructive-settings activation remains untested.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
   "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
   "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility.",
@@ -112,6 +112,7 @@ const SEARCH_STATES = Object.freeze([
       expectedAdapter: null,
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
+      unavailableExpectation: null,
       backRecoveryFocus: "launcher-home-navigation",
     },
     interactionTrace: [
@@ -138,6 +139,7 @@ const SEARCH_STATES = Object.freeze([
       expectedAdapter: "local-web",
       expectedNetworkOnline: true,
       remoteWebExpectation: null,
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -175,6 +177,7 @@ const SEARCH_STATES = Object.freeze([
           launchRetained: true,
         },
       },
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
@@ -209,12 +212,47 @@ const SEARCH_STATES = Object.freeze([
         retryAvailable: true,
         denial: null,
       },
+      unavailableExpectation: null,
       backRecoveryFocus: "search-trigger",
     },
     interactionTrace: [
       "universal-search",
       "museum-result",
       "remote-web-offline-failure",
+      "retry-action-visible",
+      "search-trigger",
+    ],
+  },
+  {
+    id: "unavailable-package-denial",
+    query: "2048",
+    resultCount: 1,
+    criticalTextCount: 5,
+    actionTargetCount: 2,
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: {
+      resultTitle: "2048",
+      method: "keyboard-enter",
+      outcomeKind: "launch-dialog",
+      outcomeLabel: "2048",
+      expectedAdapter: "retro",
+      expectedNetworkOnline: true,
+      remoteWebExpectation: null,
+      unavailableExpectation: {
+        statusLabel: "NOT AVAILABLE",
+        detail:
+          "The selected release is not present in the current signed package inventory",
+        diagnosticCode: "PACKAGE_RELEASE_MISMATCH",
+        retryAvailable: true,
+      },
+      backRecoveryFocus: "search-trigger",
+    },
+    interactionTrace: [
+      "universal-search",
+      "retro-2048-result",
+      "unavailable-package-denial",
+      "package-release-mismatch-diagnostic",
       "retry-action-visible",
       "search-trigger",
     ],
@@ -416,6 +454,7 @@ async function exerciseInteraction(page, state) {
       adapter: state.activation.expectedAdapter,
       networkOnlineAtActivation,
       remoteWebEvidence: null,
+      unavailableEvidence: null,
       backRecoveryVerified: true,
       backRecoveryFocus: state.activation.backRecoveryFocus,
     };
@@ -484,6 +523,7 @@ async function exerciseInteraction(page, state) {
         adapter,
         networkOnlineAtActivation,
         remoteWebEvidence: null,
+        unavailableEvidence: null,
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
       },
@@ -596,6 +636,87 @@ async function exerciseInteraction(page, state) {
           denialObserved,
           denialMessage,
           launchRetainedAfterDenial,
+        },
+        unavailableEvidence: null,
+        backRecoveryVerified: true,
+        backRecoveryFocus: state.activation.backRecoveryFocus,
+      },
+    };
+  }
+  if (state.id === "unavailable-package-denial") {
+    const candidate = page.getByRole("button", {
+      name: /Retro 2048 Retro qualification candidate/u,
+    });
+    await candidate.focus();
+    assert.equal(
+      await candidate.evaluate(
+        (element) => element === document.activeElement,
+      ),
+      true,
+    );
+    const networkOnlineAtActivation = await page.evaluate(
+      () => navigator.onLine,
+    );
+    assert.equal(
+      networkOnlineAtActivation,
+      state.activation.expectedNetworkOnline,
+    );
+    await page.keyboard.press("Enter");
+    const launch = page.getByRole("dialog", {
+      name: state.activation.outcomeLabel,
+    });
+    await launch.waitFor();
+    const searchOverlayHidden = await page.locator("#search-overlay").isHidden();
+    const outcomeVisible = await launch.isVisible();
+    const adapter = await launch.getAttribute("data-launch-adapter");
+    assert.equal(searchOverlayHidden, true);
+    assert.equal(outcomeVisible, true);
+    assert.equal(adapter, state.activation.expectedAdapter);
+
+    const expected = state.activation.unavailableExpectation;
+    const statusVisible = await launch
+      .getByText(expected.statusLabel, { exact: true })
+      .isVisible();
+    const detailVisible = await launch
+      .getByText(expected.detail, { exact: true })
+      .isVisible();
+    assert.equal(statusVisible, true);
+    assert.equal(detailVisible, true);
+    await launch.getByRole("button", { name: "Details" }).click();
+    const diagnosticVisible = await launch
+      .getByText(expected.diagnosticCode, { exact: true })
+      .isVisible();
+    const retryAvailable = await launch
+      .getByRole("button", { name: "Retry", exact: true })
+      .isVisible();
+    assert.equal(diagnosticVisible, true);
+    assert.equal(retryAvailable, expected.retryAvailable);
+    await page.keyboard.press("Escape");
+    await launch.waitFor({ state: "hidden" });
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.id),
+      state.activation.backRecoveryFocus,
+    );
+    return {
+      interactionTrace: state.interactionTrace,
+      activation: {
+        resultTitle: state.activation.resultTitle,
+        method: state.activation.method,
+        searchOverlayHidden,
+        outcomeKind: state.activation.outcomeKind,
+        outcomeLabel: state.activation.outcomeLabel,
+        outcomeVisible,
+        adapter,
+        networkOnlineAtActivation,
+        remoteWebEvidence: null,
+        unavailableEvidence: {
+          statusLabel: expected.statusLabel,
+          statusVisible,
+          detail: expected.detail,
+          detailVisible,
+          diagnosticCode: expected.diagnosticCode,
+          diagnosticVisible,
+          retryAvailable,
         },
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
@@ -842,7 +963,7 @@ export async function generateLauncherSearchTvEvidence() {
     evidenceClass:
       "windows-x64-headless-chrome-launcher-search-tv-conformance",
     qualification:
-      "candidate-six-search-states-and-three-activation-classes-with-remote-failure-denial-only-not-tv-target-or-catalog-qualification",
+      "candidate-seven-search-states-and-four-activation-classes-with-remote-and-unavailable-failure-denial-only-not-tv-target-or-catalog-qualification",
     retrievedAtUtc,
     baseRepresentativeEvidence: {
       format:
@@ -879,6 +1000,7 @@ export async function generateLauncherSearchTvEvidence() {
       remoteWebOfflineFailureVerified: true,
       externalOriginDisclosureVerified: true,
       blockedPreviewDenialVerified: true,
+      unavailablePackageDenialVerified: true,
       physicalTelevisionVerified: false,
       physicalControllerVerified: false,
       reservedHomeVerified: false,
@@ -890,14 +1012,15 @@ export async function generateLauncherSearchTvEvidence() {
     },
     summary: {
       resolutionCount: 3,
-      searchStateCount: 6,
-      observationCount: 18,
-      screenshotCount: 18,
-      distinctQueryCount: 5,
-      activatedResultClassCount: 3,
+      searchStateCount: 7,
+      observationCount: 21,
+      screenshotCount: 21,
+      distinctQueryCount: 6,
+      activatedResultClassCount: 4,
       remoteWebOutcomeStateCount: 2,
-      failureOutcomeStateCount: 1,
-      denialOutcomeStateCount: 1,
+      unavailableOutcomeStateCount: 1,
+      failureOutcomeStateCount: 2,
+      denialOutcomeStateCount: 2,
       physicalTelevisionCount: 0,
       physicalControllerCount: 0,
       participantCount: 0,

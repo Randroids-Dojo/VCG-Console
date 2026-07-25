@@ -5498,3 +5498,41 @@ containment, remote gameplay, catalog title, physical TV/controller, target
 Linux, or native host was qualified. STV-004 still needs unavailable-package
 and destructive-settings activation and denial. STV-001 through STV-003 still
 own default density, query/localization, and no-result recovery policy.
+
+## 2026-07-24: Search unavailable-package denial
+
+### Delivered
+
+- Routed only retro catalog Search results into the existing signed-package
+  launch supervisor. Museum catalog-title Search results retain their bounded
+  catalog navigation, while the exact 2048 result now exercises its own retro
+  package identity.
+- Added one exact lowercase `2048` Search state at 720p, 1080p, and 4K with
+  one result, five marked critical-text nodes, two marked actions, no overlap
+  or overlay overflow, and the candidate TV geometry floor.
+- Proved the absent release fails closed as `NOT AVAILABLE`, retains the exact
+  signed-inventory refusal text and `PACKAGE_RELEASE_MISMATCH` diagnostic,
+  exposes Retry, contacts no package runtime, and restores Back focus to the
+  Search trigger in every mode.
+- Expanded the strict Search artifact to seven states, twenty-one observations
+  and screenshots, six distinct queries, and four activation classes. Search
+  documentation and I-098 now leave only the destructive-settings STV-004
+  class among the ordered activation classes.
+
+### Verification evidence
+
+- Four focused Chrome cases pass: one normal Search refusal plus the same
+  unavailable-package denial and recovery at all three resolutions.
+- The Home, representative-surface, Search, OCR-A structural, and OCR-A
+  platform-fallback artifacts were regenerated against the new launcher build.
+  All five strict validators and their eleven adversarial groups pass.
+- The complete root test command and workspace production build pass, followed
+  by all seventy-one Playwright cases.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. No signed package, native host, package runtime,
+gameplay, physical TV/controller, or target Linux environment was qualified.
+STV-004 still needs destructive-settings activation and denial. STV-001
+through STV-003 still own default density, query/localization, and no-result
+recovery policy.

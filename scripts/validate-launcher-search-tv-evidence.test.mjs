@@ -35,7 +35,7 @@ async function validateMutation(mutator) {
 
 test("accepts the exact launcher Search TV evidence", async () => {
   const artifact = await validateLauncherSearchTvEvidence();
-  assert.equal(artifact.summary.observationCount, 18);
+  assert.equal(artifact.summary.observationCount, 21);
 });
 
 test("rejects format, base evidence, environment, or resolution substitution", async () => {
@@ -169,6 +169,22 @@ test("rejects interaction, scrolling, or activation drift", async () => {
       .activation.remoteWebEvidence.retryAvailable = false;
   });
   await validateMutation((artifact) => {
+    artifact.browser.observations[6]
+      .activation.unavailableEvidence.statusVisible = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[6]
+      .activation.unavailableEvidence.detail = "Package unavailable";
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[6]
+      .activation.unavailableEvidence.diagnosticVisible = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[6]
+      .activation.unavailableEvidence.retryAvailable = false;
+  });
+  await validateMutation((artifact) => {
     artifact.browser.observations[10].resultsScroll.scrollHeightCssPx += 1;
   });
 });
@@ -221,16 +237,17 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     artifact.disposition.resultActivationVerified = false;
   });
   await validateMutation((artifact) => {
-    artifact.summary.distinctQueryCount = 4;
+    artifact.summary.distinctQueryCount = 5;
   });
   await validateMutation((artifact) => {
-    artifact.summary.activatedResultClassCount = 4;
+    artifact.summary.activatedResultClassCount = 5;
   });
   for (const key of [
     "remoteWebActivationVerified",
     "remoteWebOfflineFailureVerified",
     "externalOriginDisclosureVerified",
     "blockedPreviewDenialVerified",
+    "unavailablePackageDenialVerified",
   ]) {
     await validateMutation((artifact) => {
       artifact.disposition[key] = false;
@@ -238,6 +255,9 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
   }
   await validateMutation((artifact) => {
     artifact.summary.remoteWebOutcomeStateCount = 1;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.unavailableOutcomeStateCount = 0;
   });
   await validateMutation((artifact) => {
     artifact.summary.failureOutcomeStateCount = 0;
