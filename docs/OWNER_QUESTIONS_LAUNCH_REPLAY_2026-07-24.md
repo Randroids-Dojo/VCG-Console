@@ -14,7 +14,21 @@ Safe default: have the service manager supply a protected boot-scoped journal ro
 
 Which production component owns the game process group and is authorized to clear `LAUNCH_RESTART_CLEANUP_REQUIRED` after a host crash?
 
-Safe default: the service manager owns a cgroup or equivalent process group, proves it empty after terminating survivors, and only then invokes native startup code that calls `acknowledge_restart_cleanup`. Never expose the acknowledgement to the browser, hosted content, a game process, or the ordinary loopback API.
+Safe default: the service manager owns a cgroup or equivalent process group,
+terminates survivors, consumes the exact native cleanup request through the
+fixed privileged adapter, and returns `Empty` only after proving the scope
+empty. Trusted startup code then consumes the resulting proof in
+`acknowledge_restart_cleanup`. Never expose the request, adapter, proof, or
+acknowledgement to the browser, hosted content, a game process, or the ordinary
+loopback API.
+
+Current evidence: `RESTART_CLEANUP_PROOF.md` removes the no-argument
+acknowledgement. A persistent service with an active barrier issues one opaque
+in-process request; a fixed privileged adapter must return the closed result
+`Empty` before an exact non-serializable service-bound proof can clear it.
+`NotEmpty`, `Unavailable`, stale, cross-service, and already-cleared proofs
+fail closed. The actual service-manager/cgroup owner and target evidence remain
+this question.
 
 ## Q-125: retention, audit, and privacy
 

@@ -5097,3 +5097,47 @@ input/UI, archive parsing, installation/activation, sandbox, launch/log/restart/
 rollback/removal, capacity/retention/audit policy, hostile same-account
 containment, target-filesystem power-loss evidence, or either Linux-tier
 qualification.
+
+## 2026-07-24: exact native restart-cleanup proof
+
+### Delivered
+
+- Added `restart_cleanup`, a separate privileged adapter boundary with one
+  closed result vocabulary: `Empty`, `NotEmpty`, or `Unavailable`.
+- Replaced the public no-argument restart-cleanup acknowledgement with an
+  opaque non-cloneable request issued only for a persistent service's active
+  recovered barrier and a consumed non-serializable proof produced only from
+  `Empty`.
+- Bound request/proof to a fresh in-memory allocation for the exact service
+  barrier. Pointer identity rejects proofs from another journal/service,
+  another process, or the same barrier after it has already been cleared.
+  Retaining a stale proof retains its allocation, preventing address reuse for
+  a later identity.
+- Preserved the durable ordering: proof match precedes synchronized barrier
+  removal; only successful removal releases restart-indeterminate catalog
+  generation protection and fresh launch admission. Persistence ambiguity
+  faults replay state.
+- Kept request, inspection, proof, and acknowledgement absent from the
+  browser/JSON API. Its impossible internal proof-mismatch case maps to generic
+  replay unavailability if it ever reaches browser error handling.
+- Added `RESTART_CLEANUP_PROOF.md`, recorded D-173, and updated Q-124 without
+  claiming a real systemd/cgroup implementation.
+
+### Verification evidence
+
+- Four integrated launch cases cover memory-only/no-barrier request denial,
+  one-call nonempty/unavailable inspection with continued launch denial,
+  cross-service and post-clear stale-proof refusal, exact matching
+  acknowledgement, package-generation protection release, and fresh-launch
+  admission.
+- Focused tests and strict crate Clippy pass.
+
+### Remaining boundary
+
+I-109 and I-209 remain active. The proof type prevents accidental or
+cross-instance acknowledgement; it cannot determine whether an operating
+system process scope is actually empty. Production still needs the exact
+service-manager/cgroup owner, descendant containment, forced termination and
+empty inspection, boot-epoch/age retention, protected service configuration,
+launcher restart policy, hostile-descendant and service-crash tests, target
+filesystem/power-loss evidence, and ordinary x86-64/ARM64 Linux qualification.

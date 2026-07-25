@@ -705,7 +705,9 @@ fn write_launch_error(
         }
         NativeLaunchError::RequestConflict(_) => (409, "Conflict", "REQUEST_ID_CONFLICT"),
         NativeLaunchError::AlreadyRunning(_) => (409, "Conflict", "GAME_ALREADY_RUNNING"),
-        NativeLaunchError::Replay(_) | NativeLaunchError::ReplayUnavailable => {
+        NativeLaunchError::Replay(_)
+        | NativeLaunchError::ReplayUnavailable
+        | NativeLaunchError::RestartCleanupProofMismatch => {
             (503, "Service Unavailable", "LAUNCH_REPLAY_UNAVAILABLE")
         }
         NativeLaunchError::RestartCleanupRequired => (

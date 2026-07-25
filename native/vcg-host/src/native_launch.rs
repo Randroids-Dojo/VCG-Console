@@ -16,6 +16,9 @@ use crate::process::{
     ControlledWatchdogOutcome, FileHealthProbe, LaunchError, ProcessSupervisor,
     WatchdogConfigError, WatchdogError, WatchdogEvent, WatchdogPolicy, WatchdogReason,
 };
+use crate::restart_cleanup::{
+    RestartCleanupBarrierIdentity, RestartCleanupRequest, VerifiedRestartCleanup,
+};
 
 const MAX_LAUNCH_RECORDS: usize = 64;
 const MONITOR_INTERVAL: Duration = Duration::from_millis(50);
@@ -161,6 +164,7 @@ struct SharedLaunches {
     next_ordinal: u64,
     journal_faulted: bool,
     restart_cleanup_required: bool,
+    restart_cleanup_identity: Option<Arc<RestartCleanupBarrierIdentity>>,
 }
 
 /// Host-only lease that freezes launch admission while package maintenance
@@ -187,6 +191,7 @@ impl Default for SharedLaunches {
             next_ordinal: 1,
             journal_faulted: false,
             restart_cleanup_required: false,
+            restart_cleanup_identity: None,
         }
     }
 }
@@ -330,6 +335,8 @@ impl NativeLaunchService {
                 next_ordinal,
                 journal_faulted: false,
                 restart_cleanup_required,
+                restart_cleanup_identity: restart_cleanup_required
+                    .then(RestartCleanupBarrierIdentity::new),
             }
         } else {
             SharedLaunches::default()
@@ -350,28 +357,67 @@ impl NativeLaunchService {
         &self.catalog
     }
 
-    /// Clears a crash-recovery launch barrier after trusted host code has
-    /// proven that every process from the interrupted launch is gone.
+    /// Returns an opaque request for proof of the current restart-cleanup
+    /// barrier.
     ///
+    /// The request is tied to this exact in-process barrier and is intentionally
+    /// absent from the browser API. A privileged target adapter must consume it
+    /// through [`crate::restart_cleanup::verify_restart_cleanup`].
+    ///
+    /// # Errors
+    ///
+    /// Fails when the service is memory-only or replay persistence is faulted.
+    pub fn restart_cleanup_request(
+        &self,
+    ) -> Result<Option<RestartCleanupRequest>, NativeLaunchError> {
+        let shared = lock(&self.shared)?;
+        if shared.journal_faulted || shared.journal.is_none() {
+            return Err(NativeLaunchError::ReplayUnavailable);
+        }
+        Ok(shared
+            .restart_cleanup_identity
+            .as_ref()
+            .map(RestartCleanupRequest::new))
+    }
+
+    /// Clears the exact crash-recovery barrier proven empty by a privileged
+    /// process-scope adapter.
+    ///
+    /// The proof is non-serializable, service-instance-bound, and consumed.
     /// This method is intentionally not exposed by the browser API.
     ///
     /// # Errors
     ///
-    /// Fails when the service is memory-only, replay persistence is faulted,
-    /// or the cleanup acknowledgement cannot be synchronized.
-    pub fn acknowledge_restart_cleanup(&self) -> Result<(), NativeLaunchError> {
+    /// Fails for memory-only/faulted replay, a stale/cross-service proof, or an
+    /// acknowledgement that cannot be synchronized.
+    pub fn acknowledge_restart_cleanup(
+        &self,
+        proof: VerifiedRestartCleanup,
+    ) -> Result<(), NativeLaunchError> {
         let mut shared = lock(&self.shared)?;
         if shared.journal_faulted {
             return Err(NativeLaunchError::ReplayUnavailable);
         }
-        let Some(journal) = &mut shared.journal else {
+        if shared.journal.is_none() {
             return Err(NativeLaunchError::ReplayUnavailable);
+        }
+        let proof_identity = proof.into_identity();
+        let Some(identity) = shared.restart_cleanup_identity.as_ref() else {
+            return Err(NativeLaunchError::RestartCleanupProofMismatch);
         };
+        if !Arc::ptr_eq(&proof_identity, identity) {
+            return Err(NativeLaunchError::RestartCleanupProofMismatch);
+        }
+        let journal = shared
+            .journal
+            .as_mut()
+            .ok_or(NativeLaunchError::ReplayUnavailable)?;
         if let Err(error) = journal.clear_cleanup_required() {
             shared.journal_faulted = true;
             return Err(error.into());
         }
         shared.restart_cleanup_required = false;
+        shared.restart_cleanup_identity = None;
         Ok(())
     }
 
@@ -1143,6 +1189,7 @@ pub enum NativeLaunchError {
     Replay(String),
     ReplayUnavailable,
     RestartCleanupRequired,
+    RestartCleanupProofMismatch,
     Catalog(CatalogError),
     Package(PackageLaunchError),
     Launch(LaunchError),
@@ -1191,6 +1238,8 @@ impl fmt::Display for NativeLaunchError {
             }
             Self::RestartCleanupRequired => formatter
                 .write_str("native launch restart cleanup must be proven before another launch"),
+            Self::RestartCleanupProofMismatch => formatter
+                .write_str("native launch restart cleanup proof does not match the active barrier"),
             Self::Catalog(error) => write!(formatter, "package resolution failed: {error}"),
             Self::Package(error) => write!(formatter, "package planning failed: {error}"),
             Self::Launch(error) => write!(formatter, "game process launch failed: {error}"),
@@ -1222,7 +1271,7 @@ impl From<LaunchReplayError> for NativeLaunchError {
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
     use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
     use std::sync::{Arc, mpsc};
     use std::thread;
@@ -1232,13 +1281,39 @@ mod tests {
         MAX_PERSISTED_WATCHDOG_RESTARTS, NativeLaunchError, NativeLaunchService, NativeLaunchState,
         PreparedLaunch, apply_watchdog_event,
     };
+    use crate::installed_catalog::TrustedPackageCatalog;
     use crate::installed_catalog::tests::{
         signed_catalog, signed_launch_catalog, signed_native_catalog,
     };
     use crate::package_launch::PackageLaunchPlan;
     use crate::process::{WatchdogConfigError, WatchdogEvent, WatchdogPolicy};
+    use crate::restart_cleanup::{
+        RestartCleanupAdapter, RestartCleanupInspection, RestartCleanupVerificationError,
+        verify_restart_cleanup,
+    };
 
     static REPLAY_FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+    struct FixedCleanupAdapter {
+        inspection: RestartCleanupInspection,
+        calls: usize,
+    }
+
+    impl FixedCleanupAdapter {
+        const fn new(inspection: RestartCleanupInspection) -> Self {
+            Self {
+                inspection,
+                calls: 0,
+            }
+        }
+    }
+
+    impl RestartCleanupAdapter for FixedCleanupAdapter {
+        fn terminate_and_inspect_prior_scope(&mut self) -> RestartCleanupInspection {
+            self.calls += 1;
+            self.inspection
+        }
+    }
 
     fn replay_root() -> PathBuf {
         let sequence = REPLAY_FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
@@ -1256,6 +1331,39 @@ mod tests {
             restart_backoff: Duration::ZERO,
             max_restarts,
         }
+    }
+
+    fn service_with_cleanup_barrier(
+        catalog: Arc<TrustedPackageCatalog>,
+        journal_root: &Path,
+        request_id: &str,
+    ) -> NativeLaunchService {
+        {
+            let service = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                journal_root,
+            )
+            .expect("persistent launch service configures");
+            service
+                .reserve(
+                    request_id,
+                    "retro-2048",
+                    "local-player",
+                    Arc::new(AtomicBool::new(false)),
+                )
+                .expect("accepted intent persists before execution");
+        }
+        NativeLaunchService::with_persistent_replay(
+            catalog,
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            journal_root,
+        )
+        .expect("interrupted replay state recovers")
     }
 
     #[test]
@@ -1610,8 +1718,15 @@ mod tests {
             reopened.start(fresh_id, "retro-2048", "local-player"),
             Err(NativeLaunchError::RestartCleanupRequired)
         ));
+        let request = reopened
+            .restart_cleanup_request()
+            .expect("cleanup request reads")
+            .expect("cleanup barrier has a request");
+        let mut cleanup_adapter = FixedCleanupAdapter::new(RestartCleanupInspection::Empty);
+        let proof = verify_restart_cleanup(request, &mut cleanup_adapter).expect("scope is empty");
+        assert_eq!(cleanup_adapter.calls, 1);
         reopened
-            .acknowledge_restart_cleanup()
+            .acknowledge_restart_cleanup(proof)
             .expect("trusted process cleanup acknowledgement persists");
         assert!(
             reopened
@@ -1629,6 +1744,160 @@ mod tests {
         );
         drop(reopened);
         fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn cleanup_requests_exist_only_for_persistent_active_barriers() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let memory_only =
+            NativeLaunchService::new(Arc::clone(&catalog), vec!["local-player".to_owned()])
+                .expect("memory-only service");
+        assert!(matches!(
+            memory_only.restart_cleanup_request(),
+            Err(NativeLaunchError::ReplayUnavailable)
+        ));
+
+        let journal_root = replay_root();
+        let persistent = NativeLaunchService::with_persistent_replay(
+            catalog,
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            &journal_root,
+        )
+        .expect("persistent service");
+        assert!(
+            persistent
+                .restart_cleanup_request()
+                .expect("request state")
+                .is_none()
+        );
+        drop(persistent);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn nonempty_or_unavailable_scope_never_clears_cleanup() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let journal_root = replay_root();
+        let interrupted_id = "31313131313131313131313131313131";
+        let fresh_id = "32323232323232323232323232323232";
+        let service =
+            service_with_cleanup_barrier(Arc::clone(&catalog), &journal_root, interrupted_id);
+
+        for (inspection, expected) in [
+            (
+                RestartCleanupInspection::NotEmpty,
+                RestartCleanupVerificationError::DescendantsRemain,
+            ),
+            (
+                RestartCleanupInspection::Unavailable,
+                RestartCleanupVerificationError::InspectionUnavailable,
+            ),
+        ] {
+            let request = service
+                .restart_cleanup_request()
+                .expect("cleanup request reads")
+                .expect("barrier request");
+            let mut adapter = FixedCleanupAdapter::new(inspection);
+            assert!(matches!(
+                verify_restart_cleanup(request, &mut adapter),
+                Err(error) if error == expected
+            ));
+            assert_eq!(adapter.calls, 1);
+            assert!(matches!(
+                service.start(fresh_id, "retro-2048", "local-player"),
+                Err(NativeLaunchError::RestartCleanupRequired)
+            ));
+        }
+
+        let request = service
+            .restart_cleanup_request()
+            .expect("cleanup request reads")
+            .expect("barrier request");
+        let mut adapter = FixedCleanupAdapter::new(RestartCleanupInspection::Empty);
+        let proof = verify_restart_cleanup(request, &mut adapter).expect("scope empty");
+        service
+            .acknowledge_restart_cleanup(proof)
+            .expect("cleanup clears");
+        drop(service);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn cleanup_proofs_are_exact_service_bound_and_one_barrier_only() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let first_root = replay_root();
+        let second_root = replay_root();
+        let first = service_with_cleanup_barrier(
+            Arc::clone(&catalog),
+            &first_root,
+            "41414141414141414141414141414141",
+        );
+        let second =
+            service_with_cleanup_barrier(catalog, &second_root, "42424242424242424242424242424242");
+
+        let first_request = first
+            .restart_cleanup_request()
+            .expect("first request reads")
+            .expect("first request");
+        let stale_request = first
+            .restart_cleanup_request()
+            .expect("stale request reads")
+            .expect("stale request");
+        let mut adapter = FixedCleanupAdapter::new(RestartCleanupInspection::Empty);
+        let cross_service_proof =
+            verify_restart_cleanup(first_request, &mut adapter).expect("first scope empty");
+        assert!(matches!(
+            second.acknowledge_restart_cleanup(cross_service_proof),
+            Err(NativeLaunchError::RestartCleanupProofMismatch)
+        ));
+
+        let second_request = second
+            .restart_cleanup_request()
+            .expect("second request reads")
+            .expect("second request");
+        let second_proof =
+            verify_restart_cleanup(second_request, &mut adapter).expect("second scope empty");
+        second
+            .acknowledge_restart_cleanup(second_proof)
+            .expect("matching second proof clears");
+
+        let first_request = first
+            .restart_cleanup_request()
+            .expect("replacement first request reads")
+            .expect("replacement first request");
+        let first_proof =
+            verify_restart_cleanup(first_request, &mut adapter).expect("first scope empty");
+        let stale_proof =
+            verify_restart_cleanup(stale_request, &mut adapter).expect("same barrier scope empty");
+        first
+            .acknowledge_restart_cleanup(first_proof)
+            .expect("matching first proof clears");
+        assert!(matches!(
+            first.acknowledge_restart_cleanup(stale_proof),
+            Err(NativeLaunchError::RestartCleanupProofMismatch)
+        ));
+        assert!(
+            first
+                .restart_cleanup_request()
+                .expect("cleared request state")
+                .is_none()
+        );
+        assert!(
+            second
+                .restart_cleanup_request()
+                .expect("cleared second request state")
+                .is_none()
+        );
+
+        drop(first);
+        drop(second);
+        fs::remove_dir_all(&first_root).expect("first replay fixture removes");
+        fs::remove_dir_all(&second_root).expect("second replay fixture removes");
     }
 
     #[test]

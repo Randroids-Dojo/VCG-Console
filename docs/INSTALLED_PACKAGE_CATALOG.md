@@ -228,6 +228,8 @@ Still required:
 - protected anchor/root-history provisioning, secure refreshed time, and witnessed rotation/revocation recovery;
 - protected per-channel monotonic generation policy, authenticated recovery, and target power-loss qualification;
 - immutable or descriptor-bound artifact use;
-- production service-manager cleanup acknowledgement, boot-scoped replay retention, and target-filesystem durability qualification;
+- production implementation/qualification of the exact service-manager
+  cleanup-proof adapter, boot-scoped replay retention, and target-filesystem
+  durability;
 - qualified heartbeat producers, window readiness events, compositor containment, reserved Home/Back, and target-Linux sandboxing;
 - update and removal cleanup plus architecture-parity evidence.

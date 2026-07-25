@@ -67,7 +67,14 @@ Creation accepts exactly:
 
 The 128-bit random request ID is a durable idempotency key. Before execution, the host synchronizes the immutable request/game/profile binding into an exclusively locked, bounded append-only replay journal. Repeating identical intent returns the existing record and cannot start a second child, including after host restart while the record is retained. Reusing the ID for different intent fails with `REQUEST_ID_CONFLICT`. The host permits one active native game, keeps at most 64 lifecycle records with at most 128 events each, and retires the oldest terminal records first.
 
-On restart, a nonterminal record is made terminal with `HOST_RESTARTED_INDETERMINATE` and is never re-executed. Fresh launches then fail with HTTP 503 `LAUNCH_RESTART_CLEANUP_REQUIRED` until trusted native service code proves the old process group empty and synchronizes a cleanup acknowledgement. The browser cannot acknowledge cleanup. Unavailable or corrupt replay state fails with HTTP 503 `LAUNCH_REPLAY_UNAVAILABLE`.
+On restart, a nonterminal record is made terminal with
+`HOST_RESTARTED_INDETERMINATE` and is never re-executed. Fresh launches then
+fail with HTTP 503 `LAUNCH_RESTART_CLEANUP_REQUIRED` until a privileged native
+adapter consumes the exact in-process barrier request, reports the prior scope
+`Empty`, and supplies the matching non-serializable cleanup proof. The browser
+cannot request, construct, submit, or acknowledge cleanup. Unavailable or
+corrupt replay state fails with HTTP 503 `LAUNCH_REPLAY_UNAVAILABLE`. See
+`RESTART_CLEANUP_PROOF.md`.
 
 The profile ID must be in the host's strict persistent
 `--profile-registry` allowlist. Repeated `--profile-id` remains only as an
@@ -114,7 +121,7 @@ inventory, sends only versioned package/profile intent, and reports process
 failure without inventing readiness.
 
 Still required are hostile-navigation and process-inspection tests,
-service-manager descendant cleanup acknowledgement, boot-scoped replay
+qualified service-manager descendant cleanup adapter, boot-scoped replay
 retention, target-filesystem power-loss qualification, push/event delivery or a
 measured polling decision, immutable key/artifact provisioning, qualified
 platform provenance and compare-and-swap for protected state, compositor window

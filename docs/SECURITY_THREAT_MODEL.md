@@ -149,7 +149,20 @@ Relevant classes include bearer discovery or leakage, DNS/origin confusion, CORS
 
 Present controls include IPv4-only ephemeral binding, OS-random 256-bit bearer tokens, fragment delivery, exact loopback origin validation, constant-time token comparison, exact CORS preflight, `no-store`, short I/O deadlines, strict size limits, duplicate security-header and transfer-encoding rejection, closed JSON shapes, 128-bit request IDs, bounded lifecycle history, one active child, and non-sensitive response fields.
 
-The realistic high-value story is script execution in the trusted launcher origin or unintended navigation that reads the fragment/in-memory token and then invokes authenticated launch operations. Another local origin without the token should not succeed. Durable replay now prevents request re-execution and fresh launch after ambiguous restart, but same-account journal tampering, escaped descendants, and false cleanup acknowledgement remain high-value native threats. Follow-up should test browser history, crash reports, screenshots, extension policy, referrers, logs, speculative requests, hostile local listeners, port reuse, slowloris concurrency, journal permissions/tamper/sudden power, service-manager cleanup proof, and token destruction when the browser or host exits.
+The realistic high-value story is script execution in the trusted launcher
+origin or unintended navigation that reads the fragment/in-memory token and
+then invokes authenticated launch operations. Another local origin without the
+token should not succeed. Durable replay prevents request re-execution and
+fresh launch after ambiguous restart. Cleanup now requires a non-serializable
+proof tied to the exact current in-process barrier and created only after a
+closed privileged adapter result reports the prior scope empty; the browser has
+no route to request or submit it. Same-account journal tampering, escaped
+descendants, and a false `Empty` result from the eventual service adapter remain
+high-value native threats. Follow-up should test browser history, crash
+reports, screenshots, extension policy, referrers, logs, speculative requests,
+hostile local listeners, port reuse, slowloris concurrency, journal
+permissions/tamper/sudden power, the real service-manager/cgroup cleanup proof,
+and token destruction when the browser or host exits.
 
 ### Signed catalog, packages, updates, and rollback
 
@@ -240,7 +253,19 @@ Relevant classes include shell/argument injection, path escape, unsafe inherited
 
 The host launches direct commands rather than shell text, verifies canonical paths and hashes, generates isolated runtime/config/save/state directories, has managed-child cleanup, and provides bounded watchdog policy with startup/heartbeat/fault states. API launches use startup/heartbeat/process-exit supervision only when privileged host configuration assigns the verified installed game to the watchdog set; the setting applies consistently across player profiles and other games stay process-only. Retries cannot create a second request record, and runtime heartbeat health never becomes window-readiness authority.
 
-Accepted launch intent and every lifecycle transition now enter an exclusively locked bounded journal before execution or publication. Restart recovery never re-executes a nonterminal intent: it persists a terminal indeterminate disposition and a cleanup barrier that only trusted native code can acknowledge. Corrupt, duplicate, conflicting, oversized, or unavailable replay state fails closed. Remaining threats include same-account journal tampering or deletion, unqualified filesystem durability, journal lifetime across boot epochs, and a service manager falsely claiming that descendants are gone. Production must protect replay storage, own game cgroups, prove them empty before acknowledgement, and qualify restart and sudden-power behavior.
+Accepted launch intent and every lifecycle transition now enter an exclusively
+locked bounded journal before execution or publication. Restart recovery never
+re-executes a nonterminal intent: it persists a terminal indeterminate
+disposition and a cleanup barrier. A persistent service issues an opaque
+request tied to that exact in-process barrier; only one privileged adapter
+result of `Empty` produces the consumed proof that may acknowledge it.
+Nonempty, unavailable, stale, and cross-service cases preserve the barrier.
+Corrupt, duplicate, conflicting, oversized, or unavailable replay state fails
+closed. Remaining threats include same-account journal tampering or deletion,
+unqualified filesystem durability, journal lifetime across boot epochs, and a
+service adapter falsely claiming that descendants are gone. Production must
+protect replay storage, own game cgroups, prove them empty before returning
+`Empty`, and qualify restart and sudden-power behavior.
 
 Retro content remains untrusted regardless of entitlement. Before import or family-mode launch, emulator/core processes need a target-specific least-privilege sandbox, read-only code/content, isolated writable saves, restricted devices/network, descendant process-group ownership, corrupt-content tests, and exact core/content rights. Heartbeats must be authenticated or host-owned enough that a compromised child cannot claim the intended visible window is healthy; compositor observation remains authoritative for visibility.
 

@@ -49,7 +49,17 @@ The request ID is correlation and replay protection, not launch authority. Repea
 
 Before execution, the host durably accepts the immutable request/game/profile intent and exact trusted catalog generation in one exclusively locked replay journal. Each lifecycle transition is an append-only, synchronized event. The journal retains at most 64 records and 128 events per record, rejects duplicate request IDs or ordinals, and fails closed on malformed, conflicting, oversized, or unavailable state. The catalog generation is private maintenance authority and never appears in browser lifecycle documents.
 
-An identical terminal request replays after host restart without execution. Any recovered `preparing`, `running`, or `stopping` record becomes terminal `failed` with `HOST_RESTARTED_INDETERMINATE`; it is never executed again. Recovery also persists a cleanup barrier that rejects every fresh launch with `LAUNCH_RESTART_CLEANUP_REQUIRED`. Only trusted native startup or service-manager code may prove the old process group empty and call the cleanup acknowledgement; the browser API has no such operation. If replay state cannot be verified, launch fails with `LAUNCH_REPLAY_UNAVAILABLE`.
+An identical terminal request replays after host restart without execution. Any
+recovered `preparing`, `running`, or `stopping` record becomes terminal
+`failed` with `HOST_RESTARTED_INDETERMINATE`; it is never executed again.
+Recovery also persists a cleanup barrier that rejects every fresh launch with
+`LAUNCH_RESTART_CLEANUP_REQUIRED`. The service issues an opaque in-memory
+request tied to that exact barrier. Only a privileged adapter result of
+`Empty` creates the non-serializable proof consumed by cleanup acknowledgement;
+`NotEmpty`, `Unavailable`, stale, and cross-service evidence fail closed. The
+browser API has no request, proof, or acknowledgement operation. See
+`RESTART_CLEANUP_PROOF.md`. If replay state cannot be verified, launch fails
+with `LAUNCH_REPLAY_UNAVAILABLE`.
 
 Package maintenance can query a sorted, path-free set of protected catalog generations. Every active record protects the generation from which it was resolved. A recovered indeterminate record remains protected while the cleanup barrier exists, even though its browser-visible lifecycle is terminal; trusted cleanup acknowledgement removes that protection. Ordinary terminal history does not pin package storage. A persistence fault makes the query fail closed.
 
@@ -119,7 +129,9 @@ The host retains at most 64 lifecycle records and retires the oldest terminal hi
 - Replace the development CLI fallback with a qualified registry writer and
   crash-recoverable creation, removal, sensitive-data deletion, and save
   unassignment transactions.
-- Provide a production service-manager/cgroup adapter that proves interrupted descendants are gone before acknowledging the restart-cleanup barrier.
+- Provide the production service-manager/cgroup implementation of the exact
+  cleanup-proof adapter and prove it owns/empties every interrupted descendant
+  before returning `Empty`.
 - Qualify the implemented explicit crash-recoverable generation remover on target Linux under sudden power loss and lock/filesystem faults; automatic retention scheduling, byte policy, uninstall, managed-content cleanup, and save disposition remain separate.
 - Select and enforce the journal's operating-system boot scope and age retention; qualify lock, rename, file synchronization, and sudden-power behavior on the target Linux filesystems.
 - Add compositor/window identity, visible readiness, continued responsiveness, and focus/input ownership events.

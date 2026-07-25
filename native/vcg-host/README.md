@@ -74,10 +74,13 @@ discovery-only. See the
 [native launch lifecycle contract](../../docs/NATIVE_LAUNCH_LIFECYCLE.md).
 The host durably accepts each launch before execution and replays retained
 terminal requests across restart. Recovered nonterminal work becomes
-indeterminate and blocks fresh execution until trusted native service code
-proves the old process group empty and acknowledges cleanup. This
-acknowledgement is intentionally absent from the browser API; a production
-service-manager/cgroup adapter and boot-retention policy remain required.
+indeterminate and blocks fresh execution. A persistent service issues an opaque
+request for its exact in-process cleanup barrier; only a closed privileged
+adapter result of `Empty` creates the non-serializable proof consumed by
+acknowledgement. The browser has no request/proof/acknowledgement route. See
+the [restart-cleanup proof contract](../../docs/RESTART_CLEANUP_PROOF.md).
+A production service-manager/cgroup adapter and boot-retention policy remain
+required.
 An optional repeated `--watchdog-game-id <opaque-id>` must name a package in the
 verified installed catalog and applies bounded heartbeat/restart supervision to
 that game for every player profile. Other games remain process-only when they
@@ -158,6 +161,10 @@ modes cannot be combined. See the
   deterministic interrupted-promotion recovery, and launch-frozen path-free
   retention planning and explicit cleanup.
 - `native_launch`: profile-allowlisted durable idempotent intent, one active child, bounded append-only replay, restart-indeterminate cleanup barrier, optional game-bound watchdog recovery, polling, cancellation, and shutdown cleanup.
+- `restart_cleanup`: opaque exact-service barrier requests, one closed
+  privileged `Empty`/`NotEmpty`/`Unavailable` inspection, and a consumed
+  non-serializable proof required by cleanup acknowledgement. It contains no
+  service-manager/cgroup implementation and grants no browser/game authority.
 - `retro_import`: exact-intent-authorized plain-file copy from an opened host
   handle, streaming SHA-256, pluggable exact-subject scan evidence,
   same-filesystem no-replace content publication, append-only installed-library

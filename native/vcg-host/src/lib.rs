@@ -17,6 +17,7 @@ pub mod package_transfer;
 pub mod process;
 pub mod profile_registry;
 pub mod recovery_image;
+pub mod restart_cleanup;
 pub mod retro_import;
 pub mod retroarch;
 pub mod save_lifecycle;
