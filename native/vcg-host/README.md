@@ -83,8 +83,11 @@ request for its exact in-process cleanup barrier; only a closed privileged
 adapter result of `Empty` creates the non-serializable proof consumed by
 acknowledgement. The browser has no request/proof/acknowledgement route. See
 the [restart-cleanup proof contract](../../docs/RESTART_CLEANUP_PROOF.md).
-A production service-manager/cgroup adapter and boot-retention policy remain
-required.
+An unwired Linux cgroup-v2 candidate retains exact no-follow kill/events
+controls, writes one recursive kill, and requires bounded recursive empty
+evidence. Production service/scope integration, anti-escape enforcement,
+target qualification, and boot-retention policy remain required. See the
+[cgroup cleanup candidate contract](../../docs/NATIVE_CGROUP_RESTART_CLEANUP.md).
 The library's `power` coordinator now closes fresh native launch admission
 before any quiescence adapter runs, serializes that closure against both direct
 and watchdog process activation, binds every gate and platform handoff to one
@@ -173,6 +176,10 @@ modes cannot be combined. See the
   closed privileged service/input/wake/platform adapters, terminal ambiguity,
   and exact wake-only admission reopen. It implements no OS, hardware, IPC, or
   boot-recovery adapter.
+- `restart_cleanup`: exact in-process replay-barrier request/proof binding plus
+  an unwired single-use Linux cgroup-v2 candidate with retained no-follow
+  control handles, bounded polling, and recursive empty evidence. It does not
+  create, attach, or contain a scope or select a production service.
 - `host_api`: per-launch authenticated loopback status, package lookup, lifecycle operations, exact-origin CORS, protocol/capability discovery, and bounded HTTP parsing.
 - `installed_catalog`: signature-first installed metadata, signed health-policy validation, and host-owned package resolution from fixed game/profile IDs.
 - `package_launch`: shared Libretro/native dispatch for candidate health and

@@ -1,8 +1,8 @@
 # Native restart-cleanup proof boundary
 
-Status: exact in-process request/proof binding implemented; production
-service-manager/cgroup adapter, boot scope, and target qualification are not
-implemented.
+Status: exact in-process request/proof binding and a bounded unwired Linux
+cgroup-v2 candidate adapter are implemented; production service integration,
+boot scope, and target qualification are not implemented.
 
 ## Purpose
 
@@ -60,6 +60,15 @@ must not be implemented, selected, or influenced by:
 - the ordinary loopback API; or
 - writable journal data.
 
+On Linux, `CgroupV2RestartCleanupAdapter` is the first candidate implementation
+of that boundary. It retains no-follow handles for the exact `cgroup.kill` and
+`cgroup.events` controls, writes the recursive kill command once, and requires
+bounded recursive `populated 0` evidence. A later path replacement cannot
+redirect those retained controls. See
+`NATIVE_CGROUP_RESTART_CLEANUP.md`. Q-247 still owns service/cgroup creation,
+atomic child attachment, anti-escape policy, durable scope binding, and target
+qualification.
+
 ## Closed failure behavior
 
 - `NotEmpty` reports that descendants remain and leaves the barrier intact.
@@ -75,7 +84,7 @@ must not be implemented, selected, or influenced by:
 
 ## Automated evidence
 
-Four integrated native-launch tests cover:
+Four integrated native-launch tests plus six focused cleanup tests cover:
 
 - no request for memory-only or no-barrier services;
 - `NotEmpty` and `Unavailable` invoking the adapter once and preserving launch
@@ -84,17 +93,22 @@ Four integrated native-launch tests cover:
 - two requests for one barrier with the later stale proof refused after clear;
 - no request after clear; and
 - the original restart-indeterminate lifecycle, package-generation protection,
-  matching proof, durable acknowledgement, and fresh-launch release.
+  matching proof, durable acknowledgement, and fresh-launch release;
+- bounded polling policy and events parsing;
+- one exact kill, empty/nonempty/malformed outcomes, and single-use refusal;
+- retained-handle resistance to scope-path replacement; and
+- relative, missing, and symlink-control refusal.
 
 Formatting, strict all-target Clippy, the complete native suite, and repository
 gates must pass with this boundary.
 
 ## Remaining qualification
 
-This contract does not prove that a real operating-system scope is empty.
-Q-123 through Q-125 and I-109/I-209 still require:
+This contract does not prove that a production operating-system scope is
+correctly created, populated, or empty. Q-123 through Q-125, Q-247, and
+I-109/I-209 still require:
 
-- the exact systemd/cgroup or equivalent owner;
+- the exact systemd/cgroup owner and per-launch scope lifecycle;
 - a scope that includes every descendant and survives host-process failure;
 - forced termination, empty verification, and race-free handoff;
 - boot-epoch and journal-age retention policy;

@@ -359,6 +359,17 @@ game, producer lease, or support peer receives clear authority; production
 still needs privileged local-admin authentication, exact confirmation, target
 mount permissions, and power-loss evidence.
 
+Recovered native launches now have an unwired Linux cgroup-v2 cleanup
+candidate behind the existing non-serializable replay-barrier proof. It opens
+the exact non-root scope and its `cgroup.kill`/`cgroup.events` controls without
+following final symlinks, retains the controls across path replacement, writes
+the recursive kill value once, bounds inspection, and accepts only exactly one
+valid recursive `populated 0`. Nonempty, malformed, unavailable, timed-out, or
+reused adapters produce no proof. This does not create or contain the process
+scope. Until Q-247 selects and qualifies atomic child attachment, anti-escape
+policy, service identities, durable scope binding, and target permissions, a
+game could escape before cleanup or an integrator could bind the wrong scope.
+
 The credential-free profile-management prototype keeps display text separate
 from opaque authority, permits duplicate names, and requires exact delayed
 confirmation for recalibration, reset, and deletion. Its deletion result

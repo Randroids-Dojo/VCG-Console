@@ -5536,3 +5536,38 @@ gameplay, physical TV/controller, or target Linux environment was qualified.
 STV-004 still needs destructive-settings activation and denial. STV-001
 through STV-003 still own default density, query/localization, and no-result
 recovery policy.
+
+## 2026-07-24: Native cgroup-v2 restart cleanup candidate
+
+### Delivered
+
+- Added an unwired Linux-only implementation of the existing privileged
+  restart-cleanup adapter using the kernel's recursive `cgroup.kill` and
+  `cgroup.events` contract.
+- Bound cleanup to retained descriptor-relative, no-follow control handles so
+  replacing the configured scope path after construction cannot redirect the
+  kill or empty inspection.
+- Made the adapter single-use and bounded its evidence to 512 bytes, 256
+  inspections, 250 ms between inspections, and five seconds total sleep.
+  Missing, duplicate, malformed, non-UTF-8, nonempty, timed-out, unavailable,
+  or reused evidence cannot create an empty-scope proof.
+- Recorded D-179 and Q-247 without selecting a systemd service, scope
+  lifecycle, process attachment/escape policy, replay binding, polling
+  default, mount permissions, or target support.
+
+### Verification evidence
+
+- Two portable tests cover strict policy and parser bounds.
+- Four Ubuntu WSL2 tests cover exact one-shot kill/empty proof,
+  nonempty/malformed denial, single-use refusal, path replacement, relative
+  paths, missing controls, and symlink controls.
+- Focused Windows and Linux tests pass, with strict Linux library Clippy clean.
+
+### Remaining boundary
+
+I-209 remains active. WSL2 is development compatibility only and the fixtures
+are regular files, not a delegated live cgroup. The adapter is not wired.
+Q-247 still requires exact systemd units/identities, atomic child attachment,
+anti-escape and anti-entry enforcement, durable scope/barrier binding,
+production polling behavior, cleanup/removal, hostile-descendant evidence,
+and qualification on ordinary x86-64 Linux and Raspberry Pi OS.

@@ -58,8 +58,11 @@ request tied to that exact barrier. Only a privileged adapter result of
 `Empty` creates the non-serializable proof consumed by cleanup acknowledgement;
 `NotEmpty`, `Unavailable`, stale, and cross-service evidence fail closed. The
 browser API has no request, proof, or acknowledgement operation. See
-`RESTART_CLEANUP_PROOF.md`. If replay state cannot be verified, launch fails
-with `LAUNCH_REPLAY_UNAVAILABLE`.
+`RESTART_CLEANUP_PROOF.md`. An unwired Linux cgroup-v2 candidate now retains
+the exact kill/events controls, writes one recursive kill, and accepts only
+bounded recursive `populated 0`; Q-247 still selects and qualifies the actual
+service-owned scope. If replay state cannot be verified, launch fails with
+`LAUNCH_REPLAY_UNAVAILABLE`.
 
 Package maintenance can query a sorted, path-free set of protected catalog generations. Every active record protects the generation from which it was resolved. A recovered indeterminate record remains protected while the cleanup barrier exists, even though its browser-visible lifecycle is terminal; trusted cleanup acknowledgement removes that protection. Ordinary terminal history does not pin package storage. A persistence fault makes the query fail closed.
 
@@ -122,16 +125,17 @@ The Svelte loading screen polls only while one native launch is active. It valid
 
 Cancellation is idempotent. The monitor force-terminates and reaps the direct child before publishing `cancelled`. A controlled watchdog also checks cancellation before spawn, during each attempt, and during restart backoff, so cancellation cannot race into another retry. Dropping the per-browser host API signals every monitor, joins the bounded worker set, and relies on `ManagedChild` cleanup as a final kill-and-reap guard. Finished monitor handles are joined before another start so repeated launches do not accumulate threads.
 
-The host retains at most 64 lifecycle records and retires the oldest terminal history before accepting more. Retirement is crash-recoverable and bounded. It permits only one preparing/running/stopping child in this first slice. The exact boot scope, age retention, protected storage ownership, and production service-manager cleanup adapter remain deployment decisions rather than browser policy.
+The host retains at most 64 lifecycle records and retires the oldest terminal history before accepting more. Retirement is crash-recoverable and bounded. It permits only one preparing/running/stopping child in this first slice. The exact boot scope, age retention, protected storage ownership, and production service/cgroup lifecycle remain deployment decisions rather than browser policy.
 
 ## Remaining qualification boundary
 
 - Replace the development CLI fallback with a qualified registry writer and
   crash-recoverable creation, removal, sensitive-data deletion, and save
   unassignment transactions.
-- Provide the production service-manager/cgroup implementation of the exact
-  cleanup-proof adapter and prove it owns/empties every interrupted descendant
-  before returning `Empty`.
+- Wire the cgroup-v2 candidate only after Q-247 selects the production
+  service/unit, atomic child attachment, anti-escape rules, durable scope
+  binding, polling policy, and target ownership; prove it owns/empties every
+  interrupted descendant before returning `Empty`.
 - Qualify the implemented explicit crash-recoverable generation remover on target Linux under sudden power loss and lock/filesystem faults; automatic retention scheduling, byte policy, uninstall, managed-content cleanup, and save disposition remain separate.
 - Select and enforce the journal's operating-system boot scope and age retention; qualify lock, rename, file synchronization, and sudden-power behavior on the target Linux filesystems.
 - Add compositor/window identity, visible readiness, continued responsiveness, and focus/input ownership events.

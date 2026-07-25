@@ -373,6 +373,7 @@ dependencies = [
  "ed25519-dalek",
  "fs4",
  "getrandom",
+ "rustix",
  "serde",
  "serde_json",
  "sha2",
