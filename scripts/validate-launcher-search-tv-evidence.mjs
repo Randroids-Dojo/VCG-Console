@@ -44,7 +44,10 @@ const EXPECTED_STATES = Object.freeze([
     resultCount: 5,
     criticalTextCount: 13,
     actionTargetCount: 6,
-    focusTrace: [
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: null,
+    interactionTrace: [
       "universal-search",
       "result-first",
       "result-last",
@@ -58,10 +61,33 @@ const EXPECTED_STATES = Object.freeze([
     resultCount: 0,
     criticalTextCount: 4,
     actionTargetCount: 1,
-    focusTrace: [
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: null,
+    interactionTrace: [
       "universal-search",
       "universal-search",
       "search-trigger",
+    ],
+  },
+  {
+    id: "empty-query-scroll-activation",
+    query: "",
+    resultCount: 18,
+    criticalTextCount: 39,
+    actionTargetCount: 19,
+    measurementMode: "fully-visible-marked",
+    scrollingExpectedResolutionIds: ["720p", "1080p"],
+    activation: {
+      resultTitle: "Profiles",
+      method: "keyboard-enter",
+      destinationHeading: "Who is playing?",
+    },
+    interactionTrace: [
+      "universal-search",
+      "result-last",
+      "profiles-result",
+      "profiles-destination",
     ],
   },
 ]);
@@ -77,6 +103,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 60495,
     sha256: "842330707cdfb1440e5d68425f839a9789fc99d0907d9dddd131504e22eefa3e",
   },
+  "empty-query-scroll-activation/720p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
+    bytes: 126573,
+    sha256: "efb12a4f0753c553b5ff66fe21abe71dd54069d84f30873a3f8f82a8e9d7e621",
+  },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
     bytes: 105671,
@@ -86,6 +117,11 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
     bytes: 77671,
     sha256: "bd2e1a90aa81e815404132dbedfbcffe598bb6eb5018e114d69365b38bf034ad",
+  },
+  "empty-query-scroll-activation/1080p": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
+    bytes: 186803,
+    sha256: "45166b11f5e76717540b8a7300177a366de970f88a08fd006d2a6aed2152503c",
   },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
@@ -97,37 +133,138 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
     bytes: 191868,
     sha256: "c3b1565a03946923f64424e06d6bb3f94580f99559c821e145900f76d2edb342",
   },
+  "empty-query-scroll-activation/4k": {
+    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
+    bytes: 483802,
+    sha256: "be299283c0a6976b1c7311d6a8a7cfd8ba3202d17838bacc19532ae874e97ee0",
+  },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-results/720p": {
+    measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 687.766,
     minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 256,
+      scrollHeightCssPx: 256,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
   },
   "no-results/720p": {
+    measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 687.766,
     minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 0,
+      scrollHeightCssPx: 0,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "empty-query-scroll-activation/720p": {
+    measuredCriticalTextCount: 23,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 523,
+      scrollHeightCssPx: 910,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 387,
+      maximumScrollTopCssPx: 387,
+      lastResultInsideViewportAfterFocus: true,
+    },
   },
   "motion-results/1080p": {
+    measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 951.328,
     minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 253,
+      scrollHeightCssPx: 253,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
   },
   "no-results/1080p": {
+    measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
     minimumActionTargetWidthCssPx: 951.328,
     minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 0,
+      scrollHeightCssPx: 0,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "empty-query-scroll-activation/1080p": {
+    measuredCriticalTextCount: 35,
+    minimumCriticalTextCssPx: 24,
+    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetHeightCssPx: 48,
+    resultsScroll: {
+      clientHeightCssPx: 798,
+      scrollHeightCssPx: 877,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 79,
+      maximumScrollTopCssPx: 79,
+      lastResultInsideViewportAfterFocus: true,
+    },
   },
   "motion-results/4k": {
+    measuredCriticalTextCount: 13,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 365,
+      scrollHeightCssPx: 365,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
   },
   "no-results/4k": {
+    measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 62,
+    resultsScroll: {
+      clientHeightCssPx: 0,
+      scrollHeightCssPx: 0,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: null,
+    },
+  },
+  "empty-query-scroll-activation/4k": {
+    measuredCriticalTextCount: 39,
+    minimumCriticalTextCssPx: 48,
+    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetHeightCssPx: 61,
+    resultsScroll: {
+      clientHeightCssPx: 1158,
+      scrollHeightCssPx: 1158,
+      initialScrollTopCssPx: 0,
+      finalScrollTopCssPx: 0,
+      maximumScrollTopCssPx: 0,
+      lastResultInsideViewportAfterFocus: true,
+    },
   },
 });
 const provenancePaths = Object.freeze({
@@ -192,15 +329,15 @@ function validateRequests(requestCounts) {
   );
   const entries = Object.entries(requestCounts);
   assert.equal(entries.length, 8);
-  assert.equal(requestCounts["/"], 6);
-  assert.equal(requestCounts["/fonts/OCRA.ttf"], 6);
+  assert.equal(requestCounts["/"], 9);
+  assert.equal(requestCounts["/fonts/OCRA.ttf"], 9);
   const assets = entries.filter(([path]) => path.startsWith("/assets/"));
   assert.equal(assets.length, 6);
   assert.equal(assets.filter(([path]) => path.endsWith(".css")).length, 1);
   assert.equal(assets.filter(([path]) => path.endsWith(".js")).length, 5);
   for (const [path, count] of assets) {
     assert.match(path, /^\/assets\/[A-Za-z0-9_-]+\.(?:css|js)$/u);
-    assert.equal(count, 6);
+    assert.equal(count, 9);
   }
 }
 
@@ -238,6 +375,7 @@ async function validateObservation(observation, expectedState, resolution) {
       "resultCount",
       "emptyStateVisible",
       "criticalTextCount",
+      "measuredCriticalTextCount",
       "criticalTextInsideSafeArea",
       "minimumCriticalTextCssPx",
       "criticalTextOverlapCount",
@@ -245,7 +383,9 @@ async function validateObservation(observation, expectedState, resolution) {
       "minimumActionTargetWidthCssPx",
       "minimumActionTargetHeightCssPx",
       "overlayOverflowCssPx",
-      "focusTrace",
+      "resultsScroll",
+      "interactionTrace",
+      "activation",
       "screenshot",
     ],
     `observation ${expectedState.id}/${resolution.id}`,
@@ -265,9 +405,13 @@ async function validateObservation(observation, expectedState, resolution) {
   assert.equal(observation.resultCount, expectedState.resultCount);
   assert.equal(observation.emptyStateVisible, expectedState.resultCount === 0);
   assert.equal(observation.criticalTextCount, expectedState.criticalTextCount);
+  assert.ok(observation.measuredCriticalTextCount > 0);
+  assert.ok(
+    observation.measuredCriticalTextCount <= observation.criticalTextCount,
+  );
   assert.equal(
     observation.criticalTextInsideSafeArea,
-    expectedState.criticalTextCount,
+    observation.measuredCriticalTextCount,
   );
   assert.ok(finite(observation.minimumCriticalTextCssPx, "minimum text") >= 24);
   assert.equal(observation.criticalTextOverlapCount, 0);
@@ -278,14 +422,86 @@ async function validateObservation(observation, expectedState, resolution) {
     horizontal: 0,
     vertical: 0,
   });
-  assert.deepEqual(observation.focusTrace, expectedState.focusTrace);
+  exactKeys(
+    observation.resultsScroll,
+    [
+      "clientHeightCssPx",
+      "scrollHeightCssPx",
+      "initialScrollTopCssPx",
+      "finalScrollTopCssPx",
+      "maximumScrollTopCssPx",
+      "lastResultInsideViewportAfterFocus",
+    ],
+    `resultsScroll ${expectedState.id}/${resolution.id}`,
+  );
+  for (const key of [
+    "clientHeightCssPx",
+    "scrollHeightCssPx",
+    "initialScrollTopCssPx",
+    "finalScrollTopCssPx",
+    "maximumScrollTopCssPx",
+  ]) {
+    assert.ok(
+      finite(observation.resultsScroll[key], `resultsScroll ${key}`) >= 0,
+    );
+  }
+  assert.equal(
+    observation.resultsScroll.maximumScrollTopCssPx,
+    observation.resultsScroll.scrollHeightCssPx
+      - observation.resultsScroll.clientHeightCssPx,
+  );
+  assert.equal(observation.resultsScroll.initialScrollTopCssPx, 0);
+  const scrollingExpected =
+    expectedState.scrollingExpectedResolutionIds.includes(resolution.id);
+  if (expectedState.id === "empty-query-scroll-activation") {
+    assert.equal(
+      observation.resultsScroll.lastResultInsideViewportAfterFocus,
+      true,
+    );
+    if (scrollingExpected) {
+      assert.ok(
+        observation.resultsScroll.scrollHeightCssPx
+          > observation.resultsScroll.clientHeightCssPx,
+      );
+      assert.ok(observation.resultsScroll.finalScrollTopCssPx > 0);
+    } else {
+      assert.equal(
+        observation.resultsScroll.scrollHeightCssPx,
+        observation.resultsScroll.clientHeightCssPx,
+      );
+      assert.equal(observation.resultsScroll.finalScrollTopCssPx, 0);
+    }
+  } else {
+    assert.equal(
+      observation.resultsScroll.lastResultInsideViewportAfterFocus,
+      null,
+    );
+    assert.equal(observation.resultsScroll.finalScrollTopCssPx, 0);
+  }
+  assert.deepEqual(
+    observation.interactionTrace,
+    expectedState.interactionTrace,
+  );
+  if (expectedState.activation === null) {
+    assert.equal(observation.activation, null);
+  } else {
+    assert.deepEqual(observation.activation, {
+      resultTitle: expectedState.activation.resultTitle,
+      method: expectedState.activation.method,
+      searchOverlayHidden: true,
+      destinationHeading: expectedState.activation.destinationHeading,
+      destinationVisible: true,
+    });
+  }
   assert.deepEqual(
     {
+      measuredCriticalTextCount: observation.measuredCriticalTextCount,
       minimumCriticalTextCssPx: observation.minimumCriticalTextCssPx,
       minimumActionTargetWidthCssPx:
         observation.minimumActionTargetWidthCssPx,
       minimumActionTargetHeightCssPx:
         observation.minimumActionTargetHeightCssPx,
+      resultsScroll: observation.resultsScroll,
     },
     EXPECTED_MEASUREMENTS[observationKey(observation)],
   );
@@ -331,7 +547,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-two-search-states-only-not-tv-target-or-catalog-qualification",
+    "candidate-three-search-states-and-one-local-activation-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -371,7 +587,7 @@ export async function validateLauncherSearchTvEvidence(
     "browser",
   );
   assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
-  assert.equal(artifact.browser.observations.length, 6);
+  assert.equal(artifact.browser.observations.length, 9);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
     for (const state of EXPECTED_STATES) {
@@ -395,8 +611,8 @@ export async function validateLauncherSearchTvEvidence(
     keyboardInputFocusBackVerified: true,
     overlayOverflowRejected: true,
     arbitraryQueryVerified: false,
-    scrollingResultsVerified: false,
-    resultActivationVerified: false,
+    scrollingResultsVerified: true,
+    resultActivationVerified: true,
     physicalTelevisionVerified: false,
     physicalControllerVerified: false,
     reservedHomeVerified: false,
@@ -408,10 +624,11 @@ export async function validateLauncherSearchTvEvidence(
   });
   assert.deepEqual(artifact.summary, {
     resolutionCount: 3,
-    searchStateCount: 2,
-    observationCount: 6,
-    screenshotCount: 6,
-    distinctQueryCount: 2,
+    searchStateCount: 3,
+    observationCount: 9,
+    screenshotCount: 9,
+    distinctQueryCount: 3,
+    activatedResultClassCount: 1,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

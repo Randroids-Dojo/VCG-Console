@@ -20,25 +20,42 @@ interface ElementMeasurement {
 async function measurements(
   page: Page,
   selector: string,
+  clipSelector?: string,
 ): Promise<ElementMeasurement[]> {
-  return page.locator(selector).evaluateAll((elements) =>
-    elements.map((element) => {
-      const bounds = element.getBoundingClientRect();
-      return {
-        label:
-          element.getAttribute("aria-label")
-          ?? element.textContent?.trim().replace(/\s+/gu, " ")
-          ?? element.tagName,
-        left: bounds.left,
-        top: bounds.top,
-        right: bounds.right,
-        bottom: bounds.bottom,
-        width: bounds.width,
-        height: bounds.height,
-        fontSize: Number.parseFloat(getComputedStyle(element).fontSize),
-      };
-    }),
-  );
+  return page.locator(selector).evaluateAll((elements, clip) => {
+    const clipElement = clip ? document.querySelector(clip) : null;
+    if (clip && !(clipElement instanceof HTMLElement)) {
+      throw new Error(`Missing measurement clip ${clip}`);
+    }
+    const clipBounds = clipElement?.getBoundingClientRect();
+    return elements
+      .filter((element) => {
+        if (!clipElement || !clipBounds || !clipElement.contains(element)) {
+          return true;
+        }
+        const bounds = element.getBoundingClientRect();
+        return (
+          bounds.top >= clipBounds.top - 0.5
+          && bounds.bottom <= clipBounds.bottom + 0.5
+        );
+      })
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          label:
+            element.getAttribute("aria-label")
+            ?? element.textContent?.trim().replace(/\s+/gu, " ")
+            ?? element.tagName,
+          left: bounds.left,
+          top: bounds.top,
+          right: bounds.right,
+          bottom: bounds.bottom,
+          width: bounds.width,
+          height: bounds.height,
+          fontSize: Number.parseFloat(getComputedStyle(element).fontSize),
+        };
+      });
+  }, clipSelector);
 }
 
 async function assertTvGeometry(
@@ -47,6 +64,7 @@ async function assertTvGeometry(
   rootSelector: string,
   expectedCriticalText: number,
   expectedActions: number,
+  criticalTextClipSelector?: string,
 ): Promise<void> {
   const safeArea = {
     left: resolution.width * 0.05,
@@ -57,6 +75,7 @@ async function assertTvGeometry(
   const criticalText = await measurements(
     page,
     `${rootSelector} [data-tv-critical-text]:visible`,
+    criticalTextClipSelector,
   );
   const actions = await measurements(
     page,
@@ -437,5 +456,95 @@ for (const resolution of RESOLUTIONS) {
     await page.keyboard.press("Escape");
     await expect(page.locator("#search-overlay")).toBeHidden();
     await expect(trigger).toBeFocused();
+  });
+
+  test(`launcher Search empty query scrolls and activates Profiles at ${resolution.id}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(resolution);
+    await page.goto("/?skipBoot=1");
+    const trigger = page.locator("#search-trigger");
+    await trigger.focus();
+    await trigger.click();
+    const input = page.locator("#universal-search");
+    await expect(input).toBeFocused();
+    const results = page.locator("#search-results button");
+    await expect(results).toHaveCount(18);
+    await expect(
+      page.locator(".search-overlay [data-tv-critical-text]:visible"),
+    ).toHaveCount(39);
+    await expect(
+      page.locator(".search-overlay [data-tv-action]:visible"),
+    ).toHaveCount(19);
+    const scroller = page.locator("#search-results");
+    const initialScroll = await scroller.evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      scrollTop: element.scrollTop,
+    }));
+    expect(initialScroll.scrollTop).toBe(0);
+    if (resolution.id === "4k") {
+      expect(initialScroll.scrollHeight).toBe(initialScroll.clientHeight);
+    } else {
+      expect(initialScroll.scrollHeight).toBeGreaterThan(
+        initialScroll.clientHeight,
+      );
+    }
+
+    await results.last().focus();
+    await expect(results.last()).toBeFocused();
+    const scrolled = await scroller.evaluate((element) => ({
+      scrollTop: element.scrollTop,
+      maximumScrollTop: element.scrollHeight - element.clientHeight,
+    }));
+    if (resolution.id === "4k") {
+      expect(scrolled.scrollTop).toBe(0);
+    } else {
+      expect(scrolled.scrollTop).toBeGreaterThan(0);
+    }
+    expect(scrolled.scrollTop).toBeLessThanOrEqual(scrolled.maximumScrollTop);
+    const lastResultInsideScroller = await page.evaluate(() => {
+      const resultsElement = document.querySelector("#search-results");
+      const last = resultsElement?.querySelector("button:last-of-type");
+      if (
+        !(resultsElement instanceof HTMLElement)
+        || !(last instanceof HTMLElement)
+      ) {
+        return false;
+      }
+      const clip = resultsElement.getBoundingClientRect();
+      const bounds = last.getBoundingClientRect();
+      return (
+        bounds.top >= clip.top - 0.5
+        && bounds.bottom <= clip.bottom + 0.5
+      );
+    });
+    expect(lastResultInsideScroller).toBe(true);
+
+    const measuredCriticalText = await measurements(
+      page,
+      ".search-overlay [data-tv-critical-text]:visible",
+      "#search-results",
+    );
+    expect(measuredCriticalText.length).toBeGreaterThan(3);
+    await assertTvGeometry(
+      page,
+      resolution,
+      ".search-overlay",
+      measuredCriticalText.length,
+      19,
+      "#search-results",
+    );
+
+    const profiles = page.getByRole("button", {
+      name: /Profiles Players on this console/,
+    });
+    await profiles.focus();
+    await expect(profiles).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#search-overlay")).toBeHidden();
+    await expect(
+      page.getByRole("heading", { name: "Who is playing?" }),
+    ).toBeVisible();
   });
 }

@@ -28,11 +28,12 @@ import {
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query and no-result Search overlay states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact keyboard focus/Back recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify unfiltered or scrolling result sets, arbitrary localization or query text, result activation, a game, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, and current 18-destination empty-query Search states satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p, exact no-overflow density at 4K, and keyboard activation of the local Profiles destination at all three resolutions. It does not select the final empty-query product policy, qualify arbitrary localization or query text, other result classes, a game or package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
-  "Only two exact Search states were measured: the five-result lowercase Motion query and one fixed no-result query. Empty-query density, scrolling result sets, arbitrary text, localization, voice input, result activation, and every other overlay remain outside this artifact.",
+  "Only three exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, and the current 18-destination empty query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+  "The only activated result was the local Profiles shell destination, using programmatic focus followed by keyboard Enter. Games, packages, remote web, unavailable content, destructive settings, external-origin disclosures, result failure/denial, and Back restoration after activation were not exercised.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
-  "Keyboard input, ArrowDown, Tab wrapping, Escape, and opener restoration were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
+  "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
   "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility.",
 ]);
 
@@ -69,7 +70,10 @@ const SEARCH_STATES = Object.freeze([
     resultCount: 5,
     criticalTextCount: 13,
     actionTargetCount: 6,
-    focusTrace: [
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: null,
+    interactionTrace: [
       "universal-search",
       "result-first",
       "result-last",
@@ -83,10 +87,33 @@ const SEARCH_STATES = Object.freeze([
     resultCount: 0,
     criticalTextCount: 4,
     actionTargetCount: 1,
-    focusTrace: [
+    measurementMode: "all-marked",
+    scrollingExpectedResolutionIds: [],
+    activation: null,
+    interactionTrace: [
       "universal-search",
       "universal-search",
       "search-trigger",
+    ],
+  },
+  {
+    id: "empty-query-scroll-activation",
+    query: "",
+    resultCount: 18,
+    criticalTextCount: 39,
+    actionTargetCount: 19,
+    measurementMode: "fully-visible-marked",
+    scrollingExpectedResolutionIds: ["720p", "1080p"],
+    activation: {
+      resultTitle: "Profiles",
+      method: "keyboard-enter",
+      destinationHeading: "Who is playing?",
+    },
+    interactionTrace: [
+      "universal-search",
+      "result-last",
+      "profiles-result",
+      "profiles-destination",
     ],
   },
 ]);
@@ -119,10 +146,163 @@ function safeAreaFor(resolution) {
   };
 }
 
-async function exerciseFocus(page, state) {
+async function measureCriticalText(page, state) {
+  if (state.measurementMode === "all-marked") {
+    return measureElements(
+      page,
+      ".search-overlay [data-tv-critical-text]:visible",
+    );
+  }
+  assert.equal(state.measurementMode, "fully-visible-marked");
+  return page
+    .locator(".search-overlay [data-tv-critical-text]:visible")
+    .evaluateAll((elements) => {
+      const results = document.querySelector("#search-results");
+      if (!(results instanceof HTMLElement)) {
+        throw new Error("Search results scroller is unavailable");
+      }
+      const clip = results.getBoundingClientRect();
+      return elements
+        .filter((element) => {
+          if (!element.closest("#search-results")) return true;
+          const bounds = element.getBoundingClientRect();
+          return (
+            bounds.top >= clip.top - 0.5
+            && bounds.bottom <= clip.bottom + 0.5
+          );
+        })
+        .map((element) => {
+          const bounds = element.getBoundingClientRect();
+          return {
+            label:
+              element.getAttribute("aria-label")
+              ?? element.textContent?.trim().replace(/\s+/gu, " ")
+              ?? element.tagName,
+            left: Number(bounds.left.toFixed(3)),
+            top: Number(bounds.top.toFixed(3)),
+            right: Number(bounds.right.toFixed(3)),
+            bottom: Number(bounds.bottom.toFixed(3)),
+            width: Number(bounds.width.toFixed(3)),
+            height: Number(bounds.height.toFixed(3)),
+            fontSize: Number(
+              Number.parseFloat(getComputedStyle(element).fontSize).toFixed(3),
+            ),
+          };
+        });
+    });
+}
+
+async function measureResultsScroll(page) {
+  return page.locator("#search-results").evaluate((element) => ({
+    clientHeightCssPx: element.clientHeight,
+    scrollHeightCssPx: element.scrollHeight,
+    scrollTopCssPx: Number(element.scrollTop.toFixed(3)),
+    maximumScrollTopCssPx: Number(
+      (element.scrollHeight - element.clientHeight).toFixed(3),
+    ),
+  }));
+}
+
+async function prepareScrollingState(page, state, resolution) {
+  const initial = await measureResultsScroll(page);
+  const scrollingExpected =
+    state.scrollingExpectedResolutionIds.includes(resolution.id);
+  if (state.id !== "empty-query-scroll-activation") {
+    return {
+      clientHeightCssPx: initial.clientHeightCssPx,
+      scrollHeightCssPx: initial.scrollHeightCssPx,
+      initialScrollTopCssPx: initial.scrollTopCssPx,
+      finalScrollTopCssPx: initial.scrollTopCssPx,
+      maximumScrollTopCssPx: initial.maximumScrollTopCssPx,
+      lastResultInsideViewportAfterFocus: null,
+    };
+  }
+  assert.equal(initial.scrollTopCssPx, 0);
+  if (scrollingExpected) {
+    assert.ok(initial.scrollHeightCssPx > initial.clientHeightCssPx);
+  } else {
+    assert.equal(initial.scrollHeightCssPx, initial.clientHeightCssPx);
+  }
+  const results = page.locator("#search-results button");
+  await results.last().focus();
+  assert.equal(
+    await results.last().evaluate((element) => element === document.activeElement),
+    true,
+  );
+  const final = await measureResultsScroll(page);
+  if (scrollingExpected) {
+    assert.ok(final.scrollTopCssPx > 0);
+  } else {
+    assert.equal(final.scrollTopCssPx, 0);
+  }
+  const lastResultInsideViewportAfterFocus = await page.evaluate(() => {
+    const scroller = document.querySelector("#search-results");
+    const last = scroller?.querySelector("button:last-of-type");
+    if (!(scroller instanceof HTMLElement) || !(last instanceof HTMLElement)) {
+      throw new Error("Search result scroll target is unavailable");
+    }
+    const clip = scroller.getBoundingClientRect();
+    const bounds = last.getBoundingClientRect();
+    return (
+      bounds.top >= clip.top - 0.5
+      && bounds.bottom <= clip.bottom + 0.5
+    );
+  });
+  assert.equal(lastResultInsideViewportAfterFocus, true);
+  return {
+    clientHeightCssPx: final.clientHeightCssPx,
+    scrollHeightCssPx: final.scrollHeightCssPx,
+    initialScrollTopCssPx: initial.scrollTopCssPx,
+    finalScrollTopCssPx: final.scrollTopCssPx,
+    maximumScrollTopCssPx: final.maximumScrollTopCssPx,
+    lastResultInsideViewportAfterFocus,
+  };
+}
+
+async function exerciseInteraction(page, state) {
   const input = page.locator("#universal-search");
   const results = page.locator("#search-results button");
-  assert.equal(await input.evaluate((element) => element === document.activeElement), true);
+  if (state.id === "empty-query-scroll-activation") {
+    assert.equal(
+      await results.last().evaluate((element) => element === document.activeElement),
+      true,
+    );
+    const profiles = page.getByRole("button", {
+      name: /Profiles Players on this console/u,
+    });
+    await profiles.focus();
+    assert.equal(
+      await profiles.evaluate((element) => element === document.activeElement),
+      true,
+    );
+    await page.keyboard.press("Enter");
+    const destination = page.getByRole("heading", {
+      name: state.activation.destinationHeading,
+    });
+    await destination.waitFor();
+    const activation = {
+      resultTitle: state.activation.resultTitle,
+      method: state.activation.method,
+      searchOverlayHidden: await page.locator("#search-overlay").isHidden(),
+      destinationHeading: state.activation.destinationHeading,
+      destinationVisible: await destination.isVisible(),
+    };
+    assert.equal(activation.searchOverlayHidden, true);
+    assert.equal(activation.destinationVisible, true);
+    return {
+      interactionTrace: [
+        "universal-search",
+        "result-last",
+        "profiles-result",
+        "profiles-destination",
+      ],
+      activation,
+    };
+  }
+  assert.equal(
+    await input.evaluate((element) => element === document.activeElement),
+    true,
+  );
   if (state.id === "motion-results") {
     await page.keyboard.press("ArrowDown");
     assert.equal(
@@ -139,20 +319,30 @@ async function exerciseFocus(page, state) {
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#search-overlay").isHidden(), true);
     assert.equal(await page.evaluate(() => document.activeElement?.id), "search-trigger");
-    return [
-      "universal-search",
-      "result-first",
-      "result-last",
-      "universal-search",
-      "search-trigger",
-    ];
+    return {
+      interactionTrace: [
+        "universal-search",
+        "result-first",
+        "result-last",
+        "universal-search",
+        "search-trigger",
+      ],
+      activation: null,
+    };
   }
   await page.keyboard.press("Tab");
   assert.equal(await input.evaluate((element) => element === document.activeElement), true);
   await page.keyboard.press("Escape");
   assert.equal(await page.locator("#search-overlay").isHidden(), true);
   assert.equal(await page.evaluate(() => document.activeElement?.id), "search-trigger");
-  return ["universal-search", "universal-search", "search-trigger"];
+  return {
+    interactionTrace: [
+      "universal-search",
+      "universal-search",
+      "search-trigger",
+    ],
+    activation: null,
+  };
 }
 
 async function exercise(chromePath) {
@@ -217,25 +407,31 @@ async function exercise(chromePath) {
         );
         await page.evaluate(() => document.fonts.ready);
         await page.clock.runFor(1_000);
+        const resultsScroll = await prepareScrollingState(
+          page,
+          state,
+          resolution,
+        );
 
         const safeArea = safeAreaFor(resolution);
-        const criticalText = await measureElements(
+        const allCriticalText = await measureElements(
           page,
           ".search-overlay [data-tv-critical-text]:visible",
         );
+        const measuredCriticalText = await measureCriticalText(page, state);
         const actions = await measureElements(
           page,
           ".search-overlay [data-tv-action]:visible",
         );
-        assert.equal(criticalText.length, state.criticalTextCount);
+        assert.equal(allCriticalText.length, state.criticalTextCount);
         assert.equal(actions.length, state.actionTargetCount);
         assert.ok(
-          criticalText.every(
+          measuredCriticalText.every(
             (item) =>
               insideSafeArea(item, safeArea) && item.fontSize >= 24,
           ),
         );
-        assert.equal(countOverlaps(criticalText), 0);
+        assert.equal(countOverlaps(measuredCriticalText), 0);
         assert.ok(
           actions.every(
             (item) => item.width >= 48 && item.height >= 48,
@@ -258,8 +454,11 @@ async function exercise(chromePath) {
           path: screenshotPath,
           fullPage: false,
         });
-        const focusTrace = await exerciseFocus(page, state);
-        assert.deepEqual(focusTrace, state.focusTrace);
+        const interaction = await exerciseInteraction(page, state);
+        assert.deepEqual(
+          interaction.interactionTrace,
+          state.interactionTrace,
+        );
         observations.push({
           state: state.id,
           ...resolution,
@@ -268,14 +467,15 @@ async function exercise(chromePath) {
           documentReadyState: await page.evaluate(() => document.readyState),
           resultCount: state.resultCount,
           emptyStateVisible: state.resultCount === 0,
-          criticalTextCount: criticalText.length,
-          criticalTextInsideSafeArea: criticalText.filter((item) =>
+          criticalTextCount: allCriticalText.length,
+          measuredCriticalTextCount: measuredCriticalText.length,
+          criticalTextInsideSafeArea: measuredCriticalText.filter((item) =>
             insideSafeArea(item, safeArea)
           ).length,
           minimumCriticalTextCssPx: rounded(
-            Math.min(...criticalText.map((item) => item.fontSize)),
+            Math.min(...measuredCriticalText.map((item) => item.fontSize)),
           ),
-          criticalTextOverlapCount: countOverlaps(criticalText),
+          criticalTextOverlapCount: countOverlaps(measuredCriticalText),
           actionTargetCount: actions.length,
           minimumActionTargetWidthCssPx: rounded(
             Math.min(...actions.map((item) => item.width)),
@@ -284,7 +484,9 @@ async function exercise(chromePath) {
             Math.min(...actions.map((item) => item.height)),
           ),
           overlayOverflowCssPx: overflow,
-          focusTrace,
+          resultsScroll,
+          interactionTrace: interaction.interactionTrace,
+          activation: interaction.activation,
           screenshot: {
             path:
               `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
@@ -336,7 +538,7 @@ export async function generateLauncherSearchTvEvidence() {
     evidenceClass:
       "windows-x64-headless-chrome-launcher-search-tv-conformance",
     qualification:
-      "candidate-two-search-states-only-not-tv-target-or-catalog-qualification",
+      "candidate-three-search-states-and-one-local-activation-only-not-tv-target-or-catalog-qualification",
     retrievedAtUtc,
     baseRepresentativeEvidence: {
       format:
@@ -367,8 +569,8 @@ export async function generateLauncherSearchTvEvidence() {
       keyboardInputFocusBackVerified: true,
       overlayOverflowRejected: true,
       arbitraryQueryVerified: false,
-      scrollingResultsVerified: false,
-      resultActivationVerified: false,
+      scrollingResultsVerified: true,
+      resultActivationVerified: true,
       physicalTelevisionVerified: false,
       physicalControllerVerified: false,
       reservedHomeVerified: false,
@@ -380,10 +582,11 @@ export async function generateLauncherSearchTvEvidence() {
     },
     summary: {
       resolutionCount: 3,
-      searchStateCount: 2,
-      observationCount: 6,
-      screenshotCount: 6,
-      distinctQueryCount: 2,
+      searchStateCount: 3,
+      observationCount: 9,
+      screenshotCount: 9,
+      distinctQueryCount: 3,
+      activatedResultClassCount: 1,
       physicalTelevisionCount: 0,
       physicalControllerCount: 0,
       participantCount: 0,

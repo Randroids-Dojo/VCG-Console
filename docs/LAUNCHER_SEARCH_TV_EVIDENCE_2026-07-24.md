@@ -7,23 +7,29 @@ Scope: I-098 and Q-056
 ## Outcome
 
 The production-built launcher Search overlay now applies the candidate
-television floor to two exact states:
+television floor to three exact states:
 
 1. the lowercase `motion` query with five results; and
-2. `no-such-vcg-destination` with no results.
+2. `no-such-vcg-destination` with no results; and
+3. the empty query with the current 18 destinations, last-result focus, and
+   local Profiles activation.
 
 At 1280 x 720, 1920 x 1080, and 3840 x 2160, every explicitly marked label,
 query, result group/title/action, and no-result message remains inside the
 five-percent CSS safe rectangle. Marked text is at least 24 CSS px, the input
 and result actions are at least 48 x 48 CSS px, marked text does not overlap,
-and the overlay has no horizontal or vertical overflow.
+and the overlay has no horizontal or vertical overflow. The empty-query
+results viewport has 387 CSS px of internal overflow at 720p, 79 CSS px at
+1080p, and exactly no overflow at 4K. Focusing the last result reaches the
+maximum scroll position where overflow exists and leaves that result fully
+inside the results viewport at all three resolutions.
 
-The strict television artifact proves two fixed Search states on one Windows
-desk. It does not prove unfiltered or scrolling result sets, arbitrary or
-localized queries, result activation, any game, every overlay, physical
-TV/controller behavior, target Linux output, or frame timing. A separate
-Chrome flow now exercises one exact empty-query scroller and one exact
-non-game result activation without promoting either into the TV artifact.
+The strict television artifact proves three fixed Search states and keyboard
+activation of the local Profiles shell view on one Windows desk. It does not
+select the final empty-query policy; prove arbitrary or localized queries;
+activate a game, package, remote title, unavailable item, destructive setting,
+or external-origin disclosure; or qualify every overlay, physical
+TV/controller behavior, target Linux output, or frame timing.
 
 ## Frozen observations
 
@@ -31,20 +37,25 @@ The strict artifact is
 [`windows-x64-chrome-150-launcher-search-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json).
 It binds the exact production source tree, Search and launcher sources,
 generator, validator, browser test, base representative-state artifact,
-production resources, and six PNG files.
+production resources, and nine PNG files.
 
-| State | Mode | Results | Critical text | Minimum text | Actions | Minimum action |
+| State | Mode | Results | Measured visible / total critical text | Minimum text | Actions | Minimum action |
 |---|---|---:|---:|---:|---:|---:|
-| Motion results | 1280 x 720 | 5 | 13 | 24 px | 6 | 687.766 x 48 px |
-| No results | 1280 x 720 | 0 | 4 | 24 px | 1 | 687.766 x 48 px |
-| Motion results | 1920 x 1080 | 5 | 13 | 24 px | 6 | 951.328 x 48 px |
-| No results | 1920 x 1080 | 0 | 4 | 24 px | 1 | 951.328 x 48 px |
-| Motion results | 3840 x 2160 | 5 | 13 | 48 px | 6 | 1936.656 x 61 px |
-| No results | 3840 x 2160 | 0 | 4 | 48 px | 1 | 1936.656 x 62 px |
+| Motion results | 1280 x 720 | 5 | 13 / 13 | 24 px | 6 | 687.766 x 48 px |
+| No results | 1280 x 720 | 0 | 4 / 4 | 24 px | 1 | 687.766 x 48 px |
+| Empty query, scrolled | 1280 x 720 | 18 | 23 / 39 | 24 px | 19 | 687.766 x 48 px |
+| Motion results | 1920 x 1080 | 5 | 13 / 13 | 24 px | 6 | 951.328 x 48 px |
+| No results | 1920 x 1080 | 0 | 4 / 4 | 24 px | 1 | 951.328 x 48 px |
+| Empty query, scrolled | 1920 x 1080 | 18 | 35 / 39 | 24 px | 19 | 951.328 x 48 px |
+| Motion results | 3840 x 2160 | 5 | 13 / 13 | 48 px | 6 | 1936.656 x 61 px |
+| No results | 3840 x 2160 | 0 | 4 / 4 | 48 px | 1 | 1936.656 x 62 px |
+| Empty query, exact fit | 3840 x 2160 | 18 | 39 / 39 | 48 px | 19 | 1936.656 x 61 px |
 
-All six observations record complete document state, every marked item inside
-the safe rectangle, zero marked-text overlaps, zero overlay overflow, and zero
-console errors, page errors, or failed requests.
+All nine observations record complete document state, every measured visible
+marked item inside the safe rectangle, zero measured marked-text overlaps,
+zero overlay overflow, and zero console errors, page errors, or failed
+requests. Offscreen critical text in the two internally scrolling observations
+is counted but is not misrepresented as visible or safe-area measured.
 
 ## Input evidence
 
@@ -59,17 +70,22 @@ The Motion-results trace is:
 The no-result trace keeps Tab on the only enabled control, then Escape closes
 Search and restores the exact opener.
 
-The result actions were not activated. The artifact therefore makes no claim
-about the selected destination, launch adapter, package, or game.
+The empty-query trace starts at scroll position zero, focuses the last result,
+records the resulting exact scroll position, then focuses the Profiles result
+and presses Enter. Search closes and the exact `Who is playing?` destination
+appears at all three resolutions. This is one local shell-view result class;
+it makes no claim about launch adapters, packages, games, failure/denial, or
+Back restoration after activation.
 
 The broader Console Lab Chrome suite separately proves that opening Search with
 an empty query exposes exactly 18 current destinations, the results container
 has real internal overflow, focusing its last result advances `scrollTop`, and
 synthetic standard-gamepad Down focuses the exact filtered `Profiles` result.
 Synthetic Select then closes Search and opens the `Who is playing?`
-destination. This is one current catalog and normal-viewport browser flow. It
-does not add a third measured TV state, prove arbitrary query text, qualify a
-physical controller, or activate a game or package.
+destination. That synthetic standard-gamepad flow remains separate evidence:
+the strict TV artifact uses programmatic focus and keyboard Enter, not a
+physical or synthetic controller. Neither flow proves arbitrary query text or
+activates a game or package.
 
 ## Pixel captures
 
@@ -77,6 +93,7 @@ physical controller, or activate a game or package.
 |---|---|---|---|
 | Motion results | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png) |
 | No results | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png) |
+| Empty query after last-result focus | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png) |
 
 The frozen browser clock advances by exactly one second after the state is
 ready so entrance animation is complete before capture. This is deterministic
@@ -97,17 +114,20 @@ pnpm validate:launcher-search-tv
 pnpm --dir apps/console-lab exec playwright test tests/tv-conformance.spec.ts
 ```
 
-The offline validator has eleven mutation tests covering format, base
+The offline validator has eleven adversarial test groups covering format, base
 evidence, environment, resolution, state, query, counts, empty-state truth,
-safe area, text, actions, overlap, overflow, focus, screenshots, browser
-errors, resources, provenance, limitations, unknown claims, and promotion.
+visible-text clipping, safe area, text, actions, overlap, overlay and results
+overflow, focus, activation, screenshots, browser errors, resources,
+provenance, limitations, unknown claims, promotion, and demotion.
 
 ## Remaining boundary
 
-I-098/Q-056 remain active. The strict TV record still needs measured
-empty-query/scrolling density and activation at every target resolution.
-Search also needs long strings, localization, large text/high
-contrast/reduced motion, physical-controller directional navigation,
-game/package activation, physical-TV viewing, reserved Home, native-host
-recovery, and both target Linux display stacks. Q-242/Q-243 and STV-001
-through STV-004 retain the final policy choices.
+I-098/Q-056 remain active. The strict TV record now covers current empty-query
+density and one local-shell activation at every target resolution, but STV-001
+must still choose whether the default list remains, becomes curated, or
+requires a query. Search also needs long strings, localization, large
+text/high contrast/reduced motion, physical-controller directional
+navigation, every remaining STV-004 result class and recovery path,
+physical-TV viewing, reserved Home, native-host recovery, and both target
+Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain the final
+policy choices.

@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-25",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-25T00:51:07.433Z",
+  "retrievedAtUtc": "2026-07-25T01:17:33.627Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -215,7 +215,7 @@
     "catalogPath": "apps/console-lab/src/launcher/catalog.generated.ts",
     "catalogPathSha256": "f7bb55eb2de3658081a639140ed7b96629d4368f798724ee7e30ef2cb0465f62",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "9c607d0037c1ac8f894b8892539f9519cca80358c7610b335808214a32a5b69b",
+    "browserTestPathSha256": "72c6eb571a32d057d4ea48e8fe85d03bb97b83bf9dc7942d7269f4ed5d422a59",
     "baseContractPath": "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
     "baseContractPathSha256": "98c7027e0977ae0f94a848e4cb4536649cb84d26212d8987e64107c2c540ba61",
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",

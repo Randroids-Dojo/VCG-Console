@@ -5183,6 +5183,45 @@ wired into `main.rs`. No production writer, protected platform slot/CAS,
 profile broker, registry/vault/save transaction, deletion meaning, target
 rollback/power-loss evidence, or Linux-tier qualification is implemented.
 
+## 2026-07-24: Search empty-query television evidence
+
+### Delivered
+
+- Extended the strict Search artifact from two fixed states to three at
+  1280x720, 1920x1080, and 3840x2160 without selecting the final empty-query
+  product policy.
+- Counted all 18 current destinations and all 39 marked critical-text nodes
+  while measuring only text fully visible within the internal results
+  viewport. Offscreen text is no longer confused with safe-area evidence.
+- Recorded exact results-viewport density: 523/910 CSS px client/scroll height
+  at 720p, 798/877 at 1080p, and an exact 1158/1158 fit at 4K. Last-result focus
+  reaches 387 px and 79 px maximum scroll respectively in the two overflowing
+  modes and remains fully visible in all three.
+- Focused the exact Profiles result, pressed keyboard Enter, and proved Search
+  closes into the local `Who is playing?` destination at every resolution.
+- Added three pixel-bound scrolled-state screenshots and expanded the strict
+  artifact, generator, validator, browser checks, evidence note, owner handoff,
+  and I-098 disposition.
+
+### Verification evidence
+
+- The three focused empty-query TV browser cases pass.
+- The artifact validates with eleven adversarial test groups covering clipped
+  visibility, exact scroll geometry, interaction traces, activation, evidence
+  promotion/demotion, screenshots, provenance, and the prior strict checks.
+- Generation loaded the production build in installed Chrome 150 with zero
+  console errors, page errors, or failed requests across all nine observations.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. STV-001 still owns the default empty-query policy,
+and STV-004 still requires offline package, remote-web, unavailable,
+destructive-setting, and external-origin activation plus failure/denial and
+Back recovery. Long/localized text, accessibility variants, physical
+controller/TV use, reserved Home, native recovery, target Linux/compositors,
+overscan, output modes, seating-distance comprehension, and frame timing also
+remain unqualified.
+
 ## 2026-07-24: transactional native standard shell mapping
 
 ### Delivered

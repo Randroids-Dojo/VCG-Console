@@ -35,7 +35,7 @@ async function validateMutation(mutator) {
 
 test("accepts the exact launcher Search TV evidence", async () => {
   const artifact = await validateLauncherSearchTvEvidence();
-  assert.equal(artifact.summary.observationCount, 6);
+  assert.equal(artifact.summary.observationCount, 9);
 });
 
 test("rejects format, base evidence, environment, or resolution substitution", async () => {
@@ -69,6 +69,9 @@ test("rejects state, query, ordering, result, or empty-state substitution", asyn
   await validateMutation((artifact) => {
     artifact.browser.observations[1].emptyStateVisible = false;
   });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[2].resultCount = 17;
+  });
 });
 
 test("rejects safe-area escape or weakened critical text", async () => {
@@ -80,6 +83,9 @@ test("rejects safe-area escape or weakened critical text", async () => {
   });
   await validateMutation((artifact) => {
     artifact.browser.observations[0].minimumCriticalTextCssPx = 23.999;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[2].measuredCriticalTextCount = 39;
   });
 });
 
@@ -104,15 +110,28 @@ test("rejects weak or missing Search actions", async () => {
   });
 });
 
-test("rejects ArrowDown, Tab-wrap, Escape, or opener-focus drift", async () => {
+test("rejects interaction, scrolling, or activation drift", async () => {
   await validateMutation((artifact) => {
-    artifact.browser.observations[0].focusTrace[1] = "result-last";
+    artifact.browser.observations[0].interactionTrace[1] = "result-last";
   });
   await validateMutation((artifact) => {
-    artifact.browser.observations[0].focusTrace[4] = "launcher-home";
+    artifact.browser.observations[0].interactionTrace[4] = "launcher-home";
   });
   await validateMutation((artifact) => {
-    artifact.browser.observations[1].focusTrace.splice(1, 1);
+    artifact.browser.observations[1].interactionTrace.splice(1, 1);
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[2].resultsScroll.finalScrollTopCssPx = 0;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[2]
+      .resultsScroll.lastResultInsideViewportAfterFocus = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[2].activation.destinationVisible = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[8].resultsScroll.scrollHeightCssPx += 1;
   });
 });
 
@@ -134,18 +153,16 @@ test("rejects hidden browser errors or build-resource drift", async () => {
     artifact.browser.requestFailureCount = 1;
   });
   await validateMutation((artifact) => {
-    artifact.browser.requestCounts["/"] = 5;
+    artifact.browser.requestCounts["/"] = 8;
   });
   await validateMutation((artifact) => {
     artifact.browser.requestCounts["/unexpected"] = 6;
   });
 });
 
-test("rejects arbitrary-query, scrolling, activation, physical, target, or count promotion", async () => {
+test("rejects arbitrary, physical, target, or count promotion and measured-evidence demotion", async () => {
   for (const key of [
     "arbitraryQueryVerified",
-    "scrollingResultsVerified",
-    "resultActivationVerified",
     "physicalTelevisionVerified",
     "physicalControllerVerified",
     "reservedHomeVerified",
@@ -160,7 +177,16 @@ test("rejects arbitrary-query, scrolling, activation, physical, target, or count
     });
   }
   await validateMutation((artifact) => {
-    artifact.summary.distinctQueryCount = 3;
+    artifact.disposition.scrollingResultsVerified = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.disposition.resultActivationVerified = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.distinctQueryCount = 2;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.activatedResultClassCount = 2;
   });
   await validateMutation((artifact) => {
     artifact.summary.catalogGameCount = 1;

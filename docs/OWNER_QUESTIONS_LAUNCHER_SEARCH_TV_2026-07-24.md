@@ -2,8 +2,9 @@
 
 Date opened: 2026-07-24
 
-These questions do not block the two fixed desk-only Search checks. Q-242 and
-Q-243 remain authoritative for final physical-TV and output policy.
+These questions do not block the three fixed desk-only Search states or the
+single local-shell activation check. Q-242 and Q-243 remain authoritative for
+final physical-TV and output policy.
 
 ## STV-001: empty-query density
 
@@ -45,6 +46,6 @@ disclosure. Each must restore focus safely after Back, failure, and denial.
 ## Handoff
 
 Record selected behavior as later product decisions. Until then, retain the
-two exact queries, bounded claims, offline processing, and opener restoration
-documented in
+three exact states, one local-shell activation boundary, bounded claims,
+offline processing, and opener restoration documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).
