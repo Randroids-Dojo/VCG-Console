@@ -130,6 +130,11 @@ modes cannot be combined. See the
 
 ## Boundary
 
+- `accessibility`: strict exact-v1 device-wide preference parsing, bounded
+  atomic generation publication, incomplete-write and reset-marker recovery,
+  conservative rejected-state defaults, and complete reset. It is not wired
+  to the launcher/input/tracker/games and does not settle scope, remapping,
+  audio, migration, target service ownership, or physical durability.
 - `developer_artifact`: consumes one authorized Push into a non-cloneable
   transfer that shares volatile session liveness, receives bounded retryable
   same-process chunks, supports exact cancellation, verifies incremental and

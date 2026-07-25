@@ -1,7 +1,9 @@
 # Console accessibility preferences
 
-Status: versioned device-wide launcher prototype implemented; native input,
-tracker, game-runtime, target-TV, and household qualification remain open.
+Status: versioned device-wide launcher prototype and unwired native
+crash-recoverable persistence boundary implemented; native service/launcher
+integration, input, tracker, game-runtime, target-TV, and household
+qualification remain open.
 
 Last updated: 2026-07-24
 
@@ -60,6 +62,14 @@ usable for the current session and the UI says they are volatile. Reset
 removes the complete key and reapplies every default. Browser local storage is
 only a desk prototype; a native settings service must eventually own durable
 appliance state and migration.
+
+`NATIVE_ACCESSIBILITY_STORE.md` now implements the same exact v1 document in
+Rust. Complete documents publish through flushed ordinal incoming files and
+rename, reopen removes incomplete publication and superseded generations, and
+a durable reset marker completes all-or-nothing reset after restart.
+Malformed latest state yields full defaults with a distinct rejected status.
+No launcher or target service uses this store yet, and there is deliberately
+no implicit v2 migration.
 
 ## Defaults and safety properties
 
@@ -122,8 +132,8 @@ I-119 is `active`, not closed. Still required:
 
 - owner decisions in
   `OWNER_QUESTIONS_ACCESSIBILITY_2026-07-24.md`;
-- native persistent storage, schema migration, update/rollback behavior, and
-  reset scope;
+- production native service/launcher wiring, browser-state transition, future
+  schema migration, update/rollback behavior, and final reset scope;
 - native SDL3/remap propagation and a guided recovery mapping that can never
   steal reserved controls;
 - tracker/calibration and manifest-mediated game propagation;

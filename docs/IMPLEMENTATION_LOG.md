@@ -5412,6 +5412,42 @@ filesystem, full-disk, corruption, sudden-power-loss, and forensic evidence.
 Oldest-prefix deletion can resemble ordinary retention, so these records never
 grant launch, update, recovery, save, profile, or power authority.
 
+## 2026-07-24: native accessibility preference persistence
+
+### Delivered
+
+- Added a Rust representation of the exact D-164 device-wide accessibility v1
+  document with the same closed text, contrast, motion, posture, confirm, and
+  audio vocabularies and complete 1,024-byte input ceiling.
+- Added an exclusive absolute-path store with create-flush-rename ordinal
+  generation publication. Reopen removes canonical incomplete files, selects
+  the newest complete generation, discloses malformed latest state as full
+  conservative defaults, and removes superseded generations.
+- Added a durable reset marker that makes complete reset recoverable across
+  restart. Reset validates every generation name and file type before removal
+  and never sweeps an unexpected file into its authority.
+- Preserved the non-authoritative boundary: posture/remap remain previews,
+  reserved controls are unchanged, and preferences grant no admin, developer,
+  package, launch, camera, profile, or game authority.
+- Recorded D-176 without choosing Q-159 through Q-161 or inventing implicit v2
+  migration.
+
+### Verification evidence
+
+- Eight focused Rust tests cover exact browser-v1 round trip, parser/bound
+  refusal, defaults, atomic save/reopen/cleanup, incomplete publication,
+  rejected-state replacement, reset recovery, unsafe path/layout, and lock
+  contention.
+
+### Remaining boundary
+
+I-119 remains active. No launcher or native service opens this store, browser
+local storage is not migrated, and no native input/tracker/game component
+consumes the preferences. Final device/profile scope, remapping and recovery,
+audio design, future schema migration, mount/service/reset/update ownership,
+Windows directory durability, physical full-disk/power-loss behavior, target
+TV behavior, and household accessibility qualification remain open.
+
 ## 2026-07-24: Search remote-web failure and denial recovery
 
 ### Delivered
