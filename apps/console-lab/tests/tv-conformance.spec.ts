@@ -449,10 +449,34 @@ for (const resolution of RESOLUTIONS) {
     await expect(page.locator("#search-empty")).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, ".search-overlay", 4, 1);
+    await assertTvGeometry(page, resolution, ".search-overlay", 9, 5);
 
-    await page.keyboard.press("Tab");
+    const clear = page.getByRole("button", {
+      name: "Clear search",
+      exact: true,
+    });
+    await page.keyboard.press("ArrowDown");
+    await expect(clear).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(input).toHaveValue("");
     await expect(input).toBeFocused();
+    await expect(page.locator("#search-results button")).toHaveCount(18);
+
+    await input.fill("no-such-vcg-destination");
+    await page.keyboard.press("ArrowDown");
+    await expect(clear).toBeFocused();
+    await page.keyboard.press("Tab");
+    const motion = page
+      .getByLabel("Search recovery")
+      .getByRole("button", {
+        name: "Motion",
+        exact: true,
+      });
+    await expect(motion).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(input).toHaveValue("motion");
+    await expect(page.locator("#search-results button")).toHaveCount(5);
+    await expect(page.locator("#search-results button").first()).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(page.locator("#search-overlay")).toBeHidden();
     await expect(trigger).toBeFocused();

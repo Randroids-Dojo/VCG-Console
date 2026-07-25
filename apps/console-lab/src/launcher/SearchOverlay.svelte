@@ -8,6 +8,7 @@
   let input: HTMLInputElement;
   let panel: HTMLDivElement;
   let results: HTMLDivElement;
+  let recovery = $state<HTMLDivElement>();
   let openedBy: HTMLElement | null = null;
   let matches = $derived(
     items.filter((item) => `${item.title} ${item.detail} ${item.group} ${item.terms}`.toLowerCase().includes(query.trim().toLowerCase())),
@@ -44,10 +45,27 @@
     item.action();
   }
 
+  async function clearSearch(): Promise<void> {
+    query = "";
+    await tick();
+    input.focus({ preventScroll: true });
+  }
+
+  async function chooseRecoveryCategory(category: string): Promise<void> {
+    query = category;
+    await tick();
+    results.querySelector<HTMLButtonElement>("button")?.focus({
+      preventScroll: true,
+    });
+  }
+
   function handleInputKeydown(event: KeyboardEvent): void {
     if (event.key !== "ArrowDown") return;
     event.preventDefault();
-    results.querySelector<HTMLButtonElement>("button")?.focus();
+    (
+      results.querySelector<HTMLButtonElement>("button")
+      ?? recovery?.querySelector<HTMLButtonElement>("button")
+    )?.focus();
   }
 
   function handleDialogKeydown(event: KeyboardEvent): void {
@@ -114,6 +132,17 @@
         </button>
       {/each}
     </div>
-    <p class="search-empty" id="search-empty" data-tv-critical-text hidden={matches.length > 0}>No matches. Try a game, hub, profile, or setting.</p>
+    {#if matches.length === 0}
+      <div bind:this={recovery} class="search-recovery" aria-label="Search recovery">
+        <p class="search-empty" id="search-empty" data-tv-critical-text>No matches. Clear the query or browse a local category.</p>
+        <p class="search-recovery-label" data-tv-critical-text>OFFLINE CATEGORIES</p>
+        <div class="search-recovery-actions">
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void clearSearch()}>Clear search</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("motion")}>Motion</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("system")}>System</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("settings")}>Settings</button>
+        </div>
+      </div>
+    {/if}
   </div>
 </div>

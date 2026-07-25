@@ -5,8 +5,9 @@ Date opened: 2026-07-24
 These questions do not block the eight fixed desk-only Search states or the
 local-shell, built-in offline local-web, and remote-web supervisor activation
 checks, the unavailable retro-package refusal, or the synthetic destructive
-progress denial. Q-242 and Q-243 remain authoritative for final physical-TV
-and output policy.
+progress denial. They also do not block the fixed local no-result recovery
+prototype. Q-242 and Q-243 remain authoritative for final physical-TV and
+output policy.
 
 ## STV-001: empty-query density
 
@@ -36,6 +37,14 @@ Recommended provisional answer: add one explicit Clear search action plus
 stable category shortcuts after controller navigation is available. Avoid
 unreviewed fuzzy suggestions that could expose hidden or disallowed catalog
 entries.
+
+Current desk evidence implements only that provisional boundary. ArrowDown
+reaches Clear search; clearing returns to the existing 18-result empty query
+with input focus. Motion, System, and Settings are exact local substring
+queries. Motion produces five results and first-result focus before Back
+restores the opener. No fuzzy, spelling, remote, personalized, or hidden-entry
+suggestions exist. Final category taxonomy, STV-001 interaction, localization,
+and spelling policy remain owner decisions.
 
 ## STV-004: activation evidence
 
@@ -69,6 +78,6 @@ physical controllers, and physical televisions remain unqualified.
 ## Handoff
 
 Record selected behavior as later product decisions. Until then, retain the
-eight exact states, five activation classes, bounded claims, offline query
-processing, and focus recovery documented in
+eight exact states, five activation classes, bounded claims, offline query and
+no-result recovery, and focus restoration documented in
 [`LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md`](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md).

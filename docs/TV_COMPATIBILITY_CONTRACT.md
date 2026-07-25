@@ -128,7 +128,7 @@ candidate and one destructive Unassigned progress result. Twenty-four captures
 bind marked labels, query text, result
 group/title/action copy, empty-state copy, input and result targets, zero
 overlap/overflow, scrolling, activation, failure, denial, diagnostics, Retry,
-Back, and exact focus restoration.
+Back, local no-result recovery, and exact focus restoration.
 
 See
 [the Search evidence](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md),
@@ -140,9 +140,12 @@ The result records current empty-query density, scrolling, local-shell,
 built-in local-web, remote-web-supervisor, unavailable-package, and synthetic
 destructive-progress activation. The destructive review defaults to Cancel,
 retains the selected entry on Back, and restores focus without a filesystem
-mutation. It does not select the final density policy, prove arbitrary or
-localized queries, open or qualify remote content, qualify a signed package
-or real destructive storage, or qualify physical TV/controller behavior.
+mutation. The no-result state exposes Clear search plus exact local
+Motion/System/Settings shortcuts; Clear restores the current empty-query list,
+and Motion produces five results with first-result focus. It does not select
+the final density, category, spelling, or localization policy, prove arbitrary
+queries, open or qualify remote content, qualify a signed package or real
+destructive storage, or qualify physical TV/controller behavior.
 
 ## Author checklist
 

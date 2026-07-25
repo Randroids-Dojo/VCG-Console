@@ -28,9 +28,9 @@ import {
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query product policy, qualify arbitrary localization or query text, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 18-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 18-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
-  "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. The empty-query list is evidence of current density, not a decision to retain an unbounded default list; arbitrary text, localization, voice input, every other catalog revision, and every other overlay remain outside this artifact.",
+  "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 18-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 18-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
   "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
   "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
@@ -89,14 +89,28 @@ const SEARCH_STATES = Object.freeze([
     id: "no-results",
     query: "no-such-vcg-destination",
     resultCount: 0,
-    criticalTextCount: 4,
-    actionTargetCount: 1,
+    criticalTextCount: 9,
+    actionTargetCount: 5,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
     activation: null,
+    recoveryExpectation: {
+      clearActionLabel: "Clear search",
+      clearQuery: "",
+      clearResultCount: 18,
+      categoryActionLabel: "Motion",
+      categoryQuery: "motion",
+      categoryResultCount: 5,
+      categoryFirstResultTitle: "Obstacle",
+      backRecoveryFocus: "search-trigger",
+    },
     interactionTrace: [
       "universal-search",
+      "clear-search-action",
+      "empty-query-restored",
       "universal-search",
+      "motion-category-action",
+      "motion-result-first",
       "search-trigger",
     ],
   },
@@ -522,6 +536,7 @@ async function exerciseInteraction(page, state) {
         "launcher-home-navigation",
       ],
       activation,
+      recovery: null,
     };
   }
   assert.equal(
@@ -583,6 +598,7 @@ async function exerciseInteraction(page, state) {
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
       },
+      recovery: null,
     };
   }
   if (
@@ -698,6 +714,7 @@ async function exerciseInteraction(page, state) {
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
       },
+      recovery: null,
     };
   }
   if (state.id === "unavailable-package-denial") {
@@ -779,6 +796,7 @@ async function exerciseInteraction(page, state) {
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
       },
+      recovery: null,
     };
   }
   if (state.id === "destructive-settings-denial") {
@@ -924,6 +942,7 @@ async function exerciseInteraction(page, state) {
         backRecoveryVerified: true,
         backRecoveryFocus: state.activation.backRecoveryFocus,
       },
+      recovery: null,
     };
   }
   if (state.id === "motion-results") {
@@ -951,21 +970,99 @@ async function exerciseInteraction(page, state) {
         "search-trigger",
       ],
       activation: null,
+      recovery: null,
     };
   }
-  await page.keyboard.press("Tab");
-  assert.equal(await input.evaluate((element) => element === document.activeElement), true);
-  await page.keyboard.press("Escape");
-  assert.equal(await page.locator("#search-overlay").isHidden(), true);
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "search-trigger");
-  return {
-    interactionTrace: [
-      "universal-search",
-      "universal-search",
-      "search-trigger",
-    ],
-    activation: null,
-  };
+  if (state.id === "no-results") {
+    const expected = state.recoveryExpectation;
+    const recovery = page.getByLabel("Search recovery");
+    await page.keyboard.press("ArrowDown");
+    const clear = recovery.getByRole("button", {
+      name: expected.clearActionLabel,
+      exact: true,
+    });
+    const clearActionFocused = await clear.evaluate(
+      (element) => element === document.activeElement,
+    );
+    assert.equal(clearActionFocused, true);
+    await page.keyboard.press("Enter");
+    const clearQuery = await input.inputValue();
+    const clearResultCount = await results.count();
+    const clearInputFocused = await input.evaluate(
+      (element) => element === document.activeElement,
+    );
+    assert.equal(clearQuery, expected.clearQuery);
+    assert.equal(clearResultCount, expected.clearResultCount);
+    assert.equal(clearInputFocused, true);
+
+    await input.fill(state.query);
+    assert.equal(await results.count(), 0);
+    await page.keyboard.press("ArrowDown");
+    const restoredRecovery = page.getByLabel("Search recovery");
+    const restoredClear = restoredRecovery.getByRole("button", {
+      name: expected.clearActionLabel,
+      exact: true,
+    });
+    assert.equal(
+      await restoredClear.evaluate(
+        (element) => element === document.activeElement,
+      ),
+      true,
+    );
+    await page.keyboard.press("Tab");
+    const category = restoredRecovery.getByRole("button", {
+      name: expected.categoryActionLabel,
+      exact: true,
+    });
+    const categoryActionFocused = await category.evaluate(
+      (element) => element === document.activeElement,
+    );
+    assert.equal(categoryActionFocused, true);
+    await page.keyboard.press("Enter");
+    const categoryQuery = await input.inputValue();
+    const categoryResultCount = await results.count();
+    const firstResult = results.first();
+    const categoryFirstResultFocused = await firstResult.evaluate(
+      (element) => element === document.activeElement,
+    );
+    const categoryFirstResultTitle = await firstResult
+      .locator("strong")
+      .textContent();
+    assert.equal(categoryQuery, expected.categoryQuery);
+    assert.equal(categoryResultCount, expected.categoryResultCount);
+    assert.equal(
+      categoryFirstResultTitle?.trim(),
+      expected.categoryFirstResultTitle,
+    );
+    assert.equal(categoryFirstResultFocused, true);
+
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#search-overlay").isHidden(), true);
+    const backRecoveryFocus = await page.evaluate(
+      () => document.activeElement?.id,
+    );
+    assert.equal(backRecoveryFocus, expected.backRecoveryFocus);
+    return {
+      interactionTrace: state.interactionTrace,
+      activation: null,
+      recovery: {
+        clearActionLabel: expected.clearActionLabel,
+        clearActionFocused,
+        clearQuery,
+        clearResultCount,
+        clearInputFocused,
+        categoryActionLabel: expected.categoryActionLabel,
+        categoryActionFocused,
+        categoryQuery,
+        categoryResultCount,
+        categoryFirstResultTitle: categoryFirstResultTitle?.trim(),
+        categoryFirstResultFocused,
+        backRecoveryVerified: true,
+        backRecoveryFocus,
+      },
+    };
+  }
+  throw new Error(`unhandled Search state ${state.id}`);
 }
 
 async function exercise(chromePath) {
@@ -1115,6 +1212,7 @@ async function exercise(chromePath) {
           resultsScroll,
           interactionTrace: interaction.interactionTrace,
           activation: interaction.activation,
+          recovery: interaction.recovery,
           screenshot: {
             path:
               `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
@@ -1166,7 +1264,7 @@ export async function generateLauncherSearchTvEvidence() {
     evidenceClass:
       "windows-x64-headless-chrome-launcher-search-tv-conformance",
     qualification:
-      "candidate-eight-search-states-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
+      "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
     retrievedAtUtc,
     baseRepresentativeEvidence: {
       format:
@@ -1198,6 +1296,7 @@ export async function generateLauncherSearchTvEvidence() {
       overlayOverflowRejected: true,
       arbitraryQueryVerified: false,
       scrollingResultsVerified: true,
+      noResultRecoveryVerified: true,
       resultActivationVerified: true,
       remoteWebActivationVerified: true,
       remoteWebOfflineFailureVerified: true,
@@ -1224,6 +1323,7 @@ export async function generateLauncherSearchTvEvidence() {
       remoteWebOutcomeStateCount: 2,
       unavailableOutcomeStateCount: 1,
       destructiveOutcomeStateCount: 1,
+      recoveryStateCount: 1,
       failureOutcomeStateCount: 2,
       denialOutcomeStateCount: 3,
       physicalTelevisionCount: 0,

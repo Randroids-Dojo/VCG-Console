@@ -10,7 +10,8 @@ The production-built launcher Search overlay now applies the candidate
 television floor to eight exact states:
 
 1. the lowercase `motion` query with five results;
-2. `no-such-vcg-destination` with no results;
+2. `no-such-vcg-destination` with no results, explicit Clear search, and
+   fixed local Motion/System/Settings category recovery;
 3. the empty query with the current 18 destinations, last-result focus, and
    local Profiles activation; and
 4. the lowercase `obstacle` query with one result and offline local-web launch
@@ -56,6 +57,14 @@ not a filesystem or native save-broker mutation. No signed package, real
 destructive storage operation, gameplay, physical TV/controller behavior,
 target Linux output, or frame timing is qualified.
 
+The no-result state is no longer a dead end. ArrowDown reaches Clear search;
+activating it restores the current 18-result empty-query state and input
+focus. Re-entering the fixed no-result query, moving to Motion, and activating
+that local category writes the exact lowercase query, produces five results,
+and focuses the first result before Back restores the Search opener. These are
+fixed offline substring queries, not final density, taxonomy, ranking,
+spelling, localization, or fuzzy-suggestion policy.
+
 ## Frozen observations
 
 The strict artifact is
@@ -68,7 +77,7 @@ files.
 | State | Mode | Results | Measured visible / total critical text | Minimum text | Actions | Minimum action |
 |---|---|---:|---:|---:|---:|---:|
 | Motion results | 1280 x 720 | 5 | 13 / 13 | 24 px | 6 | 687.766 x 48 px |
-| No results | 1280 x 720 | 0 | 4 / 4 | 24 px | 1 | 687.766 x 48 px |
+| No results with recovery | 1280 x 720 | 0 | 9 / 9 | 24 px | 5 | 197.297 x 48 px |
 | Empty query, scrolled | 1280 x 720 | 18 | 23 / 39 | 24 px | 19 | 687.766 x 48 px |
 | Obstacle activation | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Museum ready / blocked preview | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
@@ -76,7 +85,7 @@ files.
 | 2048 unavailable denial | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Destructive progress denial | 1280 x 720 | 1 | 5 / 5 | 24 px | 2 | 687.766 x 48 px |
 | Motion results | 1920 x 1080 | 5 | 13 / 13 | 24 px | 6 | 951.328 x 48 px |
-| No results | 1920 x 1080 | 0 | 4 / 4 | 24 px | 1 | 951.328 x 48 px |
+| No results with recovery | 1920 x 1080 | 0 | 9 / 9 | 24 px | 5 | 265.203 x 48 px |
 | Empty query, scrolled | 1920 x 1080 | 18 | 35 / 39 | 24 px | 19 | 951.328 x 48 px |
 | Obstacle activation | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Museum ready / blocked preview | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
@@ -84,7 +93,7 @@ files.
 | 2048 unavailable denial | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Destructive progress denial | 1920 x 1080 | 1 | 5 / 5 | 24 px | 2 | 951.328 x 48 px |
 | Motion results | 3840 x 2160 | 5 | 13 / 13 | 48 px | 6 | 1936.656 x 61 px |
-| No results | 3840 x 2160 | 0 | 4 / 4 | 48 px | 1 | 1936.656 x 62 px |
+| No results with recovery | 3840 x 2160 | 0 | 9 / 9 | 48 px | 5 | 530.391 x 62 px |
 | Empty query, exact fit | 3840 x 2160 | 18 | 39 / 39 | 48 px | 19 | 1936.656 x 61 px |
 | Obstacle activation | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
 | Museum ready / blocked preview | 3840 x 2160 | 1 | 5 / 5 | 48 px | 2 | 1936.656 x 61 px |
@@ -109,8 +118,12 @@ The Motion-results trace is:
 4. Tab from the last result wraps to the input; and
 5. Escape closes Search and restores the exact Search trigger.
 
-The no-result trace keeps Tab on the only enabled control, then Escape closes
-Search and restores the exact opener.
+The no-result trace presses ArrowDown from the input to focus Clear search,
+then Enter clears the query, restores all 18 current destinations, and returns
+focus to the input. It re-enters the fixed no-result query, uses ArrowDown and
+Tab to focus Motion, then Enter applies the lowercase local category query,
+produces five results, and focuses Obstacle. Escape closes Search and restores
+the exact opener. No query or suggestion leaves the browser.
 
 The empty-query trace starts at scroll position zero, focuses the last result,
 records the resulting exact scroll position, then focuses the Profiles result
@@ -205,7 +218,8 @@ The offline validator has eleven adversarial test groups covering format, base
 evidence, environment, resolution, state, query, counts, empty-state truth,
 visible-text clipping, safe area, text, actions, overlap, overlay and results
 overflow, focus, activation, screenshots, browser errors, resources,
-provenance, limitations, unknown claims, promotion, and demotion.
+no-result recovery, provenance, limitations, unknown claims, promotion, and
+demotion.
 
 ## Remaining boundary
 
@@ -219,9 +233,11 @@ exposes signed-inventory refusal, diagnostics, Retry, and Back without
 contacting a package runtime. The destructive result defaults to Cancel,
 retains the selected entry on Back, and restores focus without a filesystem
 mutation. STV-001 must still choose whether the default list remains, becomes
-curated, or requires a query. Search also needs long strings, localization,
-large text/high contrast/reduced motion, physical-controller directional
-navigation, real destructive-storage integration and failure recovery,
-physical-TV viewing, reserved Home, native-host recovery, and both target
-Linux display stacks. Q-242/Q-243 and STV-001 through STV-004 retain the final
-policy choices.
+curated, or requires a query. The fixed Clear/Motion recovery proves one
+bounded desk path but does not settle STV-003 taxonomy, spelling, localization,
+or suggestion policy. Search also needs long strings, localization, large
+text/high contrast/reduced motion, physical-controller directional navigation,
+real destructive-storage integration and failure recovery, physical-TV
+viewing, reserved Home, native-host recovery, and both target Linux display
+stacks. Q-242/Q-243 and STV-001 through STV-004 retain the final policy
+choices.

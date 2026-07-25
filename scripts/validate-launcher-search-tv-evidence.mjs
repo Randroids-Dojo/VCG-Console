@@ -59,14 +59,28 @@ const EXPECTED_STATES = Object.freeze([
     id: "no-results",
     query: "no-such-vcg-destination",
     resultCount: 0,
-    criticalTextCount: 4,
-    actionTargetCount: 1,
+    criticalTextCount: 9,
+    actionTargetCount: 5,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
     activation: null,
+    recoveryExpectation: {
+      clearActionLabel: "Clear search",
+      clearQuery: "",
+      clearResultCount: 18,
+      categoryActionLabel: "Motion",
+      categoryQuery: "motion",
+      categoryResultCount: 5,
+      categoryFirstResultTitle: "Obstacle",
+      backRecoveryFocus: "search-trigger",
+    },
     interactionTrace: [
       "universal-search",
+      "clear-search-action",
+      "empty-query-restored",
       "universal-search",
+      "motion-category-action",
+      "motion-result-first",
       "search-trigger",
     ],
   },
@@ -291,8 +305,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "no-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-    bytes: 60495,
-    sha256: "842330707cdfb1440e5d68425f839a9789fc99d0907d9dddd131504e22eefa3e",
+    bytes: 73805,
+    sha256: "ea5de7317d94bf27a31b7c57b861035a6395eed53fb5faf5e801472f3af64b1d",
   },
   "empty-query-scroll-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
@@ -331,8 +345,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "no-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-    bytes: 77671,
-    sha256: "bd2e1a90aa81e815404132dbedfbcffe598bb6eb5018e114d69365b38bf034ad",
+    bytes: 92354,
+    sha256: "266e5397e9b959785725b507cd39ca2b80ecfbaade167d0677b2e361fbd5afed",
   },
   "empty-query-scroll-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
@@ -371,8 +385,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "no-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-    bytes: 191868,
-    sha256: "c3b1565a03946923f64424e06d6bb3f94580f99559c821e145900f76d2edb342",
+    bytes: 220770,
+    sha256: "395811358af4220234bb8ff58777a47001df6a0a814bdcc510c5400f80446c47",
   },
   "empty-query-scroll-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
@@ -421,9 +435,9 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "no-results/720p": {
-    measuredCriticalTextCount: 4,
+    measuredCriticalTextCount: 9,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 687.766,
+    minimumActionTargetWidthCssPx: 197.297,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 0,
@@ -533,9 +547,9 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "no-results/1080p": {
-    measuredCriticalTextCount: 4,
+    measuredCriticalTextCount: 9,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 951.328,
+    minimumActionTargetWidthCssPx: 265.203,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 0,
@@ -645,9 +659,9 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "no-results/4k": {
-    measuredCriticalTextCount: 4,
+    measuredCriticalTextCount: 9,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1936.656,
+    minimumActionTargetWidthCssPx: 530.391,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 0,
@@ -866,6 +880,7 @@ async function validateObservation(observation, expectedState, resolution) {
       "resultsScroll",
       "interactionTrace",
       "activation",
+      "recovery",
       "screenshot",
     ],
     `observation ${expectedState.id}/${resolution.id}`,
@@ -1041,6 +1056,27 @@ async function validateObservation(observation, expectedState, resolution) {
       backRecoveryFocus: expectedState.activation.backRecoveryFocus,
     });
   }
+  const recoveryExpectation = expectedState.recoveryExpectation ?? null;
+  if (recoveryExpectation === null) {
+    assert.equal(observation.recovery, null);
+  } else {
+    assert.deepEqual(observation.recovery, {
+      clearActionLabel: recoveryExpectation.clearActionLabel,
+      clearActionFocused: true,
+      clearQuery: recoveryExpectation.clearQuery,
+      clearResultCount: recoveryExpectation.clearResultCount,
+      clearInputFocused: true,
+      categoryActionLabel: recoveryExpectation.categoryActionLabel,
+      categoryActionFocused: true,
+      categoryQuery: recoveryExpectation.categoryQuery,
+      categoryResultCount: recoveryExpectation.categoryResultCount,
+      categoryFirstResultTitle:
+        recoveryExpectation.categoryFirstResultTitle,
+      categoryFirstResultFocused: true,
+      backRecoveryVerified: true,
+      backRecoveryFocus: recoveryExpectation.backRecoveryFocus,
+    });
+  }
   assert.deepEqual(
     {
       measuredCriticalTextCount: observation.measuredCriticalTextCount,
@@ -1095,7 +1131,7 @@ export async function validateLauncherSearchTvEvidence(
   );
   assert.equal(
     artifact.qualification,
-    "candidate-eight-search-states-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
+    "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
   );
   assert.match(
     artifact.retrievedAtUtc,
@@ -1160,6 +1196,7 @@ export async function validateLauncherSearchTvEvidence(
     overlayOverflowRejected: true,
     arbitraryQueryVerified: false,
     scrollingResultsVerified: true,
+    noResultRecoveryVerified: true,
     resultActivationVerified: true,
     remoteWebActivationVerified: true,
     remoteWebOfflineFailureVerified: true,
@@ -1186,6 +1223,7 @@ export async function validateLauncherSearchTvEvidence(
     remoteWebOutcomeStateCount: 2,
     unavailableOutcomeStateCount: 1,
     destructiveOutcomeStateCount: 1,
+    recoveryStateCount: 1,
     failureOutcomeStateCount: 2,
     denialOutcomeStateCount: 3,
     physicalTelevisionCount: 0,

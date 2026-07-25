@@ -121,6 +121,19 @@ test("rejects interaction, scrolling, or activation drift", async () => {
     artifact.browser.observations[1].interactionTrace.splice(1, 1);
   });
   await validateMutation((artifact) => {
+    artifact.browser.observations[1].recovery.clearInputFocused = false;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[1].recovery.clearResultCount = 17;
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[1].recovery.categoryQuery = "games";
+  });
+  await validateMutation((artifact) => {
+    artifact.browser.observations[1]
+      .recovery.categoryFirstResultFocused = false;
+  });
+  await validateMutation((artifact) => {
     artifact.browser.observations[2].resultsScroll.finalScrollTopCssPx = 0;
   });
   await validateMutation((artifact) => {
@@ -254,6 +267,9 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
     artifact.disposition.resultActivationVerified = false;
   });
   await validateMutation((artifact) => {
+    artifact.disposition.noResultRecoveryVerified = false;
+  });
+  await validateMutation((artifact) => {
     artifact.summary.distinctQueryCount = 6;
   });
   await validateMutation((artifact) => {
@@ -279,6 +295,9 @@ test("rejects arbitrary, physical, target, or count promotion and measured-evide
   });
   await validateMutation((artifact) => {
     artifact.summary.destructiveOutcomeStateCount = 0;
+  });
+  await validateMutation((artifact) => {
+    artifact.summary.recoveryStateCount = 0;
   });
   await validateMutation((artifact) => {
     artifact.summary.failureOutcomeStateCount = 0;

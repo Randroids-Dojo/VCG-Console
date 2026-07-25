@@ -5650,6 +5650,48 @@ scope creation, atomic attachment and anti-escape/entry rules, memory
 controller/limit/group policy, non-reuse, recovery selection, real target OOM
 and hostile-descendant campaigns, and separate qualified GPU evidence.
 
+## 2026-07-24: Search no-result recovery
+
+### Delivered
+
+- Replaced the no-result dead end with one explicit Clear search action and
+  fixed Motion, System, and Settings shortcuts. Every shortcut remains an
+  exact local substring query; no fuzzy, remote, personalized, or hidden-entry
+  suggestion path was added.
+- Added controller-safe focus behavior: ArrowDown from the empty result input
+  reaches Clear search, clearing restores the current 18-result empty query
+  with input focus, and selecting Motion produces five results with Obstacle
+  focused.
+- Expanded the strict no-result state at 720p, 1080p, and 4K from four to nine
+  marked critical-text nodes and from one to five marked actions. All remain
+  within the candidate TV geometry floor with no overlap or overlay overflow.
+- Bound exact recovery evidence into every resolution: clear label/query/count
+  and focus, category label/query/count, first result/title/focus, Escape, and
+  exact Search-opener restoration.
+- Kept STV-001 and STV-003 open. The current 18-result clear destination and
+  three fixed categories are reversible prototype behavior, not final density,
+  taxonomy, spelling, ranking, or localization policy.
+
+### Verification evidence
+
+- Four focused Chrome cases pass: one normal no-result recovery flow plus the
+  same geometry, Clear, Motion, first-result focus, and Back recovery at all
+  three resolutions.
+- Svelte reports zero errors and warnings.
+- The Home, representative-surface, Search, OCR-A structural, and OCR-A
+  platform-fallback artifacts were regenerated against the new JavaScript and
+  CSS production resources. All five strict validators and their eleven
+  adversarial groups pass.
+- The complete root test command and workspace production build pass, followed
+  by all seventy-six Playwright cases.
+
+### Remaining boundary
+
+I-098/Q-056 remain active. Final empty-query density, category taxonomy,
+arbitrary/localized queries, spelling and fuzzy recovery, physical
+TV/controller behavior, target Linux, and every game remain unqualified.
+STV-001 through STV-003 remain owner decisions.
+
 ## 2026-07-24: persistent native diagnostic data-exclusion integration
 
 ### Delivered

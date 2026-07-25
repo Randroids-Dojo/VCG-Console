@@ -1857,6 +1857,45 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await expect(page.getByRole("heading", { name: "Who is playing?" })).toBeVisible();
 });
 
+test("Search no-result recovery clears locally and opens stable category results", async ({
+  page,
+}) => {
+  await page.goto("/?skipBoot=1");
+  const trigger = page.getByRole("button", { name: /Search games/ });
+  await trigger.focus();
+  await trigger.click();
+  const input = page.locator("#universal-search");
+  await input.fill("no-such-vcg-destination");
+  await expect(page.locator("#search-results button")).toHaveCount(0);
+  await expect(page.locator("#search-empty")).toContainText(
+    "Clear the query or browse a local category",
+  );
+  const clear = page.getByRole("button", { name: "Clear search", exact: true });
+  await page.keyboard.press("ArrowDown");
+  await expect(clear).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(input).toHaveValue("");
+  await expect(input).toBeFocused();
+  await expect(page.locator("#search-results button")).toHaveCount(18);
+
+  await input.fill("no-such-vcg-destination");
+  await page.keyboard.press("ArrowDown");
+  await expect(clear).toBeFocused();
+  await page.keyboard.press("Tab");
+  const motion = page
+    .getByLabel("Search recovery")
+    .getByRole("button", { name: "Motion", exact: true });
+  await expect(motion).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(input).toHaveValue("motion");
+  await expect(page.locator("#search-results button")).toHaveCount(5);
+  await expect(page.locator("#search-results button").first()).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#search-overlay")).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("Search restores its opener before offline package launch and Back recovery", async ({
   page,
 }) => {

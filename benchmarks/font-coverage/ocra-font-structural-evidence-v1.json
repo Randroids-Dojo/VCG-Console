@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 83,
-      "totalBytes": 815335,
+      "totalBytes": 817635,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -864,8 +864,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-          "bytes": 3827,
-          "sha256": "16bb38146a4a0234d8e21085c6cc78c115875bef5ea30eb0de54a6fbc293bbfa"
+          "bytes": 5100,
+          "sha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b"
         },
         {
           "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
@@ -1099,8 +1099,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 100570,
-          "sha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b"
+          "bytes": 101597,
+          "sha256": "edafba853bd48422b18b9d7413725d6765134b43f022a88aba377aa8c9ef0dc3"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1295,7 +1295,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "43b684d7cec5ef830b1b3d1374e2ef1c26bf7633b62f0bc8dff33acebc6cf28b",
+    "stylePathSha256": "edafba853bd48422b18b9d7413725d6765134b43f022a88aba377aa8c9ef0dc3",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
