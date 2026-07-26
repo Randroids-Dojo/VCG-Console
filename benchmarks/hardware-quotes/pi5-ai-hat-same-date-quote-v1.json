@@ -1,0 +1,219 @@
+{
+  "format": "vcg-pi-accelerator-quote-comparison/v1",
+  "status": "blocked",
+  "quoteId": "pi5-ai-hat-13-26-40-us-2026-07-25",
+  "observedAt": "2026-07-25T20:06:16-07:00",
+  "currency": "USD",
+  "market": "United States",
+  "claimBoundary": "Same-date public item-page observation only. No cart, checkout, reseller quotation, order, receipt inspection, physical fit test, runtime test, performance result, delivered total, purchase authority, or accelerator selection is claimed.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "complete-reference-bom-boundary",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "role": "accelerator-selection-boundary",
+      "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
+      "sha256": "ba246aef91b8f9b08d7460b2797eb21df92eb03999ae1c88807f259fd45e8a3f"
+    }
+  ],
+  "budget": {
+    "completeDeliveredCeilingUsd": 650,
+    "destinationState": null,
+    "destinationZip": null,
+    "taxExempt": null,
+    "purchaseAuthorized": false
+  },
+  "sharedBom": {
+    "merchandiseSubtotalUsd": 456.28,
+    "lines": [
+      {
+        "role": "compute",
+        "item": "Raspberry Pi 5 8GB",
+        "seller": "PiShop.us",
+        "sellerUrl": "https://www.pishop.us/product/raspberry-pi-5-8gb/",
+        "identifier": "SC1112; PiShop SKU 8GB-9028",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 175
+      },
+      {
+        "role": "cooling",
+        "item": "Raspberry Pi Active Cooler",
+        "seller": "PiShop.us",
+        "sellerUrl": "https://www.pishop.us/product/raspberry-pi-active-cooler/",
+        "identifier": "SC1148; PiShop SKU 374-1",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 10.95
+      },
+      {
+        "role": "enclosure",
+        "item": "HighPi Pro 5S Case for Raspberry Pi 5",
+        "seller": "PiShop.us",
+        "sellerUrl": "https://www.pishop.us/product/highpi-pro-5s-case-for-raspberry-pi-5/",
+        "identifier": "PiShop SKU 9015; UPC 990317300194",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 10.95
+      },
+      {
+        "role": "power",
+        "item": "Raspberry Pi 27W USB-C Power Supply, black US",
+        "seller": "PiShop.us",
+        "sellerUrl": "https://www.pishop.us/product/raspberry-pi-27w-usb-c-power-supply-black-us/",
+        "identifier": "SC1158; PiShop SKU 1795-1; UPC 5056561803395",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 12.95
+      },
+      {
+        "role": "display-cable",
+        "item": "Cableshop.ca micro-HDMI to HDMI cable",
+        "seller": "PiShop.us",
+        "sellerUrl": "https://www.pishop.us/product/micro-hdmi-to-hdmi-cable-for-pi-4-3ft-black/",
+        "identifier": "PiShop SKU CS-PID-301",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 6.45
+      },
+      {
+        "role": "writable-storage",
+        "item": "SanDisk 256GB High Endurance microSDXC",
+        "seller": "B&H Photo Video",
+        "sellerUrl": "https://www.bhphotovideo.com/c/product/1466564-REG/sandisk_sdsqqnr_256g_an6ia_high_endurance_microsd_256gb.html",
+        "identifier": "SDSQQNR-256G-AN6IA; B&H SAMSDHE256GB",
+        "observedStatus": "in-stock-on-2026-07-25",
+        "priceUsd": 69.99
+      },
+      {
+        "role": "shared-rgb-camera",
+        "item": "Logitech Brio Pro",
+        "seller": "Staples",
+        "sellerUrl": "https://www.staples.com/logitech-brio-pro-ultra-hd-webcam-black-960-001105/product_2705146",
+        "identifier": "960-001105; Staples item 2705146",
+        "observedStatus": "item-page-add-to-cart-on-2026-07-25",
+        "priceUsd": 169.99
+      }
+    ]
+  },
+  "variants": [
+    {
+      "variantId": "ai-hat-plus-13",
+      "product": "Raspberry Pi AI HAT+ 13 TOPS",
+      "acceleratorArchitecture": "Hailo-8L",
+      "advertisedTops": 13,
+      "seller": "PiShop.us",
+      "sellerUrl": "https://www.pishop.us/product/raspberry-pi-ai-hat-13-tops/",
+      "sellerSku": "1129-1",
+      "manufacturerIdentifiersAsListed": [
+        "SC1676",
+        "SC1785",
+        "SC1430"
+      ],
+      "observedStatus": "in-stock",
+      "observedPriceUsd": 76.95,
+      "includedHardware": "16mm stacking header, spacers, and screws",
+      "paperCompatibility": "Pi 5; Active Cooler may remain installed; seller recommends HighPi Pro 5S case",
+      "computerVisionPerformanceClaim": null,
+      "merchandiseSubtotalUsd": 533.23,
+      "maximumShippingAndTaxUsd": 116.77,
+      "minimumPreDeliveryCapOverageUsd": 0,
+      "deltaVs26SubtotalUsd": -43,
+      "shippingUsd": null,
+      "taxUsd": null,
+      "deliveredTotalUsd": null,
+      "deliveredCapDisposition": "blocked-pending-destination-quote"
+    },
+    {
+      "variantId": "ai-hat-plus-26",
+      "product": "Raspberry Pi AI HAT+ 26 TOPS",
+      "acceleratorArchitecture": "Hailo-8",
+      "advertisedTops": 26,
+      "seller": "PiShop.us",
+      "sellerUrl": "https://www.pishop.us/product/raspberry-pi-ai-hat-26-tops/",
+      "sellerSku": "1243-1",
+      "manufacturerIdentifiersAsListed": [
+        "SC1791",
+        "SC1468"
+      ],
+      "observedStatus": "in-stock",
+      "observedPriceUsd": 119.95,
+      "includedHardware": "16mm stacking header, spacers, and screws",
+      "paperCompatibility": "Pi 5; Active Cooler may remain installed; seller recommends HighPi Pro 5S case",
+      "computerVisionPerformanceClaim": null,
+      "merchandiseSubtotalUsd": 576.23,
+      "maximumShippingAndTaxUsd": 73.77,
+      "minimumPreDeliveryCapOverageUsd": 0,
+      "deltaVs26SubtotalUsd": 0,
+      "shippingUsd": null,
+      "taxUsd": null,
+      "deliveredTotalUsd": null,
+      "deliveredCapDisposition": "blocked-pending-destination-quote"
+    },
+    {
+      "variantId": "ai-hat-plus-2-40",
+      "product": "Raspberry Pi AI HAT+ 2 40 TOPS",
+      "acceleratorArchitecture": "Hailo-10H",
+      "advertisedTops": 40,
+      "seller": "PiShop.us",
+      "sellerUrl": "https://www.pishop.us/product/raspberry-pi-ai-hat-2/",
+      "sellerSku": "1435-1",
+      "manufacturerIdentifiersAsListed": [
+        "SC2166"
+      ],
+      "observedStatus": "in-stock-ships-in-2-to-3-business-days-due-to-high-demand",
+      "observedPriceUsd": 200,
+      "includedHardware": "optional heatsink, 16mm stacking header, spacers, and screws",
+      "paperCompatibility": "Pi 5; Active Cooler may remain installed; seller lists HighPi Pro 5S case as an essential extra",
+      "computerVisionPerformanceClaim": "Raspberry Pi and seller describe computer-vision performance as comparable to the 26 TOPS AI HAT+",
+      "merchandiseSubtotalUsd": 656.28,
+      "maximumShippingAndTaxUsd": 0,
+      "minimumPreDeliveryCapOverageUsd": 6.28,
+      "deltaVs26SubtotalUsd": 80.05,
+      "shippingUsd": null,
+      "taxUsd": null,
+      "deliveredTotalUsd": null,
+      "deliveredCapDisposition": "fails-cap-before-shipping-and-tax"
+    }
+  ],
+  "officialProductEvidence": {
+    "url": "https://www.raspberrypi.com/products/ai-hat-plus-2/?pubDate=20260413",
+    "observedPriceUsd": 200,
+    "advertisedTops": 40,
+    "numericPrecision": "INT4",
+    "onboardRamGb": 8,
+    "computerVisionPerformanceClaim": "comparable to Raspberry Pi AI HAT+ 26 TOPS",
+    "includedHardware": "optional heatsink, 16mm stacking header, spacers, and screws"
+  },
+  "approvedResellerEvidence": {
+    "directoryUrl": "https://www.raspberrypi.com/resellers/?country=1&q=usa",
+    "seller": "PiShop.us",
+    "officialLinkUrl": "https://www.pishop.us/product-category/raspberry-pi/",
+    "observedAt": "2026-07-25T20:06:16-07:00",
+    "status": "listed-by-raspberry-pi"
+  },
+  "comparisonPolicy": {
+    "sharedLineSubstitutionAllowed": false,
+    "variantOnlyChangesHat": true,
+    "currentBaselineVariantId": "ai-hat-plus-26",
+    "selectedVariantId": null,
+    "automaticSelectionAllowed": false,
+    "physicalQualificationComplete": false,
+    "runtimeQualificationComplete": false,
+    "fortyTopsAdvertisedNumberMayImplyFasterComputerVision": false
+  },
+  "blockerCodes": [
+    "destination-specific-shipping-and-tax",
+    "exact-manufacturer-identifier-aliases",
+    "camera-and-mount-qualification",
+    "received-hardware-and-paper-compatibility-inspection",
+    "accelerator-runtime-and-workload-qualification",
+    "pre-registered-value-gates-and-selection-decision"
+  ],
+  "result": {
+    "completeDeliveredQuotes": 0,
+    "variantsWithinMerchandiseCeiling": 2,
+    "variantsFailingBeforeDelivery": 1,
+    "purchaseRecommended": false,
+    "purchaseAuthorized": false,
+    "selectedVariantId": null
+  }
+}

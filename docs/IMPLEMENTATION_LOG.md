@@ -6382,3 +6382,43 @@ participant minimum, consent, privacy/deletion audit, independent ground truth,
 schedule, complete gate set, attempt, result, backend selection or richer game
 profile requirement exists. Sequential live sessions and capture-arrival time
 remain invalid substitutes.
+
+## 2026-07-25: same-date Raspberry Pi accelerator quote comparison
+
+### Delivered
+
+- Advanced I-163 from an open row to an active, machine-checked merchandise
+  comparison without claiming destination-specific shipping, tax or delivered
+  totals.
+- Re-observed every shared Pi 5 8GB, cooler, case, power, display-cable,
+  microSD and exact Brio camera page plus the three HAT pages on 2026-07-25;
+  held the shared non-HAT subtotal fixed at $456.28 across all variants.
+- Verified PiShop.us is listed in Raspberry Pi's live Approved Reseller
+  directory and recorded the exact official outbound reseller link.
+- Recorded complete merchandise subtotals of $533.23 for 13 TOPS, $576.23 for
+  26 TOPS and $656.28 for 40 TOPS. The first two retain $116.77 and $73.77 of
+  shipping/tax headroom; the 40 TOPS row fails D-111 by $6.28 before delivery.
+- Preserved D-041's 26 TOPS baseline and the distinction between the 40 TOPS
+  INT4 generative figure and the vendor's comparable-to-26 computer-vision
+  claim. No item-page number is promoted into performance evidence.
+- Added Q-266 for the unresolved 13/26/40 manufacturer identifier aliases.
+
+### Verification evidence
+
+- The strict JSON binds the complete reference BOM and accelerator comparison
+  plan, preserves all exact shared line identities and direct source URLs, and
+  keeps destination, shipping, tax, delivered totals, purchase authority,
+  physical/runtime qualification and selected variant null or false.
+- Nine focused adversarial tests recompute all money in integer cents and
+  reject source, BOM, identity, SKU, stock, price, arithmetic, delivery,
+  authority, qualification, selection, 40-TOPS claim, blocker, result, schema
+  and encoding drift.
+
+### Remaining boundary
+
+I-163 is active, not closed. Q-184 must supply non-sensitive quote jurisdiction
+and evidence authority; Q-185/Q-266 must resolve exact HAT identities; Q-186
+must qualify the camera/mount; and Q-259 must freeze value gates before any
+selection change. No cart, checkout, approved reseller quote, delivered total,
+order, receipt, physical fit, target runtime, performance result or purchase
+authorization exists.
