@@ -83,8 +83,25 @@ pub struct RetroArchRequest {
     pub content_sha256: Option<ExpectedSha256>,
     pub base_config: PathBuf,
     pub base_config_sha256: ExpectedSha256,
+    pub auxiliary: Vec<RetroArchAuxiliaryArtifact>,
     pub profile_id: String,
     pub game_id: String,
+}
+
+/// One additional frontend runtime file bound by the signed installed catalog.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroArchAuxiliaryArtifact {
+    pub path: PathBuf,
+    pub sha256: ExpectedSha256,
+    /// Development-channel filename required by the upstream Windows loader.
+    pub runtime_name: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct MaterializedArtifact {
+    source: PathBuf,
+    destination: PathBuf,
+    sha256: ExpectedSha256,
 }
 
 /// Console-owned storage assigned to one profile and one retro title.
@@ -181,6 +198,7 @@ pub struct RetroArchPlan {
     sandbox: RetroSandboxPlan,
     generated_config: String,
     contentless: bool,
+    materialized_artifacts: Vec<MaterializedArtifact>,
 }
 
 impl RetroArchPlan {
@@ -235,6 +253,9 @@ impl RetroArchPlan {
         ] {
             create_private_directory(directory)?;
         }
+        for artifact in &self.materialized_artifacts {
+            materialize_verified_artifact(artifact)?;
+        }
 
         let temporary = self
             .storage
@@ -282,6 +303,49 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         &base_config,
         &request.base_config_sha256,
     )?;
+    let mut auxiliary = Vec::with_capacity(request.auxiliary.len());
+    let frontend_runtime = request
+        .runtime_root
+        .join("retroarch")
+        .join(&request.profile_id)
+        .join(&request.game_id)
+        .join("frontend");
+    let frontend_name = frontend
+        .file_name()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(frontend.clone()))?;
+    let materialized_frontend = frontend_runtime.join(frontend_name);
+    let mut materialized_artifacts = vec![MaterializedArtifact {
+        source: frontend.clone(),
+        destination: materialized_frontend.clone(),
+        sha256: request.frontend_sha256,
+    }];
+    let mut runtime_names =
+        std::collections::HashSet::from([frontend_name.to_string_lossy().to_ascii_lowercase()]);
+    for artifact in &request.auxiliary {
+        let path =
+            canonical_package_file("frontend auxiliary artifact", &artifact.path, &install_root)?;
+        verify_file_hash("frontend auxiliary artifact", &path, &artifact.sha256)?;
+        let runtime_name = artifact.runtime_name.as_deref().map_or_else(
+            || {
+                path.file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.clone()))
+            },
+            |name| {
+                validate_runtime_name(name)?;
+                Ok(name.to_owned())
+            },
+        )?;
+        if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
+            return Err(RetroArchError::DuplicateRuntimeArtifact(runtime_name));
+        }
+        materialized_artifacts.push(MaterializedArtifact {
+            source: path.clone(),
+            destination: frontend_runtime.join(runtime_name),
+            sha256: artifact.sha256,
+        });
+        auxiliary.push(path);
+    }
     let content = match (
         &request.content,
         &request.content_root,
@@ -326,8 +390,16 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
     for path in storage_paths(&storage) {
         validate_config_path(path)?;
     }
-    let sandbox = sandbox_plan(&frontend, &core, &base_config, content.as_deref(), &storage)?;
+    let sandbox = sandbox_plan(
+        &frontend,
+        &core,
+        &base_config,
+        &auxiliary,
+        content.as_deref(),
+        &storage,
+    )?;
 
+    let contentless = content.is_none();
     let generated_config = render_config(&storage);
     let mut arguments = vec![
         OsString::from("--config"),
@@ -338,7 +410,6 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         OsString::from("-L"),
         core.into_os_string(),
     ];
-    let contentless = content.is_none();
     if let Some(content) = content {
         arguments.push(content.into_os_string());
     } else {
@@ -347,7 +418,7 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         arguments.push(OsString::from("--menu"));
     }
 
-    let launch = LaunchSpec::new(frontend)
+    let launch = LaunchSpec::new(materialized_frontend)
         .map_err(|error| RetroArchError::LaunchPlan(error.to_string()))?
         .args(arguments)
         .current_dir(&session)
@@ -362,17 +433,82 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         sandbox,
         generated_config,
         contentless,
+        materialized_artifacts,
     })
+}
+
+fn validate_runtime_name(name: &str) -> Result<(), RetroArchError> {
+    let valid = !name.is_empty()
+        && name.len() <= 128
+        && !name.ends_with(['.', ' '])
+        && name != "."
+        && name != ".."
+        && name
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-' | b'+'));
+    if valid {
+        Ok(())
+    } else {
+        Err(RetroArchError::UnsafeRuntimeName(name.to_owned()))
+    }
+}
+
+fn materialize_verified_artifact(artifact: &MaterializedArtifact) -> Result<(), RetroArchError> {
+    verify_file_hash(
+        "runtime source artifact",
+        &artifact.source,
+        &artifact.sha256,
+    )?;
+    let parent = artifact
+        .destination
+        .parent()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(artifact.destination.clone()))?;
+    create_private_directory(parent)?;
+    let temporary = artifact
+        .destination
+        .with_extension(format!("vcg-tmp-{}", std::process::id()));
+    if temporary.exists() {
+        fs::remove_file(&temporary).map_err(|source| RetroArchError::Io {
+            operation: "remove stale runtime artifact temporary",
+            path: temporary.clone(),
+            source,
+        })?;
+    }
+    fs::copy(&artifact.source, &temporary).map_err(|source| RetroArchError::Io {
+        operation: "materialize verified runtime artifact",
+        path: temporary.clone(),
+        source,
+    })?;
+    verify_file_hash(
+        "materialized runtime artifact",
+        &temporary,
+        &artifact.sha256,
+    )?;
+    if artifact.destination.exists() {
+        fs::remove_file(&artifact.destination).map_err(|source| RetroArchError::Io {
+            operation: "replace materialized runtime artifact",
+            path: artifact.destination.clone(),
+            source,
+        })?;
+    }
+    fs::rename(&temporary, &artifact.destination).map_err(|source| RetroArchError::Io {
+        operation: "publish materialized runtime artifact",
+        path: artifact.destination.clone(),
+        source,
+    })?;
+    Ok(())
 }
 
 fn sandbox_plan(
     frontend: &Path,
     core: &Path,
     base_config: &Path,
+    auxiliary: &[PathBuf],
     content: Option<&Path>,
     storage: &RetroArchStorage,
 ) -> Result<RetroSandboxPlan, RetroArchError> {
     let mut read_only = vec![frontend.to_owned(), core.to_owned(), base_config.to_owned()];
+    read_only.extend_from_slice(auxiliary);
     if let Some(content) = content {
         read_only.push(content.to_owned());
     }
@@ -745,6 +881,8 @@ pub enum RetroArchError {
         actual: ExpectedSha256,
     },
     UnsafeConfigPath(PathBuf),
+    UnsafeRuntimeName(String),
+    DuplicateRuntimeArtifact(String),
     LaunchPlan(String),
     Io {
         operation: &'static str,
@@ -815,6 +953,12 @@ impl fmt::Display for RetroArchError {
                 "path cannot be represented safely in RetroArch configuration: {}",
                 path.display()
             ),
+            Self::UnsafeRuntimeName(name) => {
+                write!(formatter, "unsafe frontend runtime filename: {name}")
+            }
+            Self::DuplicateRuntimeArtifact(name) => {
+                write!(formatter, "duplicate frontend runtime filename: {name}")
+            }
             Self::LaunchPlan(message) => write!(formatter, "cannot create launch plan: {message}"),
             Self::Io {
                 operation,
@@ -842,8 +986,8 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use super::{
-        ExpectedSha256, RetroArchError, RetroArchRequest, RetroSandboxAccess,
-        RetroSandboxCapability, digest_file, plan,
+        ExpectedSha256, RetroArchAuxiliaryArtifact, RetroArchError, RetroArchRequest,
+        RetroSandboxAccess, RetroSandboxCapability, digest_file, plan,
     };
 
     struct Fixture {
@@ -908,6 +1052,7 @@ mod tests {
                 content_sha256: Some(digest_file(&self.content).expect("hash content")),
                 base_config: self.config.clone(),
                 base_config_sha256: digest_file(&self.config).expect("hash base configuration"),
+                auxiliary: Vec::new(),
                 profile_id: "player-one".to_owned(),
                 game_id: "test-game".to_owned(),
             }
@@ -926,8 +1071,9 @@ mod tests {
         let plan = plan(&fixture.request()).expect("valid plan");
         assert_eq!(
             plan.launch().program(),
-            fs::canonicalize(&fixture.frontend)
-                .expect("canonical frontend")
+            fixture
+                .runtime
+                .join("retroarch/player-one/test-game/frontend/retroarch")
                 .as_path()
         );
         let arguments = plan.launch().arguments().collect::<Vec<_>>();
@@ -1009,6 +1155,49 @@ mod tests {
                 mount.path == fixture.install || mount.path == fixture.content_store
             })
         );
+    }
+
+    #[test]
+    fn materializes_and_rehashes_signed_frontend_runtime_artifacts() {
+        let fixture = Fixture::new();
+        let auxiliary = fixture.install.join("libstdcxx-6.dll");
+        fs::write(&auxiliary, b"signed loader dependency").expect("write auxiliary artifact");
+        let mut request = fixture.request();
+        request.auxiliary.push(RetroArchAuxiliaryArtifact {
+            path: auxiliary.clone(),
+            sha256: digest_file(&auxiliary).expect("hash auxiliary artifact"),
+            runtime_name: Some("libstdc++-6.dll".to_owned()),
+        });
+
+        let plan = plan(&request).expect("plan with signed auxiliary artifact");
+        plan.prepare()
+            .expect("materialize verified frontend runtime");
+        assert_eq!(
+            fs::read(plan.launch().program()).expect("read materialized frontend"),
+            b"fixture"
+        );
+        assert_eq!(
+            fs::read(
+                fixture
+                    .runtime
+                    .join("retroarch/player-one/test-game/frontend/libstdc++-6.dll")
+            )
+            .expect("read materialized alias"),
+            b"signed loader dependency"
+        );
+        assert!(plan.sandbox().mounts().iter().any(|mount| {
+            mount.access == RetroSandboxAccess::ReadOnly
+                && mount.path == fs::canonicalize(&auxiliary).expect("canonical auxiliary")
+        }));
+
+        fs::write(&auxiliary, b"changed dependency").expect("change auxiliary artifact");
+        assert!(matches!(
+            plan.prepare(),
+            Err(RetroArchError::HashMismatch {
+                kind: "runtime source artifact",
+                ..
+            })
+        ));
     }
 
     #[test]

@@ -22,6 +22,7 @@ use crate::update_trust::{
 const CATALOG_SCHEMA_VERSION: u32 = 1;
 const MAX_CATALOG_BYTES: u64 = 1_048_576;
 const MAX_PACKAGES: usize = 1_024;
+const MAX_LIBRETRO_AUXILIARY_FILES: usize = 256;
 #[cfg(test)]
 const SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
 
@@ -76,7 +77,12 @@ impl TrustedPackageCatalog {
             .map_err(|error| CatalogError::UpdateAuthority(error.to_string()))?;
         let document: CatalogDocument = serde_json::from_slice(&catalog_bytes)
             .map_err(|error| CatalogError::InvalidDocument(error.to_string()))?;
-        let mut catalog = Self::from_document(document, roots, expected_target)?;
+        let admission = if update_authority.channel() == "development" {
+            CatalogAdmission::Development
+        } else {
+            CatalogAdmission::QualifiedOnly
+        };
+        let mut catalog = Self::from_document(document, roots, expected_target, admission)?;
         catalog.update_authority = Some(update_authority);
         Ok(catalog)
     }
@@ -131,13 +137,19 @@ impl TrustedPackageCatalog {
 
         let document: CatalogDocument = serde_json::from_slice(&catalog_bytes)
             .map_err(|error| CatalogError::InvalidDocument(error.to_string()))?;
-        Self::from_document(document, roots, &current_target())
+        Self::from_document(
+            document,
+            roots,
+            &current_target(),
+            CatalogAdmission::QualifiedOnly,
+        )
     }
 
     fn from_document(
         document: CatalogDocument,
         roots: CatalogRoots,
         expected_target: &str,
+        admission: CatalogAdmission,
     ) -> Result<Self, CatalogError> {
         if document.schema_version != CATALOG_SCHEMA_VERSION {
             return Err(CatalogError::UnsupportedSchema(document.schema_version));
@@ -170,9 +182,11 @@ impl TrustedPackageCatalog {
                     package.id
                 )));
             }
-            if package.qualification != Qualification::Qualified {
+            if package.qualification == Qualification::Development
+                && admission != CatalogAdmission::Development
+            {
                 return Err(CatalogError::InvalidRecord(format!(
-                    "package {} is not qualified",
+                    "development package {} requires the development update channel",
                     package.id
                 )));
             }
@@ -180,6 +194,7 @@ impl TrustedPackageCatalog {
             let manifest_sha256 = parse_hash("manifest", &package.manifest.sha256)?;
             let installed_runtime = parse_installed_runtime(
                 &package.id,
+                package.qualification,
                 package.runtime,
                 package.libretro,
                 package.native,
@@ -188,6 +203,7 @@ impl TrustedPackageCatalog {
             packages.push(InstalledPackage {
                 id: package.id,
                 version: package.version,
+                qualification: package.qualification,
                 manifest: InstalledFile {
                     path: package.manifest.path,
                     sha256: manifest_sha256,
@@ -248,6 +264,14 @@ impl TrustedPackageCatalog {
                         let path =
                             resolve_managed_file(kind, &self.roots.install_root, &file.path)?;
                         verify_sha256(kind, &path, &file.sha256)?;
+                    }
+                    for file in &libretro.auxiliary {
+                        let path = resolve_managed_file(
+                            "frontend auxiliary artifact",
+                            &self.roots.install_root,
+                            &file.file.path,
+                        )?;
+                        verify_sha256("frontend auxiliary artifact", &path, &file.file.sha256)?;
                     }
                     if let Some(content) = &libretro.content {
                         let root = self.roots.content_root.as_ref().ok_or_else(|| {
@@ -412,6 +436,15 @@ impl TrustedPackageCatalog {
                     &base_config,
                     &libretro.base_config.sha256,
                 )?;
+                let auxiliary = libretro
+                    .auxiliary
+                    .iter()
+                    .map(|file| crate::retroarch::RetroArchAuxiliaryArtifact {
+                        path: self.roots.install_root.join(&file.file.path),
+                        sha256: file.file.sha256,
+                        runtime_name: file.runtime_name.clone(),
+                    })
+                    .collect();
                 let (content, content_sha256) = if let Some(content) = &libretro.content {
                     let root = self.roots.content_root.as_ref().ok_or_else(|| {
                         CatalogError::InvalidRecord(format!(
@@ -436,6 +469,7 @@ impl TrustedPackageCatalog {
                     content_sha256,
                     base_config,
                     base_config_sha256: libretro.base_config.sha256,
+                    auxiliary,
                     profile_id: profile_id.to_owned(),
                     game_id: package.id.clone(),
                 })))
@@ -497,6 +531,7 @@ pub struct VerifiedPackageHealthPolicy {
 struct InstalledPackage {
     id: String,
     version: String,
+    qualification: Qualification,
     manifest: InstalledFile,
     runtime: InstalledRuntime,
 }
@@ -512,6 +547,7 @@ struct LibretroPackage {
     frontend: InstalledFile,
     core: InstalledFile,
     base_config: InstalledFile,
+    auxiliary: Vec<InstalledAuxiliary>,
     content: Option<ManagedContent>,
 }
 
@@ -524,6 +560,12 @@ struct NativePackage {
 struct InstalledFile {
     path: PathBuf,
     sha256: ExpectedSha256,
+}
+
+#[derive(Clone, Debug)]
+struct InstalledAuxiliary {
+    file: InstalledFile,
+    runtime_name: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -557,6 +599,13 @@ struct PackageDocument {
 #[serde(rename_all = "kebab-case")]
 enum Qualification {
     Qualified,
+    Development,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum CatalogAdmission {
+    QualifiedOnly,
+    Development,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize)]
@@ -579,7 +628,18 @@ struct LibretroDocument {
     frontend: FileDocument,
     core: FileDocument,
     base_config: FileDocument,
+    #[serde(default)]
+    auxiliary: Vec<AuxiliaryDocument>,
     content: ContentDocument,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AuxiliaryDocument {
+    path: PathBuf,
+    sha256: String,
+    #[serde(default)]
+    runtime_name: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -597,6 +657,7 @@ enum ContentDocument {
 
 fn parse_installed_runtime(
     package_id: &str,
+    qualification: Qualification,
     runtime: RuntimeKind,
     libretro: Option<LibretroDocument>,
     native: Option<NativeDocument>,
@@ -617,6 +678,53 @@ fn parse_installed_runtime(
             validate_relative_file("frontend", &libretro.frontend.path)?;
             validate_relative_file("core", &libretro.core.path)?;
             validate_relative_file("base configuration", &libretro.base_config.path)?;
+            if libretro.auxiliary.len() > MAX_LIBRETRO_AUXILIARY_FILES {
+                return Err(CatalogError::InvalidRecord(format!(
+                    "libretro package {package_id} exceeds the {MAX_LIBRETRO_AUXILIARY_FILES} auxiliary-file limit"
+                )));
+            }
+            let mut artifact_paths = HashSet::from([
+                libretro.frontend.path.clone(),
+                libretro.core.path.clone(),
+                libretro.base_config.path.clone(),
+            ]);
+            let mut runtime_names = HashSet::new();
+            let mut auxiliary = Vec::with_capacity(libretro.auxiliary.len());
+            for file in libretro.auxiliary {
+                validate_relative_file("frontend auxiliary artifact", &file.path)?;
+                if !artifact_paths.insert(file.path.clone()) {
+                    return Err(CatalogError::InvalidRecord(format!(
+                        "libretro package {package_id} repeats artifact path {}",
+                        file.path.display()
+                    )));
+                }
+                if file.runtime_name.is_some() && qualification != Qualification::Development {
+                    return Err(CatalogError::InvalidRecord(format!(
+                        "libretro package {package_id} may use runtimeName only in the development channel"
+                    )));
+                }
+                if let Some(runtime_name) = file.runtime_name.as_deref() {
+                    validate_runtime_name(package_id, runtime_name)?;
+                }
+                let runtime_name = file.runtime_name.as_deref().unwrap_or_else(|| {
+                    file.path
+                        .file_name()
+                        .and_then(|name| name.to_str())
+                        .expect("validated relative artifact paths have a UTF-8 filename")
+                });
+                if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
+                    return Err(CatalogError::InvalidRecord(format!(
+                        "libretro package {package_id} repeats runtime filename {runtime_name}"
+                    )));
+                }
+                auxiliary.push(InstalledAuxiliary {
+                    file: InstalledFile {
+                        path: file.path,
+                        sha256: parse_hash("frontend auxiliary artifact", &file.sha256)?,
+                    },
+                    runtime_name: file.runtime_name,
+                });
+            }
             let content = match libretro.content {
                 ContentDocument::None => None,
                 ContentDocument::Managed { path, sha256 } => {
@@ -645,6 +753,7 @@ fn parse_installed_runtime(
                     path: libretro.base_config.path,
                     sha256: parse_hash("base configuration", &libretro.base_config.sha256)?,
                 },
+                auxiliary,
                 content,
             }))
         }
@@ -667,6 +776,24 @@ fn parse_installed_runtime(
                 },
             }))
         }
+    }
+}
+
+fn validate_runtime_name(package_id: &str, name: &str) -> Result<(), CatalogError> {
+    let valid = !name.is_empty()
+        && name.len() <= 128
+        && !name.ends_with(['.', ' '])
+        && name != "."
+        && name != ".."
+        && name
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-' | b'+'));
+    if valid {
+        Ok(())
+    } else {
+        Err(CatalogError::InvalidRecord(format!(
+            "libretro package {package_id} has an unsafe runtime filename {name}"
+        )))
     }
 }
 
@@ -709,11 +836,15 @@ fn verify_bound_manifest(
         InstalledRuntime::Libretro(_) => "libretro",
         InstalledRuntime::Native(_) => "native",
     };
+    let expected_compatibility = match package.qualification {
+        Qualification::Qualified => "qualified",
+        Qualification::Development => "unverified",
+    };
     if manifest.schema_version != 1
         || manifest.id != package.id
         || manifest.version != package.version
         || manifest.runtime != expected_runtime
-        || manifest.compatibility_status != "qualified"
+        || manifest.compatibility_status != expected_compatibility
     {
         return Err(CatalogError::InvalidBoundManifest(format!(
             "manifest identity or qualification does not match signed package {}",
@@ -1296,6 +1427,29 @@ pub(crate) mod tests {
             self.sign_catalog(&self.native_document());
         }
 
+        fn publish_development(&self) {
+            self.publish_development_with_status("unverified");
+        }
+
+        fn publish_development_with_status(&self, compatibility_status: &str) {
+            fs::write(
+                &self.manifest,
+                format!(
+                    "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\"runtime\":\"libretro\",\"compatibilityStatus\":\"{compatibility_status}\",\"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
+                ),
+            )
+            .expect("write development manifest");
+            let document = String::from_utf8(
+                self.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+            )
+            .expect("catalog document is UTF-8")
+            .replace(
+                "\"qualification\":\"qualified\"",
+                "\"qualification\":\"development\"",
+            );
+            self.sign_catalog(document.as_bytes());
+        }
+
         fn sign_catalog(&self, bytes: &[u8]) {
             fs::write(&self.catalog, bytes).expect("write catalog");
             let mut message = Vec::with_capacity(SIGNED_MESSAGE_PREFIX.len() + bytes.len());
@@ -1368,6 +1522,10 @@ pub(crate) mod tests {
     }
 
     fn delegated_policy(role_key: &SigningKey) -> TrustedUpdatePolicy {
+        delegated_policy_for_channel(role_key, "stable")
+    }
+
+    fn delegated_policy_for_channel(role_key: &SigningKey, channel: &str) -> TrustedUpdatePolicy {
         let root_key = SigningKey::from_bytes(&[41_u8; 32]);
         let root_bytes = serde_json::to_vec(&json!({
             "schemaVersion": 1,
@@ -1379,7 +1537,7 @@ pub(crate) mod tests {
                 "publicKey": encode_hex(root_key.verifying_key().as_bytes()),
             }],
             "roles": [{
-                "channel": "stable",
+                "channel": channel,
                 "artifact": "installed-catalog",
                 "target": current_target(),
                 "threshold": 1,
@@ -1409,7 +1567,103 @@ pub(crate) mod tests {
         let root =
             TrustedUpdateRoot::bootstrap(&root_bytes, &signatures, &anchors, 3, TRUSTED_TIME)
                 .expect("root bootstraps");
-        TrustedUpdatePolicy::new(root, "stable", TRUSTED_TIME).expect("policy creates")
+        TrustedUpdatePolicy::new(root, channel, TRUSTED_TIME).expect("policy creates")
+    }
+
+    fn delegated_catalog_signatures(fixture: &Fixture) -> DetachedUpdateSignatures {
+        let catalog_bytes = fs::read(&fixture.catalog).expect("catalog reads");
+        let mut message = Vec::from(SIGNED_MESSAGE_PREFIX);
+        message.extend_from_slice(&catalog_bytes);
+        DetachedUpdateSignatures::new([DetachedUpdateSignature::from_hex(
+            "catalog-role",
+            &encode_hex(&fixture.signing_key.sign(&message).to_bytes()),
+        )
+        .expect("catalog signature decodes")])
+        .expect("catalog signatures create")
+    }
+
+    #[test]
+    fn development_packages_require_development_authority_and_unverified_manifest() {
+        let fixture = Fixture::new();
+        fixture.publish_development();
+        assert!(matches!(
+            fixture.load(),
+            Err(CatalogError::InvalidRecord(message))
+                if message.contains("requires the development update channel")
+        ));
+
+        let signatures = delegated_catalog_signatures(&fixture);
+        let stable = delegated_policy_for_channel(&fixture.signing_key, "stable");
+        assert!(matches!(
+            TrustedPackageCatalog::load_with_update_role(
+                &fixture.catalog,
+                &signatures,
+                &stable,
+                &current_target(),
+                fixture.roots(),
+            ),
+            Err(CatalogError::InvalidRecord(message))
+                if message.contains("requires the development update channel")
+        ));
+
+        let development = delegated_policy_for_channel(&fixture.signing_key, "development");
+        let catalog = TrustedPackageCatalog::load_with_update_role(
+            &fixture.catalog,
+            &signatures,
+            &development,
+            &current_target(),
+            fixture.roots(),
+        )
+        .expect("development-authorized package loads");
+        catalog
+            .verify_all_artifacts()
+            .expect("development package artifacts verify");
+        assert_eq!(
+            catalog
+                .update_authority()
+                .expect("development authority retained")
+                .channel(),
+            "development"
+        );
+
+        fixture.publish_development_with_status("qualified");
+        let signatures = delegated_catalog_signatures(&fixture);
+        let catalog = TrustedPackageCatalog::load_with_update_role(
+            &fixture.catalog,
+            &signatures,
+            &development,
+            &current_target(),
+            fixture.roots(),
+        )
+        .expect("development catalog parses before bound-manifest verification");
+        assert!(matches!(
+            catalog.verify_all_artifacts(),
+            Err(CatalogError::InvalidBoundManifest(_))
+        ));
+    }
+
+    #[test]
+    fn runtime_filename_alias_is_development_only() {
+        let fixture = Fixture::new();
+        let auxiliary = fixture.install.join("retroarch/libstdcxx-6.dll");
+        fs::write(&auxiliary, b"loader dependency").expect("write auxiliary");
+        let document = String::from_utf8(
+            fixture.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+        )
+        .expect("catalog document is UTF-8")
+        .replace(
+            "\"content\":{\"mode\":\"none\"}",
+            &format!(
+                "\"auxiliary\":[{{\"path\":\"retroarch/libstdcxx-6.dll\",\"sha256\":\"{}\",\"runtimeName\":\"libstdc++-6.dll\"}}],\"content\":{{\"mode\":\"none\"}}",
+                digest_path(&auxiliary)
+            ),
+        );
+        fixture.sign_catalog(document.as_bytes());
+        assert!(matches!(
+            fixture.load(),
+            Err(CatalogError::InvalidRecord(message))
+                if message.contains("runtimeName only in the development channel")
+        ));
     }
 
     #[test]
