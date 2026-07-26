@@ -1,0 +1,330 @@
+{
+  "format": "vcg-steamos-uvc-permission-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "steamos-uvc-permission-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-167"
+  ],
+  "claimBoundary": "This is a strict zero-result qualification plan. Existing merchandise, UVC, Windows, ordinary Linux, Raspberry Pi, Flatpak documentation, package, shared-camera, capture-policy, and microphone-disablement evidence do not prove a received camera, SteamOS V4L2 or PipeWire access, permission confinement, genuine 1080p60 capture, exposure timestamps, controls, hot-plug, suspend, reconnect, privacy, or qualification. No route may be selected, operated, published, or used to promote the optional Steam Machine tier from this plan.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "steam-machine-camera-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "flatpak-camera-research-boundary",
+      "path": "docs/AUTONOMOUS_RESEARCH_2026-07-19.md",
+      "sha256": "40c0b3d95a2d4207b821d6b2b452be72b31dadba414fa243eec725eea68f2b54"
+    },
+    {
+      "role": "flatpak-source-register",
+      "path": "docs/SOURCES.md",
+      "sha256": "fba960847a8616ba66dddeac4b8650c9ddcfdab09b85553eeaff240ab1474b79"
+    },
+    {
+      "role": "steamos-update-safe-content-campaign",
+      "path": "docs/STEAMOS_UPDATE_SAFE_CONTENT_CAMPAIGN_2026-07-26.md",
+      "sha256": "63e1515a1a24c103770c7cf13a95600273ec2100f558e020c2ef6cc9504bacf2"
+    },
+    {
+      "role": "steamos-update-safe-content-plan",
+      "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
+      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+    },
+    {
+      "role": "shared-camera-qualification-campaign",
+      "path": "docs/SHARED_CAMERA_QUALIFICATION_PLAN_2026-07-25.md",
+      "sha256": "d546626ac2ac7de51f656a9b8e68759d61e278cbb3d7e4aebbf3c2055c34c1a8"
+    },
+    {
+      "role": "shared-camera-qualification-plan",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "microphone-disablement-campaign",
+      "path": "docs/MICROPHONE_DISABLEMENT_QUALIFICATION_PLAN_2026-07-25.md",
+      "sha256": "0fef641eb72761f2b1f40a4c0ee8603be556e75c3bb220eb743d1c1c5a938855"
+    },
+    {
+      "role": "microphone-disablement-plan",
+      "path": "benchmarks/microphone-disablement/microphone-disablement-qualification-plan-v1.json",
+      "sha256": "74d1f8b1e52a90f0ed8ad146f0070b31f6569c1265e049edf5d697305ba5374e"
+    },
+    {
+      "role": "camera-capture-policy-campaign",
+      "path": "docs/CAMERA_CAPTURE_POLICY_CAMPAIGN_2026-07-25.md",
+      "sha256": "dbd7bb29f73c2b6b4c2079e3c53202acc1b31da159f9c019ee7d1322814752d5"
+    },
+    {
+      "role": "camera-capture-policy-plan",
+      "path": "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json",
+      "sha256": "27fb5959a85125008634c94d503ba690e0bab5a3f6fff84f6ade6619c09f8db0"
+    },
+    {
+      "role": "camera-action-latency-boundary",
+      "path": "docs/CAMERA_ACTION_LATENCY_CAMPAIGN_2026-07-24.md",
+      "sha256": "008119a4226a7494bcc0202dc01a85bbfe97068840897c332a4b4cee126e5d58"
+    },
+    {
+      "role": "camera-state-truth-boundary",
+      "path": "docs/CAMERA_STATE_TRUTH_2026-07-25.md",
+      "sha256": "bb69eeace5827409067f649bd80b82cc9cb0ec2c9f8b11e7d7d9d7d5def22485"
+    },
+    {
+      "role": "physical-camera-state-campaign",
+      "path": "docs/PHYSICAL_SHUTTER_CAMERA_STATE_EXPERIENCE_CAMPAIGN_2026-07-26.md",
+      "sha256": "19c7743c5be6ba33dcf16dda71e57372ad4ca5d7d52c74304111279fdc54e346"
+    },
+    {
+      "role": "device-only-data-exclusion-boundary",
+      "path": "docs/DEVICE_ONLY_DATA_EXCLUSION.md",
+      "sha256": "ae2e0c5114c7066cd0c8b3cf4616551bc247375ff9cac3514c28457e15e2889e"
+    },
+    {
+      "role": "prototype-gate-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    }
+  ],
+  "targetAndDeviceBoundary": {
+    "targetClassId": "optional-steamos-compatibility-target",
+    "exactReceivedHardwareAndInventorySha256": null,
+    "steamOsImageKernelDriverPipeWireAndGamescopeSha256": null,
+    "selectedSharedCameraCandidateAndReceiptSha256": null,
+    "usbDescriptorsFirmwareCablePortAndTopologySha256": null,
+    "physicalShutterIndicatorAndMicrophoneInventorySha256": null,
+    "cameraSelectedPurchasedReceivedOrQualified": false,
+    "targetCameraOrPackagingMayBeInferredFromOtherPlatform": false,
+    "steamMachineMayReplaceRequiredReferenceTargets": false
+  },
+  "authorityBoundary": {
+    "selectedAccessRouteId": null,
+    "flatpakManifestRuntimeAndPermissionPolicySha256": null,
+    "steamRuntimeContentManifestAndPermissionPolicySha256": null,
+    "v4l2NodeProvenanceAndAccessPolicySha256": null,
+    "pipeWirePortalNodeSessionAndAccessPolicySha256": null,
+    "uvcModeFormatControlAndBufferPolicySha256": null,
+    "exposureTimestampAuthorityAndUncertaintySha256": null,
+    "trackerConsumerBackpressureAndCommonClockSha256": null,
+    "microphoneDisablementQualificationResultSha256": null,
+    "cameraStateIndicatorAndPrivacyProtocolSha256": null,
+    "hotplugRevokeSuspendUpdateAndRecoveryProtocolSha256": null,
+    "rootDeviceNetworkIpcAndProcessOracleSha256": null,
+    "scheduleNumericGateAndIndependentReviewProtocolSha256": null,
+    "dataRightsPrivacyRetentionDeletionAndIncidentProtocolSha256": null,
+    "targetOperationAuthorized": false,
+    "cameraOrUsbOperationAuthorized": false,
+    "permissionPolicyMutationAuthorized": false,
+    "screenRoomAudioOrParticipantCollectionAuthorized": false,
+    "suspendUpdateOrRecoveryAuthorized": false,
+    "qualificationSelectionPublicationOrTierMutationAuthorized": false
+  },
+  "accessRoutes": [
+    {
+      "routeId": "flatpak-direct-v4l2",
+      "packageCandidateId": "flatpak-writable-content",
+      "accessPath": "v4l2-direct",
+      "exactManifestAndPermissionSha256": null,
+      "runtimeDependencyAndPortalSha256": null,
+      "targetResultSha256": null,
+      "broadAllDeviceGrantRequired": null,
+      "rawUsbPermissionMayProveV4l2NodeAccess": false,
+      "documentationOrOtherRouteMayQualify": false,
+      "failedRouteEvidenceMayBeDiscarded": false
+    },
+    {
+      "routeId": "flatpak-pipewire-mediated",
+      "packageCandidateId": "flatpak-writable-content",
+      "accessPath": "pipewire-mediated",
+      "exactManifestAndPermissionSha256": null,
+      "runtimeDependencyAndPortalSha256": null,
+      "targetResultSha256": null,
+      "broadAllDeviceGrantRequired": null,
+      "rawUsbPermissionMayProveV4l2NodeAccess": false,
+      "documentationOrOtherRouteMayQualify": false,
+      "failedRouteEvidenceMayBeDiscarded": false
+    },
+    {
+      "routeId": "steam-runtime-direct-v4l2",
+      "packageCandidateId": "self-contained-steam-runtime-content",
+      "accessPath": "v4l2-direct",
+      "exactManifestAndPermissionSha256": null,
+      "runtimeDependencyAndPortalSha256": null,
+      "targetResultSha256": null,
+      "broadAllDeviceGrantRequired": null,
+      "rawUsbPermissionMayProveV4l2NodeAccess": false,
+      "documentationOrOtherRouteMayQualify": false,
+      "failedRouteEvidenceMayBeDiscarded": false
+    },
+    {
+      "routeId": "steam-runtime-pipewire-mediated",
+      "packageCandidateId": "self-contained-steam-runtime-content",
+      "accessPath": "pipewire-mediated",
+      "exactManifestAndPermissionSha256": null,
+      "runtimeDependencyAndPortalSha256": null,
+      "targetResultSha256": null,
+      "broadAllDeviceGrantRequired": null,
+      "rawUsbPermissionMayProveV4l2NodeAccess": false,
+      "documentationOrOtherRouteMayQualify": false,
+      "failedRouteEvidenceMayBeDiscarded": false
+    }
+  ],
+  "lifecycleMatrix": {
+    "scenarioIds": [
+      "device-absent-at-launch",
+      "permission-denied-before-open",
+      "deliberate-permission-grant-and-cold-open",
+      "format-frame-size-and-interval-enumeration",
+      "sustained-genuine-1080p60-and-timestamp-observation",
+      "uvc-control-apply-readback-stream-and-reopen",
+      "tracker-consumer-under-representative-load",
+      "hotplug-before-open",
+      "disconnect-while-streaming",
+      "same-port-and-different-port-reconnect",
+      "permission-revoke-while-streaming-and-regrant",
+      "suspend-resume-while-streaming",
+      "package-update-rollback-and-permission-restoration",
+      "steamos-update-offline-restart-and-permission-restoration"
+    ],
+    "routeCount": 4,
+    "validCyclesPerRouteScenario": 20,
+    "requiredCellCount": 56,
+    "requiredCycleCount": 1120,
+    "everyRouteMustBeAttempted": true,
+    "routeSelectionRuleMustBeFrozenBeforeOperation": true,
+    "nonselectedRouteFailureMayBeHidden": false,
+    "selectedRouteMustPassEveryScenario": true,
+    "otherRouteScenarioOrAggregateMayRescueSelectedRouteFailure": false
+  },
+  "modeControlAndPrivacyChecks": {
+    "requiredCheckIds": [
+      "usb-descriptor-video-audio-and-interface-inventory",
+      "v4l2-node-provenance-ownership-and-permission",
+      "pipewire-node-portal-session-format-and-permission",
+      "format-frame-size-frame-interval-and-buffer-enumeration",
+      "genuine-1920x1080-60000-millihertz-capture",
+      "unique-exposure-frame-drop-and-duplicate-accounting",
+      "exposure-timestamp-authority-monotonicity-domain-and-uncertainty",
+      "exposure-gain-white-balance-focus-power-line-and-buffer-controls",
+      "tracker-consumer-backpressure-clock-and-clean-stop",
+      "microphone-audio-function-track-buffer-and-byte-denial",
+      "software-access-stream-activity-indicator-and-unsensed-shutter-truth",
+      "no-camera-access-for-launcher-browser-games-or-untrusted-descendants"
+    ],
+    "everyRouteRequiresEveryCheck": true,
+    "advertisedModeOrEnumerationMayProveSustainedCapture": false,
+    "captureArrivalCallbackOrInferenceTimeMayProveExposureTime": false,
+    "duplicatedFramesMayCountTowardRequiredFrameRate": false,
+    "rawUsbPermissionMayProveV4l2OrPipeWireAccess": false,
+    "uiPromptToggleOrSilentAudioMayProvePermissionOrMicrophonePolicy": false,
+    "selectedRouteCameraAuthorityRestrictedToTrustedTracker": true
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-target-os-kernel-driver-pipewire-package-camera-usb-port-and-route-digests",
+      "usb-video-audio-interface-v4l2-node-and-pipewire-node-provenance",
+      "declared-and-effective-flatpak-or-steam-runtime-permissions",
+      "pixel-format-frame-size-frame-interval-color-space-buffer-and-control-enumeration",
+      "captured-unique-duplicate-dropped-late-and-out-of-order-exposure-counts",
+      "exposure-timestamp-domain-authority-offset-regression-jitter-and-uncertainty",
+      "control-request-readback-stream-effective-and-reopen-values",
+      "open-first-frame-steady-capture-revoke-reconnect-resume-and-recovery-timing",
+      "tracker-input-backpressure-delivery-clean-stop-and-component-health",
+      "camera-access-stream-activity-indicator-shutter-and-microphone-state",
+      "network-ipc-device-filesystem-process-and-descendant-access-ledger",
+      "cpu-gpu-memory-usb-bandwidth-frame-rate-and-frame-time-under-load",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-cycle-ledger"
+    ],
+    "independentUsbExposurePermissionAudioIndicatorProcessAndRecoveryOraclesRequired": true,
+    "everyScheduledCycleAndFailureMustRemainVisible": true,
+    "vendorDocsEnumerationOtherTargetRouteOrAggregateMaySubstituteTargetEvidence": false
+  },
+  "fixedAcceptance": {
+    "requiredWidthPixels": 1920,
+    "requiredHeightPixels": 1080,
+    "requiredFrameRateMilliHz": 60000,
+    "minimumValidCyclesPerRouteScenario": 20,
+    "maximumUntrustedLauncherBrowserGameOrDescendantCaptureSuccesses": 0,
+    "maximumAudioTrackBufferOrReturnedByteSuccesses": 0,
+    "maximumRetainedRawFramesAudioOrNetworkEgressEvents": 0,
+    "maximumDuplicatedStaleOutOfOrderOrCrossEpochExposures": 0,
+    "maximumUnexplainedTimestampRegressionsOrDomainSubstitutions": 0,
+    "maximumControlApplyReadbackStreamOrReopenMismatches": 0,
+    "maximumUnrecoveredPermissionHotplugRevokeSuspendUpdateOrRestartEvents": 0,
+    "maximumCameraGrantsOutsideSelectedTrustedTrackerRoute": 0,
+    "maximumStableDeviceParticipantAccountPathOrFreeTextDisclosures": 0,
+    "maximumValidSelectedRouteProductFailures": 0,
+    "allSelectedRouteCellsAndChecksMustPass": true,
+    "aggregateMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumIndependentPhysicalCameraSamples": null,
+    "minimumSustainedCaptureDurationMs": null,
+    "maximumDroppedExposureRatePpm": null,
+    "maximumFrameIntervalJitterP95Us": null,
+    "maximumExposureTimestampUncertaintyUs": null,
+    "maximumOpenToFirstExposureP95Ms": null,
+    "maximumCaptureToTrackerDeliveryP95Us": null,
+    "maximumPermissionGrantOrRevokeP95Ms": null,
+    "maximumReconnectP95Ms": null,
+    "maximumSuspendResumeRecoveryP95Ms": null,
+    "maximumUpdateRecoveryP95Ms": null,
+    "maximumCpuPpm": null,
+    "maximumGpuPpm": null,
+    "maximumResidentMemoryBytes": null,
+    "maximumUsbBandwidthBytesPerSecond": null
+  },
+  "dataPolicy": {
+    "opaqueTargetCameraRouteBuildCycleAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsControlsModesAndRedactedCategoriesRequired": true,
+    "rawRoomPlayerCameraScreenAudioOrVideoAllowedInRepositoryReleaseOrResult": false,
+    "retainedRawFramesAudioBuffersOrSampleBytesAllowed": false,
+    "namesFacesVoicesExactAgesStableDeviceIdsSerialsPathsOrQueryUrlsAllowed": false,
+    "credentialsTokensCookiesProfileSaveStorageEnvironmentOrArgumentValuesAllowed": false,
+    "arbitraryKernelDriverPortalProviderOrConsoleMessagesAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "networkEgressOutsideDeclaredPackageAndProbeTrafficAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "sucam-001-exact-received-steamos-target-image-kernel-driver-pipewire-and-gamescope",
+      "sucam-002-selected-shared-camera-receipt-firmware-cable-port-and-usb-topology",
+      "sucam-003-predeclared-four-route-comparison-and-selection-rule",
+      "sucam-004-flatpak-manifest-runtime-portal-device-and-permission-policy",
+      "sucam-005-steam-runtime-content-manifest-sandbox-device-and-permission-policy",
+      "sucam-006-v4l2-and-pipewire-node-provenance-format-session-and-access-protocol",
+      "sucam-007-uvc-mode-format-control-buffer-and-genuine-1080p60-protocol",
+      "sucam-008-exposure-timestamp-authority-common-clock-and-uncertainty-proof",
+      "sucam-009-tracker-consumer-backpressure-load-process-and-clean-stop-protocol",
+      "sucam-010-microphone-disablement-privacy-indicator-shutter-and-camera-state-protocol",
+      "sucam-011-hotplug-revoke-reconnect-suspend-package-update-os-update-and-recovery-protocol",
+      "sucam-012-root-device-network-ipc-process-audio-indicator-and-recovery-oracles",
+      "sucam-013-schedule-independent-review-and-all-numeric-gates",
+      "sucam-014-data-rights-privacy-retention-deletion-incident-and-adverse-evidence-policy",
+      "sucam-015-target-camera-permission-suspend-update-recovery-qualification-and-publication-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "blocked",
+    "completedRouteScenarioCellCount": 0,
+    "completedCycleCount": 0,
+    "routeResults": [],
+    "qualifiedRouteIds": [],
+    "selectedAccessRouteId": null,
+    "qualifiedCameraIdentitySha256": null,
+    "microphoneDisablementQualified": false,
+    "targetQualified": false,
+    "sharedCameraSelected": false,
+    "steamMachinePrimaryTierChanged": false,
+    "publishedClaims": []
+  }
+}

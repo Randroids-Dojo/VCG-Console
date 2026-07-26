@@ -38,7 +38,7 @@
     {
       "role": "camera-usb-cable-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "d3721e12bd4903ffaed1abbeb7eff56e6aab394beff2bd9fae615d171606ccd6"
+      "sha256": "d4355d9e00ea3447bb50cc79ce740b9929dd93f9ce39f6b7ede65bfb0ef0e3cb"
     },
     {
       "role": "exposure-to-action-proof-boundary",

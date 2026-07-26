@@ -52,7 +52,7 @@
     {
       "role": "lens-rectification-plan",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "3b73ad2a36fce395f8ae9e030584f2b48030067ad3d2f874357df1e95f7c1bc2"
+      "sha256": "eef3e06a53a3e53e78a3efe21b4871275c8787e2ffe008dfb5e7008c184fd6bb"
     }
   ],
   "collectionBoundary": {
