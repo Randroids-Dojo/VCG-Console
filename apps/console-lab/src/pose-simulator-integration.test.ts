@@ -74,7 +74,7 @@ describe("camera-free pose simulator integration", () => {
     expect(engine.enrich(simulator.frame(27, 660)).players[0]?.id).toBe("simulator-player-1");
   });
 
-  it("denies first-candidate actions after track reordering and retains exact joined authority", () => {
+  it("denies reordered candidates and strips non-local upstream action claims", () => {
     const { engine, simulator } = calibratedEngine("game");
     const session = new PlayerSessionController();
     const initial = simulator.frame(24, 600);
@@ -124,9 +124,8 @@ describe("camera-free pose simulator integration", () => {
           : [{ trackId: player.id, action: action.name }],
       ),
     );
-    expect(authorized).toEqual([{
-      trackId: activeTrack,
-      action: "jump",
-    }]);
+    expect(reordered.players[1]?.actions).toEqual([]);
+    expect(session.authorizeGameplayAction(activeTrack)).toBeDefined();
+    expect(authorized).toEqual([]);
   });
 });

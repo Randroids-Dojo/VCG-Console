@@ -725,17 +725,17 @@
     ],
     "productionSource": {
       "fileCount": 86,
-      "totalBytes": 837775,
+      "totalBytes": 845907,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
-          "bytes": 12034,
-          "sha256": "a0ca04e89adbb86953c72b4278ced0c3a5e62206a36831d6f3117b0fbb58ce1a"
+          "bytes": 16094,
+          "sha256": "bcd271c24c384f27da17392643595bf06ffac46a5e79498f7deba5900cf32963"
         },
         {
           "path": "apps/console-lab/src/action-engine.ts",
-          "bytes": 14949,
-          "sha256": "294ee7ba84e335088fb5a0992d5e854d08b0f98a0b3f256ed0b052fb243001ff"
+          "bytes": 18365,
+          "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
         },
         {
           "path": "apps/console-lab/src/action-feedback.test.ts",
@@ -1024,8 +1024,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 53162,
-          "sha256": "f3a66518bb293e74b90274977dca3b67ab0ba3ba4cccd8159e96e2cfcaf2aee3"
+          "bytes": 53765,
+          "sha256": "4eec1c0998510b23c5e9433ebdb2a079eb82c385c7a273aa90f4a1a16f5770e5"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1094,8 +1094,8 @@
         },
         {
           "path": "apps/console-lab/src/pose-simulator-integration.test.ts",
-          "bytes": 4532,
-          "sha256": "08a001c94a4bf3d9fb50cf728da3841364990dc91ac16dedd6b7d023cd7f517e"
+          "bytes": 4585,
+          "sha256": "c1cc772574531cc904d439dccceafe87da36a31387887fffbcfd33b70b3a3513"
         },
         {
           "path": "apps/console-lab/src/renderer.ts",
@@ -1277,9 +1277,9 @@
                 130,
                 224,
                 225,
-                715,
-                1047,
-                1051
+                735,
+                1067,
+                1071
               ]
             },
             {

@@ -425,12 +425,32 @@ function acceptFrame(rawFrame: MotionFrame): void {
             actions: governedHealth === "ready" ? player.actions : [],
           })),
   };
-  const frame = actionEngine.enrich(
+  let frame = actionEngine.enrich(
     governedFrame,
     overlayKind ? "overlay" : currentMode === "obstacle" ? "game" : "shell",
   );
+  const chronologyFault = actionEngine.chronologyFault;
+  if (chronologyFault) {
+    if (activeHealth.reason !== "backend-fault") {
+      applyTrackerHealth(
+        trackerHealthFixture(
+          "backend-fault",
+          healthSequence++,
+          frame.publishedAtMs,
+          frame.source,
+        ),
+      );
+    }
+    frame = {
+      ...frame,
+      health: "fault",
+      players: [],
+    };
+    statusDetail.textContent =
+      `Motion actions are blocked after a frame chronology fault (${chronologyFault}). Restart camera or replay to create a fresh tracker epoch.`;
+  }
   latestFrame = frame;
-  if (trace.push(frame)) exportButton.disabled = false;
+  if (!chronologyFault && trace.push(frame)) exportButton.disabled = false;
   metrics.push(frame);
   renderer.render(frame);
   for (const event of playerSession.observe(

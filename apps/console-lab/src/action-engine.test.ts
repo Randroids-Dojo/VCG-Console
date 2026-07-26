@@ -53,9 +53,17 @@ describe("ActionEngine", () => {
     expect(engine.enrich(shifted, "game").players[0]?.actions).toEqual([
       expect.objectContaining({ name: "dodge_left", phase: "triggered" }),
     ]);
-    expect(engine.enrich(alter(shifted, {}), "game").players[0]?.actions).toEqual([]);
-    engine.enrich(syntheticFrame(32, now + 800), "game");
-    expect(engine.enrich(alter(syntheticFrame(33, now + 1_500), {
+    expect(
+      engine.enrich(
+        alter(syntheticFrame(32, now + 20), {
+          left_hip: { x: 0.66 },
+          right_hip: { x: 0.76 },
+        }),
+        "game",
+      ).players[0]?.actions,
+    ).toEqual([]);
+    engine.enrich(syntheticFrame(33, now + 800), "game");
+    expect(engine.enrich(alter(syntheticFrame(34, now + 1_500), {
       left_hip: { x: 0.66 },
       right_hip: { x: 0.76 },
     }), "game").players[0]?.actions).toEqual([
@@ -274,15 +282,165 @@ describe("ActionEngine", () => {
     ]);
   });
 
-  it("fails closed into a new candidate epoch when frame time regresses", () => {
+  it("latches a chronology fault when publication time regresses", () => {
     const engine = new ActionEngine();
     const hands = { left_wrist: { x: 0.49, y: 0.45 }, right_wrist: { x: 0.51, y: 0.45 } };
     engine.enrich(alter(syntheticFrame(1, 1_000), hands));
-    const restarted = engine.enrich(alter(syntheticFrame(2, 100), hands));
+    const regressed = {
+      ...syntheticFrame(2, 1_000),
+      inferenceCompletedAtMs: 1_000,
+      publishedAtMs: 1_000,
+    };
+    const rejected = engine.enrich(alter(regressed, hands));
+    const stillRejected = engine.enrich(
+      alter(syntheticFrame(3, 1_100), hands),
+    );
 
-    expect(restarted.players[0]?.state).toBe("candidate");
+    expect(rejected.players[0]).toMatchObject({
+      state: "candidate",
+      actions: [],
+    });
+    expect(stillRejected.players[0]?.actions).toEqual([]);
+    expect(engine.chronologyFault).toBe("publication-time-regressed");
+
+    engine.reset();
+    const restarted = engine.enrich(alter(syntheticFrame(0, 2_000), hands));
+    expect(engine.chronologyFault).toBeUndefined();
     expect(restarted.players[0]?.actions).toEqual([
       expect.objectContaining({ name: "player_join", phase: "started", durationMs: 0 }),
     ]);
+  });
+
+  it.each([
+    [
+      "negative sequence",
+      (frame: MotionFrame) => ({ ...frame, sequence: -1 }),
+      "sequence-invalid",
+    ],
+    [
+      "unsafe sequence",
+      (frame: MotionFrame) => ({
+        ...frame,
+        sequence: Number.MAX_SAFE_INTEGER + 1,
+      }),
+      "sequence-invalid",
+    ],
+    [
+      "duplicate sequence",
+      (frame: MotionFrame) => ({ ...frame, sequence: 1 }),
+      "sequence-not-increasing",
+    ],
+    [
+      "source change",
+      (frame: MotionFrame) => ({ ...frame, source: "replay" as const }),
+      "source-changed",
+    ],
+    [
+      "timestamp-quality change",
+      (frame: MotionFrame) => ({
+        ...frame,
+        capabilities: {
+          ...frame.capabilities,
+          timestampQuality: "capture-arrival" as const,
+        },
+      }),
+      "timestamp-quality-changed",
+    ],
+    [
+      "source-time regression",
+      (frame: MotionFrame) => ({
+        ...frame,
+        sourceTimestampMs: 999,
+        inferenceStartedAtMs: 1_100,
+        inferenceCompletedAtMs: 1_101,
+        publishedAtMs: 1_101,
+      }),
+      "source-time-regressed",
+    ],
+  ] as const)(
+    "suppresses actions and latches on %s",
+    (_name, mutate, expectedFault) => {
+      const engine = new ActionEngine();
+      const hands = {
+        left_wrist: { x: 0.49, y: 0.45 },
+        right_wrist: { x: 0.51, y: 0.45 },
+      };
+      engine.enrich(alter(syntheticFrame(1, 1_000), hands));
+      const rejected = engine.enrich(
+        alter(mutate(syntheticFrame(2, 1_100)), hands),
+      );
+
+      expect(rejected.players[0]?.actions).toEqual([]);
+      expect(engine.chronologyFault).toBe(expectedFault);
+    },
+  );
+
+  it.each([
+    [
+      "source after inference start",
+      { sourceTimestampMs: 20, inferenceStartedAtMs: 19 },
+    ],
+    [
+      "completion before inference start",
+      { inferenceStartedAtMs: 20, inferenceCompletedAtMs: 19 },
+    ],
+    [
+      "publication before completion",
+      { inferenceCompletedAtMs: 20, publishedAtMs: 19 },
+    ],
+  ] as const)("rejects %s", (_name, timing) => {
+    const engine = new ActionEngine();
+    const invalid = {
+      ...syntheticFrame(1, 10),
+      ...timing,
+    };
+
+    expect(engine.enrich(invalid).players[0]?.actions).toEqual([]);
+    expect(engine.chronologyFault).toBe("frame-timestamp-order-invalid");
+  });
+
+  it("strips every upstream action before recognizing local authority", () => {
+    const engine = new ActionEngine();
+    const base = syntheticFrame(1, 100);
+    const upstreamAction = {
+      name: "pause" as const,
+      phase: "triggered" as const,
+      confidence: 1,
+      occurredAtMs: base.publishedAtMs,
+    };
+    const frame: MotionFrame = {
+      ...base,
+      capabilities: {
+        ...base.capabilities,
+        maxPlayers: 2,
+        profiles: [...base.capabilities.profiles, "actions.shell.v1"],
+      },
+      players: [
+        { ...base.players[0]!, actions: [upstreamAction] },
+        {
+          ...structuredClone(base.players[0]!),
+          id: "synthetic-2",
+          sessionSlot: 2,
+          actions: [upstreamAction],
+        },
+      ],
+    };
+
+    const enriched = engine.enrich(frame);
+    expect(enriched.players.map((player) => player.actions)).toEqual([[], []]);
+  });
+
+  it("does not let leave clear a latched chronology fault", () => {
+    const engine = new ActionEngine();
+    engine.enrich(syntheticFrame(2, 100));
+    engine.enrich(syntheticFrame(2, 200));
+    expect(engine.chronologyFault).toBe("sequence-not-increasing");
+
+    engine.leave();
+
+    expect(engine.chronologyFault).toBe("sequence-not-increasing");
+    expect(engine.enrich(syntheticFrame(3, 300)).players[0]?.actions).toEqual(
+      [],
+    );
   });
 });

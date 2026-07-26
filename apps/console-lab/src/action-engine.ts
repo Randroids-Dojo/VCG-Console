@@ -29,6 +29,15 @@ interface Measurements {
 
 export type SustainedActionName = "player_join" | "menu_select" | "menu_back" | "pause";
 
+export type ActionChronologyFault =
+  | "frame-timestamp-order-invalid"
+  | "publication-time-regressed"
+  | "sequence-invalid"
+  | "sequence-not-increasing"
+  | "source-changed"
+  | "source-time-regressed"
+  | "timestamp-quality-changed";
+
 interface HoldState {
   name: SustainedActionName;
   startedAtMs: number;
@@ -67,16 +76,20 @@ export class ActionEngine {
   #previousLeftWrist: Point | undefined;
   #previousRightWrist: Point | undefined;
   #previousAtMs = 0;
-  #lastFrameAtMs: number | undefined;
+  #lastFrameSequence: number | undefined;
+  #lastPublishedAtMs: number | undefined;
+  #lastSource: MotionFrame["source"] | undefined;
+  #lastSourceTimestampMs: number | undefined;
+  #lastTimestampQuality:
+    | MotionFrame["capabilities"]["timestampQuality"]
+    | undefined;
+  #chronologyFault: ActionChronologyFault | undefined;
   #handsHold: HoldState | undefined;
   #armsHold: HoldState | undefined;
   #joined = false;
   #joinRequiresRelease = false;
 
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
-    const now = frame.publishedAtMs;
-    if (this.#lastFrameAtMs !== undefined && now < this.#lastFrameAtMs) this.reset();
-    this.#lastFrameAtMs = now;
     const enrichedFrame: MotionFrame = {
       ...frame,
       capabilities: {
@@ -89,7 +102,20 @@ export class ActionEngine {
           ]),
         ],
       },
+      players: frame.players.map((player) => ({
+        ...player,
+        actions: [],
+      })),
     };
+    if (this.#chronologyFault) return this.#suppressActions(enrichedFrame);
+    const chronologyFault = this.#chronologyFaultFor(frame);
+    if (chronologyFault) {
+      this.#enterChronologyFault(chronologyFault);
+      return this.#suppressActions(enrichedFrame);
+    }
+    this.#recordChronology(frame);
+
+    const now = frame.publishedAtMs;
     if (enrichedFrame.health !== "ready") {
       this.#resetGestureContinuity();
       return {
@@ -124,7 +150,7 @@ export class ActionEngine {
   }
 
   leave(): void {
-    this.reset();
+    this.#resetRecognitionState();
     this.#joinRequiresRelease = true;
   }
 
@@ -132,14 +158,96 @@ export class ActionEngine {
     this.#resetGestureContinuity();
   }
 
+  get chronologyFault(): ActionChronologyFault | undefined {
+    return this.#chronologyFault;
+  }
+
   reset(): void {
+    this.#resetRecognitionState();
+    this.#lastFrameSequence = undefined;
+    this.#lastPublishedAtMs = undefined;
+    this.#lastSource = undefined;
+    this.#lastSourceTimestampMs = undefined;
+    this.#lastTimestampQuality = undefined;
+    this.#chronologyFault = undefined;
+  }
+
+  #resetRecognitionState(): void {
     this.#baselineSamples.length = 0;
     this.#baseline = undefined;
     this.#lastTriggeredAt.clear();
     this.#resetGestureContinuity();
-    this.#lastFrameAtMs = undefined;
     this.#joined = false;
     this.#joinRequiresRelease = false;
+  }
+
+  #chronologyFaultFor(frame: MotionFrame): ActionChronologyFault | undefined {
+    if (!Number.isSafeInteger(frame.sequence) || frame.sequence < 0) {
+      return "sequence-invalid";
+    }
+    if (
+      !Number.isFinite(frame.sourceTimestampMs) ||
+      !Number.isFinite(frame.inferenceStartedAtMs) ||
+      !Number.isFinite(frame.inferenceCompletedAtMs) ||
+      !Number.isFinite(frame.publishedAtMs) ||
+      frame.sourceTimestampMs > frame.inferenceStartedAtMs ||
+      frame.inferenceStartedAtMs > frame.inferenceCompletedAtMs ||
+      frame.inferenceCompletedAtMs > frame.publishedAtMs
+    ) {
+      return "frame-timestamp-order-invalid";
+    }
+    if (this.#lastSource !== undefined && frame.source !== this.#lastSource) {
+      return "source-changed";
+    }
+    if (
+      this.#lastTimestampQuality !== undefined &&
+      frame.capabilities.timestampQuality !== this.#lastTimestampQuality
+    ) {
+      return "timestamp-quality-changed";
+    }
+    if (
+      this.#lastFrameSequence !== undefined &&
+      frame.sequence <= this.#lastFrameSequence
+    ) {
+      return "sequence-not-increasing";
+    }
+    if (
+      this.#lastSourceTimestampMs !== undefined &&
+      frame.sourceTimestampMs < this.#lastSourceTimestampMs
+    ) {
+      return "source-time-regressed";
+    }
+    if (
+      this.#lastPublishedAtMs !== undefined &&
+      frame.publishedAtMs < this.#lastPublishedAtMs
+    ) {
+      return "publication-time-regressed";
+    }
+    return undefined;
+  }
+
+  #recordChronology(frame: MotionFrame): void {
+    this.#lastFrameSequence = frame.sequence;
+    this.#lastPublishedAtMs = frame.publishedAtMs;
+    this.#lastSource = frame.source;
+    this.#lastSourceTimestampMs = frame.sourceTimestampMs;
+    this.#lastTimestampQuality = frame.capabilities.timestampQuality;
+  }
+
+  #enterChronologyFault(fault: ActionChronologyFault): void {
+    this.#resetRecognitionState();
+    this.#chronologyFault = fault;
+  }
+
+  #suppressActions(frame: MotionFrame): MotionFrame {
+    return {
+      ...frame,
+      players: frame.players.map((player, index) => ({
+        ...player,
+        ...(index === 0 ? { state: "candidate" as const } : {}),
+        actions: [],
+      })),
+    };
   }
 
   #resetGestureContinuity(): void {
