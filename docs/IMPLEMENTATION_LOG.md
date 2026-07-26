@@ -6255,3 +6255,46 @@ camera, runtime/model load, offline run, update, rollback or recovery test was
 performed. The published compressed hash has not been locally recomputed and
 the source pins do not establish installed compatibility, performance,
 playability, privacy, thermal behavior, storage durability or release fitness.
+
+## 2026-07-25: strict Hailo 13 TOPS versus 26 TOPS comparison plan
+
+### Delivered
+
+- Advanced I-158 from an unbounded benchmark request to a canonical blocked
+  plan for exact 13 TOPS Hailo-8L/YOLOv8s Pose and 26 TOPS
+  Hailo-8/YOLOv8m Pose variants on one Raspberry Pi 5 8GB host boundary.
+- Separated literal same-byte paired replay from counterbalanced live sessions
+  and sustained concurrent game load. Replay timing cannot be reported as
+  camera-exposure timing, and repeated live human motion is not called
+  identical input.
+- Froze required accuracy, action, timing, drops, pose/game FPS, resource,
+  wall-power, thermal, throttle, recovery and delivered-cost measurements
+  across idle, obstacle and three compatibility-game workloads.
+- Retained D-110's 120 ms live exposure-to-action p95 ceiling, zero privileged
+  false activations, every-cell pass and no aggregate rescue. All other
+  qualification/value thresholds remain null pending Q-259.
+- Retained D-041's 26 TOPS baseline, prohibited automatic selection and
+  required a superseding decision for any replacement.
+- Added Q-258 for an authorized identical-input corpus and Q-259 for all
+  remaining pre-result qualification and value thresholds.
+
+### Verification evidence
+
+- The plan binds normalized SHA-256 values for the Pi image, Hailo-versus-
+  MediaPipe and pose edge-accuracy plans.
+- Ten adversarial tests accept the tracked zero-result artifact and reject
+  source/model/host substitution, hidden received values, replay/live claim
+  collapse, matrix or metric drift, weakened gates, unauthorized collection or
+  purchase, premature results, extra fields, malformed UTF-8, BOM, duplicate,
+  oversized and noncanonical JSON.
+- The plan keeps raw replay retention, live raw-frame retention, audio,
+  participant identifiers and free text unauthorized; release evidence remains
+  skeleton-only.
+
+### Remaining boundary
+
+I-158 is active, not closed. No 13 TOPS or 26 TOPS HAT was accessed, received,
+purchased, borrowed, installed, run or measured. No corpus, participant
+session, HEF, runtime tuple, exposure timestamp, accuracy, action, latency,
+FPS, resource, power, thermal, game, price or recovery result exists. The plan
+does not prove either variant compatible, qualified or better value.
