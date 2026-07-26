@@ -1,24 +1,24 @@
 {
-  "format": "vcg-orbbec-gemini-335l-linux-target-plan/v1",
+  "format": "vcg-realsense-d455-linux-target-plan/v1",
   "status": "blocked",
-  "campaignId": "orbbec-gemini-335l-linux-target-qualification-v1",
+  "campaignId": "realsense-d455-linux-target-qualification-v1",
   "observedAt": "2026-07-26",
   "qualificationScope": [
-    "I-043",
+    "I-044",
     "Q-018"
   ],
-  "claimBoundary": "Source-bound zero-result Orbbec Gemini 335L Linux target qualification plan only. A temporary read-only clone of the official SDK source tag was inspected to freeze the contract. Vendor specifications, availability, price, platform lists, asset digests, one source build, one enumerated device, one streamed frame, one target, active illumination, or another camera's result cannot establish a received exact device, exact target compatibility, firmware support, unprivileged USB access, sustained streaming, timestamps, latency, accuracy, power, thermal behavior, recovery, offline rebuild, delivered cost, material depth benefit, camera selection, or product fitness. No purchase, release-asset or firmware download, target mutation, device operation, emitter use, participant collection, fault injection, result, selection, or publication is authorized.",
+  "claimBoundary": "Source-bound zero-result RealSense D455 Linux target qualification plan only. A temporary read-only clone of the official SDK release tag was inspected to freeze the contract; no release executable or firmware image was downloaded or run. Vendor specifications, price, a Buy link, platform lists, repository badges, published asset digests, one source build, one enumerated interface, one frame, one target, one backend, active illumination, or another camera's result cannot establish a received exact device, exact target compatibility, firmware support, unprivileged USB access, sustained streaming, timestamps, latency, accuracy, power, thermal behavior, recovery, offline rebuild, delivered cost, material depth benefit, camera selection, or product fitness. No purchase, release-binary or firmware download, target mutation, device operation, projector use, participant collection, fault injection, result, selection, or publication is authorized.",
   "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
   "sourceBindings": [
     {
       "role": "official-source-candidate-screen",
-      "path": "docs/ORBBEC_GEMINI_335L_CANDIDATE_SCREEN_2026-07-26.md",
-      "sha256": "046dacf8a080664d39377f49274fec7a3dc4dd8399051dea1a7e0bc08d2ea257"
+      "path": "docs/REALSENSE_D455_CANDIDATE_SCREEN_2026-07-26.md",
+      "sha256": "db45c62ed7bd478224821f60ef7525b4411cb9c632175b30968acdcc82bfada1"
     },
     {
       "role": "campaign-contract",
-      "path": "docs/ORBBEC_GEMINI_335L_LINUX_TARGET_CAMPAIGN_2026-07-26.md",
-      "sha256": "1a69f06531ee095867397524a383cfc5823069ea6a1ebad0517ac8ba261cf66f"
+      "path": "docs/REALSENSE_D455_LINUX_TARGET_CAMPAIGN_2026-07-26.md",
+      "sha256": "df6d1ec57f3a37decf0c83198c4d793893afe91b3047e2c1a1592c35efb52155"
     },
     {
       "role": "depth-option-research-boundary",
@@ -47,29 +47,34 @@
     }
   ],
   "candidateSnapshot": {
-    "manufacturer": "Orbbec",
-    "product": "Gemini 335L",
-    "model": "G40055-170",
-    "usbVendorId": "0x2bc5",
-    "usbProductId": "0x0804",
-    "connection": "usb-3.0-type-c",
-    "depthTechnology": "active-and-passive-stereo",
-    "emitterWavelengthNm": 850,
+    "manufacturer": "RealSense",
+    "product": "Depth Camera D455",
+    "productCode": "82635DSD455",
+    "materialCode": "999WCT",
+    "usbVendorId": "0x8086",
+    "usbProductId": "0x0b5c",
+    "connection": "usb-c-3.1-gen-1",
+    "depthTechnology": "active-and-passive-stereoscopic",
+    "projectorSafetyClassification": "class-1-laser-product-vendor-regulatory-claim",
     "baselineMm": 95,
     "depthAndRgbShutter": "global",
-    "maximumDepthMode": "1280x800@30",
-    "maximumRgbMode": "1280x800@60",
+    "idealDepthRangeM": {
+      "minimum": 0.6,
+      "maximum": 6
+    },
+    "maximumDepthMode": "1280x720-up-to-90-fps",
+    "maximumRgbMode": "1280x800@30",
     "depthFovDegrees": {
+      "horizontal": 87,
+      "vertical": 58
+    },
+    "rgbFovDegrees": {
       "horizontal": 90,
       "vertical": 65
     },
-    "rgbFovDegrees": {
-      "horizontal": 94,
-      "vertical": 68
-    },
-    "averagePowerMilliWLessThan": 3000,
-    "observedListPriceUsdCents": 35900,
-    "observedAvailability": "in-stock",
+    "advertisedImuPresent": true,
+    "observedListPriceUsdCents": 41900,
+    "observedAvailability": "buy-link-present-stock-unverified",
     "observedAt": "2026-07-26",
     "receivedDeviceIdentitySha256": null,
     "deliveredQuoteSha256": null,
@@ -77,7 +82,7 @@
   },
   "authorityBoundary": {
     "sourceInspectionCompleted": true,
-    "sourceInspectionCommitGitSha1": "2f6561c28255d805b34aa00a690199ce40e96c81",
+    "sourceInspectionCommitGitSha1": "dfd6aa91250f5c31521d72d627865417989bb4e7",
     "exactReceivedDeviceManifestSha256": null,
     "exactTargetTupleManifestSha256": null,
     "buildAndPackageProtocolSha256": null,
@@ -88,62 +93,52 @@
     "measurementAndAcceptanceProtocolSha256": null,
     "participantConsentAndDataProtocolSha256": null,
     "purchaseAuthorized": false,
-    "releaseArtifactDownloadAuthorized": false,
+    "releaseBinaryDownloadAuthorized": false,
     "firmwareArtifactDownloadAuthorized": false,
     "targetAccessOrMutationAuthorized": false,
     "usbDeviceOperationAuthorized": false,
-    "irEmitterUseAuthorized": false,
+    "irProjectorUseAuthorized": false,
     "participantCollectionAuthorized": false,
     "faultInjectionAuthorized": false,
     "temporaryDiagnosticCollectionAuthorized": false,
     "publicationAuthorized": false
   },
   "sdkCandidate": {
-    "repositoryUrl": "https://github.com/orbbec/OrbbecSDK_v2.git",
-    "releaseTag": "v2.9.3",
-    "tagObjectGitSha1": "ca69b53b11eda5c65909da7e016d07fc7537d6a9",
-    "sourceCommitGitSha1": "2f6561c28255d805b34aa00a690199ce40e96c81",
-    "publishedAt": "2026-07-16T15:48:20Z",
-    "minimumSupportedFirmwareVersion": "1.2.20",
-    "recommendedFirmwareVersion": "1.8.10",
-    "releaseAssets": [
-      {
-        "role": "linux-x86_64-tarball",
-        "name": "OrbbecSDK_v2.9.3_202607151523_2f6561c_linux_x86_64.tar.gz",
-        "publishedSha256": "8516081b2201f841b1aa444dd203975e06891d73a2694dd2b3d864254f89ff0d",
-        "locallyVerifiedSha256": null,
-        "diagnosticOnly": true
-      },
-      {
-        "role": "linux-arm64-tarball",
-        "name": "OrbbecSDK_v2.9.3_202607151523_2f6561c_linux_arm64.tar.gz",
-        "publishedSha256": "ce2c476c283b932181b04daf44debadff9e4a743344bd69eecf34f8c18009ac1",
-        "locallyVerifiedSha256": null,
-        "diagnosticOnly": true
-      },
-      {
-        "role": "linux-amd64-deb",
-        "name": "OrbbecSDK_v2.9.3_amd64.deb",
-        "publishedSha256": "1c3c56bceafe6f0f562b09eb400750a911b5d02d529f776e76c29fc36371ae29",
-        "locallyVerifiedSha256": null,
-        "diagnosticOnly": true
-      },
-      {
-        "role": "linux-arm64-deb",
-        "name": "OrbbecSDK_v2.9.3_arm64.deb",
-        "publishedSha256": "3d238ab1bf76ba768ce859e08991f8cbb40c17ef0895aae6d85e938683aab693",
-        "locallyVerifiedSha256": null,
-        "diagnosticOnly": true
-      }
-    ],
-    "sourceLicenseSummary": "MIT core; Orbbec-product-only restricted extension binaries; exact third-party notices remain required",
-    "extensionBinaryUseDecision": null,
+    "repositoryUrl": "https://github.com/realsenseai/librealsense.git",
+    "releaseTag": "v2.58.3",
+    "releaseTitle": "RealSense SDK 2.0 beta (v2.58.3)",
+    "releaseChannel": "beta",
+    "tagReferenceGitSha1": "dfd6aa91250f5c31521d72d627865417989bb4e7",
+    "sourceCommitGitSha1": "dfd6aa91250f5c31521d72d627865417989bb4e7",
+    "publishedAt": "2026-07-19T16:47:13Z",
+    "requiredFirmwareVersion": "5.17.3.10",
+    "firmwareReleaseMonth": "2026-06",
+    "firmwareArtifactUrl": "https://librealsense.realsenseai.com/Releases/RS4xx/FW/D4XX_FW_Image-5.17.3.10.bin",
+    "firmwarePublishedSha256": null,
+    "firmwareLocallyVerifiedSha256": null,
+    "linuxTargetBinaryAssets": [],
+    "windowsReleaseAssetsExcluded": true,
+    "sourceLicenseSummary": "Apache-2.0 repository; exact bundled third-party notices, dependencies, links, installed files, and SBOM remain required",
     "licenseAndSbomManifestSha256": null,
-    "lingBotEnhancedFilterAllowedInBlockingLane": false,
-    "modelSm4DownloadOrActivationAuthorized": false,
-    "movingAliasAllowed": false,
-    "releaseAssetMaySubstituteTargetNativeBuild": false,
+    "movingBranchOrAliasAllowed": false,
+    "generatedSourceArchiveMayDefineSourceIdentity": false,
+    "prebuiltOrPackageRepositoryMaySubstituteTargetNativeBuild": false,
     "publishedDigestMaySubstituteLocallyVerifiedBytes": false
+  },
+  "backendContract": {
+    "blockingBackendId": "rsusb-libusb-userspace",
+    "blockingCmakeSelection": "FORCE_RSUSB_BACKEND=ON",
+    "officialLinuxStatus": "optional-userspace-backend",
+    "kernelPatchingRequiredForBlockingBackend": false,
+    "reviewedUdevRuleAndUnprivilegedAccessStillRequired": true,
+    "sameBlockingBackendRequiredAcrossTargets": true,
+    "nativeDiagnosticBackendId": "v4l2-iio-modified-kernel-drivers",
+    "nativeDiagnosticVendorPreference": "generally-recommended-for-production",
+    "nativeDiagnosticAllowedOnlyOnExactReleaseSupportedUbuntuKernelTuple": true,
+    "nativeDiagnosticExecutionAuthorized": false,
+    "dkmsKernelModuleSecureBootOrBiosMutationAuthorized": false,
+    "backendSubstitutionMayRescueFailure": false,
+    "oneBackendMayEstablishAnotherBackend": false
   },
   "targetMatrix": [
     {
@@ -151,7 +146,7 @@
       "role": "ordinary-native-linux-reference",
       "architecture": "x86_64",
       "operatingSystemBoundary": "selected-native-linux-distribution",
-      "vendorSupportBoundary": "ubuntu-20.04-22.04-24.04-x86_64-listed-exact-vcg-tuple-unproven",
+      "vendorSupportBoundary": "ubuntu-20.04-22.04-24.04-lts-listed-kernels-exact-vcg-tuple-and-rsusb-unproven",
       "required": true,
       "hardwareInventorySha256": null,
       "osImageSha256": null,
@@ -174,7 +169,7 @@
       "role": "steamos-reference",
       "architecture": "x86_64",
       "operatingSystemBoundary": "selected-steamos-image",
-      "vendorSupportBoundary": "steamos-not-in-current-vendor-tested-distribution-list",
+      "vendorSupportBoundary": "steamos-not-in-v2.58.3-supported-platform-list-exact-rsusb-tuple-unproven",
       "required": true,
       "hardwareInventorySha256": null,
       "osImageSha256": null,
@@ -197,7 +192,7 @@
       "role": "lower-cost-integrated-reference",
       "architecture": "aarch64",
       "operatingSystemBoundary": "selected-raspberry-pi-linux-image",
-      "vendorSupportBoundary": "pi5-named-in-product-datasheet-not-current-sdk-release-tested-arm64-list",
+      "vendorSupportBoundary": "generic-raspberry-pi-repository-entry-no-v2.58.3-exact-pi5-os-kernel-d455-or-rsusb-validation",
       "required": true,
       "hardwareInventorySha256": null,
       "osImageSha256": null,
@@ -217,56 +212,87 @@
     }
   ],
   "buildCampaign": {
-    "sourceCommitGitSha1": "2f6561c28255d805b34aa00a690199ce40e96c81",
-    "cmakeOptions": [
+    "sourceCommitGitSha1": "dfd6aa91250f5c31521d72d627865417989bb4e7",
+    "commonCmakeOptions": [
       "CMAKE_BUILD_TYPE=Release",
-      "OB_BUILD_EXAMPLES=ON",
-      "OB_BUILD_TESTS=ON",
-      "OB_BUILD_TOOLS=OFF",
-      "OB_BUILD_DOCS=OFF",
-      "OB_BUILD_PCL_EXAMPLES=OFF",
-      "OB_BUILD_OPEN3D_EXAMPLES=OFF",
-      "OB_BUILD_USB_PAL=ON",
-      "OB_BUILD_NET_PAL=OFF",
-      "OB_BUILD_GMSL_PAL=OFF",
-      "OB_INSTALL_LICENSES=ON",
-      "OB_BUILD_WITH_EXTENSIONS_COMMIT_HASH=ON",
-      "OB_ENABLE_SANITIZER=OFF",
-      "OB_ENABLE_CLANG_TIDY=OFF"
+      "FORCE_RSUSB_BACKEND=ON",
+      "BUILD_SHARED_LIBS=ON",
+      "BUILD_UNIT_TESTS=ON",
+      "BUILD_VIEWER_TESTS=OFF",
+      "BUILD_EXAMPLES=ON",
+      "BUILD_GRAPHICAL_EXAMPLES=OFF",
+      "BUILD_TOOLS=OFF",
+      "BUILD_WITH_CUDA=OFF",
+      "BUILD_GLSL_EXTENSIONS=OFF",
+      "BUILD_WITH_OPENMP=OFF",
+      "BUILD_WITH_DDS=OFF",
+      "BUILD_ROSBAG2=OFF",
+      "BUILD_PYTHON_BINDINGS=OFF",
+      "CHECK_FOR_UPDATES=OFF",
+      "ENABLE_CCACHE=OFF",
+      "ENABLE_SECURITY_FLAGS=ON",
+      "BUILD_ASAN=OFF"
+    ],
+    "targetCmakeOptions": [
+      {
+        "targetId": "ordinary-x86-linux-external-camera",
+        "options": [
+          "BUILD_WITH_CPU_EXTENSIONS=ON"
+        ]
+      },
+      {
+        "targetId": "steamos-external-camera",
+        "options": [
+          "BUILD_WITH_CPU_EXTENSIONS=ON"
+        ]
+      },
+      {
+        "targetId": "raspberry-pi5-ai-hat-integrated-camera",
+        "options": [
+          "BUILD_WITH_CPU_EXTENSIONS=ON",
+          "BUILD_WITH_NEON=ON",
+          "BUILD_WITH_CLOSE_RANGE_DEPTH=OFF"
+        ]
+      }
     ],
     "validCleanOfflineBuildsPerTarget": 20,
     "requiredTargetCount": 3,
     "requiredCleanOfflineBuildCount": 60,
     "maximumOfflineBuildNetworkAttempts": 0,
-    "contentAddressedSourceAndDependencyMirrorRequired": true,
+    "contentAddressedSourceDependencyAndUnitTestDataMirrorRequired": true,
     "freshBuildRootRequired": true,
     "compilerWarningsAndFailuresRemainVisible": true,
     "installedFilesDynamicLinksLicensesAndSbomMustBeRecorded": true,
     "maximumUnexplainedInstalledManifestMismatches": 0,
-    "vendorPrebuiltAssetMayRescueNativeBuildFailure": false,
+    "prebuiltPackageArchiveOrNativeBackendMayRescueRsusbBuildFailure": false,
     "oneTargetOrArchitectureMayRescueAnother": false,
     "failedOrInterruptedBuildMayBeSilentlyReplaced": false
   },
   "deviceConfiguration": {
-    "requiredModel": "G40055-170",
-    "requiredUsbVendorId": "0x2bc5",
-    "requiredUsbProductId": "0x0804",
-    "requiredFirmwareVersion": "1.8.10",
+    "requiredProductCode": "82635DSD455",
+    "requiredMaterialCode": "999WCT",
+    "requiredUsbVendorId": "0x8086",
+    "requiredUsbProductId": "0x0b5c",
+    "requiredFirmwareVersion": "5.17.3.10",
     "receivedPrivateSerialDigestSha256": null,
+    "receivedManufacturingConfiguration": null,
+    "receivedImuComponent": null,
     "receivedHardwareRevision": null,
     "receivedCalibrationSha256": null,
     "receivedFirmwareSha256": null,
-    "receivedBootloaderVersion": null,
     "suppliedCableManifestSha256": null,
     "mountAndPowerManifestSha256": null,
-    "blockingModeId": "rgb-depth-passive-emitter-off",
-    "conditionalModeId": "rgb-depth-active-emitter-on-i045-gated",
+    "blockingModeId": "rgb-depth-passive-projector-off",
+    "conditionalModeId": "rgb-depth-active-projector-on-i045-gated",
     "exactPassivePresetAndFilterSha256": null,
-    "exactRgbDepthIrStreamProfileSha256": null,
+    "exactRgbDepthIrImuStreamProfileSha256": null,
     "timestampAndClockMappingProtocolSha256": null,
-    "emitterStateIndependentObserverSha256": null,
-    "emitterDefaultOff": true,
+    "projectorStateIndependentObserverSha256": null,
+    "advancedModeStateSha256": null,
+    "campaignForcesProjectorOff": true,
     "activeModeRequiresI045ReadyResult": true,
+    "selfCalibrationOrTareAllowed": false,
+    "advancedModeOrPresetWriteAllowed": false,
     "onlineFirmwareUpdateAllowed": false,
     "firmwareDowngradeAllowed": false,
     "firmwareWriteInterruptionMayBeInduced": false,
@@ -281,7 +307,7 @@
     "phaseIds": [
       "unprivileged-enumeration-and-exact-identity",
       "cold-open-configure-and-close",
-      "sustained-rgb-depth-ir-stream-and-timestamps",
+      "sustained-rgb-depth-ir-imu-stream-and-timestamps",
       "depth-to-color-alignment-and-point-cloud-contract",
       "concurrent-vcg-tracker-and-game-workload",
       "clean-stop-and-restart-without-host-or-device-reboot"
@@ -293,12 +319,13 @@
     "minimumMeasuredSecondsPerSoak": 3600,
     "requiredSoakRunCount": 9,
     "sameReceivedDeviceRequiredAcrossTargets": true,
+    "sameRsusbBackendRequiredAcrossTargets": true,
     "unprivilegedRuntimeRequired": true,
-    "sudoOrRootRuntimeMayPass": false,
+    "sudoRootOrNativeBackendRuntimeMayPass": false,
     "counterbalancedTargetAndPhaseOrderRequired": true,
-    "dropsDuplicatesCorruptionOrderingSpeedDowngradesRetriesAndInvalidRunsRemainVisible": true,
+    "partialEnumerationDropsDuplicatesCorruptionOrderingSpeedDowngradesRetriesAndInvalidRunsRemainVisible": true,
     "failedInvalidOrInterruptedRunMayBeSilentlyReplaced": false,
-    "oneTargetPhaseOrSoakMayRescueAnother": false
+    "oneTargetPhaseBackendOrSoakMayRescueAnother": false
   },
   "recoveryCampaign": {
     "faultIds": [
@@ -314,28 +341,29 @@
     "validRecoveryCyclesPerTargetFaultCell": 20,
     "requiredTargetFaultCellCount": 24,
     "requiredRecoveryCycleCount": 480,
-    "faultDetectionFailClosedStaleFrameRejectionAndHealthyReturnRequired": true,
-    "manualRootNetworkFirmwareAndPowerInterventionMustBeRecorded": true,
-    "vendorFirmwareRecoveryProcedureDeskReviewRequired": true,
-    "firmwareRecoveryModeQualificationRequiredForFirmwareUpdateClaim": true,
-    "firmwareRecoveryModeQualificationCompleted": false,
+    "faultDetectionFailClosedPartialEnumerationStaleFrameRejectionAndHealthyReturnRequired": true,
+    "manualRootNetworkFirmwareKernelAndPowerInterventionMustBeRecorded": true,
+    "vendorFirmwareUpdateAndRecoveryDeskReviewRequired": true,
+    "firmwareRecoveryQualificationRequiredForFirmwareUpdateClaim": true,
+    "firmwareRecoveryQualificationCompleted": false,
+    "kernelPatchUsbControllerResetSelfCalibrationOrAdvancedModeMutationAllowed": false,
     "deliberateFirmwareWriteInterruptionAllowed": false,
     "automaticRetryMayHideFailure": false,
-    "oneFaultTargetOrLaterSuccessMayRescueFailure": false
+    "oneFaultTargetBackendOrLaterSuccessMayRescueFailure": false
   },
   "requiredEvidence": [
-    "exact received model revision private serial digest calibration cable mount power firmware and bootloader",
+    "exact received product and material code manufacturing configuration private serial digest imu calibration cable mount power firmware and condition",
     "exact target hardware os image release kernel libc compiler cmake libusb udev usb controller and power topology",
-    "pinned source tag object commit cmake cache dependency mirror compiler warnings installed files dynamic links licenses and sbom",
-    "locally verified release artifact and firmware bytes only when separately authorized",
-    "unprivileged enumeration model vid pid firmware usb speed port path and permissions",
-    "exact passive preset filters rgb depth ir formats resolution fps alignment and emitter-off observation",
-    "exposure device host and application timestamps with clock mapping uncertainty drift drops duplicates corruption and ordering",
+    "pinned source tag commit common and target cmake cache dependency and unit-test-data mirror compiler warnings installed files dynamic links licenses and sbom",
+    "locally verified firmware or release bytes only when separately authorized",
+    "unprivileged rsusb enumeration complete interface identity vid pid firmware usb speed port path and permissions",
+    "exact passive preset filters rgb depth ir imu formats resolution rates alignment advanced-mode state and projector-off observation",
+    "exposure device host and application timestamps with clock mapping uncertainty drift drops duplicates corruption ordering and partial enumeration",
     "rgb valid-depth aligned-depth point-cloud and qualified-action coverage with independent ground truth",
     "exposure-to-game-api p50 p95 p99 worst action precision recall and privileged false activations",
     "cpu ram usb bandwidth wall and usb power temperature throttling and concurrent game frame pacing",
-    "cold open close restart one-hour soak and complete failure retry invalid and interruption ledger",
-    "per-fault injection detection fail-closed stale-frame rejection healthy-return timing and intervention record",
+    "cold open close restart one-hour soak and complete failure retry invalid interruption and backend ledger",
+    "per-fault injection detection fail-closed partial-enumeration stale-frame rejection healthy-return timing and intervention record",
     "offline clean rebuild network-attempt installed-manifest repeatability update rollback and blank-target recovery",
     "destination-aware delivered camera cable mount power integration tax shipping warranty repair and support cost"
   ],
@@ -348,21 +376,23 @@
     "maximumRootRuntimeProcesses": 0,
     "maximumUnrecoveredFaults": 0,
     "maximumUnexpectedProcessExits": 0,
-    "maximumDeviceFirmwareSdkBuildStreamOrEmitterSubstitutions": 0,
+    "maximumDeviceFirmwareSdkBackendBuildStreamOrProjectorSubstitutions": 0,
     "maximumUsbSpeedDowngradeEvents": 0,
     "everyBuildRunSoakAndRecoveryCellMustPass": true,
-    "vendorSpecsPriceAvailabilityOrPlatformListMayQualify": false,
-    "vendorBinaryOrPublishedDigestMayQualify": false,
-    "oneTargetArchitecturePhaseFaultOrLaterSuccessMayRescueAnother": false,
-    "activeEmitterResultMayRescuePassiveTargetOrSafetyFailure": false,
-    "buildEnumerationHeartbeatOrOneStreamMayQualifyRuntime": false,
-    "i043MayEstablishMaterialDepthBenefitSelectionOrBomMutation": false
+    "vendorSpecsPriceAvailabilityPlatformListOrRepositoryBadgeMayQualify": false,
+    "prebuiltPackageGeneratedArchiveOrPublishedDigestMayQualify": false,
+    "oneTargetArchitecturePhaseFaultBackendOrLaterSuccessMayRescueAnother": false,
+    "activeProjectorResultMayRescuePassiveTargetOrSafetyFailure": false,
+    "buildEnumerationHeartbeatPartialDeviceOrOneStreamMayQualifyRuntime": false,
+    "i044MayEstablishMaterialDepthBenefitSelectionOrBomMutation": false
   },
   "openAcceptance": {
     "minimumRgbFpsMilliFps": null,
     "minimumDepthFpsMilliFps": null,
     "minimumIrFpsMilliFps": null,
+    "minimumImuRateMilliHz": null,
     "maximumFrameDropRatePpm": null,
+    "maximumPartialEnumerationEvents": null,
     "maximumCorruptOrOutOfOrderFramesPerRun": null,
     "maximumTimestampUncertaintyUs": null,
     "maximumTimestampDriftUsPerHour": null,
@@ -379,7 +409,7 @@
     "maximumInstalledPackageBytes": null,
     "maximumDeliveredCostUsdCents": null,
     "minimumMaterialDepthBenefitPpm": null,
-    "mustBeFixedBeforeFirstReleaseArtifactOrFirmwareDownloadTargetBuildDeviceOperationOrRun": true
+    "mustBeFixedBeforeFirstReleaseBinaryOrFirmwareDownloadTargetBuildDeviceOperationOrRun": true
   },
   "costBoundary": {
     "requiredDeliveredCostRoles": [
@@ -410,18 +440,18 @@
   "executionGate": {
     "state": "blocked",
     "blockerCodes": [
-      "exact-received-g40055-170-identity-condition-calibration-cable-mount-power-firmware-and-bootloader",
+      "exact-received-82635dsd455-999wct-identity-condition-manufacturing-imu-calibration-cable-mount-power-and-firmware",
       "fresh-destination-aware-delivered-quote-and-purchase-or-borrow-authority",
-      "exact-ordinary-linux-steamos-and-pi5-hardware-os-kernel-libc-toolchain-usb-power-and-ai-hat-tuples",
-      "sdk-source-dependency-build-package-license-sbom-udev-update-and-rollback-contract",
-      "extension-binary-decision-and-lingbot-model-activation-exclusion",
-      "exact-passive-preset-filters-stream-alignment-timestamp-emitter-state-and-ground-truth-protocol",
+      "exact-ordinary-linux-steamos-and-pi5-hardware-os-kernel-libc-toolchain-libusb-usb-power-and-ai-hat-tuples",
+      "sdk-source-dependency-unit-test-data-build-package-license-sbom-udev-update-and-rollback-contract",
+      "rsusb-common-backend-permission-partial-device-and-native-backend-exclusion-contract",
+      "exact-passive-preset-filters-stream-alignment-clock-advanced-mode-projector-state-and-ground-truth-protocol",
       "runtime-soak-fault-recovery-offline-rebuild-instrumentation-and-schedule-protocols",
       "all-open-stream-timestamp-depth-resource-power-thermal-recovery-build-cost-and-benefit-gates",
-      "i045-ready-result-before-any-active-emitter-lane-and-q018-protocol-before-depth-benefit-claim",
-      "purchase-download-target-device-emitter-participant-fault-diagnostic-result-selection-and-publication-authority"
+      "i045-ready-result-before-any-active-projector-lane-and-q018-protocol-before-depth-benefit-claim",
+      "purchase-binary-firmware-target-device-projector-participant-fault-diagnostic-result-selection-and-publication-authority"
     ],
-    "readyRequiresEveryBlockerResolvedBeforeFirstReleaseArtifactOrFirmwareDownloadTargetBuildDeviceOperationOrRun": true
+    "readyRequiresEveryBlockerResolvedBeforeFirstReleaseBinaryOrFirmwareDownloadTargetBuildDeviceOperationOrRun": true
   },
   "result": {
     "disposition": "blocked",
@@ -433,7 +463,7 @@
     "qualifiedTargetIds": [],
     "firmwareUpdateOrRecoveryQualified": false,
     "materialDepthBenefitEstablished": false,
-    "orbbecSelected": false,
+    "realSenseSelected": false,
     "deliveredCostUsdCents": null,
     "purchaseRecommended": false
   }
