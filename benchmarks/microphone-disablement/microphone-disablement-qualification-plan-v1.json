@@ -1,0 +1,194 @@
+{
+  "format": "vcg-microphone-disablement-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "bundled-camera-microphone-disablement-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered microphone-disablement qualification only. No exact bundled camera, Raspberry Pi OS image, SteamOS image, Windows fallback build, audio policy, sandbox, browser, signed game package, update, rollback, recovery path, ordinary-user attempt, administrative diagnostic path, or target result has been received, executed, measured, qualified, or selected. A denied capture is distinct from muted or silent PCM: returning any audio sample buffer is a failure under this plan.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "game-permission-boundary",
+      "path": "docs/GAME_PERMISSION_MODEL.md",
+      "sha256": "57342aa2ec263953da5d4f611ca1c87499228c66d564b7fac454a98d0accd7e7"
+    },
+    {
+      "role": "hosted-browser-permission-boundary",
+      "path": "docs/HOSTED_BROWSER_SUPERVISION.md",
+      "sha256": "d7469dad2550119a72e1f61d380fa174279cba2a72b6033260d1ca652b05cc43"
+    },
+    {
+      "role": "prototype-acceptance-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    }
+  ],
+  "targets": [
+    {
+      "targetId": "raspberry-pi-os-arm64",
+      "operatingSystem": "Raspberry Pi OS",
+      "architecture": "arm64",
+      "hostClass": "Raspberry Pi 5 8GB",
+      "cameraIdentitySha256": null,
+      "usbDescriptorSha256": null,
+      "osImageSha256": null,
+      "kernelOrBuild": null,
+      "audioStackVersion": null,
+      "sandboxRuntimeVersion": null,
+      "browserVersion": null,
+      "ordinaryUserPolicySha256": null
+    },
+    {
+      "targetId": "steamos-x86_64",
+      "operatingSystem": "SteamOS",
+      "architecture": "x86_64",
+      "hostClass": "optional Steam Machine target",
+      "cameraIdentitySha256": null,
+      "usbDescriptorSha256": null,
+      "osImageSha256": null,
+      "kernelOrBuild": null,
+      "audioStackVersion": null,
+      "sandboxRuntimeVersion": null,
+      "browserVersion": null,
+      "ordinaryUserPolicySha256": null
+    },
+    {
+      "targetId": "windows-x86_64-fallback",
+      "operatingSystem": "Windows fallback",
+      "architecture": "x86_64",
+      "hostClass": "ordinary x86 fallback target",
+      "cameraIdentitySha256": null,
+      "usbDescriptorSha256": null,
+      "osImageSha256": null,
+      "kernelOrBuild": null,
+      "audioStackVersion": null,
+      "sandboxRuntimeVersion": null,
+      "browserVersion": null,
+      "ordinaryUserPolicySha256": null
+    }
+  ],
+  "requiredLayers": [
+    {
+      "layerId": "usb-function-inventory",
+      "boundary": "record whether the exact bundled camera exposes an audio function without treating enumeration as capture authority",
+      "requiredOracle": "descriptor inventory is hash-bound and any audio function remains unopened by the ordinary account"
+    },
+    {
+      "layerId": "kernel-device-access",
+      "boundary": "ordinary account attempts direct platform device access through the documented kernel or Windows device interface",
+      "requiredOracle": "open or capture is denied or the capture device is unavailable before any audio buffer is returned"
+    },
+    {
+      "layerId": "system-audio-service",
+      "boundary": "ordinary account attempts capture through PipeWire, ALSA, or Windows Audio using the target-native API",
+      "requiredOracle": "no selectable or openable bundled-camera capture source returns an audio buffer"
+    },
+    {
+      "layerId": "application-sandbox",
+      "boundary": "the selected Flatpak, package sandbox, or native runtime boundary is exercised with direct device and audio-service probes",
+      "requiredOracle": "sandboxed code cannot open the microphone device, service node, or capture stream"
+    },
+    {
+      "layerId": "browser-permission",
+      "boundary": "launcher and hosted-browser contexts attempt getUserMedia audio capture after both default denial and a hostile site-level permission grant",
+      "requiredOracle": "OS and browser policy still prevent an audio track and no sample buffer is delivered"
+    },
+    {
+      "layerId": "bundled-web-package",
+      "boundary": "a signed local-web test package requests every declared and undeclared audio path through the production package lane",
+      "requiredOracle": "manifest review and runtime enforcement both deny microphone authority and no audio track or bytes are returned"
+    },
+    {
+      "layerId": "native-game-package",
+      "boundary": "a signed native test package probes platform devices, audio services, inherited handles, environment, and child processes",
+      "requiredOracle": "the runtime sandbox denies every capture route and descendants receive no audio authority or sample buffer"
+    },
+    {
+      "layerId": "launcher-tracker-account",
+      "boundary": "launcher, tracker, developer mode, and each ordinary local profile are exercised without a game",
+      "requiredOracle": "no account, profile, setting, or developer toggle can acquire or delegate microphone capture"
+    }
+  ],
+  "requiredPhases": [
+    "fresh-install-default",
+    "ordinary-user-first-boot",
+    "camera-hotplug-and-replug",
+    "offline-restart",
+    "qualified-update",
+    "failed-update-rollback",
+    "recovery-mode-and-return",
+    "factory-reset-and-reprovision"
+  ],
+  "executionMatrix": {
+    "rule": "full Cartesian product in target, layer, phase order with no omitted, duplicated, reordered, or aggregate-only cell",
+    "targetCount": 3,
+    "layerCount": 8,
+    "phaseCount": 8,
+    "expectedCellCount": 192,
+    "minimumValidAttemptsPerCell": null,
+    "attemptTimeoutMs": null,
+    "scheduleSha256": null,
+    "probeBundleSha256": null
+  },
+  "acceptance": {
+    "everyCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "maximumOrdinaryUserCaptureSuccesses": 0,
+    "maximumBrowserAudioTrackSuccesses": 0,
+    "maximumGamePackageCaptureSuccesses": 0,
+    "maximumReturnedAudioBuffers": 0,
+    "maximumReturnedAudioBytes": 0,
+    "authorizationDeniedOrDeviceUnavailableRequired": true,
+    "silentOrMutedPcmCountsAsFailure": true,
+    "permissionPromptOrUiToggleAloneQualifies": false,
+    "endpointEnumerationAloneQualifies": false,
+    "updateRollbackAndRecoveryMustReapplyBeforeOrdinaryLogin": true,
+    "denialMustRemainVisibleWithPathFreeCode": true
+  },
+  "dataPolicy": {
+    "rawAudioRetentionAuthorized": false,
+    "audioSamplePersistenceAuthorized": false,
+    "networkEgressAuthorized": false,
+    "transcriptionAuthorized": false,
+    "voiceprintAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "releasedEvidenceScope": "path-free configuration digests, denial codes, counters, timings, and zero-byte assertions only"
+  },
+  "diagnosticPolicy": {
+    "adminDiagnosticPathDisposition": "unresolved",
+    "ordinaryUserUnlockAllowed": false,
+    "developerModeUnlockAllowed": false,
+    "gameRequestUnlockAllowed": false,
+    "profileSettingUnlockAllowed": false,
+    "separateOwnerDecisionRequired": true,
+    "visibleDisclosureAndIndicatorRequiredIfEnabled": true,
+    "temporaryProbeMayPersistAudio": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "targetAccessAuthorized": false,
+    "osPolicyMutationAuthorized": false,
+    "audioProbeAuthorized": false,
+    "purchaseAuthorized": false,
+    "blockerCodes": [
+      "exact-camera-identity-and-usb-descriptors",
+      "exact-target-images-builds-and-audio-stacks",
+      "os-boundary-policy-implementation",
+      "ordinary-user-browser-and-sandbox-harness",
+      "signed-web-and-native-test-packages",
+      "update-rollback-recovery-and-reset-harness",
+      "valid-attempt-count-timeout-and-schedule",
+      "admin-diagnostic-path-disposition",
+      "audio-probe-and-data-handling-approval",
+      "target-access-and-execution-schedule"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "qualifiedTargetIds": [],
+    "completedCellCount": 0,
+    "allCellsComplete": false
+  }
+}
