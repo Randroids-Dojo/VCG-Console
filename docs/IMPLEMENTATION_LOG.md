@@ -6783,3 +6783,37 @@ I-117 remains active. No exact received controller sample/revision/firmware,
 target radio/BlueZ/SDL/mapping/compositor/bond-store tuple, pairing UX, bond and
 assignment policy, battery source, applicability ledger, harness, schedule,
 numeric gate, mutation authority, physical cycle or compatibility result exists.
+
+## 2026-07-25: cross-tier unattended idle energy qualification plan
+
+### Delivered
+
+- Advanced I-120 from an open row to a strict blocked physical campaign for
+  ordinary x86-64 native Linux and Pi 5/Hailo 26, with optional Steam isolated.
+- Bound the timing, power-recovery, physical-TV wake, Bluetooth-controller wake
+  and Pi thermal plans by normalized SHA-256.
+- Required ordinary x86 to compare platform suspend with low-power launcher
+  idle before Q-270 selection; retained D-095 low-power launcher idle for Pi and
+  optional suspend for Steam without automatic or cross-target selection.
+- Defined accountless-offline, online-quiescent, post-local-game and post-hosted
+  entry profiles across one-hour, eight-hour and 24-hour durations, five runs
+  per cell, 180 required idle runs and at least 600 required controller/physical
+  wake cycles.
+- Required calibrated wall energy, thermal, namespace-write, network,
+  privacy/lifecycle and physical-wake evidence with explicit launch-admission,
+  camera/tracker/microphone/display/update and controller readiness invariants.
+- Preserved five-second warm wake plus zero failed/false wakes, privacy faults,
+  unsafe writes/update transitions, lost sources and crash/hang faults. Open
+  power/energy/thermal/write/network/reliability gates remain null.
+- Forbade cross-strategy, cross-target, optional, shorter-duration and aggregate
+  rescue. Power savings cannot rescue safety/reliability, and host-reported
+  power cannot establish wall energy.
+- Nine focused adversarial tests pass. No strategy, physical result or
+  power-state/unattended authority exists.
+
+### Remaining boundary
+
+I-120 remains active. Exact target/power/display/controller tuples, idle and
+suspend adapters, wake sources, x86 selection authority, calibrated instruments,
+state/privacy/write/network oracles, schedule, numeric gates, hardware authority,
+180 idle runs and at least 600 required wake cycles remain absent.
