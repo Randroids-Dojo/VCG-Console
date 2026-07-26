@@ -37,12 +37,12 @@
     {
       "role": "lens-calibration-plan",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "08018bf0060c3864405fec175b68f7329b1a661a255d41e966439a9f8e55095b"
+      "sha256": "0ada608c3db212b7687afe83d2b889b930494e75bd239fd9f294430b852aa85c"
     },
     {
       "role": "visual-robustness-plan",
       "path": "benchmarks/visual-robustness/cross-tier-visual-robustness-plan-v1.json",
-      "sha256": "af7abd2b031ef6106c1caf0171f67dce08a983913240954e550dfe70a479a465"
+      "sha256": "cbec6d5754468f811f900ec417dc43bf2f7b83ec5dcea323784ec8c1db00da2b"
     },
     {
       "role": "rgb-depth-floor-contact-plan",

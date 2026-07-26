@@ -28,7 +28,7 @@
     {
       "role": "physical-tv-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "353e86ef1bd35347f93af5322b69c68b0f6567a3b38c7c97d983a322f7bcfe54"
+      "sha256": "07fcb650a9395bdcf96f96890a60784d3837d8162c1e520f6ae0b3e05ecf4a36"
     }
   ],
   "coordinateSystem": {

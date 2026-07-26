@@ -1,0 +1,300 @@
+{
+  "format": "vcg-catalog-controller-only-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "catalog-controller-only-qualification-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-089"
+  ],
+  "claimBoundary": "Strict zero-result pre-registration for hands-on controller-only use of the exact 26-entry catalog on both required Linux tiers. No physical controller, recovery remote, television, target, game session, mapping, glyph, text-entry path, gameplay result, admission, permission, offline support, or controller qualification exists. Neutral browser Gamepad API signals, listener counts, URL reachability, catalog presence, or one successful title cannot qualify any game, device, target, task, recovery path, or family-mode claim.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "neutral-input-surface-observation",
+      "path": "compliance/game-input/remote-game-input-surface-observation-v2.json",
+      "sha256": "f400254ddd8e8b29836a192601141f227a40896c4ffada4620d77eededb893d1"
+    },
+    {
+      "role": "exact-catalog-candidate-ledger",
+      "path": "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
+      "sha256": "7f2a0e085706451da65bed64f6ea25ab569428428da7b04f358f80ec24d2b9ca"
+    },
+    {
+      "role": "neutral-input-audit-boundary",
+      "path": "docs/REMOTE_GAME_INPUT_SURFACE_AUDIT_2026-07-24.md",
+      "sha256": "997b289c1631cc2cdde314456502316583c5631f2b60fdaf86924443e5a1dece"
+    },
+    {
+      "role": "remote-input-owner-question-boundary",
+      "path": "docs/OWNER_QUESTIONS_REMOTE_GAME_INPUT_2026-07-24.md",
+      "sha256": "4a3922c45d73dcfd030305387cb18c6a00ad55e5932ed46edc57398cabed642e"
+    },
+    {
+      "role": "controller-routing-boundary",
+      "path": "docs/CONTROLLER_INPUT.md",
+      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+    },
+    {
+      "role": "controller-mapping-boundary",
+      "path": "docs/CONTROLLER_MAPPING_CONTRACT.md",
+      "sha256": "7aa3e1f930fd4fa28f985643ac0ee05dbcfcaa4e5ad328048f74745577213cb6"
+    },
+    {
+      "role": "controller-qualification-protocol",
+      "path": "docs/CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md",
+      "sha256": "bc20b07bd0c69d2e518a30dcfc9694c2f7df6fee2f29b8e2ff1d7181e8da7405"
+    },
+    {
+      "role": "controller-qualification-plan",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "prototype-success-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "television-compatibility-boundary",
+      "path": "docs/TV_COMPATIBILITY_CONTRACT.md",
+      "sha256": "89d1e724bb2daff40243bc386c015ff8eb7a4b62149ae641fb545ab646dd31fe"
+    },
+    {
+      "role": "online-offline-service-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    }
+  ],
+  "catalogContract": {
+    "catalogSnapshotDate": "2026-07-19",
+    "exactGameIds": [
+      "vibebots",
+      "vibe-pinball",
+      "vibe-racer",
+      "vibe-pins",
+      "bone-cleaver",
+      "vibeman-hangman",
+      "asymptotic-bitrot",
+      "fracking-asteroids",
+      "hoops",
+      "mi-casa-es-su-casa",
+      "block-punch-kick",
+      "epoch",
+      "game-tape",
+      "go-pit",
+      "block-you",
+      "determined",
+      "software-dev-sim",
+      "baby-piano",
+      "clankers",
+      "vibe-city",
+      "flatline",
+      "vibe-gear-2",
+      "text-racer",
+      "drop-dead-keep",
+      "streamer-billboard",
+      "go-dig"
+    ],
+    "expectedGameCount": 26,
+    "everyGameRequiresIndependentTargetControllerTaskAndRecoveryEvidence": true,
+    "neutralGamepadSignalListenerOrDomSurfaceMayEstablishSupport": false,
+    "loadedUrlMayEstablishReadinessPlayabilityOrControllerSupport": false,
+    "controllerCompatibilityMayGrantCatalogAdmissionRightsPermissionsOrOfflineSupport": false,
+    "oneGameControllerTargetOrBestCaseMayRescueAnother": false
+  },
+  "authorityBoundary": {
+    "ordinaryX86TargetRuntimeAndCompositorSha256": null,
+    "pi5TargetRuntimeAndCompositorSha256": null,
+    "supervisedBrowserAndLauncherBuildSha256": null,
+    "controllerQualificationResultSha256": null,
+    "exactControllerSampleSetAndMappingDatabaseSha256": null,
+    "recoveryRemoteManifestAndMappingSha256": null,
+    "compositorReservedActionEnforcementSha256": null,
+    "perGameControlAndOrdinaryPlayScriptLedgerSha256": null,
+    "perGameInputTextAuthNetworkAndPermissionApplicabilityLedgerSha256": null,
+    "televisionAudioAndCaptureFixtureSha256": null,
+    "networkServiceAndTestAccountProtocolSha256": null,
+    "faultInjectionAndRecoveryOracleSha256": null,
+    "dataHandlingRecordingAndDeletionProtocolSha256": null,
+    "scheduleOperatorAndIndependentReviewProtocolSha256": null,
+    "targetOperationAuthorized": false,
+    "physicalControllerAndRemoteOperationAuthorized": false,
+    "gameInteractionOrAccountUseAuthorized": false,
+    "screenAudioOrRoomCollectionAuthorized": false,
+    "catalogManifestPermissionOrFamilyModeMutationAuthorized": false,
+    "qualificationOrPublicationAuthorized": false
+  },
+  "matrices": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "controllerRoleIds": [
+      "first-party-standard",
+      "second-vendor-standard",
+      "generic-ambiguous"
+    ],
+    "controllerOnlyTaskIds": [
+      "launch-from-controller-only-shell",
+      "reach-usable-title-or-menu",
+      "understand-correct-controls-and-glyphs",
+      "start-ordinary-play",
+      "perform-primary-gameplay-mechanics",
+      "pause-and-resume",
+      "retry-or-restart-after-declared-failure",
+      "complete-required-text-entry-or-prove-none-required",
+      "back-to-safe-title-or-launcher",
+      "home-or-forced-exit-to-responsive-launcher"
+    ],
+    "lifecycleScenarioIds": [
+      "controller-attached-before-cold-launch",
+      "controller-hotplugged-after-game-load",
+      "disconnect-during-navigation",
+      "disconnect-while-gameplay-control-held",
+      "same-device-reconnect",
+      "different-device-replaces-same-slot",
+      "controller-sleep-and-wake",
+      "browser-focus-loss-and-return",
+      "fullscreen-capture-and-global-recovery",
+      "pointer-lock-capture-and-global-recovery",
+      "network-loss-and-declared-recovery",
+      "game-hang-crash-and-supervisor-return"
+    ],
+    "recoveryRemoteScenarioIds": [
+      "launch-or-focus-safe-shell-control",
+      "back-from-game-or-overlay",
+      "home-from-ordinary-gameplay",
+      "home-from-fullscreen-or-pointer-lock",
+      "home-from-hung-or-crashed-game",
+      "retry-exit-and-shutdown-recovery"
+    ],
+    "televisionAudioCheckIds": [
+      "safe-area-and-critical-text",
+      "correct-controller-glyphs-and-focus",
+      "gameplay-action-visibility",
+      "pause-retry-error-and-exit-comprehension",
+      "expected-game-audio-and-no-unexpected-dropout",
+      "launcher-audio-focus-and-volume-recovery"
+    ],
+    "validTrialsPerCell": 20,
+    "controllerTaskCellCount": 1560,
+    "controllerTaskTrialCount": 31200,
+    "lifecycleCellCount": 1872,
+    "lifecycleCycleCount": 37440,
+    "recoveryRemoteCellCount": 312,
+    "recoveryRemoteTrialCount": 6240,
+    "televisionAudioCellCount": 312,
+    "televisionAudioTrialCount": 6240,
+    "totalRequiredObservationCount": 81120,
+    "everyGameTargetControllerTaskLifecycleRemoteAndTvAudioCellMustPass": true,
+    "unsupportedGenericDeviceMustRemainVisibleRecoverableAndZeroAuthority": true,
+    "gameControllerTargetTaskScenarioOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-game-target-build-controller-remote-tv-audio-network-and-script-digests",
+      "launch-title-menu-ordinary-play-pause-retry-back-home-and-exit-outcomes",
+      "expected-and-observed-controls-mappings-glyphs-focus-and-player-slot",
+      "keyboard-pointer-touch-text-auth-network-and-permission-requirements",
+      "controller-detection-action-reconnect-reserved-action-and-recovery-timing",
+      "stuck-stale-duplicate-missing-wrong-slot-and-cross-epoch-actions",
+      "fullscreen-pointer-lock-focus-hang-crash-and-supervisor-recovery",
+      "reserved-home-back-pause-console-ownership-and-game-nonreceipt",
+      "safe-area-critical-text-focus-action-error-and-exit-comprehension",
+      "game-and-launcher-audio-presence-dropout-focus-volume-and-recovery",
+      "game-frame-rate-frame-time-drops-cpu-gpu-memory-network-and-errors",
+      "account-login-service-storage-and-network-boundary-without-secret-capture",
+      "per-game-compatible-blocked-incomplete-and-reason-code-disposition",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-attempt-ledger"
+    ],
+    "independentControllerScreenAudioReservedActionAndRecoveryOraclesRequired": true,
+    "ordinaryPlayScriptMustExerciseDeclaredPrimaryMechanics": true,
+    "requiredInputUnavailableFeatureAuthOrServiceMustRemainVisible": true,
+    "everyScheduledAttemptAndFailureMustRemainVisible": true,
+    "syntheticSignalUrlLoadOrDomSurfaceMaySubstituteHandsOnEvidence": false,
+    "keyboardMouseTouchOrDeveloperToolMayRescueControllerOnlyFailure": false,
+    "laterGameTargetControllerOrRecoveryMayEraseEarlierFailure": false
+  },
+  "fixedAcceptance": {
+    "minimumValidTrialsPerCell": 20,
+    "maximumRequiredKeyboardMouseOrTouchInterventionsInControllerFirstPath": 0,
+    "maximumUnmappedOrWrongRequiredGameplayActions": 0,
+    "maximumIncorrectControllerGlyphOrControlInstructions": 0,
+    "maximumStuckStaleDuplicateOrCrossEpochActions": 0,
+    "maximumReservedHomeBackOrPauseActionsDeliveredToGame": 0,
+    "maximumLostSuppressedOrUnrecoverableReservedActions": 0,
+    "maximumWrongSilentOrDurablePlayerAssignments": 0,
+    "maximumControllerOnlyTextEntryBlockages": 0,
+    "maximumUnrecoveredDisconnectFocusFullscreenPointerLockHangOrCrashEvents": 0,
+    "maximumRecoveryRemoteFailures": 0,
+    "maximumCriticalTvSafeAreaFocusTextOrActionVisibilityFailures": 0,
+    "maximumUnexpectedRequiredAudioAbsenceDropoutOrFocusFailures": 0,
+    "maximumCredentialTokenFormValuePersonalDataUrlQueryOrFreeTextDisclosures": 0,
+    "maximumSilentlyDiscardedFailedInvalidStoppedRetriedOrAdverseEvidence": 0,
+    "everyGameTargetControllerTaskScenarioAndTvAudioGateMustPass": true,
+    "aggregateSuccessMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumIndependentPhysicalSamplesPerControllerRole": null,
+    "minimumIndependentAdultParticipants": null,
+    "minimumIndependentChildParticipants": null,
+    "minimumOrdinaryGameplayDurationMsPerTrial": null,
+    "minimumDistinctPrimaryMechanicsPerGame": null,
+    "maximumControllerDetectionP95Ms": null,
+    "maximumControllerToGameActionP95Us": null,
+    "maximumReconnectP95Ms": null,
+    "maximumReservedActionP95Ms": null,
+    "maximumRecoveryToResponsiveLauncherP95Ms": null,
+    "minimumGameFrameRateMilliHz": null,
+    "maximumGameFrameTimeP95Us": null,
+    "maximumAudioOutputLatencyUs": null,
+    "maximumAudioDropoutDurationMs": null,
+    "minimumTvAndControlComprehensionPpm": null,
+    "minimumControllerTextEntryCharactersPerMinute": null,
+    "maximumControllerTextEntryErrorRatePpm": null
+  },
+  "dataPolicy": {
+    "rawRoomPlayerControllerVideoAudioOrImagesAllowedInRepositoryReleaseOrResult": false,
+    "credentialsTokensCookiesStorageValuesFormValuesChatTextOrProfileDataAllowed": false,
+    "participantNamesFacesVoicesExactAgesStableDeviceIdentifiersPathsOrUrlsWithQueriesAllowed": false,
+    "arbitraryConsolePageNetworkOrProviderMessagesAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "opaqueGameTargetControllerTrialAndParticipantLabelsRequired": true,
+    "screenOrAudioCaptureRequiresSeparateRightsPrivacyConsentSecurityAndDeletionProtocol": true,
+    "closedReasonCodesCountsTimingsDigestsAndRedactedCategoriesRequired": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true,
+    "networkEgressOutsideDeclaredGameServiceTrafficAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "cco-001-exact-two-target-runtime-compositor-and-browser-tuples",
+      "cco-002-qualified-controller-samples-mappings-and-glyph-policy",
+      "cco-003-exact-recovery-remote-and-privileged-routing",
+      "cco-004-per-game-control-ordinary-play-and-input-applicability-ledger",
+      "cco-005-network-service-account-permission-and-text-entry-policy",
+      "cco-006-tv-audio-safe-area-focus-and-capture-fixtures",
+      "cco-007-fullscreen-pointer-lock-focus-hang-crash-and-recovery-oracles",
+      "cco-008-physical-sample-participant-gameplay-timing-performance-audio-and-comprehension-gates",
+      "cco-009-data-rights-privacy-consent-recording-deletion-and-incident-protocol",
+      "cco-010-schedule-operators-independent-review-and-operation-authority",
+      "cco-011-manifest-admission-permission-family-mode-and-publication-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedControllerTaskTrialCount": 0,
+    "completedLifecycleCycleCount": 0,
+    "completedRecoveryRemoteTrialCount": 0,
+    "completedTelevisionAudioTrialCount": 0,
+    "compatibleGameIdsByTarget": [],
+    "blockedGameIdsByTarget": [],
+    "incompleteGameIdsByTarget": [],
+    "qualifiedControllerRoleIds": [],
+    "catalogAdmissionOrManifestPermissionsChanged": false,
+    "familyModeClaimPublished": false
+  }
+}
