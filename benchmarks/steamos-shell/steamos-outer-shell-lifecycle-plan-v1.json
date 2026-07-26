@@ -1,0 +1,444 @@
+{
+  "format": "vcg-steamos-outer-shell-lifecycle-plan/v1",
+  "status": "blocked",
+  "campaignId": "i171-steamos-outer-shell-lifecycle-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": "prototype-vcg-branding-and-lifecycle-inside-the-steamos-outer-shell-on-one-exact-steam-machine-with-proxy-evidence-kept-development-only",
+  "claimBoundary": "zero-result-plan-only-no-target-operation-route-selection-auto-launch-support-brand-approval-overlay-compatibility-update-safety-shutdown-authority-video-evidence-or-i171-qualification",
+  "sourceDigestContract": {
+    "algorithm": "sha256",
+    "textEncoding": "utf-8",
+    "lineEndingNormalization": "crlf-to-lf",
+    "bomAllowed": false
+  },
+  "sourceBindings": [
+    {
+      "role": "steam-machine-target-and-outer-shell-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "product-branding-loading-and-lifecycle-boundary",
+      "path": "docs/RESEARCH.md",
+      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
+    },
+    {
+      "role": "boot-resume-launch-campaign",
+      "path": "docs/BOOT_RESUME_LAUNCH_TIMING_CAMPAIGN_2026-07-25.md",
+      "sha256": "7222d2fc7123d3a85cf34e3b962261fcafd482988d92c7a96e115512939c9166"
+    },
+    {
+      "role": "boot-resume-launch-plan",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "privileged-power-lifecycle-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    },
+    {
+      "role": "native-power-coordinator-boundary",
+      "path": "native/vcg-host/src/power.rs",
+      "sha256": "6a68433d4f9831c26128418b8743993eb9b4cd126aa4b512021fb4db2579138a"
+    },
+    {
+      "role": "controller-and-reserved-action-boundary",
+      "path": "docs/CONTROLLER_INPUT.md",
+      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+    },
+    {
+      "role": "steam-input-semantic-action-contract",
+      "path": "packages/motion-contract/src/steam-input-actions.ts",
+      "sha256": "fa503bc9cd8d9c543a77c8bbff2c908cceace272071ea384d9f9e034e6ad523e"
+    },
+    {
+      "role": "steam-input-campaign-plan",
+      "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
+      "sha256": "cd5a93bafd63a88aaedab650c273de5beb52ea0bbd79779e8d0835c5104ea786"
+    },
+    {
+      "role": "steamos-update-safe-content-campaign",
+      "path": "docs/STEAMOS_UPDATE_SAFE_CONTENT_CAMPAIGN_2026-07-26.md",
+      "sha256": "63e1515a1a24c103770c7cf13a95600273ec2100f558e020c2ef6cc9504bacf2"
+    },
+    {
+      "role": "steamos-update-safe-content-plan",
+      "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
+      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+    },
+    {
+      "role": "hosted-browser-wrapper-boundary",
+      "path": "docs/HOSTED_BROWSER_SUPERVISION.md",
+      "sha256": "d7469dad2550119a72e1f61d380fa174279cba2a72b6033260d1ca652b05cc43"
+    },
+    {
+      "role": "launcher-tv-branding-boundary",
+      "path": "docs/LAUNCHER_TV_CONFORMANCE_EVIDENCE_2026-07-24.md",
+      "sha256": "5c889f7d462a1d9020bc5faa98434cc15e2248434be549063c88de16fc086bf8"
+    },
+    {
+      "role": "offline-service-disclosure-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    }
+  ],
+  "officialReferenceRecords": [
+    {
+      "referenceId": "valve-steam-machine-feature-guide",
+      "publisher": "Valve",
+      "url": "https://help.steampowered.com/en/faqs/view/1180-0BA6-4A75-B7CA",
+      "checkedAt": "2026-07-26",
+      "facts": [
+        "stock-first-start-guides-controller-network-and-steam-login",
+        "desktop-mode-is-reached-from-steam-menu-power",
+        "steamos-and-hardware-updates-remain-in-steam-settings",
+        "gaming-mode-is-the-stock-visible-outer-shell"
+      ]
+    },
+    {
+      "referenceId": "valve-non-steam-shortcut-guide",
+      "publisher": "Valve",
+      "url": "https://help.steampowered.com/en/faqs/view/4B8B-9697-2338-40EC",
+      "checkedAt": "2026-07-26",
+      "facts": [
+        "a-non-steam-entry-is-a-steam-client-shortcut",
+        "the-shortcut-does-not-grant-steam-update-delivery",
+        "the-shortcut-does-not-grant-steam-ownership-proof"
+      ]
+    },
+    {
+      "referenceId": "valve-steamos-install-and-repair",
+      "publisher": "Valve",
+      "url": "https://help.steampowered.com/en/faqs/view/65B4-2AA3-5F37-4227",
+      "checkedAt": "2026-07-26",
+      "facts": [
+        "stock-reimage-wipes-user-info-games-applications-and-operating-systems",
+        "repair-attempts-to-preserve-games-and-personal-content",
+        "recovery-tools-remain-a-separate-platform-owned-path"
+      ]
+    },
+    {
+      "referenceId": "valve-steam-overlay-documentation",
+      "publisher": "Valve",
+      "url": "https://partner.steamgames.com/doc/features/overlay",
+      "checkedAt": "2026-07-26",
+      "facts": [
+        "overlay-is-steam-ui-over-a-steam-launched-rendered-application",
+        "overlay-activation-can-notify-a-game-to-pause-or-resume",
+        "browser-rendering-is-not-a-supported-overlay-rendering-model-without-a-native-wrapper"
+      ]
+    }
+  ],
+  "targetCandidates": [
+    {
+      "targetId": "exact-steam-machine",
+      "targetClass": "optional-delivered-steam-machine",
+      "evidenceDisposition": "required-for-i171-qualification",
+      "hardwareOsSteamAndFirmwareManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false,
+      "otherTargetEvidenceMayQualify": false
+    },
+    {
+      "targetId": "supported-amd-steamos-proxy",
+      "targetClass": "explicit-development-proxy-only",
+      "evidenceDisposition": "may-exercise-harness-but-never-qualify-the-steam-machine",
+      "hardwareOsSteamAndFirmwareManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false,
+      "otherTargetEvidenceMayQualify": false
+    }
+  ],
+  "shellRoutes": [
+    {
+      "routeId": "stock-gaming-mode-non-steam-shortcut",
+      "entryOwnership": "valve-gaming-mode-manual-selection",
+      "vcgOwnership": "inside-launched-vcg-application-only",
+      "officialSupportBoundary": "shortcut-only-not-steam-update-or-ownership",
+      "mayClaimAutomaticEntry": false,
+      "mayReplaceValveOuterShell": false
+    },
+    {
+      "routeId": "stock-desktop-mode-installed-application",
+      "entryOwnership": "valve-power-menu-desktop-switch-then-desktop-launch",
+      "vcgOwnership": "inside-launched-vcg-application-only",
+      "officialSupportBoundary": "desktop-install-and-return-to-gaming-mode-only",
+      "mayClaimAutomaticEntry": false,
+      "mayReplaceValveOuterShell": false
+    },
+    {
+      "routeId": "candidate-supported-automatic-vcg-entry",
+      "entryOwnership": "unselected-platform-supported-method-only",
+      "vcgOwnership": "inside-launched-vcg-application-only",
+      "officialSupportBoundary": "no-supported-method-established-by-this-plan",
+      "mayClaimAutomaticEntry": false,
+      "mayReplaceValveOuterShell": false
+    }
+  ],
+  "routeSelectionBoundary": {
+    "selectedProductRouteId": null,
+    "manualRouteMayRescueAutomaticRoute": false,
+    "desktopRouteMayRescueGamingModeRoute": false,
+    "proxyMayRescueExactTarget": false,
+    "steamLoginMayRescueAccountlessCore": false,
+    "unsupportedMutationMayQualify": false
+  },
+  "authorityBoundary": {
+    "exactTargetOrProxyOperationAuthorized": false,
+    "steamAccountOrIdentityFixtureAuthorized": false,
+    "platformOrClientConfigurationMutationAuthorized": false,
+    "autoLaunchConfigurationAuthorized": false,
+    "faultOrUpdateExecutionAuthorized": false,
+    "shutdownOrPowerHandoffAuthorized": false,
+    "screenVideoOrAudioCollectionAuthorized": false,
+    "routeSelectionAuthorized": false,
+    "brandApprovalGranted": false,
+    "publicationAuthorized": false
+  },
+  "lifecycleScenarios": [
+    {
+      "scenarioId": "cold-boot-to-stock-outer-shell",
+      "startEvent": "externally-observed-physical-power-application",
+      "endEvent": "stock-shell-or-truthful-blocking-setup-is-controller-usable",
+      "requiredVisualStates": [
+        "platform-owned-boot",
+        "truthful-setup-or-shell",
+        "vcg-not-yet-claimed"
+      ],
+      "requiredOracles": [
+        "external-timebase",
+        "outer-shell-owner",
+        "controller-response",
+        "account-and-network-prompt-class"
+      ]
+    },
+    {
+      "scenarioId": "route-entry-to-vcg-ready",
+      "startEvent": "route-specific-supported-entry-action-or-platform-auto-entry-trigger",
+      "endEvent": "vcg-home-is-visibly-branded-focused-and-controller-usable",
+      "requiredVisualStates": [
+        "entry-selected-or-triggered",
+        "immediate-vcg-feedback",
+        "vcg-home-ready"
+      ],
+      "requiredOracles": [
+        "route-identity",
+        "process-tree",
+        "focus-owner",
+        "no-hidden-platform-error"
+      ]
+    },
+    {
+      "scenarioId": "branded-loading-to-local-game-interactive",
+      "startEvent": "deliberate-controller-launch-action",
+      "endEvent": "local-game-accepts-and-visibly-responds-to-supported-input",
+      "requiredVisualStates": [
+        "preparing",
+        "starting",
+        "waiting-for-readiness",
+        "interactive-or-bounded-failure"
+      ],
+      "requiredOracles": [
+        "observable-phase-truth",
+        "input-response",
+        "back-cancel",
+        "timeout-class"
+      ]
+    },
+    {
+      "scenarioId": "normal-game-exit-to-vcg",
+      "startEvent": "deliberate-in-game-exit-action",
+      "endEvent": "vcg-home-is-restored-with-one-deterministic-focus-owner",
+      "requiredVisualStates": [
+        "exit-requested",
+        "returning",
+        "vcg-home-restored"
+      ],
+      "requiredOracles": [
+        "child-exit",
+        "descendant-reap",
+        "focus-restoration",
+        "input-epoch-reset"
+      ]
+    },
+    {
+      "scenarioId": "game-crash-or-hang-to-vcg-recovery",
+      "startEvent": "authorized-contained-game-fault-injection",
+      "endEvent": "truthful-recovery-screen-allows-controller-retry-details-or-exit",
+      "requiredVisualStates": [
+        "failure-detected",
+        "recovering",
+        "bounded-recovery-or-terminal-failure"
+      ],
+      "requiredOracles": [
+        "fault-identity",
+        "host-health",
+        "descendant-containment",
+        "fresh-retry-instance"
+      ]
+    },
+    {
+      "scenarioId": "steam-overlay-open-close-focus-and-pause",
+      "startEvent": "fresh-platform-owned-overlay-action",
+      "endEvent": "overlay-closes-and-vcg-or-game-focus-is-restored-without-stuck-input",
+      "requiredVisualStates": [
+        "steam-owned-overlay-visible",
+        "vcg-not-spoofing-overlay",
+        "focus-restored"
+      ],
+      "requiredOracles": [
+        "platform-action-not-delivered-to-game",
+        "pause-disposition",
+        "input-epoch",
+        "no-identity-retention"
+      ]
+    },
+    {
+      "scenarioId": "steamos-update-reboot-and-vcg-integrity",
+      "startEvent": "authorized-stock-steamos-update-application",
+      "endEvent": "post-update-stock-shell-and-selected-vcg-route-are-truthfully-usable-or-blocked",
+      "requiredVisualStates": [
+        "platform-update-owned",
+        "reboot-progress",
+        "post-update-route-result"
+      ],
+      "requiredOracles": [
+        "before-after-version",
+        "stock-update-not-disabled",
+        "vcg-package-integrity",
+        "rollback-or-repair-boundary"
+      ]
+    },
+    {
+      "scenarioId": "confirmed-shutdown-quiescence-and-power-off",
+      "startEvent": "fresh-confirmed-controller-shutdown-request",
+      "endEvent": "qualified-platform-handoff-reaches-observed-power-off-or-terminal-failure",
+      "requiredVisualStates": [
+        "confirmation",
+        "quiescing",
+        "platform-handoff-or-terminal-failure"
+      ],
+      "requiredOracles": [
+        "launch-admission-closed",
+        "game-tracker-camera-input-and-write-quiescence",
+        "one-shot-platform-handoff",
+        "external-power-state"
+      ]
+    }
+  ],
+  "captureMatrix": {
+    "targetCount": 2,
+    "routeCount": 3,
+    "scenarioCount": 8,
+    "cellCount": 48,
+    "cyclesPerCell": 20,
+    "totalCycles": 960,
+    "structuredEventLedgerRequiredPerCycle": true,
+    "representativeSanitizedVideoRequiredPerCell": true,
+    "failedInvalidStoppedAndRetriedCyclesRetained": true,
+    "targetRouteScenarioOrCycleRescueAllowed": false
+  },
+  "measurements": [
+    "exact-target-steamos-steam-client-firmware-display-controller-package-and-route-manifest-digests",
+    "external-power-entry-action-first-pixel-phase-ready-interactive-and-terminal-timestamps-with-uncertainty",
+    "outer-shell-vcg-overlay-loading-failure-recovery-and-platform-handoff-owner-ledger",
+    "route-configuration-supported-interface-package-and-post-update-integrity-digests",
+    "controller-focus-reserved-home-back-pause-input-epoch-and-stuck-action-ledger",
+    "loading-phase-transition-time-timeout-cancel-retry-details-and-exit-results",
+    "game-process-descendant-health-exit-crash-hang-reap-and-fresh-retry-results",
+    "tracker-camera-input-write-update-and-launch-admission-quiescence-results",
+    "overlay-open-close-pause-resume-focus-and-rendering-compatibility-results",
+    "update-before-after-version-reboot-route-package-data-and-recovery-results",
+    "shutdown-confirmation-quiescence-platform-handoff-power-state-and-failure-results",
+    "account-network-service-and-offline-prompt-classes-without-identity-or-entered-values",
+    "safe-area-brand-state-critical-text-action-target-and-controller-distance-inspection",
+    "sanitized-video-event-ledger-screenshot-and-detached-artifact-digests",
+    "failed-invalid-stopped-retried-adverse-and-worst-case-cell-ledger"
+  ],
+  "fixedAcceptance": {
+    "valveOuterShellRemainsVisibleAndTruthfullyOwned": true,
+    "vcgMayOwnOnlyItsApplicationSurface": true,
+    "vcgMayNotSpoofSteamSetupOverlayUpdateRecoveryOrShutdown": true,
+    "immediateBrandedFeedbackMillisecondsMaximum": 250,
+    "coldBootControllerUsableSecondsMaximum": 60,
+    "localGameInteractiveSecondsMaximum": 15,
+    "hostedGameInteractiveOrTruthfulProgressSecondsMaximum": 30,
+    "warmResumeControllerUsableSecondsMaximum": 5,
+    "requiredLoadingStates": [
+      "preparing",
+      "checking-dependency",
+      "starting",
+      "waiting-for-readiness",
+      "recovering",
+      "failed"
+    ],
+    "controllerAccessibleEscapeActions": [
+      "back-or-cancel",
+      "retry",
+      "details",
+      "exit"
+    ],
+    "steamHomeOverlayActionRemainsPlatformOwned": true,
+    "steamOverlayMayNeverBeSoleVcgRecoveryAuthority": true,
+    "stockUpdatesAndRecoveryMayNotBeDisabledOrMasked": true,
+    "accountlessCoreMayNotBeWeakenedByI171": true,
+    "criticalFailuresAllowedPerCell": 0,
+    "validCyclesRequiredPerCell": 20,
+    "aggregateTargetRouteScenarioOrProxyRescueAllowed": false
+  },
+  "openAcceptance": {
+    "selectedProductRouteId": null,
+    "exactTargetHardwareOsSteamFirmwareManifestSha256": null,
+    "supportedAutomaticEntryMethodAndConfigurationSha256": null,
+    "vcgApplicationWrapperPackageAndLaunchManifestSha256": null,
+    "ownerApprovedBrandAssetAndStateVocabularySha256": null,
+    "overlayRenderingPauseFocusAndBrowserWrapperProtocolSha256": null,
+    "accountlessI170QualificationResultSha256": null,
+    "crashHangRecoveryTimeGateMilliseconds": null,
+    "updateSurvivalAndRecoveryGate": null,
+    "shutdownQuiescenceAndHandoffTimeGateMilliseconds": null,
+    "screenVideoCaptureSanitizationRetentionAndReviewProtocolSha256": null,
+    "controllerOnlyAccessibilityAndTvDistanceReviewSha256": null
+  },
+  "dataPolicy": {
+    "allowed": [
+      "opaque-target-route-scenario-cycle-and-artifact-identifiers",
+      "monotonic-timestamps-durations-state-enums-counts-and-pass-fail-oracles",
+      "software-version-package-configuration-and-detached-artifact-digests",
+      "sanitized-screen-video-with-approved-opaque-test-identity-only"
+    ],
+    "prohibited": [
+      "steam-id-user-name-account-name-avatar-friends-chat-library-or-community-content",
+      "credentials-tokens-session-cookies-qr-codes-email-phone-or-payment-data",
+      "entered-network-account-or-recovery-text",
+      "raw-camera-audio-microphone-body-profile-or-biometric-data",
+      "filesystem-paths-process-command-lines-environment-values-or-free-text-notes",
+      "deleted-failed-adverse-invalid-stopped-or-retried-evidence"
+    ],
+    "networkPayloadCaptureAllowed": false,
+    "screenVideoCollectionAuthorized": false,
+    "rawMediaRetentionAllowed": false,
+    "publicationAuthorized": false
+  },
+  "executionGate": {
+    "state": "blocked",
+    "blockers": [
+      "sol-001-exact-received-steam-machine-or-explicit-proxy-hardware-os-steam-firmware-and-display-inventory",
+      "sol-002-owner-selected-product-route-and-explicit-manual-desktop-or-automatic-entry-requirement",
+      "sol-003-platform-supported-automatic-entry-method-or-explicit-unsupported-disposition",
+      "sol-004-qualified-i166-update-safe-package-result-and-signed-vcg-wrapper-launch-manifest",
+      "sol-005-qualified-i170-accountless-core-result-kept-independent-from-steam-login",
+      "sol-006-owner-approved-brand-assets-loading-state-vocabulary-copy-and-safe-area-review",
+      "sol-007-i169-controller-reserved-action-glyph-overlay-pause-and-focus-integration",
+      "sol-008-update-safe-install-entry-removal-rollback-repair-and-reimage-boundary",
+      "sol-009-contained-game-crash-hang-descendant-reap-health-and-fresh-retry-protocol",
+      "sol-010-native-power-coordinator-steamos-shutdown-adapter-and-external-power-oracle",
+      "sol-011-exact-scenario-route-cycle-order-timing-gates-instruments-and-independent-review",
+      "sol-012-screen-video-capture-sanitization-test-identity-retention-deletion-and-review-protocol",
+      "sol-013-controller-only-tv-distance-accessibility-and-steam-vcg-owner-comprehension-protocol",
+      "sol-014-target-account-service-fault-update-shutdown-capture-and-configuration-authority",
+      "sol-015-adverse-evidence-incident-stop-recovery-and-no-rescue-policy",
+      "sol-016-result-review-route-selection-qualification-and-publication-authority"
+    ]
+  },
+  "result": null
+}
