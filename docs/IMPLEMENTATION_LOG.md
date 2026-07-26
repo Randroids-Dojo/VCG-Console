@@ -7183,3 +7183,35 @@ calibrated, mounted or tested. No depth, floor, overlap, low-light, latency,
 power, cost, participant, room, target, IR-safety or product result exists.
 Execution remains blocked on `OWNER_QUESTIONS_OAK_D_PRO_W_COMPARISON_2026-07-25.md`
 and every exact hardware/runtime/protocol/gate/authority binding in the plan.
+
+## 2026-07-26: capture and inference mode result contract
+
+- Advanced I-178 from an open comparison to an active, machine-checked blocked
+  plan plus the only accepted ready-plan/result transition.
+- Preserved the exact four 1080p/720p and 60/30 FPS candidates, paired-session
+  fairness, blocking personas, Motion action set, fixed 120 ms p95, 95%
+  precision, 90% recall and zero privileged-action gates, privacy exclusions,
+  and the zero-result boundary while requiring every execution and numeric
+  binding before collection.
+- Expanded a ready plan into every ordered mode/persona/placement/lighting
+  cell, with four detached evidence digests, all ten actions at exactly twenty
+  attempts each, and one complete negative window per cell.
+- Derived attempt, action, cell, mode and overall outcomes from ordered game-API
+  events, exposure-authoritative timing, capture/inference rates, drops,
+  exposure, CPU, RAM and USB observations. A valid product failure rejects even
+  when another attempt is invalid; all-invalid or interrupted work remains
+  incomplete.
+- Kept qualified mode reporting separate from product selection:
+  `selectedModeId` remains null and `productDefaultChanged` remains false in
+  every accepted result.
+- Added fourteen ready/result adversarial groups; together with the twelve
+  blocked-plan groups, all twenty-six pass. The full repository test gate,
+  including 452 research tests and every workspace package, and the full
+  typecheck gate also pass.
+
+This is validator and synthetic-fixture evidence only. No received camera,
+genuine camera mode, target, participant, room, capture-policy result,
+exposure-clock proof, physical attempt, mode qualification or default-mode
+decision exists. Execution remains blocked on
+`OWNER_QUESTIONS_CAPTURE_INFERENCE_MODE_2026-07-25.md` and the exact bindings
+required by the ready-plan transition.
