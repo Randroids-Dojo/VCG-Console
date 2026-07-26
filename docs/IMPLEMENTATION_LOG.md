@@ -6942,3 +6942,28 @@ I-067 remains active, not complete. No approved extractor/model, encrypted
 broker/vault/protector, consent/legal authority, real cohort/room/target test,
 accuracy/ambiguity/repeat-session gate, competitive normalization, persistence
 qualification or product result exists.
+
+## 2026-07-25: camera policy and shutter-state status reconciliation
+
+### Delivered
+
+- Corrected I-036 from open to active because the committed capture-policy
+  campaign already pre-registers three ordered presets, 252 exact cells and
+  5,040 physical trials across exposure, white balance, sustained frame rate,
+  blur, low light, landmark accuracy and action outcomes.
+- Corrected I-046 from open to active because the Motion Lab already implements
+  a closed camera-state truth table for disabled, starting, permission, active,
+  unavailable, disconnected and failed states while always reporting physical
+  shutter position as unsensed.
+- Mapped I-046's remaining physical shutter and activity-indicator work to the
+  existing shared-camera plan without representing that blocked plan as a
+  result or treating a live stream as proof of an unobstructed lens.
+- Re-ran 15 capture-policy, 15 camera-state unit and 26 shared-camera contract
+  tests, plus four focused Chrome camera-state flows; all 60 checks pass.
+
+### Remaining boundary
+
+I-036/I-046 are active, not complete. No exact camera/room/control/lighting
+policy, exposure-clock authority, participant collection, physical shutter
+blocking, indicator truth table, across-room comprehension, enclosure check,
+selected preset, physical result or product qualification exists.

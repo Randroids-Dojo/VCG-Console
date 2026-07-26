@@ -72,7 +72,7 @@ requirements.
 
 ## Remaining physical evidence
 
-I-046 remains open until the exact camera/enclosure candidate has:
+I-046 remains incomplete until the exact camera/enclosure candidate has:
 
 1. an optical-blocking test showing that the physical shutter blocks the lens;
 2. a hardware and software indicator truth table observed during start, active,
