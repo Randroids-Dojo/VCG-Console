@@ -7282,3 +7282,60 @@ remains blocked on the exact I-157/I-161 image, translator, target, data,
 participant and metric bindings; I-018 remains blocked on both exact HATs, a
 common qualified runtime/model basis, paired/live evidence and Q-259's frozen
 value thresholds.
+
+## 2026-07-26: Hailo package/model recovery campaign contract
+
+- Advanced I-164 from an open failure-matrix request to a strict blocked plan
+  subordinate to a qualified I-157 baseline image.
+- Bound ten exact compatibility components: kernel, PCIe driver, Hailo
+  firmware, HailoRT, TAPPAS Core, Hailo Apps, Python bindings, pose HEF,
+  compiled post-processor and pose configuration. Versions, architectures,
+  digests and dependency edges are required; wildcards, moving tags, filenames
+  and package-family claims are not identities.
+- Pre-registered fourteen offline scenarios covering exact baseline boot, five
+  single-component mismatch classes, complete/missing/tampered offline
+  reinstall caches, forward update, health-triggered rollback, interruption on
+  each side of slot switching and downgrade/replay refusal.
+- Required twenty valid counterbalanced cycles per scenario, 280 total, with
+  failures, retries, cuts and invalid cycles retained and no scenario or
+  aggregate rescue.
+- Preserved D-050's signed inactive-slot A/B boundary, full read-back hashing,
+  protected highest-seen generation, zero offline network attempts and zero
+  writable save/content mutation.
+- Required Hailo health to load the exact HEF and post-processor and execute a
+  pinned synthetic non-sensitive vector alongside launcher, tracker, camera,
+  controller, network and storage health; device identity alone cannot pass.
+- Added ten adversarial groups covering source drift, invented authority,
+  tuple/scenario/cycle weakening, online or in-place rescue, weak health,
+  preservation/downgrade drift, post-result thresholds, unsafe evidence,
+  premature results and malformed or noncanonical input.
+
+This is a canonical zero-result plan only. No qualified I-157 image, received
+hardware, installed tuple, signed offline cache, mismatch, reinstall, update,
+rollback, interruption, power cut, data-preservation result or publication
+exists. Execution remains blocked on
+`OWNER_QUESTIONS_HAILO_PACKAGE_MODEL_RECOVERY_2026-07-26.md` and every exact
+hardware, protocol, threshold and authority binding in the plan.
+
+## 2026-07-26: research-plan gate and source-binding reconciliation
+
+- Registered twelve newer strict-plan suites that were absent from
+  `validate:research-evidence`: cross-tier controller, camera cable, camera
+  geometry, idle energy and TV appliance; first real-room; lens rectification;
+  living-room survey; OAK-D comparison; Pi HDMI/CEC; Pi radio coexistence; and
+  visual robustness.
+- Increased the combined research gate from 472 to 578 tests so the ordinary
+  full repository test now exercises those plans rather than leaving their
+  validators outside the aggregate command.
+- Regenerated the four source-bound OCR-A and launcher TV artifacts after the
+  package-script change.
+- Refreshed the resulting normalized digest chain through Pi HDMI/CEC,
+  cross-tier TV appliance, idle energy, living-room survey, camera geometry,
+  camera cable, lens rectification, visual robustness and OAK-D comparison.
+- Audited all benchmark documents with top-level source bindings using each
+  plan's declared normalized contract or its existing raw-byte contract: 174
+  bindings checked with zero missing or stale sources.
+
+This refresh changes provenance identities only. It adds no physical TV,
+controller, room, camera, cable, lens, visual, depth, energy, radio, target or
+product evidence and does not alter any blocked plan's authority or result.
