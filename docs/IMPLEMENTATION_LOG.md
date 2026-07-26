@@ -6171,3 +6171,45 @@ failure/retest/fallback policy. I-162 and I-202 retain the physical build,
 workload, hundreds-cut, corruption, full-disk, recovery, and endurance work.
 I-021 remains a separate qualification if a valid microSD failure invokes it;
 no USB SSD has been selected or qualified.
+
+## 2026-07-25: no-purchase ABS project-box candidate screen
+
+### Delivered
+
+- Advanced I-196 from an unbounded sourcing task to a dated, primary-source
+  comparison of exact Polycase `WA-36*16`, `WA-25*16`, and `WA-40*16` ABS
+  parts without selecting, ordering, reserving, or cutting a box.
+- Recorded quantity-one merchandise price, page stock label, external and
+  approximate internal dimensions, nominal wall thickness, material and
+  ratings separately from still-unknown shipping, tax and delivered price.
+- Named `WA-40*16` as the least-constrained CAD/cardboard candidate and kept
+  `WA-25*16` as the low-profile comparison. This is a work-ordering judgment,
+  not a hardware or purchase decision.
+- Compared only an optimistic 102 x 83 mm bare Pi/camera footprint lower bound
+  and explicitly excluded the camera jig, shutter, cables, connectors, cooler,
+  HAT stack height, bosses, vents, fasteners and safety margins from any fit
+  claim.
+- Removed I-196's stale reference to absent Q-021 and registered Q-254 through
+  Q-256 for the exact camera assembly, numeric fit/thermal/RF/stability gates,
+  and destination/purchase authority.
+
+### Verification evidence
+
+- Every price, stock label, dimension, wall, material and rating entry links to
+  the dated manufacturer page; component lower bounds link to the Raspberry Pi
+  and Logitech primary sources.
+- The merchandise-to-delivered-price equation remains explicit: shipping and
+  tax are `TBD` because Polycase calculates shipping only after a
+  destination-aware cart.
+- The fit packet enumerates the drawing/STEP, received-revision, CAD,
+  cardboard, routing, thermal, safety, center-of-gravity, nonslip, quote and
+  pre-cut artifacts still required.
+
+### Remaining boundary
+
+I-196 is active, not closed. No exact camera assembly, installed stack,
+connector keep-out, bend radius, jig, cutout, vent, fastener, thermal result,
+radio result, center of gravity, tip/slip result, delivered quote, purchase
+authority, box, physical mockup or cut plan exists. The catalog screen proves
+neither fit nor safety, and IP/NEMA catalog ratings are not claimed to survive
+modification.
