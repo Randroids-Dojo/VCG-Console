@@ -6919,3 +6919,26 @@ I-001/I-002 remain active. The selected room, consent, tools, normal and worst-
 open configuration, exact equipment, body/reach protocol, numeric gates, access,
 photographs, floor plan, hazard map, play zone, coverage and safety result are
 absent.
+
+## 2026-07-25: body-profile campaign status reconciliation
+
+### Delivered
+
+- Corrected I-067 from open to active because I-072/I-184/I-186/I-187/I-188/
+  I-191 already divide its prediction, privacy, exclusion, vault, management and
+  save-separation boundaries.
+- Audited camera-free calibration, conservative prediction/abstention, exact
+  confirmation/correction and credential-free profile-management evidence.
+- Preserved zero authority from predictions, no portrait/face/name/score/vector
+  use, explicit opt-out/invalidation and product matching disabled under Q-240.
+- Verified 16 motion-contract body-profile unit tests, 30 console-lab
+  calibration/profile-management tests and 20 evidence-validator tests.
+- Recorded that an initial Node-runner invocation of Vitest files caused three
+  harness initialization errors; the correctly scoped owning Vitest suites pass.
+
+### Remaining boundary
+
+I-067 remains active, not complete. No approved extractor/model, encrypted
+broker/vault/protector, consent/legal authority, real cohort/room/target test,
+accuracy/ambiguity/repeat-session gate, competitive normalization, persistence
+qualification or product result exists.
