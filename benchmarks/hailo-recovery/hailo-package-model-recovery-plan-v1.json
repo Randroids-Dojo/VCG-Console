@@ -37,7 +37,7 @@
     {
       "role": "delegated-update-trust",
       "path": "native/vcg-host/src/update_trust.rs",
-      "sha256": "f925042b982c5f82646d87febe4f999cbb4307643caa61d135d56eed46d959e0"
+      "sha256": "5ca5bacf6f7f10df2063cdd1eb4b311b0370e82755ebe0ed828498d5b5c6d0db"
     },
     {
       "role": "signed-system-image-verification",
