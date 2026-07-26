@@ -6463,3 +6463,47 @@ meters, participant/data authority, signed local package, exposure clock,
 execution protocol, premium numeric thresholds, physical run, recovery result,
 second rebuild or common premium comparison exists. No hardware or external
 service was changed.
+
+## 2026-07-25: cross-tier boot, resume, and launch timing plan
+
+### Delivered
+
+- Advanced I-023 from an open timing row to a strict blocked campaign spanning
+  the required ordinary x86-64 native-Linux and Pi 5/Hailo 26 targets plus a
+  separately optional Steam Machine row.
+- Bound the prototype timing, accountless/offline, power-recovery, launcher,
+  idle/wake, hosted-supervisor and blocked target-plan sources by normalized
+  SHA-256 without binding another agent's active native files.
+- Pre-registered eight exact cold-boot, warm-resume, offline-local and
+  online-hosted paths with external timer starts, observable input/phase ends,
+  twenty trials per target/path cell and D-106's fixed deadlines.
+- Separated 320 required x86/Pi trials from 160 optional Steam trials so the
+  optional row cannot rescue or block the common comparison.
+- Required hardware-backed idle/wake privacy, write, update, power, controller
+  and lifecycle evidence while keeping UI, process exit, first pixels, load,
+  readiness and liveness outside their unsupported claim boundaries.
+- Added Q-270 through Q-272 for the ordinary-PC idle strategy, cross-tier power
+  and thermal gates, and the physical timing/interaction harness.
+- Registered both the I-207 and I-023 focused validators in the package scripts
+  and complete research-evidence suite after the concurrent microphone manifest
+  tranche committed.
+
+### Verification evidence
+
+- Twenty-six focused tests accept the tracked plan and reject source drift or
+  substitution, hidden fields, Windows promotion, target/path changes,
+  premature strategy selection, invented hardware/wake evidence, relaxed
+  deadlines, reduced trials, schedule drift, discarded warmups, privacy-gate
+  deletion, UI-only device claims, invented power ceilings, hosted-phase
+  playability promotion, optional-target rescue, physical authority, fabricated
+  results, noncanonical JSON, UTF-8 BOM input and bare carriage returns.
+- The validator reports three targets, eight paths, 320 required trials, 160
+  optional trials and eleven blockers with no result.
+
+### Remaining boundary
+
+I-023 is active, not closed. No exact target/runtime, ordinary-PC strategy,
+qualified power adapter, harness, interaction or hardware-state oracle, wake
+source, meter, threshold, accountless local runtime, hosted-service exercise,
+physical authority, trial, timing distribution, power trace or comparison
+result exists. No device or external service was changed.
