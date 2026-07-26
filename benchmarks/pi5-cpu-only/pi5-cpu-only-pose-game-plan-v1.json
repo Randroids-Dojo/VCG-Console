@@ -1,0 +1,222 @@
+{
+  "format": "vcg-pi5-cpu-only-pose-game-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-cpu-only-pose-plus-game-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered I-014 Raspberry Pi 5 CPU-only pose-plus-game benchmark only. No Raspberry Pi, target image, CPU pose runtime, model, camera, room, participant, hosted session, native Motion transport, power meter, thermal probe, workload, trial, frame, latency, FPS, memory, power, thermal, acoustic, playability, or qualification result exists; accelerator absence or non-use has not been proven.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "pi-image-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "concurrent-workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "pose-provider-boundary",
+      "path": "benchmarks/pose-backends/hailo-mediapipe-core-comparison-plan-v1.json",
+      "sha256": "93fba93f4be3cb389ec2e06ee350e4b7ac5d82dfe3883fe3455b99c0def55860"
+    },
+    {
+      "role": "godot-export-boundary",
+      "path": "benchmarks/godot/windows-x64-godot-4.7.1-export-v1.json",
+      "sha256": "6badb1ffe0ab65f97988e8cbcd3e8bd0362370a38be394662928b534443ec23e"
+    }
+  ],
+  "targetBoundary": {
+    "boardProduct": "Raspberry Pi 5 8GB",
+    "receivedBoardRevision": null,
+    "operatingSystemImageSha256": null,
+    "kernelRelease": null,
+    "eepromVersion": null,
+    "cpuGovernorAndClockPolicySha256": null,
+    "cpuPoseBackend": null,
+    "cpuPoseModelSha256": null,
+    "cpuPoseRuntimeManifestSha256": null,
+    "prePostProcessorSha256": null,
+    "trackerConfigurationSha256": null,
+    "browserBuildSha256": null,
+    "godotArm64BuildSha256": null,
+    "launcherBuildSha256": null,
+    "nativeMotionTransportSha256": null,
+    "storageIdentitySha256": null,
+    "powerSupplyIdentitySha256": null,
+    "coolingAssemblyIdentitySha256": null,
+    "enclosureStateSha256": null,
+    "displayChainSha256": null,
+    "controllerSetSha256": null,
+    "cameraIdentitySha256": null,
+    "roomManifestSha256": null
+  },
+  "cpuOnlyBoundary": {
+    "poseInferenceProcessor": "cpu-only",
+    "acceleratorPhysicalState": null,
+    "acceleratorKernelDriversLoaded": null,
+    "acceleratorDeviceNodesPresent": null,
+    "acceleratorRuntimeAvailableToTracker": false,
+    "gpuOrNpuPoseDelegationAllowed": false,
+    "cpuAffinityAndPriorityPolicySha256": null,
+    "acceleratorNonUseProofSha256": null,
+    "processorTelemetryProofSha256": null
+  },
+  "lanes": [
+    {
+      "laneId": "immutable-replay-capacity",
+      "purpose": "Measure CPU pose throughput, latency, drops and resource use on identical decoded inputs without making camera-exposure claims.",
+      "inputRule": "The exact ordered decoded frame bytes, labels, decode contract and replay cadence are hash-bound before execution.",
+      "timingBoundary": "Replay admission to pose, tracking, action and Motion API receipt on one monotonic host clock; never camera-exposure latency.",
+      "inputCorpusSha256": null,
+      "labelProtocolSha256": null,
+      "scheduleSha256": null,
+      "warmupSeconds": 300,
+      "measuredSeconds": 3600,
+      "requiredRunsPerWorkload": 1
+    },
+    {
+      "laneId": "live-concurrent-pipeline",
+      "purpose": "Measure the complete camera, CPU pose, tracker, Motion API and game workload together.",
+      "inputRule": "The exact camera, room, placement, participant script, workload interaction and run order are frozen; separate live performances are not called identical inputs.",
+      "timingBoundary": "Trustworthy camera exposure midpoint to recognized-action receipt at the game API on a shared or measured clock.",
+      "inputCorpusSha256": null,
+      "labelProtocolSha256": null,
+      "scheduleSha256": null,
+      "warmupSeconds": 300,
+      "measuredSeconds": 3600,
+      "requiredRunsPerWorkload": 1
+    }
+  ],
+  "workloads": [
+    {
+      "workloadId": "obstacle-local-web-motion",
+      "runtime": "local-web",
+      "motionRole": "primary-motion-consumer",
+      "networkPolicy": "offline-required",
+      "sourceArtifactRole": "concurrent-workload-boundary",
+      "interactionProtocolSha256": null,
+      "buildOrSessionSha256": null
+    },
+    {
+      "workloadId": "tiny-motion-godot-native-arm64",
+      "runtime": "native-godot-arm64",
+      "motionRole": "primary-motion-consumer",
+      "networkPolicy": "offline-required",
+      "sourceArtifactRole": "godot-export-boundary",
+      "interactionProtocolSha256": null,
+      "buildOrSessionSha256": null
+    },
+    {
+      "workloadId": "vibebots-remote-web-compatibility",
+      "runtime": "remote-web",
+      "motionRole": "no-title-motion-delivery",
+      "networkPolicy": "required",
+      "sourceArtifactRole": "concurrent-workload-boundary",
+      "interactionProtocolSha256": null,
+      "buildOrSessionSha256": null
+    },
+    {
+      "workloadId": "mi-casa-remote-web-compatibility",
+      "runtime": "remote-web",
+      "motionRole": "no-title-motion-delivery",
+      "networkPolicy": "required",
+      "sourceArtifactRole": "concurrent-workload-boundary",
+      "interactionProtocolSha256": null,
+      "buildOrSessionSha256": null
+    },
+    {
+      "workloadId": "determined-remote-web-compatibility",
+      "runtime": "remote-web",
+      "motionRole": "no-title-motion-delivery",
+      "networkPolicy": "required",
+      "sourceArtifactRole": "concurrent-workload-boundary",
+      "interactionProtocolSha256": null,
+      "buildOrSessionSha256": null
+    }
+  ],
+  "requiredMetrics": [
+    "valid warmup and measured monotonic duration with attempt and phase ledger",
+    "replay admission-to-pose and admission-to-action p50, p95, p99 and worst",
+    "live exposure-to-pose and exposure-to-action p50, p95, p99 and worst with timestamp uncertainty",
+    "capture, admission, inference, post-process, tracking, action and delivery counts and drops",
+    "pose FPS and landmark missing-rate distributions",
+    "per-action precision, recall, F1, misses, false events and privileged false activations",
+    "game FPS, frame-time p50, p95, p99 and worst, long frames, stalls and visible interaction samples",
+    "per-core CPU frequency and utilization plus GPU utilization proving no pose delegation",
+    "RAM resident, committed, available, page-fault and swap distributions",
+    "storage IO, network traffic and process lifecycle attributable to the workload",
+    "wall power, energy, SoC temperature, clocks, throttle state and fan speed",
+    "one-metre acoustics with ambient floor, calibrated meter identity and uncertainty",
+    "launch, crash, hang, recovery and fresh-instance outcomes without inferring playability from load or heartbeat",
+    "exact hardware, image, runtime, model, camera, room, workload, schedule and evidence digests"
+  ],
+  "acceptance": {
+    "minimumMeasuredSecondsPerWorkload": 3600,
+    "requiredRunsPerWorkload": 1,
+    "maximumLiveExposureToActionP95Ms": 120,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumUnexpectedProcessExits": 0,
+    "maximumOneMeterAcousticsDba": 35,
+    "minimumPerActionPrecision": null,
+    "minimumPerActionRecall": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumGameFrameTimeP95Ms": null,
+    "maximumCaptureDropRatio": null,
+    "maximumPoseDropRatio": null,
+    "maximumRamBytes": null,
+    "maximumSwapBytes": null,
+    "maximumWallPowerW": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumThermalThrottleEvents": null,
+    "maximumRecoveryMs": null,
+    "everyLaneWorkloadCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "replayTimingMayQualifyExposureLatency": false,
+    "loadOrHeartbeatMayEstablishPlayability": false,
+    "compatibilityLoadMayEstablishMotionIntegration": false
+  },
+  "dataPolicy": {
+    "rawReplayCorpusRetentionAuthorized": false,
+    "liveRawFrameRetentionAuthorized": false,
+    "audioRecordingAuthorized": false,
+    "skeletonTraceRetentionAuthorized": false,
+    "typedOrGeneratedTextRetentionAuthorized": false,
+    "credentialOrTokenUseAuthorized": false,
+    "requestOrResponseBodyRetentionAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "systemTelemetryWithoutUserContentAllowed": true,
+    "releaseEvidenceAggregateOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "imageOrStorageMutationAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "hostedServiceUseAuthorized": false,
+    "blockerCodes": [
+      "received-pi-and-peripheral-identities",
+      "qualified-target-image-and-runtime-tuple",
+      "cpu-backend-model-prepost-and-tracker-selection",
+      "accelerator-state-and-non-use-proof",
+      "native-godot-motion-transport-and-arm64-execution",
+      "camera-room-exposure-clock-and-ground-truth",
+      "replay-corpus-rights-labels-and-digest",
+      "workload-interaction-and-hosted-service-authority",
+      "counterbalanced-schedule-monitoring-and-trial-counts",
+      "performance-resource-thermal-and-recovery-gates",
+      "hardware-image-participant-and-data-handling-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedCells": 0,
+    "qualifiedCells": []
+  }
+}

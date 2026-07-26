@@ -6552,3 +6552,49 @@ assignment/mapper/glyph/battery UI, response or freshness threshold,
 applicability matrix, cycle total, schedule, ledger/result schema, fault
 authority, cycle, compatibility report or public support claim exists. No
 hardware was changed.
+
+## 2026-07-25: Raspberry Pi 5 CPU-only pose plus game benchmark plan
+
+### Delivered
+
+- Advanced I-014 from an open benchmark row to a strict blocked campaign
+  without treating the Windows MediaPipe result, selected Hailo lane, exported
+  ARM64 file or advertised Raspberry Pi capability as target evidence.
+- Bound the Pi image, concurrent workload, Hailo/MediaPipe provider and Godot
+  export artifacts by normalized SHA-256.
+- Separated immutable decoded-frame replay from the live camera pipeline so
+  replay admission timing cannot be promoted to camera-exposure latency and
+  separate live performances cannot be described as identical inputs.
+- Fixed five required workload rows: the local-web obstacle sample, native
+  Godot ARM64 Tiny Motion sample and three remote-web compatibility titles.
+  Compatibility load cannot establish title Motion integration or playability.
+- Required explicit accelerator physical/runtime state and processor telemetry
+  to prove CPU-only inference; GPU/NPU pose delegation remains prohibited.
+- Preserved D-110's 120 ms p95 exposure-to-action gate, zero privileged false
+  activations, zero unrecovered failures/exits and D-108's lower-cost 35 dBA
+  ceiling while leaving all unapproved quality, FPS, frame/drop, memory, power,
+  thermal, throttle and recovery gates null.
+- Added a local owner-question handoff for backend/model, accelerator state,
+  pre-result thresholds, replay/live authority and native Godot execution so
+  concurrent central question numbering was not modified.
+
+### Verification evidence
+
+- Eleven focused tests accept the tracked blocked plan and reject source drift,
+  invented target/runtime/results, unproven accelerator state, GPU/NPU
+  delegation, replay/exposure claim substitution, workload deletion or
+  reclassification, reduced duration, weakened fixed gates, aggregate rescue,
+  load/playability promotion, post-result thresholds, hidden authority or data
+  retention, blocker drift, undeclared fields, noncanonical JSON, UTF-8 BOM,
+  invalid UTF-8 and oversized inputs.
+- The command-line validator reports two lanes, five workloads and eleven
+  blockers with no result.
+
+### Remaining boundary
+
+I-014 is active, not closed. No Pi, peripheral, image, CPU backend/model,
+pre/post-processor, tracker, accelerator non-use proof, native ARM64 Motion
+path, camera/room/clock, replay corpus, participant/service authority,
+interaction script, schedule, threshold, run, performance distribution,
+recovery result or product conclusion exists. No hardware or external service
+was changed.
