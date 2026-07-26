@@ -6643,3 +6643,27 @@ or 4GB board, exact image/runtime/storage/swap/cgroup policy, workload/data
 authority, pressure/OOM permission, schedule, monitoring, threshold, run,
 memory trace, cost or recommendation exists. No hardware, image, storage or
 external service was changed.
+
+## 2026-07-25: Pi thermal/acoustic and cooling comparison plan
+
+### Delivered
+
+- Advanced I-024/I-025 to one strict blocked campaign covering four cooling
+  roles, four representative workloads and one-hour plus four-hour soaks: 32
+  required cells under one exact enclosed target tuple.
+- Bound concurrent-workload, memory-pressure, ABS-box-screen and active-play
+  safety sources by normalized SHA-256.
+- Required ambient cooldown, counterbalancing, one-second thermal/performance/
+  power/acoustic telemetry, tonal and mechanical evidence, and preserved
+  product failures without aggregate rescue.
+- Preserved 35 dBA, 120 ms p95 and zero shutdown/unrecovered/privileged gates;
+  open temperature, throttle, FPS/drop, power, tonal, recovery and cost gates
+  remain null. Numeric dBA, open-enclosure or one-hour evidence cannot excuse
+  the corresponding failure.
+- Eight focused adversarial tests pass; no physical authority or result exists.
+
+### Remaining boundary
+
+I-024/I-025 remain active. No received target/cooler/enclosure, exact fan or
+vent policy, target runtime, instrument, room, schedule, safety protocol,
+numeric gate, purchase/cut/load authority, soak or selection exists.

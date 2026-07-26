@@ -1,0 +1,210 @@
+{
+  "format": "vcg-pi5-cooling-soak-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-four-cooling-config-soak-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-024",
+    "I-025"
+  ],
+  "claimBoundary": "Pre-registered Raspberry Pi 5 thermal/acoustic and cooling comparison only. No cooling candidate, enclosure, fan curve, vent geometry, room, meter, target runtime, workload, soak, temperature, clock, throttle, FPS, power, acoustic, vibration, tonal, fit, cost, qualification, selection, purchase, cut, or product result exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "concurrent-workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "memory-pressure-boundary",
+      "path": "benchmarks/pi5-memory-pressure/pi5-memory-tier-plan-v1.json",
+      "sha256": "a7fe873cecae42de7e11b76a523d13f525641908a1481413d2587e44235f43df"
+    },
+    {
+      "role": "enclosure-screen-boundary",
+      "path": "docs/ABS_PROJECT_BOX_CANDIDATE_SCREEN_2026-07-25.md",
+      "sha256": "796e0d0ebf8355c174983fe6820e33a10ad23553c333e7902e6091b2aece2946"
+    },
+    {
+      "role": "active-play-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    }
+  ],
+  "commonTargetBoundary": {
+    "hostProduct": "Raspberry Pi 5 8GB",
+    "acceleratorProduct": "Raspberry Pi AI HAT+ 26 TOPS",
+    "cameraContract": "qualified shared UVC 1920x1080 at 60 FPS",
+    "prototypeEnclosureDirection": "modified off-the-shelf ABS project box",
+    "receivedHardwareManifestSha256": null,
+    "operatingSystemImageSha256": null,
+    "kernelRuntimeWorkloadSha256": null,
+    "storageFilesystemSha256": null,
+    "cameraRoomPlacementSha256": null,
+    "enclosureGeometryAndVentSha256": null,
+    "powerAndFanControlPolicySha256": null,
+    "instrumentCalibrationSha256": null,
+    "operatorSafetyProtocolSha256": null
+  },
+  "coolingConfigurations": [
+    {
+      "configurationId": "official-active-cooler-baseline",
+      "role": "selected-bom-baseline-candidate",
+      "quotedProduct": "Raspberry Pi Active Cooler SC1148",
+      "exactReceivedAssemblySha256": null,
+      "fanCurveSha256": null,
+      "mountAndInterfaceSha256": null,
+      "deliveredCostCents": null,
+      "selected": false
+    },
+    {
+      "configurationId": "low-profile-blower-comparison",
+      "role": "comparison",
+      "quotedProduct": null,
+      "exactReceivedAssemblySha256": null,
+      "fanCurveSha256": null,
+      "mountAndInterfaceSha256": null,
+      "deliveredCostCents": null,
+      "selected": false
+    },
+    {
+      "configurationId": "passive-comparison",
+      "role": "comparison",
+      "quotedProduct": null,
+      "exactReceivedAssemblySha256": null,
+      "fanCurveSha256": null,
+      "mountAndInterfaceSha256": null,
+      "deliveredCostCents": null,
+      "selected": false
+    },
+    {
+      "configurationId": "larger-fan-comparison",
+      "role": "comparison",
+      "quotedProduct": null,
+      "exactReceivedAssemblySha256": null,
+      "fanCurveSha256": null,
+      "mountAndInterfaceSha256": null,
+      "deliveredCostCents": null,
+      "selected": false
+    }
+  ],
+  "workloadIds": [
+    "obstacle-motion-sample",
+    "vibebots-compatibility",
+    "mi-casa-es-su-casa-compatibility",
+    "determined-compatibility"
+  ],
+  "soakDurations": [
+    {
+      "durationId": "one-hour-qualification",
+      "warmupSeconds": 300,
+      "measuredSeconds": 3600,
+      "requiredRunsPerConfigurationWorkload": 1
+    },
+    {
+      "durationId": "four-hour-endurance",
+      "warmupSeconds": 300,
+      "measuredSeconds": 14400,
+      "requiredRunsPerConfigurationWorkload": 1
+    }
+  ],
+  "schedule": {
+    "configurationCount": 4,
+    "workloadCount": 4,
+    "durationCount": 2,
+    "requiredCellCount": 32,
+    "samplingPeriodMs": 1000,
+    "counterbalancedConfigurationAndWorkloadOrder": true,
+    "coolDownToAmbientBandBeforeCell": true,
+    "invalidHarnessRunsRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "oneRunIsReliabilityRateEvidence": false,
+    "counterbalancedScheduleSha256": null,
+    "coolDownProtocolSha256": null
+  },
+  "requiredMetrics": [
+    "ambient dry-bulb temperature relative humidity and background sound distribution",
+    "SoC accelerator storage camera internal-air inlet exhaust and enclosure-surface temperatures",
+    "CPU GPU accelerator and memory clocks utilization voltage and throttle reasons",
+    "fan command tachometer speed duty cycle starts stops hunting and control error",
+    "pose FPS game FPS frame-time tails capture-through-delivery drops and exposure-to-action latency",
+    "wall power energy and power-factor distributions",
+    "one-metre A-weighted equivalent maximum and percentile sound levels with meter uncertainty",
+    "one-third-octave or FFT tonal peaks plus rattle vibration resonance and oscillation observations",
+    "crash hang thermal shutdown device disconnect and fresh-recovery outcomes",
+    "vent obstruction hot-part finger access cable camera radio and enclosure-stability observations",
+    "exact cooling enclosure room instrument workload configuration schedule and evidence digests",
+    "same-date delivered cooling cost and enclosure modification delta"
+  ],
+  "acceptance": {
+    "maximumOneMeterAcousticsDba": 35,
+    "maximumThermalShutdowns": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumSustainedAcceleratorTemperatureC": null,
+    "maximumSustainedStorageTemperatureC": null,
+    "maximumSustainedCameraTemperatureC": null,
+    "maximumEnclosureSurfaceTemperatureC": null,
+    "maximumThermalThrottleEvents": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumGameFrameTimeP95Ms": null,
+    "maximumCaptureDropRatio": null,
+    "maximumPoseDropRatio": null,
+    "maximumWallPowerW": null,
+    "maximumIdleOneMeterAcousticsDba": null,
+    "maximumAllowedTonalProminenceDb": null,
+    "maximumAllowedRattleOrOscillationEvents": null,
+    "maximumRecoveryMs": null,
+    "minimumCoolingCostSavingsCents": null,
+    "everyConfigurationWorkloadDurationCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "numericDbaPassMayExcuseTonalRattleOrOscillationFailure": false,
+    "openEnclosureMayQualifyFinalEnclosure": false,
+    "oneHourMaySubstituteForFourHour": false
+  },
+  "selectionPolicy": {
+    "baselineConfigurationId": "official-active-cooler-baseline",
+    "selectedConfigurationId": null,
+    "automaticSelectionAllowed": false,
+    "allConfigurationsUseExactSameTargetAndWorkloads": true,
+    "thermalAcousticPerformanceFitSafetyAndCostAreJoint": true,
+    "requiresSeparateEnclosureAndCoolingDecision": true
+  },
+  "dataPolicy": {
+    "rawFrameRetentionAuthorized": false,
+    "audioRecordingAuthorized": false,
+    "acousticLevelAndSpectrumWithoutSpeechAllowed": true,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "releaseEvidenceAggregateTelemetryOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "enclosureCutOrModificationAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "sustainedLoadAuthorized": false,
+    "blockerCodes": [
+      "received-target-camera-enclosure-and-cooling-identities",
+      "qualified-image-runtime-storage-and-workload-tuple",
+      "exact-comparison-coolers-mounts-interfaces-and-fan-curves",
+      "enclosure-vent-keepout-fit-and-safety-protocol",
+      "room-ambient-meter-placement-and-calibration",
+      "counterbalanced-schedule-cooldown-and-operator-protocol",
+      "thermal-performance-power-tonal-rattle-recovery-and-cost-gates",
+      "hardware-purchase-cut-participant-and-sustained-load-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedCells": 0,
+    "qualifiedConfigurationIds": [],
+    "selectedConfigurationId": null
+  }
+}
