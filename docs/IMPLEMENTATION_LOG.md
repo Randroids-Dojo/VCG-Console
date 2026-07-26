@@ -7253,3 +7253,32 @@ network enforcement, save/update/rollback/uninstall result, publication or
 product qualification exists. Execution remains blocked on
 `OWNER_QUESTIONS_SIGNED_LOCAL_PACKAGE_PIPELINE_2026-07-26.md` and every exact
 authority and threshold required by the plan.
+
+## 2026-07-26: Hailo port and accelerator backlog reconciliation
+
+- Reconciled I-017 from open to active because the I-157 image recipe and
+  I-161 core comparison already divide its version-pinned runtime, HEF/resource/
+  post-processor identity, trusted conversion, malformed-output behavior,
+  supported-profile boundary, accuracy delta and full-pipeline evidence.
+- Retained the missing port deliverables explicitly: no selected source-model
+  conversion, supported/unsupported operator report, Hailo-8L HEF, received
+  13 TOPS device, trusted translator, target execution, accuracy delta or
+  end-to-end result exists.
+- Reconciled I-018 from open to active because I-158 already pre-registers the
+  13 TOPS Hailo-8L/yolov8s-pose and 26 TOPS Hailo-8/yolov8m-pose comparison
+  across paired replay, counterbalanced live full-pipeline and concurrent-game
+  lanes with accuracy, action, timing, resource, power, thermal and cost
+  evidence.
+- Preserved D-041's 26 TOPS baseline and D-110's exposure-to-action gate; the
+  zero-result plan cannot infer that 13 TOPS missed a gate, compare different
+  inputs as identical, rescue failed cells through aggregates or select a
+  replacement automatically.
+- Re-ran the three existing focused suites: ten Pi-image, ten accelerator-
+  comparison and sixteen core-comparison tests pass.
+
+This is status reconciliation only. It adds no build, model conversion,
+hardware access, data authority, result, qualification or selection. I-017
+remains blocked on the exact I-157/I-161 image, translator, target, data,
+participant and metric bindings; I-018 remains blocked on both exact HATs, a
+common qualified runtime/model basis, paired/live evidence and Q-259's frozen
+value thresholds.
