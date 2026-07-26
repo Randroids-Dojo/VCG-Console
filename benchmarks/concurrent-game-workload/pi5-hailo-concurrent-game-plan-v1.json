@@ -1,0 +1,328 @@
+{
+  "format": "vcg-concurrent-game-workload-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-hailo26-four-workload-soak-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered concurrent tracker and game workload campaign only. No Raspberry Pi, AI HAT, camera, Hailo runtime, pose model, hosted-game session, participant, service account, Motion qualification client, sixty-minute soak, fault exercise, power, thermal, acoustics, latency, accuracy, frame-pacing, playability, recovery, or qualification result exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "vibebots-catalog-boundary",
+      "path": "catalog/vibebots.vcg-game.json",
+      "sha256": "2742b08076ce3c8e1ed78bf7309ccd0acf748da7df9b39e7c057f62081334a2b"
+    },
+    {
+      "role": "mi-casa-catalog-boundary",
+      "path": "catalog/mi-casa-es-su-casa.vcg-game.json",
+      "sha256": "09f36193312a20007696465bf93c1c64dfba79ecfbd5e80a6b0c135897bb2c12"
+    },
+    {
+      "role": "determined-catalog-boundary",
+      "path": "catalog/determined.vcg-game.json",
+      "sha256": "c4c1632b8226889a471763a42308f0ae48927d694fd9823040dd0420290eadc6"
+    },
+    {
+      "role": "obstacle-component-boundary",
+      "path": "apps/console-lab/src/obstacle-game.ts",
+      "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+    },
+    {
+      "role": "action-engine-boundary",
+      "path": "apps/console-lab/src/action-engine.ts",
+      "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
+    },
+    {
+      "role": "hosted-supervisor-boundary",
+      "path": "scripts/hosted-browser-supervisor.ts",
+      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+    },
+    {
+      "role": "pi-image-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "hailo-accelerator-boundary",
+      "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
+      "sha256": "348c24257ff7b1f2c7d6658185c9be1286df2c71330dcaa39349ad861ec06963"
+    }
+  ],
+  "targetBoundary": {
+    "hostProduct": "Raspberry Pi 5 8GB",
+    "acceleratorProduct": "Raspberry Pi AI HAT+ 26 TOPS",
+    "acceleratorArchitecture": "hailo8",
+    "poseModel": "yolov8m_pose",
+    "landmarkLayout": "COCO-17",
+    "receivedBoardRevision": null,
+    "receivedAcceleratorPartNumber": null,
+    "receivedAcceleratorRevision": null,
+    "operatingSystemImageSha256": null,
+    "kernelRelease": null,
+    "eepromVersion": null,
+    "hailoRuntimeManifestSha256": null,
+    "poseHefSha256": null,
+    "postProcessorSha256": null,
+    "browserBuildSha256": null,
+    "launcherBuildSha256": null,
+    "storageIdentitySha256": null,
+    "powerSupplyIdentitySha256": null,
+    "coolingAssemblyIdentitySha256": null,
+    "enclosureStateSha256": null,
+    "cameraIdentitySha256": null,
+    "roomManifestSha256": null
+  },
+  "trackerBoundary": {
+    "motionApiVersion": "0.4.0",
+    "requiredProfiles": [
+      "body.core17",
+      "actions.obstacle.v1",
+      "actions.shell.v1"
+    ],
+    "playerCount": 1,
+    "compatibilityGamesReceiveMotionFrames": false,
+    "obstacleConsumesMotionActions": true,
+    "privilegedActionsOwnedOutsideGame": true,
+    "compatibilityTimingClaim": "A separate versioned Motion qualification client may measure the tracker under compatibility-game load; it cannot establish title motion integration, controller playability, service correctness, focus ownership, or visual response.",
+    "exposureTimestampAuthority": null,
+    "clockMappingProofSha256": null,
+    "trackerConfigurationSha256": null,
+    "motionQualificationClientSha256": null
+  },
+  "workloads": [
+    {
+      "workloadId": "obstacle-motion-sample",
+      "title": "Obstacle motion sample",
+      "runtime": "console-lab-component",
+      "manifestPath": null,
+      "manifestVersion": null,
+      "entrypoint": "console-lab:#obstacle",
+      "networkPolicy": "offline-required",
+      "motionRole": "primary-motion-consumer",
+      "minimumMeasuredSeconds": 3600,
+      "requiredRuns": 1,
+      "observedSessionContentSha256": null,
+      "interactionScriptSha256": null
+    },
+    {
+      "workloadId": "vibebots-compatibility",
+      "title": "VibeBots",
+      "runtime": "remote-web",
+      "manifestPath": "catalog/vibebots.vcg-game.json",
+      "manifestVersion": "hosted-5b5d17ef-2026-07-19",
+      "entrypoint": "https://vibebots.randroid.dev/mine",
+      "networkPolicy": "required",
+      "motionRole": "no-title-motion-delivery",
+      "minimumMeasuredSeconds": 3600,
+      "requiredRuns": 1,
+      "observedSessionContentSha256": null,
+      "interactionScriptSha256": null
+    },
+    {
+      "workloadId": "mi-casa-es-su-casa-compatibility",
+      "title": "Mi Casa Es Su Casa",
+      "runtime": "remote-web",
+      "manifestPath": "catalog/mi-casa-es-su-casa.vcg-game.json",
+      "manifestVersion": "hosted-0c868be6-2026-07-19",
+      "entrypoint": "https://mi-casa-es-su-casa.vercel.app",
+      "networkPolicy": "required",
+      "motionRole": "no-title-motion-delivery",
+      "minimumMeasuredSeconds": 3600,
+      "requiredRuns": 1,
+      "observedSessionContentSha256": null,
+      "interactionScriptSha256": null
+    },
+    {
+      "workloadId": "determined-compatibility",
+      "title": "Determined",
+      "runtime": "remote-web",
+      "manifestPath": "catalog/determined.vcg-game.json",
+      "manifestVersion": "hosted-7d9a38dc-2026-07-19",
+      "entrypoint": "https://determined-khaki.vercel.app",
+      "networkPolicy": "required",
+      "motionRole": "no-title-motion-delivery",
+      "minimumMeasuredSeconds": 3600,
+      "requiredRuns": 1,
+      "observedSessionContentSha256": null,
+      "interactionScriptSha256": null
+    }
+  ],
+  "runProtocol": {
+    "warmupSeconds": 300,
+    "measuredSecondsPerRun": 3600,
+    "requiredRunsPerWorkload": 1,
+    "samplingPeriodMs": 1000,
+    "coldLaunchBeforeEachRun": true,
+    "oneWorkloadAtATime": true,
+    "backgroundTrackerContinuous": true,
+    "cameraCaptureContinuous": true,
+    "representativeAudioEnabled": true,
+    "passiveIdleMayQualify": false,
+    "scheduledFaultsOutsideMeasuredSoak": true,
+    "oneRunIsReliabilityRateEvidence": false,
+    "runOrderSha256": null,
+    "operatorProtocolSha256": null,
+    "monitoringCalibrationSha256": null
+  },
+  "faultExercises": [
+    {
+      "exerciseId": "camera-loss-and-restoration",
+      "workloadIds": [
+        "obstacle-motion-sample",
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "Tracking becomes explicitly unavailable, gameplay cannot receive stale body actions, shell recovery remains available, and a fresh camera stream is proven before tracking resumes.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    },
+    {
+      "exerciseId": "tracker-process-termination-and-restart",
+      "workloadIds": [
+        "obstacle-motion-sample",
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "The game is contained, body actions fail closed, the fault is visible, and a distinct fresh tracker is proven before action delivery resumes.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    },
+    {
+      "exerciseId": "game-renderer-hang-or-exit",
+      "workloadIds": [
+        "obstacle-motion-sample",
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "The launcher retains outside-game recovery authority, reports the failure truthfully, cleans the failed child, and returns without granting playability from load or heartbeat evidence.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    },
+    {
+      "exerciseId": "network-loss-and-restoration",
+      "workloadIds": [
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "Required-network state is visible, no offline-play claim is made, retry is deliberate, and restoration cannot hide lost hosted state or duplicate a mutating request.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    },
+    {
+      "exerciseId": "reserved-home-back-responsive-and-hung",
+      "workloadIds": [
+        "obstacle-motion-sample",
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "Reserved recovery remains outside game authority in responsive, fullscreen, focus-captured and hung states and never depends on the game acknowledging input.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    },
+    {
+      "exerciseId": "launcher-restart-and-return",
+      "workloadIds": [
+        "obstacle-motion-sample",
+        "vibebots-compatibility",
+        "mi-casa-es-su-casa-compatibility",
+        "determined-compatibility"
+      ],
+      "requiredOutcome": "Launcher restart does not orphan capture or a child process, falsely claim preserved hosted state, leak participant data, or bypass a fresh readiness check.",
+      "attemptsPerWorkload": null,
+      "maximumRecoveryMs": null,
+      "scheduleSha256": null
+    }
+  ],
+  "requiredMetrics": [
+    "valid warmup and measured monotonic duration plus every phase transition",
+    "camera exposure timestamp authority, clock mapping, uncertainty, capture frames and capture drops",
+    "exposure-to-pose and exposure-to-action p50, p95, p99 and worst with uncertainty",
+    "per-action precision, recall, F1, misses, false events and privileged false activations under load",
+    "pose FPS, admitted frames, inference completions, post-process drops and action-delivery drops",
+    "game FPS, frame-time p50, p95, p99 and worst, long frames, render stalls and input-response samples",
+    "CPU, GPU, RAM, swap, storage IO, network and accelerator utilization",
+    "wall power, SoC and accelerator temperatures, clocks, throttle state and fan speed",
+    "one-metre acoustics with ambient floor and calibrated meter identity",
+    "launcher, browser, tracker and game process lifecycle, health transitions, uncaught errors, crashes and hangs",
+    "launch-to-feedback, launch-to-interactive, loading truth, service availability and sanitized network failure counts",
+    "fault injection, containment, recovery time, fresh-instance proof and state-integrity outcome",
+    "exact hardware, image, runtime, model, game-session, configuration, schedule and evidence artifact digests"
+  ],
+  "acceptance": {
+    "minimumMeasuredSecondsPerWorkload": 3600,
+    "requiredRunsPerWorkload": 1,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumUnexpectedProcessExitsDuringSoak": 0,
+    "maximumLocalLaunchToInteractiveMs": 15000,
+    "maximumHostedLaunchToInteractiveMs": 30000,
+    "maximumOneMeterAcousticsDba": 35,
+    "minimumPerActionPrecision": null,
+    "minimumPerActionRecall": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumGameFrameTimeP95Ms": null,
+    "maximumDroppedCaptureRatio": null,
+    "maximumDroppedPoseRatio": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumSustainedAcceleratorTemperatureC": null,
+    "maximumWallPowerW": null,
+    "maximumServiceErrorRatio": null,
+    "maximumFaultRecoveryMs": null,
+    "everyWorkloadAndFaultCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "loadOrHeartbeatAloneMayEstablishPlayability": false,
+    "compatibilityLoadMayEstablishMotionIntegration": false
+  },
+  "dataPolicy": {
+    "rawFrameRetentionAuthorized": false,
+    "audioRecordingAuthorized": false,
+    "skeletonTraceRetentionAuthorized": false,
+    "typedOrGeneratedTextRetentionAuthorized": false,
+    "credentialOrTokenUseAuthorized": false,
+    "requestOrResponseBodyRetentionAuthorized": false,
+    "cookieOrStorageValueRetentionAuthorized": false,
+    "urlQueryOrFragmentRetentionAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "systemTelemetryWithoutUserContentAllowed": true,
+    "releaseEvidenceAggregateOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "serviceAccountOrMutationAuthorized": false,
+    "faultInjectionAuthorized": false,
+    "blockerCodes": [
+      "received-pi-hat-camera-and-room-identities",
+      "qualified-image-runtime-hef-and-postprocessor",
+      "production-tracker-exposure-clock-and-qualification-client",
+      "exact-hosted-session-content-and-service-boundary",
+      "non-destructive-interaction-account-and-test-data-authority",
+      "participant-room-ground-truth-and-derived-data-authority",
+      "run-order-operator-protocol-and-monitoring-calibration",
+      "sustained-performance-and-fault-recovery-gates",
+      "reserved-home-back-and-supervisor-on-target",
+      "hardware-purchase-participant-service-and-fault-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedWorkloads": 0,
+    "qualifiedWorkloads": []
+  }
+}
