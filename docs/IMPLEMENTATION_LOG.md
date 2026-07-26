@@ -7044,3 +7044,40 @@ external mount, supported-PC/Steam tuple, numeric geometry/gates, participant
 authority, ground truth, safety/data/schedule protocol, physical screen, trial,
 calibration cycle, fixed pitch, external setup envelope or qualification result
 exists. Construction and purchase remain unauthorized.
+
+## 2026-07-25: cross-tier camera cable qualification plan
+
+### Delivered
+
+- Advanced I-038 from an open row to a strict blocked passive-UVC cable
+  campaign across ordinary x86 Linux, SteamOS and integrated Raspberry Pi.
+- Bound camera/packaging decisions, active-play safety, ABS-box, shared-camera,
+  geometry, Pi radio-coexistence and boot/suspend recovery sources by normalized
+  SHA-256.
+- Defined four passive length roles and six routing/stress states per target:
+  72 one-hour genuine-1080p60 cells and 72 hours of sustained capture.
+- Defined five recovery scenarios across all target/length combinations with 20
+  valid cycles per cell: 60 cells and 1,200 retained cycles.
+- Required integrated/internal and three external route roles, five pull
+  directions and 20 cycles per direction, or 100 pull cycles per qualified
+  route, with no loose-loop, trip, child/pet snag, adhesive-only or service-
+  obstruction qualification.
+- Kept enumeration, received frames and host-reported USB speed separate from
+  sustained signal and physical safety evidence; short cable or target
+  aggregates cannot rescue a failed path.
+- Kept active USB extension disabled until a documented passive failure and
+  separate owner-approved matrix; kept CSI disabled absent a superseding
+  shared-UVC failure decision.
+- Added QCC-001 through QCC-011 for length roles, identities, topology/power,
+  gates, bend/retention, installation, oracles, RF, active USB, CSI and
+  instruments/schedule.
+- Nine focused adversarial groups pass. No package-script registration was
+  added while concurrent I-178 work owns `package.json`.
+
+### Remaining boundary
+
+I-038 is active, not complete. The validator accepts only the blocked zero-
+result plan. No received cable, exact length/radius, target port/topology,
+route/retention method, numeric electrical/recovery/RF/safety gate, mutation or
+installation authority, sustained stream, USB trace, mechanical pull, recovery
+cycle, maximum supported length, active extension or CSI result exists.
