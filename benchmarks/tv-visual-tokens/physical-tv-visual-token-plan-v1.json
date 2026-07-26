@@ -1,0 +1,227 @@
+{
+  "format": "vcg-physical-tv-visual-token-plan/v1",
+  "status": "blocked",
+  "campaignId": "physical-tv-visual-token-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-206"
+  ],
+  "claimBoundary": "This is a source-bound zero-result physical-TV visual-token plan. Existing computed contrast, headless-browser screenshots, CSS checks, font parsing, and desktop rendering do not prove seating-distance readability, focus without color, child or adult comprehension, low-vision or color-vision usability, physical-panel behavior, animation comfort, target GPU performance, accessibility, or release qualification. No television access, participant session, camera capture, target execution, result, accent selection, or publication is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "visual-accessibility-and-product-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "visual-token-contract",
+      "path": "docs/VISUAL_TOKEN_SYSTEM.md",
+      "sha256": "ca55d96eb9d9e24e7f15dd1da372ff3d7fbd7562249d209a13a07cf12440a7de"
+    },
+    {
+      "role": "blocking-persona-boundary",
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb"
+    },
+    {
+      "role": "visual-token-implementation",
+      "path": "apps/console-lab/src/visual-tokens.ts",
+      "sha256": "4ba1985c3535fadf6821af97ff23d344659fddefe17964f24863fa149f93315c"
+    },
+    {
+      "role": "shell-style-implementation",
+      "path": "apps/console-lab/src/styles.css",
+      "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
+    },
+    {
+      "role": "bounded-ocra-font-evidence",
+      "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
+      "sha256": "9ec296c06081db473a8a944f5023866206463bdb07e250e716e97a0157ef7d90"
+    },
+    {
+      "role": "representative-headless-tv-regression-evidence",
+      "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+      "sha256": "03c002103dda06a2a67a55c330290bbd2ca73300ffbb62670103fa2cff6b9299"
+    }
+  ],
+  "executionBoundary": {
+    "exactBuildArtifactSha256": null,
+    "exactCatalogProjectionSha256": null,
+    "selectedTelevisionMatrixSha256": null,
+    "seatingLightingAndCameraProtocolSha256": null,
+    "participantRecruitmentConsentAndAssentProtocolSha256": null,
+    "lowVisionObservationProtocolSha256": null,
+    "colorVisionObservationProtocolSha256": null,
+    "controllerTaskAndScoringProtocolSha256": null,
+    "gpuAndAnimationMeasurementProtocolSha256": null,
+    "dataHandlingRedactionAndDeletionProtocolSha256": null,
+    "scheduleSha256": null,
+    "physicalTelevisionAccessAuthorized": false,
+    "adultParticipationAuthorized": false,
+    "childParticipationAuthorized": false,
+    "accessibilityObservationAuthorized": false,
+    "cameraCaptureAuthorized": false,
+    "targetExecutionAuthorized": false,
+    "publicationAuthorized": false
+  },
+  "surfaceMatrix": {
+    "surfaceIds": [
+      "launcher-home",
+      "first-run-setup",
+      "game-loading",
+      "manual-pause",
+      "tracking-loss",
+      "profile-portrait",
+      "retro-library",
+      "recoverable-error",
+      "developer-mode"
+    ],
+    "surfaceCount": 9,
+    "everySurfaceMustIncludeDefaultFocusedFaultAndRecoveryEvidence": true,
+    "syntheticFixtureMayReplaceRealShellState": false,
+    "oneSurfaceMayQualifyAnother": false
+  },
+  "renderingMatrix": {
+    "accentIds": [
+      "cyan",
+      "amber",
+      "violet"
+    ],
+    "contrastModeIds": [
+      "standard",
+      "high"
+    ],
+    "motionModeIds": [
+      "standard",
+      "reduced"
+    ],
+    "targetClassIds": [
+      "ordinary-x86-64-linux",
+      "raspberry-pi-5-hailo"
+    ],
+    "displayRoleIds": [
+      "selected-primary-television",
+      "selected-secondary-panel"
+    ],
+    "validRunsPerCell": 3,
+    "requiredCellCount": 432,
+    "requiredRunCount": 1296,
+    "everyRunIncludesMeasuredSeatingDistanceAmbientLightAndPanelMode": true,
+    "grayscaleAndLuminanceReviewRequiredForEveryFocusedState": true,
+    "accentOrContrastModeMayRescueAnother": false,
+    "targetDisplayOrSeatingPositionMayRescueAnother": false,
+    "failedInvalidOrRetriedRunsRemainVisible": true
+  },
+  "participantMatrix": {
+    "blockingPersonaClassIds": [
+      "school-age-child",
+      "adult"
+    ],
+    "visionObservationStratumIds": [
+      "ordinary-vision-control",
+      "low-vision-protocol-stratum",
+      "color-vision-protocol-stratum"
+    ],
+    "taskIds": [
+      "name-current-surface-and-state",
+      "locate-focused-primary-action-without-color",
+      "read-critical-copy-at-seating-distance",
+      "activate-focused-action-with-controller",
+      "recover-with-back-or-home",
+      "explain-fault-and-next-safe-action"
+    ],
+    "minimumDistinctParticipantsPerPersonaStratum": null,
+    "validTaskRunsPerParticipantCell": null,
+    "requiredParticipantCellCount": 324,
+    "requiredParticipantSessionCount": null,
+    "everySurfaceAccentContrastPersonaAndVisionStratumIsBlocking": true,
+    "oneParticipantPersonaOrVisionStratumMayRescueAnother": false,
+    "postResultParticipantOrTaskExclusionAllowed": false,
+    "medicalDiagnosisOrIdentityInferenceAllowed": false
+  },
+  "performanceMatrix": {
+    "transitionClassIds": [
+      "immediate-focus",
+      "feedback-confirm-deny",
+      "view-overlay-transition",
+      "ambient-status"
+    ],
+    "requiredPerformanceCellCount": 216,
+    "validRunsPerPerformanceCell": 20,
+    "requiredPerformanceRunCount": 4320,
+    "gpuFrameTimeFpsDroppedFramesMemoryAndPowerRequired": true,
+    "declaredAndMeasuredTransitionDurationRequired": true,
+    "reducedMotionMustBeNonRepeatingAndEffectivelyImmediate": true,
+    "browserDevtoolsOrSyntheticTimerAloneMayQualifyTarget": false,
+    "oneTargetSurfaceAccentOrModeMayRescueAnother": false
+  },
+  "fixedAcceptance": {
+    "maximumCriticalTextClippingOverflowOrSafeAreaFailures": 0,
+    "maximumFocusStatesDependingOnlyOnColor": 0,
+    "maximumControllerFocusTraps": 0,
+    "maximumBackOrHomeRecoveryFailures": 0,
+    "maximumFaultStatesWithoutNamedConditionAndRecoveryAction": 0,
+    "maximumReducedMotionRepeatingAnimations": 0,
+    "maximumHiddenBrowserOrTargetErrors": 0,
+    "everyBlockingRenderingParticipantAndPerformanceCellMustPass": true,
+    "aggregateAverageMayRescueFailedCell": false,
+    "headlessOrDesktopEvidenceMayQualifyPhysicalTelevision": false,
+    "passingCyanMayQualifyAmberOrViolet": false,
+    "campaignMaySelectShippingAccentsOrChangeVisualPolicy": false
+  },
+  "openAcceptance": {
+    "minimumCriticalTextAngularHeightMilliDegrees": null,
+    "minimumFocusLuminanceContrastMilliRatio": null,
+    "minimumTaskComprehensionRatePpm": null,
+    "maximumTaskErrorRatePpm": null,
+    "maximumTaskCompletionP95Ms": null,
+    "maximumGpuFrameTimeP95Us": null,
+    "minimumSustainedFpsMilliFps": null,
+    "maximumDroppedFrameRatePpm": null,
+    "maximumGpuMemoryBytes": null,
+    "maximumAnimationTimingErrorUs": null,
+    "maximumTargetWallPowerMilliW": null,
+    "mustBeFixedBeforeFirstPhysicalRun": true
+  },
+  "evidencePolicy": {
+    "physicalDisplayCapturesMustExcludePeopleAndBeCroppedRedactedAndExifFree": true,
+    "participantNamesFacesVoicesExactAgesAddressesDiagnosesOrStableIdentifiersAllowed": false,
+    "individualParticipantFreeTextOrRawTaskRecordingAllowedInRepositoryOrRelease": false,
+    "aggregatePathFreeClosedVocabularyResultsRequired": true,
+    "rawHomeRoomPhotographyAllowed": false,
+    "networkEgressAllowed": false,
+    "temporaryParticipantOrDisplayCaptureRequiresSeparateConsentAccessAndDeletionProof": true,
+    "everyEvidenceArtifactMustBindPlanBuildTargetPanelModeDistanceLightingAndRun": true
+  },
+  "executionGate": {
+    "state": "blocked",
+    "blockerCodes": [
+      "exact-release-candidate-build-and-catalog-projection",
+      "selected-physical-televisions-panel-modes-and-reference-targets",
+      "measured-seating-distance-room-lighting-camera-and-capture-protocol",
+      "complete-surface-state-fixtures-controller-tasks-and-independent-scoring",
+      "adult-child-recruitment-consent-assent-comprehension-and-stop-authority",
+      "low-vision-and-color-vision-observation-protocols-and-cohort-sizes",
+      "all-open-readability-comprehension-performance-animation-and-power-gates",
+      "gpu-animation-clock-instruments-operators-schedule-and-invalid-run-rules",
+      "data-redaction-deletion-accessibility-release-and-publication-authority"
+    ],
+    "readyRequiresEveryBlockerResolvedBeforeFirstPhysicalRun": true
+  },
+  "result": {
+    "disposition": "blocked",
+    "completedRenderingRunCount": 0,
+    "completedParticipantSessionCount": 0,
+    "completedPerformanceRunCount": 0,
+    "renderingCellResults": [],
+    "participantCellResults": [],
+    "performanceCellResults": [],
+    "physicalTelevisionCount": 0,
+    "participantCount": 0,
+    "qualifiedAccentIds": [],
+    "failedSurfaceIds": [],
+    "releaseQualified": false,
+    "visualPolicyChanged": false
+  }
+}
