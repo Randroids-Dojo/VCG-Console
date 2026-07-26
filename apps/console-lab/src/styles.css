@@ -3696,6 +3696,109 @@ h1 {
   text-align: right;
 }
 
+.camera-state-card {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  background: var(--ink);
+}
+
+.camera-state-card[data-state="active"] {
+  border-style: solid;
+  border-color: var(--accent);
+}
+
+.camera-state-card[data-state="starting"],
+.camera-state-card[data-state="requesting-permission"] {
+  border-color: var(--accent);
+}
+
+.camera-state-card[data-state="permission-denied"],
+.camera-state-card[data-state="unavailable"],
+.camera-state-card[data-state="disconnected"],
+.camera-state-card[data-state="failed"] {
+  border-style: solid;
+  border-color: var(--fault);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--fault), transparent 88%) 8px 9px
+    ),
+    var(--ink);
+}
+
+.camera-state-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+}
+
+.camera-state-heading strong {
+  color: var(--paper);
+  font-weight: 400;
+  text-align: right;
+}
+
+.camera-state-card h2,
+.camera-state-card p,
+.camera-state-facts {
+  margin: 0;
+}
+
+.camera-state-card h2 {
+  color: var(--paper);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.camera-state-card p {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+
+.camera-state-card .camera-shutter-detail {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--paper);
+}
+
+.camera-state-facts {
+  display: grid;
+  gap: 5px;
+}
+
+.camera-state-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.camera-state-facts dt,
+.camera-state-facts dd {
+  margin: 0;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.camera-state-facts dt {
+  color: var(--muted);
+}
+
+.camera-state-facts dd {
+  color: var(--paper);
+  text-align: right;
+}
+
 .tracker-health-card {
   display: grid;
   gap: 9px;

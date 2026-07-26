@@ -2431,17 +2431,90 @@ test("exports a bounded pseudonymized v2 skeleton trace", async ({ page }) => {
 
 test("loads the pinned local model and starts a camera pipeline", async ({ page }) => {
   await openMotionLab(page);
+  await expect(page.locator("#camera-state-badge")).toHaveText("DISABLED");
+  await expect(page.locator("#camera-access-state")).toHaveText("RELEASED");
+  await expect(page.locator("#camera-activity-state")).toHaveText("NO STREAM");
+  await expect(page.locator("#camera-shutter-state")).toHaveText("NOT SENSED");
+  await expect(page.locator("#camera-shutter-detail")).toContainText(
+    "Check the shutter directly",
+  );
   await page.getByRole("button", { name: "START CAMERA" }).click();
   await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
   await expect(page.locator("#source-badge")).toHaveText("MEDIAPIPE / LOCAL");
+  await expect(page.locator("#camera-state-badge")).toHaveText("ACTIVE");
+  await expect(page.locator("#camera-access-state")).toHaveText("ENABLED");
+  await expect(page.locator("#camera-activity-state")).toHaveText("STREAM ACTIVE");
+  await expect(page.locator("#camera-shutter-state")).toHaveText("NOT SENSED");
   await expect
     .poll(async () => `${await page.locator("#metric-tracker").textContent()} / ${await page.locator("#status-detail").textContent()}`, { timeout: 15_000 })
     .toContain("WORKER");
 
   await page.getByRole("button", { name: "STOP CAMERA" }).click();
+  await expect(page.locator("#camera-state-badge")).toHaveText("DISABLED");
+  await expect(page.locator("#camera-activity-state")).toHaveText("NO STREAM");
   await page.getByRole("button", { name: "START CAMERA" }).click();
   await expect(page.locator("#health-badge")).toHaveText("READY", { timeout: 15_000 });
   await expect(page.locator("#metric-tracker")).toContainText("WORKER", { timeout: 15_000 });
+});
+
+test("bounds permission-denied camera copy and keeps fallback controls available", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: async () => {
+        throw new DOMException("private provider detail", "NotAllowedError");
+      },
+    });
+  });
+  await openMotionLab(page);
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  await expect(page.locator("#camera-state-badge")).toHaveText("PERMISSION DENIED", {
+    timeout: 15_000,
+  });
+  await expect(page.locator("#camera-access-state")).toHaveText("BLOCKED");
+  await expect(page.locator("#camera-activity-state")).toHaveText("NO STREAM");
+  await expect(page.locator("#camera-shutter-state")).toHaveText("NOT SENSED");
+  await expect(page.locator("#status-detail")).toContainText("synthetic fallback is active");
+  await expect(page.locator("#status-detail")).not.toContainText("private provider detail");
+  await expect(page.getByRole("button", { name: "START CAMERA" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "USE REPLAY" })).toBeDisabled();
+});
+
+test("reports an ended camera stream as disconnected without inferring shutter state", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: async (constraints: MediaStreamConstraints) => {
+        const stream = await getUserMedia(constraints);
+        const track = stream.getVideoTracks()[0];
+        (
+          window as unknown as { __disconnectCameraForTest: () => void }
+        ).__disconnectCameraForTest = () => track?.dispatchEvent(new Event("ended"));
+        return stream;
+      },
+    });
+  });
+  await openMotionLab(page);
+  await page.getByRole("button", { name: "START CAMERA" }).click();
+  await expect(page.locator("#camera-state-badge")).toHaveText("ACTIVE", {
+    timeout: 15_000,
+  });
+  await page.evaluate(() =>
+    (
+      window as unknown as { __disconnectCameraForTest: () => void }
+    ).__disconnectCameraForTest(),
+  );
+  await expect(page.locator("#health-badge")).toHaveText("CAMERA LOST");
+  await expect(page.locator("#camera-state-badge")).toHaveText("DISCONNECTED");
+  await expect(page.locator("#camera-access-state")).toHaveText("LOST");
+  await expect(page.locator("#camera-activity-state")).toHaveText("NO STREAM");
+  await expect(page.locator("#camera-shutter-state")).toHaveText("NOT SENSED");
+  await expect(page.getByRole("button", { name: "START CAMERA" })).toBeEnabled();
 });
 
 test("normal camera mode stores and transmits no raw frames", async ({ page }) => {
@@ -2555,6 +2628,9 @@ test("fails closed on a worker crash and retries with a fresh backend", async ({
     }, 0);
   });
   await expect(page.locator("#health-badge")).toHaveText("FAULT", { timeout: 15_000 });
+  await expect(page.locator("#camera-state-badge")).toHaveText("FAILED");
+  await expect(page.locator("#camera-activity-state")).toHaveText("NO STREAM");
+  await expect(page.locator("#camera-shutter-state")).toHaveText("NOT SENSED");
   await expect(page.locator("#status-detail")).toContainText("Worker runtime failed");
   await expect(page.getByRole("button", { name: "START CAMERA" })).toBeEnabled();
 

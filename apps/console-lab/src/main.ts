@@ -20,6 +20,14 @@ import {
   applyBodyVisibilityFixture,
   type BodyVisibilityFixture,
 } from "./body-visibility-fixture";
+import {
+  CAMERA_SHUTTER_DETAIL,
+  CAMERA_SHUTTER_STATE,
+  cameraStateForStartFailure,
+  cameraStateForTrackerStatus,
+  cameraStatePresentation,
+  type CameraSoftwareState,
+} from "./camera-state";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
@@ -165,6 +173,20 @@ app.innerHTML = `
           <div><dt>DROPPED FRAMES</dt><dd id="metric-dropped">0</dd></div>
           <div><dt>TRACE FRAMES</dt><dd id="metric-trace">0</dd></div>
         </dl>
+        <section class="camera-state-card" id="camera-state-card" data-state="disabled" aria-labelledby="camera-state-title" aria-live="polite">
+          <div class="camera-state-heading">
+            <span>CAMERA SOFTWARE</span>
+            <strong id="camera-state-badge">DISABLED</strong>
+          </div>
+          <h2 id="camera-state-title">Software camera access is disabled</h2>
+          <dl class="camera-state-facts">
+            <div><dt>SOFTWARE ACCESS</dt><dd id="camera-access-state">RELEASED</dd></div>
+            <div><dt>CAPTURE ACTIVITY</dt><dd id="camera-activity-state">NO STREAM</dd></div>
+            <div><dt>PHYSICAL SHUTTER</dt><dd id="camera-shutter-state">NOT SENSED</dd></div>
+          </dl>
+          <p id="camera-state-detail">The camera stream is stopped. Replay, controller, and keyboard input remain available.</p>
+          <p id="camera-shutter-detail" class="camera-shutter-detail">Physical shutter position is not sensed. Check the shutter directly before camera use.</p>
+        </section>
         <section class="tracker-health-card" id="tracker-health-card" data-state="ready" aria-live="polite">
           <div class="tracker-health-heading">
             <span>MOTION CONTROL</span>
@@ -299,6 +321,14 @@ const gestureProgress = required<HTMLElement>("#gesture-progress");
 const gestureProgressFill = required<HTMLElement>("#gesture-progress-fill");
 const gestureDetail = required<HTMLElement>("#gesture-detail");
 const systemState = required<HTMLElement>("#system-state");
+const cameraStateCard = required<HTMLElement>("#camera-state-card");
+const cameraStateBadge = required<HTMLElement>("#camera-state-badge");
+const cameraStateTitle = required<HTMLElement>("#camera-state-title");
+const cameraAccessState = required<HTMLElement>("#camera-access-state");
+const cameraActivityState = required<HTMLElement>("#camera-activity-state");
+const cameraShutterState = required<HTMLElement>("#camera-shutter-state");
+const cameraStateDetail = required<HTMLElement>("#camera-state-detail");
+const cameraShutterDetail = required<HTMLElement>("#camera-shutter-detail");
 const healthBadge = required<HTMLElement>("#health-badge");
 const trackerHealthCard = required<HTMLElement>("#tracker-health-card");
 const trackerHealthTitle = required<HTMLElement>("#tracker-health-title");
@@ -750,6 +780,8 @@ function setBodyVisibilityFixture(fixture: BodyVisibilityFixture): void {
 
 function updateStatus(status: TrackerStatus, detail: string): void {
   statusDetail.textContent = detail;
+  const cameraState = cameraStateForTrackerStatus(status);
+  if (cameraState) paintCameraState(cameraState);
   cameraButton.disabled = status === "loading" || status === "requesting-camera";
   cameraButton.textContent = status === "running" ? "STOP CAMERA" : "START CAMERA";
   replayButton.disabled = replayRunning;
@@ -761,6 +793,18 @@ function updateStatus(status: TrackerStatus, detail: string): void {
         : "SYNTHETIC REPLAY";
   for (const button of healthFixtureButtons) button.disabled = !replayRunning;
   for (const button of bodyFixtureButtons) button.disabled = !replayRunning;
+}
+
+function paintCameraState(state: CameraSoftwareState): void {
+  const presentation = cameraStatePresentation(state);
+  cameraStateCard.dataset.state = state;
+  cameraStateBadge.textContent = presentation.badge;
+  cameraStateTitle.textContent = presentation.title;
+  cameraAccessState.textContent = presentation.access;
+  cameraActivityState.textContent = presentation.activity;
+  cameraStateDetail.textContent = presentation.detail;
+  cameraShutterState.textContent = CAMERA_SHUTTER_STATE;
+  cameraShutterDetail.textContent = CAMERA_SHUTTER_DETAIL;
 }
 
 function applyTrackerHealth(event: TrackerHealthEvent): void {
@@ -778,6 +822,11 @@ function applyTrackerHealth(event: TrackerHealthEvent): void {
       : event.controlAvailability === "landmarks-only"
         ? "LANDMARKS ONLY"
         : "CONTROLLER ONLY";
+  if (event.source === "mediapipe-web") {
+    if (event.reason === "camera-unavailable") paintCameraState("unavailable");
+    else if (event.reason === "camera-disconnected") paintCameraState("disconnected");
+    else if (event.reason === "backend-fault") paintCameraState("failed");
+  }
   systemState.textContent =
     event.status === "ready"
       ? event.source === "mediapipe-web" ? "CAMERA ACTIVE" : "REPLAY READY"
@@ -1114,8 +1163,13 @@ cameraButton.addEventListener("click", async () => {
     await tracker.start();
     replayButton.disabled = false;
   } catch (error) {
-    const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-    startReplay("fault", `Camera start failed; synthetic fallback is active. ${detail}`);
+    const cameraState = cameraStateForStartFailure(error);
+    const presentation = cameraStatePresentation(cameraState);
+    startReplay(
+      "fault",
+      `Camera start did not complete; synthetic fallback is active. ${presentation.detail}`,
+    );
+    paintCameraState(cameraState);
   }
 });
 
