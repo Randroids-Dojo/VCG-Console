@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 85,
-      "totalBytes": 827698,
+      "fileCount": 86,
+      "totalBytes": 837775,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1024,8 +1024,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 52763,
-          "sha256": "2e5ed8045fca6b899c112ddd2dab9e82a8890471a8d953fa8750ae85c439b8f6"
+          "bytes": 53162,
+          "sha256": "f3a66518bb293e74b90274977dca3b67ab0ba3ba4cccd8159e96e2cfcaf2aee3"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1048,9 +1048,14 @@
           "sha256": "8b3604c9bb5f05c379025dfbd0a98940a530d02a49fb6604b7402f0da816e66c"
         },
         {
+          "path": "apps/console-lab/src/metrics.test.ts",
+          "bytes": 5765,
+          "sha256": "ae3a74f03f06cb61e53971592118822bd4a84117acb8bb6198b40e4117022456"
+        },
+        {
           "path": "apps/console-lab/src/metrics.ts",
-          "bytes": 1507,
-          "sha256": "7c4f3d7c093c52fc21086fa6ca53a8fe811f40cc575336ca51dd7d9b1218d6d3"
+          "bytes": 5420,
+          "sha256": "eb26f4f56b4072761c85782a76bff626b22eea6e540de1b2be7cb57203615d83"
         },
         {
           "path": "apps/console-lab/src/native-host-client.test.ts",
@@ -1272,9 +1277,9 @@
                 130,
                 224,
                 225,
-                706,
-                1038,
-                1042
+                715,
+                1047,
+                1051
               ]
             },
             {

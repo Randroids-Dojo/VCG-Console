@@ -2145,6 +2145,16 @@ test("Escape always walks back toward the tracker", async ({ page }) => {
 test("captures the reviewed tracker surface", async ({ page }) => {
   await openMotionLab(page);
   await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await expect(page.locator("#metric-source-timing-label")).toHaveText(
+    "REPLAY TO FRAME P95",
+  );
+  await expect(page.locator("#metric-source-timing-p95")).toHaveText("1.0 MS");
+  await expect(page.locator("#measurement-note")).toContainText(
+    "camera-free diagnostic timing",
+  );
+  await expect(page.locator("#measurement-note")).toContainText(
+    "not live camera or exposure-to-action latency",
+  );
   await page.waitForTimeout(220);
   await page.screenshot({ path: "../../test-results/console-lab/tracker-surface.png", fullPage: true });
 });

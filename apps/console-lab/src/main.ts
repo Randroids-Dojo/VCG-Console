@@ -161,7 +161,7 @@ app.innerHTML = `
           <div><dt>POSE FPS</dt><dd id="metric-fps">--</dd></div>
           <div><dt>INFERENCE P50</dt><dd id="metric-inference-p50">-- MS</dd></div>
           <div><dt>INFERENCE P95</dt><dd id="metric-inference-p95">-- MS</dd></div>
-          <div><dt>PIPELINE P95</dt><dd id="metric-pipeline-p95">-- MS*</dd></div>
+          <div><dt id="metric-source-timing-label">SOURCE TO FRAME P95</dt><dd id="metric-source-timing-p95">-- MS</dd></div>
           <div><dt>DROPPED FRAMES</dt><dd id="metric-dropped">0</dd></div>
           <div><dt>TRACE FRAMES</dt><dd id="metric-trace">0</dd></div>
         </dl>
@@ -241,7 +241,7 @@ app.innerHTML = `
           ><span id="gesture-progress-fill"></span></div>
           <p id="gesture-detail">Hold progress, acceptance, cancellation, and release appear here.</p>
         </section>
-        <p class="measurement-note">* Browser prototype uses capture-arrival time, not a camera exposure timestamp. It cannot qualify the 120 ms product gate.</p>
+        <p class="measurement-note" id="measurement-note">No source timing samples are available. This diagnostic never substitutes for exposure-to-action qualification.</p>
         <div class="controls">
           <button id="join-button" class="primary-control" type="button">JOIN PLAYER 1</button>
           <button id="camera-button" type="button">START CAMERA</button>
@@ -648,6 +648,8 @@ function togglePlayerAssignment(): void {
 function paintMetrics(frame: MotionFrame): void {
   const snapshot = metrics.snapshot();
   const player = frame.players[0];
+  const formatMilliseconds = (value: number | null): string =>
+    value === null ? "-- MS" : `${value.toFixed(1)} MS`;
   required<HTMLElement>("#metric-tracker").textContent =
     frame.source === "mediapipe-web"
       ? tracker.delegate.toUpperCase()
@@ -657,9 +659,16 @@ function paintMetrics(frame: MotionFrame): void {
   required<HTMLElement>("#metric-player").textContent = player ? `${player.state.toUpperCase()} 01` : "NOT FOUND";
   required<HTMLElement>("#metric-confidence").textContent = player ? `${Math.round(player.confidence * 100)}%` : "--";
   required<HTMLElement>("#metric-fps").textContent = snapshot.fps ? snapshot.fps.toFixed(1) : "--";
-  required<HTMLElement>("#metric-inference-p50").textContent = `${snapshot.inferenceP50.toFixed(1)} MS`;
-  required<HTMLElement>("#metric-inference-p95").textContent = `${snapshot.inferenceP95.toFixed(1)} MS`;
-  required<HTMLElement>("#metric-pipeline-p95").textContent = `${snapshot.pipelineP95.toFixed(1)} MS*`;
+  required<HTMLElement>("#metric-inference-p50").textContent =
+    formatMilliseconds(snapshot.inferenceP50);
+  required<HTMLElement>("#metric-inference-p95").textContent =
+    formatMilliseconds(snapshot.inferenceP95);
+  required<HTMLElement>("#metric-source-timing-label").textContent =
+    snapshot.sourceTiming.boundaryLabel;
+  required<HTMLElement>("#metric-source-timing-p95").textContent =
+    formatMilliseconds(snapshot.sourceTiming.p95);
+  required<HTMLElement>("#measurement-note").textContent =
+    snapshot.sourceTiming.disclosure;
   required<HTMLElement>("#metric-dropped").textContent = String(tracker.droppedFrames);
   required<HTMLElement>("#metric-trace").textContent = String(trace.size);
   paintPlayerControlAvailability(

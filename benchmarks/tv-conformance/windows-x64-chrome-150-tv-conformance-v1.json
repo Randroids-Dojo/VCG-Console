@@ -1,9 +1,9 @@
 {
   "format": "vcg-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-07-25",
+  "evidenceDate": "2026-07-26",
   "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
   "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
-  "retrievedAtUtc": "2026-07-25T04:16:41.304Z",
+  "retrievedAtUtc": "2026-07-26T00:40:37.505Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -69,7 +69,7 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.8,
+          "p95DeltaMs": 16.7,
           "worstDeltaMs": 16.8,
           "negativeDeltaCount": 0
         },
@@ -111,7 +111,7 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.8,
+          "p95DeltaMs": 16.7,
           "worstDeltaMs": 16.8,
           "negativeDeltaCount": 0
         },
@@ -154,7 +154,7 @@
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
           "p95DeltaMs": 16.7,
-          "worstDeltaMs": 66.7,
+          "worstDeltaMs": 83.3,
           "negativeDeltaCount": 0
         },
         "screenshot": {
@@ -203,7 +203,7 @@
     "scriptPath": "examples/tv-conformance/app.js",
     "scriptPathSha256": "2febab45004fb5c37a75186325ac10dfe43c40b9da845a8426b9eb5a57248d20",
     "generatorPath": "scripts/generate-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "f3e2d05204d562229119f8b7182f44b8ca5433d3e8f16e6883af45bef4945789",
+    "generatorPathSha256": "5b7d109809071712c69fffcd77eea8d26f65a6ccdc0384eb834d53a445082d6b",
     "validatorPath": "scripts/validate-tv-conformance-evidence.mjs",
     "validatorPathSha256": "6c10a8cb7bcb1c2fa1a395da50498bd34265e587fd86a7746893216aae68b741"
   },
