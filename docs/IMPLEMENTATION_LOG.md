@@ -6889,3 +6889,33 @@ path remains unresolved.
 All three rows remain active, not complete. Stable prerequisites, received
 hardware, exact production adapters/wiring, instruments, schedules, gates,
 authority, physical/destructive/unattended trials and target results are absent.
+
+## 2026-07-25: living-room and play-zone survey plan
+
+### Delivered
+
+- Advanced I-001/I-002 from open rows to one strict blocked survey without
+  inventing private room facts or authorizing home access.
+- Defined a millimetre coordinate frame at the primary TV face plane and twelve
+  exact room, TV, viewing, furniture, egress, window/light, power/network,
+  floor, below-TV enclosure and external-camera measurement groups.
+- Fixed twelve collision/safety hazard classes and the one contiguous measured
+  2438.4 by 2438.4 mm one/two-player zone, with zero overlap, preserved egress,
+  normal-furniture validity, subzones and child/adult reach review.
+- Kept seated and later four-player evidence exploratory and unable to rescue a
+  failed required zone; camera previews and diagrams cannot prove coverage.
+- Prohibited raw home photos in repository/released evidence; required EXIF/GPS
+  stripping and identity/screen/reflection redaction; prohibited SSIDs,
+  credentials, addresses, traffic and stable serials.
+- Added QROOM-001 through QROOM-005 for room/privacy, normal configuration,
+  instruments, clearances and optical/viewing gates.
+- Nine focused adversarial tests pass. No room measurement or safety result and
+  no photography/participant/furniture/electrical/network/mounting authority
+  exists.
+
+### Remaining boundary
+
+I-001/I-002 remain active. The selected room, consent, tools, normal and worst-
+open configuration, exact equipment, body/reach protocol, numeric gates, access,
+photographs, floor plan, hazard map, play zone, coverage and safety result are
+absent.

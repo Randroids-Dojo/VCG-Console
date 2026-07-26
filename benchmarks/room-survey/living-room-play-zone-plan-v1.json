@@ -1,0 +1,239 @@
+{
+  "format": "vcg-living-room-play-zone-plan/v1",
+  "status": "blocked",
+  "campaignId": "primary-living-room-play-zone-survey-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-001",
+    "I-002"
+  ],
+  "claimBoundary": "Pre-registered primary living-room, mounting and play-zone survey only. No room, address, television, furniture, window, light, outlet, circuit, network, mount, camera, enclosure, viewing distance, floor, player zone, clearance, collision, coverage, safety, privacy, suitability, purchase, or product result exists. A photograph, approximate dimension, camera preview, empty floor patch, or diagram alone cannot establish a safe measured zone or camera coverage.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "product-room-boundary",
+      "path": "docs/RESEARCH.md",
+      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
+    },
+    {
+      "role": "prototype-gate-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "shared-camera-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "physical-tv-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "9534134031ddb18a55d1c16bf7643a80b10b165783cf6d1d5916288553082c76"
+    }
+  ],
+  "coordinateSystem": {
+    "unit": "millimetres",
+    "origin": "primary-TV active-picture horizontal center projected vertically onto the finished floor at the TV face plane",
+    "xAxis": "positive toward a viewer's right while facing the primary TV",
+    "yAxis": "positive away from the primary TV face into the room",
+    "zAxis": "positive upward from the finished floor",
+    "angles": "decimal degrees with positive pitch aimed above horizontal",
+    "dimensionsUseFinishedAccessibleSurfaces": true,
+    "estimatedValuesMayQualify": false
+  },
+  "surveyBoundary": {
+    "roomAlias": null,
+    "selectedRoomDecision": null,
+    "measurementDate": null,
+    "operatorProtocolSha256": null,
+    "measurementToolAndCalibrationSha256": null,
+    "annotatedFloorPlanSha256": null,
+    "redactedPhotoContactSheetSha256": null,
+    "privacyReviewSha256": null,
+    "safetyReviewSha256": null
+  },
+  "requiredMeasurements": [
+    {
+      "measurementId": "room-finished-width-depth-and-ceiling",
+      "requiredEvidence": "Closed room outline, finished width/depth at every relevant offset, ceiling height and any soffit, slope or overhead obstruction."
+    },
+    {
+      "measurementId": "primary-tv-active-picture-and-face-plane",
+      "requiredEvidence": "Active-picture width/height, lower/upper/center height, face plane, bezel envelope, stand/wall attachment and port/cable access."
+    },
+    {
+      "measurementId": "viewing-and-player-distance-envelope",
+      "requiredEvidence": "Primary seating eye position and near/far player distances measured from the TV face plane without using camera preview as distance proof."
+    },
+    {
+      "measurementId": "furniture-and-fixed-obstacle-footprints",
+      "requiredEvidence": "Closed floor and height envelopes for stand, seating, tables, shelves, radiators, columns and other fixed or normally present furniture."
+    },
+    {
+      "measurementId": "doors-egress-and-moving-envelopes",
+      "requiredEvidence": "Door, drawer, recliner and other moving envelopes plus required household egress paths in both ordinary and worst open positions."
+    },
+    {
+      "measurementId": "windows-mirrors-and-breakable-surfaces",
+      "requiredEvidence": "Position, sill/bottom/top heights, treatment and direct-light/reflection direction for windows, mirrors, glass and breakable displays."
+    },
+    {
+      "measurementId": "lighting-fixtures-and-testable-light-states",
+      "requiredEvidence": "Fixture positions, controllable groups and reproducible daylight, backlight, warm, cool, TV-only and dim conditions without recording household routines."
+    },
+    {
+      "measurementId": "power-outlets-circuits-and-cable-routes",
+      "requiredEvidence": "Outlet positions, reviewed circuit/load identity, safe production-intended power path and HDMI/USB/power routing with no address or account data."
+    },
+    {
+      "measurementId": "network-service-and-wired-port-boundary",
+      "requiredEvidence": "Availability and approximate placement of approved wired/wireless service and test isolation without SSIDs, credentials, MAC/IP addresses or traffic capture."
+    },
+    {
+      "measurementId": "floor-surface-level-and-trip-boundary",
+      "requiredEvidence": "Floor material, transitions, rugs, level changes, vents, thresholds, cable crossings, slip/trip conditions and temporary-item control."
+    },
+    {
+      "measurementId": "below-tv-prototype-envelope",
+      "requiredEvidence": "Candidate enclosure volume, optical datum, ventilation, shutter/indicator/wake access, stability, connector clearance and strain-relieved cable envelope."
+    },
+    {
+      "measurementId": "external-camera-placement-envelope",
+      "requiredEvidence": "Beside, above-machine, TV-top or shelf candidates with stable support, shutter/indicator visibility, USB route and recalibration access, without selection."
+    }
+  ],
+  "hazardClasses": [
+    "wall-furniture-or-column-impact",
+    "sharp-edge-or-protrusion",
+    "glass-mirror-tv-or-breakable-impact",
+    "door-drawer-recliner-or-moving-envelope",
+    "trip-slip-rug-threshold-vent-or-level-change",
+    "power-hdmi-usb-or-network-cable",
+    "outlet-power-strip-heat-or-electrical-access",
+    "unstable-tip-pull-or-falling-object",
+    "window-direct-sun-reflection-or-treatment-cord",
+    "ceiling-fan-light-soffit-or-overhead-impact",
+    "pet-child-passage-or-household-egress-conflict",
+    "camera-enclosure-stand-or-mount-instability"
+  ],
+  "playZonePolicy": {
+    "requiredOneTwoPlayerZoneId": "one-two-player-required-8x8ft",
+    "minimumWidthMm": 2438.4,
+    "minimumDepthMm": 2438.4,
+    "minimumAreaSquareMm": 5945792.256,
+    "zoneMustBeOneContiguousAxisAlignedRectangleInSurveyCoordinates": true,
+    "zoneMustNotOverlapHazardEnvelope": true,
+    "zoneMustPreserveHouseholdEgress": true,
+    "zoneMustRemainValidWithNormalFurnitureAndDoorPositions": true,
+    "oneAndTwoPlayerSubzonesMustBeMarked": true,
+    "twoPlayerSimultaneousMovementAndArmSpanMustBeReviewed": true,
+    "laterFourPlayerZoneRequiredForQualification": false,
+    "laterFourPlayerZoneMayRescueRequiredZone": false,
+    "minimumObstacleClearanceMm": null,
+    "minimumInterPlayerClearanceMm": null,
+    "maximumPermittedFloorSlopeDegrees": null
+  },
+  "playerPostures": [
+    {
+      "postureId": "school-age-child-standing",
+      "requiredForOneTwoPlayerZone": true,
+      "bodyEnvelopeAndReachProtocolSha256": null
+    },
+    {
+      "postureId": "adult-standing",
+      "requiredForOneTwoPlayerZone": true,
+      "bodyEnvelopeAndReachProtocolSha256": null
+    },
+    {
+      "postureId": "seated-exploratory",
+      "requiredForOneTwoPlayerZone": false,
+      "bodyEnvelopeAndReachProtocolSha256": null
+    }
+  ],
+  "cameraCoveragePolicy": {
+    "requiredPlacementRole": "below-tv-integrated-prototype-candidate",
+    "additionalPlacementRoles": [
+      "external-beside-or-above-machine-candidate",
+      "external-tv-top-or-shelf-candidate"
+    ],
+    "fixedApplianceOpticalAxisSelected": false,
+    "cameraIdentitySha256": null,
+    "lensAndModeSha256": null,
+    "placementAndMountSha256": null,
+    "roomFloorCalibrationSha256": null,
+    "oneTwoPlayerCoverageProofSha256": null,
+    "floorContactProofSha256": null,
+    "actionAccuracyProofSha256": null,
+    "setupErrorAndRecalibrationProofSha256": null,
+    "cameraPreviewMayEstablishCoverage": false,
+    "diagramMayEstablishCoverage": false,
+    "fourPlayerCoverageMayRescueOneTwoPlayerFailure": false
+  },
+  "photoEvidencePolicy": {
+    "requiredRedactedViewRoles": [
+      "room-facing-primary-tv",
+      "tv-wall-and-below-tv-envelope",
+      "required-zone-from-left-rear",
+      "required-zone-from-right-rear",
+      "floor-cable-outlet-and-egress-detail",
+      "candidate-camera-mount-and-sightline-detail"
+    ],
+    "rawHomePhotosAllowedInRepository": false,
+    "rawHomePhotosAllowedInReleasedEvidence": false,
+    "exifGpsAndDeviceMetadataMustBeRemoved": true,
+    "facesNamesAddressesMailScreensReflectionsAndHouseholdIdentifiersMustBeRedacted": true,
+    "wifiNamesCredentialsMacIpAndTrafficAllowed": false,
+    "stableTvCameraRouterOrDeviceSerialsAllowed": false,
+    "redactedDerivativeDigestsAllowed": true,
+    "dimensionedAbstractFloorPlanRequired": true
+  },
+  "acceptance": {
+    "minimumRequiredZoneWidthMm": 2438.4,
+    "minimumRequiredZoneDepthMm": 2438.4,
+    "maximumUnmappedHazards": 0,
+    "maximumRequiredZoneHazardOverlaps": 0,
+    "maximumBlockedEgressPaths": 0,
+    "maximumUnstrainRelievedRequiredCables": 0,
+    "maximumUnstableRequiredMountsOrEnclosures": 0,
+    "minimumObstacleClearanceMm": null,
+    "minimumInterPlayerClearanceMm": null,
+    "maximumPermittedFloorSlopeDegrees": null,
+    "minimumCameraCoverageMarginMm": null,
+    "minimumViewingDistanceMm": null,
+    "maximumViewingDistanceMm": null,
+    "everyRequiredMeasurementAndSafetyCheckMustPass": true,
+    "photoMaySubstituteMeasurement": false,
+    "approximationMaySubstituteMeasurement": false,
+    "cameraPreviewMaySubstitutePhysicalCoverageAndAccuracy": false,
+    "emptyRoomMaySubstituteNormalFurnitureConfiguration": false,
+    "fourPlayerExperimentalZoneMayRescueRequiredZone": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "roomAccessAuthorized": false,
+    "photographyAuthorized": false,
+    "participantSessionAuthorized": false,
+    "furnitureOrFixtureMutationAuthorized": false,
+    "electricalOrNetworkInspectionAuthorized": false,
+    "mountingCuttingDrillingOrPurchaseAuthorized": false,
+    "blockerCodes": [
+      "selected-primary-room-and-consent-privacy-boundary",
+      "measurement-tools-calibration-coordinate-floor-plan-and-photo-protocol",
+      "normal-furniture-door-egress-cable-light-and-network-test-configuration",
+      "child-adult-body-envelope-clearance-and-collision-review-protocol",
+      "exact-tv-camera-enclosure-mount-and-cable-tuples",
+      "obstacle-inter-player-slope-coverage-and-viewing-distance-gates",
+      "room-access-photography-measurement-participant-and-mutation-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredMeasurements": 0,
+    "mappedHazardCount": 0,
+    "qualifiedPlayZoneIds": [],
+    "qualifiedCameraPlacementIds": [],
+    "selectedFixedOpticalAxisSha256": null
+  }
+}
