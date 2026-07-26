@@ -77,12 +77,12 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "34cfe57b7b04aea450c8ef13da92f8e0c8fd125c4bbe3f3bda68bec141b3bc0b"
+      "sha256": "3f71fb11c0df66091c9293caa77b49be6617d28d5bce3086055dfaea6f82ae43"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "177ce4e956e3c3ba51e66d54edc41665771deaafc24eb9da1d6796b72b5c68ab"
+      "sha256": "57be709ba72e7c0341c476c6c01bb91b8ab04d4200e642469d831506defda4bf"
     },
     {
       "role": "pi-thermal-acoustic-boundary",

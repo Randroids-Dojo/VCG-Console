@@ -1,0 +1,413 @@
+{
+  "format": "vcg-complete-system-economics-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "five-candidate-complete-system-economics-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-172"
+  ],
+  "claimBoundary": "This is a strict zero-result complete-system economics comparison plan. Vendor specifications, list prices, component quotes, advertised TOPS, owned-hardware availability, existing desk plans, proxy devices, and results from another candidate do not prove an exact delivered system, physical measurement, common-workload performance, economics, qualification, selection, or purchase value. All five exact candidates must retain independently visible evidence for every applicable workload and lifecycle phase. The Raspberry Pi lower-cost ceiling applies only to its complete delivered reference build; the optional Steam Machine is not the default premium reference; owned x86 is not free; and no purchase, operation, fault injection, qualification, publication, ranking, or tier mutation is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "complete-bom-boundary",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "role": "amd-mini-pc-boundary",
+      "path": "docs/X86_MINI_PC_COMPARATOR_2026-07-24.md",
+      "sha256": "1d7605bffd8c8a9f863da669c654d3094bc0eb17a0d9bf180a435e2f139680bb"
+    },
+    {
+      "role": "pi-ai-hat-boundary",
+      "path": "docs/RASPBERRY_PI_AI_HAT.md",
+      "sha256": "6f534aea4d068033e22fb0b47fee6d45b89da73548242fc234ae87b51bfe7faf"
+    },
+    {
+      "role": "steam-machine-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "jetson-boundary",
+      "path": "docs/JETSON_ORIN_NANO_SUPER_TENSORRT_SCREEN_2026-07-26.md",
+      "sha256": "256d067850e7f89069d1fb2b4cc8c60abef1eb0c0a81912551970ec4b210da50"
+    },
+    {
+      "role": "jetson-plan-boundary",
+      "path": "benchmarks/jetson/jetson-orin-nano-super-tensorrt-plan-v1.json",
+      "sha256": "cdc20aa7e22e8fa75810752a28f7b7a6ef6e0a8dfd6c9a2bd9b26ad5a61a8e29"
+    },
+    {
+      "role": "ordinary-x86-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "common-workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "idle-energy-boundary",
+      "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
+      "sha256": "57be709ba72e7c0341c476c6c01bb91b8ab04d4200e642469d831506defda4bf"
+    },
+    {
+      "role": "controller-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "steamos-shell-boundary",
+      "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
+      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "optional-steam-machine",
+      "comparisonRole": "optional-compatibility-candidate",
+      "architecture": "x86_64",
+      "platformClass": "finished-steamos-appliance",
+      "lowerCostCeilingApplies": false,
+      "exactCandidateSha256": null,
+      "deliveredQuoteSha256": null,
+      "completeSystemManifestSha256": null,
+      "integratedResultSha256": null,
+      "receivedOrAvailableForOperation": false,
+      "mayQualifyOrRescueAnotherCandidate": false
+    },
+    {
+      "candidateId": "custom-amd-mini-pc",
+      "comparisonRole": "general-purpose-x86-comparator",
+      "architecture": "x86_64",
+      "platformClass": "custom-amd-mini-pc-system",
+      "lowerCostCeilingApplies": false,
+      "exactCandidateSha256": null,
+      "deliveredQuoteSha256": null,
+      "completeSystemManifestSha256": null,
+      "integratedResultSha256": null,
+      "receivedOrAvailableForOperation": false,
+      "mayQualifyOrRescueAnotherCandidate": false
+    },
+    {
+      "candidateId": "pi5-ai-hat26",
+      "comparisonRole": "required-lower-cost-reference",
+      "architecture": "aarch64",
+      "platformClass": "diy-pi5-plus-hailo8-system",
+      "lowerCostCeilingApplies": true,
+      "exactCandidateSha256": null,
+      "deliveredQuoteSha256": null,
+      "completeSystemManifestSha256": null,
+      "integratedResultSha256": null,
+      "receivedOrAvailableForOperation": false,
+      "mayQualifyOrRescueAnotherCandidate": false
+    },
+    {
+      "candidateId": "jetson-orin-nano-super",
+      "comparisonRole": "arm-accelerated-comparator",
+      "architecture": "aarch64",
+      "platformClass": "nvidia-developer-kit-system",
+      "lowerCostCeilingApplies": false,
+      "exactCandidateSha256": null,
+      "deliveredQuoteSha256": null,
+      "completeSystemManifestSha256": null,
+      "integratedResultSha256": null,
+      "receivedOrAvailableForOperation": false,
+      "mayQualifyOrRescueAnotherCandidate": false
+    },
+    {
+      "candidateId": "owned-x86-linux",
+      "comparisonRole": "required-premium-reference",
+      "architecture": "x86_64",
+      "platformClass": "owned-general-purpose-linux-pc",
+      "lowerCostCeilingApplies": false,
+      "exactCandidateSha256": null,
+      "deliveredQuoteSha256": null,
+      "completeSystemManifestSha256": null,
+      "integratedResultSha256": null,
+      "receivedOrAvailableForOperation": false,
+      "mayQualifyOrRescueAnotherCandidate": false
+    }
+  ],
+  "comparisonContract": {
+    "candidateIds": [
+      "optional-steam-machine",
+      "custom-amd-mini-pc",
+      "pi5-ai-hat26",
+      "jetson-orin-nano-super",
+      "owned-x86-linux"
+    ],
+    "requiredReferenceIds": [
+      "pi5-ai-hat26",
+      "owned-x86-linux"
+    ],
+    "optionalSteamMachineId": "optional-steam-machine",
+    "defaultPremiumReferenceId": "owned-x86-linux",
+    "sameProductWorkloadPeripheralRoomAndAcceptanceContractRequired": true,
+    "candidateSpecificRuntimeDriverAndPackagingDifferencesMustRemainBehindReviewedInterfaces": true,
+    "proxyOrDifferentHardwareMaySubstituteExactCandidate": false,
+    "advertisedTopsMayRankSelectOrRescueCandidate": false,
+    "componentOrListPriceMaySubstituteCompleteDeliveredSystem": false,
+    "ownedHardwareAvailabilityMaySetEconomicCostToZero": false,
+    "steamMachineMayBecomeDefaultPremiumWithoutSupersedingDecision": false,
+    "candidateOrAggregateMayRescueAnotherCandidate": false
+  },
+  "economicProtocol": {
+    "quoteJurisdictionCurrencyAndCollectionDateSha256": null,
+    "sameDateCandidateQuoteSetSha256": null,
+    "commonPeripheralStorageCameraControllerCableAndDisplayParitySha256": null,
+    "evaluationHorizonDutyCycleElectricityAndDiscountPolicySha256": null,
+    "repairLaborToolsSparesWarrantyReturnAndReplacementPolicySha256": null,
+    "ownedX86ReuseReplacementAndOpportunityCostPolicySha256": null,
+    "currencyConversionSourceAndTimestampSha256": null,
+    "requiredQuoteFields": [
+      "candidate-and-component-id",
+      "manufacturer-model-revision-and-part-number",
+      "seller-and-item-url-digest",
+      "quote-observed-at-and-stock-state",
+      "currency-and-destination-jurisdiction",
+      "item-subtotal-discount-shipping-tax-and-delivered-total",
+      "return-window-warranty-and-support-category"
+    ],
+    "requiredCompleteSystemLines": [
+      "compute-board-or-finished-system",
+      "qualified-camera-and-mount",
+      "required-inference-accelerator",
+      "qualified-storage",
+      "power-supply-and-cable",
+      "cooling-and-enclosure",
+      "display-audio-adapter-and-cable",
+      "network-camera-and-service-cables",
+      "required-fasteners-feet-and-mounting-hardware",
+      "shipping-and-tax"
+    ],
+    "piDeliveredCeilingCents": 65000,
+    "piCeilingExcludesTelevisionControllersToolsSparesAndPreorderedSteamMachine": true,
+    "piCeilingIncludesCameraStoragePowerCoolingAbsCablesFastenersShippingAndTax": true,
+    "steamMachinePreorderMustUseActualPaidAndDeliveredLedger": true,
+    "jetsonDeveloperKitMustBeDisclosedAsNonProductionReferenceHardware": true,
+    "ownedX86MustReportBothReuseAndReplacementParityViews": true,
+    "baseMsrpSubtotalOrComponentPriceMayProveDeliveredTotal": false,
+    "staleOrMixedDateQuoteMayProveSameDateComparison": false,
+    "unboundCurrencyConversionAllowed": false,
+    "costOrAvailabilityMayRescueFailedProductGate": false
+  },
+  "workloads": [
+    {
+      "workloadId": "launcher-shell",
+      "runtimeClass": "console-shell",
+      "networkClass": "offline-required",
+      "motionRole": "shell-and-reserved-action-owner",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "obstacle-motion-sample",
+      "runtimeClass": "local-web",
+      "networkClass": "offline-required",
+      "motionRole": "primary-motion-action-consumer",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "selected-signed-local-package",
+      "runtimeClass": "installed-controlled-package",
+      "networkClass": "offline-required",
+      "motionRole": "manifest-declared-profile",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "retro-2048",
+      "runtimeClass": "libretro",
+      "networkClass": "offline-required",
+      "motionRole": "none-controller-only",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "vibebots-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "mi-casa-es-su-casa-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null
+    },
+    {
+      "workloadId": "determined-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null
+    }
+  ],
+  "operationalMatrix": {
+    "candidateIds": [
+      "optional-steam-machine",
+      "custom-amd-mini-pc",
+      "pi5-ai-hat26",
+      "jetson-orin-nano-super",
+      "owned-x86-linux"
+    ],
+    "workloadIds": [
+      "launcher-shell",
+      "obstacle-motion-sample",
+      "selected-signed-local-package",
+      "retro-2048",
+      "vibebots-compatibility",
+      "mi-casa-es-su-casa-compatibility",
+      "determined-compatibility"
+    ],
+    "lifecyclePhaseIds": [
+      "accountless-cold-start-to-interactive",
+      "one-hour-concurrent-steady-state",
+      "update-fault-recovery-and-offline-restart"
+    ],
+    "candidateCount": 5,
+    "workloadCount": 7,
+    "lifecyclePhaseCount": 3,
+    "validCyclesPerCell": 20,
+    "cellCount": 105,
+    "requiredCycleCount": 2100,
+    "minimumSteadyStateSecondsPerCandidateWorkload": 3600,
+    "everyCandidateRunsEveryWorkloadAndLifecyclePhase": true,
+    "sameScenarioOrderingInstrumentationAndAcceptanceRulesRequired": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseCyclesRemainVisible": true,
+    "missingFailedOrDifferentCandidateCellMayBeImputed": false,
+    "aggregateMayMaskOrRescueCandidateFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-candidate-hardware-software-firmware-runtime-model-peripheral-room-and-workload-digests",
+      "dated-item-subtotal-discount-shipping-tax-delivered-total-stock-return-warranty-and-support-ledger",
+      "reuse-replacement-amortization-residual-value-evaluation-horizon-duty-cycle-energy-rate-and-uncertainty-ledger",
+      "idle-startup-steady-state-peak-recovery-and-annualized-wall-energy",
+      "one-metre-background-corrected-idle-steady-state-peak-and-recovery-acoustics",
+      "assembled-volume-mass-cable-clearance-ventilation-service-access-and-tv-fit",
+      "disassembly-fastener-tool-part-availability-repair-time-reassembly-and-post-repair-validation",
+      "os-firmware-driver-runtime-model-package-update-rollback-offline-restart-and-maintenance-time",
+      "accountless-first-path-offline-restart-network-loss-account-removal-service-and-identity-boundary",
+      "controller-mapping-glyph-focus-hotplug-reconnect-home-back-pause-text-entry-and-exit",
+      "camera-exposure-clock-uncertainty-drop-duplicate-inference-action-and-game-api-delivery-percentiles",
+      "per-action-precision-recall-f1-miss-false-event-and-privileged-activation-counts",
+      "pose-fps-game-fps-frame-time-long-frame-stall-cpu-gpu-accelerator-memory-storage-network-and-log-growth",
+      "thermal-sensor-clock-throttle-fan-power-mode-and-performance-per-watt-behavior",
+      "fault-containment-descendant-reap-fresh-instance-state-integrity-rebuild-and-mean-time-to-recovery",
+      "failed-invalid-stopped-retried-adverse-worst-case-and-no-rescue-cell-ledger"
+    ],
+    "independentQuotePowerAcousticPhysicalRepairUpdateAccountControllerTimingQualityPerformanceAndRecoveryOraclesRequired": true,
+    "everyCostLineCandidateCellFailureAndUncertaintyMustRemainVisible": true,
+    "advertisedVendorSyntheticProxyComponentOrAggregateEvidenceMaySubstituteIntegratedCandidateEvidence": false
+  },
+  "fixedAcceptance": {
+    "minimumValidCyclesPerCell": 20,
+    "minimumSteadyStateSecondsPerCandidateWorkload": 3600,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumPiDeliveredReferenceBuildCents": 65000,
+    "maximumSteamAccountDependenciesForCoreLocalOperation": 0,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumMissingCandidateWorkloadPhaseResults": 0,
+    "maximumUnboundCurrencyConversions": 0,
+    "maximumBasePriceAsDeliveredTotalSubstitutions": 0,
+    "maximumAdvertisedTopsSelectionOrRescueUses": 0,
+    "maximumOwnedHardwareZeroCostClaims": 0,
+    "maximumCandidateOrAggregateRescues": 0,
+    "allOpenGatesMustBeFrozenBeforeOperation": true,
+    "everyCandidateCellMustRetainIndependentPassFailEvidence": true,
+    "failedProductGateMayBeOffsetByLowerCost": false,
+    "rankingOrSelectionAllowedBeforeCompleteReviewedMatrix": false
+  },
+  "openAcceptance": {
+    "minimumPerActionPrecisionPpm": null,
+    "minimumPerActionRecallPpm": null,
+    "minimumPoseFrameRateMilliHzByCandidateWorkload": null,
+    "minimumGameFrameRateMilliHzByCandidateWorkload": null,
+    "maximumGameFrameTimeP95UsByCandidateWorkload": null,
+    "maximumDroppedCaptureRatePpmByCandidate": null,
+    "maximumExposureTimestampUncertaintyUsByCandidate": null,
+    "maximumWallPowerMilliwattsByCandidatePhase": null,
+    "maximumAnnualEnergyMilliwattHoursByCandidate": null,
+    "maximumOneMetreAcousticsMilliDbaByCandidatePhase": null,
+    "maximumAssembledVolumeCubicMillimetresByCandidate": null,
+    "maximumAssembledMassMilligramsByCandidate": null,
+    "maximumRepairLaborSecondsByCandidateScenario": null,
+    "maximumUpdateMaintenanceSecondsByCandidateScenario": null,
+    "maximumFaultRecoveryP95MsByCandidateScenario": null,
+    "maximumDeliveredCostCentsByNonPiCandidate": null,
+    "evaluationHorizonMonths": null,
+    "annualDutyCycleHoursByPhase": null,
+    "electricityRateMicrosPerKwh": null,
+    "laborRateCentsPerHour": null,
+    "discountRatePpm": null,
+    "residualValueCentsByCandidate": null,
+    "ownedX86ReuseCostCents": null,
+    "ownedX86ReplacementDeliveredCostCents": null,
+    "minimumMaterialValueDifferenceCents": null
+  },
+  "authorityBoundary": {
+    "selectedExactCandidateSetSha256": null,
+    "approvedQuoteJurisdictionCurrencySellerAndCollectionProtocolSha256": null,
+    "commonProductWorkloadPeripheralRoomAndInstrumentationProtocolSha256": null,
+    "powerAcousticPhysicalRepairUpdateAccountControllerAndRecoveryProtocolSha256": null,
+    "numericGateEconomicAssumptionUncertaintyRankingAndSelectionRuleSha256": null,
+    "dataRightsPrivacyRetentionDeletionAndPublicationProtocolSha256": null,
+    "candidatePurchaseReturnBuildOrInstallationAuthorized": false,
+    "candidateCameraControllerAccountServiceOrWorkloadOperationAuthorized": false,
+    "updateFaultRepairPowerCutRecoveryOrDestructiveMutationAuthorized": false,
+    "qualificationRankingSelectionPublicationOrTierMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueCandidateBuildWorkloadPhaseCycleAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawRoomPlayerCameraScreenAudioVideoOrSkeletonAllowedInRepositoryReleaseOrResult": false,
+    "namesFacesVoicesExactAgesStableDeviceIdsSerialsPathsCheckoutUrlsOrFreeTextAllowed": false,
+    "credentialsTokensCookiesAccountsProfileSaveStorageEnvironmentOrArgumentValuesAllowed": false,
+    "sellerOrderReturnWarrantyOrSupportIdentifiersAllowed": false,
+    "arbitraryDriverProviderServiceConsoleCrashOrCheckoutMessagesAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "cse-001-exact-five-candidate-model-revision-hardware-software-and-peripheral-tuples",
+      "cse-002-same-date-jurisdiction-currency-seller-stock-shipping-tax-and-delivered-quotes",
+      "cse-003-common-camera-controller-storage-power-cooling-enclosure-cable-and-display-parity",
+      "cse-004-owned-x86-reuse-replacement-opportunity-cost-and-amortization-policy",
+      "cse-005-evaluation-horizon-duty-cycle-electricity-labor-discount-residual-and-uncertainty-policy",
+      "cse-006-common-seven-workload-content-interaction-service-account-and-mutation-contract",
+      "cse-007-target-runtime-driver-model-package-update-rollback-and-clean-rebuild-tuples",
+      "cse-008-room-participant-camera-exposure-clock-ground-truth-accessibility-and-safety-protocol",
+      "cse-009-controller-mapping-glyph-focus-hotplug-reserved-action-and-text-entry-protocol",
+      "cse-010-accountless-first-path-offline-restart-network-loss-account-removal-and-identity-protocol",
+      "cse-011-wall-power-energy-thermal-clock-throttle-and-uncertainty-instrumentation",
+      "cse-012-background-corrected-acoustic-size-mass-clearance-and-tv-fit-instrumentation",
+      "cse-013-repair-disassembly-tools-parts-labor-reassembly-warranty-and-post-repair-protocol",
+      "cse-014-update-fault-storage-pressure-power-cut-recovery-maintenance-and-rebuild-protocol",
+      "cse-015-all-open-quality-performance-resource-cost-horizon-and-value-gates",
+      "cse-016-randomized-schedule-invalidity-retry-no-imputation-independent-review-ranking-and-selection-rule",
+      "cse-017-data-rights-privacy-retention-deletion-redaction-incident-and-publication-policy",
+      "cse-018-purchase-build-account-service-participant-operation-fault-repair-qualification-and-publication-authority"
+    ],
+    "candidateSelectionSha256": null,
+    "quoteSetSha256": null,
+    "protocolSetSha256": null,
+    "scheduleAndGateSetSha256": null,
+    "operationAuthoritySha256": null,
+    "independentReviewSha256": null,
+    "mayExecute": false
+  },
+  "result": {
+    "status": null,
+    "completeMatrixResultSha256": null,
+    "candidateResultsById": null,
+    "rankedRecommendation": null,
+    "lowerCostReferenceMutation": null,
+    "premiumReferenceMutation": null,
+    "purchaseRecommendation": null
+  }
+}
