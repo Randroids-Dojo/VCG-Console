@@ -1,0 +1,423 @@
+{
+  "format": "vcg-pi5-x86-product-contract-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-ai-hat26-vs-ordinary-x86-product-contract-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-173"
+  ],
+  "claimBoundary": "This is a strict zero-result comparison plan. Existing development-host, merchandise, quote, package, camera, controller, workload, timing, power, thermal, acoustic, recovery, Raspberry Pi, ordinary x86, and SteamOS plans do not prove a received target, identical product-contract execution, delivery, cost, performance, accountless operation, update safety, recovery, qualification, or selection. Both required reference targets must pass every applicable cell independently; a different target, optional Steam Machine row, component result, or aggregate cannot rescue failure. No purchase, operation, qualification, publication, or reference-tier mutation is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "reference-tier-policy",
+      "path": "docs/RESEARCH.md",
+      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
+    },
+    {
+      "role": "ordinary-x86-campaign",
+      "path": "docs/ORDINARY_X86_LINUX_QUALIFICATION_PLAN_2026-07-25.md",
+      "sha256": "13f40d3756c2d91d39c3a97df4ae7862455ffd069616c36b694182d7df2aa82b"
+    },
+    {
+      "role": "ordinary-x86-plan",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "standard-concurrent-workload-campaign",
+      "path": "docs/CONCURRENT_GAME_WORKLOAD_CAMPAIGN_2026-07-25.md",
+      "sha256": "13a92b510a04cebad7de3c3cf7d66cbd1defa959c25b5584e0930bdc66f57af0"
+    },
+    {
+      "role": "standard-concurrent-workload-plan",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "pi-image-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "hailo-package-model-recovery-boundary",
+      "path": "benchmarks/hailo-recovery/hailo-package-model-recovery-plan-v1.json",
+      "sha256": "5136e34de5527271ca9e1e1ddfa5fed5052582757c7632be9799249e84272d13"
+    },
+    {
+      "role": "hailo-26-accelerator-boundary",
+      "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
+      "sha256": "ba246aef91b8f9b08d7460b2797eb21df92eb03999ae1c88807f259fd45e8a3f"
+    },
+    {
+      "role": "runtime-neutral-package-boundary",
+      "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
+      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+    },
+    {
+      "role": "shared-camera-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "microphone-boundary",
+      "path": "benchmarks/microphone-disablement/microphone-disablement-qualification-plan-v1.json",
+      "sha256": "74d1f8b1e52a90f0ed8ad146f0070b31f6569c1265e049edf5d697305ba5374e"
+    },
+    {
+      "role": "controller-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "boot-resume-launch-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "tv-appliance-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "742acd37ce2ad9cd3c258be43cafa0b32702d7bc883d9e20fc1f623cb4c0bc48"
+    },
+    {
+      "role": "idle-energy-boundary",
+      "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
+      "sha256": "88bf943b7ee8b165b65035d2d784c6a30f070aba4faf044b2920de07fe45afd6"
+    },
+    {
+      "role": "pi-thermal-acoustic-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    },
+    {
+      "role": "accountless-offline-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "complete-bom-boundary",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "role": "pi-same-date-quote-boundary",
+      "path": "benchmarks/hardware-quotes/pi5-ai-hat-same-date-quote-v1.json",
+      "sha256": "2f729f9728fb5bd8eff57cdeafd6f8b79d34ebf6f7cc6dada238e471da654f0d"
+    },
+    {
+      "role": "optional-steam-workload-boundary",
+      "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
+      "sha256": "8d651db99f316cc3e720ba7a4da95f0329059388e7fd9e0fdbbd760ca36e1eaa"
+    }
+  ],
+  "targetTiers": [
+    {
+      "targetId": "pi5-ai-hat26",
+      "tierRole": "required-lower-cost-reference",
+      "architecture": "aarch64",
+      "accelerationClass": "hailo8-ai-hat-plus-26-tops",
+      "requiredForComparison": true,
+      "hardwareSoftwarePeripheralAndRoomManifestSha256": null,
+      "qualifiedPackageCameraControllerAndRuntimeResultSha256": null,
+      "targetResultSha256": null,
+      "receivedBuiltOrQualified": false,
+      "otherTargetOrComponentEvidenceMayQualify": false,
+      "mayRescueAnotherTarget": false
+    },
+    {
+      "targetId": "ordinary-x86-linux",
+      "tierRole": "required-premium-reference",
+      "architecture": "x86_64",
+      "accelerationClass": "qualified-platform-pose-backend",
+      "requiredForComparison": true,
+      "hardwareSoftwarePeripheralAndRoomManifestSha256": null,
+      "qualifiedPackageCameraControllerAndRuntimeResultSha256": null,
+      "targetResultSha256": null,
+      "receivedBuiltOrQualified": false,
+      "otherTargetOrComponentEvidenceMayQualify": false,
+      "mayRescueAnotherTarget": false
+    },
+    {
+      "targetId": "steam-machine-optional-later",
+      "tierRole": "optional-compatibility-row",
+      "architecture": "x86_64",
+      "accelerationClass": "separate-steamos-candidate",
+      "requiredForComparison": false,
+      "hardwareSoftwarePeripheralAndRoomManifestSha256": null,
+      "qualifiedPackageCameraControllerAndRuntimeResultSha256": null,
+      "targetResultSha256": null,
+      "receivedBuiltOrQualified": false,
+      "otherTargetOrComponentEvidenceMayQualify": false,
+      "mayRescueAnotherTarget": false
+    }
+  ],
+  "authorityBoundary": {
+    "selectedPiConfigurationSha256": null,
+    "selectedOrdinaryX86ConfigurationSha256": null,
+    "commonSourcePackageGameMotionAndUxContractSha256": null,
+    "targetSpecificBuildRuntimeModelAndDriverProtocolSha256": null,
+    "cameraControllerDisplayRoomAndParticipantProtocolSha256": null,
+    "accountlessOfflineProfilePackageRetroAndServiceProtocolSha256": null,
+    "updateRollbackPowerCutRecoveryAndRebuildProtocolSha256": null,
+    "performancePowerThermalAcousticCostAndUncertaintyProtocolSha256": null,
+    "scheduleNumericGateIndependentReviewAndSelectionRuleSha256": null,
+    "dataRightsPrivacyRetentionDeletionAndIncidentProtocolSha256": null,
+    "hardwarePurchaseBuildOrInstallationAuthorized": false,
+    "cameraControllerParticipantOrServiceOperationAuthorized": false,
+    "updatePowerCutRecoveryOrDestructiveMutationAuthorized": false,
+    "qualificationSelectionPublicationOrTierMutationAuthorized": false
+  },
+  "commonProductContract": {
+    "motionApiVersion": "0.4.0",
+    "requiredProfileIds": [
+      "body.core17",
+      "actions.obstacle.v1",
+      "actions.shell.v1"
+    ],
+    "sameSourceGameManifestsSchemasActionsUxAndAcceptanceGatesRequired": true,
+    "sameSharedWideAngleUvcCameraContractRequired": true,
+    "sameStandardsConformantControllerAndReservedActionContractRequired": true,
+    "sameAccountlessLauncherTrackerProfilesPackagesAndRetroContractRequired": true,
+    "architectureAcceleratorDriverAndPackagingDifferencesMustRemainBehindReviewedInterfaces": true,
+    "targetSpecificDowngradedGameMotionUxOfflineOrRecoveryScopeAllowed": false,
+    "optionalSteamMachineMayRedefineOrRescueCommonContract": false,
+    "componentOrPlanEvidenceMaySubstituteIntegratedTargetEvidence": false
+  },
+  "workloads": [
+    {
+      "workloadId": "launcher-shell",
+      "runtimeClass": "console-shell",
+      "networkClass": "offline-required",
+      "motionRole": "shell-and-reserved-action-owner",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "obstacle-motion-sample",
+      "runtimeClass": "local-web",
+      "networkClass": "offline-required",
+      "motionRole": "primary-motion-action-consumer",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "selected-signed-local-package",
+      "runtimeClass": "installed-controlled-package",
+      "networkClass": "offline-required",
+      "motionRole": "manifest-declared-profile",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "retro-2048",
+      "runtimeClass": "libretro",
+      "networkClass": "offline-required",
+      "motionRole": "none-controller-only",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "vibebots-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "mi-casa-es-su-casa-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    },
+    {
+      "workloadId": "determined-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetSpecificResultSha256": null
+    }
+  ],
+  "operationalMatrix": {
+    "scenarioIds": [
+      "reproducible-package-build-signature-install-and-uninstall",
+      "accountless-first-boot-or-supported-path-launcher-tracker-and-profile",
+      "offline-signed-local-package-launch-save-return-and-restart",
+      "offline-retro-2048-launch-save-return-and-restart",
+      "shared-camera-motion-ready-exposure-to-action-and-action-quality",
+      "obstacle-motion-concurrent-one-hour-workload",
+      "vibebots-compatibility-concurrent-one-hour-workload",
+      "mi-casa-compatibility-concurrent-one-hour-workload",
+      "determined-compatibility-concurrent-one-hour-workload",
+      "controller-only-navigation-mapping-hotplug-and-reserved-actions",
+      "tv-display-audio-sleep-wake-input-switch-and-hotplug",
+      "cold-boot-warm-resume-low-power-idle-wake-and-launch-timing",
+      "package-os-model-update-health-failure-rollback-and-offline-restart",
+      "camera-tracker-game-browser-launcher-fault-containment-and-recovery",
+      "storage-pressure-interrupted-write-power-cut-and-state-recovery",
+      "blank-storage-rebuild-reinstall-and-data-disposition",
+      "sustained-performance-power-thermal-acoustic-resource-and-log-growth"
+    ],
+    "requiredTargetIds": [
+      "pi5-ai-hat26",
+      "ordinary-x86-linux"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional-later"
+    ],
+    "scenarioCount": 17,
+    "requiredTargetCount": 2,
+    "validCyclesPerRequiredTargetScenario": 20,
+    "requiredCellCount": 34,
+    "requiredCycleCount": 680,
+    "optionalCellCount": 17,
+    "optionalCycleCount": 340,
+    "everyRequiredTargetRunsEveryScenario": true,
+    "sameScenarioProtocolAndAcceptanceGatesAcrossRequiredTargets": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseCyclesRemainVisible": true,
+    "optionalTargetMayQualifyOrRescueRequiredTarget": false,
+    "otherScenarioTargetComponentOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-target-source-package-runtime-model-camera-controller-room-workload-and-schedule-digests",
+      "package-build-install-signature-size-startup-uninstall-and-writable-root-integrity",
+      "motion-schema-capability-profile-epoch-frame-action-and-delivery-health",
+      "camera-exposure-clock-uncertainty-drop-duplicate-and-exposure-to-action-percentiles",
+      "per-action-precision-recall-f1-miss-false-event-and-privileged-activation-counts",
+      "pose-fps-game-fps-frame-time-long-frame-stall-and-controlled-response",
+      "controller-mapping-glyph-focus-hotplug-reconnect-home-back-pause-and-exit",
+      "accountless-first-path-offline-restart-network-loss-profile-package-retro-and-steam-identity-boundary",
+      "display-mode-safe-area-audio-route-cec-sleep-wake-input-switch-and-hotplug",
+      "cold-boot-warm-resume-idle-wake-launch-feedback-interactive-and-camera-state-timing",
+      "package-os-model-update-rollback-restart-root-write-and-version-integrity",
+      "fault-injection-containment-descendant-reap-fresh-instance-recovery-and-state-integrity",
+      "storage-pressure-write-interruption-power-cut-recovery-rebuild-and-data-disposition",
+      "cpu-gpu-accelerator-ram-vram-swap-storage-network-and-log-growth",
+      "wall-power-idle-energy-thermals-clocks-throttle-fan-and-one-metre-acoustics",
+      "dated-exact-model-seller-item-subtotal-shipping-tax-delivered-cost-and-exclusion-ledger",
+      "maintenance-update-repair-replaceability-size-and-supported-lifecycle-categories",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-cell-ledger"
+    ],
+    "independentTimingMotionGameInputOfflineDisplayUpdateRecoveryPowerAcousticAndCostOraclesRequired": true,
+    "everyRequiredCellCycleFailureAndCostLineMustRemainVisible": true,
+    "deskPlanComponentOptionalTargetOrAggregateMaySubstituteIntegratedTargetEvidence": false
+  },
+  "fixedAcceptance": {
+    "minimumValidCyclesPerRequiredTargetScenario": 20,
+    "minimumConcurrentMeasuredSecondsPerWorkload": 3600,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumColdBootToLauncherReadyMs": 60000,
+    "maximumWarmResumeToLauncherReadyMs": 5000,
+    "maximumLocalLaunchToInteractiveMs": 15000,
+    "maximumHostedLaunchToInteractiveMs": 30000,
+    "maximumOneMeterAcousticsDba": 35,
+    "maximumPiDeliveredReferenceBuildCents": 65000,
+    "maximumSteamAccountDependenciesForCoreLocalOperation": 0,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumReservedActionsDeliveredToGamesOrSwallowed": 0,
+    "maximumCameraMicrophoneTrackBufferSampleOrReturnedByteSuccesses": 0,
+    "maximumUntrustedCameraAccessOrRetainedRawMediaEvents": 0,
+    "maximumUndeclaredRootWriteNetworkIpcFilesystemOrDeviceAccesses": 0,
+    "maximumCredentialAccountProfileSaveParticipantStableIdentifierPathOrFreeTextDisclosures": 0,
+    "maximumUnrecoveredUpdatePowerCutFaultOrRebuildFailures": 0,
+    "maximumValidRequiredTargetProductFailures": 0,
+    "everyRequiredTargetCellMustPass": true,
+    "optionalTargetMayRescueFailure": false,
+    "aggregateMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumPerActionPrecisionPpm": null,
+    "minimumPerActionRecallPpm": null,
+    "minimumPoseFrameRateMilliHz": null,
+    "minimumGameFrameRateMilliHz": null,
+    "maximumGameFrameTimeP95Us": null,
+    "maximumDroppedCaptureRatePpm": null,
+    "maximumDroppedPoseRatePpm": null,
+    "maximumExposureTimestampUncertaintyUs": null,
+    "maximumCpuUtilizationPpmByTarget": null,
+    "maximumGpuOrAcceleratorUtilizationPpmByTarget": null,
+    "maximumResidentMemoryBytesByTarget": null,
+    "maximumPersistentStorageGrowthBytesPerHourByTarget": null,
+    "maximumWallPowerMilliwattsByTarget": null,
+    "maximumIdleEnergyMilliwattHoursByTargetAndDuration": null,
+    "maximumSustainedTemperatureMilliCByTargetAndSensor": null,
+    "maximumThermalThrottleEventsByTarget": null,
+    "maximumFaultRecoveryP95MsByScenarioAndTarget": null,
+    "maximumUpdateRollbackRecoveryP95MsByTarget": null,
+    "maximumRebuildAndReinstallP95MsByTarget": null,
+    "ordinaryX86ReuseCostCents": null,
+    "ordinaryX86ReplacementDeliveredCostCents": null,
+    "minimumRequiredReferenceCostDifferenceCents": null
+  },
+  "costReportBoundary": {
+    "quoteJurisdictionAndCurrencySha256": null,
+    "piExactDeliveredBomSha256": null,
+    "ordinaryX86ReuseAndReplacementCostSha256": null,
+    "optionalSteamMachineDeliveredCostSha256": null,
+    "maintenanceRepairUpdateAndReplacementAssumptionSha256": null,
+    "piDeliveredCeilingCents": 65000,
+    "televisionControllersToolsAndSpareExperimentsExcludedFromPiCeiling": true,
+    "shippingTaxAndRequiredBuildHardwareIncludedInPiCeiling": true,
+    "quotedSubtotalMayProveDeliveredCost": false,
+    "ownedReuseCostMayProveReplacementEconomics": false,
+    "costMayRescueAProductContractFailure": false,
+    "purchaseAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueTargetBuildWorkloadScenarioCycleAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawRoomPlayerCameraScreenAudioVideoOrSkeletonAllowedInRepositoryReleaseOrResult": false,
+    "retainedRawFramesAudioBuffersSkeletonsTypedTextOrServiceBodiesAllowed": false,
+    "namesFacesVoicesExactAgesStableDeviceIdsSerialsPathsOrQueryUrlsAllowed": false,
+    "credentialsTokensCookiesAccountsProfileSaveStorageEnvironmentOrArgumentValuesAllowed": false,
+    "arbitraryDriverProviderServiceConsoleCrashOrCheckoutMessagesAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "networkEgressOutsideDeclaredPackageHostedServiceAndProbeTrafficAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "rxc-001-selected-received-pi5-hat26-and-ordinary-x86-hardware-software-peripheral-room-tuples",
+      "rxc-002-common-source-package-game-motion-ux-schema-action-and-acceptance-contract",
+      "rxc-003-qualified-runtime-neutral-aarch64-and-x86-package-build-install-and-update-paths",
+      "rxc-004-shared-camera-microphone-exposure-clock-calibration-and-room-qualification",
+      "rxc-005-controller-mapping-glyph-focus-reserved-action-and-tv-audio-qualification",
+      "rxc-006-accountless-first-path-offline-profile-package-retro-network-and-identity-protocol",
+      "rxc-007-exact-pi-image-hailo-runtime-model-driver-and-package-recovery-result",
+      "rxc-008-exact-ordinary-x86-linux-image-driver-backend-package-and-recovery-result",
+      "rxc-009-seven-workload-content-interaction-service-account-and-non-destructive-mutation-policy",
+      "rxc-010-participant-room-ground-truth-accessibility-safety-and-collection-authority",
+      "rxc-011-boot-idle-wake-suspend-display-audio-update-and-version-integrity-protocol",
+      "rxc-012-fault-storage-pressure-power-cut-rebuild-reinstall-and-data-disposition-protocol",
+      "rxc-013-performance-power-thermal-acoustic-resource-log-and-uncertainty-instrumentation",
+      "rxc-014-all-open-quality-performance-resource-recovery-update-rebuild-and-cost-gates",
+      "rxc-015-dated-jurisdictional-pi-delivered-bom-x86-reuse-replacement-and-maintenance-costs",
+      "rxc-016-schedule-randomization-invalidity-independent-review-no-rescue-and-selection-rule",
+      "rxc-017-data-rights-privacy-retention-deletion-incident-and-adverse-evidence-policy",
+      "rxc-018-hardware-purchase-build-camera-participant-service-fault-power-cut-qualification-and-publication-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "blocked",
+    "completedRequiredCellCount": 0,
+    "completedRequiredCycleCount": 0,
+    "targetResults": [],
+    "qualifiedRequiredTargetIds": [],
+    "piDeliveredReferenceBuildCents": null,
+    "ordinaryX86ReuseCostCents": null,
+    "ordinaryX86ReplacementDeliveredCostCents": null,
+    "piLowerCostReferenceQualified": false,
+    "ordinaryX86PremiumReferenceQualified": false,
+    "steamMachineOptionalRowQualified": false,
+    "referenceTierSelectionChanged": false,
+    "publishedClaims": []
+  }
+}
