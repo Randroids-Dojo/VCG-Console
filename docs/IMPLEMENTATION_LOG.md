@@ -6298,3 +6298,50 @@ purchased, borrowed, installed, run or measured. No corpus, participant
 session, HEF, runtime tuple, exposure timestamp, accuracy, action, latency,
 FPS, resource, power, thermal, game, price or recovery result exists. The plan
 does not prove either variant compatible, qualified or better value.
+
+## 2026-07-25: strict concurrent tracker and game workload plan
+
+### Delivered
+
+- Advanced I-159 from an unbounded sixty-minute request to a canonical blocked
+  plan for the selected Pi 5 8GB plus 26 TOPS Hailo lane and the exact current
+  obstacle, VibeBots, Mi Casa Es Su Casa and Determined workload boundaries.
+- Required a five-minute warmup followed by one uninterrupted 3,600-second
+  measured soak per workload with continuous camera/tracker activity,
+  representative audio and one-second telemetry. One run remains first-soak
+  evidence, not a reliability-rate estimate.
+- Preserved D-113: only the obstacle sample consumes Motion actions. A separate
+  versioned qualification client may measure tracker latency while a hosted
+  compatibility game runs, but cannot establish title motion integration,
+  controller playability, service correctness, focus or visible response.
+- Froze thirteen measurement groups spanning timestamp proof, latency,
+  action quality, pose/game FPS, drops, frame pacing, resources, power,
+  thermals, acoustics, process health, services, recovery and exact digests.
+- Retained D-106/D-108/D-110 launch, acoustic and latency gates; required zero
+  privileged false activations, zero unrecovered failures, zero unexpected
+  soak exits, every-cell pass and no aggregate rescue.
+- Added Q-260 for per-title hosted activity/account/service evidence authority
+  and Q-261 for all remaining sustained thresholds, fault counts and recovery
+  ceilings.
+
+### Verification evidence
+
+- Eight stable source bindings cover the three current catalog manifests,
+  obstacle component, action engine, hosted supervisor, blocked Pi image plan
+  and blocked Hailo accelerator plan without binding another agent's active
+  launcher/evidence files.
+- Eleven focused adversarial tests accept the tracked blocked plan and reject
+  source, hardware/model/clock, workload/version/network/motion-role, duration,
+  claim-boundary, metric/gate, fault, authority, result, schema and encoding
+  substitutions.
+- The existing 256-test research suite also passes. The new focused test is
+  wired into that suite separately by the package integration in this tranche.
+
+### Remaining boundary
+
+I-159 is active, not closed. No exact target hardware, qualified image/runtime,
+trusted exposure clock, immutable hosted session, activity script, participant,
+Motion qualification client, monitoring calibration, target supervisor,
+compositor-owned recovery, sixty-minute soak, fault attempt or result exists.
+The plan establishes no load, readiness, liveness, playability, focus,
+latency, accuracy, performance, thermal, acoustic, recovery or platform claim.

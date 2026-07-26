@@ -153,7 +153,7 @@ const expectedFaults = [
   [
     "game-renderer-hang-or-exit",
     allWorkloadIds,
-    "The launcher retains outside-game recovery authority, reports the failure truthfully, cleans the failed child, and returns without granting playability from load or heartbeat evidence.",
+    "The launcher retains outside-game recovery authority, reports the failure truthfully, contains the failed execution context, cleans any failed child process, and returns without granting playability from load or heartbeat evidence.",
   ],
   [
     "network-loss-and-restoration",

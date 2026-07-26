@@ -198,7 +198,7 @@
         "mi-casa-es-su-casa-compatibility",
         "determined-compatibility"
       ],
-      "requiredOutcome": "The launcher retains outside-game recovery authority, reports the failure truthfully, cleans the failed child, and returns without granting playability from load or heartbeat evidence.",
+      "requiredOutcome": "The launcher retains outside-game recovery authority, reports the failure truthfully, contains the failed execution context, cleans any failed child process, and returns without granting playability from load or heartbeat evidence.",
       "attemptsPerWorkload": null,
       "maximumRecoveryMs": null,
       "scheduleSha256": null
