@@ -7215,3 +7215,41 @@ exposure-clock proof, physical attempt, mode qualification or default-mode
 decision exists. Execution remains blocked on
 `OWNER_QUESTIONS_CAPTURE_INFERENCE_MODE_2026-07-25.md` and the exact bindings
 required by the ready-plan transition.
+
+## 2026-07-26: runtime-neutral signed local-package qualification contract
+
+- Advanced I-181 from an open deliverable to a strict blocked qualification
+  plan without treating existing package infrastructure or synthetic fixtures
+  as an example package.
+- Bound the exact package decisions, manifest schema and local-web/native
+  fixtures, signature-first intake, signed installed catalog, protected package
+  generations, shared launch dispatch, native process adapter, save lifecycle,
+  and local-web/native readiness and containment boundaries.
+- Required four independent lanes: one shared-identity bundled-web release on
+  AArch64 and x86-64 Linux plus architecture-specific native releases on both
+  targets. A hosted/built-in fixture, runtime or target cannot qualify another.
+- Fixed twelve lifecycle scenarios at twenty valid cycles per lane/scenario:
+  48 cells and 960 cycles across reproducible builds, signature-first intake,
+  architecture selection, interactive launch, Motion, controller/reserved
+  actions, network, saves, health, update, rollback, interruption recovery and
+  uninstall.
+- Preserved D-106's 15-second usable-input gate and D-110's 120 ms p95, 95%
+  precision, 90% recall and zero privileged-action gates alongside zero
+  undeclared network/device access, escaped descendants or valid product
+  failures.
+- Required byte-identical clean builds, exact signed identities, host-selected
+  adapters/paths, default-deny network, per-game/profile saves, healthy-update
+  preservation, non-destructive rollback, controller-confirmed uninstall save
+  disposition and no cross-lane aggregate rescue.
+- Added ten adversarial groups covering source drift, invented authority, lane
+  and lifecycle weakening, fixture substitution, interface/gate drift,
+  post-result thresholds, unsafe evidence, blocker removal, premature
+  qualification/publication and malformed or noncanonical input.
+
+This is a canonical zero-result plan only. No example game/source rights,
+reproducible build, signature, package archive, AArch64/x86-64 target,
+local-web adapter, native sandbox, Motion/controller/reserved-input result,
+network enforcement, save/update/rollback/uninstall result, publication or
+product qualification exists. Execution remains blocked on
+`OWNER_QUESTIONS_SIGNED_LOCAL_PACKAGE_PIPELINE_2026-07-26.md` and every exact
+authority and threshold required by the plan.
