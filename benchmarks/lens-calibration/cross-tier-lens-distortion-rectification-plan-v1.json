@@ -1,0 +1,292 @@
+{
+  "format": "vcg-cross-tier-lens-distortion-rectification-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-lens-distortion-rectification-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-039"
+  ],
+  "claimBoundary": "Pre-registered lens-distortion and rectification campaign only. No camera, lens model, calibration, rectification path, inference-input state, stored artifact, target, participant, room, accuracy result, latency result, floor result, action result, or product qualification exists. A post-inference coordinate transform, preview, calibration UI state, or aggregate result cannot prove that inference received rectified pixels.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "camera-calibration-and-product-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "coordinate-frame-contract",
+      "path": "docs/COORDINATE_FRAMES.md",
+      "sha256": "db52d35930cc01c1d0ca1ddbb52a7ed6d1a3373c1c92eb5cb7d5c5bce0458163"
+    },
+    {
+      "role": "camera-free-calibration-boundary",
+      "path": "docs/CALIBRATION_REHEARSAL.md",
+      "sha256": "516d9f2eab1e506b71efd28fb260a0e42602d91532a212ee3a07335a81e63ba8"
+    },
+    {
+      "role": "camera-free-calibration-evidence",
+      "path": "benchmarks/calibration/camera-free-calibration-rehearsal-v1.json",
+      "sha256": "0701b49565ddca2a158a8919f123ed72b9f06688b6580e60f9d26724886e3b9f"
+    },
+    {
+      "role": "shared-camera-plan",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "cross-tier-camera-geometry-plan",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "a191c67007c4f504613c8d634a090bf59fa894a3adcc2695321ad6d8e9e9cb65"
+    },
+    {
+      "role": "pose-edge-plan",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    },
+    {
+      "role": "floor-contact-plan",
+      "path": "benchmarks/floor-contact/rgb-depth-floor-contact-plan-v1.json",
+      "sha256": "40bf478efb8fcab5c69ace2cf09a45fa77164c13eff9ced5ecfe0338ba0b5ca3"
+    }
+  ],
+  "collectionBoundary": {
+    "selectedCameraQualificationResultSha256": null,
+    "selectedGeometryResultSha256": null,
+    "ordinaryX86LinuxTargetConfigurationSha256": null,
+    "steamOsTargetConfigurationSha256": null,
+    "raspberryPiTargetConfigurationSha256": null,
+    "exactCameraIdentityAndModeMatrixSha256": null,
+    "captureAndPreprocessingPipelineSha256": null,
+    "inferenceAndPostprocessingPipelineSha256": null,
+    "independentOpticalGroundTruthProtocolSha256": null,
+    "poseAndActionGroundTruthProtocolSha256": null,
+    "floorGroundTruthProtocolSha256": null,
+    "latencyInstrumentationProtocolSha256": null,
+    "calibrationArtifactStorageProtocolSha256": null,
+    "participantConsentAndAssentProtocolSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "scheduleSha256": null,
+    "cameraCollectionAuthorized": false,
+    "participantSessionsAuthorized": false,
+    "targetMutationAuthorized": false,
+    "persistentCalibrationWriteAuthorized": false,
+    "purchaseAuthorized": false
+  },
+  "strategyMatrix": {
+    "targetTierIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "strategyIds": [
+      "raw-unrectified-baseline",
+      "pre-inference-rectified",
+      "post-inference-coordinate-transform-control"
+    ],
+    "requiredTargetStrategyCellCount": 9,
+    "sameOpticalCaptureSequenceRequiredForAccuracyComparison": true,
+    "livePipelineRequiredForLatencyComparison": true,
+    "postInferenceTransformMayClaimRectifiedInferenceInput": false,
+    "previewMayEstablishInferenceInputState": false,
+    "selectionRuleSha256": null,
+    "strategyMayBeSelectedAfterSeeingResults": false,
+    "crossTargetStrategyRescueAllowed": false
+  },
+  "calibrationTargetMatrix": {
+    "distortionModelCandidateIds": [
+      "brown-conrady",
+      "fisheye-equidistant"
+    ],
+    "selectedDistortionModelByCameraMode": null,
+    "coveragePositionIds": [
+      "center",
+      "upper-left",
+      "upper-right",
+      "lower-left",
+      "lower-right",
+      "left-edge",
+      "right-edge",
+      "top-edge",
+      "bottom-edge"
+    ],
+    "distanceRoleIds": [
+      "near",
+      "nominal",
+      "far"
+    ],
+    "tiltRoleIds": [
+      "negative-pitch",
+      "level",
+      "positive-pitch"
+    ],
+    "minimumCalibrationImagesPerTargetConfiguration": 30,
+    "minimumIndependentValidationImagesPerTargetConfiguration": 20,
+    "requiredCalibrationImageCount": 90,
+    "requiredIndependentValidationImageCount": 60,
+    "calibrationAndValidationImagesMustBeDisjoint": true,
+    "independentTargetGeometryRequired": true,
+    "manufacturerCoefficientsMaySubstituteMeasuredCalibration": false
+  },
+  "poseAndActionMatrix": {
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "positionIds": [
+      "center",
+      "upper-left-quarter",
+      "upper-right-quarter",
+      "lower-left-quarter",
+      "lower-right-quarter",
+      "left-distortion-edge",
+      "right-distortion-edge",
+      "top-distortion-edge",
+      "bottom-distortion-edge"
+    ],
+    "postureIds": [
+      "neutral",
+      "arms-raised",
+      "squat",
+      "lean-left",
+      "lean-right",
+      "single-leg-left",
+      "single-leg-right"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredBlockingCellCount": 1134,
+    "requiredBlockingTrialCount": 22680,
+    "actionOutcomeIds": [
+      "jump",
+      "duck",
+      "dodge-left",
+      "dodge-right"
+    ],
+    "actionOutcomesJoinedToExactCameraFrameAndStrategy": true,
+    "centerOrAggregateEvidenceMayRescueEdgeFailure": false,
+    "onePersonaMayRescueAnother": false
+  },
+  "latencyMatrix": {
+    "targetStrategyCellCount": 9,
+    "minimumMeasuredFramesPerCell": 1000,
+    "requiredMeasuredFrameCount": 9000,
+    "exposureTimestampRequired": true,
+    "captureArrivalTimestampMaySubstituteExposureTimestamp": false,
+    "pairedWarmupAndLoadOrderProtocolSha256": null,
+    "perStageTimingAndResourceEvidenceRequired": true
+  },
+  "storedCalibrationArtifact": {
+    "format": "vcg-lens-calibration/v1",
+    "requiredFields": [
+      "artifactVersion",
+      "cameraIdentityDigest",
+      "targetTierId",
+      "capturePathId",
+      "pixelFormat",
+      "widthPx",
+      "heightPx",
+      "nominalFpsMilliHz",
+      "orientation",
+      "mirrored",
+      "preInferenceCrop",
+      "distortionModel",
+      "intrinsicsMatrix3x3",
+      "distortionCoefficients",
+      "rectificationMatrix3x3",
+      "newCameraMatrix3x3",
+      "rectifiedRoiPx",
+      "rawToRectifiedCoordinateMapping",
+      "rectifiedToDeclaredImageCoordinateMapping",
+      "calibrationProtocolSha256",
+      "calibrationObservationSetSha256",
+      "validationSummarySha256",
+      "validityEnvelope",
+      "createdAt",
+      "expiresAt",
+      "sourceManifestSha256"
+    ],
+    "exactCameraModeOrientationCropAndTargetBindingRequired": true,
+    "rawImagesOrVideoAllowedInArtifact": false,
+    "crossCameraModeTargetOrCropReuseAllowed": false,
+    "unknownArtifactVersionFailsClosed": true,
+    "identityOrValidityMismatchFailsClosed": true,
+    "writableArtifactMaySelfAuthorize": false,
+    "artifactPath": null,
+    "artifactSha256": null
+  },
+  "measurements": {
+    "requiredMeasurements": [
+      "independent-target-reprojection-error",
+      "straight-line-residual-by-frame-zone",
+      "raw-versus-rectified-field-of-view-and-crop",
+      "raw-to-rectified-and-declared-coordinate-round-trip",
+      "core-17-per-landmark-pixel-and-torso-normalized-error",
+      "edge-versus-center-accuracy-delta",
+      "floor-plane-and-floor-contact-error",
+      "jump-duck-and-dodge-precision-recall",
+      "exposure-to-capture-inference-postprocess-and-game-receipt-timing",
+      "rectification-cpu-gpu-memory-and-bandwidth-overhead",
+      "calibration-repeatability-and-validity-invalidation"
+    ],
+    "inferenceInputRectificationStateRequiresInstrumentedBoundaryEvidence": true,
+    "postInferenceCoordinatesMaySubstitutePixelInputEvidence": false,
+    "calibrationUiStateMaySubstitutePhysicalValidation": false,
+    "perTargetStrategyPositionPostureAndPersonaEvidenceRequired": true
+  },
+  "acceptance": {
+    "maximumIndependentReprojectionErrorMilliPixels": null,
+    "maximumStraightLineResidualMilliPixels": null,
+    "maximumPoseErrorP95MilliPixels": null,
+    "maximumEdgeRegressionPpm": null,
+    "maximumCropLossPpm": null,
+    "maximumFloorPlaneErrorMm": null,
+    "maximumRectificationLatencyOverheadMicrosP95": null,
+    "maximumRectificationCpuOverheadPpm": null,
+    "maximumRectificationGpuOverheadPpm": null,
+    "maximumRectificationMemoryOverheadKiB": null,
+    "maximumExposureToActionReceiptMsP95": 120,
+    "minimumActionPrecisionPpm": 950000,
+    "minimumActionRecallPpm": 900000,
+    "everyBlockingCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "targetOrStrategyMayRescueAnother": false,
+    "selectionMustUsePrecommittedRule": true
+  },
+  "dataPolicy": {
+    "rawHomeVideoDefault": false,
+    "rawHomeVideoAllowedInRepositoryOrRelease": false,
+    "rawFramesAllowedInRepositoryOrRelease": false,
+    "redactedCalibrationTargetImagesAllowedBySeparateProtocol": true,
+    "exifGpsAndStableDeviceIdentifiersMustBeRemoved": true,
+    "facesNamesAddressesScreensReflectionsAndHouseholdIdentifiersMustBeRedacted": true,
+    "networkNamesCredentialsAddressesAndTrafficAllowed": false,
+    "calibrationCoefficientsAndNumericEvidencePreferred": true,
+    "freeTextResultEvidenceAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "qualified-camera-geometry-and-exact-targets",
+      "exact-camera-mode-capture-inference-and-postprocess-pipelines",
+      "frozen-distortion-model-selection-and-strategy-selection-rule",
+      "independent-optical-pose-action-and-floor-ground-truth",
+      "numeric-calibration-accuracy-crop-floor-and-overhead-gates",
+      "qualified-exposure-timestamps-and-latency-instrumentation",
+      "reviewed-stored-calibration-schema-protection-and-invalidation",
+      "participant-consent-assent-data-handling-and-schedule",
+      "camera-participant-target-write-and-purchase-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedCalibrationImageCount": 0,
+    "completedIndependentValidationImageCount": 0,
+    "completedBlockingCellCount": 0,
+    "completedBlockingTrialCount": 0,
+    "completedMeasuredFrameCount": 0,
+    "selectedStrategyByTargetTier": [],
+    "publishedCalibrationArtifactSetSha256": null
+  }
+}

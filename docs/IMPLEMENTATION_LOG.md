@@ -7081,3 +7081,36 @@ result plan. No received cable, exact length/radius, target port/topology,
 route/retention method, numeric electrical/recovery/RF/safety gate, mutation or
 installation authority, sustained stream, USB trace, mechanical pull, recovery
 cycle, maximum supported length, active extension or CSI result exists.
+
+## 2026-07-25: lens distortion and rectification campaign contract
+
+- Added a strict blocked-state I-039 campaign comparing raw-unrectified,
+  pre-inference-rectified and post-inference-coordinate-transform control lanes
+  on ordinary x86 Linux, SteamOS and Raspberry Pi target tiers.
+- Pre-registered 90 calibration images, 60 disjoint independent-validation
+  images, 1,134 school-age/adult position/posture cells, 22,680 valid trials and
+  9,000 exposure-timed live frames. Center, aggregate, persona, strategy and
+  target evidence cannot rescue a failed blocking cell.
+- Required instrumented proof at the actual inference-input boundary. Preview,
+  configuration text, calibration UI and post-inference coordinates cannot
+  claim that inference received rectified pixels.
+- Proposed the bounded `vcg-lens-calibration/v1` adapter contract with exact
+  camera, target, capture path, mode, orientation, mirroring and crop binding;
+  intrinsics/distortion/rectification matrices and mappings; provenance,
+  validation and validity metadata; no raw images/video; fail-closed mismatch;
+  and no authority merely from writable storage.
+- Preserved D-110's 120 ms exposure-to-action p95 gate and the current 95%
+  precision/90% recall floors while leaving every new calibration, pose, edge,
+  crop, floor and rectification-overhead threshold null for pre-collection
+  owner review.
+- Added nine adversarial validator cases covering stale sources, invented
+  authority, strategy and sampling drift, trial/timing weakening, unsafe or
+  reusable artifacts, evidence shortcuts, premature results and malformed or
+  noncanonical input.
+
+This is a canonical zero-result plan only. No camera, participant, room,
+calibration, model selection, rectification path, inference-input state,
+accuracy, latency, floor contact, action outcome, persistent artifact or target
+qualification has been measured or approved. Physical execution remains
+blocked on `OWNER_QUESTIONS_LENS_DISTORTION_RECTIFICATION_2026-07-25.md` and the
+plan's exact source, protocol, threshold and authority bindings.
