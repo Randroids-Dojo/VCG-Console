@@ -1,0 +1,208 @@
+{
+  "format": "vcg-steam-machine-windows-dual-boot-status/v1",
+  "status": "evidence",
+  "recordId": "steam-machine-windows-dual-boot-status-2026-07-26",
+  "observedAt": "2026-07-26",
+  "evidenceScope": [
+    "I-174"
+  ],
+  "claimBoundary": "This is a dated official-source status record, not a hardware or Windows qualification. Valve currently documents that Steam Machine is a PC able to install other operating systems, publishes four Windows driver links, and says the hardware is dual-boot capable. Valve also says installing Windows currently wipes Steam hardware, SteamOS dual boot is unavailable, and the supported SteamOS dual-boot wizard is not ready. Linked or HEAD-reachable driver archives do not prove binary integrity, signature, device coverage, installation, functionality, update survival, or complete Windows support. No download, installation, boot change, recovery operation, target use, qualification, publication, or product-tier mutation is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "official-source-index",
+      "path": "docs/SOURCES.md",
+      "sha256": "fba960847a8616ba66dddeac4b8650c9ddcfdab09b85553eeaff240ab1474b79"
+    },
+    {
+      "role": "steam-machine-feasibility-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "steamos-shell-boundary",
+      "path": "docs/STEAMOS_OUTER_SHELL_LIFECYCLE_CAMPAIGN_2026-07-26.md",
+      "sha256": "7f6be50cf243295472c77e3328875afc8a7090546c31408cbb2b205a710f480a"
+    },
+    {
+      "role": "steamos-shell-plan-boundary",
+      "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
+      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+    }
+  ],
+  "officialPageSnapshots": [
+    {
+      "sourceId": "valve-steam-hardware-windows-resources",
+      "url": "https://help.steampowered.com/en/faqs/view/6121-ECCD-D643-BAA8",
+      "sourceClass": "valve-official-support",
+      "accessedAt": "2026-07-26",
+      "httpStatus": 200,
+      "captureMethod": "PowerShell Invoke-WebRequest decoded response, CRLF-to-LF normalization, UTF-8 encoding",
+      "normalizedUtf8Bytes": 34958,
+      "normalizedUtf8Sha256": "a9451badafbe3363078dca9c6794e39e097c5fdbc1566591d1ef799be8795905",
+      "claimIds": [
+        "other-operating-systems-installable",
+        "windows-resources-as-is-without-valve-support",
+        "four-steam-machine-driver-links",
+        "windows-install-requires-wipe",
+        "dual-boot-hardware-capable",
+        "supported-steamos-dual-boot-wizard-not-ready"
+      ]
+    },
+    {
+      "sourceId": "valve-steamos-installation-and-repair",
+      "url": "https://help.steampowered.com/en/faqs/view/65B4-2AA3-5F37-4227",
+      "sourceClass": "valve-official-support",
+      "accessedAt": "2026-07-26",
+      "httpStatus": 200,
+      "captureMethod": "PowerShell Invoke-WebRequest decoded response, CRLF-to-LF normalization, UTF-8 encoding",
+      "normalizedUtf8Bytes": 34816,
+      "normalizedUtf8Sha256": "f36756d63e9c21d51c11128f95dc249ba44f341b9276420ebbca97261215d1af",
+      "claimIds": [
+        "steamos-reimage-is-destructive",
+        "steamos-repair-is-distinct-from-reimage",
+        "return-to-steamos-recovery-path-exists"
+      ]
+    }
+  ],
+  "officialFindings": {
+    "targetId": "exact-steam-machine",
+    "steamMachineDescribedAsPc": true,
+    "otherApplicationsAndOperatingSystemsInstallable": true,
+    "windowsInstallationDocumented": true,
+    "resourcesProvidedAsIs": true,
+    "windowsSupportProvidedByValve": false,
+    "driverCategoryIds": [
+      "graphics",
+      "wifi",
+      "bluetooth",
+      "sd-card-reader"
+    ],
+    "windowsInstallRequiresSteamHardwareWipe": true,
+    "steamOsDualBootCurrentlyAvailable": false,
+    "steamMachineHardwareDualBootCapable": true,
+    "supportedSteamOsDualBootWizardReady": false,
+    "futureWizardStatedToShipWithSteamOsWhenComplete": true,
+    "bootMenuEntryMethod": "power-off-then-tap-Escape-during-boot",
+    "wiredInternetRequiredDuringWindowsSetup": true,
+    "exactWindowsVersionQualified": false,
+    "completeDeviceDriverCoverageQualified": false,
+    "dualBootUpdateRecoveryQualified": false
+  },
+  "driverLinks": [
+    {
+      "driverId": "graphics",
+      "url": "https://steamdeck-packages.steamos.cloud/misc/windows/drivers/machine/GFX/GFX%20Driver%20241126a-410993C.zip",
+      "installInstruction": "run-Setup.exe",
+      "linkedByValve": true,
+      "headObservedAt": "2026-07-26",
+      "headHttpStatus": 200,
+      "headContentLengthBytes": 1044430080,
+      "headLastModified": "Mon, 06 Jul 2026 18:28:53 GMT",
+      "headEtag": "\"6a4bf3e5-3e40bd00\"",
+      "downloaded": false,
+      "archiveSha256": null,
+      "signatureOrPublisherEvidenceSha256": null,
+      "versionAndDeviceCoverageSha256": null,
+      "installationResultSha256": null
+    },
+    {
+      "driverId": "wifi",
+      "url": "https://steamdeck-packages.steamos.cloud/misc/windows/drivers/machine/W-Fi/2.0.125.1229_QCA206x.zip",
+      "installInstruction": "right-click-qcwlan64.inf-and-install",
+      "linkedByValve": true,
+      "headObservedAt": "2026-07-26",
+      "headHttpStatus": 200,
+      "headContentLengthBytes": 4597665,
+      "headLastModified": "Mon, 06 Jul 2026 18:28:54 GMT",
+      "headEtag": "\"6a4bf3e6-4627a1\"",
+      "downloaded": false,
+      "archiveSha256": null,
+      "signatureOrPublisherEvidenceSha256": null,
+      "versionAndDeviceCoverageSha256": null,
+      "installationResultSha256": null
+    },
+    {
+      "driverId": "bluetooth",
+      "url": "https://steamdeck-packages.steamos.cloud/misc/windows/drivers/machine/BT/FC66E-B_ACMD_WIN_BT_driver.zip",
+      "installInstruction": "right-click-BtFilter.inf-and-install",
+      "linkedByValve": true,
+      "headObservedAt": "2026-07-26",
+      "headHttpStatus": 200,
+      "headContentLengthBytes": 420921,
+      "headLastModified": "Mon, 06 Jul 2026 18:28:28 GMT",
+      "headEtag": "\"6a4bf3cc-66c39\"",
+      "downloaded": false,
+      "archiveSha256": null,
+      "signatureOrPublisherEvidenceSha256": null,
+      "versionAndDeviceCoverageSha256": null,
+      "installationResultSha256": null
+    },
+    {
+      "driverId": "sd-card-reader",
+      "url": "https://steamdeck-packages.steamos.cloud/misc/windows/drivers/machine/SDReader/SDReader-20260702.zip",
+      "installInstruction": "run-Setup.exe",
+      "linkedByValve": true,
+      "headObservedAt": "2026-07-26",
+      "headHttpStatus": 200,
+      "headContentLengthBytes": 17883390,
+      "headLastModified": "Mon, 06 Jul 2026 18:28:54 GMT",
+      "headEtag": "\"6a4bf3e6-110e0fe\"",
+      "downloaded": false,
+      "archiveSha256": null,
+      "signatureOrPublisherEvidenceSha256": null,
+      "versionAndDeviceCoverageSha256": null,
+      "installationResultSha256": null
+    }
+  ],
+  "recoveryBoundary": {
+    "officialRecoverySourceId": "valve-steamos-installation-and-repair",
+    "reimageMayPreserveWindowsOrOtherOperatingSystems": false,
+    "repairMayProveDualBootSafe": false,
+    "recoveryAvailabilityMayAuthorizeWindowsInstall": false,
+    "recoveryMediaCreatedOrValidated": false,
+    "preInstallBackupSha256": null,
+    "partitionAndBootInventorySha256": null,
+    "recoveryRehearsalResultSha256": null
+  },
+  "decisionDisposition": {
+    "D040SteamOsPrimaryWindowsFallback": true,
+    "D119SteamMachineRemainsOptional": true,
+    "Q095Status": "open-waiting-for-supported-steamos-dual-boot-wizard",
+    "I174Disposition": "official-current-status-recorded",
+    "I175Disposition": "blocked-supported-dual-boot-flow-not-published",
+    "I176Disposition": "blocked-same-hardware-two-os-comparison-not-authorized-or-run",
+    "destructiveInstallDisposition": "do-not-install-windows-on-preordered-unit-before-supported-flow-or-separate-authority",
+    "monitorUrl": "https://help.steampowered.com/en/faqs/view/6121-ECCD-D643-BAA8",
+    "nextStateTrigger": "Valve publishes a supported SteamOS dual-boot installer or an equally explicit Steam Machine procedure"
+  },
+  "authorityBoundary": {
+    "targetReceiptInventoryAndCustodySha256": null,
+    "approvedWindowsVersionLicenseAndAccountProtocolSha256": null,
+    "approvedPartitionBackupRecoveryAndDataDispositionProtocolSha256": null,
+    "approvedDriverDownloadSignatureInstallationAndCoverageProtocolSha256": null,
+    "supportedValveDualBootProcedureSha256": null,
+    "driverDownloadOrExecutionAuthorized": false,
+    "windowsInstallPartitionOrBootMutationAuthorized": false,
+    "recoveryReimageRepairOrDestructiveOperationAuthorized": false,
+    "targetOperationQualificationPublicationOrTierMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "officialPublicUrlsClosedClaimsHttpMetadataAndDigestsAllowed": true,
+    "driverArchiveBodiesAllowedInRepositoryEvidence": false,
+    "deviceSerialAccountProductKeyCredentialOrStableIdentifierAllowed": false,
+    "partitionPathVolumeIdBootEntryRecoveryKeyOrFilesystemListingAllowed": false,
+    "arbitraryInstallerDriverSupportConsoleOrRecoveryMessagesAllowed": false,
+    "freeTextPhysicalResultEvidenceAllowed": false
+  },
+  "result": {
+    "officialCurrentStatus": "hardware-capable-but-supported-dual-boot-unavailable",
+    "publishedDriverCategoryCount": 4,
+    "supportedDualBootReady": false,
+    "driverArchivesDownloadedOrValidated": false,
+    "windowsInstalled": false,
+    "physicalDualBootResultSha256": null,
+    "windowsQualificationResultSha256": null,
+    "productSelectionOrTierChange": null
+  }
+}
