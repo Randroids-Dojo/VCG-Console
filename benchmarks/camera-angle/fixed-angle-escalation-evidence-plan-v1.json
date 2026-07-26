@@ -1,0 +1,464 @@
+{
+  "format": "vcg-fixed-angle-escalation-evidence-plan/v1",
+  "status": "blocked",
+  "campaignId": "fixed-angle-escalation-evidence-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-047"
+  ],
+  "claimBoundary": "Source-bound strict zero-result fixed-angle escalation evidence plan only. D-092 remains unchanged. No fixed pitch has failed or qualified; no software auto-framing, manual adjustment, or motorized aim implementation exists, is authorized, has been operated, or is preferred. No mechanism selection, purchase, BOM or setup-guidance change, superseding decision, qualification, or product claim is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "campaign-contract",
+      "path": "docs/FIXED_ANGLE_ESCALATION_EVIDENCE_CAMPAIGN_2026-07-26.md",
+      "sha256": "22e97c9a8f01f2560c3bbcd01e24bd13a540659958ec939f50257153ae52fad4"
+    },
+    {
+      "role": "owner-question-ledger",
+      "path": "docs/OWNER_QUESTIONS_FIXED_ANGLE_ESCALATION_2026-07-26.md",
+      "sha256": "7a3ec071355930c5c2503a2e69f0c323df338d71a46c6aab35e1eda563114058"
+    },
+    {
+      "role": "fixed-angle-product-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "investigation-acceptance-boundary",
+      "path": "docs/INVESTIGATIONS.md",
+      "sha256": "8f52b2b6400a15ae57ece003ab3e9fb552d2ccd7ee9b06b65bf09a4f5c8ee45e"
+    },
+    {
+      "role": "camera-geometry-campaign-contract",
+      "path": "docs/CROSS_TIER_CAMERA_GEOMETRY_CAMPAIGN_2026-07-25.md",
+      "sha256": "14388967b9143a8a0a1ffbea573432106bd0de772266ac99d0f3e73eb2608421"
+    },
+    {
+      "role": "camera-geometry-baseline-plan",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "f7c24b0ab4dfbc945faa47e556792a87f0e000030018209253240658803aabb9"
+    },
+    {
+      "role": "shared-camera-qualification-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "physical-camera-state-boundary",
+      "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
+      "sha256": "6de67f3a8f0d1e85f270ffc1873615cc141443c5c96706c773aae43d3b6e5c5b"
+    },
+    {
+      "role": "active-play-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "player-persona-boundary",
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb"
+    },
+    {
+      "role": "prototype-acceptance-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "camera-cable-service-boundary",
+      "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
+      "sha256": "db9af14a654f048bd4c1ed9dd5797e510d4f91367ce176495f4d69b259fe02eb"
+    },
+    {
+      "role": "idle-power-boundary",
+      "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
+      "sha256": "4c95d697bb94001dfd83fafadd4dd422bc3953cf55798670dccd491470bbaa1f"
+    }
+  ],
+  "baselineContract": {
+    "decisionId": "D-092",
+    "baselineMechanismId": "fixed-ultra-wide-axis-baseline",
+    "integratedApplianceOnly": true,
+    "adjustablePrototypeIsProductionFeature": false,
+    "automaticRoomAndFloorCalibrationRequired": true,
+    "boundedCalibrationCropAllowed": true,
+    "manualOrMotorizedTiltAllowed": false,
+    "gamesMaySpecialCaseMechanismOrPackagingTier": false,
+    "oneCompleteQualifiedFixedPitchKeepsEscalationIneligible": true,
+    "campaignMaySupersedeDecision": false
+  },
+  "authorityBoundary": {
+    "completedCameraGeometryResultSha256": null,
+    "fixedPlacementFailureLedgerSha256": null,
+    "exactComparatorConfigurationSha256": null,
+    "softwareAutoFramingImplementationAndControlPlaneSha256": null,
+    "manualTiltDesignBomAndServiceProtocolSha256": null,
+    "motorizedAimDesignBomControlAndSafetyProtocolSha256": null,
+    "commonRoomTargetCameraEnclosureAndScheduleSha256": null,
+    "independentOpticalFloorActionAndMechanismGroundTruthSha256": null,
+    "privacySecurityAndCaptureAuthorityProtocolSha256": null,
+    "lifecycleFaultReliabilityAndStopProtocolSha256": null,
+    "costAcousticPowerThermalThicknessAndManufacturingProtocolSha256": null,
+    "participantConsentAssentAccessibilityAndSafetyProtocolSha256": null,
+    "dataHandlingRetentionDeletionAndIncidentProtocolSha256": null,
+    "roomCameraOrParticipantWorkAuthorized": false,
+    "prototypeConstructionFabricationOrModificationAuthorized": false,
+    "softwareAutoFramingImplementationOrOperationAuthorized": false,
+    "manualOrMotorizedMechanismImplementationOrOperationAuthorized": false,
+    "purchaseBomSetupGuidanceOrProductMutationAuthorized": false,
+    "resultPublicationQualificationOrProductClaimAuthorized": false,
+    "supersedingDecisionAuthorized": false
+  },
+  "candidateMechanisms": [
+    {
+      "mechanismId": "fixed-ultra-wide-axis-baseline",
+      "category": "fixed-baseline",
+      "physicalAimMechanism": "none",
+      "cropBehavior": "bounded-calibration-crop-only",
+      "allowedByD092": true,
+      "requiresSupersedingDecision": false,
+      "lastResort": false,
+      "exactImplementationSha256": null,
+      "exactControlPlaneSha256": null,
+      "exactBomAndServiceProtocolSha256": null,
+      "operationAuthorized": false,
+      "eligible": false,
+      "selected": false
+    },
+    {
+      "mechanismId": "dynamic-local-software-auto-framing",
+      "category": "software-escalation-candidate",
+      "physicalAimMechanism": "none",
+      "cropBehavior": "dynamic-local-auto-framing",
+      "allowedByD092": false,
+      "requiresSupersedingDecision": true,
+      "lastResort": false,
+      "exactImplementationSha256": null,
+      "exactControlPlaneSha256": null,
+      "exactBomAndServiceProtocolSha256": null,
+      "operationAuthorized": false,
+      "eligible": false,
+      "selected": false
+    },
+    {
+      "mechanismId": "bounded-locking-manual-tilt",
+      "category": "manual-mechanical-escalation-candidate",
+      "physicalAimMechanism": "bounded-locking-manual-tilt",
+      "cropBehavior": "bounded-calibration-crop-only",
+      "allowedByD092": false,
+      "requiresSupersedingDecision": true,
+      "lastResort": false,
+      "exactImplementationSha256": null,
+      "exactControlPlaneSha256": null,
+      "exactBomAndServiceProtocolSha256": null,
+      "operationAuthorized": false,
+      "eligible": false,
+      "selected": false
+    },
+    {
+      "mechanismId": "motorized-aim-last-resort",
+      "category": "motorized-mechanical-escalation-candidate",
+      "physicalAimMechanism": "motorized-aim",
+      "cropBehavior": "bounded-calibration-crop-only",
+      "allowedByD092": false,
+      "requiresSupersedingDecision": true,
+      "lastResort": true,
+      "exactImplementationSha256": null,
+      "exactControlPlaneSha256": null,
+      "exactBomAndServiceProtocolSha256": null,
+      "operationAuthorized": false,
+      "eligible": false,
+      "selected": false
+    }
+  ],
+  "fixedFailureImport": {
+    "requiredBaselineCampaignId": "cross-tier-camera-placement-geometry-v1",
+    "completedResultArtifactSha256": null,
+    "receivedCameraAndEnclosureIdentitySha256": null,
+    "integratedPrototypeConfigurationSha256": null,
+    "roomAndParticipantScheduleSha256": null,
+    "closedFailureCellLedgerSha256": null,
+    "qualifiedFixedPitchCount": null,
+    "failedGeometricScreenCellCount": null,
+    "failedBlockingCellCount": null,
+    "stoppedInvalidAndNotRunCellCount": null,
+    "everyScheduledCellAndAttemptPreserved": false,
+    "independentOpticalFloorAndActionGroundTruthPreserved": false,
+    "nullIncompleteInvalidOrSelectivelyRetriedEvidenceMayDeclareFailure": false,
+    "alternativeMayExecuteBeforeCompleteZeroQualifiedPitchProof": false,
+    "externalCameraSuccessMayDeclareIntegratedFixedPlacementAdequateOrFailed": false
+  },
+  "remediationMatrix": {
+    "candidateMechanismIds": [
+      "dynamic-local-software-auto-framing",
+      "bounded-locking-manual-tilt",
+      "motorized-aim-last-resort"
+    ],
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "zonePointIds": [
+      "center",
+      "front-left-edge",
+      "front-right-edge",
+      "rear-left-edge",
+      "rear-right-edge"
+    ],
+    "motionIds": [
+      "neutral-full-body-visibility",
+      "jump",
+      "duck",
+      "dodge-left",
+      "dodge-right"
+    ],
+    "blockingCellsPerCandidateConfiguration": 50,
+    "validTrialsPerCell": 20,
+    "frozenFixedFailureConfigurationCount": null,
+    "requiredCandidateConfigurationCount": null,
+    "requiredBlockingCellCount": null,
+    "requiredBlockingTrialCount": null,
+    "exactCandidateSettingLedgerSha256": null,
+    "sameFrozenFailureLedgerAndCommonComparatorRequired": true,
+    "everyFailedStoppedInvalidRetriedAndNotRunAttemptRemainsVisible": true,
+    "oneMechanismRoomPersonaZoneMotionRetryOrAggregateMayRescueAnother": false
+  },
+  "burdenEvidenceMatrix": {
+    "candidateMechanismIds": [
+      "dynamic-local-software-auto-framing",
+      "bounded-locking-manual-tilt",
+      "motorized-aim-last-resort"
+    ],
+    "evidenceDomainIds": [
+      "fixed-failure-coverage-repair",
+      "capture-and-privacy-boundary",
+      "aim-crop-disclosure-and-consent",
+      "security-control-plane-and-locality",
+      "installation-and-supported-placement",
+      "calibration-and-change-invalidation",
+      "ordinary-user-reach-and-force",
+      "accessibility-and-assistance",
+      "stale-position-crop-and-state-detection",
+      "delivered-bom-and-lifecycle-cost",
+      "acoustic-event-and-sustained-noise",
+      "idle-active-peak-and-recovery-power",
+      "thermal-rise-and-cooling-interaction",
+      "enclosure-thickness-and-volume",
+      "mass-center-of-gravity-and-stability",
+      "part-fastener-cable-and-connector-count",
+      "manufacturing-assembly-yield-and-tooling",
+      "durability-wear-jam-drift-and-vibration",
+      "reliability-failure-rate-and-worst-case",
+      "serviceability-and-diagnostic-boundary",
+      "repair-replacement-and-recalibration",
+      "software-firmware-update-and-rollback",
+      "warranty-support-and-field-incident",
+      "end-of-life-disassembly-and-recycling"
+    ],
+    "requiredCandidateDomainCellCount": 72,
+    "independentMethodSourceUncertaintyWorstCaseAndDispositionRequiredPerCell": true,
+    "weightedScoreMeanOrPassingDomainMayRescueFailedMissingOrUnknownDomain": false
+  },
+  "lifecycleFaultMatrix": {
+    "candidateMechanismIds": [
+      "dynamic-local-software-auto-framing",
+      "bounded-locking-manual-tilt",
+      "motorized-aim-last-resort"
+    ],
+    "transitionIds": [
+      "cold-start-to-calibration-ready",
+      "calibration-to-active-framing",
+      "player-exit-to-no-tracking",
+      "player-change-to-reframed",
+      "placement-change-to-invalidated",
+      "idle-timeout-to-released",
+      "suspend-to-resume-awaiting-explicit-start",
+      "capture-owner-crash-to-fail-closed",
+      "camera-disconnect-to-explicit-recovery",
+      "power-cut-to-stationary-safe-recovery"
+    ],
+    "faultIds": [
+      "aim-or-crop-state-corrupt",
+      "sensor-or-position-truth-disagrees",
+      "control-input-stuck-or-replayed",
+      "adjustment-obstruction-or-jam",
+      "cable-pull-or-connector-interruption",
+      "calibration-state-stale",
+      "activity-indicator-or-shutter-contradiction",
+      "update-or-rollback-interruption",
+      "network-unavailable-or-blocked",
+      "repeated-recovery-wear-or-drift"
+    ],
+    "validCyclesPerCandidateTransitionFaultCell": 20,
+    "requiredCellCount": 300,
+    "requiredCycleCount": 6000,
+    "notApplicableRequiresPreRegisteredIndependentProof": true,
+    "automaticCaptureRestartUnexpectedAimOrCropAndLaterRecoveryAreFailures": true,
+    "oneCandidateTransitionFaultCycleRetryOrLaterSuccessMayRescueAnother": false
+  },
+  "humanUseMatrix": {
+    "status": "blocked",
+    "candidateMechanismIds": [
+      "dynamic-local-software-auto-framing",
+      "bounded-locking-manual-tilt",
+      "motorized-aim-last-resort"
+    ],
+    "personaClasses": [
+      "school-age-child-standing",
+      "adult-standing",
+      "seated-or-limited-range-adult",
+      "low-vision-adult",
+      "color-vision-deficiency-adult"
+    ],
+    "taskIds": [
+      "understand-framing-capture-and-privacy-state",
+      "complete-initial-calibration",
+      "obtain-usable-supported-framing",
+      "recover-after-placement-or-player-change",
+      "stop-and-revoke-capture",
+      "recover-a-declared-fault-with-allowed-action"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredCellCount": 90,
+    "requiredTrialCount": 1800,
+    "uncoachedIndependentTaskPrivacySafetyAssistanceAndDiscomfortGroundTruthRequired": true,
+    "taskCompletionMayHideFalsePrivacyBeliefAssistanceUnsafeReachOrDiscomfort": false,
+    "oneCandidatePersonaTaskTrialOrAggregateMayRescueAnother": false
+  },
+  "measurements": {
+    "requiredMeasurementIds": [
+      "frozen-fixed-failure-cell-identity-and-original-disposition",
+      "head-feet-zone-edge-and-floor-margin",
+      "horizontal-vertical-field-of-view-distortion-and-crop-loss",
+      "per-cell-action-precision-recall-and-latency",
+      "calibration-recalibration-change-detection-and-recovery-time",
+      "capture-stream-indicator-shutter-aim-crop-and-position-truth",
+      "unexpected-access-restart-aim-crop-motion-and-network-egress",
+      "manual-range-detent-lock-force-time-wear-jam-and-drift",
+      "motor-obstruction-pinch-stall-runaway-force-and-emergency-stop",
+      "event-sustained-and-worst-case-acoustic-level",
+      "idle-active-peak-fault-and-recovery-power",
+      "thermal-rise-cooling-interaction-and-throttle-state",
+      "enclosure-thickness-volume-mass-center-of-gravity-and-stability",
+      "parts-fasteners-cables-connectors-tooling-assembly-yield-and-service",
+      "dated-delivered-bom-warranty-repair-and-lifecycle-cost-range",
+      "cycle-failure-wear-drift-recovery-and-replacement-rate",
+      "update-rollback-corrupt-state-and-fail-closed-behavior",
+      "setup-comprehension-reach-assistance-unsafe-zone-entry-and-discomfort",
+      "privacy-comprehension-disclosure-cancel-stop-and-revoke-accuracy",
+      "per-candidate-domain-worst-case-uncertainty-invalid-stop-retry-and-incident-ledger"
+    ],
+    "independentOpticalFloorActionMechanismPrivacyAndSafetyGroundTruthRequired": true,
+    "candidateOutputControlStateCalibrationOrAggregateMaySelfLabelSuccess": false,
+    "vendorClaimCadMeanBestCaseOnePersonaOrLaterRecoveryMaySubstituteEvidence": false,
+    "perCandidateConfigurationPersonaZoneMotionDomainTransitionFaultCycleAndWorstCaseRequired": true
+  },
+  "fixedAcceptance": {
+    "minimumValidTrialsPerRemediationCellIfAuthorized": 20,
+    "minimumValidLifecycleCyclesPerCandidateTransitionFaultCellIfAuthorized": 20,
+    "minimumValidHumanTrialsPerCellIfAuthorized": 20,
+    "everyFrozenFixedFailureCellMustBeRepairedByAnEligibleCandidate": true,
+    "everyBurdenEvidenceDomainMustPassForAnEligibleCandidate": true,
+    "maximumSafetyPrivacyCaptureAuthorityOrSecurityFailures": 0,
+    "maximumUndisclosedAimCropPositionOrStateChanges": 0,
+    "maximumAutomaticCaptureRestartsAfterIdleSuspendCrashDisconnectOrPowerCut": 0,
+    "maximumNetworkEgressOrRemoteControlDependencies": 0,
+    "maximumMotorPinchEntrapmentRunawayOrUnsafeMotionEvents": 0,
+    "maximumSilentlyDiscardedFailedStoppedInvalidRetriedOrNotRunEvidence": 0,
+    "motorizedAdmissionRequiresCompleteRejectedSoftwareAndManualCandidates": true,
+    "incompleteUnknownNotRunInconvenientOrHigherCostNonmotorizedEvidenceMayAdmitMotorized": false,
+    "aggregateWeightedScoreMeanOrCrossCandidateRescueAllowed": false,
+    "allOpenGatesMustBeFrozenBeforeAnyAlternativeOperation": true
+  },
+  "openAcceptance": {
+    "minimumHeadMarginMm": null,
+    "minimumFeetMarginMm": null,
+    "minimumZoneEdgeMarginMm": null,
+    "maximumFloorPlaneErrorMm": null,
+    "maximumCropLossPpm": null,
+    "minimumActionPrecisionPpm": null,
+    "minimumActionRecallPpm": null,
+    "maximumFramingCorrectionLatencyUs": null,
+    "maximumCalibrationOrRecoveryTimeUs": null,
+    "maximumManualAdjustmentForceMilliNewton": null,
+    "maximumManualAdjustmentTimeUs": null,
+    "maximumAcousticEventMilliDbA": null,
+    "maximumSustainedAcousticMilliDbA": null,
+    "maximumIdlePowerMilliWatt": null,
+    "maximumActivePowerMilliWatt": null,
+    "maximumThermalRiseMilliCelsius": null,
+    "maximumEnclosureThicknessDeltaMicrometers": null,
+    "maximumMassDeltaMilligrams": null,
+    "maximumDeliveredBomCostDeltaCents": null,
+    "maximumReliabilityFailureRatePpm": null,
+    "minimumAdjustmentOrMotionCycleCount": null,
+    "maximumUnsafeReachAssistanceOrDiscomfortEventsPerCell": null
+  },
+  "decisionPolicy": {
+    "fixedBaselineRemainsDefaultUnlessCompleteEvidenceProvesZeroQualifiedPitches": true,
+    "oneQualifiedFixedPitchMakesAlternativeComparisonIneligible": true,
+    "sameFrozenFailureLedgerCommonComparatorAndFixedGatesRequired": true,
+    "candidateWithFailedMissingUnknownStoppedInvalidOrNotRunFixedDomainIsIneligible": true,
+    "motorizedCandidateMayBeEligibleOnlyAfterSoftwareAndManualAreCompleteAndRejected": true,
+    "eligibleNonmotorizedCandidatesReportedAsUnweightedParetoSetWithWorstCases": true,
+    "campaignMaySelectMechanismAuthorizePurchaseMutateBomOrSetupGuidance": false,
+    "ownerSupersedingDecisionMustCiteCompleteEvidenceAndRejectedSmallerRemedies": true,
+    "postResultThresholdWeightCandidateOrEvidenceDeletionAllowed": false
+  },
+  "dataPolicy": {
+    "rawRoomCameraVideoImagePortraitOrAudioAllowedInRepositoryOrRelease": false,
+    "participantNamesFacesVoicesExactAgesAddressesAccessibilityNotesOrStableIdentifiersAllowed": false,
+    "deviceSerialsPathsCredentialsSecretsProviderMessagesOrUnredactedLogsAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "temporaryFrameOrDiagnosticCaptureRequiresSeparateAuthoritySecurityConsentAndVerifiedDeletion": true,
+    "pathFreeClosedVocabularyAggregateAndDigestEvidenceRequired": true,
+    "networkEgressOrRemoteInferenceAllowed": false,
+    "failedStoppedInvalidRetriedNotRunAndAdverseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "fae-001-complete-admissible-fixed-baseline-failure",
+      "fae-002-closed-failure-ledger-and-retest-policy",
+      "fae-003-exact-local-software-auto-framing-boundary",
+      "fae-004-bounded-locking-manual-mechanism",
+      "fae-005-motorized-last-resort-admission",
+      "fae-006-exact-candidates-and-common-comparator",
+      "fae-007-pre-result-functional-gates",
+      "fae-008-privacy-disclosure-and-capture-authority",
+      "fae-009-manual-reach-and-accessibility",
+      "fae-010-motor-pinch-obstruction-and-unexpected-motion",
+      "fae-011-noise-power-and-thermal-gates",
+      "fae-012-thickness-mass-cost-and-manufacturing-evidence",
+      "fae-013-reliability-update-and-service-protocol",
+      "fae-014-participants-data-and-publication",
+      "fae-015-pre-result-decision-rule",
+      "fae-016-superseding-decision-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": null,
+    "boundBaselineResultSha256": null,
+    "qualifiedFixedPitchCount": null,
+    "frozenFixedFailureConfigurationCount": 0,
+    "boundAlternativeCandidateCount": 0,
+    "completedRemediationCellCount": 0,
+    "completedRemediationTrialCount": 0,
+    "completedBurdenDomainCellCount": 0,
+    "completedLifecycleFaultCellCount": 0,
+    "completedLifecycleFaultCycleCount": 0,
+    "completedHumanUseCellCount": 0,
+    "completedHumanUseTrialCount": 0,
+    "eligibleMechanismIds": [],
+    "rejectedMechanismIds": [],
+    "paretoMechanismIds": [],
+    "selectedMechanismId": null,
+    "supersedingDecisionId": null,
+    "purchaseAuthorized": false,
+    "bomOrSetupGuidanceChanged": false,
+    "d092Superseded": false,
+    "publishedQualificationComparisonOrProductClaim": false
+  }
+}
