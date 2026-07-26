@@ -88,4 +88,3 @@ Safe default: bind all of them before collection, randomize or counterbalance
 only through a reviewed schedule, retain invalid attempts in place, and stop
 for safety, consent withdrawal or invalid ground truth without silently
 replacing data.
-

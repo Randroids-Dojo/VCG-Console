@@ -131,4 +131,3 @@ This tranche advances I-053/I-210 from unstructured execution rows to a strict
 blocked campaign. It records no home, person, camera frame, trace, action,
 latency, ground truth, physical session or product result. The Windows C920
 development fixture is not a selected shared camera or a real-room result.
-
