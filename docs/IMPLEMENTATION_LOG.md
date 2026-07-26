@@ -6667,3 +6667,31 @@ external service was changed.
 I-024/I-025 remain active. No received target/cooler/enclosure, exact fan or
 vent policy, target runtime, instrument, room, schedule, safety protocol,
 numeric gate, purchase/cut/load authority, soak or selection exists.
+
+## 2026-07-25: Pi Wi-Fi/Bluetooth coexistence plan
+
+### Delivered
+
+- Advanced I-026 to a strict blocked 32-cell campaign across required 2.4 GHz
+  risk and 5 GHz control bands, open diagnostic and closed product placements,
+  and eight idle/camera/controller/download/hosted/update/fault scenarios.
+- Bound the controller, shared-camera, concurrent-workload and enclosed thermal
+  plans by normalized SHA-256.
+- Required 30-minute measurements, twenty physical input trials and twenty
+  reconnect cycles with counterbalancing, retained invalid attempts and no
+  product-failure replacement.
+- Preserved genuine 1080p60, 120 ms p95 and zero controller lifecycle,
+  stuck/fabricated, wrong-player/old-epoch and unrecovered-disconnect gates;
+  open network/input/drop/FPS/power/thermal gates remain null.
+- Prohibited 5GHz rescue of 2.4GHz, open-enclosure promotion and throughput
+  rescue of input/camera/recovery failure; prohibited raw identifiers,
+  credentials, payloads, descriptors, frames and audio.
+- Eight focused adversarial tests pass; no traffic, hosted use, fault injection
+  or physical result is authorized.
+
+### Remaining boundary
+
+I-026 remains active. No received target/radio/controller/camera/AP, exact
+firmware/regulatory/channel/enclosure/USB/network/room tuple, RF survey,
+instrument, payload authority, schedule, stimulus, recovery oracle, numeric
+gate, trial or product result exists.
