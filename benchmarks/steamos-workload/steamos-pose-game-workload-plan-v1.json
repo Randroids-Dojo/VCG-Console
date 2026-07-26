@@ -1,0 +1,425 @@
+{
+  "format": "vcg-steamos-pose-game-workload-plan/v1",
+  "status": "blocked",
+  "campaignId": "steamos-pose-game-workload-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-168"
+  ],
+  "claimBoundary": "This is a strict zero-result qualification plan. Existing merchandise, reported specifications, Windows synthetic benchmarks, ordinary Linux plans, Raspberry Pi plans, SteamOS documentation, package plans, camera plans, and other-target workload plans do not prove a received SteamOS target or proxy, a supported AMD inference path, real-camera pose or action quality, concurrent-game performance, resource use, power, thermals, acoustics, recovery, playability, selection, or qualification. A proxy result remains development-only and cannot qualify or rescue the exact Steam Machine. No target or inference backend may be selected, operated, published, or used to change a product tier from this plan.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "steam-machine-target-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "steamos-package-campaign",
+      "path": "docs/STEAMOS_UPDATE_SAFE_CONTENT_CAMPAIGN_2026-07-26.md",
+      "sha256": "63e1515a1a24c103770c7cf13a95600273ec2100f558e020c2ef6cc9504bacf2"
+    },
+    {
+      "role": "steamos-package-plan",
+      "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
+      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+    },
+    {
+      "role": "steamos-camera-campaign",
+      "path": "docs/STEAMOS_UVC_PERMISSION_CAMPAIGN_2026-07-26.md",
+      "sha256": "2beffac4f7e28170adceb058908ea1fbf5e7d91f623f2c9aeb614c890f034bf8"
+    },
+    {
+      "role": "steamos-camera-plan",
+      "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
+      "sha256": "9b94475f0f37d294ae0787ebdff27a05840f2e973affc183aee5e8114a4018b8"
+    },
+    {
+      "role": "standard-concurrent-workload-campaign",
+      "path": "docs/CONCURRENT_GAME_WORKLOAD_CAMPAIGN_2026-07-25.md",
+      "sha256": "13a92b510a04cebad7de3c3cf7d66cbd1defa959c25b5584e0930bdc66f57af0"
+    },
+    {
+      "role": "standard-concurrent-workload-plan",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "camera-action-latency-campaign",
+      "path": "docs/CAMERA_ACTION_LATENCY_CAMPAIGN_2026-07-24.md",
+      "sha256": "008119a4226a7494bcc0202dc01a85bbfe97068840897c332a4b4cee126e5d58"
+    },
+    {
+      "role": "camera-action-latency-validator",
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
+    },
+    {
+      "role": "windows-mediapipe-synthetic-boundary",
+      "path": "benchmarks/pose-backends/windows-x64-mediapipe-lite-cpu.json",
+      "sha256": "32838cd94a0be385bf70d95b44b65a5172617ffee29f6535ccf02d4d47ee1512"
+    },
+    {
+      "role": "windows-onnxruntime-synthetic-boundary",
+      "path": "benchmarks/pose-backends/windows-x64-rtmo-s-cpu.json",
+      "sha256": "70effaa61f2f084557b9e15905c6456ec63bdf99180340b86d6d5719368b1bc0"
+    },
+    {
+      "role": "ordinary-x86-comparison-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "pi-cpu-comparison-boundary",
+      "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
+      "sha256": "c5127d4ae6b0ace6b24eb8634ae1a0507a0f9b53163a63f024d51e82271b9356"
+    },
+    {
+      "role": "prototype-gate-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "device-only-data-boundary",
+      "path": "docs/DEVICE_ONLY_DATA_EXCLUSION.md",
+      "sha256": "ae2e0c5114c7066cd0c8b3cf4616551bc247375ff9cac3514c28457e15e2889e"
+    },
+    {
+      "role": "current-tracker-implementation-boundary",
+      "path": "apps/console-lab/src/tracker-worker.ts",
+      "sha256": "e1e9ac3daa4c1e7f8a5a9ff04e3c5a593e9d1aaea57fd2c143badea8800493f1"
+    }
+  ],
+  "targetCandidates": [
+    {
+      "targetId": "exact-steam-machine",
+      "targetClass": "optional-delivered-steam-machine",
+      "evidenceDisposition": "may-qualify-only-this-exact-target",
+      "hardwareInventorySha256": null,
+      "steamOsImageKernelDriverGamescopeAndPipeWireSha256": null,
+      "cpuGpuRamVramStorageCoolingAndPowerManifestSha256": null,
+      "packageCameraControllerDisplayAndRoomManifestSha256": null,
+      "targetResultSha256": null,
+      "targetReceivedInventoriedOrQualified": false,
+      "otherTargetEvidenceMayQualify": false,
+      "resultMayReplaceRequiredReferenceTargets": false
+    },
+    {
+      "targetId": "closest-supported-amd-steamos-proxy",
+      "targetClass": "explicit-development-proxy-only",
+      "evidenceDisposition": "development-only-never-steam-machine-qualification",
+      "hardwareInventorySha256": null,
+      "steamOsImageKernelDriverGamescopeAndPipeWireSha256": null,
+      "cpuGpuRamVramStorageCoolingAndPowerManifestSha256": null,
+      "packageCameraControllerDisplayAndRoomManifestSha256": null,
+      "targetResultSha256": null,
+      "targetReceivedInventoriedOrQualified": false,
+      "otherTargetEvidenceMayQualify": false,
+      "resultMayReplaceRequiredReferenceTargets": false
+    }
+  ],
+  "targetSelectionBoundary": {
+    "selectedExecutionTargetId": null,
+    "targetSelectionRuleSha256": null,
+    "proxyEquivalenceAndLimitationProtocolSha256": null,
+    "exactSteamMachineAvailabilityDispositionSha256": null,
+    "oneTargetRunsPerformanceAndRecoveryMatrixPerCampaign": true,
+    "targetChangeRequiresCompleteMatrixRerun": true,
+    "proxyResultMayQualifySteamMachine": false,
+    "proxyAndSteamMachineResultsMayBeAggregated": false,
+    "differentTargetMayRescueFailure": false
+  },
+  "authorityBoundary": {
+    "selectedInferenceBackendId": null,
+    "qualifiedI166PackageResultSha256": null,
+    "qualifiedI167CameraResultSha256": null,
+    "trackerModelActionAndClockProtocolSha256": null,
+    "backendBuildRuntimeModelAndProviderProtocolSha256": null,
+    "workloadSessionInteractionAndServiceProtocolSha256": null,
+    "participantRoomGroundTruthAndSafetyProtocolSha256": null,
+    "powerThermalAcousticAndResourceInstrumentationSha256": null,
+    "recoveryFaultSuspendAndUpdateProtocolSha256": null,
+    "scheduleRandomizationNumericGateAndIndependentReviewSha256": null,
+    "dataRightsPrivacyRetentionDeletionAndIncidentProtocolSha256": null,
+    "targetOrProxyOperationAuthorized": false,
+    "cameraControllerOrParticipantOperationAuthorized": false,
+    "serviceAccountOrHostedMutationAuthorized": false,
+    "faultSuspendUpdateOrRecoveryAuthorized": false,
+    "qualificationSelectionPublicationOrTierMutationAuthorized": false
+  },
+  "inferenceBackends": [
+    {
+      "backendId": "mediapipe-cpu",
+      "executionClass": "cpu",
+      "expectedRuntimeFamily": "mediapipe-tasks",
+      "implementationRuntimeModelAndProviderSha256": null,
+      "packageAndDependencyClosureSha256": null,
+      "targetBuildAndProviderProofSha256": null,
+      "targetResultSha256": null,
+      "windowsSyntheticEvidenceMayQualify": false,
+      "unsupportedOrUnavailableResultMayBeDiscarded": false,
+      "backendMayBeSelectedBeforeCompleteMatrix": false
+    },
+    {
+      "backendId": "onnxruntime-cpu",
+      "executionClass": "cpu",
+      "expectedRuntimeFamily": "onnxruntime",
+      "implementationRuntimeModelAndProviderSha256": null,
+      "packageAndDependencyClosureSha256": null,
+      "targetBuildAndProviderProofSha256": null,
+      "targetResultSha256": null,
+      "windowsSyntheticEvidenceMayQualify": false,
+      "unsupportedOrUnavailableResultMayBeDiscarded": false,
+      "backendMayBeSelectedBeforeCompleteMatrix": false
+    },
+    {
+      "backendId": "ncnn-vulkan",
+      "executionClass": "gpu",
+      "expectedRuntimeFamily": "ncnn-vulkan",
+      "implementationRuntimeModelAndProviderSha256": null,
+      "packageAndDependencyClosureSha256": null,
+      "targetBuildAndProviderProofSha256": null,
+      "targetResultSha256": null,
+      "windowsSyntheticEvidenceMayQualify": false,
+      "unsupportedOrUnavailableResultMayBeDiscarded": false,
+      "backendMayBeSelectedBeforeCompleteMatrix": false
+    },
+    {
+      "backendId": "supported-amd-accelerated",
+      "executionClass": "gpu-or-accelerated",
+      "expectedRuntimeFamily": "exact-supported-amd-provider-to-be-bound",
+      "implementationRuntimeModelAndProviderSha256": null,
+      "packageAndDependencyClosureSha256": null,
+      "targetBuildAndProviderProofSha256": null,
+      "targetResultSha256": null,
+      "windowsSyntheticEvidenceMayQualify": false,
+      "unsupportedOrUnavailableResultMayBeDiscarded": false,
+      "backendMayBeSelectedBeforeCompleteMatrix": false
+    }
+  ],
+  "workloads": [
+    {
+      "workloadId": "obstacle-motion-sample",
+      "runtime": "console-lab-component",
+      "networkClass": "offline-required",
+      "motionRole": "primary-motion-action-consumer",
+      "exactContentAndInteractionSha256": null,
+      "targetResultSha256": null,
+      "loadOrHeartbeatMayProvePlayability": false,
+      "compatibilityLoadMayProveMotionIntegration": false
+    },
+    {
+      "workloadId": "vibebots-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetResultSha256": null,
+      "loadOrHeartbeatMayProvePlayability": false,
+      "compatibilityLoadMayProveMotionIntegration": false
+    },
+    {
+      "workloadId": "mi-casa-es-su-casa-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetResultSha256": null,
+      "loadOrHeartbeatMayProvePlayability": false,
+      "compatibilityLoadMayProveMotionIntegration": false
+    },
+    {
+      "workloadId": "determined-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery",
+      "exactContentAndInteractionSha256": null,
+      "targetResultSha256": null,
+      "loadOrHeartbeatMayProvePlayability": false,
+      "compatibilityLoadMayProveMotionIntegration": false
+    }
+  ],
+  "trackerAndWorkloadBoundary": {
+    "motionApiVersion": "0.4.0",
+    "requiredProfileIds": [
+      "body.core17",
+      "actions.obstacle.v1",
+      "actions.shell.v1"
+    ],
+    "playerCount": 1,
+    "genuineQualifiedCameraExposureRequired": true,
+    "qualifiedI166PackageRequired": true,
+    "qualifiedI167CameraAndPermissionRequired": true,
+    "exposureTimestampAuthorityAndCommonClockRequired": true,
+    "samePoseActionDefinitionsAndGroundTruthAcrossBackendsRequired": true,
+    "compatibilityGamesReceiveMotionFrames": false,
+    "obstacleConsumesMotionActions": true,
+    "reservedActionsOwnedOutsideGame": true,
+    "syntheticReplayOrBackendCallTimingMayQualifyCameraToAction": false,
+    "compatibilityGameLoadMayQualifyTitleMotionIntegration": false,
+    "campaignMayQualifyGeneralAccountlessLifecycle": false
+  },
+  "performanceMatrix": {
+    "backendIds": [
+      "mediapipe-cpu",
+      "onnxruntime-cpu",
+      "ncnn-vulkan",
+      "supported-amd-accelerated"
+    ],
+    "workloadIds": [
+      "obstacle-motion-sample",
+      "vibebots-compatibility",
+      "mi-casa-es-su-casa-compatibility",
+      "determined-compatibility"
+    ],
+    "backendCount": 4,
+    "workloadCount": 4,
+    "requiredCellCountPerSelectedTarget": 16,
+    "warmupSecondsPerCell": 300,
+    "minimumMeasuredSecondsPerCell": 3600,
+    "requiredRunsPerCell": 1,
+    "everyBackendMustBeAttempted": true,
+    "everyWorkloadMustRunForEveryBackend": true,
+    "oneRunIsReliabilityRateEvidence": false,
+    "unsupportedUnavailableFailedStoppedAndRetriedCellsRemainVisible": true,
+    "selectedBackendMustPassEveryWorkload": true,
+    "otherBackendWorkloadTargetOrAggregateMayRescueFailure": false
+  },
+  "recoveryMatrix": {
+    "scenarioIds": [
+      "camera-loss-permission-loss-and-fresh-restoration",
+      "tracker-process-termination-and-fresh-restart",
+      "game-renderer-hang-exit-and-contained-return",
+      "network-loss-offline-truth-and-deliberate-restoration",
+      "reserved-home-back-pause-responsive-fullscreen-captured-and-hung",
+      "launcher-restart-descendant-reap-and-fresh-readiness",
+      "suspend-resume-camera-stop-input-epoch-and-fresh-stream",
+      "package-update-steamos-update-offline-restart-and-recovery"
+    ],
+    "scenarioCount": 8,
+    "backendWorkloadCellCount": 16,
+    "requiredRecoveryCellCountPerSelectedTarget": 128,
+    "validAttemptsPerRecoveryCell": null,
+    "everyScenarioRunsForEveryBackendWorkloadCell": true,
+    "scheduledFaultsRemainOutsideMeasuredPerformanceSoak": true,
+    "freshCameraTrackerGameAndInputEpochProofRequired": true,
+    "failedInvalidStoppedRetriedAndAdverseAttemptsRemainVisible": true,
+    "laterRecoveryMayHideEarlierFailure": false,
+    "otherScenarioBackendWorkloadTargetOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-target-package-camera-controller-room-backend-model-workload-and-schedule-digests",
+      "camera-exposure-count-drop-duplicate-epoch-timestamp-domain-and-uncertainty",
+      "exposure-to-pose-exposure-to-action-and-action-to-game-response-percentiles",
+      "per-action-precision-recall-f1-miss-false-event-and-privileged-activation-counts",
+      "pose-admission-inference-postprocess-action-delivery-fps-latency-and-drops",
+      "game-fps-frame-time-percentiles-long-frames-stalls-and-controlled-response",
+      "cpu-utilization-frequency-time-energy-and-process-attribution",
+      "gpu-utilization-frequency-render-compute-queue-time-energy-and-process-attribution",
+      "ram-swap-vram-allocation-residency-pressure-growth-and-oom-state",
+      "storage-network-ipc-device-filesystem-and-service-traffic",
+      "wall-power-idle-baseline-energy-and-instrument-uncertainty",
+      "cpu-gpu-memory-storage-and-enclosure-temperatures-clocks-throttle-and-fan-state",
+      "one-metre-acoustics-ambient-floor-spectrum-tonality-and-meter-uncertainty",
+      "launcher-browser-tracker-game-process-lifecycle-health-crash-hang-and-descendant-ledger",
+      "controller-focus-reserved-action-input-epoch-and-recovery-state",
+      "fault-containment-recovery-time-fresh-instance-state-integrity-and-recurrence",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-cell-ledger"
+    ],
+    "independentExposurePoseActionGameResourcePowerThermalAcousticProcessInputAndRecoveryOraclesRequired": true,
+    "everyScheduledCellAttemptFailureAndUnavailableBackendMustRemainVisible": true,
+    "vendorSpecsSyntheticBenchmarksOtherTargetOrAggregateMaySubstituteTargetEvidence": false
+  },
+  "fixedAcceptance": {
+    "minimumMeasuredSecondsPerBackendWorkloadCell": 3600,
+    "requiredRunsPerBackendWorkloadCell": 1,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumLocalLaunchToInteractiveMs": 15000,
+    "maximumHostedLaunchToInteractiveMs": 30000,
+    "maximumOneMeterAcousticsDba": 35,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumUnexpectedProcessExitsDuringPerformanceSoak": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumUnexplainedTimestampRegressionsDomainSubstitutionsOrCrossEpochFrames": 0,
+    "maximumRetainedRawFramesAudioSkeletonsOrUndeclaredEgressEvents": 0,
+    "maximumCredentialAccountParticipantStableIdentifierPathOrFreeTextDisclosures": 0,
+    "maximumValidSelectedBackendProductFailures": 0,
+    "selectedBackendMustPassEveryPerformanceAndRecoveryCell": true,
+    "proxyResultMayQualifyExactSteamMachine": false,
+    "aggregateMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumValidAttemptsPerRecoveryCell": null,
+    "minimumPerActionPrecisionPpm": null,
+    "minimumPerActionRecallPpm": null,
+    "minimumPoseFrameRateMilliHz": null,
+    "minimumGameFrameRateMilliHz": null,
+    "maximumGameFrameTimeP95Us": null,
+    "maximumDroppedCaptureRatePpm": null,
+    "maximumDroppedPoseRatePpm": null,
+    "maximumExposureTimestampUncertaintyUs": null,
+    "maximumCaptureToPoseP95Us": null,
+    "maximumActionDeliveryOverheadP95Us": null,
+    "maximumCpuUtilizationPpm": null,
+    "maximumGpuUtilizationPpm": null,
+    "maximumResidentMemoryBytes": null,
+    "maximumVramBytes": null,
+    "maximumWallPowerMilliwatts": null,
+    "maximumSustainedCpuTemperatureMilliC": null,
+    "maximumSustainedGpuTemperatureMilliC": null,
+    "maximumThermalThrottleEvents": null,
+    "maximumServiceErrorRatePpm": null,
+    "maximumRecoveryP95Ms": null
+  },
+  "dataPolicy": {
+    "opaqueTargetBackendBuildWorkloadCellAttemptAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsAndRedactedCategoriesRequired": true,
+    "rawRoomPlayerCameraScreenAudioVideoOrSkeletonAllowedInRepositoryReleaseOrResult": false,
+    "retainedRawFramesAudioBuffersSkeletonTracesOrSampleBytesAllowed": false,
+    "namesFacesVoicesExactAgesStableDeviceIdsSerialsPathsOrQueryUrlsAllowed": false,
+    "credentialsTokensCookiesAccountsProfileSaveStorageEnvironmentOrArgumentValuesAllowed": false,
+    "arbitraryDriverProviderServiceConsoleOrCrashMessagesAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "networkEgressOutsideDeclaredPackageHostedServiceAndProbeTrafficAllowed": false,
+    "failedInvalidStoppedRetriedUnavailableAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "suw-001-selected-received-target-or-explicit-proxy-hardware-os-driver-and-resource-inventory",
+      "suw-002-qualified-i166-package-and-accountless-core-execution-path",
+      "suw-003-qualified-i167-camera-permission-microphone-privacy-and-exposure-clock-path",
+      "suw-004-four-backend-implementation-runtime-model-provider-build-and-dependency-closures",
+      "suw-005-exact-supported-amd-provider-availability-support-and-fallback-disposition",
+      "suw-006-tracker-model-action-ground-truth-common-clock-and-game-response-protocol",
+      "suw-007-exact-workload-content-interaction-service-account-and-non-destructive-mutation-policy",
+      "suw-008-participant-room-ground-truth-accessibility-safety-and-collection-authority",
+      "suw-009-performance-schedule-order-warmup-soak-sampling-and-independent-review",
+      "suw-010-all-performance-quality-resource-power-thermal-acoustic-and-service-gates",
+      "suw-011-recovery-fault-suspend-update-schedule-attempt-count-and-fresh-instance-protocol",
+      "suw-012-power-thermal-acoustic-resource-clock-and-uncertainty-instrumentation",
+      "suw-013-controller-focus-reserved-action-input-epoch-and-game-response-oracles",
+      "suw-014-proxy-equivalence-limitations-no-rescue-and-exact-target-retest-policy",
+      "suw-015-data-rights-privacy-retention-deletion-incident-and-adverse-evidence-policy",
+      "suw-016-target-camera-participant-service-fault-update-qualification-selection-and-publication-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "blocked",
+    "executedTargetId": null,
+    "completedPerformanceCellCount": 0,
+    "completedRecoveryCellCount": 0,
+    "backendResults": [],
+    "qualifiedBackendIds": [],
+    "selectedInferenceBackendId": null,
+    "proxyOnlyResult": false,
+    "targetQualified": false,
+    "steamMachineQualified": false,
+    "steamMachinePrimaryTierChanged": false,
+    "publishedClaims": []
+  }
+}
