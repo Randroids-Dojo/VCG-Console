@@ -6010,3 +6010,54 @@ Home/Back/Pause and focus, browser/version policy, native service/cgroup
 ownership, adversarial main-thread/service-worker/storage/network evidence,
 and ARM64/ordinary x86-64 Linux timing remain under Q-250 and HBL-001 through
 HBL-006.
+
+## 2026-07-25: deterministic calibration-rehearsal evidence
+
+### Delivered
+
+- Advanced I-059 from open to active by binding the existing camera-free
+  calibration controller, focused tests, and contract to one deterministic
+  adversarial evidence artifact.
+- Exercised eight exact scenarios: full Ready, required floor guidance,
+  unsafe-zone blocking, explicit neutral/range fallback, changed-room
+  revocation, stale-attempt refusal, exact one-shot result consumption, and
+  expiry revocation.
+- Repeated the entire scenario set twice and committed the exact scenario
+  digest while labeling that result as software determinism rather than
+  physical repeatability.
+- Added a strict bounded validator that rejects production/safety promotion,
+  hidden camera/participant/measurement claims, weakened guidance or
+  blocking, widened fallback, authority substitution/replay, fabricated
+  physical results, stale provenance, unknown fields, invalid UTF-8, and
+  oversized artifacts.
+- Recorded Q-251 for the independent physical references, equipment, and room
+  protocol needed to establish ground truth before threshold selection. No
+  purchase or participant/camera campaign was authorized.
+
+### Verification evidence
+
+- The tracked artifact contains eight scenarios, eight passing closed guards,
+  two exactly equal deterministic runs, zero physical trials, zero gameplay
+  error measurements, and zero room-change detection trials.
+- Ten focused validator cases pass.
+- All fourteen existing calibration-controller cases pass.
+- In an exact isolated snapshot containing HEAD plus only this tranche, pinned
+  Corepack pnpm 10.30.3 reports zero TypeScript/Svelte diagnostics, all 190
+  research-evidence tests pass, all 63 workspace test files and 584 tests
+  pass, exact prepared OCR-A/model/WASM assets verify, and the production
+  build passes without the missing-font warning.
+- The root `pnpm test` chain passes the hosted-browser, Epoch, Godot, bridge,
+  and base TV validators, then stops in the pre-existing launcher-home TV
+  validator because its committed production-source-tree digest does not
+  match the raw Windows checkout. The isolated research suite and workspace
+  tests pass independently; no calibration assertion fails at that boundary.
+
+### Remaining boundary
+
+I-059 is active, not closed. The artifact proves a bounded synthetic state
+machine only. Actual floor/zone/scale/stance/range estimation, independent
+ground truth, confidence calibration, physical repeatability and gameplay
+error, privileged room/camera change detection, per-action requirements,
+representative accessibility and household cohorts, persistent native
+transactions, target fault evidence, and safety/privacy/security/legal review
+remain under Q-031 and Q-205 through Q-210 plus Q-251.

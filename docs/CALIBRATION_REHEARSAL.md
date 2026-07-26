@@ -2,9 +2,10 @@
 
 Last updated: 2026-07-24
 
-Status: camera-free synthetic confidence and guidance lifecycle implemented;
-real measurements, floor transform, persistence, target evidence, and
-production thresholds remain disabled
+Status: camera-free synthetic confidence and guidance lifecycle implemented
+and bound to deterministic adversarial evidence; real measurements, floor
+transform, persistence, target evidence, and production thresholds remain
+disabled
 
 Authority: D-002, D-031, D-059, D-060, D-077, D-078, D-084, D-103, D-105,
 D-110, I-035, I-039, I-053, I-059, I-060, I-061, I-063, I-067, I-068, I-069,
@@ -283,6 +284,23 @@ Fourteen focused calibration unit cases prove:
   duplicate-ID rejection, one-time consumption, and no Ready exposure when
   issuance cannot commit.
 
+The tracked
+`benchmarks/calibration/camera-free-calibration-rehearsal-v1.json` artifact
+binds the exact controller, focused tests, this contract, generator, and
+validator by normalized SHA-256. Eight deterministic scenarios cover full
+Ready, required floor guidance, unsafe-zone blocking, explicit limited
+fallback, changed-room revocation, stale-attempt rejection, exact one-shot
+result consumption, and expiry revocation. A second complete run is exactly
+identical. Ten adversarial validator cases reject physical/production
+promotion, hidden camera/participant/measurement claims, weakened guidance or
+blocking, widened fallback, replay/substitution/revocation weakening,
+fabricated gameplay or room-change results, scenario/summary drift, stale
+provenance, unknown claims, and malformed or oversized artifacts.
+
+This repeatability is software determinism only. The artifact records zero
+physical trials, zero gameplay-error measurements, and zero room-change
+detection trials.
+
 The profile-management suite adds issued-result provenance, cross-profile and
 limited-field substitution denial, expiry refusal at both planning and commit,
 consumed-result replay refusal, no-mutation failure after expiry or external
@@ -314,7 +332,7 @@ Reviewed 1440 by 1000 screenshots:
 
 I-059 remains incomplete. Required evidence includes:
 
-- answers to Q-031 and Q-205 through Q-210;
+- answers to Q-031, Q-205 through Q-210, and Q-251;
 - the exact minimized calibration schema and versioning;
 - actual automatic estimation for room, floor, play zone, player scale,
   neutral stance, and usable range;
