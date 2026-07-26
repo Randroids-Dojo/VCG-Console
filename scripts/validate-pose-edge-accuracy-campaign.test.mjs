@@ -264,7 +264,7 @@ test("rejects a forged plan envelope or mismatched result plan hash", () => {
 test("rejects omitted, duplicated, or reordered blocking cells", () => {
   assertResultRejected(
     (result) => result.cells.pop(),
-    /false == true/,
+    /result cells must be an array with exactly 126 entries/,
   );
   assertResultRejected(
     (result) => { result.cells[1] = clone(result.cells[0]); },

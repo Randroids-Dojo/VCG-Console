@@ -546,7 +546,10 @@ export function validatePoseEdgeAccuracyResult(planEnvelope, result) {
     "result completes before it starts",
   );
   const expected = expectedCells(plan);
-  assert.ok(Array.isArray(result.cells) && result.cells.length === expected.length);
+  assert.ok(
+    Array.isArray(result.cells) && result.cells.length === expected.length,
+    `result cells must be an array with exactly ${expected.length} entries`,
+  );
   let passingCellCount = 0;
   let validTrialCount = 0;
   for (const [index, cell] of result.cells.entries()) {

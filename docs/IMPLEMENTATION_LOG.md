@@ -7006,3 +7006,41 @@ transition remains required before collection. No selected room/safe zone,
 target/build, camera/capture policy, participant consent/assent, ground truth,
 exposure clock, negative script, data authority, schedule, physical attempt,
 trace, score, latency result or product qualification exists.
+
+## 2026-07-25: cross-tier camera placement and optical-geometry plan
+
+### Delivered
+
+- Advanced I-037/I-193/I-194 from open rows to one strict blocked campaign
+  that keeps the integrated appliance and external PC/Steam packaging paths
+  mechanically separate under one camera/Motion evidence contract.
+- Bound the packaging decisions, safety boundary, ABS-box screen, room survey,
+  shared-camera, pose-edge, floor-contact and real-room action plans by
+  normalized SHA-256.
+- Defined 405 integrated screening cells across three enclosure heights, TV-
+  stand depths, player distances and room widths plus five upward-pitch roles,
+  without inventing their millimetre/degree values.
+- Defined 50 external geometry cells across supported-PC and Steam targets,
+  five mount roles and five zone points, with no cross-target rescue.
+- Required one selected integrated fixed axis plus all ten external target/mount
+  combinations to enter the child/adult, five-zone-point, five-motion matrix:
+  550 cells and 11,000 retained physical trials.
+- Required 20 calibration/relocation cycles for each of 11 configurations,
+  producing 220 cycles plus ten fail-closed setup-error classes.
+- Kept measured optical/floor/action, calibration/change-detection, mount/cable/
+  USB, shutter and indicator evidence separate; preview, calibration state,
+  landmarks and static dimensions cannot substitute for physical truth.
+- Added QCG-001 through QCG-012 for grid values, selection, exact hardware,
+  targets/mounts, gates, calibration, ground truth, safety/USB, participation,
+  redacted evidence, publication and workload staging.
+- Nine focused adversarial groups pass. No package-script registration was
+  added while concurrent I-178 work owns `package.json`.
+
+### Remaining boundary
+
+I-037/I-193/I-194 are active, not complete. The validator accepts only the
+blocked zero-result plan. No selected room, shared camera, integrated box,
+external mount, supported-PC/Steam tuple, numeric geometry/gates, participant
+authority, ground truth, safety/data/schedule protocol, physical screen, trial,
+calibration cycle, fixed pitch, external setup envelope or qualification result
+exists. Construction and purchase remain unauthorized.
