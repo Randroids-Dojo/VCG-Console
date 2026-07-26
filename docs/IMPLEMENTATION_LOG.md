@@ -6507,3 +6507,48 @@ qualified power adapter, harness, interaction or hardware-state oracle, wake
 source, meter, threshold, accountless local runtime, hosted-service exercise,
 physical authority, trial, timing distribution, power trace or comparison
 result exists. No device or external service was changed.
+
+## 2026-07-25: cross-tier controller lifecycle qualification plan
+
+### Delivered
+
+- Advanced I-152 from an open physical-test row to a strict blocked campaign
+  without treating browser, policy-model, Windows, WSL2 or database evidence as
+  physical SDL/compositor qualification.
+- Bound the existing controller protocol, mapping contract, browser and
+  canonical mapping policies, idle/wake policy, timing campaign and both
+  required target plans by normalized SHA-256; active native-host files remain
+  outside this tranche.
+- Fixed two required Linux target roles plus optional Steam, five sample roles
+  and 51 individually named discovery, reconnect, sleep, simultaneous,
+  ambiguous-mapping, hostile-focus and battery scenarios.
+- Required at least twenty valid cycles for every applicable
+  target/device/transport/revision/scenario cell, preserving invalid cycles and
+  forbidding replacement of product failures or aggregate rescue.
+- Fixed zero tolerance for lifecycle faults, stuck/fabricated actions,
+  reserved-action leakage or swallowing, ambiguous authority, wrong assignment,
+  old-epoch actions, false battery claims and keyboard/mouse recovery.
+- Preserved Q-227 through Q-232 as the owner boundary; exact cell/cycle totals
+  and response/freshness/sample thresholds remain null until those answers
+  freeze the matrix.
+
+### Verification evidence
+
+- Twenty-six focused tests accept the tracked plan and reject source drift or
+  substitution, hidden fields, browser/native promotion, optional-target
+  rescue, invented SDL/device evidence, target/sample/scenario changes, family
+  resemblance, guessed ambiguous mapping, duplicate scenarios, reduced cycles,
+  failure replacement, weakened reserved gates, post-hoc thresholds, inferred
+  battery, stable identifiers, physical authority, fabricated results,
+  noncanonical JSON, UTF-8 BOM input and bare carriage returns.
+- The command-line validator reports three targets, five sample roles, 51
+  scenarios and twelve blockers with no result.
+
+### Remaining boundary
+
+I-152 is active, not closed. No exact device set, loan/purchase authority,
+target SDL/compositor/runtime tuple, physical sample, privileged routing,
+assignment/mapper/glyph/battery UI, response or freshness threshold,
+applicability matrix, cycle total, schedule, ledger/result schema, fault
+authority, cycle, compatibility report or public support claim exists. No
+hardware was changed.
