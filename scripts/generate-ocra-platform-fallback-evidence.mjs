@@ -82,7 +82,6 @@ async function provenance() {
 async function installProbeGrid(page) {
   await page.evaluate((probes) => {
     document.title = "VCG OCR-A platform fallback observation";
-    document.body.innerHTML = "";
     document.body.dataset.fontProbe = "true";
     const style = document.createElement("style");
     style.textContent = `
@@ -94,11 +93,19 @@ async function installProbeGrid(page) {
         color: #efeee6;
         font-family: Arial, sans-serif;
       }
+      body[data-font-probe="true"] > :not(#font-probe-shell) {
+        display: none !important;
+      }
       #font-probe-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
         box-sizing: border-box;
         width: 100vw;
         height: 100vh;
         padding: 54px 72px;
+        overflow: hidden;
+        background: #090b0c;
       }
       #font-probe-title {
         margin: 0 0 8px;
@@ -289,6 +296,10 @@ export async function generateOcraPlatformFallbackEvidence() {
     await browser.close();
     await server.close();
   }
+
+  assert.equal(pageErrorCount, 0, "font probe produced a page error");
+  assert.equal(requestFailureCount, 0, "font probe had a failed request");
+  assert.deepEqual(consoleErrors, [], "font probe produced a console error");
 
   const screenshotBytes = await readFile(screenshotPath);
   const baseEvidence = JSON.parse(

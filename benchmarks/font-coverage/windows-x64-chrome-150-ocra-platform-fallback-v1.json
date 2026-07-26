@@ -98,7 +98,7 @@
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
     "baseEvidencePathSha256": "cb647ecd2faa894d17c657d79c1a385189a4147ff8ee414e4bf478ea9c5f2a72",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "a728a7f9b039c7e6eb7b5700d2c64ee9cc13116661b8114348c4dbcc5703e634",
+    "generatorPathSha256": "445ddd85e2b3715c9d25d922b5b99dbc1c45c0a479d0ac8235685368f7e01eeb",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
     "validatorPathSha256": "dcb5b3ae1ddb8063061635dc1e20673f13f860473b7858d4837d66bffd33edae",
     "baseEvidenceBytes": 39324,
@@ -120,7 +120,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 131,
-      "sha256": "c32ded97eaa892afdacbb5d0aab0d5917fce215f75703bfe33afc981cd34dafd"
+      "sha256": "0a86a857add121b42553912cccd442b6720172294abb22a7599365bc40c63d5e"
     }
   },
   "disposition": {
