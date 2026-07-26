@@ -14,6 +14,8 @@ const SHA256 = /^[a-f0-9]{64}$/u;
 
 export const MICROPHONE_DISABLEMENT_PLAN_FORMAT =
   "vcg-microphone-disablement-qualification-plan/v1";
+export const MICROPHONE_DISABLEMENT_BLOCKED_CLAIM_BOUNDARY =
+  "Pre-registered microphone-disablement qualification only. No exact bundled camera, Raspberry Pi OS image, SteamOS image, Windows fallback build, audio policy, sandbox, browser, signed game package, update, rollback, recovery path, ordinary-user attempt, administrative diagnostic path, or target result has been received, executed, measured, qualified, or selected. A denied capture is distinct from muted or silent PCM: returning any audio sample buffer is a failure under this plan.";
 export const MICROPHONE_DISABLEMENT_BLOCKERS = Object.freeze([
   "exact-camera-identity-and-usb-descriptors",
   "exact-target-images-builds-and-audio-stacks",
@@ -60,7 +62,7 @@ const targetKeys = [
   "ordinaryUserPolicySha256",
 ];
 const blockedTargetKeys = targetKeys.slice(4);
-const expectedTargets = Object.freeze([
+export const MICROPHONE_DISABLEMENT_TARGETS = Object.freeze([
   ["raspberry-pi-os-arm64", "Raspberry Pi OS", "arm64", "Raspberry Pi 5 8GB"],
   ["steamos-x86_64", "SteamOS", "x86_64", "optional Steam Machine target"],
   [
@@ -70,7 +72,7 @@ const expectedTargets = Object.freeze([
     "ordinary x86 fallback target",
   ],
 ]);
-const expectedLayers = Object.freeze([
+export const MICROPHONE_DISABLEMENT_LAYERS = Object.freeze([
   {
     layerId: "usb-function-inventory",
     boundary:
@@ -128,7 +130,7 @@ const expectedLayers = Object.freeze([
       "no account, profile, setting, or developer toggle can acquire or delegate microphone capture",
   },
 ]);
-const expectedPhases = Object.freeze([
+export const MICROPHONE_DISABLEMENT_PHASES = Object.freeze([
   "fresh-install-default",
   "ordinary-user-first-boot",
   "camera-hotplug-and-replug",
@@ -183,32 +185,30 @@ export async function validateMicrophoneDisablementQualificationPlan(
   assert.equal(plan.status, "blocked");
   assert.equal(plan.campaignId, "bundled-camera-microphone-disablement-v1");
   assert.equal(plan.observedAt, "2026-07-25");
-  assert.match(plan.claimBoundary, /^Pre-registered microphone-disablement qualification only\./u);
-  assert.match(plan.claimBoundary, /No exact bundled camera/u);
-  assert.match(plan.claimBoundary, /returning any audio sample buffer is a failure/u);
+  assert.equal(plan.claimBoundary, MICROPHONE_DISABLEMENT_BLOCKED_CLAIM_BOUNDARY);
   assert.equal(
     plan.sourceDigestContract,
     "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
   );
   await validateSourceBindings(plan.sourceBindings, repositoryRoot);
 
-  assert.equal(plan.targets.length, expectedTargets.length);
+  assert.equal(plan.targets.length, MICROPHONE_DISABLEMENT_TARGETS.length);
   for (const [index, target] of plan.targets.entries()) {
     exactKeys(target, targetKeys, `targets[${index}]`);
     assert.deepEqual(
       [target.targetId, target.operatingSystem, target.architecture, target.hostClass],
-      expectedTargets[index],
+      MICROPHONE_DISABLEMENT_TARGETS[index],
     );
     for (const key of blockedTargetKeys) {
       assert.equal(target[key], null, `blocked plan cannot populate ${key}`);
     }
   }
 
-  assert.deepEqual(plan.requiredLayers, expectedLayers);
+  assert.deepEqual(plan.requiredLayers, MICROPHONE_DISABLEMENT_LAYERS);
   for (const [index, layer] of plan.requiredLayers.entries()) {
     exactKeys(layer, ["layerId", "boundary", "requiredOracle"], `requiredLayers[${index}]`);
   }
-  assert.deepEqual(plan.requiredPhases, expectedPhases);
+  assert.deepEqual(plan.requiredPhases, MICROPHONE_DISABLEMENT_PHASES);
 
   exactKeys(
     plan.executionMatrix,

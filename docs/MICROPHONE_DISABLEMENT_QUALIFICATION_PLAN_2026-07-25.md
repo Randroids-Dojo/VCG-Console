@@ -81,6 +81,39 @@ values, or arbitrary provider text.
 The minimum valid attempts per cell and attempt timeout are intentionally
 unset. Selecting those values is an owner decision, not a validator guess.
 
+## Ready-plan and result envelope
+
+`scripts/validate-microphone-disablement-result.mjs` defines the executable
+transition without changing the tracked blocked plan. A ready plan must bind:
+
+- every target camera, USB descriptor, OS image/build, audio stack, sandbox,
+  browser, and ordinary-user policy;
+- one canonical probe bundle and ordered schedule;
+- between 1 and 20 valid attempts required per cell;
+- a 100 ms to 60 second attempt timeout;
+- target access, OS-policy mutation, and audio-probe handling authority; and
+- the safe version-1 choice of no administrative microphone diagnostic path.
+
+Readiness still records no result. A canonical result must bind the exact ready
+plan and enumerate all 192 cells in target/layer/phase order. Each attempt uses
+closed status and outcome vocabularies, a policy digest, a unique evidence
+digest, bounded monotonic timing, capture counters, and explicit zero-retention
+and zero-egress assertions. Provider prose, paths, samples, and open fields are
+not accepted.
+
+The validator derives each cell and overall disposition:
+
+- `passed` requires the owner-selected number of valid denial attempts and no
+  returned track, buffer, or byte;
+- `incomplete` preserves missing attempts, stopped probes, and harness-invalid
+  attempts without treating them as denial evidence; and
+- `rejected` records a real capture success or any returned audio without
+  allowing another cell or platform to rescue it.
+
+A target appears in `qualifiedTargetIds` only when all 64 of its cells pass.
+Real protection failures are valid rejected evidence, but retained or
+transmitted audio makes the artifact invalid for this data policy.
+
 ## Data boundary
 
 The campaign authorizes no raw-audio retention, persistent sample buffer,
@@ -108,10 +141,15 @@ from D-046 or Q-055.
 - The tracked plan is canonical bounded UTF-8 JSON with a 128 KiB ceiling.
 - It binds the existing game-permission, hosted-browser, and prototype
   acceptance boundaries by normalized SHA-256.
-- Thirteen adversarial test groups reject target substitution, invented inputs,
+- Thirteen plan test groups reject target substitution, invented inputs,
   matrix omissions, silence-as-proof, nonzero capture ceilings, retained audio,
   diagnostic unlocks, premature authority/results, duplicate fields, invalid
   UTF-8, and oversized input.
+- Twelve result test groups prove complete qualification, honest incompleteness,
+  and honest rejection derivation; they reject hidden capture, promoted
+  summaries, cell/attempt drift, reused evidence, denial-with-bytes, retained or
+  transmitted audio, plan/policy/timing substitution, unsafe readiness, and
+  malformed envelopes.
 
 No platform is qualified, no camera microphone has been probed, and no audio
 sample has been collected.
