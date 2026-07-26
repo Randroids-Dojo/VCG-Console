@@ -7147,3 +7147,39 @@ garment, blanket, clutter fixture, room, camera, target, physical trial,
 accuracy, fairness, safety, latency or product result exists. Physical execution
 remains blocked on `OWNER_QUESTIONS_VISUAL_ROBUSTNESS_2026-07-25.md` and exact
 camera/room/fixture/cohort/ground-truth/data/threshold/authority bindings.
+
+## 2026-07-25: OAK-D Pro W RGB/depth comparison contract
+
+- Recorded current official-source candidate facts for USB OAK-D Pro W IMX378
+  SKU `A00573`, including the 2026-07-25 US $529/In Stock merchandise snapshot,
+  without treating vendor specifications, stock or price as selection,
+  delivered cost, purchase authority or physical evidence.
+- Separated shared-UVC RGB, OAK central-RGB camera-only, passive stereo,
+  active-dot stereo and exploratory flood/mono-IR lanes. Blocking lanes prohibit
+  on-device neural inference so camera, depth and model changes are not
+  confounded; OAK RGB-only improvement cannot be credited to depth.
+- Distinguished same participant/session context from same exposure. Internal
+  OAK ablations require volatile same-exposure fan-out, while UVC/OAK comparison
+  requires independent exposure/skew evidence and never promotes sequential
+  movement to exact-exposure equivalence.
+- Pre-registered 4,500 one-player cells and 90,000 trials across five lanes,
+  three targets, both blocking personas, five placements, six lighting states
+  and five motions. A later 675-cell/13,500-trial overlap phase remains gated on
+  completed one-player and I-054 authority.
+- Required depth/pose/floor/overlap/low-light/synchronization/latency/frame/
+  power/thermal/resource/recovery/cost/maintenance evidence and a frozen
+  material-benefit-with-no-regression selection rule.
+- Kept emitters off absent exact received-device, official-firmware, intensity,
+  distance, duration, temperature, reflection, participant and I-045 review;
+  vendor laser classification or successful accuracy cannot waive safety.
+- Added nine adversarial validator groups covering stale sources/candidate
+  promotion, invented authority, lane attribution, timing honesty, matrix drift,
+  self-labeling and aggregate rescue, unsafe IR/data/cost weakening, premature
+  results and malformed or noncanonical input.
+
+This is a source-backed candidate screen and canonical zero-result plan only.
+No OAK device was purchased, received, powered, configured, synchronized,
+calibrated, mounted or tested. No depth, floor, overlap, low-light, latency,
+power, cost, participant, room, target, IR-safety or product result exists.
+Execution remains blocked on `OWNER_QUESTIONS_OAK_D_PRO_W_COMPARISON_2026-07-25.md`
+and every exact hardware/runtime/protocol/gate/authority binding in the plan.
