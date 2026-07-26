@@ -6841,3 +6841,28 @@ I-114/I-202 are active, not complete. No exact Pi/card/supply/image/filesystem/
 service/transition/fixture tuple, frozen physical plan, destructive authority,
 cut, evidence ledger, restore, result or hardware qualification exists. Q-197
 and Q-198 remain unresolved in the existing owner-question document.
+
+## 2026-07-25: camera and microphone status reconciliation
+
+### Delivered
+
+- Audited the committed shared-camera (`e69be7e`, `6230bf8`) and microphone-
+  disablement (`d0013db`, `d23fdd9`) tranches against open I-177/I-179 rows and
+  corrected both statuses to active without touching concurrent I-178 work.
+- Confirmed the shared-camera plan/result boundary derives 40 exact cells across
+  all three targets, preserves genuine 1080p60 and exposure-to-action evidence,
+  and withholds selection, purchase and BOM authority.
+- Confirmed the microphone plan/result boundary derives 192 exact cells across
+  three targets, eight enforcement layers and eight lifecycle phases, treating
+  any returned buffer or byte as failure even when silent.
+- Re-ran all 26 shared-camera and all 25 microphone focused tests successfully.
+- Added an explicit status audit and retained the existing dedicated owner-
+  question documents rather than duplicating or silently answering them.
+
+### Remaining boundary
+
+I-177/I-179 remain active, not complete. No received camera, delivered price,
+exact target stack, room/optical/exposure-clock evidence, microphone policy
+probe, approved schedule/gate/authority, physical cell, qualified camera or
+default-disablement result exists. The administrative microphone diagnostic
+path remains unresolved.
