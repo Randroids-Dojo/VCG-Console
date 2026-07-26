@@ -6598,3 +6598,48 @@ path, camera/room/clock, replay corpus, participant/service authority,
 interaction script, schedule, threshold, run, performance distribution,
 recovery result or product conclusion exists. No hardware or external service
 was changed.
+
+## 2026-07-25: Raspberry Pi 5 memory-tier qualification plan
+
+### Delivered
+
+- Advanced I-016 from an open memory-pressure row to a strict blocked campaign
+  without recommending a memory tier from advertised capacity, price or
+  another target's telemetry.
+- Bound the committed I-014 CPU-only, accelerated concurrent-workload,
+  microSD-qualification and Pi-image plans by normalized SHA-256.
+- Preserved D-042's sequence: the selected 8GB reference completes first, 4GB
+  is the later minimum candidate, and optional 2GB evidence cannot rescue a
+  required row or become product-eligible without a superseding decision.
+- Pre-registered 40 required cells across two tiers, five workloads and four
+  phases: cold launch/headroom, one-hour representative load, bounded
+  cgroup-v2 pressure/reclaim and kernel-owned OOM containment/recovery.
+- Required memory/cgroup, PSI, fault/refault, swap/zram, storage-write, OOM,
+  pose/game, latency, power, thermal, acoustic, cost and fresh-recovery
+  evidence under one exact common target tuple.
+- Preserved D-110's 120 ms p95, zero privileged activations, zero unrecovered
+  failures, zero unexpected representative OOM kills and D-108's 35 dBA gate;
+  all outcome-sensitive memory, FPS/drop, power, thermal, recovery and savings
+  thresholds remain null.
+- Kept D-085 vault plaintext and keys out of swap/dumps and prohibited raw
+  frame/audio/skeleton/credential/hosted-body/identifier retention.
+
+### Verification evidence
+
+- Eight focused tests accept the tracked plan and reject source substitution,
+  invented target policy, tier/order/eligibility drift, optional-tier rescue,
+  workload/phase/duration weakening, failure replacement, fixed-gate changes,
+  aggregate or synthetic-only qualification, post-result thresholds,
+  premature recommendation/cost, hidden authority, sensitive retention,
+  blocker drift, unknown fields, noncanonical JSON, UTF-8 BOM, invalid UTF-8
+  and oversized input.
+- The validator reports three tiers, 40 required cells and nine blockers with
+  no result.
+
+### Remaining boundary
+
+I-016 is active, not closed. The 8GB reference has not passed; no received 8GB
+or 4GB board, exact image/runtime/storage/swap/cgroup policy, workload/data
+authority, pressure/OOM permission, schedule, monitoring, threshold, run,
+memory trace, cost or recommendation exists. No hardware, image, storage or
+external service was changed.

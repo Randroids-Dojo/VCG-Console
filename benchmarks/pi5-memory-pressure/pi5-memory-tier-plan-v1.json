@@ -1,0 +1,224 @@
+{
+  "format": "vcg-pi5-memory-tier-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-8gb-4gb-memory-pressure-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered I-016 Raspberry Pi 5 memory-tier campaign only. No 8GB, 4GB, or 2GB board, target image, workload, pressure injection, swap, zram, OOM, recovery, latency, FPS, memory, storage-write, power, thermal, acoustic, cost, qualification, minimum-tier, purchase, or product result exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "cpu-only-workload-boundary",
+      "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
+      "sha256": "c5127d4ae6b0ace6b24eb8634ae1a0507a0f9b53163a63f024d51e82271b9356"
+    },
+    {
+      "role": "accelerated-concurrent-workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "storage-boundary",
+      "path": "benchmarks/microsd-qualification/sandisk-high-endurance-256gb-plan-v1.json",
+      "sha256": "0963e7d53db272e2d7335efc54f28430af182ae40f58b10e443efc6eafccf696"
+    },
+    {
+      "role": "image-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    }
+  ],
+  "commonTargetBoundary": {
+    "boardFamily": "Raspberry Pi 5",
+    "acceleratorProduct": "Raspberry Pi AI HAT+ 26 TOPS",
+    "poseModel": "yolov8m_pose",
+    "operatingSystemImageSha256": null,
+    "kernelRelease": null,
+    "eepromVersion": null,
+    "runtimeManifestSha256": null,
+    "workloadBundleSha256": null,
+    "storageIdentitySha256": null,
+    "filesystemAndMountPolicySha256": null,
+    "swapAndZramPolicySha256": null,
+    "memoryControllerPolicySha256": null,
+    "oomEvidencePolicySha256": null,
+    "coolingPowerEnclosureSha256": null,
+    "cameraRoomClockSha256": null,
+    "monitoringCalibrationSha256": null
+  },
+  "tiers": [
+    {
+      "tierId": "pi5-8gb-reference",
+      "nominalMemoryBytes": 8589934592,
+      "required": true,
+      "executionOrder": 1,
+      "role": "selected-reference-first",
+      "receivedPartAndRevisionSha256": null,
+      "sameDateDeliveredCostCents": null,
+      "eligibleForMinimumRecommendation": true
+    },
+    {
+      "tierId": "pi5-4gb-minimum-candidate",
+      "nominalMemoryBytes": 4294967296,
+      "required": true,
+      "executionOrder": 2,
+      "role": "evaluate-only-after-8gb-stable",
+      "receivedPartAndRevisionSha256": null,
+      "sameDateDeliveredCostCents": null,
+      "eligibleForMinimumRecommendation": true
+    },
+    {
+      "tierId": "pi5-2gb-exploratory",
+      "nominalMemoryBytes": 2147483648,
+      "required": false,
+      "executionOrder": 3,
+      "role": "exploratory-only-not-selected-by-d042",
+      "receivedPartAndRevisionSha256": null,
+      "sameDateDeliveredCostCents": null,
+      "eligibleForMinimumRecommendation": false
+    }
+  ],
+  "workloadIds": [
+    "obstacle-local-web-motion",
+    "tiny-motion-godot-native-arm64",
+    "vibebots-remote-web-compatibility",
+    "mi-casa-remote-web-compatibility",
+    "determined-remote-web-compatibility"
+  ],
+  "phases": [
+    {
+      "phaseId": "cold-launch-and-idle-headroom",
+      "requiredEvidence": [
+        "cold-boot-and-launch-attempt-ledger",
+        "preload-idle-memory-breakdown",
+        "peak-launch-and-post-settle-memory"
+      ]
+    },
+    {
+      "phaseId": "one-hour-representative-workload",
+      "requiredEvidence": [
+        "five-minute-warmup-plus-uninterrupted-3600-second-run",
+        "complete-memory-latency-fps-power-thermal-trace",
+        "process-and-cgroup-lifecycle"
+      ]
+    },
+    {
+      "phaseId": "bounded-memory-pressure-and-reclaim",
+      "requiredEvidence": [
+        "target-owned-cgroup-v2-pressure-boundary",
+        "psi-reclaim-page-fault-swap-zram-and-storage-write-trace",
+        "no-profile-vault-plaintext-in-swap-or-dumps"
+      ]
+    },
+    {
+      "phaseId": "oom-containment-and-fresh-recovery",
+      "requiredEvidence": [
+        "kernel-owned-memory-events-baseline-and-increase",
+        "correct-fail-closed-product-state",
+        "fresh-instance-proof-and-state-integrity"
+      ]
+    }
+  ],
+  "runProtocol": {
+    "warmupSeconds": 300,
+    "measuredSecondsPerWorkload": 3600,
+    "requiredRunsPerWorkloadTier": 1,
+    "samplingPeriodMs": 1000,
+    "eightGbMustCompleteBeforeFourGb": true,
+    "sameArtifactsAndConfigurationAcrossTiers": true,
+    "counterbalancedWorkloadOrder": true,
+    "invalidHarnessRunsRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "oneRunIsReliabilityRateEvidence": false,
+    "scheduleSha256": null,
+    "operatorProtocolSha256": null,
+    "pressureInjectionProtocolSha256": null
+  },
+  "requiredMetrics": [
+    "available used resident proportional-set and committed memory by process and cgroup",
+    "anonymous file cache slab page-table and kernel memory",
+    "minor major and refault counts plus memory pressure stall information",
+    "swap and zram in out occupancy compression and latency",
+    "microSD bytes operations latency queue depth and write amplification attributable to pressure",
+    "oom oom_kill high max and pressure-event counters with per-attempt baselines",
+    "pose FPS game FPS frame-time and capture-through-delivery drops",
+    "exposure-to-action p50 p95 p99 and worst with uncertainty",
+    "launch recovery and fresh-instance timing plus state-integrity result",
+    "wall power energy SoC temperature clocks throttle and fan speed",
+    "one-metre acoustics with ambient floor and uncertainty",
+    "same-date delivered cost and complete-system delta without automatic selection"
+  ],
+  "acceptance": {
+    "maximumExposureToActionP95Ms": 120,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumUnexpectedOomKillsDuringRepresentativeRun": 0,
+    "maximumOneMeterAcousticsDba": 35,
+    "minimumAvailableMemoryHeadroomBytes": null,
+    "maximumPressureStallRatio": null,
+    "maximumMajorFaultsPerSecond": null,
+    "maximumSwapBytes": null,
+    "maximumZramBytes": null,
+    "maximumPressureStorageWriteBytes": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumGameFrameTimeP95Ms": null,
+    "maximumCaptureDropRatio": null,
+    "maximumPoseDropRatio": null,
+    "maximumWallPowerW": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumThermalThrottleEvents": null,
+    "maximumRecoveryMs": null,
+    "minimumDeliveredSavingsCentsForFourGb": null,
+    "everyRequiredTierWorkloadPhaseMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "optionalTwoGbMayRescueRequiredTier": false,
+    "syntheticPressureAloneMayQualifyTier": false
+  },
+  "selectionPolicy": {
+    "currentReferenceTierId": "pi5-8gb-reference",
+    "minimumCandidateTierId": "pi5-4gb-minimum-candidate",
+    "recommendedTierId": null,
+    "automaticSelectionAllowed": false,
+    "fourGbRequiresStablePassingEightGbBaseline": true,
+    "twoGbRequiresSupersedingDecisionForProductEligibility": true,
+    "memorySavingsCannotExcuseLatencyAccuracyRecoveryOrStorageFailure": true
+  },
+  "dataPolicy": {
+    "rawFrameRetentionAuthorized": false,
+    "audioRecordingAuthorized": false,
+    "skeletonTraceRetentionAuthorized": false,
+    "swapOrDumpMayContainVaultPlaintext": false,
+    "credentialsTokensOrHostedBodiesRetained": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "systemTelemetryWithoutUserContentAllowed": true,
+    "releaseEvidenceAggregateOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "imageOrStorageMutationAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "pressureOrOomInjectionAuthorized": false,
+    "blockerCodes": [
+      "stable-passing-8gb-reference-campaign",
+      "received-8gb-and-4gb-board-identities",
+      "qualified-image-runtime-storage-and-workload-tuple",
+      "swap-zram-cgroup-psi-and-oom-evidence-policy",
+      "camera-room-exposure-clock-and-ground-truth",
+      "workload-service-participant-and-data-authority",
+      "schedule-monitoring-pressure-and-recovery-protocols",
+      "memory-fps-drop-power-thermal-recovery-and-savings-gates",
+      "hardware-purchase-image-storage-and-fault-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredCells": 0,
+    "qualifiedTierIds": [],
+    "recommendedTierId": null
+  }
+}
