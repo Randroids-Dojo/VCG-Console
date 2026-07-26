@@ -6817,3 +6817,27 @@ I-120 remains active. Exact target/power/display/controller tuples, idle and
 suspend adapters, wake sources, x86 selection authority, calibrated instruments,
 state/privacy/write/network oracles, schedule, numeric gates, hardware authority,
 180 idle runs and at least 600 required wake cycles remain absent.
+
+## 2026-07-25: sudden-power campaign status reconciliation
+
+### Delivered
+
+- Audited the existing `219b53b` sudden-power tranche against the still-open
+  I-114 and I-202 investigation rows and corrected both statuses to active.
+- Mapped I-114's OS, game, retro import, profile and save requirements to the
+  validator's boot/system-update/filesystem-recovery, package update/rollback,
+  retro-import, profile-vault and save-checkpoint operation classes.
+- Confirmed the campaign also freezes idle, log-rotation and low-space classes,
+  at least 200 ordered valid cuts, exact plan-byte result binding, complete
+  ledger accounting, four mandatory oracles and zero product failures.
+- Re-ran all twelve focused tests successfully and recorded exact SHA-256
+  identities for the campaign contract, owner questions, validator and tests.
+- Added an explicit audit boundary rather than creating a second incompatible
+  power-cut schema or treating synthetic test digests as a physical plan.
+
+### Remaining boundary
+
+I-114/I-202 are active, not complete. No exact Pi/card/supply/image/filesystem/
+service/transition/fixture tuple, frozen physical plan, destructive authority,
+cut, evidence ledger, restore, result or hardware qualification exists. Q-197
+and Q-198 remain unresolved in the existing owner-question document.
