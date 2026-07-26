@@ -1,0 +1,56 @@
+{
+  "fixtureVersion": 1,
+  "payloadUtf8": "VCG retro interoperability fixture v1\n",
+  "inspectionId": "rii-33333333333333333333333333333333",
+  "planExpiresAtMs": 1031000,
+  "nowMs": 1001000,
+  "policy": {
+    "policyId": "starter-retro-import",
+    "policyRevision": 7,
+    "systemId": "game-boy",
+    "extension": ".gb",
+    "coreId": "gambatte",
+    "controllerProfile": "retropad-standard-v1",
+    "maxContentBytes": 8000000,
+    "maxLibraryEntries": 1000,
+    "maxLibraryBytes": 100000000
+  },
+  "intent": {
+    "schemaVersion": 1,
+    "planId": "rip-11111111-631f3f1ae41d9972-1",
+    "expectedLibraryGeneration": 1,
+    "action": "install-new",
+    "sourceHandle": "rih-22222222222222222222222222222222",
+    "sourceSha256": "631f3f1ae41d9972f6390ff0f86d7cf5efe5fe511c87a583316ac5e5b5c7060e",
+    "installEntry": {
+      "entryId": "content-631f3f1ae41d9972f6390ff0f86d7cf5efe5fe511c87a583316ac5e5b5c7060e",
+      "systemId": "game-boy",
+      "sha256": "631f3f1ae41d9972f6390ff0f86d7cf5efe5fe511c87a583316ac5e5b5c7060e",
+      "sizeBytes": 38,
+      "extension": ".gb",
+      "title": "Interop Fixture",
+      "coreId": "gambatte",
+      "controllerProfile": "retropad-standard-v1",
+      "provenance": {
+        "transport": "usb",
+        "importSessionId": "ris-11111111111111111111111111111111",
+        "entitlementStatementVersion": "vcg-user-entitled-content-v1",
+        "importedAtMs": 1001000
+      }
+    },
+    "existingEntryId": null,
+    "cleanupStagingAfterTerminal": true,
+    "audit": {
+      "event": "retro-import-terminal-intent",
+      "planId": "rip-11111111-631f3f1ae41d9972-1",
+      "policyId": "starter-retro-import",
+      "policyRevision": 7,
+      "sessionId": "ris-11111111111111111111111111111111",
+      "transport": "usb",
+      "systemId": "game-boy",
+      "contentSha256": "631f3f1ae41d9972f6390ff0f86d7cf5efe5fe511c87a583316ac5e5b5c7060e",
+      "entitlementStatementVersion": "vcg-user-entitled-content-v1",
+      "decision": "install"
+    }
+  }
+}

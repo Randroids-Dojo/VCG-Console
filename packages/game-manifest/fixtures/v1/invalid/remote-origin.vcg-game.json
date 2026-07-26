@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-remote-origin",
+  "version": "1.0.0",
+  "title": "Remote Origin Fixture",
+  "publisher": "VCG Fixtures",
+  "runtime": "remote-web",
+  "entrypoint": "https://games.example.test/play",
+  "architectures": ["web"],
+  "permissions": ["gamepad", "network"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "required",
+  "allowedOrigins": ["https://other.example.test"],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 30000,
+    "healthCheck": {
+      "type": "http",
+      "path": "/play"
+    }
+  },
+  "rights": {
+    "distribution": "remote-only",
+    "codeLicense": "NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "unreviewed"
+  },
+  "notes": []
+}

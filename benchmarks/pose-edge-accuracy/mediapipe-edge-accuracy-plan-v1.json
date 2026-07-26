@@ -1,0 +1,121 @@
+{
+  "format": "vcg-pose-edge-accuracy-plan/v1",
+  "campaignId": "first-room-mediapipe-edge-accuracy-v1",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "motionApiVersion": "0.4.0",
+  "qualification": "blocked-plan-only-no-collection-authority",
+  "collectionGate": {
+    "status": "blocked",
+    "targetId": null,
+    "cameraConfigurationSha256": null,
+    "roomGeometrySha256": null,
+    "placementProtocolSha256": null,
+    "personaProtocolSha256": null,
+    "groundTruthProtocolSha256": null,
+    "groundTruthAuthority": null,
+    "timestampProofSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "blockerCodes": [
+      "acceptance-gates",
+      "camera-room-binding",
+      "data-handling-authority",
+      "ground-truth-authority",
+      "participant-consent"
+    ]
+  },
+  "matrix": {
+    "backendIds": [
+      "mediapipe-lite"
+    ],
+    "blockingPersonaClasses": [
+      "adult-standing",
+      "school-age-child-standing"
+    ],
+    "exploratoryPersonaClasses": [
+      "seated"
+    ],
+    "positionIds": [
+      "center",
+      "upper-left-quarter",
+      "upper-right-quarter",
+      "lower-left-quarter",
+      "lower-right-quarter",
+      "left-distortion-edge",
+      "right-distortion-edge",
+      "top-distortion-edge",
+      "bottom-distortion-edge"
+    ],
+    "postureIds": [
+      "neutral",
+      "arms-raised",
+      "squat",
+      "lean-left",
+      "lean-right",
+      "step-left",
+      "step-right"
+    ],
+    "minimumValidTrialsPerCell": 20,
+    "scheduledBlockingCellCount": 126,
+    "scheduledBlockingTrialCount": 2520,
+    "exploratoryCellsRequiredForBlockingDisposition": false
+  },
+  "measurement": {
+    "coordinateSystem": "image.normalized.top-left",
+    "coordinateSpecificationVersion": "0.1.0",
+    "landmarks": [
+      "nose",
+      "left_eye",
+      "right_eye",
+      "left_ear",
+      "right_ear",
+      "left_shoulder",
+      "right_shoulder",
+      "left_elbow",
+      "right_elbow",
+      "left_wrist",
+      "right_wrist",
+      "left_hip",
+      "right_hip",
+      "left_knee",
+      "right_knee",
+      "left_ankle",
+      "right_ankle"
+    ],
+    "errorMetric": "pixel-space-euclidean",
+    "errorNormalization": "ground-truth-shoulder-midpoint-to-hip-midpoint-pixel-distance",
+    "statistics": [
+      "detection-rate",
+      "missing-rate",
+      "p50-normalized-error",
+      "p95-normalized-error",
+      "worst-normalized-error",
+      "outlier-rate"
+    ],
+    "perCellPassRequired": true,
+    "aggregateMayRescueFailedCell": false,
+    "groundTruthIndependentOfCandidate": true
+  },
+  "acceptance": {
+    "minimumDetectionRate": null,
+    "maximumMissingRatePerLandmark": null,
+    "maximumP95NormalizedErrorPerLandmark": null,
+    "maximumWorstNormalizedErrorPerLandmark": null,
+    "maximumOutlierRatePerLandmark": null
+  },
+  "dataPolicy": {
+    "temporaryImageGroundTruthCollectionAuthorized": false,
+    "rawRoomVideoDefault": false,
+    "retainedRawFrameCountLimit": 0,
+    "skeletonOnlyReleaseArtifactRequired": true,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false
+  },
+  "claimBoundary": "This file pre-registers a blocked MediaPipe edge-position accuracy campaign shape only. It authorizes no camera, participant, room, equipment purchase, temporary image collection, threshold, or product claim and contains no physical result.",
+  "limitations": [
+    "The target, exact camera configuration, room geometry, placement protocol, personas, timestamp proof, and data-handling protocol are unresolved.",
+    "No independent ground-truth method is selected; candidate confidence or output cannot label itself.",
+    "Every accuracy and missing/outlier acceptance gate is null pending owner and safety review.",
+    "The seated row is exploratory and cannot rescue a failed adult-standing or school-age-child-standing blocking cell.",
+    "No frame, landmark, participant, physical trial, gameplay action, latency, or target result is recorded."
+  ]
+}

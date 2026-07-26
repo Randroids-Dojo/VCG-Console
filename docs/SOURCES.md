@@ -1,6 +1,6 @@
 # Research source ledger
 
-Last verified: 2026-07-21
+Last updated: 2026-07-24
 
 Prefer primary project repositories, official documentation, standards, and official lifecycle notices. Product claims are candidates for local measurement, not substitutes for it.
 
@@ -29,6 +29,8 @@ Prefer primary project repositories, official documentation, standards, and offi
 | [rtmlib](https://github.com/Tau-J/rtmlib) | Apache-2.0 lightweight RTMPose/RTMO deployment across ONNX Runtime, TensorRT, OpenVINO, and ncnn. |
 | [MMPose inference guide](https://github.com/open-mmlab/mmpose/blob/main/docs/en/user_guides/inference.md) | Documents multi-frame pose tracking and OKS-based tracking options. |
 | [ByteTrack](https://github.com/FoundationVision/ByteTrack) | Official multi-object tracking implementation worth comparing for stable player identity. |
+| [One Euro Filter](https://gery.casiez.net/1euro/) | The authors' official CHI 2012 companion page provides the paper, algorithm, reference implementations, and tuning procedure for its jitter/lag tradeoff. |
+| [Kalman 1960 filtering paper](https://cds.cern.ch/record/434680) | Primary basis for the small constant-velocity state-estimation baselines used in identity and smoothing comparisons. |
 | [MMAction2](https://github.com/open-mmlab/mmaction2) | Apache-2.0 action-recognition toolbox including skeleton-based recognition. |
 | [libfreenect](https://github.com/OpenKinect/libfreenect) and [libfreenect2](https://github.com/OpenKinect/libfreenect2) | Open Kinect v1/v2 capture drivers; useful as sensor references but not complete modern body-tracking platforms. |
 | [Azure Kinect lifecycle](https://learn.microsoft.com/en-us/lifecycle/products/azure-kinect-sdk) and [archived SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK) | Microsoft marks Azure Kinect SDK support ended in 2024 and the repository is archived. |
@@ -81,7 +83,7 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 | [SDL3 Gamepad API](https://wiki.libsdl.org/SDL3/CategoryGamepad) | Official semantic gamepad API, built-in popular mappings, runtime capability queries, and hot-plug guidance for the accountless controller layer. |
 | [SDL3 mapping API](https://wiki.libsdl.org/SDL3/SDL_AddGamepadMapping) and [GUID reference](https://wiki.libsdl.org/SDL3/SDL_GUID) | GUID-keyed custom mappings are supported, but a GUID is platform-specific mapping identity rather than a unique physical controller identity. |
 | [SDL3 migration guidance](https://wiki.libsdl.org/SDL3/README-migration) | Face buttons are represented by position and labels can be queried; accept/cancel must not assume one printed-letter convention. |
-| [Godot web export](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_web.html) | WebAssembly, PWA, offline, threading, and cross-origin requirements for Godot web games. |
+| [Godot 4.7 web export](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_web.html) and [Godot 4.7.1 release archive](https://godotengine.org/download/archive/4.7.1-stable/) | WebAssembly, PWA, offline, threading, and cross-origin requirements plus the exact editor/export-template release used for the dated SDK export evidence. |
 | [Godot Linux export](https://docs.godotengine.org/en/latest/tutorials/export/exporting_for_linux.html) | Official native Linux x86-64 and ARM64 export guidance. |
 | [Valve Steam Machine documentation](https://partner.steamgames.com/doc/steamhardware/steammachine) | Valve describes the 2026 x86-64 SteamOS living-room PC, discrete semi-custom AMD CPU/GPU, approximately six-times-Deck performance, fast suspend/resume, and current lack of dev-kit units. |
 | [SteamOS custom-build deployment](https://partner.steamgames.com/doc/steamhardware/loadgames) | Official developer-mode, SSH pairing, rsync deployment, Linux/Proton start-command, and local testing workflow for Steam Deck and Steam Machine. |
@@ -95,11 +97,21 @@ No Hailo hardware or runtime has been tested by this repository yet, so there is
 | [Bazzite installation guide](https://docs.bazzite.gg/General/Installation_Guide/install-guide/) | The Bazzite project's current x86 installation, Steam Gaming Mode, Windows dual-boot, separate-drive, Secure Boot, and recovery guidance for evaluating a lower-cost AMD mini-PC lane. This does not establish support on Valve's Steam Machine. |
 | [Flatpak sandbox permissions](https://docs.flatpak.org/en/latest/sandbox-permissions.html) | Sandboxes begin without device access; input and raw USB grants exist in newer Flatpak, while webcam access may require broad device access. Exact V4L2 camera behavior still needs SteamOS testing. |
 
+## Update trust and recovery
+
+| Source | Relevant evidence |
+|---|---|
+| [The Update Framework specification 1.0.35](https://theupdateframework.github.io/specification/v1.0.35/) | Primary specification for offline root authority, distinct metadata roles, threshold signatures, expiry, rollback/freeze protection, and exact next-version root rotation signed under both the old and new root thresholds. |
+| [Uptane Standard 2.0.0](https://uptane.org/docs/2.0.0/standard/uptane-standard) | Primary software-image update standard covering root/targets/snapshot/timestamp roles, secure time, hardware/image binding, release counters, complete image length/hash verification, and full versus partial verification. VCG is not claiming Uptane conformance. |
+| [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032) | IETF specification for Ed25519/EdDSA used by the current local signing primitives. |
+
 ## Brand and typography
 
 | Source | Relevant evidence |
 |---|---|
-| [OCR-A font project](https://sourceforge.net/projects/ocr-a-font/) and [1.0 files](https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/) | SourceForge describes an ANSI X3.17-1977-conformant font with sources and labels it Public Domain. The 1.0 folder lists `OCRA.ttf` at 24.3 kB and records prior macOS conversion defects. Hash, glyph coverage, and TV testing remain before vendoring. |
+| [OCR-A font project](https://sourceforge.net/projects/ocr-a-font/) and [1.0 files](https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/) | SourceForge describes an ANSI X3.17-1977-conformant font with sources and labels it Public Domain. The exact 24,316-byte `OCRA.ttf` is reproducibly staged under a pinned SHA-256 with source links and a notice. Glyph coverage, accessibility, and TV testing remain. |
+| [CDC clinical growth charts](https://www.cdc.gov/growthcharts/cdc-charts.htm), [stature data](https://www.cdc.gov/growthcharts/cdc-data-files.htm), and [child activity overview](https://www.cdc.gov/physical-activity-basics/guidelines/children.html) | Context for the child persona matrix: stature varies across childhood and active play must remain age-appropriate. These sources are not used as a clinical screen or as proof that VCG movements are safe or qualified. |
+| [CPSC Anchor It!](https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/AnchorItgov), [CPSC playground checklist](https://www.cpsc.gov/safety-education/safety-guides/playgrounds/public-playground-safety-checklist), and [CDC heat/activity guidance](https://www.cdc.gov/heat-health/risk-factors/heat-and-athletes.html) | Context for the prototype's fail-closed room checklist: anchor reachable televisions/furniture, remove fall/trip hazards, supervise active child play, pace activity, provide water, and stop on weakness. These sources do not certify the console, room, or movement design. |
 
 ## Retro and content rights
 

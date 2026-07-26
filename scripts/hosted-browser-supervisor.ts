@@ -1,0 +1,2242 @@
+import type { ChildProcess } from "node:child_process";
+import { spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
+import { lstat, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, dirname, resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
+import WebSocket, { type RawData } from "ws";
+
+const MAX_ALLOWED_ORIGINS = 8;
+const MAX_CDP_MESSAGE_BYTES = 1_048_576;
+const MAX_CDP_PENDING_COMMANDS = 128;
+const MAX_TOP_LEVEL_PROBE_URL_LENGTH = 4_096;
+const MAX_HEALTH_CHECK_PATH_LENGTH = 1_024;
+const CDP_COMMAND_TIMEOUT_MS = 5_000;
+const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
+const EXPLICIT_READY_POLL_INTERVAL_MS = 50;
+const EXPLICIT_READY_EXPRESSION =
+  'document.documentElement?.getAttribute("data-vcg-ready") === "1"';
+const HOSTED_LIVENESS_CONTRACT_NAME = "vcgHostedLifecycleV1";
+const HOSTED_LIVENESS_CHALLENGE_BYTES = 16;
+const HEALTH_CHECK_ACCEPT =
+  "application/vnd.vcg.health+json, application/json;q=0.1";
+const DENIED_BROWSER_PERMISSIONS = Object.freeze([
+  "camera",
+  "geolocation",
+  "midi",
+  "microphone",
+  "notifications",
+]);
+
+export interface HostedBrowserManifestInput {
+  readonly id: string;
+  readonly runtime: string;
+  readonly entrypoint: string;
+  readonly allowedOrigins: readonly string[];
+  readonly launch: {
+    readonly timeoutMs: number;
+    readonly healthCheck: {
+      readonly type: string;
+      readonly path?: string;
+    };
+  };
+}
+
+export interface HostedBrowserPolicy {
+  readonly schemaVersion: 1;
+  readonly gameId: string;
+  readonly entrypoint: string;
+  readonly allowedOrigins: readonly string[];
+  readonly healthCheckUrl: string;
+  readonly launchTimeoutMs: number;
+}
+
+export interface HostedBrowserLivenessPolicy {
+  readonly schemaVersion: 1;
+  readonly challengeIntervalMs: number;
+  readonly acknowledgementTimeoutMs: number;
+  readonly maximumConsecutiveMisses: number;
+}
+
+export const HOSTED_BROWSER_LIVENESS_POLICY_V1: HostedBrowserLivenessPolicy =
+  Object.freeze({
+    schemaVersion: 1 as const,
+    challengeIntervalMs: 1_000,
+    acknowledgementTimeoutMs: 2_000,
+    maximumConsecutiveMisses: 2,
+  });
+
+export type HostedBrowserLivenessFailureCode =
+  | "POST_READY_ACK_INVALID"
+  | "POST_READY_CONTRACT_LOST"
+  | "POST_READY_CONTRACT_MISSING"
+  | "POST_READY_HEARTBEAT_TIMEOUT";
+
+export interface HostedBrowserLivenessFailure {
+  readonly code: HostedBrowserLivenessFailureCode;
+  readonly challengeCount: number;
+  readonly acknowledgementCount: number;
+  readonly consecutiveMisses: number;
+}
+
+export type HostedBrowserViolationCode =
+  | "DOWNLOAD_ATTEMPT"
+  | "NAVIGATION_ORIGIN_DENIED"
+  | "POPUP_ATTEMPT"
+  | "TARGET_CRASHED";
+
+export interface HostedBrowserViolation {
+  readonly code: HostedBrowserViolationCode;
+  readonly detail: string;
+}
+
+export interface HostedBrowserRunResult {
+  readonly code:
+    | "BROWSER_CLOSED"
+    | "BROWSER_CRASHED"
+    | "EXPLICIT_READY_TIMEOUT"
+    | "LAUNCH_ABORTED"
+    | "POLICY_VIOLATION"
+    | HostedBrowserLivenessFailureCode;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+  readonly liveness?: HostedBrowserLivenessFailure;
+  readonly violation?: HostedBrowserViolation;
+}
+
+export interface HostedBrowserRunOptions {
+  readonly browserPath: string;
+  readonly policy: HostedBrowserPolicy;
+  readonly profilePath: string;
+  readonly signal?: AbortSignal;
+  readonly onStatus?: (status: HostedBrowserStatus) => void;
+}
+
+export interface HostedBrowserStatus {
+  readonly phase:
+    | "browser-start"
+    | "devtools-connect"
+    | "navigation"
+    | "document-loaded"
+    | "ready"
+    | "stopping";
+  readonly detail: string;
+}
+
+export interface HostedBrowserContainmentProbeResult {
+  readonly attempt: HostedBrowserContainmentProbeAttempt;
+  readonly violation: HostedBrowserViolation;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+export interface HostedBrowserTopLevelProbeResult {
+  readonly loaded: true;
+  readonly finalUrl: string;
+  readonly title: string;
+  readonly readyState: "interactive" | "complete";
+  readonly browserProduct: string;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+export interface HostedBrowserLivenessProbeResult {
+  readonly acknowledged: true;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+export type HostedBrowserContainmentProbeAttempt =
+  | "download"
+  | "foreign-navigation"
+  | "popup";
+
+interface CdpEvent {
+  readonly method: string;
+  readonly params?: Record<string, unknown>;
+  readonly sessionId?: string;
+}
+
+interface TargetInfo {
+  readonly targetId: string;
+  readonly type: string;
+  readonly url: string;
+  readonly openerId?: string;
+}
+
+interface BrowserExit {
+  readonly code: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+type CdpEventListener = (event: CdpEvent) => void;
+type ViolationListener = (violation: HostedBrowserViolation) => void;
+
+export class HostedBrowserPolicyError extends Error {
+  public constructor(message: string) {
+    super(message);
+    this.name = "HostedBrowserPolicyError";
+  }
+}
+
+export function createHostedBrowserPolicy(
+  manifest: HostedBrowserManifestInput,
+): HostedBrowserPolicy {
+  if (manifest.runtime !== "remote-web") {
+    throw new HostedBrowserPolicyError(
+      `hosted browser requires remote-web, received ${manifest.runtime}`,
+    );
+  }
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(manifest.id)) {
+    throw new HostedBrowserPolicyError("hosted browser game ID is invalid");
+  }
+  if (
+    !Array.isArray(manifest.allowedOrigins)
+    || manifest.allowedOrigins.length === 0
+    || manifest.allowedOrigins.length > MAX_ALLOWED_ORIGINS
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser allowed origins must be a non-empty bounded array",
+    );
+  }
+
+  const allowedOrigins: string[] = [];
+  const uniqueOrigins = new Set<string>();
+  for (const value of manifest.allowedOrigins) {
+    const origin = requireExactHttpsOrigin(value, "allowed origin");
+    if (uniqueOrigins.has(origin)) {
+      throw new HostedBrowserPolicyError(
+        "hosted browser allowed origins must be unique",
+      );
+    }
+    uniqueOrigins.add(origin);
+    allowedOrigins.push(origin);
+  }
+
+  const entrypoint = requireCredentialFreeHttpsUrl(
+    manifest.entrypoint,
+    "entrypoint",
+  );
+  if (!uniqueOrigins.has(entrypoint.origin)) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser entrypoint origin is not allowed",
+    );
+  }
+  if (
+    !Number.isSafeInteger(manifest.launch.timeoutMs)
+    || manifest.launch.timeoutMs < 1_000
+    || manifest.launch.timeoutMs > 120_000
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser launch timeout is invalid",
+    );
+  }
+  if (manifest.launch.healthCheck.type !== "http") {
+    throw new HostedBrowserPolicyError(
+      "hosted browser requires an HTTP health check",
+    );
+  }
+  const healthCheckPath = manifest.launch.healthCheck.path ?? "/";
+  if (
+    typeof healthCheckPath !== "string"
+    || healthCheckPath.length === 0
+    || healthCheckPath.length > MAX_HEALTH_CHECK_PATH_LENGTH
+    || !healthCheckPath.startsWith("/")
+    || healthCheckPath.startsWith("//")
+    || healthCheckPath.includes("\\")
+    || /[\u0000-\u001f\u007f]/u.test(healthCheckPath)
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser health-check path must be one bounded absolute URL path",
+    );
+  }
+  const healthCheck = requirePrivacySafeHealthUrl(
+    new URL(healthCheckPath, entrypoint).href,
+    "health check",
+  );
+  if (!uniqueOrigins.has(healthCheck.origin)) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser health-check origin is not allowed",
+    );
+  }
+
+  return Object.freeze({
+    schemaVersion: 1 as const,
+    gameId: manifest.id,
+    entrypoint: entrypoint.href,
+    allowedOrigins: Object.freeze(allowedOrigins),
+    healthCheckUrl: healthCheck.href,
+    launchTimeoutMs: manifest.launch.timeoutMs,
+  });
+}
+
+export class HostedBrowserNavigationGuard {
+  readonly #allowedOrigins: ReadonlySet<string>;
+  #mainTargetId: string | undefined;
+  #navigationArmed = false;
+  #violation: HostedBrowserViolation | undefined;
+
+  public constructor(policy: HostedBrowserPolicy) {
+    this.#allowedOrigins = new Set(policy.allowedOrigins);
+  }
+
+  public arm(mainTargetId: string): void {
+    if (this.#mainTargetId !== undefined) {
+      throw new HostedBrowserPolicyError(
+        "hosted browser navigation guard is already armed",
+      );
+    }
+    if (!isOpaqueId(mainTargetId)) {
+      throw new HostedBrowserPolicyError(
+        "hosted browser main target ID is invalid",
+      );
+    }
+    this.#mainTargetId = mainTargetId;
+  }
+
+  public beginNavigation(): void {
+    if (this.#mainTargetId === undefined) {
+      throw new HostedBrowserPolicyError(
+        "hosted browser navigation guard is not armed",
+      );
+    }
+    this.#navigationArmed = true;
+  }
+
+  public observeTargetCreated(
+    target: TargetInfo,
+  ): HostedBrowserViolation | undefined {
+    if (
+      this.#violation === undefined
+      && this.#mainTargetId !== undefined
+      && target.type === "page"
+      && target.targetId !== this.#mainTargetId
+    ) {
+      return this.#recordViolation(
+        "POPUP_ATTEMPT",
+        "hosted page created another top-level page target",
+      );
+    }
+    return this.#violation;
+  }
+
+  public observeTargetChanged(
+    target: TargetInfo,
+  ): HostedBrowserViolation | undefined {
+    if (
+      this.#violation !== undefined
+      || target.targetId !== this.#mainTargetId
+      || !this.#navigationArmed
+    ) {
+      return this.#violation;
+    }
+    return this.#observeUrl(target.url);
+  }
+
+  public observeTopFrame(
+    targetId: string,
+    url: string,
+  ): HostedBrowserViolation | undefined {
+    if (
+      this.#violation !== undefined
+      || targetId !== this.#mainTargetId
+      || !this.#navigationArmed
+    ) {
+      return this.#violation;
+    }
+    return this.#observeUrl(url);
+  }
+
+  public observeDownload(): HostedBrowserViolation {
+    return this.#recordViolation(
+      "DOWNLOAD_ATTEMPT",
+      "hosted page attempted a download",
+    );
+  }
+
+  public observeTargetCrash(
+    targetId: string,
+  ): HostedBrowserViolation | undefined {
+    if (
+      this.#violation === undefined
+      && targetId === this.#mainTargetId
+    ) {
+      return this.#recordViolation(
+        "TARGET_CRASHED",
+        "hosted browser renderer crashed",
+      );
+    }
+    return this.#violation;
+  }
+
+  public get currentViolation(): HostedBrowserViolation | undefined {
+    return this.#violation;
+  }
+
+  public get mainTargetId(): string | undefined {
+    return this.#mainTargetId;
+  }
+
+  #observeUrl(value: string): HostedBrowserViolation | undefined {
+    let parsed: URL;
+    try {
+      parsed = new URL(value);
+    } catch {
+      return this.#recordViolation(
+        "NAVIGATION_ORIGIN_DENIED",
+        "hosted page navigated to a malformed URL",
+      );
+    }
+    if (
+      parsed.protocol !== "https:"
+      || parsed.username !== ""
+      || parsed.password !== ""
+      || !this.#allowedOrigins.has(parsed.origin)
+    ) {
+      return this.#recordViolation(
+        "NAVIGATION_ORIGIN_DENIED",
+        `hosted page left its allowed origin set: ${safeUrlLabel(parsed)}`,
+      );
+    }
+    return undefined;
+  }
+
+  #recordViolation(
+    code: HostedBrowserViolationCode,
+    detail: string,
+  ): HostedBrowserViolation {
+    if (this.#violation === undefined) {
+      this.#violation = Object.freeze({ code, detail });
+    }
+    return this.#violation;
+  }
+}
+
+export function buildHostedBrowserArguments(
+  profilePath: string,
+): readonly string[] {
+  if (profilePath.length === 0) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile path is missing",
+    );
+  }
+  return Object.freeze([
+    `--user-data-dir=${profilePath}`,
+    "--remote-debugging-port=0",
+    "--remote-allow-origins=http://127.0.0.1",
+    "--app=about:blank",
+    "--start-fullscreen",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-background-networking",
+    "--disable-component-update",
+    "--disable-default-apps",
+    "--disable-features=AutofillServerCommunication,MediaRouter,Translate",
+    "--disable-sync",
+  ]);
+}
+
+export async function requireHealthyHostedEndpoint(
+  policy: HostedBrowserPolicy,
+  fetchImpl: typeof fetch = fetch,
+): Promise<void> {
+  const allowedOrigins = new Set(policy.allowedOrigins);
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    policy.launchTimeoutMs,
+  );
+  let current = new URL(policy.healthCheckUrl);
+  try {
+    for (let redirects = 0; redirects <= 5; redirects += 1) {
+      if (!allowedOrigins.has(current.origin)) {
+        throw new HostedBrowserPolicyError(
+          `health check origin is not allowed: ${safeUrlLabel(current)}`,
+        );
+      }
+      const response = await fetchImpl(current, {
+        body: undefined,
+        cache: "no-store",
+        credentials: "omit",
+        headers: {
+          accept: HEALTH_CHECK_ACCEPT,
+        },
+        method: "GET",
+        referrerPolicy: "no-referrer",
+        redirect: "manual",
+        signal: controller.signal,
+      });
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get("location");
+        await response.body?.cancel();
+        if (location === null) {
+          throw new HostedBrowserPolicyError(
+            `health check redirect ${response.status} omitted Location`,
+          );
+        }
+        if (redirects === 5) {
+          throw new HostedBrowserPolicyError(
+            "health check exceeded five redirects",
+          );
+        }
+        current = requirePrivacySafeHealthUrl(
+          new URL(location, current).href,
+          "health-check redirect",
+        );
+        continue;
+      }
+      await response.body?.cancel();
+      if (!response.ok) {
+        throw new HostedBrowserPolicyError(
+          `health check returned HTTP ${response.status}`,
+        );
+      }
+      return;
+    }
+    throw new HostedBrowserPolicyError(
+      "health check exceeded five redirects",
+    );
+  } catch (error) {
+    if (error instanceof HostedBrowserPolicyError) throw error;
+    throw new HostedBrowserPolicyError(
+      controller.signal.aborted
+        ? "hosted browser health check timed out"
+        : "hosted browser health check transport failed",
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function runSupervisedHostedBrowser(
+  options: HostedBrowserRunOptions,
+): Promise<HostedBrowserRunResult> {
+  const profilePath = validateHostedBrowserProfilePath(options.profilePath);
+  const report = (status: HostedBrowserStatus) => {
+    options.onStatus?.(Object.freeze(status));
+  };
+  report({
+    phase: "browser-start",
+    detail: "Starting isolated hosted browser",
+  });
+  const child = spawn(
+    options.browserPath,
+    [...buildHostedBrowserArguments(profilePath)],
+    {
+      detached: process.platform !== "win32",
+      stdio: ["ignore", "inherit", "inherit"],
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  const readinessCancellation = new AbortController();
+  void childExit.finally(() => readinessCancellation.abort());
+  let connection: CdpConnection | undefined;
+  let stopRequested = false;
+  let mainTargetClosed = false;
+  let violation: HostedBrowserViolation | undefined;
+  let stopPromise: Promise<BrowserExit> | undefined;
+  let resolveViolation: (
+    value: HostedBrowserViolation,
+  ) => void = () => undefined;
+  const violationObserved = new Promise<HostedBrowserViolation>((resolve) => {
+    resolveViolation = resolve;
+  });
+  let resolveMainTargetClosed: () => void = () => undefined;
+  const mainTargetClosedObserved = new Promise<void>((resolve) => {
+    resolveMainTargetClosed = resolve;
+  });
+  let resolveAborted: () => void = () => undefined;
+  const abortedObserved = new Promise<void>((resolve) => {
+    resolveAborted = resolve;
+  });
+
+  const requestStop = (detail: string) => {
+    if (stopRequested) return;
+    stopRequested = true;
+    readinessCancellation.abort();
+    report({
+      phase: "stopping",
+      detail,
+    });
+    stopPromise ??= stopBrowserProcess(connection, child, childExit);
+    void stopPromise.catch(() => undefined);
+  };
+  const onViolation = (value: HostedBrowserViolation) => {
+    if (violation === undefined) {
+      violation = value;
+      resolveViolation(value);
+    }
+    requestStop(value.detail);
+  };
+  const onMainTargetClosed = () => {
+    if (!mainTargetClosed) {
+      mainTargetClosed = true;
+      resolveMainTargetClosed();
+    }
+    requestStop("Hosted browser main page closed");
+  };
+  const onAbort = () => {
+    resolveAborted();
+    requestStop("Stopping hosted browser");
+  };
+  options.signal?.addEventListener("abort", onAbort, { once: true });
+  if (options.signal?.aborted) onAbort();
+
+  try {
+    report({
+      phase: "devtools-connect",
+      detail: "Attaching browser policy supervisor",
+    });
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      options.policy,
+      onViolation,
+      onMainTargetClosed,
+    );
+    report({
+      phase: "navigation",
+      detail: "Navigating to the reviewed hosted origin",
+    });
+    const launchDeadline = performance.now() + options.policy.launchTimeoutMs;
+    await withDeadline(
+      ready.navigate(),
+      Math.max(1, remainingDeadlineMs(launchDeadline)),
+      "hosted browser did not begin its reviewed navigation",
+    );
+    const initial = await withDeadline(
+      Promise.race([
+        ready.loaded.then(() => ({ kind: "loaded" as const })),
+        violationObserved.then((value) => ({
+          kind: "violation" as const,
+          value,
+        })),
+        mainTargetClosedObserved.then(() => ({
+          kind: "closed" as const,
+        })),
+        abortedObserved.then(() => ({ kind: "aborted" as const })),
+        childExit.then((exit) => ({ kind: "exit" as const, exit })),
+      ]),
+      Math.max(1, remainingDeadlineMs(launchDeadline)),
+      "hosted browser did not finish its initial document load",
+    );
+    if (initial.kind !== "loaded") {
+      const exit =
+        initial.kind === "exit"
+          ? initial.exit
+          : await (stopPromise ?? childExit);
+      if (initial.kind === "violation") {
+        return Object.freeze({
+          code: "POLICY_VIOLATION" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+          violation: initial.value,
+        });
+      }
+      if (initial.kind === "closed") {
+        return Object.freeze({
+          code: "BROWSER_CLOSED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      if (initial.kind === "aborted") {
+        return Object.freeze({
+          code: "LAUNCH_ABORTED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      return Object.freeze({
+        code:
+          exit.code === 0 && exit.signal === null
+            ? "BROWSER_CLOSED" as const
+            : "BROWSER_CRASHED" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+      });
+    }
+    if (violation !== undefined) {
+      const exit = await (stopPromise ?? childExit);
+      return Object.freeze({
+        code: "POLICY_VIOLATION" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+        violation,
+      });
+    }
+    report({
+      phase: "document-loaded",
+      detail: "Allowed document loaded; waiting for explicit game readiness",
+    });
+
+    const readinessBudgetMs = remainingDeadlineMs(launchDeadline);
+    const readinessWait =
+      readinessBudgetMs <= 0
+        ? Promise.resolve(false)
+        : waitForExplicitHostedBrowserReadiness(
+            ready.explicitReady,
+            readinessBudgetMs,
+            readinessCancellation.signal,
+          );
+    const readiness = await Promise.race([
+      readinessWait.then((value) => ({
+        kind: value ? "ready" as const : "timeout" as const,
+      })),
+      violationObserved.then((value) => ({
+        kind: "violation" as const,
+        value,
+      })),
+      mainTargetClosedObserved.then(() => ({ kind: "closed" as const })),
+      abortedObserved.then(() => ({ kind: "aborted" as const })),
+      childExit.then((exit) => ({ kind: "exit" as const, exit })),
+    ]);
+    if (readiness.kind !== "ready") {
+      if (readiness.kind === "timeout") {
+        requestStop("Hosted game did not explicitly report readiness");
+        const exit = await (stopPromise ?? childExit);
+        return Object.freeze({
+          code: "EXPLICIT_READY_TIMEOUT" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      const exit =
+        readiness.kind === "exit"
+          ? readiness.exit
+          : await (stopPromise ?? childExit);
+      if (readiness.kind === "violation") {
+        return Object.freeze({
+          code: "POLICY_VIOLATION" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+          violation: readiness.value,
+        });
+      }
+      if (readiness.kind === "closed") {
+        return Object.freeze({
+          code: "BROWSER_CLOSED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      if (readiness.kind === "aborted") {
+        return Object.freeze({
+          code: "LAUNCH_ABORTED" as const,
+          exitCode: exit.code,
+          signal: exit.signal,
+        });
+      }
+      return Object.freeze({
+        code:
+          exit.code === 0 && exit.signal === null
+            ? "BROWSER_CLOSED" as const
+            : "BROWSER_CRASHED" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+      });
+    }
+    if (violation !== undefined) {
+      const exit = await (stopPromise ?? childExit);
+      return Object.freeze({
+        code: "POLICY_VIOLATION" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+        violation,
+      });
+    }
+    report({
+      phase: "ready",
+      detail:
+        "Hosted game explicitly reported readiness; post-ready liveness monitoring active",
+    });
+
+    const livenessObserved = monitorHostedBrowserLiveness(
+      ready.livenessChallenge,
+      HOSTED_BROWSER_LIVENESS_POLICY_V1,
+      readinessCancellation.signal,
+    );
+    const terminal = await Promise.race([
+      livenessObserved.then((value) => ({
+        kind: "liveness" as const,
+        value,
+      })),
+      violationObserved.then((value) => ({
+        kind: "violation" as const,
+        value,
+      })),
+      mainTargetClosedObserved.then(() => ({ kind: "closed" as const })),
+      abortedObserved.then(() => ({ kind: "aborted" as const })),
+      childExit.then((exit) => ({ kind: "exit" as const, exit })),
+    ]);
+    if (terminal.kind === "liveness") {
+      requestStop(livenessFailureDetail(terminal.value.code));
+    }
+    const exit =
+      terminal.kind === "exit"
+        ? terminal.exit
+        : await (stopPromise ?? childExit);
+    if (terminal.kind === "liveness") {
+      return Object.freeze({
+        code: terminal.value.code,
+        exitCode: exit.code,
+        signal: exit.signal,
+        liveness: terminal.value,
+      });
+    }
+    if (terminal.kind === "violation") {
+      return Object.freeze({
+        code: "POLICY_VIOLATION" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+        violation: terminal.value,
+      });
+    }
+    if (terminal.kind === "closed") {
+      return Object.freeze({
+        code: "BROWSER_CLOSED" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+      });
+    }
+    if (terminal.kind === "aborted") {
+      return Object.freeze({
+        code: "LAUNCH_ABORTED" as const,
+        exitCode: exit.code,
+        signal: exit.signal,
+      });
+    }
+    return Object.freeze({
+      code:
+        exit.code === 0 && exit.signal === null
+          ? "BROWSER_CLOSED" as const
+          : "BROWSER_CRASHED" as const,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } catch (error) {
+    requestStop("Stopping hosted browser after launch failure");
+    await stopPromise?.catch(() => undefined);
+    throw error;
+  } finally {
+    options.signal?.removeEventListener("abort", onAbort);
+    if (child.exitCode === null && child.signalCode === null) {
+      stopPromise ??= stopBrowserProcess(connection, child, childExit);
+      await stopPromise;
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
+/**
+ * Real-browser evidence helper used only by the repository test.
+ *
+ * It starts the same blank-profile CDP path headlessly, arms the production
+ * guard, then injects one forbidden `data:` top-level navigation through CDP.
+ * The guard must observe it and terminate the browser before the probe passes.
+ */
+export async function probeHostedBrowserContainment(
+  browserPath: string,
+  profilePath: string,
+  attempt: HostedBrowserContainmentProbeAttempt = "foreign-navigation",
+): Promise<HostedBrowserContainmentProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  const probePolicy = createHostedBrowserPolicy({
+    id: "containment-probe",
+    runtime: "remote-web",
+    entrypoint: "https://allowed.invalid/",
+    allowedOrigins: ["https://allowed.invalid"],
+    launch: {
+      timeoutMs: 5_000,
+      healthCheck: { type: "http", path: "/" },
+    },
+  });
+  const child = spawn(
+    browserPath,
+    [
+      ...buildHostedBrowserArguments(profilePath),
+      "--headless=new",
+      "--disable-gpu",
+    ],
+    {
+      detached: process.platform !== "win32",
+      stdio: "ignore",
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  let connection: CdpConnection | undefined;
+  let violation: HostedBrowserViolation | undefined;
+  let resolveViolation: (
+    value: HostedBrowserViolation,
+  ) => void = () => undefined;
+  const observedViolation = new Promise<HostedBrowserViolation>((resolve) => {
+    resolveViolation = resolve;
+  });
+  try {
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      probePolicy,
+      (value) => {
+        if (violation !== undefined) return;
+        violation = value;
+        resolveViolation(value);
+      },
+      () => undefined,
+    );
+    switch (attempt) {
+      case "foreign-navigation":
+        await ready.navigate("data:text/html,vcg-contained");
+        break;
+      case "popup":
+        await ready.evaluate(
+          'window.open("about:blank", "_blank", "noopener")',
+        );
+        break;
+      case "download":
+        await ready.evaluate(`
+          (() => {
+            const link = document.createElement("a");
+            link.href = "data:text/plain,vcg-contained";
+            link.download = "vcg-contained.txt";
+            document.body.append(link);
+            link.click();
+            link.remove();
+          })()
+        `);
+        break;
+    }
+    const observed = await withDeadline(
+      observedViolation,
+      5_000,
+      "real Chrome did not report the forbidden navigation",
+    );
+    const exit = await stopBrowserProcess(connection, child, childExit);
+    return Object.freeze({
+      attempt,
+      violation: observed,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      await stopBrowserProcess(connection, child, childExit);
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
+/**
+ * Real-browser desk probe for the fixed post-ready wrapper function.
+ *
+ * The helper installs only a synthetic exact-echo producer in the initial
+ * blank page, verifies one fixed challenge through the production CDP
+ * expression, then closes the browser and removes its profile. It does not
+ * qualify a hosted game, wrapper, timing policy, or recovery surface.
+ */
+export async function probeHostedBrowserLivenessContract(
+  browserPath: string,
+  profilePath: string,
+): Promise<HostedBrowserLivenessProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  const probePolicy = createHostedBrowserPolicy({
+    id: "liveness-probe",
+    runtime: "remote-web",
+    entrypoint: "https://allowed.invalid/",
+    allowedOrigins: ["https://allowed.invalid"],
+    launch: {
+      timeoutMs: 5_000,
+      healthCheck: { type: "http", path: "/" },
+    },
+  });
+  const child = spawn(
+    browserPath,
+    [
+      ...buildHostedBrowserArguments(profilePath),
+      "--headless=new",
+      "--disable-gpu",
+    ],
+    {
+      detached: process.platform !== "win32",
+      stdio: "ignore",
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  let connection: CdpConnection | undefined;
+  try {
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      probePolicy,
+      () => undefined,
+      () => undefined,
+    );
+    const installed = await ready.evaluate(`
+      (() => {
+        globalThis.${HOSTED_LIVENESS_CONTRACT_NAME} = Object.freeze({
+          acknowledgeChallenge(challenge) {
+            return challenge;
+          }
+        });
+        return true;
+      })()
+    `);
+    if (installed !== true) {
+      throw new HostedBrowserPolicyError(
+        "real Chrome did not install the synthetic liveness producer",
+      );
+    }
+    const challenge = "0123456789abcdef0123456789abcdef";
+    const acknowledgement = await ready.livenessChallenge(challenge);
+    if (acknowledgement !== challenge) {
+      throw new HostedBrowserPolicyError(
+        "real Chrome did not return the exact liveness acknowledgement",
+      );
+    }
+    const exit = await stopBrowserProcess(
+      connection,
+      child,
+      childExit,
+    );
+    return Object.freeze({
+      acknowledged: true as const,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      await stopBrowserProcess(connection, child, childExit);
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
+/**
+ * Loads one reviewed HTTPS entrypoint as the only top-level page through the
+ * same blank-profile CDP guard used by the supervisor.
+ *
+ * This is a bounded desk evidence helper, not readiness or playability
+ * authority. It returns only document identity/readiness metadata, closes the
+ * browser, and removes the branded temporary profile before resolving.
+ */
+export async function probeHostedBrowserTopLevelLoad(
+  browserPath: string,
+  profilePath: string,
+  policy: HostedBrowserPolicy,
+): Promise<HostedBrowserTopLevelProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  const child = spawn(
+    browserPath,
+    [
+      ...buildHostedBrowserArguments(profilePath),
+      "--headless=new",
+      "--disable-gpu",
+    ],
+    {
+      detached: process.platform !== "win32",
+      stdio: "ignore",
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  let connection: CdpConnection | undefined;
+  let violation: HostedBrowserViolation | undefined;
+  let resolveViolation: (
+    value: HostedBrowserViolation,
+  ) => void = () => undefined;
+  const observedViolation = new Promise<HostedBrowserViolation>((resolve) => {
+    resolveViolation = resolve;
+  });
+  try {
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      policy,
+      (value) => {
+        if (violation !== undefined) return;
+        violation = value;
+        resolveViolation(value);
+      },
+      () => undefined,
+    );
+    await ready.navigate();
+    const outcome = await withDeadline(
+      Promise.race([
+        ready.loaded.then(() => ({ kind: "loaded" as const })),
+        observedViolation.then((value) => ({
+          kind: "violation" as const,
+          value,
+        })),
+        childExit.then((exit) => ({ kind: "exit" as const, exit })),
+      ]),
+      policy.launchTimeoutMs,
+      "top-level browser probe did not finish its initial document load",
+    );
+    if (outcome.kind === "violation") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${outcome.value.code}`,
+      );
+    }
+    if (outcome.kind === "exit") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe exited before load: ${String(outcome.exit.code)}/${String(outcome.exit.signal)}`,
+      );
+    }
+    if (violation !== undefined) {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${violation.code}`,
+      );
+    }
+    let state: Record<string, unknown> | undefined;
+    let interactiveState: Record<string, unknown> | undefined;
+    const documentStateDeadline = Date.now() + 2_000;
+    while (Date.now() <= documentStateDeadline) {
+      const serializedState = await ready.evaluate(`JSON.stringify({
+        finalUrl: window.location.href,
+        title: document.title,
+        readyState: document.readyState
+      })`);
+      if (
+        typeof serializedState !== "string"
+        || serializedState.length === 0
+        || serializedState.length > 8_192
+      ) {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned invalid serialized state",
+        );
+      }
+      let candidate: unknown;
+      try {
+        candidate = JSON.parse(serializedState);
+      } catch {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned malformed serialized state",
+        );
+      }
+      if (!isRecord(candidate)) {
+        throw new HostedBrowserPolicyError(
+          "top-level browser probe returned invalid document state",
+        );
+      }
+      const candidateReadyState = stringField(candidate, "readyState");
+      if (candidateReadyState === "complete") {
+        state = candidate;
+        break;
+      }
+      if (candidateReadyState === "interactive") {
+        interactiveState = candidate;
+      }
+      await delay(50);
+    }
+    state ??= interactiveState;
+    if (state === undefined) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe document did not become ready",
+      );
+    }
+    if (violation !== undefined) {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe violated policy: ${violation.code}`,
+      );
+    }
+    const finalUrl = stringField(state, "finalUrl");
+    const title = stringField(state, "title");
+    const readyState = stringField(state, "readyState");
+    if (
+      finalUrl === undefined
+      || finalUrl.length === 0
+      || finalUrl.length > MAX_TOP_LEVEL_PROBE_URL_LENGTH
+      || !policy.allowedOrigins.includes(new URL(finalUrl).origin)
+    ) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe returned an unapproved final URL",
+      );
+    }
+    if (title === undefined || title.length > 512) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe title is too long",
+      );
+    }
+    if (readyState !== "interactive" && readyState !== "complete") {
+      throw new HostedBrowserPolicyError(
+        `top-level browser probe document is not ready: ${String(readyState)}`,
+      );
+    }
+    const browserVersion = await connection.send("Browser.getVersion");
+    const browserProduct = stringField(browserVersion, "product");
+    if (
+      browserProduct === undefined
+      || browserProduct.length === 0
+      || browserProduct.length > 128
+      || !/^[A-Za-z][A-Za-z0-9 ._-]*\/\d+\.\d+\.\d+\.\d+$/.test(
+        browserProduct,
+      )
+    ) {
+      throw new HostedBrowserPolicyError(
+        "top-level browser probe browser product is invalid",
+      );
+    }
+    const exit = await stopBrowserProcess(connection, child, childExit);
+    return Object.freeze({
+      loaded: true as const,
+      finalUrl,
+      title,
+      readyState,
+      browserProduct,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      await stopBrowserProcess(connection, child, childExit);
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
+async function superviseCdpSession(
+  connection: CdpConnection,
+  policy: HostedBrowserPolicy,
+  onViolation: ViolationListener,
+  onMainTargetClosed: () => void,
+): Promise<{
+  readonly evaluate: (expression: string) => Promise<unknown>;
+  readonly explicitReady: () => Promise<boolean>;
+  readonly livenessChallenge: (challenge: string) => Promise<unknown>;
+  readonly loaded: Promise<void>;
+  readonly navigate: (url?: string) => Promise<void>;
+}> {
+  const discoveredPages = new Map<string, TargetInfo>();
+  let guard: HostedBrowserNavigationGuard | undefined;
+  let mainSessionId: string | undefined;
+  let resolveLoaded: (() => void) | undefined;
+  let loaded: Promise<void>;
+  const resetLoaded = () => {
+    loaded = new Promise<void>((resolve) => {
+      resolveLoaded = resolve;
+    });
+  };
+  resetLoaded();
+  const reportViolation = (value: HostedBrowserViolation | undefined) => {
+    if (value !== undefined) onViolation(value);
+  };
+
+  connection.subscribe((event) => {
+    const params = event.params ?? {};
+    if (
+      event.method === "Target.targetCreated"
+      || event.method === "Target.targetInfoChanged"
+    ) {
+      const target = asTargetInfo(params.targetInfo);
+      if (target === undefined) return;
+      if (target.type === "page") discoveredPages.set(target.targetId, target);
+      if (event.method === "Target.targetCreated") {
+        reportViolation(guard?.observeTargetCreated(target));
+      } else {
+        reportViolation(guard?.observeTargetChanged(target));
+      }
+      return;
+    }
+    if (event.method === "Target.targetDestroyed") {
+      const targetId = stringField(params, "targetId");
+      if (targetId !== undefined && targetId === guard?.mainTargetId) {
+        onMainTargetClosed();
+      }
+      return;
+    }
+    if (event.method === "Browser.downloadWillBegin") {
+      reportViolation(guard?.observeDownload());
+      return;
+    }
+    if (
+      event.sessionId === mainSessionId
+      && event.method === "Page.frameNavigated"
+    ) {
+      const frame = objectField(params, "frame");
+      if (frame === undefined || "parentId" in frame) return;
+      const url = stringField(frame, "url");
+      const targetId = guardMainTargetId(guard);
+      if (url !== undefined && targetId !== undefined) {
+        reportViolation(guard?.observeTopFrame(targetId, url));
+      }
+      return;
+    }
+    if (
+      event.sessionId === mainSessionId
+      && event.method === "Page.loadEventFired"
+    ) {
+      resolveLoaded?.();
+      resolveLoaded = undefined;
+      return;
+    }
+    if (
+      event.sessionId === mainSessionId
+      && event.method === "Inspector.targetCrashed"
+    ) {
+      const targetId = guardMainTargetId(guard);
+      if (targetId !== undefined) {
+        reportViolation(guard?.observeTargetCrash(targetId));
+      }
+    }
+  });
+
+  await connection.send("Target.setDiscoverTargets", { discover: true });
+  const targetsResult = await connection.send("Target.getTargets");
+  const targets = arrayField(targetsResult, "targetInfos")
+    .map(asTargetInfo)
+    .filter((target): target is TargetInfo => target !== undefined);
+  for (const target of targets) {
+    if (target.type === "page") discoveredPages.set(target.targetId, target);
+  }
+  const pages = [...discoveredPages.values()];
+  if (pages.length !== 1 || !isStartupPage(pages[0].url)) {
+    const startupLabels = pages.map((page) => startupUrlLabel(page.url));
+    throw new HostedBrowserPolicyError(
+      `hosted browser did not start with exactly one blank page (${pages.length}: ${startupLabels.join(", ")})`,
+    );
+  }
+  const mainTarget = pages[0];
+  guard = new HostedBrowserNavigationGuard(policy);
+  guard.arm(mainTarget.targetId);
+
+  const attachResult = await connection.send("Target.attachToTarget", {
+    targetId: mainTarget.targetId,
+    flatten: true,
+  });
+  mainSessionId = requireStringField(attachResult, "sessionId");
+  await connection.send("Page.enable", {}, mainSessionId);
+  await connection.send("Runtime.enable", {}, mainSessionId);
+  await connection.send(
+    "Page.setLifecycleEventsEnabled",
+    { enabled: true },
+    mainSessionId,
+  );
+  await connection.send("Browser.setDownloadBehavior", {
+    behavior: "deny",
+    eventsEnabled: true,
+  });
+  await connection.send("Browser.resetPermissions");
+  for (const permission of DENIED_BROWSER_PERMISSIONS) {
+    for (const origin of policy.allowedOrigins) {
+      await connection.send("Browser.setPermission", {
+        permission: { name: permission },
+        setting: "denied",
+        origin,
+      });
+    }
+  }
+
+  return Object.freeze({
+    explicitReady: async () => {
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: false,
+          expression: EXPLICIT_READY_EXPRESSION,
+          returnByValue: true,
+          userGesture: false,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser explicit-readiness probe failed",
+        );
+      }
+      const value = objectField(result, "result")?.value;
+      if (typeof value !== "boolean") {
+        throw new HostedBrowserPolicyError(
+          "hosted browser explicit-readiness probe was not boolean",
+        );
+      }
+      return value;
+    },
+    evaluate: async (expression: string) => {
+      if (
+        typeof expression !== "string"
+        || expression.length === 0
+        || expression.length > 4_096
+      ) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser probe expression is invalid",
+        );
+      }
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: true,
+          expression,
+          returnByValue: true,
+          userGesture: true,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser probe expression failed",
+        );
+      }
+      return objectField(result, "result")?.value;
+    },
+    get loaded() {
+      return loaded;
+    },
+    livenessChallenge: async (challenge: string) => {
+      if (!isHostedBrowserLivenessChallenge(challenge)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser liveness challenge is invalid",
+        );
+      }
+      const serializedChallenge = JSON.stringify(challenge);
+      const expression = `
+        (async () => {
+          try {
+            const contract = globalThis.${HOSTED_LIVENESS_CONTRACT_NAME};
+            if (
+              contract === null
+              || typeof contract !== "object"
+              || typeof contract.acknowledgeChallenge !== "function"
+            ) {
+              return undefined;
+            }
+            const acknowledgement =
+              await contract.acknowledgeChallenge(${serializedChallenge});
+            return acknowledgement === ${serializedChallenge}
+              ? acknowledgement
+              : null;
+          } catch {
+            return null;
+          }
+        })()
+      `;
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: true,
+          expression,
+          returnByValue: true,
+          userGesture: false,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser liveness challenge failed",
+        );
+      }
+      return objectField(result, "result")?.value;
+    },
+    navigate: async (url = policy.entrypoint) => {
+      resetLoaded();
+      guard?.beginNavigation();
+      const result = await connection.send(
+        "Page.navigate",
+        { url },
+        mainSessionId,
+      );
+      const errorText = optionalStringField(result, "errorText");
+      if (errorText !== undefined) {
+        throw new HostedBrowserPolicyError(
+          `hosted browser navigation failed: ${errorText}`,
+        );
+      }
+    },
+  });
+}
+
+class CdpConnection {
+  readonly #socket: WebSocket;
+  readonly #pending = new Map<
+    number,
+    {
+      readonly resolve: (value: Record<string, unknown>) => void;
+      readonly reject: (error: Error) => void;
+      readonly timeout: ReturnType<typeof setTimeout>;
+    }
+  >();
+  readonly #listeners = new Set<CdpEventListener>();
+  #nextId = 1;
+  #closed = false;
+
+  private constructor(socket: WebSocket) {
+    this.#socket = socket;
+    socket.on("message", (data) => this.#receive(data));
+    socket.on("close", () => this.#failAll("DevTools connection closed"));
+    socket.on("error", (error) => {
+      this.#failAll(`DevTools connection failed: ${error.message}`);
+    });
+  }
+
+  public static async connect(endpoint: string): Promise<CdpConnection> {
+    const socket = new WebSocket(endpoint, {
+      maxPayload: MAX_CDP_MESSAGE_BYTES,
+      origin: "http://127.0.0.1",
+    });
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error("DevTools connection timed out")),
+        CDP_COMMAND_TIMEOUT_MS,
+      );
+      socket.once("open", () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+      socket.once("error", (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+    });
+    return new CdpConnection(socket);
+  }
+
+  public subscribe(listener: CdpEventListener): () => void {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+
+  public async send(
+    method: string,
+    params: Record<string, unknown> = {},
+    sessionId?: string,
+  ): Promise<Record<string, unknown>> {
+    if (this.#closed) {
+      throw new HostedBrowserPolicyError("DevTools connection is closed");
+    }
+    if (this.#pending.size >= MAX_CDP_PENDING_COMMANDS) {
+      throw new HostedBrowserPolicyError(
+        "DevTools pending-command bound exceeded",
+      );
+    }
+    const id = this.#nextId;
+    this.#nextId += 1;
+    const payload = JSON.stringify({
+      id,
+      method,
+      params,
+      ...(sessionId === undefined ? {} : { sessionId }),
+    });
+    if (Buffer.byteLength(payload) > MAX_CDP_MESSAGE_BYTES) {
+      throw new HostedBrowserPolicyError(
+        "DevTools command exceeded its byte bound",
+      );
+    }
+    return new Promise<Record<string, unknown>>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.#pending.delete(id);
+        reject(
+          new HostedBrowserPolicyError(
+            `DevTools command timed out: ${method}`,
+          ),
+        );
+      }, CDP_COMMAND_TIMEOUT_MS);
+      this.#pending.set(id, { resolve, reject, timeout });
+      this.#socket.send(payload, (error) => {
+        if (error == null) return;
+        const pending = this.#pending.get(id);
+        if (pending === undefined) return;
+        clearTimeout(pending.timeout);
+        this.#pending.delete(id);
+        pending.reject(
+          new HostedBrowserPolicyError(
+            `DevTools command failed: ${error.message}`,
+          ),
+        );
+      });
+    });
+  }
+
+  public close(): void {
+    if (this.#closed) return;
+    this.#closed = true;
+    this.#socket.close();
+    this.#failAll("DevTools connection closed");
+  }
+
+  #receive(data: RawData): void {
+    const bytes =
+      typeof data === "string"
+        ? Buffer.byteLength(data)
+        : Array.isArray(data)
+          ? data.reduce((total, value) => total + value.byteLength, 0)
+          : data.byteLength;
+    if (bytes > MAX_CDP_MESSAGE_BYTES) {
+      this.#failAll("DevTools message exceeded its byte bound");
+      this.#socket.terminate();
+      return;
+    }
+    let message: unknown;
+    try {
+      message = JSON.parse(data.toString());
+    } catch {
+      this.#failAll("DevTools returned malformed JSON");
+      this.#socket.terminate();
+      return;
+    }
+    if (!isRecord(message)) return;
+    if (typeof message.id === "number") {
+      const pending = this.#pending.get(message.id);
+      if (pending === undefined) return;
+      clearTimeout(pending.timeout);
+      this.#pending.delete(message.id);
+      if (isRecord(message.error)) {
+        pending.reject(
+          new HostedBrowserPolicyError(
+            `DevTools rejected command: ${String(message.error.message)}`,
+          ),
+        );
+        return;
+      }
+      pending.resolve(
+        isRecord(message.result) ? message.result : Object.freeze({}),
+      );
+      return;
+    }
+    if (typeof message.method !== "string") return;
+    const event: CdpEvent = {
+      method: message.method,
+      ...(isRecord(message.params) ? { params: message.params } : {}),
+      ...(typeof message.sessionId === "string"
+        ? { sessionId: message.sessionId }
+        : {}),
+    };
+    for (const listener of this.#listeners) listener(event);
+  }
+
+  #failAll(detail: string): void {
+    this.#closed = true;
+    for (const pending of this.#pending.values()) {
+      clearTimeout(pending.timeout);
+      pending.reject(new HostedBrowserPolicyError(detail));
+    }
+    this.#pending.clear();
+  }
+}
+
+type DevToolsEndpointReader = (path: string) => Promise<Buffer>;
+
+export async function waitForDevToolsEndpoint(
+  profilePath: string,
+  child: ChildProcess,
+  timeoutMs: number,
+  readEndpointFile: DevToolsEndpointReader = readFile,
+): Promise<string> {
+  const activePortPath = `${profilePath}/DevToolsActivePort`;
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      throw new HostedBrowserPolicyError(
+        "hosted browser exited before DevTools became available",
+      );
+    }
+    try {
+      const bytes = await readEndpointFile(activePortPath);
+      if (bytes.byteLength > 4_096) {
+        throw new HostedBrowserPolicyError(
+          "DevTools endpoint file exceeded its byte bound",
+        );
+      }
+      const [portText, path, ...extra] = bytes.toString("utf8").trim().split(
+        /\r?\n/,
+      );
+      const port = Number(portText);
+      if (
+        extra.length !== 0
+        || !Number.isSafeInteger(port)
+        || port < 1
+        || port > 65_535
+        || !/^\/devtools\/browser\/[A-Za-z0-9-]+$/.test(path ?? "")
+      ) {
+        throw new HostedBrowserPolicyError(
+          "DevTools endpoint file is malformed",
+        );
+      }
+      return `ws://127.0.0.1:${port}${path}`;
+    } catch (error) {
+      if (error instanceof HostedBrowserPolicyError) throw error;
+      const code =
+        isRecord(error) && typeof error.code === "string"
+          ? error.code
+          : undefined;
+      if (code !== "ENOENT" && code !== "EBUSY") throw error;
+    }
+    await delay(25);
+  }
+  throw new HostedBrowserPolicyError(
+    "timed out waiting for the DevTools endpoint",
+  );
+}
+
+function observeChildExit(child: ChildProcess): Promise<BrowserExit> {
+  return new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      resolve(Object.freeze({ code, signal }));
+    });
+  });
+}
+
+async function stopBrowserProcess(
+  connection: CdpConnection | undefined,
+  child: ChildProcess,
+  childExit: Promise<BrowserExit>,
+): Promise<BrowserExit> {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return childExit;
+  }
+  if (connection !== undefined) {
+    await Promise.race([
+      connection.send("Browser.close").catch(() => undefined),
+      delay(1_000),
+    ]);
+    const graceful = await Promise.race([
+      childExit.then((exit) => ({ exit })),
+      delay(1_500).then(() => undefined),
+    ]);
+    if (graceful !== undefined) return graceful.exit;
+  }
+
+  await terminateBrowserTree(child);
+  return withDeadline(
+    childExit,
+    5_000,
+    "hosted browser process tree did not terminate",
+  );
+}
+
+async function terminateBrowserTree(child: ChildProcess): Promise<void> {
+  if (child.pid === undefined) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser process has no process identifier",
+    );
+  }
+  if (process.platform === "win32") {
+    const killer = spawn(
+      "taskkill.exe",
+      ["/PID", String(child.pid), "/T", "/F"],
+      {
+        stdio: "ignore",
+        windowsHide: true,
+      },
+    );
+    await withDeadline(
+      observeChildExit(killer),
+      5_000,
+      "Windows browser-tree termination timed out",
+    );
+    return;
+  }
+  try {
+    process.kill(-child.pid, "SIGTERM");
+  } catch (error) {
+    const code =
+      isRecord(error) && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code !== "ESRCH") throw error;
+  }
+}
+
+async function removeEphemeralProfile(profilePath: string): Promise<void> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  let metadata;
+  try {
+    metadata = await lstat(profilePath);
+  } catch (error) {
+    const code =
+      isRecord(error) && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code === "ENOENT") return;
+    throw error;
+  }
+  if (!metadata.isDirectory() || metadata.isSymbolicLink()) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile is not an owned temporary directory",
+    );
+  }
+  await rm(profilePath, {
+    force: true,
+    maxRetries: 3,
+    recursive: true,
+    retryDelay: 50,
+  });
+}
+
+export function validateHostedBrowserProfilePath(value: string): string {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile path is invalid",
+    );
+  }
+  const normalized = resolve(value);
+  const temporaryRoot = resolve(tmpdir());
+  const samePath = (left: string, right: string) =>
+    process.platform === "win32"
+      ? left.toLowerCase() === right.toLowerCase()
+      : left === right;
+  if (
+    !samePath(dirname(normalized), temporaryRoot)
+    || !/^vcg-hosted-(?:browser|probe)-[A-Za-z0-9_-]{6,64}$/.test(
+      basename(normalized),
+    )
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser profile must be one branded temporary directory",
+    );
+  }
+  return normalized;
+}
+
+async function withDeadline<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  detail: string,
+): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timeout = setTimeout(
+          () => reject(new HostedBrowserPolicyError(detail)),
+          timeoutMs,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+  }
+}
+
+function remainingDeadlineMs(deadline: number): number {
+  return Math.ceil(deadline - performance.now());
+}
+
+type HostedBrowserLivenessProbe = (
+  challenge: string,
+) => Promise<unknown>;
+
+export async function monitorHostedBrowserLiveness(
+  probe: HostedBrowserLivenessProbe,
+  policy: HostedBrowserLivenessPolicy =
+    HOSTED_BROWSER_LIVENESS_POLICY_V1,
+  signal?: AbortSignal,
+): Promise<HostedBrowserLivenessFailure> {
+  validateHostedBrowserLivenessPolicy(policy);
+  if (typeof probe !== "function") {
+    throw new HostedBrowserPolicyError(
+      "hosted browser liveness probe is invalid",
+    );
+  }
+
+  let challengeCount = 0;
+  let acknowledgementCount = 0;
+  let consecutiveMisses = 0;
+  for (;;) {
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    const challenge = randomBytes(
+      HOSTED_LIVENESS_CHALLENGE_BYTES,
+    ).toString("hex");
+    challengeCount += 1;
+    const observation = await observeHostedBrowserLiveness(
+      probe,
+      challenge,
+      policy.acknowledgementTimeoutMs,
+      signal,
+    );
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+
+    if (observation.kind === "acknowledgement") {
+      acknowledgementCount += 1;
+      consecutiveMisses = 0;
+    } else if (observation.kind === "missing") {
+      return hostedBrowserLivenessFailure(
+        acknowledgementCount === 0
+          ? "POST_READY_CONTRACT_MISSING"
+          : "POST_READY_CONTRACT_LOST",
+        challengeCount,
+        acknowledgementCount,
+        consecutiveMisses,
+      );
+    } else if (observation.kind === "invalid") {
+      return hostedBrowserLivenessFailure(
+        "POST_READY_ACK_INVALID",
+        challengeCount,
+        acknowledgementCount,
+        consecutiveMisses,
+      );
+    } else {
+      consecutiveMisses += 1;
+      if (
+        consecutiveMisses >= policy.maximumConsecutiveMisses
+      ) {
+        return hostedBrowserLivenessFailure(
+          "POST_READY_HEARTBEAT_TIMEOUT",
+          challengeCount,
+          acknowledgementCount,
+          consecutiveMisses,
+        );
+      }
+    }
+
+    try {
+      await delay(
+        policy.challengeIntervalMs,
+        undefined,
+        signal === undefined ? undefined : { signal },
+      );
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
+      throw error;
+    }
+  }
+}
+
+function validateHostedBrowserLivenessPolicy(
+  policy: HostedBrowserLivenessPolicy,
+): void {
+  if (
+    !isRecord(policy)
+    || policy.schemaVersion !== 1
+    || !Number.isSafeInteger(policy.challengeIntervalMs)
+    || policy.challengeIntervalMs < 10
+    || policy.challengeIntervalMs > 30_000
+    || !Number.isSafeInteger(policy.acknowledgementTimeoutMs)
+    || policy.acknowledgementTimeoutMs < 10
+    || policy.acknowledgementTimeoutMs > 30_000
+    || !Number.isSafeInteger(policy.maximumConsecutiveMisses)
+    || policy.maximumConsecutiveMisses < 1
+    || policy.maximumConsecutiveMisses > 8
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser liveness policy is invalid",
+    );
+  }
+}
+
+async function observeHostedBrowserLiveness(
+  probe: HostedBrowserLivenessProbe,
+  challenge: string,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<
+  | { readonly kind: "acknowledgement" }
+  | { readonly kind: "invalid" }
+  | { readonly kind: "missing" }
+  | { readonly kind: "unavailable" }
+> {
+  const observation = Promise.resolve()
+    .then(() => probe(challenge))
+    .then(
+      (value) => ({ kind: "value" as const, value }),
+      () => ({ kind: "unavailable" as const }),
+    );
+  let result:
+    | { readonly kind: "value"; readonly value: unknown }
+    | { readonly kind: "unavailable" }
+    | { readonly kind: "timeout" };
+  try {
+    result = await Promise.race([
+      observation,
+      delay(
+        timeoutMs,
+        { kind: "timeout" as const },
+        signal === undefined ? undefined : { signal },
+      ),
+    ]);
+  } catch (error) {
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    throw error;
+  }
+  if (result.kind !== "value") {
+    return { kind: "unavailable" };
+  }
+  if (result.value === challenge) {
+    return { kind: "acknowledgement" };
+  }
+  if (result.value === undefined) {
+    return { kind: "missing" };
+  }
+  return { kind: "invalid" };
+}
+
+function hostedBrowserLivenessFailure(
+  code: HostedBrowserLivenessFailureCode,
+  challengeCount: number,
+  acknowledgementCount: number,
+  consecutiveMisses: number,
+): HostedBrowserLivenessFailure {
+  return Object.freeze({
+    code,
+    challengeCount,
+    acknowledgementCount,
+    consecutiveMisses,
+  });
+}
+
+function livenessFailureDetail(
+  code: HostedBrowserLivenessFailureCode,
+): string {
+  switch (code) {
+    case "POST_READY_CONTRACT_MISSING":
+      return "Hosted game omitted its post-ready liveness contract";
+    case "POST_READY_CONTRACT_LOST":
+      return "Hosted game lost its post-ready liveness contract";
+    case "POST_READY_ACK_INVALID":
+      return "Hosted game returned an invalid liveness acknowledgement";
+    case "POST_READY_HEARTBEAT_TIMEOUT":
+      return "Hosted game stopped acknowledging liveness challenges";
+  }
+}
+
+function isHostedBrowserLivenessChallenge(
+  value: string,
+): boolean {
+  return /^[a-f0-9]{32}$/.test(value);
+}
+
+export async function waitForExplicitHostedBrowserReadiness(
+  probe: () => Promise<boolean>,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  if (
+    typeof probe !== "function"
+    || !Number.isSafeInteger(timeoutMs)
+    || timeoutMs < 1
+    || timeoutMs > 120_000
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser explicit-readiness wait is invalid",
+    );
+  }
+  const deadline = performance.now() + timeoutMs;
+  for (;;) {
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    const probeBudgetMs = Math.ceil(deadline - performance.now());
+    if (probeBudgetMs <= 0) return false;
+    let observation:
+      | { readonly kind: "probe"; readonly value: boolean }
+      | { readonly kind: "timeout" };
+    try {
+      observation = await Promise.race([
+        probe().then((value) => ({
+          kind: "probe" as const,
+          value,
+        })),
+        delay(
+          probeBudgetMs,
+          { kind: "timeout" as const },
+          signal === undefined ? undefined : { signal },
+        ),
+      ]);
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
+      throw error;
+    }
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    if (observation.kind === "timeout") return false;
+    const ready = observation.value;
+    if (typeof ready !== "boolean") {
+      throw new HostedBrowserPolicyError(
+        "hosted browser explicit-readiness probe was not boolean",
+      );
+    }
+    if (ready) return true;
+
+    const remainingMs = Math.ceil(deadline - performance.now());
+    if (remainingMs <= 0) return false;
+    try {
+      await delay(
+        Math.min(EXPLICIT_READY_POLL_INTERVAL_MS, remainingMs),
+        undefined,
+        signal === undefined ? undefined : { signal },
+      );
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
+      throw error;
+    }
+  }
+}
+
+function pendingAfterLifecycleCancellation(): Promise<never> {
+  return new Promise<never>(() => undefined);
+}
+
+function requireExactHttpsOrigin(value: unknown, label: string): string {
+  if (typeof value !== "string") {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} is invalid`,
+    );
+  }
+  const parsed = requireCredentialFreeHttpsUrl(value, label);
+  if (value !== parsed.origin) {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} must be an exact HTTPS origin`,
+    );
+  }
+  return parsed.origin;
+}
+
+function requireCredentialFreeHttpsUrl(value: string, label: string): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} is invalid`,
+    );
+  }
+  if (
+    parsed.protocol !== "https:"
+    || parsed.username !== ""
+    || parsed.password !== ""
+  ) {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} must use credential-free HTTPS`,
+    );
+  }
+  return parsed;
+}
+
+function requirePrivacySafeHealthUrl(value: string, label: string): URL {
+  const parsed = requireCredentialFreeHttpsUrl(value, label);
+  if (
+    parsed.search !== ""
+    || parsed.hash !== ""
+    || parsed.pathname.length === 0
+    || parsed.pathname.length > MAX_HEALTH_CHECK_PATH_LENGTH
+  ) {
+    throw new HostedBrowserPolicyError(
+      `hosted browser ${label} must omit query and fragment data`,
+    );
+  }
+  return parsed;
+}
+
+function safeUrlLabel(value: URL): string {
+  return `${value.protocol}//${value.host}`;
+}
+
+function isOpaqueId(value: string): boolean {
+  return value.length > 0 && value.length <= 256 && /^[A-Za-z0-9._:-]+$/.test(
+    value,
+  );
+}
+
+function isStartupPage(value: string): boolean {
+  return value === ""
+    || value === "about:blank"
+    || value === "chrome://newtab/";
+}
+
+function startupUrlLabel(value: string): string {
+  if (value === "") return "<empty>";
+  try {
+    return new URL(value).protocol;
+  } catch {
+    return "<malformed>";
+  }
+}
+
+function asTargetInfo(value: unknown): TargetInfo | undefined {
+  if (!isRecord(value)) return undefined;
+  const targetId = stringField(value, "targetId");
+  const type = stringField(value, "type");
+  const url = stringField(value, "url");
+  if (
+    targetId === undefined
+    || type === undefined
+    || url === undefined
+    || !isOpaqueId(targetId)
+  ) {
+    return undefined;
+  }
+  const openerId = optionalStringField(value, "openerId");
+  return Object.freeze({
+    targetId,
+    type,
+    url,
+    ...(openerId === undefined ? {} : { openerId }),
+  });
+}
+
+function guardMainTargetId(
+  guard: HostedBrowserNavigationGuard | undefined,
+): string | undefined {
+  return guard?.mainTargetId;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function objectField(
+  value: Record<string, unknown>,
+  name: string,
+): Record<string, unknown> | undefined {
+  return isRecord(value[name]) ? value[name] : undefined;
+}
+
+function stringField(
+  value: Record<string, unknown>,
+  name: string,
+): string | undefined {
+  return typeof value[name] === "string" ? value[name] : undefined;
+}
+
+function optionalStringField(
+  value: Record<string, unknown>,
+  name: string,
+): string | undefined {
+  const field = value[name];
+  return typeof field === "string" && field.length > 0 ? field : undefined;
+}
+
+function requireStringField(
+  value: Record<string, unknown>,
+  name: string,
+): string {
+  const field = stringField(value, name);
+  if (field === undefined || !isOpaqueId(field)) {
+    throw new HostedBrowserPolicyError(
+      `DevTools response omitted valid ${name}`,
+    );
+  }
+  return field;
+}
+
+function arrayField(
+  value: Record<string, unknown>,
+  name: string,
+): unknown[] {
+  return Array.isArray(value[name]) ? value[name] : [];
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "predictionId": {
+      "$ref": "#/$defs/__schema0"
+    },
+    "attemptId": {
+      "$ref": "#/$defs/__schema0"
+    },
+    "epochId": {
+      "$ref": "#/$defs/__schema0"
+    },
+    "confirmedAtMs": {
+      "type": "number",
+      "minimum": 0
+    },
+    "disposition": {
+      "type": "string",
+      "enum": [
+        "accepted-prediction",
+        "corrected-profile",
+        "new-player",
+        "matching-opt-out"
+      ]
+    },
+    "selectedProfileId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/__schema0"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "matchingPreference": {
+      "type": "string",
+      "enum": [
+        "enabled",
+        "disabled",
+        "unchanged"
+      ]
+    },
+    "advisorySelectionOnly": {
+      "type": "boolean",
+      "const": true
+    },
+    "grantsProfileAuthority": {
+      "type": "boolean",
+      "const": false
+    },
+    "grantsCalibrationAuthority": {
+      "type": "boolean",
+      "const": false
+    },
+    "grantsSaveAuthority": {
+      "type": "boolean",
+      "const": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "predictionId",
+    "attemptId",
+    "epochId",
+    "confirmedAtMs",
+    "disposition",
+    "selectedProfileId",
+    "matchingPreference",
+    "advisorySelectionOnly",
+    "grantsProfileAuthority",
+    "grantsCalibrationAuthority",
+    "grantsSaveAuthority"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+    }
+  }
+}

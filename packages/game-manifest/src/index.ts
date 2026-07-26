@@ -1,5 +1,50 @@
 import { z } from "zod";
 
+export const GAME_MANIFEST_SCHEMA_VERSION = 1 as const;
+export const GAME_MANIFEST_SCHEMA_ID = "urn:vcg:schema:game-manifest:1" as const;
+export const GAME_PERMISSION_VALUES = [
+  "gamepad",
+  "pointer",
+  "keyboard",
+  "touch",
+  "motion.core17",
+  "motion.actions.obstacle",
+  "network",
+  "persistent-storage",
+] as const;
+export const GAME_INPUT_PROFILE_VALUES = [
+  "gamepad",
+  "pointer",
+  "keyboard",
+  "touch",
+  "motion.obstacle.v1",
+] as const;
+export const GamePermissionSchema = z.enum(GAME_PERMISSION_VALUES);
+export const GameInputProfileSchema = z.enum(GAME_INPUT_PROFILE_VALUES);
+export const GameNetworkModeSchema = z.enum(["required", "optional", "offline"]);
+
+export type GamePermission = z.infer<typeof GamePermissionSchema>;
+export type GameInputProfile = z.infer<typeof GameInputProfileSchema>;
+export type ManifestMotionProfile = "body.core17" | "actions.obstacle.v1";
+
+const MOTION_PERMISSION_PROFILE: Readonly<
+  Partial<Record<GamePermission, ManifestMotionProfile>>
+> = {
+  "motion.core17": "body.core17",
+  "motion.actions.obstacle": "actions.obstacle.v1",
+};
+
+export function motionProfilesForPermissions(
+  permissions: readonly GamePermission[],
+): ManifestMotionProfile[] {
+  const profiles = new Set<ManifestMotionProfile>();
+  for (const permission of permissions) {
+    const profile = MOTION_PERMISSION_PROFILE[permission];
+    if (profile) profiles.add(profile);
+  }
+  return [...profiles];
+}
+
 const HttpsUrlSchema = z.url().refine((value) => value.startsWith("https://"), "remote entrypoints and origins must use HTTPS");
 const PackageIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/, "SHA-256 values must be 64 lowercase hexadecimal characters");
@@ -49,7 +94,7 @@ const LibretroManifestSchema = z
 
 export const GameManifestSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(GAME_MANIFEST_SCHEMA_VERSION),
     id: PackageIdSchema,
     version: z.string().min(1),
     title: z.string().min(1),
@@ -57,10 +102,10 @@ export const GameManifestSchema = z
     runtime: z.enum(["remote-web", "local-web", "native", "libretro"]),
     entrypoint: z.string().min(1),
     architectures: z.array(z.enum(["aarch64", "x86_64", "web"])).min(1),
-    permissions: z.array(z.enum(["gamepad", "pointer", "keyboard", "touch", "motion.core17", "motion.actions.obstacle", "network", "persistent-storage"])),
-    inputProfiles: z.array(z.enum(["gamepad", "pointer", "keyboard", "touch", "motion.obstacle.v1"])),
+    permissions: z.array(GamePermissionSchema),
+    inputProfiles: z.array(GameInputProfileSchema),
     minimumConsoleVersion: z.string().min(1),
-    network: z.enum(["required", "optional", "offline"]),
+    network: GameNetworkModeSchema,
     allowedOrigins: z.array(HttpsUrlSchema),
     compatibilityStatus: z.enum(["unverified", "partial", "qualified", "blocked"]),
     launch: z.object({
@@ -147,7 +192,69 @@ export const GameManifestSchema = z
   });
 
 export type GameManifest = z.infer<typeof GameManifestSchema>;
-export const gameManifestJsonSchema = z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>;
+
+export interface GamePermissionGrant {
+  readonly declared: readonly GamePermission[];
+  readonly network: boolean;
+  readonly persistentStorage: boolean;
+  readonly motionProfiles: readonly ManifestMotionProfile[];
+}
+
+export class GamePermissionGrantError extends Error {
+  public constructor(message: string) {
+    super(message);
+    this.name = "GamePermissionGrantError";
+  }
+}
+
+/**
+ * Derives launch authority only from a parsed v1 manifest's closed permission
+ * vocabulary. Cross-field inconsistencies fail here so v1 parsing compatibility
+ * remains stable while invalid declarations cannot become authority.
+ */
+export function deriveGamePermissionGrant(
+  manifest: Pick<GameManifest, "inputProfiles" | "network" | "permissions">,
+): GamePermissionGrant {
+  const permissions = z.array(GamePermissionSchema).parse(manifest.permissions);
+  const inputProfiles = z.array(GameInputProfileSchema).parse(manifest.inputProfiles);
+  const networkMode = GameNetworkModeSchema.parse(manifest.network);
+  const declared = [...new Set(permissions)];
+  const has = (permission: GamePermission) => declared.includes(permission);
+  if (networkMode === "offline" && has("network")) {
+    throw new GamePermissionGrantError("offline manifests cannot receive network authority");
+  }
+  if (networkMode !== "offline" && !has("network")) {
+    throw new GamePermissionGrantError(
+      `${networkMode} network mode requires the network permission`,
+    );
+  }
+  const obstaclePermission = has("motion.actions.obstacle");
+  const obstacleInput = inputProfiles.includes("motion.obstacle.v1");
+  if (obstaclePermission && !has("motion.core17")) {
+    throw new GamePermissionGrantError(
+      "motion.actions.obstacle requires motion.core17 because Motion v0.3 frames always carry the core skeleton",
+    );
+  }
+  if (obstaclePermission !== obstacleInput) {
+    throw new GamePermissionGrantError(
+      obstaclePermission
+        ? "motion.actions.obstacle requires the motion.obstacle.v1 input profile"
+        : "motion.obstacle.v1 requires the motion.actions.obstacle permission",
+    );
+  }
+  return {
+    declared,
+    network: has("network"),
+    persistentStorage: has("persistent-storage"),
+    motionProfiles: motionProfilesForPermissions(declared),
+  };
+}
+
+export const gameManifestJsonSchema: Record<string, unknown> = {
+  $id: GAME_MANIFEST_SCHEMA_ID,
+  title: "VCG game manifest v1",
+  ...(z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>),
+};
 gameManifestJsonSchema.allOf = [
   {
     if: { properties: { runtime: { const: "remote-web" } }, required: ["runtime"] },
@@ -176,4 +283,26 @@ gameManifestJsonSchema.$comment =
 
 export function parseGameManifest(value: unknown): GameManifest {
   return GameManifestSchema.parse(value);
+}
+
+type ManifestIssue = Readonly<{
+  code: string;
+  path: readonly PropertyKey[];
+  message: string;
+}>;
+
+/**
+ * Produces stable, sorted CLI diagnostics from Zod issues.
+ *
+ * The path and issue code are part of the author-facing validation contract.
+ * Human-readable Zod messages remain useful context but are not intended as
+ * machine-readable identifiers.
+ */
+export function formatGameManifestIssues(issues: readonly ManifestIssue[]): string[] {
+  return issues
+    .map((issue) => {
+      const path = issue.path.length === 0 ? "manifest" : issue.path.map(String).join(".");
+      return `${path}: [${issue.code}] ${issue.message}`;
+    })
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 }

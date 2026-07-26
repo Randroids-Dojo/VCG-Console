@@ -1,0 +1,268 @@
+{
+  "format": "vcg-hailo-package-model-recovery-plan/v1",
+  "status": "blocked",
+  "campaignId": "hailo-package-model-recovery-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-164"
+  ],
+  "claimBoundary": "This is a source-bound zero-result recovery plan. Existing Raspberry Pi image pins, update trust, A/B state machines, recovery-image verification, and Hailo comparison candidates do not prove an installed Hailo tuple, mismatch detection, offline reinstall, update, rollback, interruption recovery, target bootability, data preservation, or appliance qualification. No download, install, slot mutation, fault injection, network access, publication, or hardware execution is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "system-update-and-recovery-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "blocked-pi-hailo-image-plan",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "pi-hailo-image-plan-validator",
+      "path": "scripts/validate-pi5-hailo-image-plan.mjs",
+      "sha256": "b7116a0003bc100ed136e93a0a20c45f4defbbc6c97b223a5804ba10e4f8c019"
+    },
+    {
+      "role": "pi-hailo-image-recipe-boundary",
+      "path": "docs/PI5_HAILO_IMAGE_RECIPE_2026-07-25.md",
+      "sha256": "0f5f79e8e1101fa7b94efae213ec1ef2c5817cd6d901b37ad312493abce5877d"
+    },
+    {
+      "role": "hailo-model-accelerator-candidates",
+      "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
+      "sha256": "ba246aef91b8f9b08d7460b2797eb21df92eb03999ae1c88807f259fd45e8a3f"
+    },
+    {
+      "role": "delegated-update-trust",
+      "path": "native/vcg-host/src/update_trust.rs",
+      "sha256": "f925042b982c5f82646d87febe4f999cbb4307643caa61d135d56eed46d959e0"
+    },
+    {
+      "role": "signed-system-image-verification",
+      "path": "native/vcg-host/src/system_image.rs",
+      "sha256": "b0025f7667eb541b335068c236c31def45ffc76392ab5ed6c35cef289b85bfb9"
+    },
+    {
+      "role": "protected-ab-update-state-machine",
+      "path": "native/vcg-host/src/system_update.rs",
+      "sha256": "8447eb36d20e7f22e8a39dae40e9ed62a14b99045c54ae6167e8d6a46560d73c"
+    },
+    {
+      "role": "signed-recovery-image-verification",
+      "path": "native/vcg-host/src/recovery_image.rs",
+      "sha256": "311590bf5147cc578a71243035e4f145f09821b36842e5b074a00bd745db5bdb"
+    },
+    {
+      "role": "ab-update-contract",
+      "path": "docs/SYSTEM_AB_UPDATE_STATE.md",
+      "sha256": "d63c2e9410899e45e57ab51347168e3c85dc859f9ef4790f1575c3ea98a4b0e7"
+    },
+    {
+      "role": "recovery-image-contract",
+      "path": "docs/RECOVERY_IMAGE_BUNDLE.md",
+      "sha256": "b479e73caa90ba2cbe646e3af61de0e47c28012b4b87486ae0113f7b3da55a30"
+    }
+  ],
+  "executionBoundary": {
+    "exactTargetHardwareSha256": null,
+    "qualifiedBaselineImageResultSha256": null,
+    "signedOfflineBundleSha256": null,
+    "compatibilityManifestSha256": null,
+    "healthOracleSha256": null,
+    "faultInjectionProtocolSha256": null,
+    "dataPreservationProtocolSha256": null,
+    "networkIsolationProtocolSha256": null,
+    "scheduleSha256": null,
+    "trustedClockSha256": null,
+    "hardwareAccessAuthorized": false,
+    "downloadAuthorized": false,
+    "installAuthorized": false,
+    "slotMutationAuthorized": false,
+    "faultInjectionAuthorized": false,
+    "networkAccessAuthorized": false,
+    "publicationAuthorized": false
+  },
+  "compatibilityTuple": {
+    "componentIds": [
+      "kernel",
+      "pcie-driver",
+      "hailo-firmware",
+      "hailort",
+      "tappas-core",
+      "hailo-apps",
+      "python-bindings",
+      "pose-hef",
+      "pose-postprocessor",
+      "pose-configuration"
+    ],
+    "componentCount": 10,
+    "everyVersionArchitectureDigestAndDependencyEdgeRequired": true,
+    "wildcardsMovingTagsLatestAliasesOrFilenameOnlyIdentityAllowed": false,
+    "gamesOrBrowserMaySelectOrOverrideTuple": false,
+    "baselineTupleSha256": null,
+    "priorHealthyTupleSha256": null,
+    "candidateTupleSha256": null
+  },
+  "scenarios": [
+    {
+      "scenarioId": "exact-baseline-boot",
+      "expectedDisposition": "healthy-exact-baseline",
+      "networkMode": "offline",
+      "mutationClass": "none"
+    },
+    {
+      "scenarioId": "pcie-driver-runtime-major-mismatch",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    },
+    {
+      "scenarioId": "runtime-firmware-mismatch",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    },
+    {
+      "scenarioId": "runtime-hef-architecture-mismatch",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    },
+    {
+      "scenarioId": "hef-postprocessor-mismatch",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    },
+    {
+      "scenarioId": "python-native-binding-mismatch",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    },
+    {
+      "scenarioId": "offline-reinstall-complete-cache",
+      "expectedDisposition": "restored-exact-baseline",
+      "networkMode": "offline",
+      "mutationClass": "inactive-slot"
+    },
+    {
+      "scenarioId": "offline-reinstall-missing-cache",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inactive-slot"
+    },
+    {
+      "scenarioId": "offline-reinstall-tampered-cache",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inactive-slot"
+    },
+    {
+      "scenarioId": "signed-forward-update-complete",
+      "expectedDisposition": "healthy-exact-candidate",
+      "networkMode": "offline",
+      "mutationClass": "inactive-slot"
+    },
+    {
+      "scenarioId": "forward-update-health-failure",
+      "expectedDisposition": "rolled-back-exact-prior-tuple",
+      "networkMode": "offline",
+      "mutationClass": "candidate-boot"
+    },
+    {
+      "scenarioId": "interrupted-update-before-slot-switch",
+      "expectedDisposition": "recovered-exact-prior-active",
+      "networkMode": "offline",
+      "mutationClass": "inactive-slot"
+    },
+    {
+      "scenarioId": "interrupted-update-after-slot-switch-before-health",
+      "expectedDisposition": "rolled-back-exact-prior-tuple",
+      "networkMode": "offline",
+      "mutationClass": "candidate-boot"
+    },
+    {
+      "scenarioId": "downgrade-replay-attempt",
+      "expectedDisposition": "fail-closed-preserve-active",
+      "networkMode": "offline",
+      "mutationClass": "inert-candidate"
+    }
+  ],
+  "campaignRules": {
+    "scenarioCount": 14,
+    "validCyclesPerScenario": 20,
+    "requiredCycleCount": 280,
+    "eachMismatchChangesExactlyOneDeclaredTupleComponent": true,
+    "scenarioOrderCounterbalanced": true,
+    "failuresRetriesCutsAndInvalidCyclesRemainVisible": true,
+    "failedOrInvalidCycleMayBeReplaced": false,
+    "scenarioMayRescueOtherScenario": false,
+    "aggregateMayRescueFailedCycle": false
+  },
+  "fixedAcceptance": {
+    "signatureAndThresholdVerificationBeforeParsingOrExtraction": true,
+    "archiveImageAndInstalledTupleReadbackHashesRequired": true,
+    "conventionalInPlaceFamilyModeUpdateAllowed": false,
+    "onlyInactiveSystemSlotMayBeWritten": true,
+    "mismatchMustFailBeforeCameraParticipantOrModelInference": true,
+    "healthMustLoadExactHefPostprocessorAndKnownNonSensitiveVector": true,
+    "hailortcliIdentityAloneMayPassHealth": false,
+    "launcherTrackerCameraControllerNetworkStorageAndHailoHealthRequired": true,
+    "maximumOfflineScenarioNetworkAttempts": 0,
+    "maximumSilentTupleSubstitutions": 0,
+    "maximumWritableSaveOrContentMutations": 0,
+    "maximumBootFailuresAfterRequiredRecovery": 0,
+    "maximumValidProductFailures": 0,
+    "downgradeOrRollbackMayLowerProtectedHighestSeenGeneration": false,
+    "allScenariosAndCyclesMustPass": true
+  },
+  "openAcceptance": {
+    "maximumHealthWindowMs": null,
+    "maximumOfflineReinstallP95Ms": null,
+    "maximumUpdateP95Ms": null,
+    "maximumRollbackP95Ms": null,
+    "maximumInterruptionRecoveryMs": null,
+    "minimumFreeSpaceHeadroomBytes": null,
+    "maximumWriteAmplificationPpm": null,
+    "maximumBootAttemptCount": null,
+    "maximumTemperatureMilliC": null,
+    "maximumWallPowerMilliW": null,
+    "mustBeFixedBeforeExecution": true
+  },
+  "dataPolicy": {
+    "compatibilityEvidenceLimitedToVersionsArchitecturesDigestsDependencyEdgesAndClosedResults": true,
+    "knownHealthVectorMustBeSyntheticAndNonSensitive": true,
+    "rawCameraFramesAudioParticipantIdentifiersFreeTextPathsCredentialsKeysOrTokensAllowed": false,
+    "saveProfilePortraitCalibrationBodyMatchingOrImportedContentAllowedInImageOrEvidence": false,
+    "privateSigningMaterialAllowed": false,
+    "cycleLevelPowerCutTupleHealthAndPreservationEvidenceRequired": true
+  },
+  "executionGate": {
+    "state": "blocked",
+    "blockerCodes": [
+      "exact-received-pi-hat-storage-power-cooling-camera-target",
+      "qualified-baseline-image-and-complete-hailo-tuple",
+      "signed-complete-offline-reinstall-and-update-bundle",
+      "compatibility-manifest-and-single-component-mismatch-fixtures",
+      "genuine-hailo-health-readiness-and-known-vector-oracle",
+      "network-isolation-data-preservation-and-fault-injection-protocols",
+      "counterbalanced-schedule-and-all-open-numeric-gates",
+      "trusted-clock-instruments-operators-and-evidence-protocol",
+      "hardware-download-install-slot-fault-network-and-publication-authority"
+    ],
+    "readyRequiresEveryBlockerResolvedBeforeFirstMutation": true
+  },
+  "result": {
+    "disposition": "blocked",
+    "completedScenarioCount": 0,
+    "completedCycleCount": 0,
+    "scenarioResults": [],
+    "qualifiedTupleSha256": null,
+    "rollbackQualified": false,
+    "offlineReinstallQualified": false,
+    "imageOrProductSelectionChanged": false
+  }
+}

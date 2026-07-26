@@ -1,0 +1,218 @@
+{
+  "format": "vcg-tv-conformance-evidence/v1",
+  "evidenceDate": "2026-07-26",
+  "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
+  "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
+  "retrievedAtUtc": "2026-07-26T00:40:37.505Z",
+  "environment": {
+    "producerPlatform": "win32",
+    "producerArchitecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "devicePixelRatio": 1
+  },
+  "contract": {
+    "safeInsetPercent": 5,
+    "minimumCriticalTextCssPx": 24,
+    "minimumActionTargetCssPx": 48,
+    "frameTimingModel": "request-animation-frame-elapsed-time",
+    "resolutions": [
+      {
+        "id": "720p",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "id": "4k",
+        "width": 3840,
+        "height": 2160
+      }
+    ]
+  },
+  "browser": {
+    "browserProduct": "Chrome/150.0.7871.182",
+    "observations": [
+      {
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "documentReadyState": "complete",
+        "safeInsetPercent": 5,
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684,
+          "width": 1152,
+          "height": 648
+        },
+        "criticalRegionCount": 5,
+        "criticalRegionsInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "actionTargetCount": 4,
+        "minimumActionTargetWidthCssPx": 256.609,
+        "minimumActionTargetHeightCssPx": 64,
+        "focusOrder": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "finalFocusedOrder": 1,
+        "keyboardActivationCount": 2,
+        "keyboardBackRequestCount": 1,
+        "animation": {
+          "sampleCount": 120,
+          "p50DeltaMs": 16.7,
+          "p95DeltaMs": 16.7,
+          "worstDeltaMs": 16.8,
+          "negativeDeltaCount": 0
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-720p.png",
+          "bytes": 147137,
+          "sha256": "b7ace5a55df45fb33b94f09eda5c51eb580cbbc0f65c27b99e7b89417f38eb79"
+        }
+      },
+      {
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "documentReadyState": "complete",
+        "safeInsetPercent": 5,
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026,
+          "width": 1728,
+          "height": 972
+        },
+        "criticalRegionCount": 5,
+        "criticalRegionsInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 31.68,
+        "actionTargetCount": 4,
+        "minimumActionTargetWidthCssPx": 385.391,
+        "minimumActionTargetHeightCssPx": 64,
+        "focusOrder": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "finalFocusedOrder": 1,
+        "keyboardActivationCount": 2,
+        "keyboardBackRequestCount": 1,
+        "animation": {
+          "sampleCount": 120,
+          "p50DeltaMs": 16.7,
+          "p95DeltaMs": 16.7,
+          "worstDeltaMs": 16.8,
+          "negativeDeltaCount": 0
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-1080p.png",
+          "bytes": 245554,
+          "sha256": "5596fe634fccbf8aaecbdbef09aebfe90168e85fb13d44f90a85da9d9e8f6199"
+        }
+      },
+      {
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "documentReadyState": "complete",
+        "safeInsetPercent": 5,
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052,
+          "width": 3456,
+          "height": 1944
+        },
+        "criticalRegionCount": 5,
+        "criticalRegionsInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 38,
+        "actionTargetCount": 4,
+        "minimumActionTargetWidthCssPx": 803,
+        "minimumActionTargetHeightCssPx": 70,
+        "focusOrder": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "finalFocusedOrder": 1,
+        "keyboardActivationCount": 2,
+        "keyboardBackRequestCount": 1,
+        "animation": {
+          "sampleCount": 120,
+          "p50DeltaMs": 16.7,
+          "p95DeltaMs": 16.7,
+          "worstDeltaMs": 83.3,
+          "negativeDeltaCount": 0
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-4k.png",
+          "bytes": 576578,
+          "sha256": "2510881cd855acb7db63f88c4f489b123ebd5b8e485e9a1662be6d8396edfe87"
+        }
+      }
+    ],
+    "consoleErrorCount": 0,
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "requestCounts": {
+      "/index.html": 3,
+      "/styles.css": 3,
+      "/app.js": 3
+    }
+  },
+  "disposition": {
+    "candidateSafeAreaGeometryVerified": true,
+    "candidateTextAndTargetMinimumsVerified": true,
+    "keyboardFocusSelectAndBackVerified": true,
+    "elapsedFrameSamplingVerified": true,
+    "physicalTelevisionVerified": false,
+    "physicalControllerVerified": false,
+    "seatingDistanceLegibilityVerified": false,
+    "hardwareOverscanVerified": false,
+    "targetCompositorScalingVerified": false,
+    "catalogGameCompatibilityVerified": false,
+    "frameRateQualified": false
+  },
+  "summary": {
+    "resolutionCount": 3,
+    "screenshotCount": 3,
+    "physicalTelevisionCount": 0,
+    "physicalControllerCount": 0,
+    "participantCount": 0,
+    "catalogGameCount": 0,
+    "targetHardwareCount": 0
+  },
+  "provenance": {
+    "documentPath": "examples/tv-conformance/index.html",
+    "documentPathSha256": "93e183c05d142703253417e41c702e6a25122f665720e23f2067d4ea0fd8a3a1",
+    "stylePath": "examples/tv-conformance/styles.css",
+    "stylePathSha256": "a089eb2db4ace7a6c6a71ac37c6eb1dc86d9721a6c398ed2d4f8ed70afbf8d5a",
+    "scriptPath": "examples/tv-conformance/app.js",
+    "scriptPathSha256": "2febab45004fb5c37a75186325ac10dfe43c40b9da845a8426b9eb5a57248d20",
+    "generatorPath": "scripts/generate-tv-conformance-evidence.mjs",
+    "generatorPathSha256": "5b7d109809071712c69fffcd77eea8d26f65a6ccdc0384eb834d53a445082d6b",
+    "validatorPath": "scripts/validate-tv-conformance-evidence.mjs",
+    "validatorPathSha256": "6c10a8cb7bcb1c2fa1a395da50498bd34265e587fd86a7746893216aae68b741"
+  },
+  "claimBoundary": "One Windows x64 headless Chrome desk run proves that the standalone candidate authoring surface kept all declared critical regions inside a five-percent CSS-pixel safe inset, retained at least 24 CSS-pixel critical text and 48 CSS-pixel action targets, preserved deterministic keyboard focus/select/Back behavior, and sampled requestAnimationFrame with nonnegative elapsed deltas at 1280x720, 1920x1080, and 3840x2160. It does not prove a physical television, GPU frame pacing, overscan behavior, seating-distance legibility, controller input, audio, target Linux, compositor scaling, or compatibility of any catalog game.",
+  "limitations": [
+    "The five-percent inset, 24 CSS-pixel critical text, and 48 CSS-pixel target minimums are conservative candidate authoring checks pending owner and target-TV review; they are not a final product standard.",
+    "The three observations used headless installed Chrome on one Windows development host with devicePixelRatio 1, not physical 720p/1080p/4K televisions, EDID modes, compositor scaling, HDR, or overscan.",
+    "The page tested keyboard fallback only. It did not enumerate a physical gamepad, reserve Home/Back outside the page, test touch/pointer requirements, or qualify controller glyphs.",
+    "requestAnimationFrame deltas prove only monotonic elapsed-time sampling in this page; they are not a refresh-rate, GPU, animation smoothness, frame-pacing, or performance qualification.",
+    "The screenshots and geometry cover the standalone conformance surface only, not the launcher, Godot sample, hosted catalog, native games, RetroArch, accessibility variants, localization, or real seating-distance comprehension."
+  ]
+}

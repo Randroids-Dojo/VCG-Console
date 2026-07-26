@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VCG TV Compatibility Conformance</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main id="safe-area" class="critical" aria-labelledby="title">
+      <span class="corner top-left" aria-hidden="true"></span>
+      <span class="corner top-right" aria-hidden="true"></span>
+      <span class="corner bottom-left" aria-hidden="true"></span>
+      <span class="corner bottom-right" aria-hidden="true"></span>
+
+      <header class="critical">
+        <p class="eyebrow" data-critical-text>VCG AUTHORING CHECK</p>
+        <h1 id="title" data-critical-text>TV COMPATIBILITY</h1>
+        <p id="viewport-readout" data-critical-text>MEASURING VIEWPORT</p>
+      </header>
+
+      <section class="critical status-panel" aria-labelledby="status-title">
+        <h2 id="status-title" data-critical-text>SAFE AREA AND INPUT</h2>
+        <p data-critical-text>
+          Every critical label and target remains inside the candidate
+          five-percent inset.
+        </p>
+        <output id="activation-count" data-critical-text>ACTIVATIONS 0</output>
+        <output id="back-count" data-critical-text>BACK REQUESTS 0</output>
+      </section>
+
+      <nav class="critical action-grid" aria-label="Conformance actions">
+        <button type="button" data-focus-order="0">PLAY</button>
+        <button type="button" data-focus-order="1">OPTIONS</button>
+        <button type="button" data-focus-order="2">ACCESSIBILITY</button>
+        <button type="button" data-focus-order="3">EXIT</button>
+      </nav>
+
+      <footer class="critical">
+        <p data-critical-text>
+          ARROWS MOVE FOCUS · ENTER SELECTS · ESCAPE REQUESTS BACK
+        </p>
+      </footer>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

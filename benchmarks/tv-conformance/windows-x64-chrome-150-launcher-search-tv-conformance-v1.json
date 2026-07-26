@@ -1,0 +1,2089 @@
+{
+  "format": "vcg-launcher-search-tv-conformance-evidence/v1",
+  "evidenceDate": "2026-07-26",
+  "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
+  "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
+  "retrievedAtUtc": "2026-07-26T18:37:12.955Z",
+  "baseRepresentativeEvidence": {
+    "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
+    "sha256": "d620589dc3ef8aca78adf61e7253dccaacd5d80de2118b9bda079bb693466542"
+  },
+  "environment": {
+    "producerPlatform": "win32",
+    "producerArchitecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "devicePixelRatio": 1,
+    "browserClock": "2026-07-24T19:00:00-07:00"
+  },
+  "contract": {
+    "states": [
+      {
+        "id": "motion-results",
+        "query": "motion",
+        "resultCount": 5,
+        "criticalTextCount": 13,
+        "actionTargetCount": 6,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": null,
+        "interactionTrace": [
+          "universal-search",
+          "result-first",
+          "result-last",
+          "universal-search",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "no-results",
+        "query": "no-such-vcg-destination",
+        "resultCount": 0,
+        "criticalTextCount": 9,
+        "actionTargetCount": 5,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": null,
+        "recoveryExpectation": {
+          "clearActionLabel": "Clear search",
+          "clearQuery": "",
+          "clearResultCount": 20,
+          "categoryActionLabel": "Motion",
+          "categoryQuery": "motion",
+          "categoryResultCount": 5,
+          "categoryFirstResultTitle": "Obstacle",
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "clear-search-action",
+          "empty-query-restored",
+          "universal-search",
+          "motion-category-action",
+          "motion-result-first",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "empty-query-scroll-activation",
+        "query": "",
+        "resultCount": 20,
+        "criticalTextCount": 43,
+        "actionTargetCount": 21,
+        "measurementMode": "fully-visible-marked",
+        "scrollingExpectedResolutionIds": [
+          "720p",
+          "1080p"
+        ],
+        "activation": {
+          "resultTitle": "Profiles",
+          "method": "keyboard-enter",
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "expectedAdapter": null,
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": null,
+          "destructiveExpectation": null,
+          "backRecoveryFocus": "launcher-home-navigation"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-last",
+          "profiles-result",
+          "profiles-destination",
+          "launcher-home-navigation"
+        ]
+      },
+      {
+        "id": "offline-package-activation",
+        "query": "obstacle",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "expectedAdapter": "local-web",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": null,
+          "destructiveExpectation": null,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "remote-web-ready-denial",
+        "query": "vibecoded.games",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "expectedAdapter": "remote-web",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": {
+            "statusLabel": "READY",
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "actionLabel": "Open unsupervised preview",
+            "failureMessage": null,
+            "retryAvailable": false,
+            "denial": {
+              "kind": "browser-popup-blocked",
+              "message": "The browser blocked the separate preview tab. Try again.",
+              "launchRetained": true
+            }
+          },
+          "unavailableExpectation": null,
+          "destructiveExpectation": null,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "remote-web-offline-failure",
+        "query": "vibecoded.games",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "expectedAdapter": "remote-web",
+          "expectedNetworkOnline": false,
+          "remoteWebExpectation": {
+            "statusLabel": "OFFLINE",
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "actionLabel": "Open unsupervised preview",
+            "failureMessage": "No network connection",
+            "retryAvailable": true,
+            "denial": null
+          },
+          "unavailableExpectation": null,
+          "destructiveExpectation": null,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "unavailable-package-denial",
+        "query": "2048",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "expectedAdapter": "retro",
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": {
+            "statusLabel": "NOT AVAILABLE",
+            "detail": "The selected release is not present in the current signed package inventory",
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "retryAvailable": true
+          },
+          "destructiveExpectation": null,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ]
+      },
+      {
+        "id": "destructive-settings-denial",
+        "query": "delete local progress",
+        "resultCount": 1,
+        "criticalTextCount": 5,
+        "actionTargetCount": 2,
+        "measurementMode": "all-marked",
+        "scrollingExpectedResolutionIds": [],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "expectedAdapter": null,
+          "expectedNetworkOnline": true,
+          "remoteWebExpectation": null,
+          "unavailableExpectation": null,
+          "destructiveExpectation": {
+            "selectedEntryTitle": "Obstacle",
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ]
+      }
+    ],
+    "safeInsetPercent": 5,
+    "minimumCriticalTextCssPx": 24,
+    "minimumActionTargetCssPx": 48,
+    "resolutions": [
+      {
+        "id": "720p",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "id": "4k",
+        "width": 3840,
+        "height": 2160
+      }
+    ]
+  },
+  "browser": {
+    "browserProduct": "Chrome/150.0.7871.182",
+    "observations": [
+      {
+        "state": "motion-results",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "motion",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 5,
+        "emptyStateVisible": false,
+        "criticalTextCount": 13,
+        "measuredCriticalTextCount": 13,
+        "criticalTextInsideSafeArea": 13,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 6,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 256,
+          "scrollHeightCssPx": 256,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-first",
+          "result-last",
+          "universal-search",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
+          "bytes": 87298,
+          "sha256": "d6205d9f2ce3e1c8244c8202e16dcccec410d6fcf9b04d66e80cd4fa94527121"
+        }
+      },
+      {
+        "state": "no-results",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "no-such-vcg-destination",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 0,
+        "emptyStateVisible": true,
+        "criticalTextCount": 9,
+        "measuredCriticalTextCount": 9,
+        "criticalTextInsideSafeArea": 9,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 5,
+        "minimumActionTargetWidthCssPx": 197.297,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "clear-search-action",
+          "empty-query-restored",
+          "universal-search",
+          "motion-category-action",
+          "motion-result-first",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": {
+          "clearActionLabel": "Clear search",
+          "clearActionFocused": true,
+          "clearQuery": "",
+          "clearResultCount": 20,
+          "clearInputFocused": true,
+          "categoryActionLabel": "Motion",
+          "categoryActionFocused": true,
+          "categoryQuery": "motion",
+          "categoryResultCount": 5,
+          "categoryFirstResultTitle": "Obstacle",
+          "categoryFirstResultFocused": true,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
+          "bytes": 73805,
+          "sha256": "ea5de7317d94bf27a31b7c57b861035a6395eed53fb5faf5e801472f3af64b1d"
+        }
+      },
+      {
+        "state": "empty-query-scroll-activation",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 20,
+        "emptyStateVisible": false,
+        "criticalTextCount": 43,
+        "measuredCriticalTextCount": 23,
+        "criticalTextInsideSafeArea": 23,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 21,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 523,
+          "scrollHeightCssPx": 1006,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 483,
+          "maximumScrollTopCssPx": 483,
+          "lastResultInsideViewportAfterFocus": true
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-last",
+          "profiles-result",
+          "profiles-destination",
+          "launcher-home-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Profiles",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
+          "bytes": 129267,
+          "sha256": "7edc90c3427172bd7fe050558c38d20e57a90c6a7fd90bb40335097edacb2d38"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
+          "bytes": 54895,
+          "sha256": "dac34d8dd8d15a54f51125998451bee19bc90516659e9c1ee76c3cef9ca98164"
+        }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
+          "bytes": 58647,
+          "sha256": "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
+          "bytes": 58647,
+          "sha256": "eaaa41ae1379ebbe800d68ed580412704d8fcb5e272d1fd1e7d7d3624903cae9"
+        }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "2048",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
+          "bytes": 52347,
+          "sha256": "80bf319294ddec55f6c22dc5969739441ace61bc44a32b5f207c01024c123d04"
+        }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "720p",
+        "width": 1280,
+        "height": 720,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
+          "bytes": 61440,
+          "sha256": "405ef1a10f4937cd37964647fe2c90e656e761fc0fe8c3daacbd90ebb5aa5b56"
+        }
+      },
+      {
+        "state": "motion-results",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "motion",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 5,
+        "emptyStateVisible": false,
+        "criticalTextCount": 13,
+        "measuredCriticalTextCount": 13,
+        "criticalTextInsideSafeArea": 13,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 6,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 253,
+          "scrollHeightCssPx": 253,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-first",
+          "result-last",
+          "universal-search",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
+          "bytes": 105671,
+          "sha256": "bc88fc38e70ec9c927961df3ce3479b69a4fb29da5790ace10c41179a5dfbc57"
+        }
+      },
+      {
+        "state": "no-results",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "no-such-vcg-destination",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 0,
+        "emptyStateVisible": true,
+        "criticalTextCount": 9,
+        "measuredCriticalTextCount": 9,
+        "criticalTextInsideSafeArea": 9,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 5,
+        "minimumActionTargetWidthCssPx": 265.203,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "clear-search-action",
+          "empty-query-restored",
+          "universal-search",
+          "motion-category-action",
+          "motion-result-first",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": {
+          "clearActionLabel": "Clear search",
+          "clearActionFocused": true,
+          "clearQuery": "",
+          "clearResultCount": 20,
+          "clearInputFocused": true,
+          "categoryActionLabel": "Motion",
+          "categoryActionFocused": true,
+          "categoryQuery": "motion",
+          "categoryResultCount": 5,
+          "categoryFirstResultTitle": "Obstacle",
+          "categoryFirstResultFocused": true,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
+          "bytes": 92354,
+          "sha256": "266e5397e9b959785725b507cd39ca2b80ecfbaade167d0677b2e361fbd5afed"
+        }
+      },
+      {
+        "state": "empty-query-scroll-activation",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 20,
+        "emptyStateVisible": false,
+        "criticalTextCount": 43,
+        "measuredCriticalTextCount": 35,
+        "criticalTextInsideSafeArea": 35,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 21,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 798,
+          "scrollHeightCssPx": 973,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 175,
+          "maximumScrollTopCssPx": 175,
+          "lastResultInsideViewportAfterFocus": true
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-last",
+          "profiles-result",
+          "profiles-destination",
+          "launcher-home-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Profiles",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
+          "bytes": 182862,
+          "sha256": "3134fdf3f913a9d5c6a3509aed91ccca317594b19e91547097022e1da58c4faf"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
+          "bytes": 71230,
+          "sha256": "3c4aeedabbd60f54d5dd7f23610bc70f97b31b614b3d738887e1d599a2b80ef2"
+        }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
+          "bytes": 74764,
+          "sha256": "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
+          "bytes": 74764,
+          "sha256": "f154ec3d44afa628c91235e0e6b6809c53db49ae5e8eb2e7496e2e4c4ee93435"
+        }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "2048",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
+          "bytes": 68473,
+          "sha256": "3586fe1ef663991551d0cc3922e78aaa45ab3680c23ab03a2539367cd32f3c38"
+        }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "1080p",
+        "width": 1920,
+        "height": 1080,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 24,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetHeightCssPx": 48,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
+          "bytes": 77643,
+          "sha256": "7a54d18c7484e982fc6ee4e6dfdd4cd761a66d741c5a671aa907047b6a9322e8"
+        }
+      },
+      {
+        "state": "motion-results",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "motion",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 5,
+        "emptyStateVisible": false,
+        "criticalTextCount": 13,
+        "measuredCriticalTextCount": 13,
+        "criticalTextInsideSafeArea": 13,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 6,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 365,
+          "scrollHeightCssPx": 365,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-first",
+          "result-last",
+          "universal-search",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
+          "bytes": 256838,
+          "sha256": "73726fe4531dd85be98216c8aafb25f3143b7a8b9d4be9b3248b300dcbccfc7f"
+        }
+      },
+      {
+        "state": "no-results",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "no-such-vcg-destination",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 0,
+        "emptyStateVisible": true,
+        "criticalTextCount": 9,
+        "measuredCriticalTextCount": 9,
+        "criticalTextInsideSafeArea": 9,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 5,
+        "minimumActionTargetWidthCssPx": 530.391,
+        "minimumActionTargetHeightCssPx": 62,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "clear-search-action",
+          "empty-query-restored",
+          "universal-search",
+          "motion-category-action",
+          "motion-result-first",
+          "search-trigger"
+        ],
+        "activation": null,
+        "recovery": {
+          "clearActionLabel": "Clear search",
+          "clearActionFocused": true,
+          "clearQuery": "",
+          "clearResultCount": 20,
+          "clearInputFocused": true,
+          "categoryActionLabel": "Motion",
+          "categoryActionFocused": true,
+          "categoryQuery": "motion",
+          "categoryResultCount": 5,
+          "categoryFirstResultTitle": "Obstacle",
+          "categoryFirstResultFocused": true,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
+          "bytes": 220770,
+          "sha256": "395811358af4220234bb8ff58777a47001df6a0a814bdcc510c5400f80446c47"
+        }
+      },
+      {
+        "state": "empty-query-scroll-activation",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 20,
+        "emptyStateVisible": false,
+        "criticalTextCount": 43,
+        "measuredCriticalTextCount": 43,
+        "criticalTextInsideSafeArea": 43,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 21,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 1280,
+          "scrollHeightCssPx": 1280,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": true
+        },
+        "interactionTrace": [
+          "universal-search",
+          "result-last",
+          "profiles-result",
+          "profiles-destination",
+          "launcher-home-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Profiles",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Who is playing?",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "launcher-home-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
+          "bytes": 516851,
+          "sha256": "d4e1cb508b8c50d3a90556ca2f3298a82e1988c2a2e852b4447cdad02e48f210"
+        }
+      },
+      {
+        "state": "offline-package-activation",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "obstacle",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "obstacle-result",
+          "obstacle-launch-dialog",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "Obstacle",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "Obstacle",
+          "outcomeVisible": true,
+          "adapter": "local-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
+          "bytes": 177237,
+          "sha256": "7b6f14c7547ed395d48069f40b2faf1923e5c0fecb2bbd756521d679897add0f"
+        }
+      },
+      {
+        "state": "remote-web-ready-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-ready-dialog",
+          "fixed-origin-disclosure",
+          "blocked-preview-denial",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": {
+            "statusLabel": "READY",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": null,
+            "failureMessageVisible": null,
+            "retryAvailable": false,
+            "denialKind": "browser-popup-blocked",
+            "denialObserved": true,
+            "denialMessage": "The browser blocked the separate preview tab. Try again.",
+            "launchRetainedAfterDenial": true
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
+          "bytes": 184705,
+          "sha256": "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff"
+        }
+      },
+      {
+        "state": "remote-web-offline-failure",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "vibecoded.games",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "museum-result",
+          "remote-web-offline-failure",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "VibeCoded Museum",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "VibeCoded Museum",
+          "outcomeVisible": true,
+          "adapter": "remote-web",
+          "networkOnlineAtActivation": false,
+          "remoteWebEvidence": {
+            "statusLabel": "OFFLINE",
+            "statusVisible": true,
+            "originLabel": "VIBECODED.GAMES / ONLINE",
+            "originVisible": true,
+            "actionLabel": "Open unsupervised preview",
+            "actionVisible": true,
+            "failureMessage": "No network connection",
+            "failureMessageVisible": true,
+            "retryAvailable": true,
+            "denialKind": null,
+            "denialObserved": false,
+            "denialMessage": null,
+            "launchRetainedAfterDenial": null
+          },
+          "unavailableEvidence": null,
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
+          "bytes": 184705,
+          "sha256": "6ee3c41c587ebab6ccec8166dd1a948c13731fb4896c1edf36f988a1931b9bff"
+        }
+      },
+      {
+        "state": "unavailable-package-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "2048",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "retro-2048-result",
+          "unavailable-package-denial",
+          "package-release-mismatch-diagnostic",
+          "retry-action-visible",
+          "search-trigger"
+        ],
+        "activation": {
+          "resultTitle": "2048",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launch-dialog",
+          "outcomeLabel": "2048",
+          "outcomeVisible": true,
+          "adapter": "retro",
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": {
+            "statusLabel": "NOT AVAILABLE",
+            "statusVisible": true,
+            "detail": "The selected release is not present in the current signed package inventory",
+            "detailVisible": true,
+            "diagnosticCode": "PACKAGE_RELEASE_MISMATCH",
+            "diagnosticVisible": true,
+            "retryAvailable": true
+          },
+          "destructiveEvidence": null,
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "search-trigger"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
+          "bytes": 173631,
+          "sha256": "fe31f2804129ee4f50114a7ab7f54304ff74a57777db3d5f03918deb2122d029"
+        }
+      },
+      {
+        "state": "destructive-settings-denial",
+        "id": "4k",
+        "width": 3840,
+        "height": 2160,
+        "query": "delete local progress",
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "documentReadyState": "complete",
+        "resultCount": 1,
+        "emptyStateVisible": false,
+        "criticalTextCount": 5,
+        "measuredCriticalTextCount": 5,
+        "criticalTextInsideSafeArea": 5,
+        "minimumCriticalTextCssPx": 48,
+        "criticalTextOverlapCount": 0,
+        "actionTargetCount": 2,
+        "minimumActionTargetWidthCssPx": 1936.656,
+        "minimumActionTargetHeightCssPx": 61,
+        "overlayOverflowCssPx": {
+          "horizontal": 0,
+          "vertical": 0
+        },
+        "resultsScroll": {
+          "clientHeightCssPx": 61,
+          "scrollHeightCssPx": 61,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        },
+        "interactionTrace": [
+          "universal-search",
+          "unassigned-progress-result",
+          "unassigned-progress-view",
+          "obstacle-delete-action",
+          "safe-cancel-default",
+          "controller-back-denial",
+          "obstacle-entry-retained",
+          "delete-action-focus-restored",
+          "profiles-navigation"
+        ],
+        "activation": {
+          "resultTitle": "Unassigned progress",
+          "method": "keyboard-enter",
+          "searchOverlayHidden": true,
+          "outcomeKind": "launcher-view",
+          "outcomeLabel": "Progress without a profile.",
+          "outcomeVisible": true,
+          "adapter": null,
+          "networkOnlineAtActivation": true,
+          "remoteWebEvidence": null,
+          "unavailableEvidence": null,
+          "destructiveEvidence": {
+            "selectedEntryTitle": "Obstacle",
+            "entryCountBeforeDenial": 4,
+            "actionLabel": "Delete permanently",
+            "dialogLabel": "Delete Obstacle · Checkpoint 12?",
+            "warning": "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
+            "warningVisible": true,
+            "prototypeBoundary": "Prototype only · no filesystem mutation",
+            "prototypeBoundaryVisible": true,
+            "safeDefaultLabel": "Cancel",
+            "safeDefaultInitiallyFocused": true,
+            "denialKind": "controller-back-cancelled",
+            "confirmationDismissed": true,
+            "entryRetainedAfterDenial": true,
+            "entryCountAfterDenial": 4,
+            "denialRecoveryFocus": "delete-unassigned-progress"
+          },
+          "backRecoveryVerified": true,
+          "backRecoveryFocus": "profiles-navigation"
+        },
+        "recovery": null,
+        "screenshot": {
+          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
+          "bytes": 192574,
+          "sha256": "9e83e787cd1b1ef3e4d660a7690b188fd1775896f9c713edc87381c38e1e3621"
+        }
+      }
+    ],
+    "consoleErrorCount": 0,
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "requestCounts": {
+      "/": 24,
+      "/assets/main-C_K2RnSa.js": 24,
+      "/assets/main-CDT6K0sT.css": 24,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
+      "/assets/src-EbToTsJV.js": 24,
+      "/assets/synthetic-BTWSnpMo.js": 24,
+      "/assets/tracker-health--oynSZbv.js": 24,
+      "/fonts/OCRA.ttf": 24
+    }
+  },
+  "disposition": {
+    "productionBuildLoaded": true,
+    "markedCriticalTextVerified": true,
+    "markedActionTargetsVerified": true,
+    "criticalTextOverlapRejected": true,
+    "keyboardInputFocusBackVerified": true,
+    "overlayOverflowRejected": true,
+    "arbitraryQueryVerified": false,
+    "scrollingResultsVerified": true,
+    "noResultRecoveryVerified": true,
+    "resultActivationVerified": true,
+    "remoteWebActivationVerified": true,
+    "remoteWebOfflineFailureVerified": true,
+    "externalOriginDisclosureVerified": true,
+    "blockedPreviewDenialVerified": true,
+    "unavailablePackageDenialVerified": true,
+    "destructiveSettingsDenialVerified": true,
+    "physicalTelevisionVerified": false,
+    "physicalControllerVerified": false,
+    "reservedHomeVerified": false,
+    "nativeHostVerified": false,
+    "catalogGameCompatibilityVerified": false,
+    "allLauncherStatesVerified": false,
+    "targetPlatformQualified": false,
+    "frameRateQualified": false
+  },
+  "summary": {
+    "resolutionCount": 3,
+    "searchStateCount": 8,
+    "observationCount": 24,
+    "screenshotCount": 24,
+    "distinctQueryCount": 7,
+    "activatedResultClassCount": 5,
+    "remoteWebOutcomeStateCount": 2,
+    "unavailableOutcomeStateCount": 1,
+    "destructiveOutcomeStateCount": 1,
+    "recoveryStateCount": 1,
+    "failureOutcomeStateCount": 2,
+    "denialOutcomeStateCount": 3,
+    "physicalTelevisionCount": 0,
+    "physicalControllerCount": 0,
+    "participantCount": 0,
+    "catalogGameCount": 0,
+    "targetHardwareCount": 0
+  },
+  "provenance": {
+    "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
+    "launcherPathSha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c",
+    "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
+    "searchPathSha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b",
+    "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
+    "unassignedViewPathSha256": "0ef5a820c62c6995762bb5ec16b5868d89d51c361aad98b752a8774b432fca9d",
+    "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
+    "unassignedControllerPathSha256": "711b55c414610721af48a157cf6d90c014c8426cd3474816ec550c69a83bb52e",
+    "stylePath": "apps/console-lab/src/styles.css",
+    "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
+    "entryPath": "apps/console-lab/src/main.ts",
+    "entryPathSha256": "3ae914bd0b5a1bf87bfedf0bbbace0e25c00c99ea37e56201f8f270324e44851",
+    "documentPath": "apps/console-lab/index.html",
+    "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
+    "viteConfigPath": "apps/console-lab/vite.config.ts",
+    "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
+    "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
+    "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
+    "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+    "representativeEvidencePathSha256": "d620589dc3ef8aca78adf61e7253dccaacd5d80de2118b9bda079bb693466542",
+    "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
+    "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
+    "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
+    "generatorPathSha256": "167414235fbfb0ba12117e8da4163b1dbb40be74667afb7445ad8e4d2896a6aa",
+    "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
+    "validatorPathSha256": "5959d5ce4be89351cf74d739832a6dab10efef5f441bb1a9557410327c4b24d9",
+    "productionSourceTree": {
+      "roots": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "apps/console-lab/package.json",
+        "apps/console-lab/index.html",
+        "apps/console-lab/vite.config.ts",
+        "apps/console-lab/src",
+        "packages/game-manifest/src",
+        "packages/launcher-catalog/src",
+        "packages/motion-contract/src",
+        "packages/motion-web-bridge/src",
+        "packages/retro-firmware-contract/src",
+        "packages/retro-import-contract/src"
+      ],
+      "fileCount": 135,
+      "sha256": "c2e04fc174e41afdf885dec6662ed1fa2c4b7aa99f2f131a52bbefe729e381f9"
+    }
+  },
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 20-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 20-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "limitations": [
+    "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 20-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 20-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
+    "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
+    "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
+    "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
+    "The candidate 5% / 24 CSS px / 48 CSS px values remain provisional under Q-242 and Q-243; passing them is not seating-distance comprehension, accessibility, localization, or catalog-wide compatibility."
+  ]
+}

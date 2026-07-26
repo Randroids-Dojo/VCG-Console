@@ -1,0 +1,180 @@
+{
+  "format": "vcg-hailo-accelerator-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-ai-hat-13-vs-26-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered accelerator comparison only. No 13 TOPS or 26 TOPS AI HAT has been received, run, measured, purchased, borrowed, qualified, selected, rejected, or shown compatible with VCG; no replay corpus, live participant session, camera exposure timestamp, Hailo HEF, post-processor, complete runtime tuple, power, thermal, accuracy, action, game, or cost result exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "pi-image-recipe-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "core17-provider-comparison-boundary",
+      "path": "benchmarks/pose-backends/hailo-mediapipe-core-comparison-plan-v1.json",
+      "sha256": "93fba93f4be3cb389ec2e06ee350e4b7ac5d82dfe3883fe3455b99c0def55860"
+    },
+    {
+      "role": "edge-accuracy-campaign-boundary",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    }
+  ],
+  "fixedHostBoundary": {
+    "boardProduct": "Raspberry Pi 5 8GB",
+    "boardRevision": null,
+    "operatingSystemImageSha256": null,
+    "kernelRelease": null,
+    "eepromVersion": null,
+    "storageIdentitySha256": null,
+    "powerSupplyIdentitySha256": null,
+    "coolingAssemblyIdentitySha256": null,
+    "enclosureStateSha256": null,
+    "cameraIdentitySha256": null,
+    "roomManifestSha256": null
+  },
+  "variants": [
+    {
+      "variantId": "ai-hat-plus-13-hailo8l-yolov8s-pose",
+      "acceleratorProduct": "Raspberry Pi AI HAT+ 13 TOPS",
+      "architecture": "hailo8l",
+      "advertisedTops": 13,
+      "defaultPoseModel": "yolov8s_pose",
+      "landmarkLayout": "COCO-17",
+      "receivedPartNumber": null,
+      "receivedRevision": null,
+      "hefSha256": null,
+      "postProcessorSha256": null,
+      "runtimeManifestSha256": null,
+      "sameDateDeliveredCostUsd": null
+    },
+    {
+      "variantId": "ai-hat-plus-26-hailo8-yolov8m-pose",
+      "acceleratorProduct": "Raspberry Pi AI HAT+ 26 TOPS",
+      "architecture": "hailo8",
+      "advertisedTops": 26,
+      "defaultPoseModel": "yolov8m_pose",
+      "landmarkLayout": "COCO-17",
+      "receivedPartNumber": null,
+      "receivedRevision": null,
+      "hefSha256": null,
+      "postProcessorSha256": null,
+      "runtimeManifestSha256": null,
+      "sameDateDeliveredCostUsd": null
+    }
+  ],
+  "comparisonLanes": [
+    {
+      "laneId": "paired-immutable-replay",
+      "purpose": "paired model, pose, action, throughput, drop, CPU and memory comparison",
+      "inputRule": "both variants consume the exact same ordered decoded frame bytes and labels from one hash-bound corpus",
+      "timingBoundary": "source-frame admission to pose and action output; never reported as camera-exposure latency",
+      "counterbalanceRequired": true,
+      "coldStartCount": null,
+      "measuredTrialCountPerCell": null,
+      "inputCorpusSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "laneId": "counterbalanced-live-full-pipeline",
+      "purpose": "camera exposure to action, live drops, controls, thermals, power and stability",
+      "inputRule": "same exact camera, room, script and participant protocol with accelerator order counterbalanced; sessions are not called identical inputs",
+      "timingBoundary": "camera exposure midpoint to recognized-action receipt at the game API on a shared or measured clock",
+      "counterbalanceRequired": true,
+      "coldStartCount": null,
+      "measuredTrialCountPerCell": null,
+      "inputCorpusSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "laneId": "sustained-concurrent-game-load",
+      "purpose": "complete-host capacity, frame pacing, resources, power, thermal and throttling comparison",
+      "inputRule": "each variant runs the same versioned VCG workload trace with identical game settings and accelerator order counterbalanced",
+      "timingBoundary": "monotonic target-host observation only, with camera exposure timing reported separately",
+      "counterbalanceRequired": true,
+      "coldStartCount": null,
+      "measuredTrialCountPerCell": null,
+      "inputCorpusSha256": null,
+      "scheduleSha256": null
+    }
+  ],
+  "requiredWorkloads": [
+    "idle-tracker-and-launcher",
+    "obstacle-motion-sample",
+    "vibebots-compatibility-session",
+    "mi-casa-es-su-casa-compatibility-session",
+    "determined-compatibility-session"
+  ],
+  "requiredMetrics": [
+    "per-landmark missing rate, p50, p95 and worst torso-normalized error",
+    "dodge-left, dodge-right, duck and jump precision, recall, F1 and false-event rate",
+    "floor-contact and lift event precision, recall and timing when independent truth is authorized",
+    "source-admission-to-pose and source-admission-to-action p50, p95, p99 and worst",
+    "live exposure-to-pose and exposure-to-action p50, p95, p99 and worst with uncertainty",
+    "capture, admission, inference, post-process, tracking, action and delivery drops",
+    "pose FPS plus game FPS and frame-time p50, p95, p99 and worst",
+    "CPU, GPU, RAM, swap and accelerator utilization",
+    "wall power, SoC and accelerator temperature, clock and throttle state",
+    "cold start, steady-state and recovery behavior",
+    "same-date delivered price and complete-system BOM delta"
+  ],
+  "acceptance": {
+    "maximumLiveExposureToActionP95Ms": 120,
+    "maximumPrivilegedFalseActivations": 0,
+    "minimumPerCellDetectionRate": null,
+    "maximumPerLandmarkP95TorsoNormalizedError": null,
+    "minimumPerActionPrecision": null,
+    "minimumPerActionRecall": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumDroppedFrameRatio": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumSustainedAcceleratorTemperatureC": null,
+    "maximumThermalThrottleEvents": null,
+    "minimumDeliveredSavingsUsdToReconsider26Tops": null,
+    "everyBlockingCellMustPass": true,
+    "aggregateMayRescueFailedCell": false
+  },
+  "selectionPolicy": {
+    "currentBaselineVariantId": "ai-hat-plus-26-hailo8-yolov8m-pose",
+    "selectedVariantId": null,
+    "automaticSelectionAllowed": false,
+    "requireSupersedingDecisionToReplaceBaseline": true,
+    "accuracyAndThroughputAreJointlyCompared": true,
+    "replayAndLiveClaimsRemainSeparate": true,
+    "inferenceOnlyLatencyCannotQualifyProduct": true
+  },
+  "dataPolicy": {
+    "rawReplayCorpusRetentionAuthorized": false,
+    "liveRawFrameRetentionAuthorized": false,
+    "audioCollectionAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "releaseEvidenceSkeletonOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "blockerCodes": [
+      "exact-13-and-26-hardware-access",
+      "received-host-and-hat-identities",
+      "qualified-pi-image-and-runtime-tuple",
+      "hef-postprocessor-and-score-calibration",
+      "same-input-corpus-authority-and-digest",
+      "camera-room-clock-and-ground-truth",
+      "counterbalanced-schedule-and-trial-counts",
+      "accuracy-performance-thermal-and-cost-gates",
+      "purchase-participant-and-data-handling-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "selectedVariantId": null
+  }
+}

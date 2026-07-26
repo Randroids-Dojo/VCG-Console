@@ -1,17 +1,20 @@
 import {
   CapabilityNegotiationSchema,
   CapabilityRequestSchema,
+  MOTION_API_SCHEMA_VERSION,
   MotionCapabilitiesSchema,
   MotionFrameSchema,
-  addCoordinateCapabilityJsonConstraints,
+  TrackerHealthEventSchema,
+  addMotionContractJsonConstraints,
 } from "@vcg/motion-contract";
 import { z } from "zod";
 
-export const MOTION_BRIDGE_PROTOCOL_VERSION = 1 as const;
+export const MOTION_BRIDGE_PROTOCOL_VERSION = 2 as const;
 
 export const BridgeClientHelloSchema = z.object({
   type: z.literal("vcg.motion.hello"),
   protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+  motionApiSchemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
   clientId: z.string().regex(/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/).max(80),
   request: CapabilityRequestSchema,
 });
@@ -35,9 +38,11 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("vcg.motion.welcome"),
     protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+    motionApiSchemaVersion: z.literal(MOTION_API_SCHEMA_VERSION),
     sessionId: z.string().min(1),
     capabilities: MotionCapabilitiesSchema,
     negotiation: CapabilityNegotiationSchema,
+    health: TrackerHealthEventSchema,
   }),
   z.object({
     type: z.literal("vcg.motion.rejected"),
@@ -50,6 +55,12 @@ export const BridgeServerMessageSchema = z.discriminatedUnion("type", [
     protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
     sessionId: z.string().min(1),
     frame: MotionFrameSchema,
+  }),
+  z.object({
+    type: z.literal("vcg.motion.health"),
+    protocolVersion: z.literal(MOTION_BRIDGE_PROTOCOL_VERSION),
+    sessionId: z.string().min(1),
+    event: TrackerHealthEventSchema,
   }),
   z.object({
     type: z.literal("vcg.motion.error"),
@@ -69,7 +80,9 @@ const wireJsonSchemaOptions = {
 };
 
 export const bridgeClientMessageJsonSchema = z.toJSONSchema(BridgeClientMessageSchema, wireJsonSchemaOptions);
-export const bridgeServerMessageJsonSchema = addCoordinateCapabilityJsonConstraints(z.toJSONSchema(BridgeServerMessageSchema, wireJsonSchemaOptions));
+export const bridgeServerMessageJsonSchema = addMotionContractJsonConstraints(
+  z.toJSONSchema(BridgeServerMessageSchema, wireJsonSchemaOptions),
+);
 
 // Wire objects intentionally use Zod's default strip behavior. Unknown fields
 // are ignored for forward compatibility; known fields and versions remain strict.

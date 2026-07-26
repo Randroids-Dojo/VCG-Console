@@ -5,6 +5,7 @@ import {
   MOTION_API_SCHEMA_VERSION,
   MotionCapabilitiesSchema,
   MotionFrameSchema,
+  TrackerHealthEventSchema,
   motionFrameJsonSchema,
   negotiateCapabilities,
 } from "../src";
@@ -48,8 +49,36 @@ const validFrame = {
 const availableCapabilities = MotionCapabilitiesSchema.parse(validFrame.capabilities);
 
 describe("MotionFrameSchema", () => {
+  it("requires the explicit temporal-action schema version", () => {
+    expect(MOTION_API_SCHEMA_VERSION).toBe("0.4.0");
+    expect(MotionFrameSchema.safeParse({ ...validFrame, schemaVersion: "0.2.0" }).success).toBe(false);
+  });
+
   it("accepts a complete portable core frame", () => {
     expect(MotionFrameSchema.parse(validFrame).players[0]?.coreLandmarks).toHaveLength(17);
+  });
+
+  it("requires emitted action families to be advertised", () => {
+    const action = {
+      name: "menu_select",
+      phase: "triggered",
+      confidence: 0.9,
+      occurredAtMs: 13,
+      durationMs: 450,
+    };
+    const invalid = {
+      ...structuredClone(validFrame),
+      players: validFrame.players.map((player) => ({ ...player, actions: [action] })),
+    };
+    expect(MotionFrameSchema.safeParse(invalid).success).toBe(false);
+    const valid = {
+      ...invalid,
+      capabilities: {
+        ...invalid.capabilities,
+        profiles: [...invalid.capabilities.profiles, "actions.shell.v1"],
+      },
+    };
+    expect(MotionFrameSchema.safeParse(valid).success).toBe(true);
   });
 
   it("rejects fabricated or incomplete core arrays", () => {
@@ -83,6 +112,65 @@ describe("MotionFrameSchema", () => {
       contains: { type: "object", properties: { name: { const: "nose" } }, required: ["name"] },
       minContains: 1,
       maxContains: 1,
+    });
+  });
+
+  it("exports representable action lifecycle and capability constraints", () => {
+    const properties = motionFrameJsonSchema.properties as Record<string, Record<string, unknown>>;
+    const player = properties.players as unknown as {
+      items: { properties: Record<string, { items: Record<string, unknown> }> };
+    };
+    const action = player.items.properties.actions!.items;
+    expect(action.allOf).toHaveLength(3);
+    expect(motionFrameJsonSchema.allOf).toHaveLength(4);
+  });
+
+  it("blocks player data during start/fault and actions during degradation", () => {
+    expect(MotionFrameSchema.safeParse({ ...validFrame, health: "starting" }).success).toBe(false);
+    expect(MotionFrameSchema.safeParse({ ...validFrame, health: "fault" }).success).toBe(false);
+
+    const degraded = {
+      ...structuredClone(validFrame),
+      health: "degraded",
+      players: validFrame.players.map((player) => ({
+        ...player,
+        actions: [{
+          name: "jump",
+          phase: "triggered",
+          confidence: 0.9,
+          occurredAtMs: 13,
+        }],
+      })),
+    };
+    expect(MotionFrameSchema.safeParse(degraded).success).toBe(false);
+    expect(
+      MotionFrameSchema.safeParse({
+        ...degraded,
+        players: degraded.players.map((player) => ({ ...player, actions: [] })),
+      }).success,
+    ).toBe(true);
+    expect(motionFrameJsonSchema.allOf).toContainEqual({
+      if: {
+        properties: { health: { enum: ["starting", "fault"] } },
+        required: ["health"],
+      },
+      then: { properties: { players: { maxItems: 0 } } },
+    });
+    expect(motionFrameJsonSchema.allOf).toContainEqual({
+      if: {
+        properties: { health: { not: { const: "ready" } } },
+        required: ["health"],
+      },
+      then: {
+        properties: {
+          players: {
+            items: {
+              properties: { actions: { maxItems: 0 } },
+              required: ["actions"],
+            },
+          },
+        },
+      },
     });
   });
 
@@ -125,5 +213,51 @@ describe("MotionFrameSchema", () => {
         optionalProfiles: [],
       }),
     ).toEqual({ accepted: false, missingRequiredProfiles: ["body.mediapipe33"] });
+  });
+});
+
+describe("TrackerHealthEventSchema", () => {
+  const base = {
+    schemaVersion: MOTION_API_SCHEMA_VERSION,
+    sequence: 1,
+    source: "synthetic",
+    occurredAtMs: 100,
+  } as const;
+
+  it.each([
+    ["starting", "initializing", "blocked"],
+    ["starting", "restarting", "blocked"],
+    ["ready", "healthy", "full"],
+    ["degraded", "low-confidence", "landmarks-only"],
+    ["degraded", "overload", "landmarks-only"],
+    ["degraded", "fallback-backend", "landmarks-only"],
+    ["fault", "camera-unavailable", "blocked"],
+    ["fault", "camera-disconnected", "blocked"],
+    ["fault", "backend-fault", "blocked"],
+  ] as const)("accepts the %s/%s fixture", (status, reason, controlAvailability) => {
+    expect(TrackerHealthEventSchema.parse({ ...base, status, reason, controlAvailability })).toMatchObject({
+      status,
+      reason,
+      controlAvailability,
+    });
+  });
+
+  it("rejects incoherent status, reason, and control combinations", () => {
+    expect(
+      TrackerHealthEventSchema.safeParse({
+        ...base,
+        status: "ready",
+        reason: "overload",
+        controlAvailability: "full",
+      }).success,
+    ).toBe(false);
+    expect(
+      TrackerHealthEventSchema.safeParse({
+        ...base,
+        status: "degraded",
+        reason: "overload",
+        controlAvailability: "full",
+      }).success,
+    ).toBe(false);
   });
 });

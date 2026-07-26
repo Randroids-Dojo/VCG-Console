@@ -46,8 +46,21 @@ if (-not ($chromeCandidates | Where-Object { Test-Path $_ } | Select-Object -Fir
 }
 
 Invoke-PinnedPnpm --version
-Invoke-PinnedPnpm install --frozen-lockfile
+$previousCi = $env:CI
+try {
+  # pnpm requires explicit non-interactive intent before replacing an
+  # installation whose lockfile or virtual-store metadata changed.
+  $env:CI = "true"
+  Invoke-PinnedPnpm install --frozen-lockfile
+} finally {
+  if ($null -eq $previousCi) {
+    Remove-Item Env:CI -ErrorAction SilentlyContinue
+  } else {
+    $env:CI = $previousCi
+  }
+}
 Invoke-PinnedPnpm prepare:assets
+Invoke-PinnedPnpm prepare:catalog
 Invoke-PinnedPnpm prepare:schemas
 Invoke-PinnedPnpm typecheck
 Invoke-PinnedPnpm test

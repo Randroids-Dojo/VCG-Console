@@ -1,0 +1,107 @@
+{
+  "format": "vcg-pi5-hailo-image-plan/v1",
+  "status": "blocked",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Source-pinned, non-executing image recipe boundary only. No image has been downloaded, built, written, booted, package-locked, recovered, or qualified; no Raspberry Pi, AI HAT+, camera, Hailo runtime, model, post-processor, browser, launcher, tracker, storage, thermal, radio, controller, offline, update, rollback, or recovery result exists.",
+  "hardware": {
+    "board": {
+      "product": "Raspberry Pi 5 8GB",
+      "quotedManufacturerPartNumber": "SC1112",
+      "receivedRevision": null,
+      "eepromVersion": null
+    },
+    "accelerator": {
+      "product": "Raspberry Pi AI HAT+ 26 TOPS",
+      "architecture": "hailo8",
+      "quotedManufacturerIdentifiers": [
+        "SC1791",
+        "SC1468"
+      ],
+      "approvedManufacturerPartNumber": null,
+      "receivedRevision": null,
+      "firmwareVersion": null
+    },
+    "camera": {
+      "contract": "wide-angle UVC USB RGB; 1920x1080 at 60 FPS required",
+      "manufacturerPartNumber": null,
+      "usbVendorProductId": null,
+      "firmwareVersion": null,
+      "uvcPath": null
+    }
+  },
+  "baseImage": {
+    "product": "Raspberry Pi OS with desktop, 64-bit",
+    "debianRelease": "13 (trixie)",
+    "releaseDate": "2026-06-18",
+    "nominalKernelVersion": "6.18",
+    "downloadUrl": "https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2026-06-19/2026-06-18-raspios-trixie-arm64.img.xz",
+    "compressedSha256": "123287c05f27b0eebd8f65456f6369b8f6635fa50a3d440a4f9f6223bf58c8e2",
+    "locallyVerifiedCompressedSha256": null,
+    "expandedImageSha256": null
+  },
+  "hailoSourceCandidate": {
+    "repository": "https://github.com/hailo-ai/hailo-apps.git",
+    "tag": "26.03.1",
+    "tagObject": "8887f6057fd570ff182134a5a0a66ca3d914e603",
+    "commit": "891ce701c2ebe239a5d277759eb75a30f76678a9",
+    "hailoRtCandidateFamily": "4.23",
+    "tappasCoreCandidateVersion": "5.1.0",
+    "installedHailoRtVersion": null,
+    "installedPcieDriverVersion": null,
+    "installedTappasCoreVersion": null,
+    "installedPythonBindingVersions": null,
+    "sourceTreeSha256": null
+  },
+  "immutableInputs": {
+    "aptSnapshotManifestSha256": null,
+    "aptPackageManifestSha256": null,
+    "pythonLockSha256": null,
+    "hailoResourceManifestSha256": null,
+    "poseHefSha256": null,
+    "posePostProcessorSha256": null,
+    "browserArtifactSha256": null,
+    "vcgReleaseManifestSha256": null,
+    "buildRecipeSha256": null,
+    "dataExclusionScanSha256": null
+  },
+  "executionGate": {
+    "status": "blocked",
+    "downloadAuthorized": false,
+    "imageBuildAuthorized": false,
+    "removableMediaWriteAuthorized": false,
+    "destructiveTestAuthorized": false,
+    "blockerCodes": [
+      "hardware-receipt-and-revision",
+      "accelerator-part-identity",
+      "camera-selection-and-uvc-identity",
+      "immutable-apt-and-python-inputs",
+      "hailo-package-and-firmware-tuple",
+      "hef-resource-and-postprocessor-hashes",
+      "vcg-release-and-build-recipe",
+      "write-and-destructive-test-authority"
+    ]
+  },
+  "requiredBootCapture": [
+    "board revision, RAM and EEPROM version",
+    "uname, Debian release, bootloader and firmware package versions",
+    "complete installed apt package/version/architecture manifest",
+    "AI HAT PCIe identity, Hailo firmware and hailortcli identify output",
+    "HailoRT, PCIe driver, TAPPAS Core and Python binding versions",
+    "Hailo Apps tag object, commit and clean source-tree digest",
+    "HEF, downloaded resource and compiled post-processor SHA-256 values",
+    "camera USB identity, firmware, V4L2 path, controls and exact 1080p60 format",
+    "browser, VCG release, partition, mount and A/B slot manifests",
+    "offline boot, launcher, tracker, camera, controller, update, rollback and recovery results"
+  ],
+  "prohibitedImageData": [
+    "account credentials",
+    "Wi-Fi credentials",
+    "SSH private keys",
+    "console or profile vault keys",
+    "developer pairing keys",
+    "profiles, portraits, calibration or body-matching data",
+    "saves, scores, achievements or unassigned progress",
+    "logs, diagnostics, traces or raw camera data",
+    "user-imported retro content or developer builds"
+  ]
+}

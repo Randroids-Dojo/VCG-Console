@@ -1,0 +1,1111 @@
+{
+  "format": "vcg-runtime-payload-scorecard-desk-baseline/v2",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "source-browser-and-export-derived-prequalification-scorecard",
+  "qualification": "zero-final-payload-selections",
+  "policy": {
+    "selectedPayloadRequiresEveryRubricPass": true,
+    "targetCellsAreArchitectureAndPayloadSpecific": true,
+    "sourceAndDeskEvidenceCannotQualifyTargetCells": true,
+    "rightsAndAdmissionRemainSeparateBlockingGates": true,
+    "productionCatalogMutation": false
+  },
+  "provenance": {
+    "fullCatalogCandidateFormat": "vcg-full-catalog-candidate-ledger/v2",
+    "fullCatalogCandidateObservationSha256": "65798f7bcb3f08e3b6f2dceb0c28e0ea382091352ff72c480e822b9f68bee245",
+    "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
+    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "remoteOfflineFormat": "vcg-remote-game-offline-observation/v2",
+    "remoteOfflineObservationSha256": "8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0",
+    "gameServiceFormat": "vcg-game-service-dependency-screen/v2",
+    "gameServiceObservationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9",
+    "remoteInputFormat": "vcg-remote-game-input-surface-observation/v2",
+    "remoteInputObservationSha256": "81dae4f12644140f6fb1a58a37e7238c0bd07be21e48df65cd22d5c797be1dd2",
+    "godotExportFormat": "vcg-godot-export-evidence/v1",
+    "godotExportArtifactSha256": "6badb1ffe0ab65f97988e8cbcd3e8bd0362370a38be394662928b534443ec23e"
+  },
+  "scope": {
+    "investigation": "I-182",
+    "decision": "D-057",
+    "subjectIds": [
+      "vibebots",
+      "mi-casa-es-su-casa",
+      "determined",
+      "obstacle-sample",
+      "godot-motion-sample"
+    ],
+    "targetArchitectures": [
+      "linux-x86_64",
+      "linux-arm64"
+    ],
+    "candidatePayloads": [
+      "bundled-web",
+      "native"
+    ],
+    "targetHardwareRuns": 0,
+    "physicalControllerRuns": 0,
+    "participantRuns": 0
+  },
+  "rubric": [
+    {
+      "id": "architecture-portability",
+      "requiredEvidence": [
+        "exact release artifact identity",
+        "launch on ordinary Linux x86-64",
+        "launch on Raspberry Pi Linux ARM64",
+        "runtime and ABI dependency inventory"
+      ]
+    },
+    {
+      "id": "performance-latency",
+      "requiredEvidence": [
+        "frame pacing and resource measurements",
+        "controller-to-action latency",
+        "Motion exposure-to-action latency when applicable",
+        "concurrent tracker and launcher workload"
+      ]
+    },
+    {
+      "id": "controller-motion",
+      "requiredEvidence": [
+        "physical controller-only complete flow",
+        "reserved Home Back and pause enforcement",
+        "Motion API behavior when applicable",
+        "disconnect focus and recovery behavior"
+      ]
+    },
+    {
+      "id": "offline-services",
+      "requiredEvidence": [
+        "declared network and service contract",
+        "cold offline launch and complete play",
+        "save reset update and rollback behavior",
+        "reviewed degraded-service behavior"
+      ]
+    },
+    {
+      "id": "package-size",
+      "requiredEvidence": [
+        "signed payload bytes",
+        "installed and peak update bytes",
+        "cache and save quotas",
+        "reserved rollback headroom"
+      ]
+    },
+    {
+      "id": "security-boundary",
+      "requiredEvidence": [
+        "runtime sandbox and permission policy",
+        "origin or native IPC authority",
+        "watchdog and forced-exit behavior",
+        "hostile-content and failure tests"
+      ]
+    },
+    {
+      "id": "build-reproducibility",
+      "requiredEvidence": [
+        "exact source and toolchain",
+        "locked dependencies",
+        "repeated artifact equality or explained variance",
+        "notices and corresponding-source bundle"
+      ]
+    },
+    {
+      "id": "maintenance",
+      "requiredEvidence": [
+        "named maintainer",
+        "supported runtime and toolchain horizon",
+        "update and security-response estimate",
+        "cross-architecture regression cost estimate"
+      ]
+    }
+  ],
+  "subjects": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "subjectClass": "controlled-public-source-title",
+      "currentDelivery": "remote-web",
+      "source": {
+        "kind": "exact-public-source-archive",
+        "repository": "VibeBots",
+        "revision": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
+        "fileCount": 702,
+        "totalBytes": 8039484,
+        "sha256": "1cb50daac586dc6bc2a4a003a1101e9ec4ff1917b696237b6008f9acf24c4f0d",
+        "runtimeDependencyCount": 13,
+        "apiRouteCount": 73,
+        "assetLikeFileCount": 70,
+        "files": []
+      },
+      "measurements": {
+        "onlineLoadCount": 2,
+        "onlineRequestCount": 66,
+        "observedThirdPartyOriginCount": 0,
+        "offlineReloadOutcome": "failed",
+        "gamepadApiPollCount": 250,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": false,
+        "webExportBytes": null,
+        "linuxX86_64ExportBytes": null,
+        "linuxArm64ExportBytes": null,
+        "windowsChromeReadyMs": null,
+        "linuxX86_64WslBootObserved": false,
+        "linuxArm64ExecutionObserved": false
+      },
+      "serviceAndAuthority": {
+        "serviceSignalCounts": {
+          "auth": 16,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 4,
+          "payments": 0,
+          "externalNetwork": 18
+        },
+        "degradationStatus": "unverified-source-signal-only",
+        "offlineQualification": "none",
+        "redistributionStatus": "blocked",
+        "ownerAuthorizationStatus": "not-recorded",
+        "admissionAuthorityGranted": false,
+        "hostAuthorityGranted": false
+      },
+      "rubricAssessments": [
+        {
+          "id": "architecture-portability",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-public-source-archive",
+            "zero-target-launches"
+          ]
+        },
+        {
+          "id": "performance-latency",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "fresh-windows-browser-load-is-not-performance"
+          ]
+        },
+        {
+          "id": "controller-motion",
+          "status": "signal-only",
+          "evidenceCodes": [
+            "neutral-gamepad-api-signal",
+            "zero-physical-actions"
+          ]
+        },
+        {
+          "id": "offline-services",
+          "status": "blocked",
+          "evidenceCodes": [
+            "zero-offline-package-qualification",
+            "service-degradation-unverified"
+          ]
+        },
+        {
+          "id": "package-size",
+          "status": "source-only",
+          "evidenceCodes": [
+            "source-archive-bytes-not-package-bytes"
+          ]
+        },
+        {
+          "id": "security-boundary",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-local-package-host-authority"
+          ]
+        },
+        {
+          "id": "build-reproducibility",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-source-archive",
+            "zero-repeated-release-builds"
+          ]
+        },
+        {
+          "id": "maintenance",
+          "status": "unestimated",
+          "evidenceCodes": [
+            "no-named-estimate"
+          ]
+        }
+      ],
+      "payloadCandidates": [
+        {
+          "payload": "bundled-web",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        },
+        {
+          "payload": "native",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        }
+      ],
+      "selection": {
+        "status": "blocked",
+        "selectedPayload": null,
+        "exception": null,
+        "maintenanceEstimate": null,
+        "blockerCodes": [
+          "architecture-target-execution",
+          "build-reproducibility",
+          "controller-motion-target",
+          "maintenance-estimate",
+          "offline-service-contract",
+          "package-artifact",
+          "performance-latency",
+          "rights-and-admission",
+          "security-boundary"
+        ]
+      }
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "subjectClass": "controlled-public-source-title",
+      "currentDelivery": "remote-web",
+      "source": {
+        "kind": "exact-public-source-archive",
+        "repository": "mi-casa-es-su-casa",
+        "revision": "c296f181d94d594ffd8be855d8d0f4a808f19374",
+        "fileCount": 136,
+        "totalBytes": 334252,
+        "sha256": "93c89828e6e61bf6b0b5e994be4916bdf64e6b08e445d9386efb9e53829b6105",
+        "runtimeDependencyCount": 6,
+        "apiRouteCount": 7,
+        "assetLikeFileCount": 2,
+        "files": []
+      },
+      "measurements": {
+        "onlineLoadCount": 2,
+        "onlineRequestCount": 23,
+        "observedThirdPartyOriginCount": 2,
+        "offlineReloadOutcome": "failed",
+        "gamepadApiPollCount": 0,
+        "keyboardSignal": true,
+        "pointerSignal": true,
+        "touchSignal": true,
+        "textEntrySurfaceSignal": true,
+        "webExportBytes": null,
+        "linuxX86_64ExportBytes": null,
+        "linuxArm64ExportBytes": null,
+        "windowsChromeReadyMs": null,
+        "linuxX86_64WslBootObserved": false,
+        "linuxArm64ExecutionObserved": false
+      },
+      "serviceAndAuthority": {
+        "serviceSignalCounts": {
+          "auth": 0,
+          "database": 5,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 3
+        },
+        "degradationStatus": "unverified-source-signal-only",
+        "offlineQualification": "none",
+        "redistributionStatus": "blocked",
+        "ownerAuthorizationStatus": "not-recorded",
+        "admissionAuthorityGranted": false,
+        "hostAuthorityGranted": false
+      },
+      "rubricAssessments": [
+        {
+          "id": "architecture-portability",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-public-source-archive",
+            "zero-target-launches"
+          ]
+        },
+        {
+          "id": "performance-latency",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "fresh-windows-browser-load-is-not-performance"
+          ]
+        },
+        {
+          "id": "controller-motion",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-initial-gamepad-api-signals",
+            "zero-physical-actions"
+          ]
+        },
+        {
+          "id": "offline-services",
+          "status": "blocked",
+          "evidenceCodes": [
+            "zero-offline-package-qualification",
+            "service-degradation-unverified"
+          ]
+        },
+        {
+          "id": "package-size",
+          "status": "source-only",
+          "evidenceCodes": [
+            "source-archive-bytes-not-package-bytes"
+          ]
+        },
+        {
+          "id": "security-boundary",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-local-package-host-authority"
+          ]
+        },
+        {
+          "id": "build-reproducibility",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-source-archive",
+            "zero-repeated-release-builds"
+          ]
+        },
+        {
+          "id": "maintenance",
+          "status": "unestimated",
+          "evidenceCodes": [
+            "no-named-estimate"
+          ]
+        }
+      ],
+      "payloadCandidates": [
+        {
+          "payload": "bundled-web",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        },
+        {
+          "payload": "native",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        }
+      ],
+      "selection": {
+        "status": "blocked",
+        "selectedPayload": null,
+        "exception": null,
+        "maintenanceEstimate": null,
+        "blockerCodes": [
+          "architecture-target-execution",
+          "build-reproducibility",
+          "controller-motion-target",
+          "maintenance-estimate",
+          "offline-service-contract",
+          "package-artifact",
+          "performance-latency",
+          "rights-and-admission",
+          "security-boundary"
+        ]
+      }
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "subjectClass": "controlled-public-source-title",
+      "currentDelivery": "remote-web",
+      "source": {
+        "kind": "exact-public-source-archive",
+        "repository": "Determined",
+        "revision": "7d9a38dc2c64915808c4a0a7081133ebb1865eec",
+        "fileCount": 46,
+        "totalBytes": 158802,
+        "sha256": "b4ccb50a18a5f2021723b9725ec74ffc16e6f75eaff6bc8480235dcf89afec68",
+        "runtimeDependencyCount": 1,
+        "apiRouteCount": 3,
+        "assetLikeFileCount": 0,
+        "files": []
+      },
+      "measurements": {
+        "onlineLoadCount": 2,
+        "onlineRequestCount": 79,
+        "observedThirdPartyOriginCount": 1,
+        "offlineReloadOutcome": "failed",
+        "gamepadApiPollCount": 0,
+        "keyboardSignal": true,
+        "pointerSignal": false,
+        "touchSignal": false,
+        "textEntrySurfaceSignal": false,
+        "webExportBytes": null,
+        "linuxX86_64ExportBytes": null,
+        "linuxArm64ExportBytes": null,
+        "windowsChromeReadyMs": null,
+        "linuxX86_64WslBootObserved": false,
+        "linuxArm64ExecutionObserved": false
+      },
+      "serviceAndAuthority": {
+        "serviceSignalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 1,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        },
+        "degradationStatus": "unverified-source-signal-only",
+        "offlineQualification": "none",
+        "redistributionStatus": "blocked",
+        "ownerAuthorizationStatus": "not-recorded",
+        "admissionAuthorityGranted": false,
+        "hostAuthorityGranted": false
+      },
+      "rubricAssessments": [
+        {
+          "id": "architecture-portability",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-public-source-archive",
+            "zero-target-launches"
+          ]
+        },
+        {
+          "id": "performance-latency",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "fresh-windows-browser-load-is-not-performance"
+          ]
+        },
+        {
+          "id": "controller-motion",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-initial-gamepad-api-signals",
+            "zero-physical-actions"
+          ]
+        },
+        {
+          "id": "offline-services",
+          "status": "blocked",
+          "evidenceCodes": [
+            "zero-offline-package-qualification",
+            "service-degradation-unverified"
+          ]
+        },
+        {
+          "id": "package-size",
+          "status": "source-only",
+          "evidenceCodes": [
+            "source-archive-bytes-not-package-bytes"
+          ]
+        },
+        {
+          "id": "security-boundary",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-local-package-host-authority"
+          ]
+        },
+        {
+          "id": "build-reproducibility",
+          "status": "source-only",
+          "evidenceCodes": [
+            "exact-source-archive",
+            "zero-repeated-release-builds"
+          ]
+        },
+        {
+          "id": "maintenance",
+          "status": "unestimated",
+          "evidenceCodes": [
+            "no-named-estimate"
+          ]
+        }
+      ],
+      "payloadCandidates": [
+        {
+          "payload": "bundled-web",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "source-only-no-local-build",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        },
+        {
+          "payload": "native",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run",
+              "offlineStatus": "not-run",
+              "qualified": false
+            }
+          ]
+        }
+      ],
+      "selection": {
+        "status": "blocked",
+        "selectedPayload": null,
+        "exception": null,
+        "maintenanceEstimate": null,
+        "blockerCodes": [
+          "architecture-target-execution",
+          "build-reproducibility",
+          "controller-motion-target",
+          "maintenance-estimate",
+          "offline-service-contract",
+          "package-artifact",
+          "performance-latency",
+          "rights-and-admission",
+          "security-boundary"
+        ]
+      }
+    },
+    {
+      "id": "obstacle-sample",
+      "title": "VCG Obstacle Sample",
+      "subjectClass": "repository-component-sample",
+      "currentDelivery": "console-lab-component",
+      "source": {
+        "kind": "tracked-source-bundle",
+        "repository": "VCG-Console",
+        "revision": null,
+        "fileCount": 5,
+        "totalBytes": 87348,
+        "sha256": "ed785dadd7d07e014bdc04d75af2411e4fd8d0b0064d4143b472504436905bb5",
+        "runtimeDependencyCount": null,
+        "apiRouteCount": 0,
+        "assetLikeFileCount": 0,
+        "files": [
+          {
+            "path": "apps/console-lab/src/action-engine.ts",
+            "bytes": 18365,
+            "sha256": "58deb186b7c96bf26d7068a2f0db1cab249f754221a0f5bf2552b590bd6e5c88"
+          },
+          {
+            "path": "apps/console-lab/src/action-feedback.ts",
+            "bytes": 2304,
+            "sha256": "e83a49ffafc5cdd9de5d2d5e89168fdf9cb39ea4e4a2967ca82808af734e9e23"
+          },
+          {
+            "path": "apps/console-lab/src/main.ts",
+            "bytes": 56628,
+            "sha256": "df45c6a65ec4a7f9130130b6ae68c39b2899f26f1b75814ea694de1fcff2f186"
+          },
+          {
+            "path": "apps/console-lab/src/obstacle-game.ts",
+            "bytes": 6292,
+            "sha256": "e0a03178672a5ff9ca4edd0388ec8b0ad66c9cb115b0d6293e8465e0f494df88"
+          },
+          {
+            "path": "apps/console-lab/src/renderer.ts",
+            "bytes": 3759,
+            "sha256": "5b0addc8f9f37d89522b63f8ec5b99fc665b335f5da54911001fb45a331a4989"
+          }
+        ]
+      },
+      "measurements": {
+        "onlineLoadCount": null,
+        "onlineRequestCount": null,
+        "observedThirdPartyOriginCount": null,
+        "offlineReloadOutcome": null,
+        "gamepadApiPollCount": null,
+        "keyboardSignal": null,
+        "pointerSignal": null,
+        "touchSignal": null,
+        "textEntrySurfaceSignal": null,
+        "webExportBytes": null,
+        "linuxX86_64ExportBytes": null,
+        "linuxArm64ExportBytes": null,
+        "windowsChromeReadyMs": null,
+        "linuxX86_64WslBootObserved": false,
+        "linuxArm64ExecutionObserved": false
+      },
+      "serviceAndAuthority": {
+        "serviceSignalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 0
+        },
+        "degradationStatus": "not-evaluated-as-independent-payload",
+        "offlineQualification": "none",
+        "redistributionStatus": "project-license-unselected",
+        "ownerAuthorizationStatus": "repository-internal-sample",
+        "admissionAuthorityGranted": false,
+        "hostAuthorityGranted": false
+      },
+      "rubricAssessments": [
+        {
+          "id": "architecture-portability",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "console-lab-component-not-independent-payload"
+          ]
+        },
+        {
+          "id": "performance-latency",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-target-payload-runs"
+          ]
+        },
+        {
+          "id": "controller-motion",
+          "status": "repository-code-only",
+          "evidenceCodes": [
+            "motion-action-consumer-source",
+            "zero-physical-actions"
+          ]
+        },
+        {
+          "id": "offline-services",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-signed-package-runs"
+          ]
+        },
+        {
+          "id": "package-size",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-independent-build-artifacts"
+          ]
+        },
+        {
+          "id": "security-boundary",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-independent-package-sandbox-runs"
+          ]
+        },
+        {
+          "id": "build-reproducibility",
+          "status": "source-only",
+          "evidenceCodes": [
+            "tracked-source-bundle",
+            "zero-independent-builds"
+          ]
+        },
+        {
+          "id": "maintenance",
+          "status": "unestimated",
+          "evidenceCodes": [
+            "no-named-estimate"
+          ]
+        }
+      ],
+      "payloadCandidates": [
+        {
+          "payload": "bundled-web",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "component-source-only-no-independent-package",
+              "executionStatus": "not-run-as-independent-payload",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "component-source-only-no-independent-package",
+              "executionStatus": "not-run-as-independent-payload",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            }
+          ]
+        },
+        {
+          "payload": "native",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run-as-independent-payload",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "not-implemented",
+              "executionStatus": "not-run-as-independent-payload",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            }
+          ]
+        }
+      ],
+      "selection": {
+        "status": "blocked",
+        "selectedPayload": null,
+        "exception": null,
+        "maintenanceEstimate": null,
+        "blockerCodes": [
+          "architecture-target-execution",
+          "independent-package-boundary",
+          "maintenance-estimate",
+          "offline-package-campaign",
+          "performance-latency",
+          "physical-controller-motion",
+          "project-license",
+          "security-boundary"
+        ]
+      }
+    },
+    {
+      "id": "godot-motion-sample",
+      "title": "VCG Tiny Motion Game",
+      "subjectClass": "repository-godot-sample",
+      "currentDelivery": "repository-sample-multi-export",
+      "source": {
+        "kind": "tracked-source-bundle",
+        "repository": "VCG-Console",
+        "revision": null,
+        "fileCount": 8,
+        "totalBytes": 22288,
+        "sha256": "375297ec5fa678f3cf8e6b2b1e8bd90a777da167de388386e9ae3d06f00af6aa",
+        "runtimeDependencyCount": null,
+        "apiRouteCount": 0,
+        "assetLikeFileCount": 0,
+        "files": [
+          {
+            "path": "examples/godot-motion-game/export_presets.cfg",
+            "bytes": 2220,
+            "sha256": "d00238a434fd970c06f16757994626c0f838d5342856ce431354e5746fc6d1cd"
+          },
+          {
+            "path": "examples/godot-motion-game/main.tscn",
+            "bytes": 293,
+            "sha256": "95871e3b1cfe4a52dafcc882f22af42b254a03d9d3341fb3475bb165aa6b9df7"
+          },
+          {
+            "path": "examples/godot-motion-game/project.godot",
+            "bytes": 547,
+            "sha256": "6c877bee436793f5578b3938a195f7e7b220d0f20976b2cb6eef8dad0b6617ff"
+          },
+          {
+            "path": "examples/godot-motion-game/scripts/main.gd",
+            "bytes": 3049,
+            "sha256": "428fd945c8129c8839f8a5c139fb4976f553f4c40a95542c8671ca25265f0a09"
+          },
+          {
+            "path": "examples/godot-motion-game/scripts/motion_game.gd",
+            "bytes": 5728,
+            "sha256": "ebd32337fc6cc4aa4caa328117c8b9e761aa62f2723daf980ed6e522df8313cc"
+          },
+          {
+            "path": "examples/godot-motion-game/scripts/motion_replay.gd",
+            "bytes": 1746,
+            "sha256": "f0338e55e0e88ac2231b9fa153eaffece0026e23e0ea791981810b28b0cfa86d"
+          },
+          {
+            "path": "examples/godot-motion-game/scripts/motion_web_bridge.gd",
+            "bytes": 4118,
+            "sha256": "96a32a9fb3f343778e791366a0dfc39f257b437984822bdbb9fb87c3601f9898"
+          },
+          {
+            "path": "examples/godot-motion-game/tests/run_tests.gd",
+            "bytes": 4587,
+            "sha256": "20cdd806b0f229146fae243160582c27539d374aa051f60e6e73bca73727e017"
+          }
+        ]
+      },
+      "measurements": {
+        "onlineLoadCount": null,
+        "onlineRequestCount": null,
+        "observedThirdPartyOriginCount": null,
+        "offlineReloadOutcome": null,
+        "gamepadApiPollCount": null,
+        "keyboardSignal": null,
+        "pointerSignal": null,
+        "touchSignal": null,
+        "textEntrySurfaceSignal": null,
+        "webExportBytes": 39867945,
+        "linuxX86_64ExportBytes": 73490496,
+        "linuxArm64ExportBytes": 67066904,
+        "windowsChromeReadyMs": 722.712,
+        "linuxX86_64WslBootObserved": true,
+        "linuxArm64ExecutionObserved": false
+      },
+      "serviceAndAuthority": {
+        "serviceSignalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 0
+        },
+        "degradationStatus": "not-evaluated-as-signed-package",
+        "offlineQualification": "none",
+        "redistributionStatus": "project-license-unselected",
+        "ownerAuthorizationStatus": "repository-internal-sample",
+        "admissionAuthorityGranted": false,
+        "hostAuthorityGranted": false
+      },
+      "rubricAssessments": [
+        {
+          "id": "architecture-portability",
+          "status": "partial-desk-evidence",
+          "evidenceCodes": [
+            "web-x86-release-export",
+            "native-x86-release-export",
+            "native-arm64-release-export",
+            "wsl2-x86-boot-only",
+            "zero-target-arm64-execution"
+          ]
+        },
+        {
+          "id": "performance-latency",
+          "status": "browser-ready-only",
+          "evidenceCodes": [
+            "windows-chrome-ready-time",
+            "zero-gameplay-latency-runs"
+          ]
+        },
+        {
+          "id": "controller-motion",
+          "status": "synthetic-only",
+          "evidenceCodes": [
+            "keyboard-fallback-actions",
+            "synthetic-motion-bridge-evidence",
+            "zero-physical-controller-actions"
+          ]
+        },
+        {
+          "id": "offline-services",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "zero-signed-package-offline-runs"
+          ]
+        },
+        {
+          "id": "package-size",
+          "status": "export-measured",
+          "evidenceCodes": [
+            "exact-web-x86-arm64-export-bytes"
+          ]
+        },
+        {
+          "id": "security-boundary",
+          "status": "unmeasured",
+          "evidenceCodes": [
+            "desk-web-bridge-only",
+            "zero-native-ipc-authority"
+          ]
+        },
+        {
+          "id": "build-reproducibility",
+          "status": "single-export-evidence",
+          "evidenceCodes": [
+            "exact-toolchain-and-output-digests",
+            "zero-repeat-builds"
+          ]
+        },
+        {
+          "id": "maintenance",
+          "status": "unestimated",
+          "evidenceCodes": [
+            "no-named-estimate"
+          ]
+        }
+      ],
+      "payloadCandidates": [
+        {
+          "payload": "bundled-web",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "release-export-produced",
+              "executionStatus": "windows-chrome-only-not-target",
+              "performanceStatus": "ready-time-only-not-game-performance",
+              "inputStatus": "keyboard-and-synthetic-motion-only",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "release-export-produced",
+              "executionStatus": "windows-chrome-only-not-target",
+              "performanceStatus": "ready-time-only-not-game-performance",
+              "inputStatus": "keyboard-and-synthetic-motion-only",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            }
+          ]
+        },
+        {
+          "payload": "native",
+          "architectures": [
+            {
+              "architecture": "linux-x86_64",
+              "buildStatus": "release-export-produced",
+              "executionStatus": "wsl2-headless-boot-only",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            },
+            {
+              "architecture": "linux-arm64",
+              "buildStatus": "release-export-produced",
+              "executionStatus": "not-run",
+              "performanceStatus": "not-run",
+              "inputStatus": "not-run-with-physical-input",
+              "offlineStatus": "not-run-as-signed-package",
+              "qualified": false
+            }
+          ]
+        }
+      ],
+      "selection": {
+        "status": "blocked",
+        "selectedPayload": null,
+        "exception": null,
+        "maintenanceEstimate": null,
+        "blockerCodes": [
+          "architecture-target-execution",
+          "build-repeatability",
+          "maintenance-estimate",
+          "native-motion-ipc",
+          "offline-package-campaign",
+          "performance-latency",
+          "physical-controller",
+          "project-license",
+          "signed-package-security"
+        ]
+      }
+    }
+  ],
+  "observationSha256": "1d9c419c4e0d7bdeec8538afba0a8965ed802a86d831aaf65fef4d319c4d9edd",
+  "summary": {
+    "subjectCount": 5,
+    "publicSourceSubjectCount": 3,
+    "repositorySampleCount": 2,
+    "payloadCandidateCount": 10,
+    "targetCellCount": 20,
+    "targetQualifiedCellCount": 0,
+    "finalSelectionCount": 0,
+    "maintenanceEstimateCount": 0,
+    "admissionAuthorityCount": 0,
+    "hostAuthorityCount": 0,
+    "productionCatalogMutationCount": 0
+  },
+  "limitations": [
+    "This artifact is a prequalification scorecard baseline. It does not select a payload, approve a package, grant host authority, admit a title, or mutate the production catalog.",
+    "Public source archive size, file counts, dependency names, browser request counts, and API-surface signals are not local-package build, installed-size, performance, latency, controller, security, offline, or maintenance measurements.",
+    "The obstacle sample is a component of the console lab rather than an independently built signed game package, so its source bundle cannot be treated as a bundled-web artifact.",
+    "The Godot sample has exact Web, Linux x86-64, and Linux ARM64 exports, one Windows Chrome load, and one WSL2 x86-64 headless boot. It has no target ARM64 execution, ordinary-Linux qualification, physical controller, signed-package launch, or latency result.",
+    "Every target cell remains unqualified until the exact payload is exercised on both selected architectures under the common launcher, tracker, controller, storage, recovery, and service workload.",
+    "Rights, admission, content, privacy, and owner authorization remain separate fail-closed gates even after a runtime payload eventually wins the technical scorecard."
+  ]
+}

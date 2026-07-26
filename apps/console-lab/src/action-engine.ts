@@ -1,4 +1,10 @@
-import type { CoreLandmarkName, MotionAction, MotionFrame, PlayerMotion } from "@vcg/motion-contract";
+import {
+  sortMotionActions,
+  type CoreLandmarkName,
+  type MotionAction,
+  type MotionFrame,
+  type PlayerMotion,
+} from "@vcg/motion-contract";
 
 interface Point {
   x: number;
@@ -13,12 +19,41 @@ interface Baseline {
   shoulderWidth: number;
 }
 
-const HOLD_SELECT_MS = 450;
-const HOLD_BACK_MS = 650;
-const HOLD_PAUSE_MS = 1_100;
+interface Measurements {
+  centerX?: number;
+  shoulderY?: number;
+  hipY?: number;
+  ankleY?: number;
+  shoulderWidth?: number;
+}
+
+export type SustainedActionName = "player_join" | "menu_select" | "menu_back" | "pause";
+
+export type ActionChronologyFault =
+  | "frame-timestamp-order-invalid"
+  | "publication-time-regressed"
+  | "sequence-invalid"
+  | "sequence-not-increasing"
+  | "source-changed"
+  | "source-time-regressed"
+  | "timestamp-quality-changed";
+
+interface HoldState {
+  name: SustainedActionName;
+  startedAtMs: number;
+  triggered: boolean;
+  lastConfidence: number;
+}
+
+export const ACTION_HOLD_THRESHOLDS_MS = {
+  player_join: 450,
+  menu_select: 450,
+  menu_back: 650,
+  pause: 1_100,
+} as const satisfies Readonly<Record<SustainedActionName, number>>;
 const ACTION_COOLDOWN_MS = 650;
 
-export type ActionContext = "shell" | "game";
+export type ActionContext = "shell" | "game" | "overlay";
 
 function point(player: PlayerMotion, name: CoreLandmarkName): Point | undefined {
   const landmark = player.coreLandmarks.find((candidate) => candidate.name === name);
@@ -35,29 +70,68 @@ function midpoint(a: Point, b: Point): Point {
 
 export class ActionEngine {
   readonly #baselineSamples: Baseline[] = [];
-  readonly #lastTriggeredAt = new Map<string, number>();
+  readonly #lastTriggeredAt = new Map<MotionAction["name"], number>();
+  readonly #latchedActions = new Set<MotionAction["name"]>();
   #baseline: Baseline | undefined;
   #previousLeftWrist: Point | undefined;
   #previousRightWrist: Point | undefined;
   #previousAtMs = 0;
-  #handsTogetherStartedAt: number | undefined;
-  #armsCrossedStartedAt: number | undefined;
+  #lastFrameSequence: number | undefined;
+  #lastPublishedAtMs: number | undefined;
+  #lastSource: MotionFrame["source"] | undefined;
+  #lastSourceTimestampMs: number | undefined;
+  #lastTimestampQuality:
+    | MotionFrame["capabilities"]["timestampQuality"]
+    | undefined;
+  #chronologyFault: ActionChronologyFault | undefined;
+  #handsHold: HoldState | undefined;
+  #armsHold: HoldState | undefined;
   #joined = false;
+  #joinRequiresRelease = false;
 
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
-    const player = frame.players[0];
-    if (!player) {
-      this.#resetGestureContinuity();
-      return frame;
+    const enrichedFrame: MotionFrame = {
+      ...frame,
+      capabilities: {
+        ...frame.capabilities,
+        profiles: [
+          ...new Set([
+            ...frame.capabilities.profiles,
+            "actions.obstacle.v1" as const,
+            "actions.shell.v1" as const,
+          ]),
+        ],
+      },
+      players: frame.players.map((player) => ({
+        ...player,
+        actions: [],
+      })),
+    };
+    if (this.#chronologyFault) return this.#suppressActions(enrichedFrame);
+    const chronologyFault = this.#chronologyFaultFor(frame);
+    if (chronologyFault) {
+      this.#enterChronologyFault(chronologyFault);
+      return this.#suppressActions(enrichedFrame);
     }
+    this.#recordChronology(frame);
 
     const now = frame.publishedAtMs;
-    const measurements = this.#measure(player);
-    if (!measurements) {
+    if (enrichedFrame.health !== "ready") {
       this.#resetGestureContinuity();
-      return frame;
+      return {
+        ...enrichedFrame,
+        players: enrichedFrame.players.map((player) => ({ ...player, actions: [] })),
+      };
     }
-    this.#captureBaseline(measurements);
+    const player = enrichedFrame.players[0];
+    if (!player) {
+      this.#resetGestureContinuity();
+      return enrichedFrame;
+    }
+
+    const measurements = this.#measure(player);
+    const baselineSample = this.#completeBaseline(measurements);
+    if (baselineSample) this.#captureBaseline(baselineSample);
     const actions = this.#recognize(player, measurements, now, context);
     const enrichedPlayer: PlayerMotion = {
       ...player,
@@ -67,47 +141,167 @@ export class ActionEngine {
     this.#previousLeftWrist = point(player, "left_wrist");
     this.#previousRightWrist = point(player, "right_wrist");
     this.#previousAtMs = now;
-    return { ...frame, players: [enrichedPlayer, ...frame.players.slice(1)] };
+    return { ...enrichedFrame, players: [enrichedPlayer, ...enrichedFrame.players.slice(1)] };
   }
 
   join(): void {
     this.#joined = true;
+    this.#joinRequiresRelease = false;
+  }
+
+  leave(): void {
+    this.#resetRecognitionState();
+    this.#joinRequiresRelease = true;
+  }
+
+  suspend(): void {
+    this.#resetGestureContinuity();
+  }
+
+  get chronologyFault(): ActionChronologyFault | undefined {
+    return this.#chronologyFault;
   }
 
   reset(): void {
+    this.#resetRecognitionState();
+    this.#lastFrameSequence = undefined;
+    this.#lastPublishedAtMs = undefined;
+    this.#lastSource = undefined;
+    this.#lastSourceTimestampMs = undefined;
+    this.#lastTimestampQuality = undefined;
+    this.#chronologyFault = undefined;
+  }
+
+  #resetRecognitionState(): void {
     this.#baselineSamples.length = 0;
     this.#baseline = undefined;
     this.#lastTriggeredAt.clear();
     this.#resetGestureContinuity();
     this.#joined = false;
+    this.#joinRequiresRelease = false;
+  }
+
+  #chronologyFaultFor(frame: MotionFrame): ActionChronologyFault | undefined {
+    if (!Number.isSafeInteger(frame.sequence) || frame.sequence < 0) {
+      return "sequence-invalid";
+    }
+    if (
+      !Number.isFinite(frame.sourceTimestampMs) ||
+      !Number.isFinite(frame.inferenceStartedAtMs) ||
+      !Number.isFinite(frame.inferenceCompletedAtMs) ||
+      !Number.isFinite(frame.publishedAtMs) ||
+      frame.sourceTimestampMs > frame.inferenceStartedAtMs ||
+      frame.inferenceStartedAtMs > frame.inferenceCompletedAtMs ||
+      frame.inferenceCompletedAtMs > frame.publishedAtMs
+    ) {
+      return "frame-timestamp-order-invalid";
+    }
+    if (this.#lastSource !== undefined && frame.source !== this.#lastSource) {
+      return "source-changed";
+    }
+    if (
+      this.#lastTimestampQuality !== undefined &&
+      frame.capabilities.timestampQuality !== this.#lastTimestampQuality
+    ) {
+      return "timestamp-quality-changed";
+    }
+    if (
+      this.#lastFrameSequence !== undefined &&
+      frame.sequence <= this.#lastFrameSequence
+    ) {
+      return "sequence-not-increasing";
+    }
+    if (
+      this.#lastSourceTimestampMs !== undefined &&
+      frame.sourceTimestampMs < this.#lastSourceTimestampMs
+    ) {
+      return "source-time-regressed";
+    }
+    if (
+      this.#lastPublishedAtMs !== undefined &&
+      frame.publishedAtMs < this.#lastPublishedAtMs
+    ) {
+      return "publication-time-regressed";
+    }
+    return undefined;
+  }
+
+  #recordChronology(frame: MotionFrame): void {
+    this.#lastFrameSequence = frame.sequence;
+    this.#lastPublishedAtMs = frame.publishedAtMs;
+    this.#lastSource = frame.source;
+    this.#lastSourceTimestampMs = frame.sourceTimestampMs;
+    this.#lastTimestampQuality = frame.capabilities.timestampQuality;
+  }
+
+  #enterChronologyFault(fault: ActionChronologyFault): void {
+    this.#resetRecognitionState();
+    this.#chronologyFault = fault;
+  }
+
+  #suppressActions(frame: MotionFrame): MotionFrame {
+    return {
+      ...frame,
+      players: frame.players.map((player, index) => ({
+        ...player,
+        ...(index === 0 ? { state: "candidate" as const } : {}),
+        actions: [],
+      })),
+    };
   }
 
   #resetGestureContinuity(): void {
+    this.#handsHold = undefined;
+    this.#armsHold = undefined;
+    this.#resetSpatialContinuity();
+  }
+
+  #resetSpatialContinuity(): void {
     this.#previousLeftWrist = undefined;
     this.#previousRightWrist = undefined;
     this.#previousAtMs = 0;
-    this.#handsTogetherStartedAt = undefined;
-    this.#armsCrossedStartedAt = undefined;
+    this.#latchedActions.clear();
   }
 
-  #measure(player: PlayerMotion): Baseline | undefined {
+  #measure(player: PlayerMotion): Measurements {
     const leftShoulder = point(player, "left_shoulder");
     const rightShoulder = point(player, "right_shoulder");
     const leftHip = point(player, "left_hip");
     const rightHip = point(player, "right_hip");
     const leftAnkle = point(player, "left_ankle");
     const rightAnkle = point(player, "right_ankle");
-    if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) return undefined;
-    const shoulders = midpoint(leftShoulder, rightShoulder);
-    const hips = midpoint(leftHip, rightHip);
-    const ankles = midpoint(leftAnkle, rightAnkle);
+    const shoulders =
+      leftShoulder && rightShoulder ? midpoint(leftShoulder, rightShoulder) : undefined;
+    const shoulderWidth =
+      leftShoulder && rightShoulder
+        ? Math.max(0.05, distance(leftShoulder, rightShoulder))
+        : undefined;
+    const hips = leftHip && rightHip ? midpoint(leftHip, rightHip) : undefined;
+    const ankles = leftAnkle && rightAnkle ? midpoint(leftAnkle, rightAnkle) : undefined;
     return {
-      centerX: hips.x,
-      shoulderY: shoulders.y,
-      hipY: hips.y,
-      ankleY: ankles.y,
-      shoulderWidth: Math.max(0.05, distance(leftShoulder, rightShoulder)),
+      ...(hips ? { centerX: hips.x, hipY: hips.y } : {}),
+      ...(shoulders && shoulderWidth !== undefined
+        ? {
+            shoulderY: shoulders.y,
+            shoulderWidth,
+          }
+        : {}),
+      ...(ankles ? { ankleY: ankles.y } : {}),
     };
+  }
+
+  #completeBaseline(measurements: Measurements): Baseline | undefined {
+    const { centerX, shoulderY, hipY, ankleY, shoulderWidth } = measurements;
+    if (
+      centerX === undefined ||
+      shoulderY === undefined ||
+      hipY === undefined ||
+      ankleY === undefined ||
+      shoulderWidth === undefined
+    ) {
+      return undefined;
+    }
+    return { centerX, shoulderY, hipY, ankleY, shoulderWidth };
   }
 
   #captureBaseline(sample: Baseline): void {
@@ -124,7 +318,12 @@ export class ActionEngine {
     };
   }
 
-  #recognize(player: PlayerMotion, current: Baseline, now: number, context: ActionContext): MotionAction[] {
+  #recognize(
+    player: PlayerMotion,
+    current: Measurements,
+    now: number,
+    context: ActionContext,
+  ): MotionAction[] {
     const actions: MotionAction[] = [];
     const leftWrist = point(player, "left_wrist");
     const rightWrist = point(player, "right_wrist");
@@ -132,68 +331,234 @@ export class ActionEngine {
     const rightElbow = point(player, "right_elbow");
     const baseline = this.#baseline;
 
-    if (leftWrist && rightWrist) {
+    if (leftWrist && rightWrist && current.shoulderWidth !== undefined) {
       const together = distance(leftWrist, rightWrist) < current.shoulderWidth * 0.52;
-      if (together && this.#handsTogetherStartedAt === undefined) this.#handsTogetherStartedAt = now;
-      if (!together) this.#handsTogetherStartedAt = undefined;
-      if (together && this.#handsTogetherStartedAt !== undefined && now - this.#handsTogetherStartedAt >= HOLD_SELECT_MS) {
-        const name = this.#joined ? "menu_select" : "player_join";
-        if (this.#trigger(name, now)) {
-          actions.push(this.#action(name, now, Math.min(1, 1 - distance(leftWrist, rightWrist) / current.shoulderWidth)));
-          if (name === "player_join") this.#joined = true;
-        }
+      if (!together && this.#joinRequiresRelease) {
+        this.#joinRequiresRelease = false;
       }
+      const name = this.#joined ? "menu_select" : "player_join";
+      const confidence = Math.max(0, Math.min(1, 1 - distance(leftWrist, rightWrist) / current.shoulderWidth));
+      const enabled =
+        context !== "game"
+        && (this.#joined || !this.#joinRequiresRelease);
+      const update = this.#advanceHold(
+        this.#handsHold,
+        together && enabled,
+        name,
+        ACTION_HOLD_THRESHOLDS_MS[name],
+        confidence,
+        now,
+        false,
+      );
+      this.#handsHold = update.state;
+      actions.push(...update.actions);
+      if (update.triggered && name === "player_join") this.#joined = true;
+    } else {
+      const update = this.#advanceHold(
+        this.#handsHold,
+        false,
+        this.#handsHold?.name ?? (this.#joined ? "menu_select" : "player_join"),
+        ACTION_HOLD_THRESHOLDS_MS[
+          this.#handsHold?.name ?? (this.#joined ? "menu_select" : "player_join")
+        ],
+        0,
+        now,
+        false,
+      );
+      this.#handsHold = update.state;
+      actions.push(...update.actions);
     }
 
-    if (leftWrist && rightWrist && leftElbow && rightElbow) {
+    if (
+      leftWrist &&
+      rightWrist &&
+      leftElbow &&
+      rightElbow &&
+      current.shoulderWidth !== undefined
+    ) {
       const crossed = leftWrist.x > rightElbow.x && rightWrist.x < leftElbow.x && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
-      if (crossed && this.#armsCrossedStartedAt === undefined) this.#armsCrossedStartedAt = now;
-      if (!crossed) this.#armsCrossedStartedAt = undefined;
-      const heldMs = crossed && this.#armsCrossedStartedAt !== undefined ? now - this.#armsCrossedStartedAt : 0;
-      if (context === "game" && heldMs >= HOLD_PAUSE_MS && this.#trigger("pause", now)) {
-        actions.push(this.#action("pause", now, 0.9, heldMs));
-      } else if (context === "shell" && heldMs >= HOLD_BACK_MS && this.#trigger("menu_back", now)) {
-        actions.push(this.#action("menu_back", now, 0.8, heldMs));
+      const name = context === "game" ? "pause" : "menu_back";
+      const thresholdMs = ACTION_HOLD_THRESHOLDS_MS[name];
+      const update = this.#advanceHold(this.#armsHold, crossed, name, thresholdMs, crossed ? 0.9 : 0, now, true);
+      this.#armsHold = update.state;
+      actions.push(...update.actions);
+    } else {
+      const fallbackName = this.#armsHold?.name ?? (context === "game" ? "pause" : "menu_back");
+      const update = this.#advanceHold(
+        this.#armsHold,
+        false,
+        fallbackName,
+        ACTION_HOLD_THRESHOLDS_MS[fallbackName],
+        0,
+        now,
+        true,
+      );
+      this.#armsHold = update.state;
+      actions.push(...update.actions);
+    }
+
+    if (this.#joined && baseline && context === "game") {
+      const screenShift =
+        current.centerX === undefined ? undefined : baseline.centerX - current.centerX;
+      const shoulderDrop =
+        current.shoulderY === undefined ? undefined : current.shoulderY - baseline.shoulderY;
+      const hipRise = current.hipY === undefined ? undefined : baseline.hipY - current.hipY;
+      const ankleRise =
+        current.ankleY === undefined ? undefined : baseline.ankleY - current.ankleY;
+      this.#updateDiscrete(
+        "dodge_left",
+        screenShift !== undefined &&
+          screenShift < (this.#latchedActions.has("dodge_left") ? -0.08 : -0.12),
+        now,
+        0.8,
+        actions,
+      );
+      this.#updateDiscrete(
+        "dodge_right",
+        screenShift !== undefined &&
+          screenShift > (this.#latchedActions.has("dodge_right") ? 0.08 : 0.12),
+        now,
+        0.8,
+        actions,
+      );
+      this.#updateDiscrete(
+        "duck",
+        shoulderDrop !== undefined &&
+          shoulderDrop > (this.#latchedActions.has("duck") ? 0.07 : 0.105),
+        now,
+        0.8,
+        actions,
+      );
+      const jumpActive =
+        hipRise !== undefined &&
+        ankleRise !== undefined &&
+        (this.#latchedActions.has("jump")
+          ? hipRise > 0.04 && ankleRise > 0.015
+          : hipRise > 0.075 && ankleRise > 0.035);
+      this.#updateDiscrete("jump", jumpActive, now, 0.78, actions);
+    } else {
+      for (const name of ["dodge_left", "dodge_right", "duck", "jump"] as const) {
+        this.#updateDiscrete(name, false, now, 0, actions);
       }
     }
 
-    if (this.#joined && baseline) {
-      const screenShift = baseline.centerX - current.centerX;
-      if (screenShift < -0.12 && this.#trigger("dodge_left", now)) actions.push(this.#action("dodge_left", now, 0.8));
-      if (screenShift > 0.12 && this.#trigger("dodge_right", now)) actions.push(this.#action("dodge_right", now, 0.8));
-      if (current.shoulderY - baseline.shoulderY > 0.105 && this.#trigger("duck", now)) actions.push(this.#action("duck", now, 0.8));
-      if (baseline.hipY - current.hipY > 0.075 && baseline.ankleY - current.ankleY > 0.035 && this.#trigger("jump", now)) {
-        actions.push(this.#action("jump", now, 0.78));
-      }
-    }
-
-    if (this.#joined && leftWrist && rightWrist && this.#previousAtMs > 0) {
+    if (
+      this.#joined &&
+      context !== "game" &&
+      leftWrist &&
+      rightWrist &&
+      current.shoulderY !== undefined &&
+      this.#previousAtMs > 0
+    ) {
       const elapsed = Math.max(1, now - this.#previousAtMs);
       const leftVelocity = this.#previousLeftWrist ? (this.#previousLeftWrist.x - leftWrist.x) / elapsed : 0;
       const rightVelocity = this.#previousRightWrist ? (this.#previousRightWrist.x - rightWrist.x) / elapsed : 0;
       const raised = leftWrist.y < current.shoulderY || rightWrist.y < current.shoulderY;
       const mirroredVelocity = Math.abs(leftVelocity) > Math.abs(rightVelocity) ? leftVelocity : rightVelocity;
-      if (raised && mirroredVelocity > 0.0012 && this.#trigger("menu_swipe_right", now)) {
-        actions.push(this.#action("menu_swipe_right", now, Math.min(1, mirroredVelocity * 500)));
-      }
-      if (raised && mirroredVelocity < -0.0012 && this.#trigger("menu_swipe_left", now)) {
-        actions.push(this.#action("menu_swipe_left", now, Math.min(1, -mirroredVelocity * 500)));
-      }
+      const rightThreshold = this.#latchedActions.has("menu_swipe_right") ? 0.0005 : 0.0012;
+      const leftThreshold = this.#latchedActions.has("menu_swipe_left") ? -0.0005 : -0.0012;
+      this.#updateDiscrete(
+        "menu_swipe_right",
+        raised && mirroredVelocity > rightThreshold,
+        now,
+        Math.min(1, Math.max(0, mirroredVelocity * 500)),
+        actions,
+      );
+      this.#updateDiscrete(
+        "menu_swipe_left",
+        raised && mirroredVelocity < leftThreshold,
+        now,
+        Math.min(1, Math.max(0, -mirroredVelocity * 500)),
+        actions,
+      );
+    } else {
+      this.#updateDiscrete("menu_swipe_right", false, now, 0, actions);
+      this.#updateDiscrete("menu_swipe_left", false, now, 0, actions);
     }
-    return actions;
+    return sortMotionActions(actions);
   }
 
-  #trigger(name: string, now: number): boolean {
+  #advanceHold(
+    currentState: HoldState | undefined,
+    active: boolean,
+    requestedName: SustainedActionName,
+    thresholdMs: number,
+    confidence: number,
+    now: number,
+    restartOnNameChange: boolean,
+  ): Readonly<{ state: HoldState | undefined; actions: MotionAction[]; triggered: boolean }> {
+    const actions: MotionAction[] = [];
+    let state = currentState;
+    if (state && state.name !== requestedName && restartOnNameChange) {
+      actions.push(this.#terminalAction(state, now));
+      state = undefined;
+    }
+    if (!active) {
+      if (state) actions.push(this.#terminalAction(state, now));
+      return { state: undefined, actions: sortMotionActions(actions), triggered: false };
+    }
+    if (!state) {
+      state = { name: requestedName, startedAtMs: now, triggered: false, lastConfidence: confidence };
+      actions.push(this.#action(state.name, "started", now, confidence, 0));
+      return { state, actions, triggered: false };
+    }
+
+    state.lastConfidence = confidence;
+    const durationMs = Math.max(0, now - state.startedAtMs);
+    actions.push(this.#action(state.name, "held", now, confidence, durationMs));
+    let triggered = false;
+    if (!state.triggered && durationMs >= thresholdMs && this.#trigger(state.name, now)) {
+      state.triggered = true;
+      triggered = true;
+      actions.push(this.#action(state.name, "triggered", now, confidence, durationMs));
+    }
+    return { state, actions: sortMotionActions(actions), triggered };
+  }
+
+  #terminalAction(state: HoldState, now: number): MotionAction {
+    return this.#action(
+      state.name,
+      state.triggered ? "ended" : "cancelled",
+      now,
+      state.triggered ? state.lastConfidence : 0,
+      Math.max(0, now - state.startedAtMs),
+    );
+  }
+
+  #updateDiscrete(
+    name: MotionAction["name"],
+    active: boolean,
+    now: number,
+    confidence: number,
+    actions: MotionAction[],
+  ): void {
+    const latched = this.#latchedActions.has(name);
+    if (!active) {
+      this.#latchedActions.delete(name);
+      return;
+    }
+    if (latched) return;
+    this.#latchedActions.add(name);
+    if (this.#trigger(name, now)) actions.push(this.#action(name, "triggered", now, confidence));
+  }
+
+  #trigger(name: MotionAction["name"], now: number): boolean {
     const last = this.#lastTriggeredAt.get(name) ?? -Infinity;
     if (now - last < ACTION_COOLDOWN_MS) return false;
     this.#lastTriggeredAt.set(name, now);
     return true;
   }
 
-  #action(name: MotionAction["name"], now: number, confidence: number, durationMs?: number): MotionAction {
+  #action(
+    name: MotionAction["name"],
+    phase: MotionAction["phase"],
+    now: number,
+    confidence: number,
+    durationMs?: number,
+  ): MotionAction {
     return {
       name,
-      phase: "triggered",
+      phase,
       confidence,
       occurredAtMs: now,
       ...(durationMs === undefined ? {} : { durationMs }),

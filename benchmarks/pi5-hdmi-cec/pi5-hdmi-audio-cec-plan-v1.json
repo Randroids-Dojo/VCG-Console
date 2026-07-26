@@ -1,0 +1,256 @@
+{
+  "format": "vcg-pi5-hdmi-audio-cec-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-primary-tv-hdmi-audio-cec-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-027",
+    "I-028"
+  ],
+  "claimBoundary": "Pre-registered Raspberry Pi 5 physical HDMI video/audio and HDMI-CEC qualification only. No target TV, cable, receiver, EDID, mode, HDR, color, overscan, frame pacing, audio route, channel, latency, clipping, CEC address, power, input, volume, mute, wake, hot-plug, cycle, vendor-quirk, support, qualification, purchase, or product result exists; browser screenshots and Web Audio cues are not physical HDMI evidence.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "settings-rehearsal-boundary",
+      "path": "docs/DISPLAY_AUDIO_SETTINGS_REHEARSAL_2026-07-25.md",
+      "sha256": "1a2403fccef854e5a460bf5cb39e9115ae1acea1a99942cdc770a44f3d74e02e"
+    },
+    {
+      "role": "boot-wake-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "browser-tv-geometry-boundary",
+      "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+      "sha256": "d620589dc3ef8aca78adf61e7253dccaacd5d80de2118b9bda079bb693466542"
+    },
+    {
+      "role": "sustained-load-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    }
+  ],
+  "targetBoundary": {
+    "hostProduct": "Raspberry Pi 5 8GB",
+    "receivedHostAndFirmwareSha256": null,
+    "imageKernelCompositorDriverSha256": null,
+    "primaryTvManufacturerModelRevisionSha256": null,
+    "tvFirmwareVersion": null,
+    "tvPortAndSettingsSha256": null,
+    "hdmiCableIdentityAndCertificationSha256": null,
+    "receiverOrSoundbarIdentitySha256": null,
+    "captureAndTimingInstrumentSha256": null,
+    "cecAdapterAndTraceToolSha256": null,
+    "roomAndViewingGeometrySha256": null,
+    "workloadBundleSha256": null
+  },
+  "displayModes": [
+    {
+      "modeId": "safe-recovery-1280x720-60-sdr",
+      "width": 1280,
+      "height": 720,
+      "refreshNumerator": 60,
+      "refreshDenominator": 1,
+      "hdr": false,
+      "role": "recovery-candidate",
+      "required": true
+    },
+    {
+      "modeId": "baseline-1920x1080-60-sdr",
+      "width": 1920,
+      "height": 1080,
+      "refreshNumerator": 60,
+      "refreshDenominator": 1,
+      "hdr": false,
+      "role": "baseline-candidate",
+      "required": true
+    },
+    {
+      "modeId": "headroom-3840x2160-60-sdr",
+      "width": 3840,
+      "height": 2160,
+      "refreshNumerator": 60,
+      "refreshDenominator": 1,
+      "hdr": false,
+      "role": "headroom-candidate-not-selected",
+      "required": true
+    }
+  ],
+  "audioRoutes": [
+    {
+      "routeId": "hdmi-tv-stereo-pcm-48khz",
+      "required": true,
+      "mayQualifyBaseline": true,
+      "channelCount": 2,
+      "sampleRateHz": 48000
+    },
+    {
+      "routeId": "hdmi-receiver-or-soundbar-stereo-pcm-48khz",
+      "required": false,
+      "mayQualifyBaseline": false,
+      "channelCount": 2,
+      "sampleRateHz": 48000
+    }
+  ],
+  "avChecks": [
+    "edid-and-eld-read-repeatability",
+    "requested-applied-observed-and-physically-confirmed-mode",
+    "safe-area-overscan-and-visible-edge-pattern",
+    "frame-pacing-refresh-and-sustained-load-stability",
+    "left-right-channel-identity-silence-clipping-and-dropout",
+    "audio-video-latency-drift-and-lip-sync",
+    "hot-plug-unplug-reconnect-and-safe-fallback",
+    "idle-blank-wake-and-route-restoration"
+  ],
+  "cecScenarios": [
+    {
+      "scenarioId": "cold-boot-active-source-and-tv-power-on",
+      "requiredOutcome": "The exact policy either powers and selects the TV or reports unsupported without loops or false success."
+    },
+    {
+      "scenarioId": "launcher-idle-cec-wake",
+      "requiredOutcome": "A supported CEC wake reaches a controller-usable safe launcher state within the fixed warm-wake deadline."
+    },
+    {
+      "scenarioId": "tv-standby-notification-and-console-policy",
+      "requiredOutcome": "TV standby cannot strand capture, a game, update, storage, or controller recovery in an ambiguous state."
+    },
+    {
+      "scenarioId": "active-source-input-switch-request",
+      "requiredOutcome": "Deliberate input selection is bounded, visible, idempotent, and never loops with another source."
+    },
+    {
+      "scenarioId": "external-source-steal-and-return",
+      "requiredOutcome": "The console does not fight an external source and returns only through the approved deliberate action."
+    },
+    {
+      "scenarioId": "volume-up-down-and-mute",
+      "requiredOutcome": "Every permitted command has one observable effect or an honest unsupported result with no runaway repeat."
+    },
+    {
+      "scenarioId": "cec-bus-unavailable-or-malformed",
+      "requiredOutcome": "CEC loss or malformed traffic fails closed without blocking controller or physical-control recovery."
+    },
+    {
+      "scenarioId": "hdmi-hot-plug-logical-address-reacquire",
+      "requiredOutcome": "Fresh physical/logical address state is proven before CEC control resumes."
+    },
+    {
+      "scenarioId": "receiver-in-path-power-input-volume",
+      "requiredOutcome": "An optional receiver path remains separately scoped and cannot qualify the direct-TV baseline."
+    },
+    {
+      "scenarioId": "restart-update-and-power-loss-recovery",
+      "requiredOutcome": "Restart, update boundary and unclean recovery cannot leave false display/audio/CEC state or an unrecoverable mode."
+    }
+  ],
+  "schedule": {
+    "displayModeCount": 3,
+    "audioRouteCount": 2,
+    "avCheckCount": 8,
+    "allAvCellCount": 48,
+    "requiredDirectTvAvCellCount": 24,
+    "cecScenarioCount": 10,
+    "validTrialsPerRequiredAvCell": 20,
+    "validCyclesPerCecScenario": 100,
+    "minimumSustainedSecondsPerModeRoute": 3600,
+    "counterbalancedOrder": true,
+    "invalidHarnessTrialsRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "scheduleSha256": null,
+    "operatorProtocolSha256": null,
+    "physicalObservationProtocolSha256": null
+  },
+  "requiredMetrics": [
+    "raw EDID and ELD digests plus parsed mode audio and CEC capability inventory",
+    "requested compositor-applied link-observed and physical-confirmed mode state",
+    "refresh frame-time missed-frame judder blanking link-reset and mode-change distributions",
+    "physical overscan safe-area crop color-range banding and visible-edge observations",
+    "audio channel identity sample rate bit depth silence clipping dropout underrun and route state",
+    "source-to-speaker and audio-video latency drift p50 p95 p99 and worst with uncertainty",
+    "CEC transmit receive acknowledgement retry timeout logical-address and state-transition trace",
+    "power input volume mute wake hot-plug fallback and recovery success latency and failure counts",
+    "controller availability and first-usable-interaction timing after every display audio or CEC transition",
+    "game frame pacing pose FPS camera capture exposure-to-action resources power and thermal state under each sustained mode",
+    "exact host image TV port firmware cable receiver room instrument workload schedule and evidence digests"
+  ],
+  "acceptance": {
+    "maximumWarmWakeToUsableMs": 5000,
+    "maximumExposureToActionP95Ms": 120,
+    "maximumUnrecoveredModeOrAudioFailures": 0,
+    "maximumCecCommandLoopsOrRunawayRepeats": 0,
+    "maximumFalseCecSuccessClaims": 0,
+    "maximumLostControllerRecoveryPaths": 0,
+    "maximumUnexpectedAudioDropouts": 0,
+    "maximumUnexpectedVideoBlankingEvents": 0,
+    "maximumOverscanCropPixels": null,
+    "maximumMissedFrameRatio": null,
+    "maximumFrameTimeP95Ms": null,
+    "maximumAudioLatencyP95Ms": null,
+    "maximumAudioVideoDriftMs": null,
+    "maximumCecCommandP95Ms": null,
+    "maximumCecWakeFailureRatio": null,
+    "maximumHotPlugRecoveryMs": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumWallPowerW": null,
+    "everyRequiredAvCellAndCecScenarioMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "edidOrCompositorStateMayEstablishPhysicalDisplay": false,
+    "webAudioPlaybackMayEstablishPhysicalAudio": false,
+    "browserViewportMayEstablishHdmiModeOrOverscan": false,
+    "optionalReceiverMayRescueDirectTvFailure": false
+  },
+  "selectionPolicy": {
+    "selectedDisplayModeId": null,
+    "selectedAudioRouteId": null,
+    "selectedCecPolicySha256": null,
+    "automaticSelectionAllowed": false,
+    "hdrAuthorized": false,
+    "surroundAudioAuthorized": false,
+    "safeRecoveryModeMustRemainControllerOperable": true,
+    "unsupportedCecMustRetainPhysicalAndControllerFallbacks": true
+  },
+  "dataPolicy": {
+    "rawFramesVideoOrAudioRecordingAuthorized": false,
+    "edidEldAndCecTraceAuthorized": false,
+    "stableTvReceiverOrCableSerialsAllowed": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "saltedPerCampaignEquipmentAliasesAllowed": true,
+    "aggregateTelemetryReleaseOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "tvPowerInputVolumeOrMuteMutationAuthorized": false,
+    "displayModeOrAudioRouteMutationAuthorized": false,
+    "cecTransmissionAuthorized": false,
+    "sustainedLoadAuthorized": false,
+    "blockerCodes": [
+      "received-host-tv-port-cable-and-optional-receiver-identities",
+      "qualified-image-kernel-compositor-display-audio-and-cec-stack",
+      "edid-eld-link-physical-video-and-audio-observation-instruments",
+      "room-viewing-overscan-color-channel-and-latency-protocol",
+      "cec-command-policy-addressing-trace-and-fallback-oracles",
+      "counterbalanced-av-and-hundred-cycle-cec-schedule",
+      "frame-audio-cec-hotplug-performance-power-and-thermal-gates",
+      "hardware-purchase-tv-mutation-cec-and-sustained-load-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredAvCells": 0,
+    "completedCecCycles": 0,
+    "qualifiedDisplayModeIds": [],
+    "qualifiedAudioRouteIds": [],
+    "qualifiedCecScenarioIds": [],
+    "selectedDisplayModeId": null,
+    "selectedAudioRouteId": null
+  }
+}

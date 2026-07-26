@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-local-web",
+  "version": "1.0.0",
+  "title": "Local Web Fixture",
+  "publisher": "VCG Fixtures",
+  "runtime": "local-web",
+  "entrypoint": "index.html",
+  "architectures": ["web"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "explicit-ready"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "owner-confirmed"
+  },
+  "notes": []
+}

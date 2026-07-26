@@ -1,0 +1,4303 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:cdb90b24-0ecb-5694-b2ad-98d78b5a42a1",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:npm/vcg-console@0.0.0",
+      "name": "vcg-console",
+      "version": "0.0.0",
+      "purl": "pkg:npm/vcg-console@0.0.0",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "vcg:inventory-basis",
+        "value": "installed pnpm graph plus Cargo.lock and pinned runtime assets"
+      },
+      {
+        "name": "vcg:known-license-blockers",
+        "value": "project-license,pose-model-license"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "asset:mediapipe-pose-landmarker-lite-float16-model@1",
+      "name": "MediaPipe Pose Landmarker Lite float16 model",
+      "version": "1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "pinned-asset"
+        },
+        {
+          "name": "vcg:byte-length",
+          "value": "5777746"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-model-license"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "asset:ocr-a-1-0-truetype-font@1.0",
+      "name": "OCR-A 1.0 TrueType font",
+      "version": "1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "name": "Public Domain"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://downloads.sourceforge.net/project/ocr-a-font/OCR-A/1.0/OCRA.ttf?download=1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "pinned-asset"
+        },
+        {
+          "name": "vcg:byte-length",
+          "value": "24316"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Public Domain"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/bitflags@2.13.1",
+      "name": "bitflags",
+      "version": "2.13.1",
+      "purl": "pkg:cargo/bitflags@2.13.1",
+      "scope": "required",
+      "description": "A macro to generate structures which behave like bitflags.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/bitflags/bitflags"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/block-buffer@0.12.1",
+      "name": "block-buffer",
+      "version": "0.12.1",
+      "purl": "pkg:cargo/block-buffer@0.12.1",
+      "scope": "required",
+      "description": "Buffer types for block processing of data",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/utils"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/cfg-if@1.0.4",
+      "name": "cfg-if",
+      "version": "1.0.4",
+      "purl": "pkg:cargo/cfg-if@1.0.4",
+      "scope": "required",
+      "description": "A macro to ergonomically define an item depending on a large number of #[cfg]\nparameters. Structured like an if-else chain, the first matching branch is the\nitem that gets emitted.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/rust-lang/cfg-if"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/cpufeatures@0.3.0",
+      "name": "cpufeatures",
+      "version": "0.3.0",
+      "purl": "pkg:cargo/cpufeatures@0.3.0",
+      "scope": "required",
+      "description": "Lightweight runtime CPU feature detection for aarch64, loongarch64, and x86/x86_64 targets,\nwith no_std support and support for mobile targets including Android and iOS\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/utils"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/crypto-common@0.2.2",
+      "name": "crypto-common",
+      "version": "0.2.2",
+      "purl": "pkg:cargo/crypto-common@0.2.2",
+      "scope": "required",
+      "description": "Common traits used by cryptographic algorithms",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/traits"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/curve25519-dalek-derive@0.1.1",
+      "name": "curve25519-dalek-derive",
+      "version": "0.1.1",
+      "purl": "pkg:cargo/curve25519-dalek-derive@0.1.1",
+      "scope": "required",
+      "description": "curve25519-dalek Derives",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dalek-cryptography/curve25519-dalek"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT/Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/curve25519-dalek@5.0.0",
+      "name": "curve25519-dalek",
+      "version": "5.0.0",
+      "purl": "pkg:cargo/curve25519-dalek@5.0.0",
+      "scope": "required",
+      "description": "A pure-Rust implementation of group operations on ristretto255 and Curve25519",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dalek-cryptography/curve25519-dalek/tree/main/curve25519-dalek"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "BSD-3-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/digest@0.11.3",
+      "name": "digest",
+      "version": "0.11.3",
+      "purl": "pkg:cargo/digest@0.11.3",
+      "scope": "required",
+      "description": "Traits for cryptographic hash functions and message authentication codes",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/traits"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/ed25519-dalek@3.0.0",
+      "name": "ed25519-dalek",
+      "version": "3.0.0",
+      "purl": "pkg:cargo/ed25519-dalek@3.0.0",
+      "scope": "required",
+      "description": "Fast and efficient ed25519 EdDSA key generations, signing, and verification in pure Rust.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dalek-cryptography/curve25519-dalek/tree/main/ed25519-dalek"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "BSD-3-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/ed25519@3.0.0",
+      "name": "ed25519",
+      "version": "3.0.0",
+      "purl": "pkg:cargo/ed25519@3.0.0",
+      "scope": "required",
+      "description": "Edwards Digital Signature Algorithm (EdDSA) over Curve25519 (as specified in RFC 8032)\nsupport library providing signature type definitions and PKCS#8 private key\ndecoding/encoding support\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/signatures"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/errno@0.3.14",
+      "name": "errno",
+      "version": "0.3.14",
+      "purl": "pkg:cargo/errno@0.3.14",
+      "scope": "required",
+      "description": "Cross-platform interface to the `errno` variable.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/lambda-fairy/rust-errno"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/fiat-crypto@0.3.0",
+      "name": "fiat-crypto",
+      "version": "0.3.0",
+      "purl": "pkg:cargo/fiat-crypto@0.3.0",
+      "scope": "required",
+      "description": "Fiat-crypto generated Rust",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mit-plv/fiat-crypto"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0 OR BSD-1-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0 OR BSD-1-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/filetime@0.2.29",
+      "name": "filetime",
+      "version": "0.2.29",
+      "purl": "pkg:cargo/filetime@0.2.29",
+      "scope": "required",
+      "description": "Platform-agnostic accessors of timestamps in File metadata\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/alexcrichton/filetime"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT/Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/fs4@1.1.0",
+      "name": "fs4",
+      "version": "1.1.0",
+      "purl": "pkg:cargo/fs4@1.1.0",
+      "scope": "required",
+      "description": "No libc, pure Rust cross-platform file locks. Original fs2, now supports async and replace libc by rustix.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/al8n/fs4"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/getrandom@0.4.3",
+      "name": "getrandom",
+      "version": "0.4.3",
+      "purl": "pkg:cargo/getrandom@0.4.3",
+      "scope": "required",
+      "description": "A small cross-platform library for retrieving random data from system source",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/rust-random/getrandom"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/hybrid-array@0.4.13",
+      "name": "hybrid-array",
+      "version": "0.4.13",
+      "purl": "pkg:cargo/hybrid-array@0.4.13",
+      "scope": "required",
+      "description": "Hybrid typenum-based and const generic array types designed to provide the\nflexibility of typenum-based expressions while also allowing interoperability\nand a transition path to const generics\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/hybrid-array"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/itoa@1.0.18",
+      "name": "itoa",
+      "version": "1.0.18",
+      "purl": "pkg:cargo/itoa@1.0.18",
+      "scope": "required",
+      "description": "Fast integer primitive to string conversion",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/itoa"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/libc@0.2.189",
+      "name": "libc",
+      "version": "0.2.189",
+      "purl": "pkg:cargo/libc@0.2.189",
+      "scope": "required",
+      "description": "Raw FFI bindings to platform libraries like libc.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/rust-lang/libc"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/linux-raw-sys@0.12.1",
+      "name": "linux-raw-sys",
+      "version": "0.12.1",
+      "purl": "pkg:cargo/linux-raw-sys@0.12.1",
+      "scope": "required",
+      "description": "Generated bindings for Linux's userspace API",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/sunfishcode/linux-raw-sys"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/memchr@2.8.3",
+      "name": "memchr",
+      "version": "2.8.3",
+      "purl": "pkg:cargo/memchr@2.8.3",
+      "scope": "required",
+      "description": "Provides extremely fast (uses SIMD on x86_64, aarch64 and wasm32) routines for\n1, 2 or 3 byte search and single substring search.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/BurntSushi/memchr"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Unlicense OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Unlicense OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/proc-macro2@1.0.107",
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "purl": "pkg:cargo/proc-macro2@1.0.107",
+      "scope": "required",
+      "description": "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/proc-macro2"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/quote@1.0.47",
+      "name": "quote",
+      "version": "1.0.47",
+      "purl": "pkg:cargo/quote@1.0.47",
+      "scope": "required",
+      "description": "Quasi-quoting macro quote!(...)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/quote"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/r-efi@6.0.0",
+      "name": "r-efi",
+      "version": "6.0.0",
+      "purl": "pkg:cargo/r-efi@6.0.0",
+      "scope": "required",
+      "description": "UEFI Reference Specification Protocol Constants and Definitions",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/r-efi/r-efi"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0 OR LGPL-2.1-or-later"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0 OR LGPL-2.1-or-later"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/rustc_version@0.4.1",
+      "name": "rustc_version",
+      "version": "0.4.1",
+      "purl": "pkg:cargo/rustc_version@0.4.1",
+      "scope": "required",
+      "description": "A library for querying the version of a installed rustc compiler",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/djc/rustc-version-rs"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/rustix@1.1.4",
+      "name": "rustix",
+      "version": "1.1.4",
+      "purl": "pkg:cargo/rustix@1.1.4",
+      "scope": "required",
+      "description": "Safe Rust bindings to POSIX/Unix/Linux/Winsock-like syscalls",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/bytecodealliance/rustix"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/semver@1.0.28",
+      "name": "semver",
+      "version": "1.0.28",
+      "purl": "pkg:cargo/semver@1.0.28",
+      "scope": "required",
+      "description": "Parser and evaluator for Cargo's flavor of Semantic Versioning",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/semver"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/serde_core@1.0.229",
+      "name": "serde_core",
+      "version": "1.0.229",
+      "purl": "pkg:cargo/serde_core@1.0.229",
+      "scope": "required",
+      "description": "Serde traits only, with no support for derive -- use the `serde` crate instead",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/serde-rs/serde"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/serde_derive@1.0.229",
+      "name": "serde_derive",
+      "version": "1.0.229",
+      "purl": "pkg:cargo/serde_derive@1.0.229",
+      "scope": "required",
+      "description": "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/serde-rs/serde"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/serde_json@1.0.151",
+      "name": "serde_json",
+      "version": "1.0.151",
+      "purl": "pkg:cargo/serde_json@1.0.151",
+      "scope": "required",
+      "description": "A JSON serialization file format",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/serde-rs/json"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/serde@1.0.229",
+      "name": "serde",
+      "version": "1.0.229",
+      "purl": "pkg:cargo/serde@1.0.229",
+      "scope": "required",
+      "description": "A generic serialization/deserialization framework",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/serde-rs/serde"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/sha2@0.11.0",
+      "name": "sha2",
+      "version": "0.11.0",
+      "purl": "pkg:cargo/sha2@0.11.0",
+      "scope": "required",
+      "description": "Pure Rust implementation of the SHA-2 hash function family\nincluding SHA-224, SHA-256, SHA-384, and SHA-512.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/hashes"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/signature@3.0.0",
+      "name": "signature",
+      "version": "3.0.0",
+      "purl": "pkg:cargo/signature@3.0.0",
+      "scope": "required",
+      "description": "Traits for cryptographic signature algorithms (e.g. ECDSA, Ed25519)",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/traits"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/subtle@2.6.1",
+      "name": "subtle",
+      "version": "2.6.1",
+      "purl": "pkg:cargo/subtle@2.6.1",
+      "scope": "required",
+      "description": "Pure-Rust traits and utilities for constant-time cryptographic implementations.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dalek-cryptography/subtle"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "BSD-3-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/syn@2.0.119",
+      "name": "syn",
+      "version": "2.0.119",
+      "purl": "pkg:cargo/syn@2.0.119",
+      "scope": "required",
+      "description": "Parser for Rust source code",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/syn"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/syn@3.0.3",
+      "name": "syn",
+      "version": "3.0.3",
+      "purl": "pkg:cargo/syn@3.0.3",
+      "scope": "required",
+      "description": "Parser for Rust source code",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/syn"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/tar@0.4.46",
+      "name": "tar",
+      "version": "0.4.46",
+      "purl": "pkg:cargo/tar@0.4.46",
+      "scope": "required",
+      "description": "A Rust implementation of a TAR file reader and writer. This library does not\ncurrently handle compression, but it is abstract over all I/O readers and\nwriters. Additionally, great lengths are taken to ensure that the entire\ncontents are never required to be entirely resident in memory all at once.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/composefs/tar-rs"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/tinyvec_macros@0.1.1",
+      "name": "tinyvec_macros",
+      "version": "0.1.1",
+      "purl": "pkg:cargo/tinyvec_macros@0.1.1",
+      "scope": "required",
+      "description": "Some macros for tiny containers",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Soveu/tinyvec_macros"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0 OR Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0 OR Zlib"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/tinyvec@1.12.0",
+      "name": "tinyvec",
+      "version": "1.12.0",
+      "purl": "pkg:cargo/tinyvec@1.12.0",
+      "scope": "required",
+      "description": "`tinyvec` provides 100% safe vec-like data structures.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Lokathor/tinyvec"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Zlib OR Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Zlib OR Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/typenum@1.20.1",
+      "name": "typenum",
+      "version": "1.20.1",
+      "purl": "pkg:cargo/typenum@1.20.1",
+      "scope": "required",
+      "description": "Typenum is a Rust library for type-level numbers evaluated at\n    compile time. It currently supports bits, unsigned integers, and signed\n    integers. It also provides a type-level array of type-level numbers, but its\n    implementation is incomplete.",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/paholg/typenum"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/unicode-ident@1.0.24",
+      "name": "unicode-ident",
+      "version": "1.0.24",
+      "purl": "pkg:cargo/unicode-ident@1.0.24",
+      "scope": "required",
+      "description": "Determine whether characters have the XID_Start or XID_Continue properties according to Unicode Standard Annex #31",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/unicode-ident"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "(MIT OR Apache-2.0) AND Unicode-3.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "(MIT OR Apache-2.0) AND Unicode-3.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/unicode-normalization@0.1.25",
+      "name": "unicode-normalization",
+      "version": "0.1.25",
+      "purl": "pkg:cargo/unicode-normalization@0.1.25",
+      "scope": "required",
+      "description": "This crate provides functions for normalization of\nUnicode strings, including Canonical and Compatible\nDecomposition and Recomposition, as described in\nUnicode Standard Annex #15.\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/unicode-rs/unicode-normalization"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:cargo/vcg-host@0.1.0",
+      "name": "vcg-host",
+      "version": "0.1.0",
+      "purl": "pkg:cargo/vcg-host@0.1.0",
+      "scope": "required",
+      "description": "Native appliance host for VCG Console",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/windows-link@0.2.1",
+      "name": "windows-link",
+      "version": "0.2.1",
+      "purl": "pkg:cargo/windows-link@0.2.1",
+      "scope": "required",
+      "description": "Linking for Windows",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/windows-rs"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/windows-sys@0.61.2",
+      "name": "windows-sys",
+      "version": "0.61.2",
+      "purl": "pkg:cargo/windows-sys@0.61.2",
+      "scope": "required",
+      "description": "Rust for Windows",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/microsoft/windows-rs"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT OR Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/zeroize@1.9.0",
+      "name": "zeroize",
+      "version": "1.9.0",
+      "purl": "pkg:cargo/zeroize@1.9.0",
+      "scope": "required",
+      "description": "Securely clear secrets from memory with a simple trait built on\nstable Rust primitives which guarantee memory is zeroed using an\noperation will not be 'optimized away' by the compiler.\nUses a portable pure Rust implementation that works everywhere,\neven WASM!\n",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/RustCrypto/utils"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0 OR MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/zmij@1.0.23",
+      "name": "zmij",
+      "version": "1.0.23",
+      "purl": "pkg:cargo/zmij@1.0.23",
+      "scope": "required",
+      "description": "A double-to-string conversion algorithm based on Schubfach and xjb",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dtolnay/zmij"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "cargo"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40esbuild/win32-x64@0.28.1",
+      "name": "@esbuild/win32-x64",
+      "version": "0.28.1",
+      "purl": "pkg:npm/%40esbuild/win32-x64@0.28.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "The Windows 64-bit binary for esbuild, a JavaScript bundler.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/evanw/esbuild#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40jridgewell/gen-mapping@0.3.13",
+      "name": "@jridgewell/gen-mapping",
+      "version": "0.3.13",
+      "purl": "pkg:npm/%40jridgewell/gen-mapping@0.3.13",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "description": "Generate source maps",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jridgewell/sourcemaps/tree/main/packages/gen-mapping"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40jridgewell/remapping@2.3.5",
+      "name": "@jridgewell/remapping",
+      "version": "2.3.5",
+      "purl": "pkg:npm/%40jridgewell/remapping@2.3.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "description": "Remap sequential sourcemaps through transformations to point at the original source code",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jridgewell/sourcemaps/tree/main/packages/remapping"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40jridgewell/resolve-uri@3.1.2",
+      "name": "@jridgewell/resolve-uri",
+      "version": "3.1.2",
+      "purl": "pkg:npm/%40jridgewell/resolve-uri@3.1.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "description": "Resolve a URI relative to an optional base URI",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jridgewell/resolve-uri#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40jridgewell/sourcemap-codec@1.5.5",
+      "name": "@jridgewell/sourcemap-codec",
+      "version": "1.5.5",
+      "purl": "pkg:npm/%40jridgewell/sourcemap-codec@1.5.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "description": "Encode/decode sourcemap mappings",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jridgewell/sourcemaps/tree/main/packages/sourcemap-codec"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40jridgewell/trace-mapping@0.3.31",
+      "name": "@jridgewell/trace-mapping",
+      "version": "0.3.31",
+      "purl": "pkg:npm/%40jridgewell/trace-mapping@0.3.31",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Justin Ridgewell",
+      "description": "Trace the original position through a source map",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jridgewell/sourcemaps/tree/main/packages/trace-mapping"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40mediapipe/tasks-vision@0.10.35",
+      "name": "@mediapipe/tasks-vision",
+      "version": "0.10.35",
+      "purl": "pkg:npm/%40mediapipe/tasks-vision@0.10.35",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "mediapipe@google.com",
+      "description": "MediaPipe Vision Tasks",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "http://mediapipe.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40oxc-project/types@0.139.0",
+      "name": "@oxc-project/types",
+      "version": "0.139.0",
+      "purl": "pkg:npm/%40oxc-project/types@0.139.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Boshen and oxc contributors",
+      "description": "Types for Oxc AST nodes",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://oxc.rs"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40playwright/test@1.61.1",
+      "name": "@playwright/test",
+      "version": "1.61.1",
+      "purl": "pkg:npm/%40playwright/test@1.61.1",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "description": "A high-level API to automate web browsers",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://playwright.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rolldown/binding-win32-x64-msvc@1.1.5",
+      "name": "@rolldown/binding-win32-x64-msvc",
+      "version": "1.1.5",
+      "purl": "pkg:npm/%40rolldown/binding-win32-x64-msvc@1.1.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Fast JavaScript/TypeScript bundler in Rust with Rollup-compatible API.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://rolldown.rs/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rolldown/pluginutils@1.0.1",
+      "name": "@rolldown/pluginutils",
+      "version": "1.0.1",
+      "purl": "pkg:npm/%40rolldown/pluginutils@1.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Plugin utilities for Rolldown",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rolldown/plugins/tree/main/packages/pluginutils#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40standard-schema/spec@1.1.0",
+      "name": "@standard-schema/spec",
+      "version": "1.1.0",
+      "purl": "pkg:npm/%40standard-schema/spec@1.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Colin McDonnell",
+      "description": "A family of specs for interoperable TypeScript",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://standardschema.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40sveltejs/acorn-typescript@1.0.11",
+      "name": "@sveltejs/acorn-typescript",
+      "version": "1.0.11",
+      "purl": "pkg:npm/%40sveltejs/acorn-typescript@1.0.11",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "tyrealhu and the Svelte team",
+      "description": "Acorn plugin that parses TypeScript",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/acorn-typescript#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40sveltejs/load-config@0.2.0",
+      "name": "@sveltejs/load-config",
+      "version": "0.2.0",
+      "purl": "pkg:npm/%40sveltejs/load-config@0.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Load Svelte config via vite.config or svelte.config",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/language-tools#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40sveltejs/vite-plugin-svelte@7.2.0",
+      "name": "@sveltejs/vite-plugin-svelte",
+      "version": "7.2.0",
+      "purl": "pkg:npm/%40sveltejs/vite-plugin-svelte@7.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/vite-plugin-svelte#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/chai@5.2.3",
+      "name": "@types/chai",
+      "version": "5.2.3",
+      "purl": "pkg:npm/%40types/chai@5.2.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "TypeScript definitions for chai",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/chai"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/deep-eql@4.0.2",
+      "name": "@types/deep-eql",
+      "version": "4.0.2",
+      "purl": "pkg:npm/%40types/deep-eql@4.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "TypeScript definitions for deep-eql",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/deep-eql"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/estree@1.0.9",
+      "name": "@types/estree",
+      "version": "1.0.9",
+      "purl": "pkg:npm/%40types/estree@1.0.9",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "TypeScript definitions for estree",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/estree"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/node@22.15.3",
+      "name": "@types/node",
+      "version": "22.15.3",
+      "purl": "pkg:npm/%40types/node@22.15.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "TypeScript definitions for node",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/trusted-types@2.0.7",
+      "name": "@types/trusted-types",
+      "version": "2.0.7",
+      "purl": "pkg:npm/%40types/trusted-types@2.0.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "TypeScript definitions for trusted-types",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/trusted-types"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/console-lab@0.0.1",
+      "name": "@vcg/console-lab",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/console-lab@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/game-manifest@0.0.1",
+      "name": "@vcg/game-manifest",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/game-manifest@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/launcher-catalog@0.0.1",
+      "name": "@vcg/launcher-catalog",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/launcher-catalog@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/motion-contract@0.0.1",
+      "name": "@vcg/motion-contract",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/motion-contract@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/motion-web-bridge@0.0.1",
+      "name": "@vcg/motion-web-bridge",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/motion-web-bridge@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/retro-firmware-contract@0.0.1",
+      "name": "@vcg/retro-firmware-contract",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/retro-firmware-contract@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/retro-import-contract@0.0.1",
+      "name": "@vcg/retro-import-contract",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/retro-import-contract@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
+      "name": "@vcg/retro-performance-contract",
+      "version": "0.0.1",
+      "purl": "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm-workspace"
+        },
+        {
+          "name": "vcg:first-party",
+          "value": "true"
+        },
+        {
+          "name": "vcg:license-status",
+          "value": "unresolved-project-license"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/expect@4.1.10",
+      "name": "@vitest/expect",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/expect@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Jest's expect matchers as a Chai plugin",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vitest.dev/api/expect"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/mocker@4.1.10",
+      "name": "@vitest/mocker",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/mocker@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Vitest module mocker implementation",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/vitest-dev/vitest/tree/main/packages/mocker"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/pretty-format@4.1.10",
+      "name": "@vitest/pretty-format",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/pretty-format@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Fork of pretty-format with support for ESM",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/vitest-dev/vitest/tree/main/packages/pretty-format"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/runner@4.1.10",
+      "name": "@vitest/runner",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/runner@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Vitest test runner",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vitest.dev/api/advanced/runner"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/snapshot@4.1.10",
+      "name": "@vitest/snapshot",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/snapshot@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Vitest snapshot manager",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vitest.dev/guide/snapshot"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/spy@4.1.10",
+      "name": "@vitest/spy",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/spy@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Lightweight Jest compatible spy implementation",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vitest.dev/api/mock"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40vitest/utils@4.1.10",
+      "name": "@vitest/utils",
+      "version": "4.1.10",
+      "purl": "pkg:npm/%40vitest/utils@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Shared Vitest utility functions",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/vitest-dev/vitest/tree/main/packages/utils"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/acorn@8.17.0",
+      "name": "acorn",
+      "version": "8.17.0",
+      "purl": "pkg:npm/acorn@8.17.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "ECMAScript parser",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/acornjs/acorn"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/aria-query@5.3.1",
+      "name": "aria-query",
+      "version": "5.3.1",
+      "purl": "pkg:npm/aria-query@5.3.1",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Jesse Beach",
+      "description": "Programmatic access to the ARIA specification",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/A11yance/aria-query#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/assertion-error@2.0.1",
+      "name": "assertion-error",
+      "version": "2.0.1",
+      "purl": "pkg:npm/assertion-error@2.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Jake Luer",
+      "description": "Error constructor for test and validation frameworks that implements standardized AssertionError specification.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/chaijs/assertion-error#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/axobject-query@4.1.0",
+      "name": "axobject-query",
+      "version": "4.1.0",
+      "purl": "pkg:npm/axobject-query@4.1.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Jesse Beach",
+      "description": "Programmatic access to information about the AXObject Model",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/A11yance/axobject-query#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/chai@6.2.2",
+      "name": "chai",
+      "version": "6.2.2",
+      "purl": "pkg:npm/chai@6.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Jake Luer",
+      "description": "BDD/TDD assertion library for node.js and the browser. Test framework agnostic.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "http://chaijs.com"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/chokidar@4.0.3",
+      "name": "chokidar",
+      "version": "4.0.3",
+      "purl": "pkg:npm/chokidar@4.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Paul Miller",
+      "description": "Minimal and efficient cross-platform file watching library",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/paulmillr/chokidar"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/clsx@2.1.1",
+      "name": "clsx",
+      "version": "2.1.1",
+      "purl": "pkg:npm/clsx@2.1.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Luke Edwards",
+      "description": "A tiny (239B) utility for constructing className strings conditionally.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/lukeed/clsx#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/convert-source-map@2.0.0",
+      "name": "convert-source-map",
+      "version": "2.0.0",
+      "purl": "pkg:npm/convert-source-map@2.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Thorsten Lorenz",
+      "description": "Converts a source-map from/to  different formats and allows adding/changing properties.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/thlorenz/convert-source-map"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/deepmerge@4.3.1",
+      "name": "deepmerge",
+      "version": "4.3.1",
+      "purl": "pkg:npm/deepmerge@4.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "A library for deep (recursive) merging of Javascript objects",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/TehShrike/deepmerge"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/detect-libc@2.1.2",
+      "name": "detect-libc",
+      "version": "2.1.2",
+      "purl": "pkg:npm/detect-libc@2.1.2",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Lovell Fuller",
+      "description": "Node.js module to detect the C standard library (libc) implementation family and version",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/lovell/detect-libc#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/devalue@5.8.2",
+      "name": "devalue",
+      "version": "5.8.2",
+      "purl": "pkg:npm/devalue@5.8.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Gets the job done when JSON.stringify can't",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/devalue#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/es-module-lexer@2.3.1",
+      "name": "es-module-lexer",
+      "version": "2.3.1",
+      "purl": "pkg:npm/es-module-lexer@2.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Guy Bedford",
+      "description": "Lexes ES modules returning their import/export metadata",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/guybedford/es-module-lexer#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/esbuild@0.28.1",
+      "name": "esbuild",
+      "version": "0.28.1",
+      "purl": "pkg:npm/esbuild@0.28.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "An extremely fast JavaScript and CSS bundler and minifier.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/evanw/esbuild#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/esm-env@1.2.2",
+      "name": "esm-env",
+      "version": "1.2.2",
+      "purl": "pkg:npm/esm-env@1.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Ben McCann",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/benmccann/esm-env"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/esrap@2.3.0",
+      "name": "esrap",
+      "version": "2.3.0",
+      "purl": "pkg:npm/esrap@2.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Parse in reverse",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/esrap#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/estree-walker@3.0.3",
+      "name": "estree-walker",
+      "version": "3.0.3",
+      "purl": "pkg:npm/estree-walker@3.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Rich Harris",
+      "description": "Traverse an ESTree-compliant AST",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/Rich-Harris/estree-walker#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/expect-type@1.4.0",
+      "name": "expect-type",
+      "version": "1.4.0",
+      "purl": "pkg:npm/expect-type@1.4.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mmkal/expect-type#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/fdir@6.5.0",
+      "name": "fdir",
+      "version": "6.5.0",
+      "purl": "pkg:npm/fdir@6.5.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "thecodrr",
+      "description": "The fastest directory crawler & globbing alternative to glob, fast-glob, & tiny-glob. Crawls 1m files in < 1s",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/thecodrr/fdir#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/is-reference@3.0.3",
+      "name": "is-reference",
+      "version": "3.0.3",
+      "purl": "pkg:npm/is-reference@3.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Rich Harris",
+      "description": "Determine whether an AST node is a reference",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/Rich-Harris/is-reference#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/lightningcss-win32-x64-msvc@1.33.0",
+      "name": "lightningcss-win32-x64-msvc",
+      "version": "1.33.0",
+      "purl": "pkg:npm/lightningcss-win32-x64-msvc@1.33.0",
+      "licenses": [
+        {
+          "expression": "MPL-2.0"
+        }
+      ],
+      "description": "A CSS parser, transformer, and minifier written in Rust",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/parcel-bundler/lightningcss#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MPL-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/lightningcss@1.33.0",
+      "name": "lightningcss",
+      "version": "1.33.0",
+      "purl": "pkg:npm/lightningcss@1.33.0",
+      "licenses": [
+        {
+          "expression": "MPL-2.0"
+        }
+      ],
+      "description": "A CSS parser, transformer, and minifier written in Rust",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/parcel-bundler/lightningcss#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MPL-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/locate-character@3.0.0",
+      "name": "locate-character",
+      "version": "3.0.0",
+      "purl": "pkg:npm/locate-character@3.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Rich Harris",
+      "description": "Get the line and column number of a specific character in a string",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://gitlab.com/Rich-Harris/locate-character#README"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/magic-string@0.30.21",
+      "name": "magic-string",
+      "version": "0.30.21",
+      "purl": "pkg:npm/magic-string@0.30.21",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Rich Harris",
+      "description": "Modify strings, generate sourcemaps",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/Rich-Harris/magic-string#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mri@1.2.0",
+      "name": "mri",
+      "version": "1.2.0",
+      "purl": "pkg:npm/mri@1.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Luke Edwards",
+      "description": "Quickly scan for CLI flags and arguments",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/lukeed/mri#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/nanoid@3.3.16",
+      "name": "nanoid",
+      "version": "3.3.16",
+      "purl": "pkg:npm/nanoid@3.3.16",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Andrey Sitnik",
+      "description": "A tiny (116 bytes), secure URL-friendly unique string ID generator",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/ai/nanoid#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/obug@2.1.4",
+      "name": "obug",
+      "version": "2.1.4",
+      "purl": "pkg:npm/obug@2.1.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Kevin Deng",
+      "description": "A lightweight JavaScript debugging utility, forked from debug, featuring TypeScript and ESM support.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sxzz/obug#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/pathe@2.0.3",
+      "name": "pathe",
+      "version": "2.0.3",
+      "purl": "pkg:npm/pathe@2.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Universal filesystem path utils",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/unjs/pathe#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/picocolors@1.1.1",
+      "name": "picocolors",
+      "version": "1.1.1",
+      "purl": "pkg:npm/picocolors@1.1.1",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "author": "Alexey Raspopov",
+      "description": "The tiniest and the fastest library for terminal output formatting with ANSI colors",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/alexeyraspopov/picocolors#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "ISC"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/picomatch@4.0.5",
+      "name": "picomatch",
+      "version": "4.0.5",
+      "purl": "pkg:npm/picomatch@4.0.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Jon Schlinkert",
+      "description": "Blazing fast and accurate glob matcher written in JavaScript, with no dependencies and full support for standard and extended Bash glob features, including braces, extglobs, POSIX brackets, and regular expressions.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/micromatch/picomatch"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/playwright-core@1.61.1",
+      "name": "playwright-core",
+      "version": "1.61.1",
+      "purl": "pkg:npm/playwright-core@1.61.1",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "description": "A high-level API to automate web browsers",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://playwright.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/playwright@1.61.1",
+      "name": "playwright",
+      "version": "1.61.1",
+      "purl": "pkg:npm/playwright@1.61.1",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Microsoft Corporation",
+      "description": "A high-level API to automate web browsers",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://playwright.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/postcss@8.5.22",
+      "name": "postcss",
+      "version": "8.5.22",
+      "purl": "pkg:npm/postcss@8.5.22",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Andrey Sitnik",
+      "description": "Tool for transforming styles with JS plugins",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://postcss.org/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/readdirp@4.1.2",
+      "name": "readdirp",
+      "version": "4.1.2",
+      "purl": "pkg:npm/readdirp@4.1.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Thorsten Lorenz",
+      "description": "Recursive version of fs.readdir with small RAM & CPU footprint.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/paulmillr/readdirp"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rolldown@1.1.5",
+      "name": "rolldown",
+      "version": "1.1.5",
+      "purl": "pkg:npm/rolldown@1.1.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Fast JavaScript/TypeScript bundler in Rust with Rollup-compatible API.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://rolldown.rs/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/sade@1.8.1",
+      "name": "sade",
+      "version": "1.8.1",
+      "purl": "pkg:npm/sade@1.8.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Luke Edwards",
+      "description": "Smooth (CLI) operator 🎶",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/lukeed/sade#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/siginfo@2.0.0",
+      "name": "siginfo",
+      "version": "2.0.0",
+      "purl": "pkg:npm/siginfo@2.0.0",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "author": "Emil Bay",
+      "description": "Utility module to print pretty messages on SIGINFO/SIGUSR1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/emilbayes/siginfo#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "ISC"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/source-map-js@1.2.1",
+      "name": "source-map-js",
+      "version": "1.2.1",
+      "purl": "pkg:npm/source-map-js@1.2.1",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "author": "Valentin 7rulnik Semirulnik",
+      "description": "Generates and consumes source maps",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/7rulnik/source-map-js"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "BSD-3-Clause"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/stackback@0.0.2",
+      "name": "stackback",
+      "version": "0.0.2",
+      "purl": "pkg:npm/stackback@0.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Roman Shtylman",
+      "description": "return list of CallSite objects from a captured stacktrace",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/shtylman/node-stackback#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/std-env@4.2.0",
+      "name": "std-env",
+      "version": "4.2.0",
+      "purl": "pkg:npm/std-env@4.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Runtime agnostic JS utils",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/unjs/std-env#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/svelte-check@4.7.3",
+      "name": "svelte-check",
+      "version": "4.7.3",
+      "purl": "pkg:npm/svelte-check@4.7.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "The Svelte Community",
+      "description": "Svelte Code Checker Terminal Interface",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/language-tools#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/svelte@5.56.7",
+      "name": "svelte",
+      "version": "5.56.7",
+      "purl": "pkg:npm/svelte@5.56.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Cybernetically enhanced web apps",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://svelte.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tinybench@2.9.0",
+      "name": "tinybench",
+      "version": "2.9.0",
+      "purl": "pkg:npm/tinybench@2.9.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/tinylibs/tinybench#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tinyexec@1.2.4",
+      "name": "tinyexec",
+      "version": "1.2.4",
+      "purl": "pkg:npm/tinyexec@1.2.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "James Garbutt",
+      "description": "A minimal library for executing processes in Node",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/tinylibs/tinyexec#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tinyglobby@0.2.17",
+      "name": "tinyglobby",
+      "version": "0.2.17",
+      "purl": "pkg:npm/tinyglobby@0.2.17",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Superchupu",
+      "description": "A fast and minimal alternative to globby and fast-glob",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://superchupu.dev/tinyglobby"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tinyrainbow@3.1.0",
+      "name": "tinyrainbow",
+      "version": "3.1.0",
+      "purl": "pkg:npm/tinyrainbow@3.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "A small library to print colourful messages.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/tinylibs/tinyrainbow#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tsx@4.23.1",
+      "name": "tsx",
+      "version": "4.23.1",
+      "purl": "pkg:npm/tsx@4.23.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Hiroki Osame",
+      "description": "TypeScript Execute (tsx): Node.js enhanced with esbuild to run TypeScript & ESM files",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://tsx.hirok.io"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/typescript@5.9.3",
+      "name": "typescript",
+      "version": "5.9.3",
+      "purl": "pkg:npm/typescript@5.9.3",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "author": "Microsoft Corp.",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "Apache-2.0"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/undici-types@6.21.0",
+      "name": "undici-types",
+      "version": "6.21.0",
+      "purl": "pkg:npm/undici-types@6.21.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "A stand-alone types package for Undici",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://undici.nodejs.org"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/vite@8.1.5",
+      "name": "vite",
+      "version": "8.1.5",
+      "purl": "pkg:npm/vite@8.1.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Evan You",
+      "description": "Native-ESM powered web dev build tool",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vite.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/vitefu@1.1.3",
+      "name": "vitefu",
+      "version": "1.1.3",
+      "purl": "pkg:npm/vitefu@1.1.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "Utilities for building frameworks with Vite",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/svitejs/vitefu#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/vitest@4.1.10",
+      "name": "vitest",
+      "version": "4.1.10",
+      "purl": "pkg:npm/vitest@4.1.10",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Anthony Fu",
+      "description": "Next generation testing framework powered by Vite",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://vitest.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/why-is-node-running@2.3.0",
+      "name": "why-is-node-running",
+      "version": "2.3.0",
+      "purl": "pkg:npm/why-is-node-running@2.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Mathias Buus",
+      "description": "Node is running but you don't know why? why-is-node-running is here to help you.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mafintosh/why-is-node-running"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/ws@8.21.1",
+      "name": "ws",
+      "version": "8.21.1",
+      "purl": "pkg:npm/ws@8.21.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Einar Otto Stangvik",
+      "description": "Simple to use, blazing fast and thoroughly tested websocket client and server for Node.js",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/websockets/ws"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "excluded"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/zimmerframe@1.1.4",
+      "name": "zimmerframe",
+      "version": "1.1.4",
+      "purl": "pkg:npm/zimmerframe@1.1.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "description": "A tool for walking ASTs",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sveltejs/zimmerframe#readme"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/zod@4.4.3",
+      "name": "zod",
+      "version": "4.4.3",
+      "purl": "pkg:npm/zod@4.4.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "author": "Colin McDonnell",
+      "description": "TypeScript-first schema declaration and validation library with static type inference",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://zod.dev"
+        }
+      ],
+      "properties": [
+        {
+          "name": "vcg:ecosystem",
+          "value": "npm"
+        },
+        {
+          "name": "vcg:reported-license",
+          "value": "MIT"
+        }
+      ],
+      "scope": "required"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/vcg-console@0.0.0",
+      "dependsOn": [
+        "asset:mediapipe-pose-landmarker-lite-float16-model@1",
+        "asset:ocr-a-1-0-truetype-font@1.0",
+        "pkg:cargo/bitflags@2.13.1",
+        "pkg:cargo/block-buffer@0.12.1",
+        "pkg:cargo/cfg-if@1.0.4",
+        "pkg:cargo/cpufeatures@0.3.0",
+        "pkg:cargo/crypto-common@0.2.2",
+        "pkg:cargo/curve25519-dalek-derive@0.1.1",
+        "pkg:cargo/curve25519-dalek@5.0.0",
+        "pkg:cargo/digest@0.11.3",
+        "pkg:cargo/ed25519-dalek@3.0.0",
+        "pkg:cargo/ed25519@3.0.0",
+        "pkg:cargo/errno@0.3.14",
+        "pkg:cargo/fiat-crypto@0.3.0",
+        "pkg:cargo/filetime@0.2.29",
+        "pkg:cargo/fs4@1.1.0",
+        "pkg:cargo/getrandom@0.4.3",
+        "pkg:cargo/hybrid-array@0.4.13",
+        "pkg:cargo/itoa@1.0.18",
+        "pkg:cargo/libc@0.2.189",
+        "pkg:cargo/linux-raw-sys@0.12.1",
+        "pkg:cargo/memchr@2.8.3",
+        "pkg:cargo/proc-macro2@1.0.107",
+        "pkg:cargo/quote@1.0.47",
+        "pkg:cargo/r-efi@6.0.0",
+        "pkg:cargo/rustc_version@0.4.1",
+        "pkg:cargo/rustix@1.1.4",
+        "pkg:cargo/semver@1.0.28",
+        "pkg:cargo/serde_core@1.0.229",
+        "pkg:cargo/serde_derive@1.0.229",
+        "pkg:cargo/serde_json@1.0.151",
+        "pkg:cargo/serde@1.0.229",
+        "pkg:cargo/sha2@0.11.0",
+        "pkg:cargo/signature@3.0.0",
+        "pkg:cargo/subtle@2.6.1",
+        "pkg:cargo/syn@2.0.119",
+        "pkg:cargo/syn@3.0.3",
+        "pkg:cargo/tar@0.4.46",
+        "pkg:cargo/tinyvec_macros@0.1.1",
+        "pkg:cargo/tinyvec@1.12.0",
+        "pkg:cargo/typenum@1.20.1",
+        "pkg:cargo/unicode-ident@1.0.24",
+        "pkg:cargo/unicode-normalization@0.1.25",
+        "pkg:cargo/vcg-host@0.1.0",
+        "pkg:cargo/windows-link@0.2.1",
+        "pkg:cargo/windows-sys@0.61.2",
+        "pkg:cargo/zeroize@1.9.0",
+        "pkg:cargo/zmij@1.0.23",
+        "pkg:npm/%40esbuild/win32-x64@0.28.1",
+        "pkg:npm/%40jridgewell/gen-mapping@0.3.13",
+        "pkg:npm/%40jridgewell/remapping@2.3.5",
+        "pkg:npm/%40jridgewell/resolve-uri@3.1.2",
+        "pkg:npm/%40jridgewell/sourcemap-codec@1.5.5",
+        "pkg:npm/%40jridgewell/trace-mapping@0.3.31",
+        "pkg:npm/%40mediapipe/tasks-vision@0.10.35",
+        "pkg:npm/%40oxc-project/types@0.139.0",
+        "pkg:npm/%40playwright/test@1.61.1",
+        "pkg:npm/%40rolldown/binding-win32-x64-msvc@1.1.5",
+        "pkg:npm/%40rolldown/pluginutils@1.0.1",
+        "pkg:npm/%40standard-schema/spec@1.1.0",
+        "pkg:npm/%40sveltejs/acorn-typescript@1.0.11",
+        "pkg:npm/%40sveltejs/load-config@0.2.0",
+        "pkg:npm/%40sveltejs/vite-plugin-svelte@7.2.0",
+        "pkg:npm/%40types/chai@5.2.3",
+        "pkg:npm/%40types/deep-eql@4.0.2",
+        "pkg:npm/%40types/estree@1.0.9",
+        "pkg:npm/%40types/node@22.15.3",
+        "pkg:npm/%40types/trusted-types@2.0.7",
+        "pkg:npm/%40vcg/console-lab@0.0.1",
+        "pkg:npm/%40vcg/game-manifest@0.0.1",
+        "pkg:npm/%40vcg/launcher-catalog@0.0.1",
+        "pkg:npm/%40vcg/motion-contract@0.0.1",
+        "pkg:npm/%40vcg/motion-web-bridge@0.0.1",
+        "pkg:npm/%40vcg/retro-firmware-contract@0.0.1",
+        "pkg:npm/%40vcg/retro-import-contract@0.0.1",
+        "pkg:npm/%40vcg/retro-performance-contract@0.0.1",
+        "pkg:npm/%40vitest/expect@4.1.10",
+        "pkg:npm/%40vitest/mocker@4.1.10",
+        "pkg:npm/%40vitest/pretty-format@4.1.10",
+        "pkg:npm/%40vitest/runner@4.1.10",
+        "pkg:npm/%40vitest/snapshot@4.1.10",
+        "pkg:npm/%40vitest/spy@4.1.10",
+        "pkg:npm/%40vitest/utils@4.1.10",
+        "pkg:npm/acorn@8.17.0",
+        "pkg:npm/aria-query@5.3.1",
+        "pkg:npm/assertion-error@2.0.1",
+        "pkg:npm/axobject-query@4.1.0",
+        "pkg:npm/chai@6.2.2",
+        "pkg:npm/chokidar@4.0.3",
+        "pkg:npm/clsx@2.1.1",
+        "pkg:npm/convert-source-map@2.0.0",
+        "pkg:npm/deepmerge@4.3.1",
+        "pkg:npm/detect-libc@2.1.2",
+        "pkg:npm/devalue@5.8.2",
+        "pkg:npm/es-module-lexer@2.3.1",
+        "pkg:npm/esbuild@0.28.1",
+        "pkg:npm/esm-env@1.2.2",
+        "pkg:npm/esrap@2.3.0",
+        "pkg:npm/estree-walker@3.0.3",
+        "pkg:npm/expect-type@1.4.0",
+        "pkg:npm/fdir@6.5.0",
+        "pkg:npm/is-reference@3.0.3",
+        "pkg:npm/lightningcss-win32-x64-msvc@1.33.0",
+        "pkg:npm/lightningcss@1.33.0",
+        "pkg:npm/locate-character@3.0.0",
+        "pkg:npm/magic-string@0.30.21",
+        "pkg:npm/mri@1.2.0",
+        "pkg:npm/nanoid@3.3.16",
+        "pkg:npm/obug@2.1.4",
+        "pkg:npm/pathe@2.0.3",
+        "pkg:npm/picocolors@1.1.1",
+        "pkg:npm/picomatch@4.0.5",
+        "pkg:npm/playwright-core@1.61.1",
+        "pkg:npm/playwright@1.61.1",
+        "pkg:npm/postcss@8.5.22",
+        "pkg:npm/readdirp@4.1.2",
+        "pkg:npm/rolldown@1.1.5",
+        "pkg:npm/sade@1.8.1",
+        "pkg:npm/siginfo@2.0.0",
+        "pkg:npm/source-map-js@1.2.1",
+        "pkg:npm/stackback@0.0.2",
+        "pkg:npm/std-env@4.2.0",
+        "pkg:npm/svelte-check@4.7.3",
+        "pkg:npm/svelte@5.56.7",
+        "pkg:npm/tinybench@2.9.0",
+        "pkg:npm/tinyexec@1.2.4",
+        "pkg:npm/tinyglobby@0.2.17",
+        "pkg:npm/tinyrainbow@3.1.0",
+        "pkg:npm/tsx@4.23.1",
+        "pkg:npm/typescript@5.9.3",
+        "pkg:npm/undici-types@6.21.0",
+        "pkg:npm/vite@8.1.5",
+        "pkg:npm/vitefu@1.1.3",
+        "pkg:npm/vitest@4.1.10",
+        "pkg:npm/why-is-node-running@2.3.0",
+        "pkg:npm/ws@8.21.1",
+        "pkg:npm/zimmerframe@1.1.4",
+        "pkg:npm/zod@4.4.3"
+      ]
+    }
+  ]
+}

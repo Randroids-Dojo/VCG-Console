@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "playerId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "full",
+        "partial",
+        "unavailable"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "tracker-not-ready",
+        "player-missing",
+        "landmarks-missing"
+      ]
+    },
+    "regions": {
+      "type": "object",
+      "properties": {
+        "head": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        },
+        "torso": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        },
+        "leftArm": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        },
+        "rightArm": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        },
+        "leftLeg": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        },
+        "rightLeg": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "partial",
+            "missing"
+          ]
+        }
+      },
+      "required": [
+        "head",
+        "torso",
+        "leftArm",
+        "rightArm",
+        "leftLeg",
+        "rightLeg"
+      ]
+    },
+    "controls": {
+      "type": "object",
+      "properties": {
+        "menuSelect": {
+          "type": "boolean"
+        },
+        "menuBackPause": {
+          "type": "boolean"
+        },
+        "menuSwipe": {
+          "type": "boolean"
+        },
+        "gameDodge": {
+          "type": "boolean"
+        },
+        "gameDuck": {
+          "type": "boolean"
+        },
+        "gameJump": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "menuSelect",
+        "menuBackPause",
+        "menuSwipe",
+        "gameDodge",
+        "gameDuck",
+        "gameJump"
+      ]
+    },
+    "missingLandmarks": {
+      "maxItems": 17,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "nose",
+          "left_eye",
+          "right_eye",
+          "left_ear",
+          "right_ear",
+          "left_shoulder",
+          "right_shoulder",
+          "left_elbow",
+          "right_elbow",
+          "left_wrist",
+          "right_wrist",
+          "left_hip",
+          "right_hip",
+          "left_knee",
+          "right_knee",
+          "left_ankle",
+          "right_ankle"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "playerId",
+    "state",
+    "reason",
+    "regions",
+    "controls",
+    "missingLandmarks"
+  ],
+  "$id": "urn:vcg:schema:player-control-availability:1",
+  "title": "VCG player control availability v1",
+  "$comment": "Derived from existing observed landmarks and tracker health. It does not grant action authority or define qualification thresholds."
+}

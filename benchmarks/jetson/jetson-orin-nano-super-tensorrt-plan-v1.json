@@ -1,0 +1,336 @@
+{
+  "format": "vcg-jetson-orin-nano-super-tensorrt-plan/v1",
+  "status": "blocked",
+  "campaignId": "jetson-orin-nano-super-tensorrt-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-019",
+    "Q-017"
+  ],
+  "claimBoundary": "This is a source-bound zero-result Jetson Orin Nano Super TensorRT benchmark plan. Vendor TOPS, specifications, price, software support, desktop rendering, or another target's result do not prove a received device, exact JetPack/TensorRT tuple, model conversion, camera-to-action latency, accuracy, game performance, power, thermal, acoustic, recovery, offline rebuild, delivered cost, product fitness, or selection. No purchase, download, flash, installation, target access, network use, participant session, fault injection, result, comparison selection, or publication is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "official-source-candidate-screen",
+      "path": "docs/JETSON_ORIN_NANO_SUPER_TENSORRT_SCREEN_2026-07-26.md",
+      "sha256": "256d067850e7f89069d1fb2b4cc8c60abef1eb0c0a81912551970ec4b210da50"
+    },
+    {
+      "role": "compute-selection-and-product-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "prototype-acceptance-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "ordinary-x86-comparison-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "pi-cpu-comparison-boundary",
+      "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
+      "sha256": "c5127d4ae6b0ace6b24eb8634ae1a0507a0f9b53163a63f024d51e82271b9356"
+    },
+    {
+      "role": "representative-workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "core17-provider-comparison-boundary",
+      "path": "benchmarks/pose-backends/hailo-mediapipe-core-comparison-plan-v1.json",
+      "sha256": "93fba93f4be3cb389ec2e06ee350e4b7ac5d82dfe3883fe3455b99c0def55860"
+    },
+    {
+      "role": "exposure-to-action-proof-boundary",
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
+    }
+  ],
+  "vendorCandidate": {
+    "product": "NVIDIA Jetson Orin Nano Super Developer Kit",
+    "partNumber": "945-13766-0007-000",
+    "module": "Jetson Orin Nano 8GB",
+    "gpuArchitecture": "Ampere",
+    "cudaCoreCount": 1024,
+    "tensorCoreCount": 32,
+    "cpuDescription": "6-core Arm Cortex-A78AE v8.2 64-bit",
+    "memoryBytes": 8589934592,
+    "maximumAdvertisedMemoryBandwidthBytesPerSecond": 102000000000,
+    "advertisedInt8Tops": 67,
+    "advertisedPowerRangeW": [
+      7,
+      25
+    ],
+    "displayOutput": "DisplayPort-only; exact HDMI adapter path remains unselected",
+    "superModeIsSoftwareEnabledOnSameDeveloperKitHardware": true,
+    "vendorFactsMayEstablishVcgPerformanceOrSelection": false,
+    "receivedHardwareIdentitySha256": null,
+    "deliveredQuoteSha256": null
+  },
+  "executionBoundary": {
+    "exactHardwareManifestSha256": null,
+    "exactDeliveredBomSha256": null,
+    "selectedSoftwareTupleSha256": null,
+    "signedOfflineBundleSha256": null,
+    "modelConversionManifestSha256": null,
+    "cameraRoomParticipantProtocolSha256": null,
+    "workloadBuildAndInteractionManifestSha256": null,
+    "faultRecoveryProtocolSha256": null,
+    "measurementAndScheduleProtocolSha256": null,
+    "dataHandlingAndDeletionProtocolSha256": null,
+    "purchaseAuthorized": false,
+    "downloadAuthorized": false,
+    "flashOrStorageMutationAuthorized": false,
+    "targetAccessAuthorized": false,
+    "networkOrHostedServiceUseAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "faultInjectionAuthorized": false,
+    "publicationAuthorized": false
+  },
+  "softwareTuple": {
+    "architecture": "aarch64",
+    "candidateTupleIds": [
+      "jetpack-6.2-l4t-36.4.3-tensorrt-10.3-evidenced-candidate",
+      "jetpack-7.2.0-current-super-mode-warning-not-selected"
+    ],
+    "selectedCandidateTupleId": null,
+    "installerOrImageSha256": null,
+    "flashConfigurationSha256": null,
+    "jetPackVersion": null,
+    "jetsonLinuxVersion": null,
+    "kernelRelease": null,
+    "firmwareManifestSha256": null,
+    "cudaVersion": null,
+    "tensorRtVersion": null,
+    "cudnnVersion": null,
+    "pythonAndCppBindingManifestSha256": null,
+    "packageLockAndLicenseManifestSha256": null,
+    "powerMode": null,
+    "clockAndGovernorPolicySha256": null,
+    "browserLauncherHostTrackerBuildsSha256": null,
+    "cleanOfflineRebuildProcedureSha256": null,
+    "latestOrMovingAliasAllowed": false,
+    "superModeMustBeIndependentlyProvenFromModeClocksAndTelemetry": true,
+    "jetpack720IsoMayBeAssumedToEnableSuperMode": false
+  },
+  "tensorRtModelBoundary": {
+    "providerId": "tensorrt-integrated-ampere-gpu",
+    "precisionLaneIds": [
+      "fp16",
+      "int8"
+    ],
+    "sourceModelSha256": null,
+    "sourceModelLicenseSha256": null,
+    "onnxSha256": null,
+    "onnxOpset": null,
+    "inputAndOutputContractSha256": null,
+    "builderAndPluginManifestSha256": null,
+    "int8CalibrationCorpusAndProtocolSha256": null,
+    "preprocessorSha256": null,
+    "postprocessorSha256": null,
+    "core17TranslatorSha256": null,
+    "trackerAndActionConfigurationSha256": null,
+    "fp16EngineSha256": null,
+    "int8EngineSha256": null,
+    "targetSideEngineBuildRequired": true,
+    "filenameOrDownloadedEngineMayEstablishIdentity": false,
+    "enginePortabilityAcrossPlatformVersionOrGpuMayBeAssumed": false,
+    "dlaExecutionAllowed": false,
+    "gpuExecutionTelemetryProofSha256": null
+  },
+  "workloads": [
+    {
+      "workloadId": "launcher-shell",
+      "runtime": "console-shell",
+      "networkClass": "offline-required",
+      "motionRole": "shell-and-reserved-action-owner"
+    },
+    {
+      "workloadId": "obstacle-local-web-motion",
+      "runtime": "local-web",
+      "networkClass": "offline-required",
+      "motionRole": "primary-motion-consumer"
+    },
+    {
+      "workloadId": "tiny-motion-godot-native-arm64",
+      "runtime": "native-godot-arm64",
+      "networkClass": "offline-required",
+      "motionRole": "primary-motion-consumer"
+    },
+    {
+      "workloadId": "selected-signed-local-package",
+      "runtime": "installed-controlled-package",
+      "networkClass": "offline-required",
+      "motionRole": "manifest-declared-profile"
+    },
+    {
+      "workloadId": "retro-2048",
+      "runtime": "libretro",
+      "networkClass": "offline-required",
+      "motionRole": "none-controller-only"
+    },
+    {
+      "workloadId": "vibebots-remote-web-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery"
+    },
+    {
+      "workloadId": "mi-casa-remote-web-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery"
+    },
+    {
+      "workloadId": "determined-remote-web-compatibility",
+      "runtime": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "no-title-motion-delivery"
+    }
+  ],
+  "campaignMatrix": {
+    "workloadCount": 8,
+    "precisionLaneCount": 2,
+    "validImmutableReplayRunsPerPrecisionLane": 20,
+    "requiredImmutableReplayRunCount": 40,
+    "validLiveSoakRunsPerPrecisionWorkloadCell": 3,
+    "minimumMeasuredSecondsPerLiveSoakRun": 3600,
+    "requiredLiveSoakCellCount": 16,
+    "requiredLiveSoakRunCount": 48,
+    "faultIds": [
+      "camera-loss-and-restoration",
+      "tracker-process-termination-and-restart",
+      "game-renderer-hang-or-exit",
+      "network-loss-and-explicit-retry",
+      "storage-pressure-and-write-refusal",
+      "forced-reboot-and-clean-return"
+    ],
+    "validRecoveryCyclesPerPrecisionWorkloadFaultCell": 20,
+    "requiredRecoveryCellCount": 96,
+    "requiredRecoveryCycleCount": 1920,
+    "validOfflineCleanRebuildCycles": 20,
+    "validEngineRebuildsPerPrecisionLane": 20,
+    "requiredEngineRebuildCount": 40,
+    "runOrderCounterbalanced": true,
+    "failuresRetriesInvalidRunsAndInterruptedRebuildsRemainVisible": true,
+    "failedOrInvalidRunMayBeSilentlyReplaced": false,
+    "precisionWorkloadFaultOrTargetMayRescueAnother": false,
+    "aggregateMayRescueFailedCell": false
+  },
+  "requiredMetrics": [
+    "exact hardware software model engine build workload schedule and evidence digests",
+    "engine build success duration workspace memory cache plugins warnings and reproducibility",
+    "immutable replay admission-to-pose-and-action p50 p95 p99 worst throughput drops and accuracy",
+    "live camera exposure-to-game-api p50 p95 p99 worst with clock uncertainty",
+    "per-action precision recall F1 misses false events and privileged false activations",
+    "pose FPS core17 missing error jitter identity continuity and reacquisition",
+    "game FPS frame-time p50 p95 p99 worst long frames stalls input and audio continuity",
+    "CPU GPU memory swap storage network process and TensorRT execution telemetry",
+    "wall power energy temperature clocks throttle fan and one-metre acoustics",
+    "launch crash hang fault recovery reboot clean-instance and preservation outcomes",
+    "offline blank-storage rebuild package mirror license account and network-attempt evidence",
+    "complete delivered BOM cost warranty repair vendor-coupling and recurring-service evidence"
+  ],
+  "fixedAcceptance": {
+    "maximumLiveExposureToActionP95Us": 120000,
+    "minimumPerActionPrecisionPpm": 950000,
+    "minimumPerActionRecallPpm": 900000,
+    "maximumPrivilegedFalseActivations": 0,
+    "maximumUnrecoveredFailures": 0,
+    "maximumUnexpectedProcessExits": 0,
+    "maximumOneMeterAcousticsMilliDba": 35000,
+    "maximumOfflineRebuildNetworkAttempts": 0,
+    "maximumEngineDigestMismatchesForIdenticalTuple": 0,
+    "maximumSilentModelEnginePrecisionOrPowerModeSubstitutions": 0,
+    "everyBlockingCellAndCycleMustPass": true,
+    "vendorTopsPriceOrSingleInferenceBenchmarkMayQualify": false,
+    "replayTimingMayQualifyExposureLatency": false,
+    "loadHeartbeatOrProcessSurvivalMayQualifyPlayability": false,
+    "passingFp16MayQualifyInt8OrReverse": false,
+    "campaignMayAutomaticallySupersedePiHailoSelection": false
+  },
+  "openAcceptance": {
+    "minimumPoseFpsMilliFps": null,
+    "minimumGameFpsMilliFps": null,
+    "maximumGameFrameTimeP95Us": null,
+    "maximumCaptureDropRatePpm": null,
+    "maximumPoseDropRatePpm": null,
+    "maximumCore17P95NormalizedErrorMilliTorso": null,
+    "maximumIdentitySwitchesPerRun": null,
+    "maximumRamBytes": null,
+    "maximumSwapBytes": null,
+    "maximumWallPowerMilliW": null,
+    "maximumSustainedTemperatureMilliC": null,
+    "maximumThrottleEventsPerRun": null,
+    "maximumLaunchP95Ms": null,
+    "maximumRecoveryP95Ms": null,
+    "maximumOfflineRebuildP95Ms": null,
+    "maximumDeliveredCostCents": null,
+    "mustBeFixedBeforeFirstDownloadFlashBuildOrRun": true
+  },
+  "costBoundary": {
+    "requiredDeliveredCostRoles": [
+      "developer-kit",
+      "qualified-storage",
+      "displayport-to-hdmi-path",
+      "power-supply",
+      "cooling-and-enclosure",
+      "camera-and-mount",
+      "controller",
+      "network-and-camera-cables",
+      "tax",
+      "shipping"
+    ],
+    "quoteDestination": null,
+    "quoteCurrency": null,
+    "quoteObservedAt": null,
+    "deliveredCostCents": null,
+    "boardOnlyPriceMayRepresentCompleteSystem": false,
+    "purchaseRecommendation": "none-no-purchase-authority"
+  },
+  "dataPolicy": {
+    "rawReplayCorpusRetentionAuthorized": false,
+    "liveRawFrameOrAudioRetentionAuthorized": false,
+    "participantNamesFacesVoicesExactAgesAddressesOrStableIdentifiersAllowed": false,
+    "credentialsTokensPrivateKeysPathsOrRequestBodiesAllowedInEvidence": false,
+    "individualFreeTextOrUnredactedSystemLogsAllowed": false,
+    "aggregatePathFreeClosedVocabularyResultsRequired": true,
+    "temporaryDiagnosticCollectionRequiresSeparateConsentAccessAndDeletionProof": true,
+    "networkEgressDuringOfflineLanesAllowed": false
+  },
+  "executionGate": {
+    "state": "blocked",
+    "blockerCodes": [
+      "exact-received-kit-storage-display-power-cooling-camera-controller-and-cables",
+      "destination-aware-delivered-quote-and-purchase-or-borrow-authority",
+      "selected-jetpack-l4t-cuda-tensorrt-cudnn-package-power-and-clock-tuple",
+      "signed-offline-bundle-license-notice-clean-flash-and-rebuild-procedure",
+      "source-model-onnx-builder-plugins-calibration-prepost-core17-and-engine-identities",
+      "exact-launcher-game-package-hosted-builds-interactions-and-network-states",
+      "camera-room-persona-consent-ground-truth-exposure-clock-and-data-protocols",
+      "counterbalanced-replay-live-soak-fault-recovery-rebuild-and-monitoring-schedule",
+      "all-open-performance-resource-thermal-recovery-rebuild-and-cost-gates",
+      "purchase-download-flash-network-participant-fault-result-selection-and-publication-authority"
+    ],
+    "readyRequiresEveryBlockerResolvedBeforeFirstDownloadFlashBuildOrRun": true
+  },
+  "result": {
+    "disposition": "blocked",
+    "completedImmutableReplayRunCount": 0,
+    "completedLiveSoakRunCount": 0,
+    "completedRecoveryCycleCount": 0,
+    "completedOfflineRebuildCycleCount": 0,
+    "completedEngineRebuildCount": 0,
+    "cellResults": [],
+    "qualifiedPrecisionLaneIds": [],
+    "deliveredCostCents": null,
+    "jetsonQualified": false,
+    "piHailoSelectionSuperseded": false,
+    "purchaseRecommended": false
+  }
+}

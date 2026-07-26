@@ -8,6 +8,7 @@
   let input: HTMLInputElement;
   let panel: HTMLDivElement;
   let results: HTMLDivElement;
+  let recovery = $state<HTMLDivElement>();
   let openedBy: HTMLElement | null = null;
   let matches = $derived(
     items.filter((item) => `${item.title} ${item.detail} ${item.group} ${item.terms}`.toLowerCase().includes(query.trim().toLowerCase())),
@@ -21,28 +22,50 @@
     input.focus();
   }
 
-  export function close(): void {
+  async function closeAndRestore(): Promise<void> {
     const restoreTarget = openedBy;
     openedBy = null;
     visible = false;
-    void tick().then(() => {
-      if (restoreTarget?.isConnected) restoreTarget.focus({ preventScroll: true });
-    });
+    await tick();
+    if (restoreTarget?.isConnected) {
+      restoreTarget.focus({ preventScroll: true });
+    }
+  }
+
+  export function close(): void {
+    void closeAndRestore();
   }
 
   export function isOpen(): boolean {
     return visible;
   }
 
-  function choose(item: SearchItem): void {
-    close();
+  async function choose(item: SearchItem): Promise<void> {
+    await closeAndRestore();
     item.action();
+  }
+
+  async function clearSearch(): Promise<void> {
+    query = "";
+    await tick();
+    input.focus({ preventScroll: true });
+  }
+
+  async function chooseRecoveryCategory(category: string): Promise<void> {
+    query = category;
+    await tick();
+    results.querySelector<HTMLButtonElement>("button")?.focus({
+      preventScroll: true,
+    });
   }
 
   function handleInputKeydown(event: KeyboardEvent): void {
     if (event.key !== "ArrowDown") return;
     event.preventDefault();
-    results.querySelector<HTMLButtonElement>("button")?.focus();
+    (
+      results.querySelector<HTMLButtonElement>("button")
+      ?? recovery?.querySelector<HTMLButtonElement>("button")
+    )?.focus();
   }
 
   function handleDialogKeydown(event: KeyboardEvent): void {
@@ -84,11 +107,11 @@
   onclick={(event) => {
     if (event.currentTarget === event.target) close();
   }}
->
+  >
   <div bind:this={panel} class="search-panel">
-    <label id="search-title" for="universal-search">Search everything</label>
+    <label id="search-title" for="universal-search" data-tv-critical-text>Search everything</label>
     <div class="search-input-row">
-      <span>⌕</span>
+      <span class="search-symbol" aria-hidden="true"></span>
       <input
         bind:this={input}
         bind:value={query}
@@ -97,16 +120,29 @@
         type="search"
         placeholder="Type a game, hub, or setting"
         autocomplete="off"
+        data-tv-action
+        data-tv-critical-text
       />
-      <kbd>ESC</kbd>
+      <kbd data-tv-critical-text>ESC</kbd>
     </div>
     <div bind:this={results} class="search-results" id="search-results">
       {#each matches as item (item.title)}
-        <button type="button" onclick={() => choose(item)}>
-          <span>{item.group}</span><strong>{item.title}</strong><small>{item.detail}</small><b>→</b>
+        <button type="button" data-tv-action onclick={() => void choose(item)}>
+          <span data-tv-critical-text>{item.group}</span><strong data-tv-critical-text>{item.title}</strong><small>{item.detail}</small><b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b>
         </button>
       {/each}
     </div>
-    <p class="search-empty" id="search-empty" hidden={matches.length > 0}>No matches. Try a game, hub, profile, or setting.</p>
+    {#if matches.length === 0}
+      <div bind:this={recovery} class="search-recovery" aria-label="Search recovery">
+        <p class="search-empty" id="search-empty" data-tv-critical-text>No matches. Clear the query or browse a local category.</p>
+        <p class="search-recovery-label" data-tv-critical-text>OFFLINE CATEGORIES</p>
+        <div class="search-recovery-actions">
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void clearSearch()}>Clear search</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("motion")}>Motion</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("system")}>System</button>
+          <button type="button" data-tv-action data-tv-critical-text onclick={() => void chooseRecoveryCategory("settings")}>Settings</button>
+        </div>
+      </div>
+    {/if}
   </div>
 </div>

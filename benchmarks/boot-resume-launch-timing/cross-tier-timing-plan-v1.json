@@ -1,0 +1,367 @@
+{
+  "format": "vcg-boot-resume-launch-timing-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-boot-resume-launch-timing-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered boot, resume, idle/wake and launch timing campaign only. It records no physical timing, power, privacy-state, controller, accountless, offline, playability, focus, reliability, or target qualification result. Windows and WSL2 cannot substitute for ordinary native Linux; the optional Steam Machine cannot substitute for either required common-comparison target; first pixels, load, readiness and liveness cannot establish usable interaction.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "prototype-timing-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "accountless-offline-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "power-recovery-policy-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    },
+    {
+      "role": "launcher-timing-state-boundary",
+      "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
+      "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+    },
+    {
+      "role": "idle-wake-state-boundary",
+      "path": "apps/console-lab/src/launcher/power-lifecycle.ts",
+      "sha256": "641f96369dbc1008520a7b6e25cfd366fe47f3e9a2d76b8bc052de5a707dc743"
+    },
+    {
+      "role": "hosted-supervisor-boundary",
+      "path": "scripts/hosted-browser-supervisor.ts",
+      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+    },
+    {
+      "role": "ordinary-x86-target-plan-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "pi-target-plan-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional"
+    ],
+    "windowsMayQualifyOrdinaryLinux": false,
+    "wsl2MayQualifyOrdinaryLinux": false,
+    "steamMachineMaySubstituteRequiredTarget": false,
+    "requiredTargetMayBeRescuedByAnotherTarget": false,
+    "automaticTargetSelection": false
+  },
+  "targets": [
+    {
+      "targetId": "ordinary-x86-linux-premium",
+      "role": "common-premium-required",
+      "requiredForCommonComparison": true,
+      "idleStrategy": null,
+      "idleStrategyBoundary": "Q-270 must select platform suspend or low-power launcher idle for the exact ordinary-Linux tuple before execution.",
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "runtimeManifestSha256": null,
+      "powerAdapterProofSha256": null,
+      "qualifiedWakeSources": [],
+      "wakeSourceProofSha256": null,
+      "timingHarnessSha256": null,
+      "powerMeterIdentitySha256": null,
+      "stateOracleSha256": null
+    },
+    {
+      "targetId": "pi5-hailo26-reference",
+      "role": "lower-cost-reference-required",
+      "requiredForCommonComparison": true,
+      "idleStrategy": "low-power-launcher-idle",
+      "idleStrategyBoundary": "D-095 requires measured low-power launcher idle unless reliable Raspberry Pi suspend is separately proven and selected.",
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "runtimeManifestSha256": null,
+      "powerAdapterProofSha256": null,
+      "qualifiedWakeSources": [],
+      "wakeSourceProofSha256": null,
+      "timingHarnessSha256": null,
+      "powerMeterIdentitySha256": null,
+      "stateOracleSha256": null
+    },
+    {
+      "targetId": "steam-machine-optional",
+      "role": "later-optional-compatibility",
+      "requiredForCommonComparison": false,
+      "idleStrategy": "platform-suspend",
+      "idleStrategyBoundary": "D-095 assigns suspend to Steam Machine, but D-119 keeps this target optional and unable to rescue either common target.",
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "runtimeManifestSha256": null,
+      "powerAdapterProofSha256": null,
+      "qualifiedWakeSources": [],
+      "wakeSourceProofSha256": null,
+      "timingHarnessSha256": null,
+      "powerMeterIdentitySha256": null,
+      "stateOracleSha256": null
+    }
+  ],
+  "paths": [
+    {
+      "pathId": "cold-boot-accountless-offline",
+      "class": "cold-boot",
+      "workloadId": "launcher-shell",
+      "networkCondition": "all-network-interfaces-disabled-before-power",
+      "timerStart": "physical power application observed by the independent timing harness",
+      "passingEnd": "launcher visibly accepts and responds to a supported controller action",
+      "maximumMs": 60000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "warm-resume-accountless-offline",
+      "class": "warm-resume",
+      "workloadId": "launcher-shell",
+      "networkCondition": "all-network-interfaces-disabled-before-idle",
+      "timerStart": "supported deliberate wake action observed outside the sleeping or idle target",
+      "passingEnd": "prior safe state or launcher visibly accepts and responds to a supported controller action",
+      "maximumMs": 5000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "obstacle-local-offline-launch",
+      "class": "local-launch",
+      "workloadId": "obstacle-motion-sample",
+      "networkCondition": "all-network-interfaces-disabled",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "obstacle sample visibly accepts and responds to the intended gameplay action",
+      "maximumMs": 15000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "signed-package-local-offline-launch",
+      "class": "local-launch",
+      "workloadId": "selected-signed-local-package",
+      "networkCondition": "all-network-interfaces-disabled",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "selected installed package visibly accepts and responds to the intended gameplay action",
+      "maximumMs": 15000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "retro-2048-local-offline-launch",
+      "class": "local-launch",
+      "workloadId": "retro-2048",
+      "networkCondition": "all-network-interfaces-disabled",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "retro 2048 visibly accepts and responds to the intended controller action",
+      "maximumMs": 15000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "vibebots-hosted-online-launch",
+      "class": "hosted-launch",
+      "workloadId": "vibebots-compatibility",
+      "networkCondition": "approved-online-credential-free-route",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "hosted title visibly accepts intended input or the console reports an exact observable current phase",
+      "maximumMs": 30000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "mi-casa-hosted-online-launch",
+      "class": "hosted-launch",
+      "workloadId": "mi-casa-es-su-casa-compatibility",
+      "networkCondition": "approved-online-credential-free-route",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "hosted title visibly accepts intended input or the console reports an exact observable current phase",
+      "maximumMs": 30000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    },
+    {
+      "pathId": "determined-hosted-online-launch",
+      "class": "hosted-launch",
+      "workloadId": "determined-compatibility",
+      "networkCondition": "approved-online-credential-free-route",
+      "timerStart": "deliberate controller launch selection accepted by the launcher",
+      "passingEnd": "hosted title visibly accepts intended input or the console reports an exact observable current phase",
+      "maximumMs": 30000,
+      "requiredTrialsPerTarget": 20,
+      "interactionOracleSha256": null,
+      "scheduleSha256": null
+    }
+  ],
+  "measurementProtocol": {
+    "declaredTargetPathCells": 24,
+    "requiredCommonTargetPathCells": 16,
+    "requiredTrialsPerCell": 20,
+    "requiredCommonScheduledTrials": 320,
+    "optionalSteamScheduledTrials": 160,
+    "totalDeclaredTrials": 480,
+    "visibleFeedbackMaximumMs": 250,
+    "monotonicClockRequired": true,
+    "coldBootClockMustSpanPowerApplication": true,
+    "wakeClockMustBeIndependentOfSleepingTarget": true,
+    "endRequiresObservableInputResponse": true,
+    "allAttemptsFailuresAndRetriesPublished": true,
+    "warmupAttemptsMayBeDiscarded": false,
+    "failedAttemptsMayBeReplaced": false,
+    "trialOrderSha256": null,
+    "operatorProtocolSha256": null,
+    "instrumentCalibrationSha256": null,
+    "environmentScheduleSha256": null,
+    "resultSchemaSha256": null
+  },
+  "idleWakeOracles": {
+    "quiesceGates": [
+      "launch-admission-closed",
+      "game-stopped-or-suspended-as-declared",
+      "tracker-stopped",
+      "camera-capture-stopped",
+      "camera-active-indication-stopped",
+      "camera-microphone-remains-os-disabled",
+      "input-released-except-qualified-wake-path",
+      "writes-quiesced",
+      "update-state-safe",
+      "unnecessary-workloads-stopped",
+      "display-dimmed-or-blanked"
+    ],
+    "wakeGates": [
+      "launcher-or-prior-safe-state-ready",
+      "display-ready",
+      "supported-controller-input-ready",
+      "camera-and-tracker-still-stopped-until-explicit-need",
+      "no-passive-gameplay-resume"
+    ],
+    "requiredWakeSourceCandidates": [
+      "controller",
+      "remote",
+      "hdmi-cec",
+      "physical-power-button"
+    ],
+    "everyClaimedWakeSourceRequiresTwentyTrials": true,
+    "privacyStateMayBeInferredFromUi": false,
+    "processExitMayProveDevicePowerState": false,
+    "quiesceOracleSha256": null,
+    "wakeOracleSha256": null,
+    "powerTraceSchemaSha256": null
+  },
+  "requiredMetrics": [
+    "every scheduled attempt with target, path, repetition, status, failure code and monotonic start, feedback and end timestamps",
+    "per target and path valid, failed and invalid counts plus nearest-rank p50, p95 and worst duration",
+    "visible-feedback duration and the exact branded state first shown",
+    "interaction or truthful-phase end oracle and observable response evidence",
+    "wall-power time series spanning pre-action, transition, idle or launch, and stable end state",
+    "tracker, camera capture, camera indicator, microphone, display, input, write, update and workload state transitions",
+    "wake source, device reconnect, controller mapping and first accepted action",
+    "operating-system, service, launcher, native-host, tracker, browser and game lifecycle events",
+    "network state and sanitized hosted phase or failure observations without credentials or content bodies",
+    "exact hardware, image, runtime, workload, harness, oracle, schedule and calibration digests"
+  ],
+  "acceptance": {
+    "minimumTrialsPerTargetPathCell": 20,
+    "maximumVisibleFeedbackMs": 250,
+    "maximumColdBootMs": 60000,
+    "maximumWarmResumeMs": 5000,
+    "maximumLocalLaunchMs": 15000,
+    "maximumHostedLaunchOrTruthfulPhaseMs": 30000,
+    "maximumFailedRequiredTrials": 0,
+    "maximumFailedClaimedWakeTrials": 0,
+    "maximumIdlePowerWByTarget": {
+      "ordinary-x86-linux-premium": null,
+      "pi5-hailo26-reference": null,
+      "steam-machine-optional": null
+    },
+    "maximumResumeEnergyWhByTarget": {
+      "ordinary-x86-linux-premium": null,
+      "pi5-hailo26-reference": null,
+      "steam-machine-optional": null
+    },
+    "maximumTransitionTemperatureCByTarget": {
+      "ordinary-x86-linux-premium": null,
+      "pi5-hailo26-reference": null,
+      "steam-machine-optional": null
+    },
+    "everyRequiredTrialMustMeetItsDeadline": true,
+    "everyRequiredTargetPathCellMustPass": true,
+    "aggregateMayRescueFailedTrialCellOrTarget": false,
+    "hostedTruthfulPhaseMaySatisfyOnlyTheLaunchTimingGate": true,
+    "hostedTruthfulPhaseMayEstablishPlayability": false,
+    "firstPixelsMayEstablishUsableInteraction": false,
+    "loadReadinessOrLivenessMayEstablishPlayability": false,
+    "uiStateMayEstablishHardwarePrivacyState": false,
+    "windowsOrWslMayEstablishOrdinaryLinux": false,
+    "optionalSteamMachineMayRescueCommonComparison": false
+  },
+  "dataPolicy": {
+    "rawFrameRetentionAuthorized": false,
+    "rawVideoRetentionAuthorized": false,
+    "audioRecordingAuthorized": false,
+    "skeletonTraceRetentionAuthorized": false,
+    "credentialOrTokenUseAuthorized": false,
+    "requestOrResponseBodyRetentionAuthorized": false,
+    "cookieOrStorageValueRetentionAuthorized": false,
+    "urlQueryOrFragmentRetentionAuthorized": false,
+    "typedOrGeneratedTextRetentionAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "stableMachineIdentifiersAllowedInTrackedEvidence": false,
+    "systemTelemetryWithoutUserContentAllowed": true
+  },
+  "authority": {
+    "readOnlyRepositoryPlanningAuthorized": true,
+    "targetHardwareAccessAuthorized": false,
+    "physicalPowerControlAuthorized": false,
+    "operatingSystemMutationAuthorized": false,
+    "serviceAccountOrMutationAuthorized": false,
+    "networkFaultExerciseAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "diagnosticDataRetentionAuthorized": false,
+    "purchaseAuthorized": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "exact-required-target-hardware-image-runtime-and-workload-tuples",
+      "ordinary-x86-idle-strategy-selection-q270",
+      "qualified-pi-idle-and-steam-suspend-adapters",
+      "timing-harness-interaction-oracles-and-run-order-q272",
+      "target-power-energy-thermal-thresholds-and-instrumentation-q271",
+      "accountless-offline-package-retro-and-obstacle-runtime",
+      "approved-hosted-content-service-and-network-exercise-boundary",
+      "controller-remote-hdmi-cec-and-physical-wake-source-inventory",
+      "hardware-backed-camera-microphone-display-write-and-update-state-oracles",
+      "twenty-trial-per-cell-and-wake-source-physical-execution-authority",
+      "complete-result-ledger-and-cross-tier-comparison-report"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "requiredScheduledTrials": 320,
+    "optionalScheduledTrials": 160,
+    "completedRequiredTrials": 0,
+    "completedOptionalTrials": 0,
+    "passedRequiredCells": [],
+    "qualifiedTargets": [],
+    "commonComparisonEligible": false
+  }
+}

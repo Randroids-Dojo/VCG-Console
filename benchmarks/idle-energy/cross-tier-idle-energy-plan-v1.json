@@ -1,0 +1,299 @@
+{
+  "format": "vcg-cross-tier-idle-energy-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-unattended-idle-energy-wake-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-120"
+  ],
+  "claimBoundary": "Pre-registered unattended idle energy, privacy, quiescence, thermal and wake-reliability campaign only. No target, idle adapter, suspend state, wake source, wall power, energy, temperature, write, network, privacy, resume, reliability, savings, strategy selection, support, purchase, or product result exists. A policy model, a successful state transition, a blank display, a sleeping process, host-reported power, or one wake cannot establish physical low-power behavior or reliable resume.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "cross-tier-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "power-recovery-policy-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    },
+    {
+      "role": "physical-tv-wake-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "8f502314e44fd51bf0953862a093904ed1d234e0cf93403ad30bdd3c88fcac98"
+    },
+    {
+      "role": "physical-controller-wake-boundary",
+      "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
+      "sha256": "cb96550ec3e8632436078d16bd22ac0e9018cf5ee083361d3a5498ea441d9b41"
+    },
+    {
+      "role": "pi-thermal-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional"
+    ],
+    "windowsMayQualifyOrdinaryLinux": false,
+    "wsl2MayQualifyOrdinaryLinux": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "oneRequiredTargetMayRescueAnother": false,
+    "automaticStrategySelection": false
+  },
+  "targets": [
+    {
+      "targetId": "ordinary-x86-linux-premium",
+      "role": "common-premium-required",
+      "required": true,
+      "candidateStrategyIds": [
+        "platform-suspend-candidate",
+        "low-power-launcher-idle-candidate"
+      ],
+      "strategyBoundary": "Q-270 must select one exact strategy only after this target tuple's energy, wake, privacy, quiescence and reliability evidence.",
+      "selectedStrategyId": null,
+      "hardwareFirmwareAndPowerTopologySha256": null,
+      "operatingSystemRuntimeAndAdapterSha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "pi5-hailo26-reference",
+      "role": "lower-cost-reference-required",
+      "required": true,
+      "candidateStrategyIds": [
+        "low-power-launcher-idle"
+      ],
+      "strategyBoundary": "D-095 requires measured low-power launcher idle unless reliable Raspberry Pi suspend is separately proven through a superseding candidate campaign.",
+      "selectedStrategyId": null,
+      "hardwareFirmwareAndPowerTopologySha256": null,
+      "operatingSystemRuntimeAndAdapterSha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "steam-machine-optional",
+      "role": "later-optional-compatibility",
+      "required": false,
+      "candidateStrategyIds": [
+        "platform-suspend"
+      ],
+      "strategyBoundary": "D-095 assigns suspend to the optional Steam target, which remains unable to rescue either common target under D-119.",
+      "selectedStrategyId": null,
+      "hardwareFirmwareAndPowerTopologySha256": null,
+      "operatingSystemRuntimeAndAdapterSha256": null,
+      "qualifiedConfigurationSha256": null
+    }
+  ],
+  "strategyProfiles": [
+    {
+      "strategyId": "platform-suspend-candidate",
+      "applicableTargetIds": [
+        "ordinary-x86-linux-premium"
+      ],
+      "requiredForComparison": true,
+      "selected": false
+    },
+    {
+      "strategyId": "low-power-launcher-idle-candidate",
+      "applicableTargetIds": [
+        "ordinary-x86-linux-premium"
+      ],
+      "requiredForComparison": true,
+      "selected": false
+    },
+    {
+      "strategyId": "low-power-launcher-idle",
+      "applicableTargetIds": [
+        "pi5-hailo26-reference"
+      ],
+      "requiredForComparison": true,
+      "selected": false
+    },
+    {
+      "strategyId": "platform-suspend",
+      "applicableTargetIds": [
+        "steam-machine-optional"
+      ],
+      "requiredForComparison": false,
+      "selected": false
+    }
+  ],
+  "entryProfiles": [
+    {
+      "profileId": "accountless-offline-launcher",
+      "requiredState": "All network interfaces are disabled before idle entry and the accountless launcher is controller usable."
+    },
+    {
+      "profileId": "online-launcher-quiescent",
+      "requiredState": "The approved network remains associated while downloads, hosted content, telemetry and background work are quiescent."
+    },
+    {
+      "profileId": "after-local-game",
+      "requiredState": "A representative local game is closed or suspended exactly as its reviewed manifest permits before idle admission."
+    },
+    {
+      "profileId": "after-hosted-session",
+      "requiredState": "The hosted session is terminated or quiesced, its supervisor is settled, and no remote activity can manufacture wake or readiness."
+    }
+  ],
+  "durations": [
+    {
+      "durationId": "one-hour-characterization",
+      "seconds": 3600,
+      "validRunsPerTargetStrategyProfile": 5
+    },
+    {
+      "durationId": "eight-hour-overnight",
+      "seconds": 28800,
+      "validRunsPerTargetStrategyProfile": 5
+    },
+    {
+      "durationId": "twenty-four-hour-unattended",
+      "seconds": 86400,
+      "validRunsPerTargetStrategyProfile": 5
+    }
+  ],
+  "wakeSourcePolicy": {
+    "requiredSourceRoles": [
+      "primary-controller",
+      "physical-fallback"
+    ],
+    "conditionalSourceRoles": [
+      "remote-if-claimed",
+      "hdmi-cec-if-claimed"
+    ],
+    "validCyclesPerTargetStrategySource": 100,
+    "unsupportedConditionalSourceMustBeReported": true,
+    "oneSourceMayRescueAnother": false,
+    "hostEventMayEstablishPhysicalWake": false
+  },
+  "idleInvariants": [
+    "fresh native launch admission is closed before any idle quiescence result is accepted",
+    "the game is safely closed or suspended only through its reviewed manifest policy",
+    "tracker and camera capture are stopped and the camera-active indication is off",
+    "the microphone remains disabled at the operating-system boundary",
+    "display output is physically blanked or dimmed according to the approved strategy",
+    "profile save package log cache staging and update writes are complete or safely quiesced",
+    "no update generation or protected-state commit is pending or bypassed",
+    "unnecessary network background compute fan and device activity are quiesced",
+    "controller remote CEC and physical wake authority remains exactly scoped",
+    "wake reopens launch admission only after launcher display and input readiness complete"
+  ],
+  "measurementProtocol": {
+    "targetStrategyCombinationCountRequired": 3,
+    "entryProfileCount": 4,
+    "durationCount": 3,
+    "validRunsPerCell": 5,
+    "requiredIdleRunCellCount": 36,
+    "requiredIdleRuns": 180,
+    "minimumRequiredWakeCycles": 600,
+    "optionalWakeCycles": 200,
+    "minimumPowerSampleRateHz": 1,
+    "minimumThermalSampleRateHz": 1,
+    "ambientStabilizationSeconds": 1800,
+    "postWakeObservationSeconds": 300,
+    "counterbalancedTargetStrategyProfileDurationOrder": true,
+    "invalidHarnessRunsRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "unscheduledOperatorInterventionIsProductFailure": true,
+    "scheduleSha256": null,
+    "powerMeterAndClockCalibrationSha256": null,
+    "stateAndPrivacyOracleSha256": null,
+    "wakeStimulusProtocolSha256": null,
+    "writeAndNetworkQuiescenceProtocolSha256": null
+  },
+  "requiredMetrics": [
+    "target strategy entry profile duration run and exact configuration digests with salted campaign aliases",
+    "calibrated wall watts time series average p50 p95 peak watt-hours and meter uncertainty for complete intervals",
+    "ambient inlet SoC CPU GPU storage and radio temperatures plus fan state throttling and thermal events",
+    "bytes and operations written per namespace with flush update protected-state and unexpected-write dispositions",
+    "network association bytes packets connections wakeups and unexpected background activity without payload capture",
+    "tracker camera microphone display game launcher update input and launch-admission state throughout idle and wake",
+    "wake source physical stimulus host event first pixels display ready input ready and controller-usable timestamps",
+    "wake latency p50 p95 p99 worst failures false wakes duplicate wakes and unscheduled intervention counts",
+    "game state save integrity controller assignment display audio network and privacy state after every wake",
+    "energy saved against active-launcher baseline plus latency reliability thermal and write tradeoff without automatic selection"
+  ],
+  "acceptance": {
+    "maximumWarmWakeToControllerUsableMs": 5000,
+    "maximumUnrecoveredWakeFailures": 0,
+    "maximumFalseOrDuplicateWakes": 0,
+    "maximumPrivacyStateViolations": 0,
+    "maximumUnsafeOrUnboundedWrites": 0,
+    "maximumUnsafeUpdateOrProtectedStateTransitions": 0,
+    "maximumLostRequiredWakeSources": 0,
+    "maximumCrashesHangsOrUnboundedRestarts": 0,
+    "maximumIdleAverageWallPowerW": null,
+    "maximumEightHourEnergyWh": null,
+    "maximumTwentyFourHourEnergyWh": null,
+    "maximumIdleTemperatureC": null,
+    "maximumIdleWriteBytesPerHour": null,
+    "maximumIdleNetworkBytesPerHour": null,
+    "maximumWakeFailureRatio": null,
+    "maximumWakeP95Ms": null,
+    "minimumEnergySavingsRatioAgainstActiveLauncher": null,
+    "everyRequiredIdleCellAndWakeSourceMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "anotherStrategyMayRescueFailedStrategy": false,
+    "anotherTargetMayRescueFailedTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "shorterDurationMayRescueLongerDuration": false,
+    "powerSavingsMayRescuePrivacyWakeOrWriteFailure": false,
+    "wakeLatencyMayRescueEnergyOrReliabilityFailure": false,
+    "hostReportedPowerMayEstablishWallEnergy": false
+  },
+  "selectionPolicy": {
+    "selectedStrategyByTarget": [],
+    "automaticSelectionAllowed": false,
+    "selectionRequiresEveryRequiredCellPass": true,
+    "selectionRequiresPreRegisteredNumericGates": true,
+    "selectionRequiresControllerAndPhysicalFallback": true,
+    "selectionMustPublishEnergyLatencyReliabilityThermalAndWriteTradeoff": true
+  },
+  "dataPolicy": {
+    "rawFramesVideoOrAudioAllowed": false,
+    "networkPayloadsAddressesOrCredentialsAllowed": false,
+    "profileSaveOrPackageContentsAllowed": false,
+    "stableEquipmentSerialsAllowed": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "saltedPerCampaignEquipmentAliasesAllowed": true,
+    "aggregateTelemetryReleaseOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "idleSuspendOrWakeMutationAuthorized": false,
+    "displayAudioOrCecMutationAuthorized": false,
+    "networkOrUpdateMutationAuthorized": false,
+    "sustainedUnattendedCampaignAuthorized": false,
+    "blockerCodes": [
+      "selected-received-target-power-display-controller-and-wake-source-tuples",
+      "qualified-idle-suspend-quiescence-privacy-display-input-and-wake-adapters",
+      "ordinary-x86-strategy-comparison-and-selection-authority-q270",
+      "calibrated-wall-power-thermal-write-network-state-and-physical-wake-oracles-q271-q272",
+      "counterbalanced-one-eight-twenty-four-hour-and-hundred-cycle-schedule",
+      "power-energy-thermal-write-network-wake-latency-and-reliability-gates",
+      "hardware-purchase-idle-suspend-wake-display-network-update-and-unattended-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredIdleRuns": 0,
+    "completedRequiredWakeCycles": 0,
+    "qualifiedTargetIds": [],
+    "qualifiedStrategyIds": [],
+    "selectedStrategyByTarget": [],
+    "failedCellIds": []
+  }
+}

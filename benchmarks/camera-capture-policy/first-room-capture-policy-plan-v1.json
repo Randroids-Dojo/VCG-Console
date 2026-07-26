@@ -1,0 +1,189 @@
+{
+  "format": "vcg-camera-capture-policy-plan/v1",
+  "campaignId": "first-room-capture-policy-v1",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "motionApiVersion": "0.4.0",
+  "qualification": "blocked-plan-only-no-collection-or-policy-authority",
+  "collectionGate": {
+    "status": "blocked",
+    "targetId": null,
+    "cameraId": null,
+    "cameraDeviceSha256": null,
+    "cameraControlInventorySha256": null,
+    "roomLightingProtocolSha256": null,
+    "opticalGroundTruthProtocolSha256": null,
+    "poseActionProtocolSha256": null,
+    "exposureTimestampAuthority": null,
+    "exposureTimestampProofSha256": null,
+    "participantProtocolSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "blockerCodes": [
+      "acceptance-gates",
+      "camera-control-binding",
+      "exposure-timestamp-authority",
+      "lighting-floor-selection",
+      "optical-ground-truth",
+      "participant-consent",
+      "room-lighting-binding"
+    ]
+  },
+  "matrix": {
+    "captureMode": {
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecondNumerator": 60,
+      "framesPerSecondDenominator": 1,
+      "capabilityRequirement": "sustained-genuine-mode"
+    },
+    "presets": [
+      {
+        "id": "automatic-baseline",
+        "purpose": "device-automatic-baseline",
+        "controls": {
+          "pixelFormat": null,
+          "exposureMode": null,
+          "exposureTimeUs": null,
+          "gainMode": null,
+          "gainMilliDb": null,
+          "whiteBalanceMode": null,
+          "whiteBalanceKelvin": null,
+          "focusMode": null,
+          "focusValue": null,
+          "powerLineFrequencyHz": null,
+          "bufferCount": null
+        }
+      },
+      {
+        "id": "balanced-manual",
+        "purpose": "manual-balanced",
+        "controls": {
+          "pixelFormat": null,
+          "exposureMode": null,
+          "exposureTimeUs": null,
+          "gainMode": null,
+          "gainMilliDb": null,
+          "whiteBalanceMode": null,
+          "whiteBalanceKelvin": null,
+          "focusMode": null,
+          "focusValue": null,
+          "powerLineFrequencyHz": null,
+          "bufferCount": null
+        }
+      },
+      {
+        "id": "short-exposure-manual",
+        "purpose": "manual-motion-freeze",
+        "controls": {
+          "pixelFormat": null,
+          "exposureMode": null,
+          "exposureTimeUs": null,
+          "gainMode": null,
+          "gainMilliDb": null,
+          "whiteBalanceMode": null,
+          "whiteBalanceKelvin": null,
+          "focusMode": null,
+          "focusValue": null,
+          "powerLineFrequencyHz": null,
+          "bufferCount": null
+        }
+      }
+    ],
+    "blockingPersonaClasses": [
+      "adult-standing",
+      "school-age-child-standing"
+    ],
+    "lightingConditions": [
+      {
+        "id": "daylight",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      },
+      {
+        "id": "backlight",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      },
+      {
+        "id": "warm-lamp",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      },
+      {
+        "id": "cool-lamp",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      },
+      {
+        "id": "tv-only",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      },
+      {
+        "id": "dim",
+        "blocking": null,
+        "minimumIlluminanceMilliLux": null,
+        "maximumIlluminanceMilliLux": null
+      }
+    ],
+    "motionConditionIds": [
+      "neutral",
+      "dodge-left",
+      "dodge-right",
+      "duck",
+      "jump",
+      "menu-swipe-left",
+      "menu-swipe-right"
+    ],
+    "scheduledTrialsPerCell": 20,
+    "observationDurationMsPerCell": 60000,
+    "scheduledCellCount": 252,
+    "scheduledTrialCount": 5040,
+    "scheduledBlockingCellCount": null,
+    "scheduledBlockingTrialCount": null
+  },
+  "measurement": {
+    "frameRateMethod": "exposure-ordered-captured-and-dropped-frame-accounting",
+    "blurMetric": "independent-moving-target-p95-edge-width-millipixels",
+    "colorMetric": "independent-neutral-reference-p95-ciede2000-millideltae",
+    "landmarkMetric": "independent-ground-truth-p95-torso-normalized-core17-error",
+    "actionMetric": "correct-outcome-recall-and-wrong-trigger-count",
+    "exposureMetric": "exposure-authoritative-p95-microseconds",
+    "perCellPassRequired": true,
+    "aggregateMayRescueFailedCell": false,
+    "groundTruthIndependentOfCandidateOutput": true,
+    "captureArrivalMaySubstituteForExposure": false,
+    "selectionPolicy": "first-qualified-preset-in-plan-order"
+  },
+  "acceptance": {
+    "minimumBlockingIlluminanceMilliLux": null,
+    "minimumCapturedFramesPerSecondMilliHz": null,
+    "maximumDroppedFrameRate": null,
+    "maximumP95ExposureTimeUs": null,
+    "maximumP95BlurWidthMilliPixels": null,
+    "maximumP95ColorErrorMilliDeltaE": null,
+    "maximumP95NormalizedLandmarkError": null,
+    "minimumCorrectOutcomeRecall": null,
+    "maximumWrongActionCountPerCell": null
+  },
+  "dataPolicy": {
+    "temporaryFrameAnalysisAuthorized": false,
+    "rawRoomVideoDefault": false,
+    "retainedRawFrameCountLimit": 0,
+    "skeletonAndNumericReleaseOnly": true,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false
+  },
+  "claimBoundary": "This file pre-registers a blocked camera capture-policy campaign shape only. It authorizes no camera, room, participant, temporary frame analysis, lighting floor, capture preset, policy selection, purchase, or product qualification and records no physical result.",
+  "limitations": [
+    "The exact camera, target, supported UVC controls, room lighting protocol, optical ground truth, exposure timestamp proof, participant protocol, and data handling authority are unresolved.",
+    "Q-019 has not selected a minimum blocking illumination or classified daylight, backlight, lamp, television-only, and dim conditions as blocking or exploratory.",
+    "Every capture control and numerical acceptance gate is null, so no automatic, balanced, or short-exposure preset is currently runnable or preferred.",
+    "The owned Logitech C920 is a development fixture only and does not establish the required shared genuine 1920 by 1080 at 60 frames-per-second camera capability.",
+    "No exposure, frame, drop, blur, color, landmark, action, participant, room, platform, latency, or target result is recorded."
+  ]
+}

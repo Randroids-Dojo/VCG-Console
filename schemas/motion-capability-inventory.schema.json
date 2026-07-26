@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "capabilities": {
+      "maxItems": 128,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+          },
+          "version": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "dataProfiles": {
+            "maxItems": 32,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 120,
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "dataProfiles"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "capabilities"
+  ],
+  "$id": "urn:vcg:schema:motion-capability-inventory:1",
+  "title": "VCG optional Motion capability inventory v1",
+  "$comment": "Capability IDs are intentionally open namespaced strings. Availability does not grant game permission or define a data profile."
+}

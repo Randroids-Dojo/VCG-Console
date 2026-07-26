@@ -1,0 +1,118 @@
+export const RETRO_INSTALLED_LIBRARY_SCHEMA_ID =
+  "urn:vcg:schema:retro-installed-library:1" as const;
+
+export const retroInstalledLibraryJsonSchema = {
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: RETRO_INSTALLED_LIBRARY_SCHEMA_ID,
+  title: "VCG retro installed library v1",
+  type: "object",
+  additionalProperties: false,
+  required: ["schemaVersion", "generation", "entries"],
+  properties: {
+    schemaVersion: {
+      const: 1,
+    },
+    generation: {
+      type: "integer",
+      minimum: 1,
+      maximum: 9_007_199_254_740_991,
+    },
+    entries: {
+      type: "array",
+      maxItems: 100_000,
+      items: {
+        $ref: "#/$defs/entry",
+      },
+    },
+  },
+  $defs: {
+    safeId: {
+      type: "string",
+      minLength: 1,
+      maxLength: 64,
+      pattern: "^[a-z0-9]+(?:[.-][a-z0-9]+)*$",
+    },
+    sha256: {
+      type: "string",
+      pattern: "^[a-f0-9]{64}$",
+    },
+    entry: {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "entryId",
+        "systemId",
+        "sha256",
+        "sizeBytes",
+        "extension",
+        "title",
+        "coreId",
+        "controllerProfile",
+        "provenance",
+      ],
+      properties: {
+        entryId: {
+          type: "string",
+          pattern: "^content-[a-f0-9]{64}$",
+        },
+        systemId: {
+          $ref: "#/$defs/safeId",
+        },
+        sha256: {
+          $ref: "#/$defs/sha256",
+        },
+        sizeBytes: {
+          type: "integer",
+          minimum: 1,
+          maximum: 9_007_199_254_740_991,
+        },
+        extension: {
+          type: "string",
+          pattern: "^\\.[a-z0-9]{1,8}$",
+        },
+        title: {
+          type: "string",
+          minLength: 1,
+          maxLength: 80,
+          pattern: "^[^\\u0000-\\u001f\\u007f/\\\\]+$",
+        },
+        coreId: {
+          $ref: "#/$defs/safeId",
+        },
+        controllerProfile: {
+          $ref: "#/$defs/safeId",
+        },
+        provenance: {
+          $ref: "#/$defs/provenance",
+        },
+      },
+    },
+    provenance: {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "transport",
+        "importSessionId",
+        "entitlementStatementVersion",
+        "importedAtMs",
+      ],
+      properties: {
+        transport: {
+          enum: ["paired-lan", "usb"],
+        },
+        importSessionId: {
+          type: "string",
+          pattern: "^ris-[a-f0-9]{32}$",
+        },
+        entitlementStatementVersion: {
+          const: "vcg-user-entitled-content-v1",
+        },
+        importedAtMs: {
+          type: "integer",
+          minimum: 0,
+          maximum: 9_007_199_254_740_991,
+        },
+      },
+    },
+  },
+} as const;

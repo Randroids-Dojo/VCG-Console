@@ -10,7 +10,11 @@
         },
         "protocolVersion": {
           "type": "number",
-          "const": 1
+          "const": 2
+        },
+        "motionApiSchemaVersion": {
+          "type": "string",
+          "const": "0.4.0"
         },
         "clientId": {
           "type": "string",
@@ -56,6 +60,7 @@
       "required": [
         "type",
         "protocolVersion",
+        "motionApiSchemaVersion",
         "clientId",
         "request"
       ]
@@ -69,7 +74,7 @@
         },
         "protocolVersion": {
           "type": "number",
-          "const": 1
+          "const": 2
         },
         "sessionId": {
           "type": "string",
@@ -91,7 +96,7 @@
         },
         "protocolVersion": {
           "type": "number",
-          "const": 1
+          "const": 2
         },
         "sessionId": {
           "type": "string",

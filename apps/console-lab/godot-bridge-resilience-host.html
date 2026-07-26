@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="vcg-game-origin" content="http://localhost:4173" />
+    <title>VCG Godot Bridge Resilience Fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>VCG GODOT BRIDGE RESILIENCE</h1>
+      <p id="host-status" role="status">WAITING</p>
+      <p>ACCEPTED <output id="accepted-count">0</output></p>
+      <p>ACTIVE <output id="active-count">0</output></p>
+      <p>PEAK <output id="peak-count">0</output></p>
+      <p>PENDING <output id="pending-count">0</output></p>
+      <p>PUBLISHED <output id="published-count">0</output></p>
+      <p>HEALTH <output id="health-count">0</output></p>
+      <p>INVALID ACK <output id="invalid-ack-count">0</output></p>
+      <button id="publish" type="button">PUBLISH FRAME</button>
+      <button id="degrade" type="button">DEGRADE HEALTH</button>
+      <button id="recover" type="button">RECOVER HEALTH</button>
+      <button id="reload" type="button">RELOAD GAME</button>
+      <iframe
+        id="game"
+        title="Reloadable sandboxed Godot Motion game"
+        sandbox="allow-scripts allow-same-origin"
+        src="http://localhost:4173/index.html"
+      ></iframe>
+    </main>
+    <script
+      type="module"
+      src="/src/godot-bridge-resilience-host-fixture.ts"
+    ></script>
+  </body>
+</html>

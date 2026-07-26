@@ -1,0 +1,310 @@
+{
+  "format": "vcg-runtime-neutral-signed-local-package-plan/v1",
+  "status": "blocked",
+  "campaignId": "runtime-neutral-signed-local-package-pipeline-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-181"
+  ],
+  "claimBoundary": "This is a source-bound zero-result qualification plan. Existing signature-first intake, protected package-generation activation, installed-catalog resolution, native process planning, save namespace planning, and synthetic manifests do not prove a reproducible signed local-web or native example package, an ARM64 or x86-64 Linux runtime, a target sandbox, controller or reserved-action behavior, Motion API delivery, offline enforcement, save durability, update, rollback, uninstall, rights approval, publication authority, or product qualification. No runtime lane or target may rescue another, and no package may be published from this plan.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "package-and-runtime-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "public-game-manifest-contract",
+      "path": "packages/game-manifest/src/index.ts",
+      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+    },
+    {
+      "role": "synthetic-local-web-manifest-fixture",
+      "path": "packages/game-manifest/fixtures/v1/valid/local-web.vcg-game.json",
+      "sha256": "565d99edb8e2a9a49f04da3acdb2a4e677d44214bd9b953631245b844818f50a"
+    },
+    {
+      "role": "synthetic-native-manifest-fixture",
+      "path": "packages/game-manifest/fixtures/v1/valid/native.vcg-game.json",
+      "sha256": "34ba732d4feb8bb1b1a86ac36f4e649eebde6d54667f84ce41a25659bc385780"
+    },
+    {
+      "role": "signature-first-package-intake",
+      "path": "native/vcg-host/src/package_intake.rs",
+      "sha256": "a26555b52c021892fa40496768276aab0f1a665c074d247cccd760f72252b6b5"
+    },
+    {
+      "role": "signed-installed-catalog",
+      "path": "native/vcg-host/src/installed_catalog.rs",
+      "sha256": "e57d45fd51ced77d92f578b38dad451274994485d3e245ff0132b4d5e6020dc5"
+    },
+    {
+      "role": "protected-package-generation-store",
+      "path": "native/vcg-host/src/package_generation.rs",
+      "sha256": "b10351b81e2b3b6d177e5fb4126040e62b6c111ac334f393938103211e912d9d"
+    },
+    {
+      "role": "shared-package-launch-dispatch",
+      "path": "native/vcg-host/src/package_launch.rs",
+      "sha256": "17215d6aa14312be48783c864b37d058e9f1dc32cfba4d0492a4bf4f0a0b7c8e"
+    },
+    {
+      "role": "native-package-process-adapter",
+      "path": "native/vcg-host/src/native_package.rs",
+      "sha256": "e8745b5000ab3dbc4f90d51cc7f87c99e964df9d4673a7d9c4fcfdff995f7fff"
+    },
+    {
+      "role": "runtime-neutral-save-lifecycle",
+      "path": "native/vcg-host/src/save_lifecycle.rs",
+      "sha256": "d4eb429b3a3b80c3e8f6c45437d131721631a69e96e67eb02dc3b3e717075730"
+    },
+    {
+      "role": "local-web-explicit-readiness-boundary",
+      "path": "docs/LOCAL_WEB_EXPLICIT_READINESS.md",
+      "sha256": "3d4fa01258655a44d67b22d9e57f9a950ba410ceb50c584e7fde9d7774b2ffed"
+    },
+    {
+      "role": "native-package-runtime-boundary",
+      "path": "docs/NATIVE_PACKAGE_RUNTIME.md",
+      "sha256": "5f87853f791c1ac18adc5fc0b8ece1efafd6f643c29fde43dfe3d8be2c4846db"
+    }
+  ],
+  "authorityBoundary": {
+    "targetConfigurations": {
+      "aarch64LinuxSha256": null,
+      "x8664LinuxSha256": null
+    },
+    "exampleGameSourceSha256": null,
+    "rightsReviewSha256": null,
+    "buildToolchainSha256": null,
+    "reproducibleBuildProtocolSha256": null,
+    "signingAndDelegationPolicySha256": null,
+    "localWebRuntimePolicySha256": null,
+    "nativeRuntimePolicySha256": null,
+    "inputAndReservedActionProtocolSha256": null,
+    "motionApiProtocolSha256": null,
+    "networkEnforcementProtocolSha256": null,
+    "saveLifecycleProtocolSha256": null,
+    "healthAndReadinessProtocolSha256": null,
+    "updateRollbackUninstallProtocolSha256": null,
+    "evidenceProtocolSha256": null,
+    "buildAuthorized": false,
+    "signingAuthorized": false,
+    "installMutationAuthorized": false,
+    "executionAuthorized": false,
+    "updateRollbackUninstallAuthorized": false,
+    "publicationAuthorized": false
+  },
+  "packageLanes": [
+    {
+      "laneId": "local-web-aarch64-linux",
+      "runtime": "local-web",
+      "target": "aarch64-linux",
+      "artifactClass": "architecture-neutral-bundled-web",
+      "examplePackageId": null,
+      "sourceRevisionSha256": null,
+      "buildRecipeSha256": null,
+      "artifactSha256": null,
+      "manifestSha256": null,
+      "signatureBundleSha256": null,
+      "installedCatalogSha256": null,
+      "reproducibilityWitnessSha256": null,
+      "targetResultSha256": null,
+      "requiresIndependentTargetResult": true,
+      "otherTargetMayQualify": false,
+      "builtinOrHostedFixtureMayQualify": false
+    },
+    {
+      "laneId": "local-web-x86-64-linux",
+      "runtime": "local-web",
+      "target": "x86-64-linux",
+      "artifactClass": "architecture-neutral-bundled-web",
+      "examplePackageId": null,
+      "sourceRevisionSha256": null,
+      "buildRecipeSha256": null,
+      "artifactSha256": null,
+      "manifestSha256": null,
+      "signatureBundleSha256": null,
+      "installedCatalogSha256": null,
+      "reproducibilityWitnessSha256": null,
+      "targetResultSha256": null,
+      "requiresIndependentTargetResult": true,
+      "otherTargetMayQualify": false,
+      "builtinOrHostedFixtureMayQualify": false
+    },
+    {
+      "laneId": "native-aarch64-linux",
+      "runtime": "native",
+      "target": "aarch64-linux",
+      "artifactClass": "aarch64-linux-native-executable",
+      "examplePackageId": null,
+      "sourceRevisionSha256": null,
+      "buildRecipeSha256": null,
+      "artifactSha256": null,
+      "manifestSha256": null,
+      "signatureBundleSha256": null,
+      "installedCatalogSha256": null,
+      "reproducibilityWitnessSha256": null,
+      "targetResultSha256": null,
+      "requiresIndependentTargetResult": true,
+      "otherTargetMayQualify": false,
+      "builtinOrHostedFixtureMayQualify": false
+    },
+    {
+      "laneId": "native-x86-64-linux",
+      "runtime": "native",
+      "target": "x86-64-linux",
+      "artifactClass": "x86-64-linux-native-executable",
+      "examplePackageId": null,
+      "sourceRevisionSha256": null,
+      "buildRecipeSha256": null,
+      "artifactSha256": null,
+      "manifestSha256": null,
+      "signatureBundleSha256": null,
+      "installedCatalogSha256": null,
+      "reproducibilityWitnessSha256": null,
+      "targetResultSha256": null,
+      "requiresIndependentTargetResult": true,
+      "otherTargetMayQualify": false,
+      "builtinOrHostedFixtureMayQualify": false
+    }
+  ],
+  "lifecycleMatrix": {
+    "scenarioIds": [
+      "clean-reproducible-build",
+      "signature-first-intake",
+      "install-and-architecture-selection",
+      "cold-launch-to-interactive",
+      "motion-api-under-representative-load",
+      "controller-gameplay-and-glyphs",
+      "reserved-home-back-pause",
+      "offline-and-network-declaration",
+      "save-create-restart-update-preservation",
+      "health-failure-and-rollback",
+      "update-and-interrupted-update-recovery",
+      "uninstall-preserve-or-delete-choice"
+    ],
+    "laneCount": 4,
+    "validCyclesPerLaneScenario": 20,
+    "requiredCellCount": 48,
+    "requiredCycleCount": 960,
+    "sameReleaseIdentityAcrossTargetsPerRuntime": true,
+    "everyLaneAndScenarioRequired": true,
+    "runtimeLaneMayRescueOtherRuntime": false,
+    "targetMayRescueOtherTarget": false,
+    "scenarioMayRescueOtherScenario": false,
+    "aggregateMayRescueFailedCell": false
+  },
+  "interfaceRequirements": {
+    "manifestRequiredFields": [
+      "version",
+      "runtime",
+      "entrypoint",
+      "architecture",
+      "permissions",
+      "input",
+      "license",
+      "health",
+      "integrity",
+      "network",
+      "storage-quota",
+      "compatibility"
+    ],
+    "manifestAndSignedCatalogMustAgree": true,
+    "packageMayChooseProgramArgumentsEnvironmentOrWritablePaths": false,
+    "hostSelectsArchitectureAndRuntimeAdapter": true,
+    "motionSchemaVersion": "0.4.0",
+    "motionApiReceiptIsLatencyEndpoint": true,
+    "reservedActionIds": [
+      "Home",
+      "Back",
+      "Pause"
+    ],
+    "gameMayCaptureReservedActions": false,
+    "controllerOnlyFlowRequired": true,
+    "brandedLoadingAndResponsiveCancelRequired": true,
+    "interactiveMeansUsableInputNotFirstPixels": true,
+    "localWebRequiresExactLoopbackOriginAndQualifiedWrapper": true,
+    "nativeRequiresTargetSandboxAndOwnedDescendants": true,
+    "saveRootsHostDerivedAndPerGameProfile": true,
+    "networkDefaultDenyAndExactDeclaration": true,
+    "sameLifecycleAcrossRuntimes": true
+  },
+  "fixedAcceptance": {
+    "cleanBuildCount": 2,
+    "byteIdenticalReleaseArchiveRequired": true,
+    "byteIdenticalRuntimeArtifactRequired": true,
+    "maximumLocalInteractiveMs": 15000,
+    "maximumMotionExposureToApiP95Ms": 120,
+    "minimumActionPrecisionPpm": 950000,
+    "minimumActionRecallPpm": 900000,
+    "maximumUnintendedPrivilegedActions": 0,
+    "maximumUndeclaredNetworkAttempts": 0,
+    "maximumUndeclaredDeviceAccesses": 0,
+    "maximumEscapedDescendants": 0,
+    "maximumValidProductFailures": 0,
+    "healthyUpdateMustPreserveSaves": true,
+    "rollbackMustNotDeleteOrRewriteSaves": true,
+    "uninstallMustRequireControllerConfirmedSaveDisposition": true,
+    "allCellsMustPass": true,
+    "crossRuntimeOrTargetAggregateRescueAllowed": false
+  },
+  "openAcceptance": {
+    "maximumArchiveBytesByRuntime": null,
+    "maximumExpandedBytesByRuntime": null,
+    "maximumInstallP95Ms": null,
+    "maximumUpdateP95Ms": null,
+    "maximumRollbackP95Ms": null,
+    "maximumUninstallP95Ms": null,
+    "maximumCpuPpmByLane": null,
+    "maximumRamBytesByLane": null,
+    "maximumGpuPpmByLane": null,
+    "maximumStorageQuotaBytesByRuntime": null,
+    "maximumReadyJitterMs": null,
+    "maximumRecoveryMs": null,
+    "mustBeFixedBeforeExecution": true
+  },
+  "evidencePolicy": {
+    "exactSourceBuildRecipeToolchainArtifactManifestSignatureCatalogAndResultDigestsRequired": true,
+    "twoIndependentCleanBuildLogsRequired": true,
+    "sbomLicenseAndRightsEvidenceRequired": true,
+    "attemptAndCycleLevelEvidenceRequired": true,
+    "skeletonOnlyMotionEvidenceInRepositoryOrRelease": true,
+    "rawCameraFramesOrAudioAllowedInRepositoryOrRelease": false,
+    "participantIdentifiersFreeTextPathsSecretsKeysCredentialsOrTokensAllowed": false,
+    "privateSigningKeyMaterialAllowedInEvidence": false,
+    "declaredNetworkAttemptLedgerRequired": true,
+    "saveContentsAllowedInEvidence": false,
+    "failuresRetriesInterruptionsAndRollbackReasonsMustRemainVisible": true
+  },
+  "executionGate": {
+    "state": "blocked",
+    "blockerCodes": [
+      "exact-example-game-source-and-rights-review",
+      "aarch64-and-x86-64-linux-target-configurations",
+      "reproducible-build-toolchain-and-protocol",
+      "package-signing-delegation-and-key-custody",
+      "local-web-loopback-server-browser-wrapper-and-origin-policy",
+      "native-sandbox-compositor-service-and-descendant-policy",
+      "motion-api-controller-and-reserved-action-projection",
+      "network-enforcement-and-service-declaration-policy",
+      "save-schema-quota-update-rollback-uninstall-policy",
+      "health-readiness-loading-and-recovery-policy",
+      "numeric-size-performance-resource-and-recovery-gates",
+      "evidence-collection-oracles-and-schedule",
+      "build-sign-install-execute-update-uninstall-and-publication-authority"
+    ],
+    "readyRequiresEveryBlockerResolvedBeforeFirstBuild": true
+  },
+  "result": {
+    "disposition": "blocked",
+    "completedCellCount": 0,
+    "completedCycleCount": 0,
+    "laneResults": [],
+    "qualifiedLaneIds": [],
+    "selectedDefaultRuntime": null,
+    "publishedPackageIds": [],
+    "productDefaultChanged": false
+  }
+}

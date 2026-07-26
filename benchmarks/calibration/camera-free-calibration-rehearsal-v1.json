@@ -1,0 +1,418 @@
+{
+  "format": "vcg-calibration-rehearsal-evidence/v1",
+  "evidenceDate": "2026-07-25",
+  "evidenceClass": "camera-free-synthetic-state-machine-exercise",
+  "qualification": "contract-evidence-only-not-physical-calibration",
+  "policy": {
+    "minimumSamplesPerAttempt": 8,
+    "maximumSamplesPerAttempt": 24,
+    "syntheticConfidenceGate": 0.82,
+    "sessionTtlMs": 120000,
+    "maximumUnconsumedResults": 64,
+    "realCameraUsed": false,
+    "participantCount": 0,
+    "bodyMeasurementsRetained": false,
+    "physicalSafetyQualified": false,
+    "productionThresholdSelected": false,
+    "persistentCalibrationImplemented": false
+  },
+  "scenarioResults": [
+    {
+      "scenarioId": "all-required-ready",
+      "terminalPhase": "ready",
+      "terminalSampleCount": 8,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "ready",
+          "confidence": 0.93
+        },
+        {
+          "dimension": "play-zone",
+          "status": "ready",
+          "confidence": 0.94
+        },
+        {
+          "dimension": "player-scale",
+          "status": "ready",
+          "confidence": 0.92
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "ready",
+          "confidence": 0.91
+        },
+        {
+          "dimension": "usable-range",
+          "status": "ready",
+          "confidence": 0.9
+        }
+      ],
+      "issues": [],
+      "guidedSteps": [],
+      "readyLimited": false,
+      "readyResultIssued": true,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "floor-guidance-required",
+      "terminalPhase": "guided",
+      "terminalSampleCount": 8,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "needs-check",
+          "confidence": 0.61
+        },
+        {
+          "dimension": "play-zone",
+          "status": "ready",
+          "confidence": 0.94
+        },
+        {
+          "dimension": "player-scale",
+          "status": "ready",
+          "confidence": 0.92
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "ready",
+          "confidence": 0.91
+        },
+        {
+          "dimension": "usable-range",
+          "status": "ready",
+          "confidence": 0.9
+        }
+      ],
+      "issues": [
+        "feet-missing",
+        "floor-low-confidence"
+      ],
+      "guidedSteps": [
+        "camera-placement"
+      ],
+      "readyLimited": null,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": true,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "unsafe-zone-blocked",
+      "terminalPhase": "blocked",
+      "terminalSampleCount": 8,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "blocked",
+          "confidence": 0.93
+        },
+        {
+          "dimension": "play-zone",
+          "status": "blocked",
+          "confidence": 0.94
+        },
+        {
+          "dimension": "player-scale",
+          "status": "blocked",
+          "confidence": 0.92
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "blocked",
+          "confidence": 0.91
+        },
+        {
+          "dimension": "usable-range",
+          "status": "blocked",
+          "confidence": 0.9
+        }
+      ],
+      "issues": [
+        "unsafe-zone"
+      ],
+      "guidedSteps": [],
+      "readyLimited": null,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": true,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "optional-limited-fallback",
+      "terminalPhase": "ready",
+      "terminalSampleCount": 8,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "ready",
+          "confidence": 0.93
+        },
+        {
+          "dimension": "play-zone",
+          "status": "ready",
+          "confidence": 0.94
+        },
+        {
+          "dimension": "player-scale",
+          "status": "ready",
+          "confidence": 0.92
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "conservative",
+          "confidence": 0.6
+        },
+        {
+          "dimension": "usable-range",
+          "status": "conservative",
+          "confidence": 0.55
+        }
+      ],
+      "issues": [
+        "neutral-low-confidence",
+        "range-low-confidence"
+      ],
+      "guidedSteps": [
+        "neutral-stance",
+        "usable-range"
+      ],
+      "readyLimited": true,
+      "readyResultIssued": true,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "changed-room-revocation",
+      "terminalPhase": "invalidated",
+      "terminalSampleCount": 0,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "blocked",
+          "confidence": null
+        },
+        {
+          "dimension": "play-zone",
+          "status": "blocked",
+          "confidence": null
+        },
+        {
+          "dimension": "player-scale",
+          "status": "blocked",
+          "confidence": null
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "blocked",
+          "confidence": null
+        },
+        {
+          "dimension": "usable-range",
+          "status": "blocked",
+          "confidence": null
+        }
+      ],
+      "issues": [],
+      "guidedSteps": [],
+      "readyLimited": null,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": true,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "replaced-attempt-rejects-stale-sample",
+      "terminalPhase": "observing",
+      "terminalSampleCount": 0,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "play-zone",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "player-scale",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "usable-range",
+          "status": "unknown",
+          "confidence": null
+        }
+      ],
+      "issues": [],
+      "guidedSteps": [],
+      "readyLimited": null,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": true,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "exact-result-consumed-once",
+      "terminalPhase": "ready",
+      "terminalSampleCount": 8,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "ready",
+          "confidence": 0.93
+        },
+        {
+          "dimension": "play-zone",
+          "status": "ready",
+          "confidence": 0.94
+        },
+        {
+          "dimension": "player-scale",
+          "status": "ready",
+          "confidence": 0.92
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "ready",
+          "confidence": 0.91
+        },
+        {
+          "dimension": "usable-range",
+          "status": "ready",
+          "confidence": 0.9
+        }
+      ],
+      "issues": [],
+      "guidedSteps": [],
+      "readyLimited": false,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": true,
+      "firstConsumeAccepted": true,
+      "replayConsumeRejected": true,
+      "invalidationRevoked": false,
+      "expiryRevoked": false
+    },
+    {
+      "scenarioId": "expired-result-revoked",
+      "terminalPhase": "idle",
+      "terminalSampleCount": 0,
+      "dimensionStatuses": [
+        {
+          "dimension": "floor",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "play-zone",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "player-scale",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "neutral-stance",
+          "status": "unknown",
+          "confidence": null
+        },
+        {
+          "dimension": "usable-range",
+          "status": "unknown",
+          "confidence": null
+        }
+      ],
+      "issues": [],
+      "guidedSteps": [],
+      "readyLimited": null,
+      "readyResultIssued": false,
+      "requiredGuidanceSkipRejected": false,
+      "staleAttemptRejected": false,
+      "substitutedResultRejected": false,
+      "firstConsumeAccepted": false,
+      "replayConsumeRejected": false,
+      "invalidationRevoked": false,
+      "expiryRevoked": true
+    }
+  ],
+  "repeatability": {
+    "runCount": 2,
+    "exactScenarioEquality": true,
+    "scenarioSha256": "4799750540b1217a9905cf153eb48e26a0f916235b66ddb56316c4a4244f1c78"
+  },
+  "summary": {
+    "scenarioCount": 8,
+    "terminalPhaseCounts": {
+      "ready": 3,
+      "guided": 1,
+      "blocked": 1,
+      "invalidated": 1,
+      "observing": 1,
+      "idle": 1
+    },
+    "passedClosedGuardCount": 8,
+    "physicalTrialCount": 0,
+    "gameplayErrorMeasurementCount": 0,
+    "roomChangeDetectionTrialCount": 0
+  },
+  "provenance": {
+    "implementationPath": "apps/console-lab/src/launcher/calibration-rehearsal.ts",
+    "contractTestPath": "apps/console-lab/src/launcher/calibration-rehearsal.test.ts",
+    "contractPath": "docs/CALIBRATION_REHEARSAL.md",
+    "generatorPath": "scripts/generate-calibration-rehearsal-evidence.mjs",
+    "validatorPath": "scripts/validate-calibration-rehearsal-evidence.mjs",
+    "implementationSha256": "1f323c85267d70eba9fc07eb8287802851a4f96353b1fc114db746dd4609dbb3",
+    "contractTestSha256": "65e9e46faa76f2eb2359459ad306afb25f3135b1819ddbe0c7fcb3b62c76b731",
+    "contractSha256": "516d9f2eab1e506b71efd28fb260a0e42602d91532a212ee3a07335a81e63ba8",
+    "generatorSha256": "f665a6a5abc349b923f82e3230296e1d46b537223e0f04286d5a53d04031870a",
+    "validatorSha256": "50afda8487192926ac90b3ae4887f848236ff71876c163b88cb17aef159d8d73"
+  },
+  "claimBoundary": "This deterministic camera-free exercise proves only the current bounded calibration rehearsal state machine: exact ordered synthetic observations, visible dimension-specific guidance, fail-closed unsafe placement, explicit limited fallback, stale-attempt refusal, exact one-shot result authority, invalidation, expiry, and repeatable outcomes. It does not estimate or qualify a real floor, room, play zone, person, scale, stance, range, camera configuration, gameplay threshold, accessibility mode, or safety outcome.",
+  "limitations": [
+    "No camera, frame, landmark, room, floor reference, participant, controller, target console, or game runtime was used.",
+    "The eight-sample minimum and 0.82 confidence gate are synthetic UI fixtures, not production thresholds or measured confidence calibration.",
+    "Exact repeated synthetic output is software determinism only; no physical repeatability, gameplay error, false-accept, false-reject, or cohort distribution was measured.",
+    "Opaque room and camera tokens are authored fixtures. No privileged room-change, mount-shift, crop, rotation, floor, lighting, or camera-replacement detector exists.",
+    "No persistent calibration schema, native broker transaction, protected vault commit, migration, reset, deletion, power-loss, full-disk, update, rollback, privacy, accessibility, safety, or legal qualification ran."
+  ]
+}

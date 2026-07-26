@@ -1,6 +1,26 @@
-export type LauncherView = "home" | "motion" | "museum" | "retro" | "profiles" | "settings";
+import type { AccessibilityPreferenceController } from "./accessibility-preferences";
+
+export type LauncherView =
+  | "home"
+  | "motion"
+  | "session-adversarial"
+  | "museum"
+  | "retro"
+  | "profiles"
+  | "profile-management"
+  | "calibration"
+  | "portrait"
+  | "unassigned"
+  | "settings";
 export type LabMode = "tracker" | "obstacle" | "shell";
-export type SettingsPanel = "system" | "network" | "storage" | "developer";
+export type SettingsPanel =
+  | "system"
+  | "accessibility"
+  | "display"
+  | "audio"
+  | "network"
+  | "storage"
+  | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
 export type LaunchFaultPreview = "slow" | "offline" | "hung" | "crashed" | "recovered";
 export type LaunchStatus = "loading" | "slow" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";
@@ -32,12 +52,18 @@ export interface LaunchSession {
   };
   action?: {
     label: string;
-    href?: string;
   };
 }
 
 export interface LauncherOptions {
+  accessibilityPreferences: AccessibilityPreferenceController;
   openMotionLab: (mode?: LabMode) => void;
+}
+
+export interface LocalProfile {
+  id: string;
+  name: string;
+  detail: string;
 }
 
 export interface SearchItem {

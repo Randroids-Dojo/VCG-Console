@@ -1,0 +1,2233 @@
+{
+  "format": "vcg-full-catalog-candidate-ledger/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "non-authoritative-full-catalog-candidate-reconciliation",
+  "qualification": "zero-new-admissions",
+  "policy": {
+    "sourceCatalogIsInputOnly": true,
+    "candidateRecordsGrantNoManifestAuthority": true,
+    "candidateRecordsGrantNoHostAuthority": true,
+    "productionCatalogMutation": false,
+    "requiredReviewGates": [
+      "exact-source-build-deployment",
+      "owner-code-content-title-rights",
+      "trust-and-content-admission",
+      "controller-input-and-reserved-actions",
+      "network-services-and-degradation",
+      "permissions-data-and-storage",
+      "browser-containment-and-global-controls",
+      "architecture-performance-and-recovery"
+    ]
+  },
+  "provenance": {
+    "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
+    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "remoteOfflineFormat": "vcg-remote-game-offline-observation/v1",
+    "remoteOfflineObservationSha256": "b51afa7c8dd4ac9dd6ca2a7a4911c166bd43aa224410d7ef0414e0c3b97a9973",
+    "gameServiceFormat": "vcg-game-service-dependency-screen/v1",
+    "gameServiceObservationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9"
+  },
+  "scope": {
+    "catalogSnapshotDate": "2026-07-19",
+    "expectedEntryCount": 26,
+    "currentCheckedInMuseumIds": [
+      "determined",
+      "mi-casa-es-su-casa",
+      "vibebots"
+    ]
+  },
+  "entries": [
+    {
+      "id": "vibebots",
+      "title": "VibeBots",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibebots.randroid.dev",
+      "observedFinalEntrypoint": "https://vibebots.randroid.dev/mine",
+      "currentRepositoryState": {
+        "publicManifest": "checked-in-v1",
+        "launcherCatalog": "checked-in-museum"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeBots",
+        "commit": "f9b988ca72bbd2f2083ad3530366f8c57847e482"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibebots.randroid.dev",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "auth",
+          "database",
+          "externalNetwork",
+          "notifications"
+        ],
+        "signalCounts": {
+          "auth": 16,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 4,
+          "payments": 0,
+          "externalNetwork": 18
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibe-pinball",
+      "title": "VibePinball",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibe-pinball.vercel.app",
+      "observedFinalEntrypoint": "https://vibe-pinball.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibePinball",
+        "commit": "a9c324d13dac567fb1c490f345cad16dc5bba136"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibe-pinball.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibe-racer",
+      "title": "VibeRacer",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibe-racer-three.vercel.app",
+      "observedFinalEntrypoint": "https://vibe-racer-three.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeRacer",
+        "commit": "4ff30a43d52f0b7588398c7e6d84e1babeabc011"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibe-racer-three.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 3,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibe-pins",
+      "title": "VibePins",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibe-pins.vercel.app",
+      "observedFinalEntrypoint": "https://vibe-pins.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibePins",
+        "commit": "554da94c403e49124ae708d37f41b05ef44ae1c3"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibe-pins.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 5,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "fracking-asteroids",
+      "title": "Fracking Asteroids",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://fracking-asteroids.vercel.app",
+      "observedFinalEntrypoint": "https://fracking-asteroids.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "FrackingAsteroids",
+        "commit": "02e3804487b0e4ac4e9998017f2a43020b34b9bb"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://fracking-asteroids.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 3,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 4
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "hoops",
+      "title": "Hoops",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://hoops-kappa.vercel.app",
+      "observedFinalEntrypoint": "https://hoops-kappa.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Hoops",
+        "commit": "49eee13a3855e2cdc299cece6910d7d098133fda"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://hoops-kappa.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 5,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 0
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "mi-casa-es-su-casa",
+      "title": "Mi Casa Es Su Casa",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://mi-casa-es-su-casa.vercel.app",
+      "observedFinalEntrypoint": "https://mi-casa-es-su-casa.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "checked-in-v1",
+        "launcherCatalog": "checked-in-museum"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "mi-casa-es-su-casa",
+        "commit": "c296f181d94d594ffd8be855d8d0f4a808f19374"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://mi-casa-es-su-casa.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 5,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 3
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "block-punch-kick",
+      "title": "Block Punch Kick",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://block-punch-kick.vercel.app",
+      "observedFinalEntrypoint": "https://block-punch-kick.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "BlockPunchKick",
+        "commit": "cf6b48c239de7cd046d2ccfff01391d763346352"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://block-punch-kick.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://unpkg.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "package-license-declaration-only",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://epoch-theta.vercel.app",
+      "observedFinalEntrypoint": "https://epoch-theta.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "epoch",
+        "commit": "6fb5052954f38593c8290e02da5fda6bfff3fda6"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://epoch-theta.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 4
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "game-tape",
+      "title": "GameTape",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://game-tape.vercel.app",
+      "observedFinalEntrypoint": "https://game-tape.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GameTape",
+        "commit": "22f5a48ac0a6fd0ee8f9136eba81cf787e85ce99"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://game-tape.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://api.github.com",
+          "https://raw.githubusercontent.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 3
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "go-pit",
+      "title": "GoPit",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://go-pit.vercel.app",
+      "observedFinalEntrypoint": "https://go-pit.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GoPit",
+        "commit": "3210032b0b805d6a77ca5b560c027ad0f7ede3b3"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://go-pit.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "block-you",
+      "title": "Block-You",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://block-you.vercel.app",
+      "observedFinalEntrypoint": "https://block-you.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Block-You",
+        "commit": "f018849999666af05535c2ffd17c524b25e5a187"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://block-you.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "determined",
+      "title": "Determined",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://determined-khaki.vercel.app",
+      "observedFinalEntrypoint": "https://determined-khaki.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "checked-in-v1",
+        "launcherCatalog": "checked-in-museum"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Determined",
+        "commit": "7d9a38dc2c64915808c4a0a7081133ebb1865eec"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://determined-khaki.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://cdn.jsdelivr.net"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "ai",
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 1,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "software-dev-sim",
+      "title": "SoftwareDevSim",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://software-dev-sim.vercel.app",
+      "observedFinalEntrypoint": "https://software-dev-sim.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "SoftwareDevSim",
+        "commit": "2fc19ea64f5e35cdc11048a1899abe2b0519876e"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://software-dev-sim.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 3,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "baby-piano",
+      "title": "Baby Piano",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://baby-piano-eight.vercel.app",
+      "observedFinalEntrypoint": "https://baby-piano-eight.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "BabyPiano",
+        "commit": "f4e286eac374303e62ca63af91c78d0f1f336d40"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://baby-piano-eight.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "clankers",
+      "title": "Clankers",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://clankers-mocha.vercel.app",
+      "observedFinalEntrypoint": "https://clankers-mocha.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Clankers",
+        "commit": "9e2bae34a7357067f6cd2fd86c418fa5deaa7224"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://clankers-mocha.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "repository-grant-with-explicit-scope-exclusion",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "license-scope-closure",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibe-city",
+      "title": "VibeCity",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibe-city-weld.vercel.app",
+      "observedFinalEntrypoint": "https://vibe-city-weld.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeCity",
+        "commit": "8c8896f4ba5305e68d365a44d54e1ef02bb3b6c5"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibe-city-weld.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "flatline",
+      "title": "Flatline",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://flatline-gamma.vercel.app",
+      "observedFinalEntrypoint": "https://flatline-gamma.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "Flatline",
+        "commit": "8f2ecf4720c15e224a4b3b389ee7a1fb700fd3fb"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://flatline-gamma.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibe-gear-2",
+      "title": "VibeGear2",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://vibe-gear2.vercel.app",
+      "observedFinalEntrypoint": "https://vibe-gear2.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "VibeGear2",
+        "commit": "6f1eda21bbe2152ecd43ed0de05522a8c58c726c"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://vibe-gear2.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 7
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "repository-grant-observed-review-required",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "text-racer",
+      "title": "Text Racer",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://text-racer.vercel.app",
+      "observedFinalEntrypoint": "https://text-racer.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "text-racer",
+        "commit": "385cf6c39867dab0c70bdf7563995a2ede2f4ee1"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://text-racer.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 0
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "drop-dead-keep",
+      "title": "Drop Dead Keep",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://drop-dead-keep.vercel.app",
+      "observedFinalEntrypoint": "https://drop-dead-keep.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "drop-dead-keep",
+        "commit": "f814e8702cfc338d166c01eff41571d1ec24da1c"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://drop-dead-keep.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://cdnjs.cloudflare.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 1,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "streamer-billboard",
+      "title": "Streamer Billboard",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://streamer-billboard.vercel.app",
+      "observedFinalEntrypoint": "https://streamer-billboard.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "StreamerBillboard",
+        "commit": "4260e913855cce70f14b634a7132f7e8edef56a6"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://streamer-billboard.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "auth",
+          "database",
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 1,
+          "database": 3,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 15
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "go-dig",
+      "title": "GoDig",
+      "catalogClass": "first-party",
+      "liveEntrypoint": "https://go-dig.vercel.app",
+      "observedFinalEntrypoint": "https://go-dig.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "exact-public-source-screened",
+        "repository": "GoDig",
+        "commit": "bbb1271d18128468172362389dbc4c0db79f666f"
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://go-dig.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "exact-public-source-screened",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "exact-repository-screened",
+        "codeGrantStatus": "no-explicit-code-grant-observed",
+        "contentRightsStatus": "not-cleared-by-repository-screen",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "owner-production-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-license",
+        "content-and-age-review",
+        "content-asset-rights",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "bone-cleaver",
+      "title": "Bone Cleaver",
+      "catalogClass": "promoted-community",
+      "liveEntrypoint": "https://bonecleaver.vercel.app/",
+      "observedFinalEntrypoint": "https://bonecleaver.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "commit": null
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://bonecleaver.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://unpkg.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "no-first-party-repository-link",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 1
+        }
+      },
+      "rights": {
+        "status": "unavailable",
+        "codeGrantStatus": null,
+        "contentRightsStatus": "unknown",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "curated-community-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-and-content-rights",
+        "community-source-evidence",
+        "content-and-age-review",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "service-source-inventory",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "vibeman-hangman",
+      "title": "Vibeman (Hangman)",
+      "catalogClass": "promoted-community",
+      "liveEntrypoint": "https://hangman-exe.vercel.app/",
+      "observedFinalEntrypoint": "https://hangman-exe.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "commit": null
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://hangman-exe.vercel.app",
+        "observedThirdPartyOrigins": [
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "no-first-party-repository-link",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [
+          "externalNetwork"
+        ],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 2
+        }
+      },
+      "rights": {
+        "status": "unavailable",
+        "codeGrantStatus": null,
+        "contentRightsStatus": "unknown",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "curated-community-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-and-content-rights",
+        "community-source-evidence",
+        "content-and-age-review",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "service-source-inventory",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    },
+    {
+      "id": "asymptotic-bitrot",
+      "title": "Asymptotic Bitrot",
+      "catalogClass": "promoted-community",
+      "liveEntrypoint": "https://asymptoticbitrot-um9i.vercel.app",
+      "observedFinalEntrypoint": "https://asymptoticbitrot-um9i.vercel.app/",
+      "currentRepositoryState": {
+        "publicManifest": "absent",
+        "launcherCatalog": "absent"
+      },
+      "source": {
+        "status": "no-first-party-repository-link",
+        "repository": null,
+        "commit": null
+      },
+      "runtime": {
+        "candidate": "remote-web",
+        "qualification": "unverified"
+      },
+      "network": {
+        "candidate": "required",
+        "offlineQualification": "none",
+        "candidateOrigin": "https://asymptoticbitrot-um9i.vercel.app",
+        "observedThirdPartyOrigins": []
+      },
+      "input": {
+        "qualification": "unverified",
+        "reviewedRequiredDevices": [],
+        "reservedHomeBackQualification": "unverified"
+      },
+      "architecture": {
+        "qualification": "unverified",
+        "reviewedArchitectures": []
+      },
+      "permissions": {
+        "qualification": "not-reviewed",
+        "reviewedPermissions": [],
+        "hostAuthorityGranted": false
+      },
+      "services": {
+        "sourceInventoryStatus": "no-first-party-repository-link",
+        "degradationStatus": "unverified-source-signal-only",
+        "signaledCategories": [],
+        "signalCounts": {
+          "auth": 0,
+          "database": 0,
+          "ai": 0,
+          "analytics": 0,
+          "notifications": 0,
+          "payments": 0,
+          "externalNetwork": 0
+        }
+      },
+      "rights": {
+        "status": "unavailable",
+        "codeGrantStatus": null,
+        "contentRightsStatus": "unknown",
+        "ownerAuthorizationStatus": "not-recorded",
+        "redistributionStatus": "blocked"
+      },
+      "trust": {
+        "candidateTier": "curated-community-candidate",
+        "admissionStatus": "blocked",
+        "admissionAuthorityGranted": false
+      },
+      "blockerCodes": [
+        "architecture-qualification",
+        "browser-containment-and-global-controls",
+        "code-and-content-rights",
+        "community-source-evidence",
+        "content-and-age-review",
+        "controller-and-input-qualification",
+        "health-readiness-and-recovery",
+        "owner-authorization",
+        "permission-review",
+        "service-degradation-contract",
+        "service-source-inventory",
+        "source-build-deployment-binding",
+        "title-and-trademark-review"
+      ]
+    }
+  ],
+  "observationSha256": "65798f7bcb3f08e3b6f2dceb0c28e0ea382091352ff72c480e822b9f68bee245",
+  "summary": {
+    "entryCount": 26,
+    "firstPartyCount": 23,
+    "promotedCommunityCount": 3,
+    "checkedInPublicManifestCount": 3,
+    "checkedInLauncherCatalogCount": 3,
+    "remoteWebCandidateCount": 26,
+    "networkRequiredCandidateCount": 26,
+    "inputUnverifiedCount": 26,
+    "architectureUnverifiedCount": 26,
+    "permissionsNotReviewedCount": 26,
+    "sourceUnavailableCount": 3,
+    "rightsScreenUnavailableCount": 3,
+    "admissionApprovedCount": 0,
+    "hostAuthorityGrantedCount": 0,
+    "productionCatalogMutationCount": 0
+  },
+  "limitations": [
+    "This ledger reconciles evidence into non-authoritative candidate records. It is not a public game manifest, signed installed catalog, launcher policy, admission record, package descriptor, permission grant, browser allowlist, or owner authorization.",
+    "Remote-web and network-required are conservative candidate classifications for the current hosted URLs. They do not prove playability, service availability, containment, global controls, input support, or target compatibility.",
+    "Empty input, architecture, and permission arrays mean no reviewed value is qualified. They must never be interpreted as unrestricted, unnecessary, or implicitly allowed.",
+    "The three existing checked-in museum manifests and launcher entries are recorded as current repository facts, not retroactive trust, rights, service, controller, offline, or family-mode approval.",
+    "No entry may move from this ledger into production authority without exact per-title review, a separately validated manifest/admission record, and the host-owned signed catalog/package process where applicable."
+  ]
+}

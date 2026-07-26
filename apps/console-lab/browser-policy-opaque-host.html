@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VCG Opaque Sandbox Policy Host Fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>VCG OPAQUE SANDBOX POLICY HOST</h1>
+      <p>
+        The child is served by the same host but receives an opaque sandbox
+        origin and no escape capabilities.
+      </p>
+      <iframe
+        id="hostile-game"
+        title="Same-server opaque sandbox test game"
+        sandbox="allow-scripts"
+        src="/browser-policy-opaque-child.html"
+      ></iframe>
+    </main>
+  </body>
+</html>

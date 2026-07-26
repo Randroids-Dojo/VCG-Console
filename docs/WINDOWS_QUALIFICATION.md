@@ -4,6 +4,8 @@ Last updated: 2026-07-21
 
 Windows is the first secondary x86-64 compatibility lane. It is useful for architecture portability, UVC camera and controller drivers, Chrome behavior, and games that may eventually need a Windows fallback. It is not the premium reference environment: I-207 and I-209 still require native x86-64 Linux. WSL cannot qualify physical camera, controller, compositor, kiosk, suspend, or reserved Home/Back behavior.
 
+The first exact-host automated result is recorded in [Windows x86-64 qualification result — 2026-07-24](WINDOWS_QUALIFICATION_RESULT_2026-07-24.md). It confirms repository portability and records present hardware, while leaving all real-camera, physical-controller, reboot, and native-Linux rows open.
+
 ## When to run this
 
 Run the Windows pass after the MediaPipe worker and Rust host scaffold are available on the remote branch and before Linux SDL3/compositor integration. This catches shared-stack and Rust process-boundary portability defects before they become Linux-host noise.

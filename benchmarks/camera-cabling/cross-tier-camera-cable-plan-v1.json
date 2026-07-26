@@ -1,0 +1,217 @@
+{
+  "format": "vcg-cross-tier-camera-cable-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-camera-cable-signal-stability-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-038"
+  ],
+  "claimBoundary": "Pre-registered cross-tier camera cable length, routing, strain-relief, signal-stability and recovery campaign only. No camera, cable, extension, connector, route, bend radius, retention method, target, USB mode, voltage, bandwidth, sustained stream, hot-plug, suspend, RF coexistence, safety, maximum supported length, CSI fallback, purchase, installation, or product result exists. Link enumeration, advertised cable rating, one received frame, a short-cable pass, or another target cannot qualify a cable path.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "camera-and-packaging-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "active-play-cable-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "prototype-box-cable-boundary",
+      "path": "docs/ABS_PROJECT_BOX_CANDIDATE_SCREEN_2026-07-25.md",
+      "sha256": "796e0d0ebf8355c174983fe6820e33a10ad23553c333e7902e6091b2aece2946"
+    },
+    {
+      "role": "shared-camera-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "camera-geometry-and-mount-boundary",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "32c9facf4f908476ddb9fddb5298efb91c7c648052b777de029bce0f0917eb96"
+    },
+    {
+      "role": "pi-radio-coexistence-boundary",
+      "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
+      "sha256": "90fc23e78ccc5b1855ace8f8d40ee65d77a09e6ba72847319a93d42effb40958"
+    },
+    {
+      "role": "boot-suspend-recovery-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    }
+  ],
+  "collectionBoundary": {
+    "sharedCameraQualificationResultSha256": null,
+    "cameraGeometryResultSha256": null,
+    "ordinaryX86TargetConfigurationSha256": null,
+    "steamTargetConfigurationSha256": null,
+    "raspberryPiTargetConfigurationSha256": null,
+    "cableInventoryAndIdentitySha256": null,
+    "usbTopologyAndPowerProtocolSha256": null,
+    "bendRetentionAndPullProtocolSha256": null,
+    "captureAndDropOracleSha256": null,
+    "hotPlugSuspendAndRecoveryProtocolSha256": null,
+    "radioCoexistenceProtocolSha256": null,
+    "safetyAndDataHandlingProtocolSha256": null,
+    "scheduleSha256": null,
+    "cameraOperationAuthorized": false,
+    "hotPlugAndSuspendMutationAuthorized": false,
+    "mechanicalPullAndBendTestingAuthorized": false,
+    "enclosureOrFurnitureInstallationAuthorized": false,
+    "purchaseAuthorized": false
+  },
+  "uvcSustainedMatrix": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi-integrated-camera"
+    ],
+    "passiveCableLengthRoles": [
+      "device-supplied",
+      "short-passive",
+      "nominal-routing-passive",
+      "maximum-proposed-passive"
+    ],
+    "stressStateIds": [
+      "straight-baseline",
+      "minimum-bend-radius",
+      "secured-service-loop",
+      "adjacent-power-and-hdmi-routing",
+      "radio-coexistence-load",
+      "representative-retained-cable-pull"
+    ],
+    "exactCableLengthsAndBendRadiiMm": null,
+    "requiredCellCount": 72,
+    "sustainedCaptureDurationMsPerCell": 3600000,
+    "requiredSustainedCaptureDurationMs": 259200000,
+    "genuine1920x1080At60FpsRequired": true,
+    "cableOrTargetAggregateMayRescueFailedCell": false
+  },
+  "recoveryMatrix": {
+    "targetCount": 3,
+    "passiveCableLengthRoleCount": 4,
+    "scenarioIds": [
+      "cold-boot-attached",
+      "hot-plug-at-launcher-idle",
+      "disconnect-reconnect-under-representative-load",
+      "suspend-resume-or-tier-native-idle-wake",
+      "usb-controller-or-radio-stack-recovery"
+    ],
+    "validCyclesPerCell": 20,
+    "requiredCellCount": 60,
+    "requiredCycleCount": 1200,
+    "postRecoveryCameraIdentityMustMatch": true,
+    "postRecoveryRecalibrationRuleMustBeApplied": true,
+    "failedCycleMayBeDeletedOrReplaced": false
+  },
+  "mechanicalAndRoutingMatrix": {
+    "requiredRouteRoles": [
+      "integrated-internal-retained-route",
+      "external-short-visible-route",
+      "external-managed-wall-or-furniture-edge-route",
+      "external-service-loop-and-replacement-route"
+    ],
+    "requiredPullDirectionIds": [
+      "toward-play-zone",
+      "away-from-device",
+      "lateral-left",
+      "lateral-right",
+      "vertical-down"
+    ],
+    "pullCyclesPerDirection": 20,
+    "requiredPullCycleCountPerQualifiedRoute": 100,
+    "connectorOrEnclosureMayEnterPlayZone": false,
+    "looseLoopTripOrPetSnagHazardMayQualify": false,
+    "adhesiveOnlyRetentionMayQualify": false,
+    "shutterIndicatorVentAndServiceAccessMustRemainUnobstructed": true
+  },
+  "conditionalExtensionBoundary": {
+    "activeUsbExtensionStatus": "disabled-pending-passive-failure-and-owner-approval",
+    "activeUsbExtensionMayRescueARequiredPassiveCell": false,
+    "activeUsbExtensionRequiresSeparatePowerLatencyRfRecoveryAndSafetyMatrix": true,
+    "csiExtensionStatus": "disabled-unless-shared-uvc-failure-opens-pi-only-csi-fallback",
+    "csiEvidenceMayQualifyUvcOrAnotherTarget": false,
+    "csiRequiresSupersedingCapturePathDecision": true
+  },
+  "measurements": {
+    "requiredMeasurements": [
+      "exact-cable-connector-revision-length-gauge-shielding-and-certification-markings",
+      "host-port-hub-controller-topology-driver-and-negotiated-usb-speed",
+      "camera-voltage-current-and-voltage-drop-at-idle-start-and-sustained-load",
+      "captured-duplicate-dropped-corrupt-and-out-of-order-frame-accounting",
+      "usb-crc-reset-retry-disconnect-reenumeration-and-bandwidth-events",
+      "capture-fps-frame-spacing-jitter-and-sustained-duration",
+      "hot-plug-suspend-idle-wake-reconnect-recalibration-and-identity-timing",
+      "bend-radius-service-loop-connector-leverage-retention-and-pull-force",
+      "tip-slip-route-trip-pet-child-and-play-zone-safety-observation",
+      "wifi-bluetooth-throughput-latency-controller-and-camera-coexistence",
+      "shutter-indicator-vent-control-and-service-access",
+      "target-cable-route-instrument-schedule-and-evidence-digests"
+    ],
+    "usbEnumerationMayEstablishSustainedCapture": false,
+    "receivedFrameMayEstablishSignalStability": false,
+    "hostReportedUsbSpeedMayEstablishPhysicalCableSafety": false,
+    "passingShortCableMayQualifyLongerCable": false,
+    "perCellEvidenceAndDispositionRequired": true
+  },
+  "acceptance": {
+    "minimumCapturedFrameRateMilliHz": 59000,
+    "maximumDuplicateDroppedCorruptOrOutOfOrderFramesPerCell": 0,
+    "maximumUsbCrcResetRetryDisconnectOrReenumerationEventsPerCell": 0,
+    "minimumCameraVoltageMilliVolts": null,
+    "maximumCameraVoltageDropMilliVolts": null,
+    "maximumFrameSpacingJitterUs": null,
+    "maximumReconnectAndUsableCaptureMs": null,
+    "maximumPostWakeUsableCaptureMs": null,
+    "minimumCableRetentionPullForceMilliNewtons": null,
+    "minimumBendRadiusMmByCableIdentity": null,
+    "maximumRadioThroughputRegressionPpm": null,
+    "maximumControllerInputLatencyRegressionUs": null,
+    "everyRequiredPassiveCellMustPass": true,
+    "anotherLengthRouteOrTargetMayRescueFailure": false,
+    "conditionalExtensionEvidenceMayPromoteBaseline": false,
+    "safetyFailureMayBeRescuedBySignalQuality": false
+  },
+  "dataPolicy": {
+    "rawRoomVideoRequired": false,
+    "rawRoomVideoAllowedInRepositoryOrRelease": false,
+    "rawFramesAllowedInRepositoryOrRelease": false,
+    "syntheticOrNonidentifyingOpticalTargetPreferred": true,
+    "networkNamesCredentialsAddressesAndTrafficAllowed": false,
+    "stableDeviceSerialsAllowedInReleasedEvidence": false,
+    "saltedCampaignEquipmentAliasesRequired": true,
+    "freeTextResultEvidenceAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "qualified-shared-camera-and-geometry-results",
+      "exact-target-port-topology-camera-cable-and-route-identities",
+      "passive-length-bend-radius-and-route-role-values",
+      "capture-drop-usb-power-recovery-and-radio-oracles",
+      "mechanical-retention-pull-tip-slip-and-household-safety-protocol",
+      "numeric-voltage-jitter-recovery-retention-and-rf-gates",
+      "data-handling-instruments-operators-and-schedule",
+      "camera-hot-plug-suspend-mechanical-installation-and-purchase-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedSustainedCellCount": 0,
+    "completedSustainedDurationMs": 0,
+    "completedRecoveryCellCount": 0,
+    "completedRecoveryCycleCount": 0,
+    "qualifiedPassiveCableRolesByTarget": [],
+    "maximumQualifiedCableLengthMmByTarget": [],
+    "qualifiedRouteRoles": [],
+    "activeUsbExtensionQualified": false,
+    "csiExtensionQualified": false
+  }
+}

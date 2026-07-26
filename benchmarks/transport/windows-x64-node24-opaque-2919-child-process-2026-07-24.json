@@ -1,0 +1,135 @@
+{
+  "format": "vcg-motion-transport-benchmark",
+  "formatVersion": 2,
+  "createdAt": "2026-07-24T13:21:29.513Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0",
+    "cpuModel": "AMD Ryzen 9 5900X 12-Core Processor",
+    "logicalCpuCount": 24
+  },
+  "method": {
+    "iterations": 5000,
+    "warmupIterations": 500,
+    "payloadBytes": 2919,
+    "pattern": "sequential request/echo round trip",
+    "compression": false,
+    "payloadMode": "opaque-bytes",
+    "serialization": "none",
+    "schemaValidation": false,
+    "producerSchemaValidation": false,
+    "consumerSchemaValidation": false,
+    "processLayout": "socket and WebSocket echo servers run in separate child processes; client, direct baseline, and shared-memory worker orchestration run in the parent"
+  },
+  "results": [
+    {
+      "transport": "direct-library",
+      "latencyMicroseconds": {
+        "p50": 1.3,
+        "p95": 3.4,
+        "p99": 5.9,
+        "max": 1163.9
+      },
+      "elapsedMs": 9.22,
+      "roundTripsPerSecond": 542017.17,
+      "processCpuMs": 0,
+      "queueModel": "synchronous call; no retained queue",
+      "stallCapacityFrames": 0
+    },
+    {
+      "transport": "shared-memory-slot",
+      "latencyMicroseconds": {
+        "p50": 3.2,
+        "p95": 14.1,
+        "p99": 22.8,
+        "max": 163.3
+      },
+      "elapsedMs": 23.7,
+      "roundTripsPerSecond": 210974.92,
+      "processCpuMs": 32,
+      "queueModel": "one request slot and one response slot",
+      "stallCapacityFrames": 1
+    },
+    {
+      "transport": "tcp-loopback",
+      "latencyMicroseconds": {
+        "p50": 59.6,
+        "p95": 115.6,
+        "p99": 187.9,
+        "max": 2154.4
+      },
+      "elapsedMs": 352.65,
+      "roundTripsPerSecond": 14178.42,
+      "processCpuMs": 234,
+      "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
+      "clientRssStartBytes": 101924864,
+      "clientRssEndBytes": 126275584,
+      "serverProcessCpuMs": 203,
+      "serverRssStartBytes": 76414976,
+      "serverRssEndBytes": 87007232,
+      "serverRssPeakBytes": 87048192,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeSignal": 118,
+        "writableLengthBytes": 17514,
+        "writableHighWaterMarkBytes": 16384
+      }
+    },
+    {
+      "transport": "local-socket",
+      "latencyMicroseconds": {
+        "p50": 36.2,
+        "p95": 85.3,
+        "p99": 183.2,
+        "max": 1721
+      },
+      "elapsedMs": 230.77,
+      "roundTripsPerSecond": 21666.77,
+      "processCpuMs": 203,
+      "queueModel": "cross-process Node stream high-water mark plus kernel buffers; publisher must stop when write returns false",
+      "clientRssStartBytes": 105705472,
+      "clientRssEndBytes": 119508992,
+      "serverProcessCpuMs": 125,
+      "serverRssStartBytes": 75128832,
+      "serverRssEndBytes": 86278144,
+      "serverRssPeakBytes": 86278144,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeSignal": 5,
+        "writableLengthBytes": 17514,
+        "writableHighWaterMarkBytes": 16384
+      }
+    },
+    {
+      "transport": "websocket-loopback",
+      "latencyMicroseconds": {
+        "p50": 94.1,
+        "p95": 176.7,
+        "p99": 254.9,
+        "max": 862.5
+      },
+      "elapsedMs": 545.09,
+      "roundTripsPerSecond": 9172.73,
+      "processCpuMs": 344,
+      "queueModel": "cross-process WebSocket bufferedAmount; publisher must enforce an application-level frame bound",
+      "clientRssStartBytes": 119672832,
+      "clientRssEndBytes": 109690880,
+      "serverProcessCpuMs": 312,
+      "serverRssStartBytes": 76746752,
+      "serverRssEndBytes": 83783680,
+      "serverRssPeakBytes": 84946944,
+      "stallCapacityFrames": {
+        "framesAcceptedBeforeOneMiBBuffered": 433,
+        "bufferedAmountBytes": 1050793,
+        "applicationFrameBoundRequired": true
+      }
+    }
+  ],
+  "limitations": [
+    "This is transport overhead, not camera-to-action latency.",
+    "Client and server CPU/RSS are process-isolated, but both processes still share one development host and scheduler.",
+    "Windows local-socket results use a named pipe; target Linux must rerun the same harness for Unix-domain evidence.",
+    "Shared memory uses a one-slot worker-thread handoff and does not establish a safe cross-process ownership protocol.",
+    "Opaque-byte mode excludes Motion serialization and schema validation.",
+    "No result grants authority or selects the production transport."
+  ]
+}

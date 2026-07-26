@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VCG Same-Server Hostile Browser Fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>SAME-SERVER HOSTILE GAME FIXTURE</h1>
+      <p>FRAME URL ORIGIN <output id="frame-origin">UNKNOWN</output></p>
+      <p>PARENT DOCUMENT <output id="parent-document">UNTESTED</output></p>
+      <p>CAMERA POLICY <output id="camera-policy">UNKNOWN</output></p>
+      <p>MICROPHONE POLICY <output id="microphone-policy">UNKNOWN</output></p>
+      <p>GEOLOCATION POLICY <output id="geolocation-policy">UNKNOWN</output></p>
+      <p>FULLSCREEN POLICY <output id="fullscreen-policy">UNKNOWN</output></p>
+      <p>CAMERA REQUEST <output id="camera-request">UNTESTED</output></p>
+      <p>MICROPHONE REQUEST <output id="microphone-request">UNTESTED</output></p>
+      <p>GEOLOCATION REQUEST <output id="geolocation-request">UNTESTED</output></p>
+      <p>NETWORK REQUEST <output id="network-request">UNTESTED</output></p>
+      <p>POPUP REQUEST <output id="popup-request">UNTESTED</output></p>
+      <p>TOP NAVIGATION <output id="navigation-request">UNTESTED</output></p>
+      <p>DOWNLOAD REQUEST <output id="download-request">UNTESTED</output></p>
+      <p>FORM SUBMISSION <output id="form-request">UNTESTED</output></p>
+      <p>FULLSCREEN REQUEST <output id="fullscreen-request">UNTESTED</output></p>
+      <p>POINTER LOCK <output id="pointer-lock-request">UNTESTED</output></p>
+      <button id="try-parent-document" type="button">TRY PARENT DOCUMENT</button>
+      <button id="try-camera" type="button">TRY CAMERA</button>
+      <button id="try-microphone" type="button">TRY MICROPHONE</button>
+      <button id="try-geolocation" type="button">TRY GEOLOCATION</button>
+      <button id="try-network" type="button">TRY NETWORK</button>
+      <button id="try-popup" type="button">TRY POPUP</button>
+      <button id="try-navigation" type="button">TRY TOP NAVIGATION</button>
+      <button id="try-download" type="button">TRY DOWNLOAD</button>
+      <button id="try-form" type="button">TRY FORM SUBMISSION</button>
+      <button id="try-fullscreen" type="button">TRY FULLSCREEN</button>
+      <button id="try-pointer-lock" type="button">TRY POINTER LOCK</button>
+    </main>
+    <script
+      type="module"
+      src="/src/browser-policy-hostile-fixture.ts"
+    ></script>
+  </body>
+</html>

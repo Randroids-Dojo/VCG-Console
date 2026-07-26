@@ -1,0 +1,132 @@
+{
+  "format": "vcg-godot-web-bridge-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "windows-x64-chrome-cross-origin-godot-web-motion-bridge",
+  "qualification": "desk-live-bridge-only-not-product-qualification",
+  "retrievedAtUtc": "2026-07-24T21:09:37.425Z",
+  "environment": {
+    "producerPlatform": "win32",
+    "producerArchitecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "godotVersion": "4.7.1.stable.official.a13da4feb"
+  },
+  "baseWebBuild": {
+    "fileCount": 9,
+    "totalBytes": 39867945,
+    "packSha256": "b36484dfaf3ee798a3152fc859bf7d11b90917438036a84d6f9a10e1c9eefc5a"
+  },
+  "bridge": {
+    "browserProduct": "Chrome/150.0.7871.182",
+    "parentOriginClass": "random-loopback-ipv4-http",
+    "childOriginClass": "random-loopback-localhost-http",
+    "originsDistinct": true,
+    "sandboxTokens": [
+      "allow-scripts",
+      "allow-same-origin"
+    ],
+    "responseInjectedConfig": {
+      "matchesParentOrigin": true,
+      "frozen": true,
+      "writable": false,
+      "configurable": false,
+      "queryEmpty": true
+    },
+    "connectedMs": 1072.825,
+    "bridgeProtocolVersion": 2,
+    "motionApiSchemaVersion": "0.4.0",
+    "initialHost": {
+      "status": "CONNECTED",
+      "accepted": "1",
+      "active": "1",
+      "pending": "0",
+      "invalidAck": "0"
+    },
+    "afterFirstFrame": {
+      "inputSource": "motion",
+      "lane": 1,
+      "schemaVersion": 1,
+      "score": 0,
+      "stance": "standing",
+      "status": "LANDMARKS ACTIVE"
+    },
+    "finalHost": {
+      "status": "PUBLISHED 1 TO 1",
+      "accepted": "1",
+      "active": "1",
+      "pending": "0",
+      "invalidAck": "0"
+    },
+    "acceptedSessionCount": 1,
+    "publishedFrameCount": 2,
+    "acknowledgedFrameCount": 2,
+    "consoleErrorCount": 0,
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "abortedWasmFetchCount": 0,
+    "hostRequestCount": 6,
+    "childRequestCount": 7
+  },
+  "disposition": {
+    "distinctParentChildOriginsVerified": true,
+    "responseInjectedExactParentOriginVerified": true,
+    "urlParameterAuthorityUsed": false,
+    "bridgeV2Negotiated": true,
+    "motionApi040Negotiated": true,
+    "syntheticCoreFramesApplied": true,
+    "exactFrameAcknowledgementsObserved": true,
+    "physicalControllerVerified": false,
+    "realTrackerVerified": false,
+    "productionHostAuthorityVerified": false,
+    "signedPermissionAdmissionVerified": false,
+    "targetPlatformQualified": false,
+    "latencyQualified": false
+  },
+  "summary": {
+    "acceptedSessionCount": 1,
+    "publishedFrameCount": 2,
+    "acknowledgedFrameCount": 2,
+    "motionFrameCount": 2,
+    "physicalControllerCount": 0,
+    "participantCount": 0,
+    "targetHardwareCount": 0
+  },
+  "provenance": {
+    "projectPath": "examples/godot-motion-game/project.godot",
+    "projectPathSha256": "6c877bee436793f5578b3938a195f7e7b220d0f20976b2cb6eef8dad0b6617ff",
+    "mainScriptPath": "examples/godot-motion-game/scripts/main.gd",
+    "mainScriptPathSha256": "428fd945c8129c8839f8a5c139fb4976f553f4c40a95542c8671ca25265f0a09",
+    "gameScriptPath": "examples/godot-motion-game/scripts/motion_game.gd",
+    "gameScriptPathSha256": "ebd32337fc6cc4aa4caa328117c8b9e761aa62f2723daf980ed6e522df8313cc",
+    "bridgeScriptPath": "examples/godot-motion-game/scripts/motion_web_bridge.gd",
+    "bridgeScriptPathSha256": "96a32a9fb3f343778e791366a0dfc39f257b437984822bdbb9fb87c3601f9898",
+    "presetPath": "examples/godot-motion-game/export_presets.cfg",
+    "presetPathSha256": "d00238a434fd970c06f16757994626c0f838d5342856ce431354e5746fc6d1cd",
+    "hostDocumentPath": "apps/console-lab/godot-bridge-host.html",
+    "hostDocumentPathSha256": "ca9eb4dcf62b3f095e040b1102a4eec331d4576991c04778f5b650557eac1d9b",
+    "hostFixturePath": "apps/console-lab/src/godot-bridge-host-fixture.ts",
+    "hostFixturePathSha256": "0ab0b28b0ac7a175063d9e668e47c63b28aedf4a03776c9532437e866d2807ee",
+    "hostImplementationPath": "packages/motion-web-bridge/src/host.ts",
+    "hostImplementationPathSha256": "e7d91c12f00b0632a39f5a8a2657b51ece4a679aa8ae462372d7287ead0a93d3",
+    "protocolPath": "packages/motion-web-bridge/src/protocol.ts",
+    "protocolPathSha256": "06f2f5c3a8ad2bd4f903c8dcadb14e53ca819f5a41e4fbb4282126cc3849409c",
+    "syntheticFramePath": "apps/console-lab/src/synthetic.ts",
+    "syntheticFramePathSha256": "541ed4fedcf8c139d7c8c44da756a12ff9a11ef1ad713b7f4239df89c665f16e",
+    "viteConfigPath": "apps/console-lab/vite.config.ts",
+    "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
+    "baseEvidencePath": "benchmarks/godot/windows-x64-godot-4.7.1-export-v1.json",
+    "baseEvidencePathSha256": "6badb1ffe0ab65f97988e8cbcd3e8bd0362370a38be394662928b534443ec23e",
+    "generatorPath": "scripts/generate-godot-web-bridge-evidence.mjs",
+    "generatorPathSha256": "8287035ff5a78f609682e7bbfc603692bc95133bb4d382825d73ca5b8ef5fa42",
+    "validatorPath": "scripts/validate-godot-web-bridge-evidence.mjs",
+    "validatorPathSha256": "597d8e3dae8ad7124929acba639928a0d44423a39f0274f24ebf1ee6535f1616"
+  },
+  "claimBoundary": "One Windows x64 Chrome desk run proves that a response-injected exact parent origin let the actual Godot 4.7.1 Web export negotiate bridge v2/Motion API 0.4.0 across two distinct loopback origins with the existing MotionBridgeHost, accept two deterministic core-landmark frames, and acknowledge each before the next publication. It does not prove production host authority, signed permission admission, a physical controller, camera or real tracker input, native Motion IPC, target Linux or ARM64 behavior, compositor recovery controls, or latency qualification.",
+  "limitations": [
+    "The exact parent origin was injected by the bounded evidence HTTP response, not by the unfinished privileged native package server or signed installed-catalog authority.",
+    "Both parent and child were random loopback HTTP origins in installed Chrome on one Windows development host; this was not target Linux, a production compositor, or service-manager isolation.",
+    "The host published deterministic synthetic body.core17 frames with no camera, participant, physical controller, recovery remote, or real tracker.",
+    "The run proved bridge v2/Motion API 0.4.0 welcome, health, frame application, and acknowledgement recovery but did not exercise reconnect, degraded health, stall expiry, origin navigation, or hostile same-origin code.",
+    "The web release remained an ignored unsigned build artifact and was not admitted, launched, updated, rolled back, sandboxed, or resource-limited as an installed game package."
+  ]
+}

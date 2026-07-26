@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "vcg-seated-partial-assisted-synthetic-matrix-v1",
+  "evidenceClass": "camera-free-synthetic-contract-exercise",
+  "evidenceDate": "2026-07-24",
+  "qualification": "not-product-qualification",
+  "policy": {
+    "seatedGameplayMotionAuthorized": false,
+    "assistedBodyMotionAuthorized": false,
+    "silentLandmarkExtrapolationAuthorized": false,
+    "silentScoreNormalizationAuthorized": false,
+    "newBodyAlternateMappingsAuthorized": false,
+    "standardControllerFallbackRetained": true,
+    "reservedHomeBackPauseRemappable": false
+  },
+  "scenarios": [
+    {
+      "scenarioId": "standing-full-independent-controller",
+      "posture": "standing",
+      "assistance": "independent",
+      "hiddenLandmarks": [],
+      "controllerAvailable": true,
+      "availabilityState": "full",
+      "availableMotionControlCountBeforeSafetyGate": 6,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        }
+      ]
+    },
+    {
+      "scenarioId": "seated-full-independent-controller",
+      "posture": "seated",
+      "assistance": "independent",
+      "hiddenLandmarks": [],
+      "controllerAvailable": true,
+      "availabilityState": "full",
+      "availableMotionControlCountBeforeSafetyGate": 6,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "available",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-dodge",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-duck",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "available",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-jump",
+            "authority": "existing-controller-path-only"
+          }
+        }
+      ]
+    },
+    {
+      "scenarioId": "seated-upper-body-controller",
+      "posture": "seated",
+      "assistance": "independent",
+      "hiddenLandmarks": [
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_ankle",
+        "right_ankle"
+      ],
+      "controllerAvailable": true,
+      "availabilityState": "partial",
+      "availableMotionControlCountBeforeSafetyGate": 4,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "unavailable",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-dodge",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-duck",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "unavailable",
+          "safetyGate": "blocked-seated-gameplay-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-jump",
+            "authority": "existing-controller-path-only"
+          }
+        }
+      ]
+    },
+    {
+      "scenarioId": "partial-legs-missing-controller",
+      "posture": "standing",
+      "assistance": "independent",
+      "hiddenLandmarks": [
+        "left_knee",
+        "right_knee",
+        "left_ankle",
+        "right_ankle"
+      ],
+      "controllerAvailable": true,
+      "availabilityState": "partial",
+      "availableMotionControlCountBeforeSafetyGate": 5,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "permitted",
+          "supportLabel": "synthetic-motion-path",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-jump",
+            "authority": "existing-controller-path-only"
+          }
+        }
+      ]
+    },
+    {
+      "scenarioId": "partial-left-side-no-controller",
+      "posture": "standing",
+      "assistance": "independent",
+      "hiddenLandmarks": [
+        "left_eye",
+        "left_ear",
+        "left_shoulder",
+        "left_elbow",
+        "left_wrist",
+        "left_hip",
+        "left_knee",
+        "left_ankle"
+      ],
+      "controllerAvailable": false,
+      "availabilityState": "unavailable",
+      "availableMotionControlCountBeforeSafetyGate": 0,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "unavailable",
+          "safetyGate": "permitted",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        }
+      ]
+    },
+    {
+      "scenarioId": "assisted-overlap-controller",
+      "posture": "seated",
+      "assistance": "helper-visible-in-play-space",
+      "hiddenLandmarks": [],
+      "controllerAvailable": true,
+      "availabilityState": "full",
+      "availableMotionControlCountBeforeSafetyGate": 6,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "canonical-controller-confirm",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "reserved-controller-back-pause",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "canonical-controller-directional-navigation",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-dodge",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-duck",
+            "authority": "existing-controller-path-only"
+          }
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "controller-alternate-only",
+          "alternateMapping": {
+            "mappingId": "canonical-controller-v1",
+            "route": "title-declared-controller-jump",
+            "authority": "existing-controller-path-only"
+          }
+        }
+      ]
+    },
+    {
+      "scenarioId": "assisted-overlap-no-controller",
+      "posture": "seated",
+      "assistance": "helper-visible-in-play-space",
+      "hiddenLandmarks": [],
+      "controllerAvailable": false,
+      "availabilityState": "full",
+      "availableMotionControlCountBeforeSafetyGate": 6,
+      "controls": [
+        {
+          "controlGroup": "menuSelect",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuBackPause",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "menuSwipe",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDodge",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameDuck",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        },
+        {
+          "controlGroup": "gameJump",
+          "observedPath": "available",
+          "safetyGate": "blocked-assisted-identity-unqualified",
+          "supportLabel": "unsupported",
+          "alternateMapping": null
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "scenarioCount": 7,
+    "controlAssessmentCount": 42,
+    "syntheticMotionPathCount": 17,
+    "controllerAlternateOnlyCount": 13,
+    "unsupportedCount": 12,
+    "safetyBlockedCount": 18
+  },
+  "provenance": {
+    "implementationPath": "packages/motion-contract/src/play-support-matrix.ts",
+    "implementationSha256": "866cd68bdd04f4ab59b624bd98c06849f4d7a2a199c1bea5fe79664ffc82b939",
+    "generatorPath": "scripts/generate-play-support-matrix.mjs",
+    "generatorSha256": "d108c2d16fe187f16584c30e4d20f50c24d436b709c182e838eb02e422fc4f28",
+    "validatorPath": "scripts/validate-play-support-matrix.mjs",
+    "validatorSha256": "2b5a1c8cbe66235ff92e0802c0e4fe4376eb6ee2c603cee2dceb1d6fbe63a0b7"
+  },
+  "claimBoundary": "Camera-free deterministic contract evidence only. It proves bounded software disposition for authored landmark-loss, posture, controller, and visible-helper inputs; it does not prove tracking accuracy, comfort, safety, accessibility, controller assignment, action accuracy, gameplay outcomes, or support for any person.",
+  "limitations": [
+    "No camera, tracker backend, target device, game, room, or participant was used.",
+    "Seated and assisted gameplay motion remains blocked pending consented evidence and owner-approved mappings.",
+    "A standard controller route is an explicit fallback, not proof that the controller is present, assigned, reachable, or usable by a participant.",
+    "The visible-helper gate is a conservative policy exercise and is not yet integrated with multi-person identity tracking.",
+    "No body-action substitution, threshold change, landmark extrapolation, or score normalization is authorized."
+  ]
+}

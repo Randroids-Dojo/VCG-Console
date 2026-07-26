@@ -1,6 +1,6 @@
 # Motion web bridge
 
-Last updated: 2026-07-19
+Last updated: 2026-07-24
 
 `@vcg/motion-web-bridge` is the first cooperative browser transport for the VCG Motion API. It implements D-018 as a reversible `postMessage` boundary for reviewed web games that retain a messaging relationship with the console shell.
 
@@ -8,14 +8,17 @@ It does not make an arbitrary separately launched hosted page motion-capable. D-
 
 ## Protocol
 
-1. The game sends `vcg.motion.hello` with protocol version 1, a stable client ID, and required/optional capability profiles.
+1. The game sends `vcg.motion.hello` with bridge protocol version 2, exact Motion API schema version `0.4.0`, a stable client ID, and required/optional capability profiles.
 2. The host checks the exact event origin and source before parsing the message.
-3. The host replies with `vcg.motion.welcome` and the negotiated profiles, or `vcg.motion.rejected` when a required profile is missing.
+3. The host creates a session only for that exact bridge/schema pair and replies with `vcg.motion.welcome`, repeating the bound Motion API version and negotiated profiles, or `vcg.motion.rejected` when a required profile is missing.
 4. Every `vcg.motion.frame` is validated against the Motion API schema and projected to the profiles granted to that session.
-5. A repeated hello replaces the prior session for that window. The sample client retries an unanswered handshake and exposes an explicit reconnect operation.
-6. A clean client shutdown sends `vcg.motion.goodbye`, allowing the host to discard the session immediately; the console lifecycle must still remove sessions after crashes or navigation.
+5. The welcome carries current tracker health; ordered `vcg.motion.health` transitions continue even when no frame exists. Frames must match the current health source/status.
+6. A repeated hello replaces the prior session for that window. The sample client retries an unanswered handshake and exposes an explicit reconnect operation.
+7. A clean client shutdown sends `vcg.motion.goodbye`, allowing the host to discard the session immediately; the console lifecycle must still remove sessions after crashes or navigation.
 
 Unknown fields are ignored on otherwise valid messages so a newer sender can add data without breaking an older receiver. Known fields, message discriminators, and protocol/schema versions remain validated. Unsupported profiles and values are never fabricated.
+
+Bridge protocol v1 and Motion API `0.2.0` or earlier are incompatible with this source snapshot. A v2 host rejects either a legacy hello or a v2 hello naming another Motion schema before it creates a session. A v2 client ignores a legacy welcome or a v2 welcome naming another Motion schema and continues its bounded retry loop. This is exact-version binding, not multi-version negotiation or an implicit migration.
 
 ## Security and privacy boundary
 
@@ -23,10 +26,20 @@ Unknown fields are ignored on otherwise valid messages so a newer sender can add
 - Messages from a non-allowlisted origin are ignored without a response, avoiding a capability oracle for unrelated pages.
 - The host verifies both `event.origin` and the source window. The client likewise verifies its configured console origin and target window.
 - Clients receive only negotiated profiles. Rich landmarks, world coordinates, and action families are removed unless granted.
-- Publication is bounded per session and drops excess frames rather than accumulating a latency-producing queue.
+- Host construction requires an explicit authorized-profile set, normally
+  derived from the parsed game manifest. Tracker capabilities are intersected
+  with that set before welcome or negotiation; a richer source cannot
+  self-authorize richer game data.
+- Publication is bounded per session and drops excess frames rather than accumulating a latency-producing queue. Exactly one sequence-bound frame may be pending per session; a stale or mismatched acknowledgement cannot release it.
+- Distinct source-window sessions default to a maximum of 16 and may be configured only from 1 through 64. A reconnect may replace its own source session at the bound; another window receives an explicit rejection.
+- `collectExpiredSessions()` removes unacknowledged sessions after the configured TTL even when no later frame exists. Host telemetry exposes current/peak sessions, pending frames, expired sessions, and invalid acknowledgements without retaining per-frame history.
+- Health delivery is out of band from frame acknowledgements, uses a closed reason/control vocabulary, and carries no arbitrary provider error text.
 - The bridge carries Motion API frames only. Raw camera images, `ImageBitmap` objects, audio, and camera controls are outside the wire schema.
+- Action projection follows [the standardized action contract](MOTION_ACTIONS_V1.md): each action belongs to exactly one granted profile, and only `triggered` is side-effecting. Lifecycle feedback remains visible to a client only when that action family was negotiated.
 
 The allowlist identifies an approved web origin; it does not make all code at that origin safe. Package/release authority, content review, CSP, navigation containment, browser permissions, and native Home/Back controls remain separate gates.
+
+The real-browser cross-origin fixture keeps the console and game on distinct exact origins. The console page restricts scripts and frames with CSP; the game page denies every resource class except its same-origin module script and opts into cross-origin embedding with a fixture-scoped `Cross-Origin-Resource-Policy` response. Its iframe grants only `allow-scripts allow-same-origin`. Navigating that same `WindowProxy` to an unapproved origin produces no handshake reply or frame delivery because both inbound origin checks and outbound exact `targetOrigin` remain in force. Returning to the approved origin performs a new hello and replaces the old session before the cooperative client accepts frames.
 
 ## Game integration
 
@@ -42,6 +55,9 @@ const client = new MotionBridgeClient({
     requiredProfiles: ["body.core17", "actions.obstacle.v1"],
     optionalProfiles: ["body.world3d"],
   },
+  onHealth(event) {
+    // Gate motion control from event.controlAvailability.
+  },
   onFrame(frame) {
     // Consume validated landmarks and triggered actions.
   },
@@ -50,9 +66,16 @@ client.start();
 ```
 
 A complete typed example lives in `packages/motion-web-bridge/examples/sample-client.ts`.
+Host-side setup must pass `authorizedProfiles` from the reviewed permission
+grant; the client request is never authority. See the
+[game permission model](GAME_PERMISSION_MODEL.md).
 
 ## Verification scope
 
-Automated tests cover successful and rejected negotiation, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, and a 10,000-frame burst that remains one delivered frame with no queue. A real Chrome fixture also negotiates through an iframe, receives a frame, reloads the game document, reconnects, and receives the next frame.
+Automated tests cover successful and rejected negotiation, legacy bridge and mismatched Motion-schema refusal before session creation, exact-version client retry, welcome-time and ordered out-of-band health, health/frame source-state binding, sibling-window spoof/stolen-session denial, bounded session admission, exact hostile-origin silence, schema validation, profile projection, unknown-field compatibility, clean disconnect, explicit reconnect, retry until a late host appears, per-session frame limiting, exact acknowledgement binding, explicit stale collection, healthy-client isolation, 1,000 same-window reconnects, a five-minute virtual-time 100 Hz producer soak, and a 10,000-frame burst that remains one delivered frame with no queue. Real Chrome fixtures negotiate through both same-origin and sandboxed cross-origin iframes, receive welcome health plus overload/recovery transitions and frames, reconnect after reload, expire a deliberately non-acknowledging game and admit a healthy replacement, deny an origin-drift handshake and publication, then renegotiate with current health when the allowlisted game returns.
 
-Still required: cross-origin CSP and sandbox combinations, hostile navigation, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.
+The virtual soak proves bounded protocol state, not wall-clock process memory or scheduler behavior. The browser stall fixture withholds protocol acknowledgements but does not emulate an OS-suspended renderer. Wall-clock multi-process RSS telemetry, renderer termination, tracker-process isolation, and the selected native IPC transport remain required target-system evidence.
+
+The complete abuse-case inventory and residual-risk boundary is in [the Motion security review](MOTION_SECURITY_REVIEW.md).
+
+Still required: broader CSP/sandbox/browser-policy combinations, redirects and hostile same-origin code, game stalls, cross-process transport selection, native host integration, and latency measurement on ARM64 and x86-64 Linux.

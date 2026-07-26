@@ -16,7 +16,12 @@ The three selected repositories were refreshed to current `origin/main` on 2026-
 | Mi Casa Es Su Casa | `0c868be698360385d4a613fdca689faf0a2b82ca` | Next.js 15, Three.js, Vercel KV character/layout/message APIs, server validation and feedback integration | Hosted-service-required today. Offline packaging is an application adaptation with local persistence and feature-scope decisions, not a static mirror. |
 | Determined | `7d9a38dc2c64915808c4a0a7081133ebb1865eec` | Static frontend and localStorage cache plus Groq generation and Vercel KV API routes/leaderboard | Best first degraded-local-package experiment. Prove fallback play, label unavailable hosted features, and prevent indefinite service waits. |
 
-Live header checks on the same date returned 200 for all three. VibeBots redirected to `/mine`. Epoch still returned a restrictive `frame-ancestors` policy that excludes a VCG origin, so supervised top-level launch remains its correct initial mode.
+Live header checks on the same date returned 200 for all three. VibeBots
+redirected to `/mine`. A separate 2026-07-24 live probe confirmed that Epoch
+still excludes a VCG origin from `frame-ancestors` but loads to
+`document.readyState=complete` as the sole exact-origin supervised top-level
+page. That closes the framing-mode choice, not controller playability, game
+readiness, or global Home/Back recovery.
 
 ## Current catalog
 
@@ -35,7 +40,7 @@ Live header checks on the same date returned 200 for all three. VibeBots redirec
 | Hoops | First-party | JavaScript, HTML5 Canvas | [launch](https://hoops-kappa.vercel.app) | Yes | Pointer/touch assumptions and motion-adaptation candidate |
 | Mi Casa Es Su Casa | First-party | Three.js, persistent service | [launch](https://mi-casa-es-su-casa.vercel.app) | Yes | Identity/persistence, keyboard/mouse, network-loss behavior |
 | Block Punch Kick | First-party | JavaScript, 3D fighter | [launch](https://block-punch-kick.vercel.app) | Yes | Strong motion-adaptation candidate; controller and pointer-lock audit |
-| Epoch | First-party | TypeScript strategy | [launch](https://epoch-theta.vercel.app) | Yes | Current CSP allows framing only by self and randroid.dev; use top-level launch or update headers |
+| Epoch | First-party | TypeScript strategy | [launch](https://epoch-theta.vercel.app) | Yes | Windows Chrome supervised top-level load verified 2026-07-24; CSP still rejects VCG framing; controller, TV, service, and global-exit tests remain |
 | GameTape | First-party | HTML analytics/replay | [launch](https://game-tape.vercel.app) | Yes | Determine whether this belongs in a game-console catalog; mouse/keyboard needs |
 | GoPit | First-party | Godot 4.5 web export | [launch](https://go-pit.vercel.app) | Yes | WebAssembly load, service worker, audio, gamepad, ARM browser memory |
 | Block-You | First-party | JavaScript browser game | [launch](https://block-you.vercel.app) | Yes | Manifest signal, gamepad/remote, offline audit |
@@ -55,6 +60,12 @@ Live header checks on the same date returned 200 for all three. VibeBots redirec
 
 Each game receives a dated record with exact browser, console OS, hardware, commit/deployment, resolution, and network state.
 
+The executable candidate baseline and complete pre-admission author checklist
+are in [the television compatibility contract](TV_COMPATIBILITY_CONTRACT.md).
+Its desk fixture is useful for finding layout and keyboard-focus regressions;
+it does not substitute for any per-game, physical-TV, controller, reserved
+Home/Back, or target-platform row below.
+
 | Area | Checks | Passing condition |
 |---|---|---|
 | Launch | TLS, redirect, frame/top-level policy, load timeout, health check | Predictable playable or clearly unavailable state |
@@ -68,9 +79,13 @@ Each game receives a dated record with exact browser, console OS, hardware, comm
 | Appliance | crash, hang, out-of-memory, update during downtime | Watchdog returns to launcher and preserves other games' data |
 | Licensing | code, fonts, music, images, models, service data, redistribution permission | Remote-only or local package classification is documented |
 
-## Proposed game manifest contract
+## Canonical manifest contract and planned extensions
 
-Required fields:
+The implemented v1 fields and compatibility policy are authoritative in [the game manifest contract](GAME_MANIFEST_CONTRACT.md). The broader inventory below remains a roadmap for later schema versions and package services. A listed field that is absent from v1 is not accepted as permission or native authority, and adding an authority-affecting field requires a new schema version.
+
+Admission and runtime compatibility are separate. [The trust-tier contract](GAME_TRUST_TIERS.md) decides whether one exact release or hosted origin may enter family mode; manifest validity or a reachable URL never assigns that trust.
+
+The current and planned vocabulary covers:
 
 - identity: schema version, stable ID, title, semantic version, publisher;
 - runtime: remote web, local web, native, or libretro plus entrypoint and architectures;

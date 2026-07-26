@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "accepted": {
+          "type": "boolean",
+          "const": true
+        },
+        "active": {
+          "maxItems": 128,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120,
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+              },
+              "version": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "dataProfiles": {
+                "maxItems": 32,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 120,
+                  "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "dataProfiles"
+            ]
+          }
+        },
+        "unavailableOptional": {
+          "maxItems": 64,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120,
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+              },
+              "minimumVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "id",
+              "minimumVersion"
+            ]
+          }
+        }
+      },
+      "required": [
+        "accepted",
+        "active",
+        "unavailableOptional"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "accepted": {
+          "type": "boolean",
+          "const": false
+        },
+        "missingRequired": {
+          "minItems": 1,
+          "maxItems": 64,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120,
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+              },
+              "minimumVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "id",
+              "minimumVersion"
+            ]
+          }
+        }
+      },
+      "required": [
+        "accepted",
+        "missingRequired"
+      ]
+    }
+  ],
+  "$id": "urn:vcg:schema:motion-capability-negotiation:1",
+  "title": "VCG optional Motion capability negotiation v1",
+  "$comment": "Capability IDs are intentionally open namespaced strings. Availability does not grant game permission or define a data profile."
+}

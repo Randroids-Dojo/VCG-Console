@@ -1,0 +1,4 @@
+[
+  "libretro.core.sha256: [custom] qualified libretro cores require an artifact hash",
+  "libretro.frontend.sha256: [custom] qualified libretro frontends require an artifact hash"
+]

@@ -152,7 +152,13 @@ export class MotionTracePlayer {
       const toleranceMs = expectation.toleranceMs ?? 0;
       if (Math.abs(atMs - expectation.atMs) > toleranceMs) return;
       const players = expectation.playerId ? frame.players.filter((player) => player.id === expectation.playerId) : frame.players;
-      if (players.some((player) => player.actions.some((action) => action.name === expectation.action))) this.#matches.set(index, atMs);
+      if (
+        players.some((player) =>
+          player.actions.some((action) => action.name === expectation.action && action.phase === "triggered"),
+        )
+      ) {
+        this.#matches.set(index, atMs);
+      }
     });
   }
 

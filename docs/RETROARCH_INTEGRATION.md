@@ -36,6 +36,7 @@ vcg-host retroarch --dry-run \
   --core /var/lib/vcg/packages/cores/2048_libretro.so \
   --core-sha256 <64-lowercase-hex> \
   --base-config /var/lib/vcg/packages/retroarch/vcg-base.cfg \
+  --base-config-sha256 <64-lowercase-hex> \
   --profile player-one \
   --game retro-2048
 ```
@@ -50,7 +51,9 @@ For games with content, both arguments are required:
 
 The frontend, core, and base configuration must resolve to regular files beneath `--install-root`. Content must resolve beneath `--content-root`. Symlink resolution occurs before containment checks, so a link cannot escape either root. Profile/game identifiers use a bounded lowercase package-ID grammar and cannot add path segments.
 
-The host streams each frontend, core, and managed content file through SHA-256 before it creates runtime state or launches a process. Expected values must use the manifest's canonical 64-character lowercase hexadecimal form. Missing content hashes, hashes supplied for contentless launches, and mismatches fail closed with the artifact role, path, expected digest, and actual digest. The base configuration remains covered by the installed package/signature boundary rather than a separate game-manifest field.
+The host streams each frontend, core, base configuration, and managed content file through SHA-256 before it creates runtime state or launches a process. Expected values must use the manifest's canonical 64-character lowercase hexadecimal form. Missing content hashes, hashes supplied for contentless launches, and mismatches fail closed with the artifact role, path, expected digest, and actual digest. The signed installed catalog binds the base-configuration digest even though the public game manifest has no separate field for it.
+
+The direct command is a diagnostic adapter boundary. Normal launcher discovery begins from the [signed installed-package catalog](INSTALLED_PACKAGE_CATALOG.md), which accepts only a fixed game/profile intent and resolves these paths and hashes inside Rust.
 
 Package and content storage must be immutable to the launched runtime account between verification and use. File-descriptor-bound execution/content handoff or an equivalent target-Linux mount/package guarantee remains required to close the verification-to-use race under a compromised local account.
 
@@ -84,6 +87,15 @@ The host creates private directories and atomically replaces the generated appen
 
 The generated configuration disables configuration persistence, history, command interfaces, achievements, online/core updaters, load-core/load-content entries, general configuration/information entries, and enables kiosk/fullscreen behavior. It redirects every mutable directory used by this slice into the paths above. OS/compositor sandboxing remains required because configuration is defense in depth, not a security boundary.
 
+The append configuration also establishes the I-132 no-enhancement baseline:
+shaders, run-ahead, preemptive frames, rewind, frame delay/automatic frame
+delay, hard GPU sync, and threaded video are explicitly disabled. A base
+configuration cannot silently opt the session into those features. Any later
+non-baseline profile must follow
+[`RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md`](RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md)
+and bind exact target/frontend/core/content/display evidence; raw family-mode
+RetroArch tuning remains unavailable.
+
 ## Lifecycle boundary
 
 Current stable lines:
@@ -94,7 +106,7 @@ retroarch:started pid=<pid>
 retroarch:completed exit_code=<code|signal>
 ```
 
-The direct child is always reaped, and dropping its managed handle terminates it. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. A trusted compositor/window adapter must prove visible readiness and continued responsiveness before the existing watchdog can enforce startup/hang recovery.
+The direct child is always reaped, and dropping its managed handle terminates it. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. Host configuration may select the installed game for connected watchdog recovery only when its signed frontend is a qualified wrapper or platform producer. A trusted compositor/window adapter must separately prove visible readiness and continued responsiveness.
 
 ## 2048 smoke candidate
 
@@ -125,12 +137,15 @@ Manifest tests cover runtime/entrypoint identity, architecture parity, qualifica
 Still required:
 
 - signed, pinned frontend/core artifacts on ARM64 and x86-64;
-- signature verification and trusted manifest-to-host IPC before this adapter is called;
-- native launcher IPC and event mapping;
+- production key rotation, catalog anti-rollback, and immutable verification-to-child binding;
+- persistent host profile identity, compositor/readiness event mapping, and a qualified wrapper or platform heartbeat producer before assigning a RetroArch game to the connected API watchdog;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
 - SDL3 mapping, player assignment, and compositor-reserved Home/Back;
 - save/load UI and allowed per-game override UX;
 - target audio/video/latency/shader/suspend testing;
 - package update, rollback, uninstall, and no-leftovers proof;
-- shared USB/LAN importer and capacity/failure campaign.
+- product wiring from the shared USB/LAN planner and native plain-file
+  transaction into this launch path, plus USB/LAN acquisition, scanner,
+  reservation, deletion/compaction, capacity/failure, and source-path
+  exclusion campaigns.

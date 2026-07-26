@@ -1,0 +1,1263 @@
+{
+  "format": "vcg-motion-laterality-evidence",
+  "formatVersion": 1,
+  "generatedAt": "2026-07-24T18:12:03.594Z",
+  "sourceCommit": "99dca3b9f06c9eb93b94694166408b2de8b77375",
+  "workingTreeClean": false,
+  "motionApiSchemaVersion": "0.4.0",
+  "guardVersion": "anatomical-axis-continuity/v1",
+  "implementation": {
+    "guardSha256": "1ab3e1c9b60b8c8b064bd2ad65b2da9ab1e0c7d9725fb301a6e734eafe6209d4",
+    "suiteSha256": "0420b9f08f5f517598100d84334b1a5fd0282cda66ce3d0e48184db6fb1bf6a0",
+    "benchmarkSha256": "3e37eb24e51b8a34042fd9c7e30a0dd5b61a0610a6764a828b83ceeb0bd1fef1"
+  },
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0"
+  },
+  "suite": {
+    "version": "core17-laterality-adversarial/v1",
+    "serializedSuiteSha256": "fead2cd57accb27d17d7a1da6798effa139a13490d17960e08ccc69ef9b1221e",
+    "containsRawFrames": false,
+    "source": "deterministic generated normalized core17 adversarial transformations",
+    "scenarioCount": 41,
+    "updateCount": 1524,
+    "categories": [
+      {
+        "category": "clear-frontal",
+        "count": 8
+      },
+      {
+        "category": "full-anatomical-swap",
+        "count": 8
+      },
+      {
+        "category": "distal-only-swap",
+        "count": 6
+      },
+      {
+        "category": "mild-turn",
+        "count": 8
+      },
+      {
+        "category": "profile-ambiguity",
+        "count": 8
+      },
+      {
+        "category": "crossed-arms",
+        "count": 1
+      },
+      {
+        "category": "self-occlusion",
+        "count": 2
+      }
+    ]
+  },
+  "method": {
+    "strategies": [
+      "trust-provider-names",
+      "anatomical-axis-continuity-guard"
+    ],
+    "guardParameters": {
+      "minimumAxisAlignment": 0.5,
+      "minimumWidthRatio": 0.35
+    },
+    "warmupPasses": 5,
+    "measuredPasses": 50,
+    "latencyBoundary": "one strategy update over one pre-generated core17 skeleton",
+    "latencyTimer": "node-performance-now",
+    "latencySummaryMethod": "linear-interpolation-r7",
+    "truthVisibility": "expected prediction exists only in evaluator scenario metadata and is never passed to either strategy",
+    "ambiguityPolicy": "never relabel left as right; emit an explicit block when named torso axes reverse, collapse, or disappear",
+    "outputAuthority": "research labels and suppression evidence only; no MotionAction wire or gameplay authority"
+  },
+  "results": [
+    {
+      "strategy": "trust-provider-names",
+      "evaluation": {
+        "strategy": "trust-provider-names",
+        "scenarios": [
+          {
+            "id": "clear-lean_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "lean_left",
+            "prediction": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-lean_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-lean_left",
+            "category": "mild-turn",
+            "expectedPrediction": "lean_left",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-lean_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-lean_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "lean_right",
+            "prediction": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-lean_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-lean_right",
+            "category": "mild-turn",
+            "expectedPrediction": "lean_right",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-lean_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-step_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "step_left",
+            "prediction": "step_left",
+            "emittedMovements": [
+              "step_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-step_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-step_left",
+            "category": "mild-turn",
+            "expectedPrediction": "step_left",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-step_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-step_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "step_right",
+            "prediction": "step_right",
+            "emittedMovements": [
+              "step_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-step_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-step_right",
+            "category": "mild-turn",
+            "expectedPrediction": "step_right",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-step_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-reach_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-reach_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-reach_left",
+            "category": "mild-turn",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-reach_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-reach_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-reach_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-reach_right",
+            "category": "mild-turn",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-reach_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-punch_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "punch_left",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-punch_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-punch_left",
+            "category": "mild-turn",
+            "expectedPrediction": "punch_left",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-punch_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "clear-punch_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "punch_right",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-punch_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "mild-turn-punch_right",
+            "category": "mild-turn",
+            "expectedPrediction": "punch_right",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-punch_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-step_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-step_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-reach_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-reach_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-punch_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-punch_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "crossed-arms-negative",
+            "category": "crossed-arms",
+            "expectedPrediction": "none",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "left-wrist-occluded-right-reach",
+            "category": "self-occlusion",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "right-wrist-occluded-left-reach",
+            "category": "self-occlusion",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          }
+        ],
+        "confusionMatrix": {
+          "lean_left": {
+            "lean_left": 1,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "lean_right": {
+            "lean_left": 0,
+            "lean_right": 1,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "step_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 1,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "step_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 1,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "reach_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 3,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "reach_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 3,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "punch_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 2,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "punch_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 2,
+            "none": 0,
+            "blocked": 0
+          },
+          "none": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "blocked": {
+            "lean_left": 1,
+            "lean_right": 1,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 3,
+            "reach_right": 3,
+            "punch_left": 3,
+            "punch_right": 3,
+            "none": 8,
+            "blocked": 0
+          }
+        },
+        "totals": {
+          "scenarios": 41,
+          "exact": 15,
+          "wrongSide": 0,
+          "unsafeDirectionalEvents": 14,
+          "explicitAmbiguityBlocks": 0,
+          "silentAmbiguitySuppressions": 8,
+          "extraDirectionalEvents": 0,
+          "accuracy": 0.365854
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 76200,
+        "mean": 15.924,
+        "p50": 14,
+        "p95": 26.2,
+        "p99": 34.601,
+        "worst": 2557.4,
+        "measuredThroughputUpdatesPerSecond": 62796.874
+      }
+    },
+    {
+      "strategy": "anatomical-axis-continuity-guard",
+      "evaluation": {
+        "strategy": "anatomical-axis-continuity-guard",
+        "scenarios": [
+          {
+            "id": "clear-lean_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "lean_left",
+            "prediction": "lean_left",
+            "emittedMovements": [
+              "lean_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-lean_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-lean_left",
+            "category": "mild-turn",
+            "expectedPrediction": "lean_left",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-lean_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-lean_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "lean_right",
+            "prediction": "lean_right",
+            "emittedMovements": [
+              "lean_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-lean_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-lean_right",
+            "category": "mild-turn",
+            "expectedPrediction": "lean_right",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-lean_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-step_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "step_left",
+            "prediction": "step_left",
+            "emittedMovements": [
+              "step_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-step_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-step_left",
+            "category": "mild-turn",
+            "expectedPrediction": "step_left",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-step_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-step_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "step_right",
+            "prediction": "step_right",
+            "emittedMovements": [
+              "step_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-step_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-step_right",
+            "category": "mild-turn",
+            "expectedPrediction": "step_right",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "profile-step_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-reach_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-reach_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-reach_left",
+            "category": "mild-turn",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-reach_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-reach_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-reach_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-reach_right",
+            "category": "mild-turn",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-reach_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-punch_left",
+            "category": "clear-frontal",
+            "expectedPrediction": "punch_left",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-punch_left",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-punch_left",
+            "category": "mild-turn",
+            "expectedPrediction": "punch_left",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-punch_left",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "clear-punch_right",
+            "category": "clear-frontal",
+            "expectedPrediction": "punch_right",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "full-swap-punch_right",
+            "category": "full-anatomical-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-axis-reversal"
+            ],
+            "exact": true
+          },
+          {
+            "id": "mild-turn-punch_right",
+            "category": "mild-turn",
+            "expectedPrediction": "punch_right",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "profile-punch_right",
+            "category": "profile-ambiguity",
+            "expectedPrediction": "blocked",
+            "prediction": "blocked",
+            "emittedMovements": [],
+            "blockedStatuses": [
+              "blocked-foreshortened"
+            ],
+            "exact": true
+          },
+          {
+            "id": "distal-swap-step_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-step_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-reach_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-reach_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-punch_left",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_right",
+            "emittedMovements": [
+              "punch_right"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "distal-swap-punch_right",
+            "category": "distal-only-swap",
+            "expectedPrediction": "blocked",
+            "prediction": "punch_left",
+            "emittedMovements": [
+              "punch_left"
+            ],
+            "blockedStatuses": [],
+            "exact": false
+          },
+          {
+            "id": "crossed-arms-negative",
+            "category": "crossed-arms",
+            "expectedPrediction": "none",
+            "prediction": "none",
+            "emittedMovements": [],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "left-wrist-occluded-right-reach",
+            "category": "self-occlusion",
+            "expectedPrediction": "reach_right",
+            "prediction": "reach_right",
+            "emittedMovements": [
+              "reach_right"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          },
+          {
+            "id": "right-wrist-occluded-left-reach",
+            "category": "self-occlusion",
+            "expectedPrediction": "reach_left",
+            "prediction": "reach_left",
+            "emittedMovements": [
+              "reach_left"
+            ],
+            "blockedStatuses": [],
+            "exact": true
+          }
+        ],
+        "confusionMatrix": {
+          "lean_left": {
+            "lean_left": 1,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "lean_right": {
+            "lean_left": 0,
+            "lean_right": 1,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "step_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 1,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "step_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 1,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "reach_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 3,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "reach_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 3,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "punch_left": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 2,
+            "punch_right": 0,
+            "none": 0,
+            "blocked": 0
+          },
+          "punch_right": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 2,
+            "none": 0,
+            "blocked": 0
+          },
+          "none": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 0,
+            "reach_right": 0,
+            "punch_left": 0,
+            "punch_right": 0,
+            "none": 1,
+            "blocked": 0
+          },
+          "blocked": {
+            "lean_left": 0,
+            "lean_right": 0,
+            "step_left": 0,
+            "step_right": 0,
+            "reach_left": 1,
+            "reach_right": 1,
+            "punch_left": 1,
+            "punch_right": 1,
+            "none": 2,
+            "blocked": 16
+          }
+        },
+        "totals": {
+          "scenarios": 41,
+          "exact": 31,
+          "wrongSide": 0,
+          "unsafeDirectionalEvents": 4,
+          "explicitAmbiguityBlocks": 16,
+          "silentAmbiguitySuppressions": 2,
+          "extraDirectionalEvents": 0,
+          "accuracy": 0.756098
+        }
+      },
+      "latencyMicroseconds": {
+        "samples": 76200,
+        "mean": 22.468,
+        "p50": 21,
+        "p95": 32.5,
+        "p99": 42.2,
+        "worst": 944.8,
+        "measuredThroughputUpdatesPerSecond": 44507.084
+      }
+    }
+  ],
+  "findings": {
+    "exactScenariosBefore": 15,
+    "exactScenariosAfter": 31,
+    "unsafeDirectionalEventsBefore": 14,
+    "unsafeDirectionalEventsAfter": 4,
+    "fullSwapExplicitBlocks": 8,
+    "profileExplicitBlocks": 8,
+    "distalSwapUnsafeDirectionalEvents": 4,
+    "distalSwapSilentSuppressions": 2,
+    "mildTurnMisses": 4,
+    "selfOcclusionExact": 2
+  },
+  "claimBoundary": "Camera-free transformation evidence only. It does not measure provider anatomical consistency, real turns or self-occlusion, real-player confusion, backend parity, action accuracy, camera latency, or target hardware.",
+  "limitations": [
+    "The suite mutates generated landmarks and does not reproduce a detector's correlated errors.",
+    "A full-name swap is an injected fault, not an observed provider failure rate.",
+    "Horizontal compression is only a two-dimensional proxy for body yaw and perspective.",
+    "The torso-axis guard detects full anatomical reversal and strong foreshortening but cannot detect distal-only swaps while torso names stay stable.",
+    "Mild-turn misses show the underlying fixed thresholds are not rotation-qualified.",
+    "Crossed-arm and wrist-occlusion paths omit clothing, depth, blur, and duplicate detections.",
+    "Explicit suppression is safer than a wrong directional event but still requires visible feedback and controller recovery.",
+    "No identity association, smoothing, floor calibration, action lifecycle, game context, or multi-player authority is included.",
+    "JavaScript timing excludes calibration, capture, inference, IPC, rendering, and games.",
+    "One Windows x64 host does not qualify native Rust or target-Linux performance.",
+    "No image, video frame, participant identifier, biometric template, or appearance descriptor is generated or retained."
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "format": "vcg-cross-tier-camera-placement-geometry-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-camera-placement-geometry-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-037",
+    "I-193",
+    "I-194"
+  ],
+  "claimBoundary": "Pre-registered cross-tier camera placement and optical-geometry campaign only. No room, enclosure, camera, mount, target, field of view, fixed pitch, placement envelope, participant session, calibration, action result, physical stability result, construction authority, purchase authority, or product qualification exists. Preview, advertised field of view, passing external placement, or aggregate evidence cannot qualify the integrated appliance geometry.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "camera-packaging-and-optical-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "active-play-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "prototype-box-boundary",
+      "path": "docs/ABS_PROJECT_BOX_CANDIDATE_SCREEN_2026-07-25.md",
+      "sha256": "796e0d0ebf8355c174983fe6820e33a10ad23553c333e7902e6091b2aece2946"
+    },
+    {
+      "role": "room-and-play-zone-plan",
+      "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
+      "sha256": "ca9156012a1c75d1ec829b95f24f3f492294fb2a297e118571eb75310ee0f084"
+    },
+    {
+      "role": "shared-camera-plan",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "pose-edge-plan",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    },
+    {
+      "role": "floor-contact-plan",
+      "path": "benchmarks/floor-contact/rgb-depth-floor-contact-plan-v1.json",
+      "sha256": "40bf478efb8fcab5c69ace2cf09a45fa77164c13eff9ced5ecfe0338ba0b5ca3"
+    },
+    {
+      "role": "real-room-action-plan",
+      "path": "benchmarks/real-room-one-player/first-real-room-one-player-plan-v1.json",
+      "sha256": "b9c360d1135730ac1ed433db936a99d1c3927bc350298e44085bc67945ac4009"
+    }
+  ],
+  "collectionBoundary": {
+    "selectedRoomSurveyResultSha256": null,
+    "selectedCameraQualificationResultSha256": null,
+    "integratedPrototypeConfigurationSha256": null,
+    "supportedPcTargetConfigurationSha256": null,
+    "steamMachineTargetConfigurationSha256": null,
+    "participantConsentAndAssentProtocolSha256": null,
+    "opticalGroundTruthProtocolSha256": null,
+    "floorGroundTruthProtocolSha256": null,
+    "actionGroundTruthProtocolSha256": null,
+    "calibrationAndRelocationProtocolSha256": null,
+    "mountStabilityAndCableSafetyProtocolSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "scheduleSha256": null,
+    "roomAccessAuthorized": false,
+    "participantSessionsAuthorized": false,
+    "cameraCollectionAuthorized": false,
+    "mountingOrFurnitureMutationAuthorized": false,
+    "cuttingDrillingOrConstructionAuthorized": false,
+    "purchaseAuthorized": false
+  },
+  "integratedScreeningMatrix": {
+    "enclosureHeightRoles": [
+      "low",
+      "nominal",
+      "high"
+    ],
+    "tvStandDepthRoles": [
+      "shallow",
+      "nominal",
+      "deep"
+    ],
+    "playerDistanceRoles": [
+      "near",
+      "nominal",
+      "far"
+    ],
+    "roomWidthRoles": [
+      "narrow",
+      "nominal",
+      "wide"
+    ],
+    "pitchCandidateRoles": [
+      "minimum-upward",
+      "low-upward",
+      "nominal-upward",
+      "high-upward",
+      "maximum-upward"
+    ],
+    "exactRoleValuesMmOrDegrees": null,
+    "requiredGeometricScreenCellCount": 405,
+    "advertisedFieldOfViewMaySubstituteMeasuredGeometry": false,
+    "previewOrDiagramMaySubstitutePhysicalGeometry": false
+  },
+  "externalScreeningMatrix": {
+    "targetTierIds": [
+      "supported-pc",
+      "steam-machine"
+    ],
+    "mountRoleIds": [
+      "beside-machine",
+      "on-top-of-machine",
+      "above-machine",
+      "tv-top",
+      "shelf"
+    ],
+    "zonePointIds": [
+      "center",
+      "near-left-edge",
+      "near-right-edge",
+      "far-left-edge",
+      "far-right-edge"
+    ],
+    "requiredGeometricScreenCellCount": 50,
+    "minimumQualifiedMountRolesPerTargetTier": 1,
+    "unsupportedMountRolesMustRemainDocumented": true,
+    "steamEvidenceMayQualifySupportedPc": false,
+    "supportedPcEvidenceMayQualifySteam": false
+  },
+  "blockingValidationMatrix": {
+    "configurationCount": 11,
+    "configurationRule": "one-selected-integrated-fixed-axis-plus-every-external-target-tier-mount-role",
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "exploratoryPersonaClasses": [
+      "seated-exploratory",
+      "limited-range-exploratory"
+    ],
+    "zonePointIds": [
+      "center",
+      "near-left-edge",
+      "near-right-edge",
+      "far-left-edge",
+      "far-right-edge"
+    ],
+    "motionIds": [
+      "neutral-full-body",
+      "jump",
+      "duck",
+      "dodge-left",
+      "dodge-right"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredBlockingCellCount": 550,
+    "requiredBlockingTrialCount": 11000,
+    "exploratoryEvidenceMayRescueBlockingFailure": false,
+    "aggregateMayRescueFailedCell": false
+  },
+  "calibrationAndSetupMatrix": {
+    "configurationCount": 11,
+    "calibrationCyclesPerConfiguration": 20,
+    "requiredCalibrationCycleCount": 220,
+    "setupErrorScenarioIds": [
+      "camera-too-low",
+      "camera-too-high",
+      "pitch-outside-envelope",
+      "mount-unstable",
+      "cable-unstrain-relieved",
+      "shutter-obscured",
+      "activity-indicator-obscured",
+      "placement-changed-without-recalibration",
+      "floor-plane-invalid",
+      "zone-edge-outside-coverage"
+    ],
+    "automaticRoomAndFloorCalibrationRequired": true,
+    "placementChangeDetectionRequired": true,
+    "unsafeOrUnsupportedSetupMustFailClosed": true,
+    "manualHiddenCalibrationMayQualify": false
+  },
+  "measurements": {
+    "requiredPhysicalMeasurements": [
+      "camera-optical-datum-height-depth-and-offset",
+      "tv-face-and-stand-geometry",
+      "player-distance-and-room-width",
+      "camera-pitch-roll-and-yaw",
+      "measured-horizontal-vertical-and-diagonal-field-of-view",
+      "distortion-and-crop-margin",
+      "head-feet-hands-and-zone-edge-visibility",
+      "floor-plane-and-floor-contact-error",
+      "jump-duck-and-dodge-action-accuracy",
+      "automatic-calibration-and-placement-change-detection",
+      "mount-tip-slip-vibration-and-cable-pull-stability",
+      "physical-shutter-reach-and-optical-blocking",
+      "capture-indicator-visibility-and-truth",
+      "usb-mode-bandwidth-drops-reconnect-and-cable-length"
+    ],
+    "independentOpticalAndFloorGroundTruthRequired": true,
+    "physicalPictureMayBeInferredFromCalibrationState": false,
+    "cameraPreviewMayEstablishFullBodyOrFloorCoverage": false,
+    "actionAccuracyMayBeInferredFromLandmarkVisibility": false,
+    "mountStabilityMayBeInferredFromStaticDimensions": false,
+    "perCellEvidenceAndDispositionRequired": true
+  },
+  "acceptance": {
+    "minimumHorizontalFieldOfViewMilliDegrees": null,
+    "minimumVerticalFieldOfViewMilliDegrees": null,
+    "minimumHeadMarginMm": null,
+    "minimumFeetMarginMm": null,
+    "minimumZoneEdgeMarginMm": null,
+    "maximumDistortionMilliPixels": null,
+    "maximumCropLossPpm": null,
+    "maximumFloorPlaneErrorMm": null,
+    "minimumActionPrecisionPpm": 950000,
+    "minimumActionRecallPpm": 900000,
+    "maximumCalibrationDurationMs": null,
+    "maximumPlacementChangeDetectionMs": null,
+    "maximumUsbCaptureErrorsOrDrops": 0,
+    "maximumMountStabilityOrCableSafetyFailures": 0,
+    "exactlyOneIntegratedFixedPitchMustQualify": true,
+    "atLeastOneExternalMountRolePerTargetTierMustQualify": true,
+    "everyAdvertisedExternalMountRoleMustPassAllBlockingCells": true,
+    "externalPlacementMayRescueIntegratedFailure": false,
+    "integratedPlacementMayRescueExternalFailure": false,
+    "seatedOrLimitedRangeEvidenceMayRescueBlockingFailure": false
+  },
+  "dataPolicy": {
+    "rawHomeVideoDefault": false,
+    "rawHomeVideoAllowedInRepositoryOrRelease": false,
+    "rawFramesAllowedInRepositoryOrRelease": false,
+    "redactedGeometryImagesAllowedBySeparateProtocol": true,
+    "exifGpsAndDeviceMetadataMustBeRemoved": true,
+    "facesNamesAddressesScreensReflectionsAndHouseholdIdentifiersMustBeRedacted": true,
+    "networkNamesCredentialsAddressesAndTrafficAllowed": false,
+    "skeletonAndNumericReleaseArtifactsPreferred": true,
+    "freeTextResultEvidenceAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "selected-room-survey-and-safe-zone-result",
+      "qualified-shared-camera-and-exact-target-configurations",
+      "integrated-prototype-and-external-mount-identities",
+      "numeric-role-values-and-optical-action-calibration-gates",
+      "participant-consent-assent-and-comprehension-authority",
+      "independent-optical-floor-and-action-ground-truth",
+      "mount-stability-cable-safety-usb-and-relocation-protocols",
+      "data-handling-instruments-operators-and-schedule",
+      "room-participant-camera-mounting-construction-and-purchase-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedIntegratedScreenCellCount": 0,
+    "completedExternalScreenCellCount": 0,
+    "completedBlockingCellCount": 0,
+    "completedBlockingTrialCount": 0,
+    "completedCalibrationCycleCount": 0,
+    "selectedIntegratedFixedPitchMilliDegrees": null,
+    "qualifiedExternalMountRolesByTargetTier": [],
+    "publishedSetupEnvelopeSha256": null
+  }
+}

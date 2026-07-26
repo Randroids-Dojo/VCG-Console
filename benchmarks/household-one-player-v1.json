@@ -1,0 +1,177 @@
+{
+  "format": "vcg-motion-benchmark-plan",
+  "formatVersion": 1,
+  "protocolId": "household-one-player-v1",
+  "createdAt": "2026-07-24T00:00:00.000Z",
+  "motionApiSchemaVersion": "0.4.0",
+  "containsRawFrames": false,
+  "rawVideoDefault": false,
+  "trials": [
+    {
+      "id": "rest",
+      "movement": "rest",
+      "context": "shell",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Remain visible and still in a neutral stance; emit no deliberate gesture.",
+      "expectation": { "kind": "no-trigger" }
+    },
+    {
+      "id": "stand",
+      "movement": "stand",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Stand in the calibrated neutral stance without jumping, ducking, or stepping.",
+      "expectation": { "kind": "no-trigger" }
+    },
+    {
+      "id": "join",
+      "movement": "join",
+      "context": "shell",
+      "repetitions": 20,
+      "durationMs": 2500,
+      "instruction": "From an unassigned visible candidate, bring both hands together once and hold until joined.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "player_join",
+        "window": { "earliestMs": 450, "latestMs": 2000 }
+      }
+    },
+    {
+      "id": "squat",
+      "movement": "squat",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "From neutral stance, perform one deliberate squat and return through neutral.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "duck",
+        "window": { "earliestMs": 0, "latestMs": 1500 }
+      }
+    },
+    {
+      "id": "jump",
+      "movement": "jump",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "From neutral stance, perform one jump and land before the trial ends.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "jump",
+        "window": { "earliestMs": 0, "latestMs": 1500 }
+      }
+    },
+    {
+      "id": "punch-left",
+      "movement": "punch_left",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Perform one left-arm punch and return to neutral; retain landmarks for future rule comparison.",
+      "expectation": { "kind": "landmark-only" }
+    },
+    {
+      "id": "punch-right",
+      "movement": "punch_right",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Perform one right-arm punch and return to neutral; retain landmarks for future rule comparison.",
+      "expectation": { "kind": "landmark-only" }
+    },
+    {
+      "id": "step-left",
+      "movement": "step_left",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Step once toward screen-left far enough to dodge, then return through neutral.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "dodge_left",
+        "window": { "earliestMs": 0, "latestMs": 1500 }
+      }
+    },
+    {
+      "id": "step-right",
+      "movement": "step_right",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 2000,
+      "instruction": "Step once toward screen-right far enough to dodge, then return through neutral.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "dodge_right",
+        "window": { "earliestMs": 0, "latestMs": 1500 }
+      }
+    },
+    {
+      "id": "cross-shell",
+      "movement": "cross_arms",
+      "context": "shell",
+      "repetitions": 20,
+      "durationMs": 2500,
+      "instruction": "Cross forearms into an X once and hold until shell Back triggers, then release.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "menu_back",
+        "window": { "earliestMs": 650, "latestMs": 2000 }
+      }
+    },
+    {
+      "id": "cross-game",
+      "movement": "cross_arms",
+      "context": "game",
+      "repetitions": 20,
+      "durationMs": 3000,
+      "instruction": "Cross forearms into an X once and hold until console Pause triggers, then release.",
+      "expectation": {
+        "kind": "trigger",
+        "action": "pause",
+        "window": { "earliestMs": 1100, "latestMs": 2500 }
+      }
+    },
+    {
+      "id": "occlude",
+      "movement": "occlude",
+      "context": "session",
+      "repetitions": 20,
+      "durationMs": 1500,
+      "instruction": "Occlude the joined player's required landmarks long enough to confirm tracking loss.",
+      "expectation": {
+        "kind": "session-transition",
+        "transition": "freeze",
+        "window": { "earliestMs": 300, "latestMs": 1000 }
+      }
+    },
+    {
+      "id": "exit-frame",
+      "movement": "exit_frame",
+      "context": "session",
+      "repetitions": 20,
+      "durationMs": 3500,
+      "instruction": "Leave the tracked frame and remain absent beyond the silent reacquisition window.",
+      "expectation": {
+        "kind": "session-transition",
+        "transition": "show-recovery",
+        "window": { "earliestMs": 2300, "latestMs": 3200 }
+      }
+    },
+    {
+      "id": "reenter-frame",
+      "movement": "reenter_frame",
+      "context": "session",
+      "repetitions": 20,
+      "durationMs": 2200,
+      "instruction": "After confirmed loss, return the same track before the two-second reacquisition window expires.",
+      "expectation": {
+        "kind": "session-transition",
+        "transition": "silent-recovery",
+        "window": { "earliestMs": 300, "latestMs": 2000 }
+      }
+    }
+  ]
+}

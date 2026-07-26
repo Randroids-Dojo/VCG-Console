@@ -1,0 +1,441 @@
+{
+  "format": "vcg-controller-lifecycle-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-controller-lifecycle-v1",
+  "observedAt": "2026-07-25",
+  "claimBoundary": "Pre-registered controller lifecycle, mapping, assignment, battery and reserved-action campaign only. Browser Gamepad behavior, pure policy models, Windows, WSL2, SDL database entries, USB family resemblance, one successful connection and synthetic devices do not establish physical controller compatibility, privileged Home/Back/Pause ownership, target Linux behavior or a standards-conformant compatibility claim.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "controller-protocol-boundary",
+      "path": "docs/CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md",
+      "sha256": "bc20b07bd0c69d2e518a30dcfc9694c2f7df6fee2f29b8e2ff1d7181e8da7405"
+    },
+    {
+      "role": "mapping-contract-boundary",
+      "path": "docs/CONTROLLER_MAPPING_CONTRACT.md",
+      "sha256": "7aa3e1f930fd4fa28f985643ac0ee05dbcfcaa4e5ad328048f74745577213cb6"
+    },
+    {
+      "role": "browser-adapter-boundary",
+      "path": "apps/console-lab/src/gamepad-router.ts",
+      "sha256": "20f410f2b922219814e6d7ca95014751019f591546536d6075e36235c640828f"
+    },
+    {
+      "role": "canonical-mapping-boundary",
+      "path": "packages/motion-contract/src/controller-mapping.ts",
+      "sha256": "ce76ea75ed5402dabf87e4cfff0162a0c93472f38e3a8a323c4dbb497e357505"
+    },
+    {
+      "role": "idle-wake-policy-boundary",
+      "path": "apps/console-lab/src/launcher/power-lifecycle.ts",
+      "sha256": "641f96369dbc1008520a7b6e25cfd366fe47f3e9a2d76b8bc052de5a707dc743"
+    },
+    {
+      "role": "timing-campaign-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "ordinary-x86-target-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "pi-target-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional"
+    ],
+    "windowsMayQualifyRequiredLinuxTarget": false,
+    "wsl2MayQualifyRequiredLinuxTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "browserAdapterMayQualifyNativeInput": false,
+    "policyModelMayQualifyPhysicalRouting": false
+  },
+  "targets": [
+    {
+      "targetId": "ordinary-x86-linux-premium",
+      "role": "common-premium-required",
+      "requiredForCommonComparison": true,
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "sdlBuildSha256": null,
+      "mappingDatabaseSha256": null,
+      "compositorManifestSha256": null,
+      "browserManifestSha256": null,
+      "nativeHostBuildSha256": null,
+      "retroRuntimeManifestSha256": null,
+      "sampleGameManifestSha256": null,
+      "usbRadioTopologySha256": null,
+      "harnessManifestSha256": null,
+      "clockCalibrationSha256": null,
+      "focusFaultInjectorSha256": null
+    },
+    {
+      "targetId": "pi5-hailo26-reference",
+      "role": "lower-cost-reference-required",
+      "requiredForCommonComparison": true,
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "sdlBuildSha256": null,
+      "mappingDatabaseSha256": null,
+      "compositorManifestSha256": null,
+      "browserManifestSha256": null,
+      "nativeHostBuildSha256": null,
+      "retroRuntimeManifestSha256": null,
+      "sampleGameManifestSha256": null,
+      "usbRadioTopologySha256": null,
+      "harnessManifestSha256": null,
+      "clockCalibrationSha256": null,
+      "focusFaultInjectorSha256": null
+    },
+    {
+      "targetId": "steam-machine-optional",
+      "role": "later-optional-compatibility",
+      "requiredForCommonComparison": false,
+      "hardwareManifestSha256": null,
+      "operatingSystemManifestSha256": null,
+      "sdlBuildSha256": null,
+      "mappingDatabaseSha256": null,
+      "compositorManifestSha256": null,
+      "browserManifestSha256": null,
+      "nativeHostBuildSha256": null,
+      "retroRuntimeManifestSha256": null,
+      "sampleGameManifestSha256": null,
+      "usbRadioTopologySha256": null,
+      "harnessManifestSha256": null,
+      "clockCalibrationSha256": null,
+      "focusFaultInjectorSha256": null
+    }
+  ],
+  "controllerSamplePolicy": {
+    "requiredRoles": [
+      "first-party-standard",
+      "second-vendor-standard",
+      "generic-ambiguous",
+      "simultaneous-cross-vendor-pair"
+    ],
+    "conditionalRoles": [
+      "receiver-2.4ghz-if-claimed"
+    ],
+    "exactSampleSetDecision": "Q-227",
+    "wiredAndWirelessAreSeparateConfigurations": true,
+    "materialFirmwareAndHardwareRevisionsAreSeparate": true,
+    "familyResemblanceMayEstablishSupport": false,
+    "mappingDatabaseEntryMayEstablishSupport": false,
+    "oneSuccessfulConnectionMayEstablishSupport": false,
+    "durableHardwareIdentifierMayAssignPlayer": false
+  },
+  "controllerSamples": [
+    {
+      "sampleId": "first-party-standard",
+      "role": "first-party-standard",
+      "claimCondition": "required-baseline",
+      "mappingExpectation": "trusted-standard",
+      "expectedDisposition": "must-pass",
+      "deviceManifestSha256s": [],
+      "transportModes": [],
+      "physicalSampleCount": null,
+      "mappingManifestSha256": null
+    },
+    {
+      "sampleId": "second-vendor-standard",
+      "role": "second-vendor-standard",
+      "claimCondition": "required-baseline",
+      "mappingExpectation": "trusted-standard",
+      "expectedDisposition": "must-pass",
+      "deviceManifestSha256s": [],
+      "transportModes": [],
+      "physicalSampleCount": null,
+      "mappingManifestSha256": null
+    },
+    {
+      "sampleId": "receiver-2.4ghz-if-claimed",
+      "role": "receiver-2.4ghz-if-claimed",
+      "claimCondition": "required-only-if-2.4ghz-support-is-claimed",
+      "mappingExpectation": "trusted-or-explicitly-unsupported",
+      "expectedDisposition": "must-pass-if-claimed-otherwise-visible-unsupported",
+      "deviceManifestSha256s": [],
+      "transportModes": [],
+      "physicalSampleCount": null,
+      "mappingManifestSha256": null
+    },
+    {
+      "sampleId": "generic-ambiguous",
+      "role": "generic-ambiguous",
+      "claimCondition": "required-fail-closed-baseline",
+      "mappingExpectation": "ambiguous-zero-semantic-authority",
+      "expectedDisposition": "must-fail-closed-or-pass-approved-guided-mapping",
+      "deviceManifestSha256s": [],
+      "transportModes": [],
+      "physicalSampleCount": null,
+      "mappingManifestSha256": null
+    },
+    {
+      "sampleId": "simultaneous-cross-vendor-pair",
+      "role": "simultaneous-cross-vendor-pair",
+      "claimCondition": "required-baseline",
+      "mappingExpectation": "two-distinct-trusted-standard-devices",
+      "expectedDisposition": "must-pass",
+      "deviceManifestSha256s": [],
+      "transportModes": [],
+      "physicalSampleCount": null,
+      "mappingManifestSha256": null
+    }
+  ],
+  "scenarioGroups": [
+    {
+      "groupId": "discovery-and-hotplug",
+      "applicableRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "receiver-2.4ghz-if-claimed",
+        "generic-ambiguous",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "scenarioIds": [
+        "attached-before-cold-boot",
+        "attach-at-launcher-idle",
+        "attach-during-hosted-loading",
+        "attach-during-native-loading",
+        "attach-during-retro-loading",
+        "attach-with-console-overlay-open",
+        "reconcile-connection-without-backend-event"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "disconnect-reconnect-and-replacement",
+      "applicableRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "receiver-2.4ghz-if-claimed",
+        "generic-ambiguous",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "scenarioIds": [
+        "disconnect-while-neutral",
+        "disconnect-each-canonical-action-held",
+        "same-device-reconnect-same-slot",
+        "same-device-reconnect-different-slot",
+        "different-device-replaces-old-slot",
+        "receiver-present-controller-sleep-wake",
+        "backend-restart-while-control-held"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "sleep-suspend-wake-and-radio",
+      "applicableRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "receiver-2.4ghz-if-claimed",
+        "generic-ambiguous",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "scenarioIds": [
+        "controller-sleep-and-wake",
+        "console-suspend-and-resume",
+        "launcher-idle-and-wake",
+        "bluetooth-service-restart",
+        "usb-reset",
+        "radio-coexistence-load"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "simultaneous-devices-and-assignment",
+      "applicableRoles": [
+        "simultaneous-cross-vendor-pair"
+      ],
+      "scenarioIds": [
+        "two-devices-attached-before-boot",
+        "two-devices-attached-in-both-orders",
+        "simultaneous-button-completion",
+        "either-device-disconnect-reconnect",
+        "replacement-in-one-slot",
+        "player-assignment-correction-and-reassignment",
+        "ambiguous-device-beside-standard-device",
+        "pause-from-one-while-other-holds-gameplay"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "ambiguous-mapping",
+      "applicableRoles": [
+        "generic-ambiguous"
+      ],
+      "scenarioIds": [
+        "initial-zero-semantic-authority",
+        "home-back-pause-not-guessed",
+        "visible-unsupported-explanation",
+        "guided-mapping-reserves-console-actions",
+        "conflicting-duplicate-incomplete-mapping-denied",
+        "cancelled-stale-or-replaced-mapping-denied",
+        "generic-glyphs-without-branded-invention"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "reserved-actions-under-hostile-focus",
+      "applicableRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "receiver-2.4ghz-if-claimed",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "scenarioIds": [
+        "pointer-lock-and-fullscreen",
+        "focused-and-unfocused-windows",
+        "hung-renderer-and-busy-system",
+        "rapid-overlay-open-close",
+        "game-crash-and-descendant-survival-attempt",
+        "high-rate-ordinary-input",
+        "game-read-or-suppress-reserved-actions",
+        "compositor-and-service-restart"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    },
+    {
+      "groupId": "battery-and-power-reporting",
+      "applicableRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "receiver-2.4ghz-if-claimed",
+        "generic-ambiguous"
+      ],
+      "scenarioIds": [
+        "battery-charging",
+        "battery-full",
+        "battery-medium",
+        "battery-low",
+        "battery-critical",
+        "battery-unavailable",
+        "battery-stale",
+        "battery-disconnect-and-replacement"
+      ],
+      "requiredValidCyclesPerApplicableCell": 20
+    }
+  ],
+  "runProtocol": {
+    "declaredScenarioCount": 51,
+    "minimumValidCyclesPerApplicableCell": 20,
+    "requiredCellCount": null,
+    "requiredScheduledValidCycles": null,
+    "invalidHarnessCycleCountsAsPass": false,
+    "invalidHarnessCycleMustBeRerun": true,
+    "failedProductCycleMayBeReplaced": false,
+    "allAttemptsFailuresInvalidsAndRetriesPublished": true,
+    "oneTransportModeMayRescueAnother": false,
+    "oneFirmwareOrRevisionMayRescueAnother": false,
+    "oneTargetMayRescueAnother": false,
+    "applicabilityMatrixSha256": null,
+    "cycleScheduleSha256": null,
+    "operatorProtocolSha256": null,
+    "eventLedgerSchemaSha256": null,
+    "instrumentCalibrationSha256": null
+  },
+  "requiredMetrics": [
+    "connection and disconnection event count, ordering, source and monotonic timestamps",
+    "opaque session-local controller identity and connection-epoch transitions",
+    "detection, reconnect and first-usable-input latency distributions",
+    "every canonical press and release edge plus exact recipient",
+    "player assignment before and after every lifecycle transition",
+    "mapping confidence, mapping revision and zero-authority ambiguous state",
+    "held actions before fault and synthesized releases to the original recipient",
+    "console Home, Back and Pause delivery plus proof of zero game delivery",
+    "battery state, source, freshness, units and explicit unavailable or stale disposition",
+    "controller-only recovery path and any keyboard, mouse or operator intervention",
+    "harness validity, closed failure code and every retry without deleting the original attempt",
+    "exact target, SDL, mapping database, compositor, runtime, device, transport, firmware, harness, schedule and evidence digests"
+  ],
+  "acceptance": {
+    "minimumValidCyclesPerApplicableCell": 20,
+    "maximumLifecycleTransitionFailures": 0,
+    "maximumStuckOrFabricatedActions": 0,
+    "maximumReservedActionsDeliveredToGame": 0,
+    "maximumSwallowedReservedActions": 0,
+    "maximumAmbiguousSemanticActionsBeforeApprovedMapping": 0,
+    "maximumWrongOrSilentPlayerAssignments": 0,
+    "maximumOldEpochActions": 0,
+    "maximumFalseBatteryClaims": 0,
+    "maximumKeyboardOrMouseRecoveriesInClaimedControllerOnlyPath": 0,
+    "maximumDetectionP95Ms": null,
+    "maximumReconnectP95Ms": null,
+    "maximumReservedActionP95Ms": null,
+    "maximumReservedActionP99Ms": null,
+    "maximumReservedActionWorstMs": null,
+    "maximumBatteryFreshnessMs": null,
+    "minimumPhysicalSamplesPerModelRevision": null,
+    "everyApplicableCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "unsupportedOrAmbiguousStateMayCountAsCompatibility": false,
+    "browserOrSyntheticEvidenceMayQualifyPhysicalDevice": false,
+    "gameFocusMayOwnHomeBackOrPause": false,
+    "batteryStateMayBeInferred": false,
+    "durableDeviceIdentityMayAssignPlayer": false
+  },
+  "dataPolicy": {
+    "rawUsbOrBluetoothDescriptorsAuthorized": false,
+    "serialNumbersAuthorized": false,
+    "macAddressesAuthorized": false,
+    "usernamesAuthorized": false,
+    "filesystemPathsAuthorized": false,
+    "freeTextDeviceNamesAuthorized": false,
+    "unplannedRawControllerInputAuthorized": false,
+    "gameplaySaveOrProfileContentAuthorized": false,
+    "stableDeviceIdentifiersAllowedInTrackedLedger": false,
+    "opaqueSessionLocalIdentifiersAllowed": true,
+    "closedEventCodesAllowed": true,
+    "exactManifestDigestsAllowed": true
+  },
+  "authority": {
+    "readOnlyRepositoryPlanningAuthorized": true,
+    "targetHardwareAccessAuthorized": false,
+    "controllerLoanAuthorized": false,
+    "controllerPurchaseAuthorized": false,
+    "physicalControllerExecutionAuthorized": false,
+    "bluetoothOrUsbServiceFaultAuthorized": false,
+    "compositorOrProcessFaultAuthorized": false,
+    "mappingPersistenceMutationAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "diagnosticRetentionAuthorized": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "exact-controller-sample-set-loan-and-purchase-authority-q227",
+      "guided-ambiguous-mapping-scope-q228",
+      "player-assignment-and-reassignment-ceremony-q229",
+      "reserved-action-response-budgets-q230",
+      "battery-support-sources-and-freshness-q231",
+      "campaign-repetitions-and-compatibility-claim-q232",
+      "exact-required-target-sdl-mapping-compositor-runtime-and-topology-tuples",
+      "physical-device-target-and-fault-execution-authority",
+      "privileged-compositor-owned-home-back-and-pause-routing",
+      "controller-roster-assignment-guided-mapping-glyph-and-battery-ui",
+      "applicability-matrix-schedule-harness-oracles-and-ledger-schema",
+      "complete-cycle-ledger-and-per-target-compatibility-report"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "requiredCellCount": null,
+    "scheduledValidCycles": null,
+    "completedValidCycles": 0,
+    "passedRequiredCells": [],
+    "qualifiedTargetControllerConfigurations": [],
+    "compatibilityClaimAuthorized": false
+  }
+}

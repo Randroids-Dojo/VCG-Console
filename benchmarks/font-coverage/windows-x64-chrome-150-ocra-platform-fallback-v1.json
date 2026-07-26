@@ -1,0 +1,146 @@
+{
+  "format": "vcg-ocra-platform-fallback-observation/v1",
+  "evidenceDate": "2026-07-25",
+  "environment": {
+    "platform": "windows-x64",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "node": "v24.18.0",
+    "headless": true,
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "baseStructuralEvidence": {
+    "path": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
+    "format": "vcg-ocra-font-structural-evidence/v1",
+    "fontPath": "apps/console-lab/public/fonts/OCRA.ttf",
+    "fontBytes": 24316,
+    "fontSha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
+    "productionSourceNonAsciiCodePointCount": 1,
+    "productionSourceNonAsciiMissingCount": 0
+  },
+  "probe": {
+    "cssFontFamily": "OCRA, ui-monospace, SFMono-Regular, monospace",
+    "cssFontSizePx": 88,
+    "observationCount": 2,
+    "observations": [
+      {
+        "id": "ascii-a",
+        "codePoint": "U+0041",
+        "character": "A",
+        "role": "OCR-A baseline",
+        "fonts": [
+          {
+            "familyName": "OCRA",
+            "postScriptName": "OCRA",
+            "customFont": true,
+            "glyphCount": 1
+          }
+        ]
+      },
+      {
+        "id": "middle-dot",
+        "codePoint": "U+00B7",
+        "character": "·",
+        "role": "covered separator",
+        "fonts": [
+          {
+            "familyName": "OCRA",
+            "postScriptName": "OCRA",
+            "customFont": true,
+            "glyphCount": 1
+          }
+        ]
+      }
+    ],
+    "overflowCssPx": {
+      "horizontal": 0,
+      "vertical": 0
+    }
+  },
+  "browser": {
+    "documentReadyState": "complete",
+    "pageErrorCount": 0,
+    "requestFailureCount": 0,
+    "consoleErrors": [],
+    "requestCounts": {
+      "/": 1,
+      "/assets/main-C_K2RnSa.js": 1,
+      "/assets/main-CDT6K0sT.css": 1,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
+      "/assets/src-EbToTsJV.js": 1,
+      "/assets/synthetic-BTWSnpMo.js": 1,
+      "/assets/tracker-health--oynSZbv.js": 1,
+      "/fonts/OCRA.ttf": 1
+    }
+  },
+  "screenshot": {
+    "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
+    "bytes": 37017,
+    "sha256": "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458"
+  },
+  "summary": {
+    "probeCodePointCount": 2,
+    "customFontObservationCount": 2,
+    "platformFallbackObservationCount": 0,
+    "distinctFamilyNames": [
+      "OCRA"
+    ],
+    "distinctPostScriptNames": [
+      "OCRA"
+    ]
+  },
+  "provenance": {
+    "stylePath": "apps/console-lab/src/styles.css",
+    "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
+    "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
+    "baseEvidencePathSha256": "1e633ba7df8cd9084bc78d4672f9518db60051be8e67f1e23d44e60d2b465193",
+    "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
+    "generatorPathSha256": "445ddd85e2b3715c9d25d922b5b99dbc1c45c0a479d0ac8235685368f7e01eeb",
+    "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
+    "validatorPathSha256": "6bf3170c3912b7b8563756e3292f885e3284e69b22c02603ee4350d93d019a63",
+    "baseEvidenceBytes": 40134,
+    "baseEvidenceSha256": "1e633ba7df8cd9084bc78d4672f9518db60051be8e67f1e23d44e60d2b465193",
+    "productionSourceTree": {
+      "roots": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "apps/console-lab/package.json",
+        "apps/console-lab/index.html",
+        "apps/console-lab/vite.config.ts",
+        "apps/console-lab/src",
+        "packages/game-manifest/src",
+        "packages/launcher-catalog/src",
+        "packages/motion-contract/src",
+        "packages/motion-web-bridge/src",
+        "packages/retro-firmware-contract/src",
+        "packages/retro-import-contract/src"
+      ],
+      "fileCount": 135,
+      "sha256": "c2e04fc174e41afdf885dec6662ed1fa2c4b7aa99f2f131a52bbefe729e381f9"
+    }
+  },
+  "disposition": {
+    "exactWindowsChromeObservationVerified": true,
+    "productionCssStackUsed": true,
+    "diagnosticGridOnly": true,
+    "deterministicCrossPlatformFallbackVerified": false,
+    "fallbackSelected": false,
+    "glyphShapesVerified": false,
+    "tvLegibilityVerified": false,
+    "localizationQualified": false,
+    "accessibilityQualified": false,
+    "redistributionApproved": false,
+    "productionReady": false
+  },
+  "claimBoundary": "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.",
+  "limitations": [
+    "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
+    "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
+    "The observation covers one installed Chrome version and one Windows x64 font environment. OS updates, installed-font changes, browser engines, target Linux images, and compositor stacks may choose different fallback fonts.",
+    "The zero-fallback result is limited to current static production-source characters; deterministic coverage for user-authored text and future localization remains an explicit owner/release decision."
+  ]
+}

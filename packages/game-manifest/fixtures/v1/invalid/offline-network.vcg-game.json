@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-offline-network",
+  "version": "1.0.0",
+  "title": "Offline Network Fixture",
+  "publisher": "VCG Fixtures",
+  "runtime": "local-web",
+  "entrypoint": "index.html",
+  "architectures": ["web"],
+  "permissions": ["gamepad", "network"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "explicit-ready"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "owner-confirmed"
+  },
+  "notes": []
+}

@@ -1,0 +1,264 @@
+{
+  "format": "vcg-capture-inference-mode-qualification-plan/v1",
+  "campaignId": "shared-camera-capture-inference-mode-v1",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "motionApiVersion": "0.4.0",
+  "qualification": "blocked-zero-result-plan",
+  "sourceBindings": [
+    {
+      "path": "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json",
+      "sha256": "27fb5959a85125008634c94d503ba690e0bab5a3f6fff84f6ade6619c09f8db0"
+    },
+    {
+      "path": "scripts/validate-camera-capture-policy-campaign.mjs",
+      "sha256": "6bda43396cb0c01582d9f9ce23bc90a557d31f78eab06a839c902a74bc7437d4"
+    },
+    {
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
+    },
+    {
+      "path": "apps/console-lab/src/tracker.ts",
+      "sha256": "734520c35cfdeda857bc0629d6deb1fcc12ac37d26bef60f377c9900f56505a6"
+    },
+    {
+      "path": "apps/console-lab/src/tracker-worker.ts",
+      "sha256": "bb37c2c64292f80b7f791715884323648e2dabb857fe2dca4cb78861890a0085"
+    },
+    {
+      "path": "packages/motion-contract/src/index.ts",
+      "sha256": "7abcc0955fa7b132c4e35dd3d0d2f92ee60b519baedc6fc5ce81f977fff656d2"
+    },
+    {
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    }
+  ],
+  "executionGate": {
+    "status": "blocked",
+    "targetId": null,
+    "operatingSystemImageSha256": null,
+    "cameraId": null,
+    "cameraDeviceSha256": null,
+    "cameraQualificationResultSha256": null,
+    "capturePolicyResultSha256": null,
+    "trackerBundleSha256": null,
+    "roomAndPlacementProtocolSha256": null,
+    "participantProtocolSha256": null,
+    "exposureTimestampAuthority": null,
+    "exposureTimestampProofSha256": null,
+    "clockMappingProofSha256": null,
+    "groundTruthProtocolSha256": null,
+    "counterbalancedScheduleSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "blockerCodes": [
+      "acceptance-gates",
+      "camera-qualification",
+      "capture-policy-result",
+      "counterbalanced-schedule",
+      "data-handling-authority",
+      "exposure-timestamp-authority",
+      "ground-truth-protocol",
+      "inference-downscale-selection",
+      "participant-consent",
+      "room-placement-binding",
+      "selection-policy",
+      "target-runtime-binding"
+    ]
+  },
+  "modes": [
+    {
+      "id": "capture-1080p60-downscaled-inference",
+      "role": "primary-candidate",
+      "capture": {
+        "width": 1920,
+        "height": 1080,
+        "framesPerSecondNumerator": 60,
+        "framesPerSecondDenominator": 1,
+        "pixelFormat": null,
+        "controlPresetId": null
+      },
+      "inference": {
+        "strategy": "downscaled-from-capture",
+        "width": null,
+        "height": null,
+        "maximumFramesPerSecondNumerator": 60,
+        "maximumFramesPerSecondDenominator": 1,
+        "independentResizeCostRequired": true
+      },
+      "requiredExecution": true
+    },
+    {
+      "id": "capture-720p60-direct-inference",
+      "role": "primary-candidate",
+      "capture": {
+        "width": 1280,
+        "height": 720,
+        "framesPerSecondNumerator": 60,
+        "framesPerSecondDenominator": 1,
+        "pixelFormat": null,
+        "controlPresetId": null
+      },
+      "inference": {
+        "strategy": "direct-capture-resolution",
+        "width": 1280,
+        "height": 720,
+        "maximumFramesPerSecondNumerator": 60,
+        "maximumFramesPerSecondDenominator": 1,
+        "independentResizeCostRequired": false
+      },
+      "requiredExecution": true
+    },
+    {
+      "id": "capture-1080p30-downscaled-inference",
+      "role": "fallback-candidate",
+      "capture": {
+        "width": 1920,
+        "height": 1080,
+        "framesPerSecondNumerator": 30,
+        "framesPerSecondDenominator": 1,
+        "pixelFormat": null,
+        "controlPresetId": null
+      },
+      "inference": {
+        "strategy": "downscaled-from-capture",
+        "width": null,
+        "height": null,
+        "maximumFramesPerSecondNumerator": 30,
+        "maximumFramesPerSecondDenominator": 1,
+        "independentResizeCostRequired": true
+      },
+      "requiredExecution": true
+    },
+    {
+      "id": "capture-720p30-direct-inference",
+      "role": "fallback-candidate",
+      "capture": {
+        "width": 1280,
+        "height": 720,
+        "framesPerSecondNumerator": 30,
+        "framesPerSecondDenominator": 1,
+        "pixelFormat": null,
+        "controlPresetId": null
+      },
+      "inference": {
+        "strategy": "direct-capture-resolution",
+        "width": 1280,
+        "height": 720,
+        "maximumFramesPerSecondNumerator": 30,
+        "maximumFramesPerSecondDenominator": 1,
+        "independentResizeCostRequired": false
+      },
+      "requiredExecution": true
+    }
+  ],
+  "comparisonDesign": {
+    "sameSessionRequired": true,
+    "rawFrameReplayAllowed": false,
+    "oneCameraStreamAtATime": true,
+    "counterbalancedOrderRequired": true,
+    "pairedPersonaMovementScriptRequired": true,
+    "identicalRoomPlacementLightingRequired": true,
+    "exactTrackerAndActionRulesRequired": true,
+    "warmupAttemptsPerMode": null,
+    "interleaveBlockSize": null,
+    "measuredAttemptsPerActionPerCell": 20,
+    "negativeWindowDurationMsPerModeCell": 900000,
+    "blockingPersonaClasses": [
+      "adult-standing",
+      "school-age-child-standing"
+    ],
+    "placementIds": null,
+    "lightingConditionIds": null,
+    "actions": [
+      "player_join",
+      "jump",
+      "duck",
+      "dodge_left",
+      "dodge_right",
+      "menu_swipe_left",
+      "menu_swipe_right",
+      "menu_select",
+      "menu_back",
+      "pause"
+    ],
+    "privilegedActionIds": [
+      "menu_back",
+      "pause",
+      "home",
+      "resume",
+      "exit"
+    ],
+    "scheduledCellCount": null,
+    "scheduledActionAttemptCount": null
+  },
+  "measurements": {
+    "latencyStart": "trustworthy-camera-exposure",
+    "latencyEnd": "recognized-action-receipt-at-game-api",
+    "captureArrivalMaySubstitute": false,
+    "inferenceOnlyMaySubstitute": false,
+    "requiredMetrics": [
+      "action-precision",
+      "action-recall",
+      "capture-frames-per-second",
+      "dropped-frames",
+      "exposure-time-microseconds",
+      "exposure-to-game-api-latency",
+      "inference-frames-per-second",
+      "latency-p50-p95-p99-worst",
+      "pipeline-stage-timing",
+      "system-cpu",
+      "system-ram",
+      "usb-bandwidth"
+    ],
+    "perModePerCellRequired": true,
+    "attemptLevelPublicationRequired": true,
+    "failuresAndRetriesPublished": true,
+    "droppedAttemptsMayBeDiscarded": false,
+    "groundTruthIndependentOfCandidateOutput": true,
+    "aggregateMayRescueFailedModeOrCell": false,
+    "resourceSamplingIntervalMs": null
+  },
+  "acceptance": {
+    "maximumP95ExposureToGameApiMs": 120,
+    "minimumActionPrecision": 0.95,
+    "minimumActionRecall": 0.9,
+    "maximumUnintendedPrivilegedActions": 0,
+    "minimumCaptureFramesPerSecondMilliHz": null,
+    "maximumDroppedFrameRate": null,
+    "maximumP99ExposureToGameApiMs": null,
+    "maximumWorstExposureToGameApiMs": null,
+    "minimumInferenceFramesPerSecondMilliHz": null,
+    "maximumUsbBytesPerSecond": null,
+    "maximumCpuPermille": null,
+    "maximumRamBytes": null,
+    "maximumP95ExposureTimeUs": null,
+    "selectionPolicy": null
+  },
+  "dataPolicy": {
+    "temporaryFrameAnalysisAuthorized": false,
+    "rawFrameRetentionAllowed": false,
+    "rawFrameNetworkEgressAllowed": false,
+    "rawFrameReplayAllowed": false,
+    "skeletonOnlyTraceRequired": true,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "dataHandlingAuthoritySha256": null
+  },
+  "resultBoundary": {
+    "resultArtifactSha256": null,
+    "qualifiedModeIds": [],
+    "selectedModeId": null,
+    "productDefaultChanged": false,
+    "executionAuthorized": false,
+    "purchaseAuthorized": false
+  },
+  "claimBoundary": "This file pre-registers a blocked I-178 capture and inference mode comparison only. It authorizes no camera, target, participant, room capture, temporary frame analysis, product default, purchase, execution, qualification, or selection and records no physical result.",
+  "limitations": [
+    "The exact target, operating-system image, camera, camera qualification, capture-policy result, tracker bundle, room, placements, lighting conditions, participants, clocks, ground truth, counterbalanced schedule, and data handling authority are unresolved.",
+    "The downscaled inference dimensions, camera pixel formats, capture-control preset identities, warmup count, interleave block size, and resource sampling interval are unresolved.",
+    "Capture-arrival, browser callback, inference-only, animation, and display timestamps cannot prove the 120 millisecond exposure-to-game-API gate.",
+    "Every open performance, resource, exposure, tail-latency, and selection gate is null, so no mode is runnable, qualified, preferred, or selected.",
+    "No frame, participant, camera, room, action, timing, drop, resource, target, qualification, selection, purchase, or product-default result is recorded."
+  ]
+}

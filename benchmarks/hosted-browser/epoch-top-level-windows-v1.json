@@ -1,0 +1,75 @@
+{
+  "format": "vcg-epoch-top-level-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "live-windows-x64-supervised-top-level-load",
+  "qualification": "top-level-load-only-not-playability",
+  "retrievedAtUtc": "2026-07-24T21:33:46.179Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "browserVersion": "Chrome/150.0.7871.182"
+  },
+  "response": {
+    "status": 200,
+    "finalUrl": "https://epoch-theta.vercel.app/",
+    "contentType": "text/html; charset=utf-8",
+    "contentSecurityPolicy": "frame-ancestors 'self' https://randroid.dev https://www.randroid.dev",
+    "xFrameOptions": "ALLOW-FROM https://randroid.dev",
+    "consoleOriginFramingAllowed": false
+  },
+  "launchPolicy": {
+    "schemaVersion": 1,
+    "gameId": "epoch",
+    "entrypoint": "https://epoch-theta.vercel.app/",
+    "allowedOrigins": [
+      "https://epoch-theta.vercel.app"
+    ],
+    "healthCheckUrl": "https://epoch-theta.vercel.app/",
+    "launchTimeoutMs": 15000
+  },
+  "probe": {
+    "loaded": true,
+    "finalUrl": "https://epoch-theta.vercel.app/",
+    "title": "Epoch",
+    "readyState": "complete",
+    "browserProduct": "Chrome/150.0.7871.182",
+    "exitCode": 0,
+    "signal": null,
+    "profileCreated": true,
+    "profileRemoved": true
+  },
+  "disposition": {
+    "consoleOriginFramingSupported": false,
+    "supervisedTopLevelLoadVerified": true,
+    "embeddingRequired": false,
+    "headerChangeRequiredForTopLevel": false,
+    "catalogPlayabilityVerified": false,
+    "controllerExitVerified": false,
+    "reservedHomeBackVerified": false
+  },
+  "summary": {
+    "httpSuccessCount": 1,
+    "topLevelLoadCount": 1,
+    "policyViolationCount": 0,
+    "playTestCount": 0,
+    "controllerTestCount": 0,
+    "participantCount": 0
+  },
+  "provenance": {
+    "supervisorPath": "scripts/hosted-browser-supervisor.ts",
+    "supervisorPathSha256": "e006feb2ae8c29902964de6a9285fb9fdf7472efdbdac781fd956a0e37b8394a",
+    "generatorPath": "scripts/generate-epoch-top-level-evidence.mjs",
+    "generatorPathSha256": "9af4c0c92b662a1366233ab75df8015be3b8dee822d215febc27c3018c9eac70",
+    "validatorPath": "scripts/validate-epoch-top-level-evidence.mjs",
+    "validatorPathSha256": "5c6f2d153ff09372725c4731c430338f2460cb06f908dc1f76920c790c518c3c"
+  },
+  "claimBoundary": "One live Windows x64 Chrome desk observation proves that Epoch returned the reviewed restrictive framing headers yet loaded as the sole supervised top-level page under its exact HTTPS origin, then Chrome exited cleanly and the ephemeral profile was removed. It does not prove gameplay readiness, controller input, audio, fullscreen, storage, network degradation, Home/Back recovery, target Linux behavior, or catalog qualification.",
+  "limitations": [
+    "The response still excludes every VCG console origin from frame-ancestors; this evidence uses top-level navigation and does not authorize embedding.",
+    "Page load and document.readyState complete are not explicit in-game readiness or playability.",
+    "No controller, recovery remote, keyboard-free exit, audio, fullscreen, storage, service worker, login, offline, or network-loss behavior was tested.",
+    "The run used one Windows x64 development host and installed Chrome, not either selected Linux appliance or its compositor/service manager.",
+    "The probe collected only URL, title, ready state, exit result, and profile removal; it did not inspect or retain game content, player data, or credentials."
+  ]
+}

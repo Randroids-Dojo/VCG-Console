@@ -15,6 +15,13 @@ use crate::process::LaunchSpec;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ExpectedSha256([u8; 32]);
 
+impl ExpectedSha256 {
+    #[must_use]
+    pub(crate) fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
 impl fmt::Display for ExpectedSha256 {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
@@ -75,8 +82,26 @@ pub struct RetroArchRequest {
     pub content: Option<PathBuf>,
     pub content_sha256: Option<ExpectedSha256>,
     pub base_config: PathBuf,
+    pub base_config_sha256: ExpectedSha256,
+    pub auxiliary: Vec<RetroArchAuxiliaryArtifact>,
     pub profile_id: String,
     pub game_id: String,
+}
+
+/// One additional frontend runtime file bound by the signed installed catalog.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroArchAuxiliaryArtifact {
+    pub path: PathBuf,
+    pub sha256: ExpectedSha256,
+    /// Development-channel filename required by the upstream Windows loader.
+    pub runtime_name: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct MaterializedArtifact {
+    source: PathBuf,
+    destination: PathBuf,
+    sha256: ExpectedSha256,
 }
 
 /// Console-owned storage assigned to one profile and one retro title.
@@ -95,13 +120,85 @@ pub struct RetroArchStorage {
     pub core_options: PathBuf,
 }
 
+/// Access granted to one exact host path by a future sandbox adapter.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RetroSandboxAccess {
+    ReadOnly,
+    ReadWrite,
+}
+
+/// One exact file or directory selected by the host for sandbox exposure.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroSandboxMount {
+    pub path: PathBuf,
+    pub access: RetroSandboxAccess,
+}
+
+/// One device or ambient authority considered by the sandbox policy.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum RetroSandboxCapability {
+    Display,
+    Audio,
+    Gamepad,
+    Network,
+    Camera,
+    Microphone,
+    RawInput,
+    SourceMedia,
+    Desktop,
+}
+
+/// Device and ambient authority intended for a future enforcing adapter.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroSandboxCapabilities {
+    allowed: Vec<RetroSandboxCapability>,
+    denied: Vec<RetroSandboxCapability>,
+}
+
+impl RetroSandboxCapabilities {
+    #[must_use]
+    pub fn allowed(&self) -> &[RetroSandboxCapability] {
+        &self.allowed
+    }
+
+    #[must_use]
+    pub fn denied(&self) -> &[RetroSandboxCapability] {
+        &self.denied
+    }
+}
+
+/// Host-derived least-privilege intent for one `RetroArch` launch.
+///
+/// This is a reviewable plan, not enforcement. A qualified Linux adapter must
+/// translate it into namespaces/mounts/device mediation and fail closed when
+/// any requested boundary cannot be applied.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RetroSandboxPlan {
+    mounts: Vec<RetroSandboxMount>,
+    capabilities: RetroSandboxCapabilities,
+}
+
+impl RetroSandboxPlan {
+    #[must_use]
+    pub fn mounts(&self) -> &[RetroSandboxMount] {
+        &self.mounts
+    }
+
+    #[must_use]
+    pub fn capabilities(&self) -> &RetroSandboxCapabilities {
+        &self.capabilities
+    }
+}
+
 /// Fully validated direct process invocation plus its generated configuration.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RetroArchPlan {
     launch: LaunchSpec,
     storage: RetroArchStorage,
+    sandbox: RetroSandboxPlan,
     generated_config: String,
     contentless: bool,
+    materialized_artifacts: Vec<MaterializedArtifact>,
 }
 
 impl RetroArchPlan {
@@ -113,6 +210,11 @@ impl RetroArchPlan {
     #[must_use]
     pub fn storage(&self) -> &RetroArchStorage {
         &self.storage
+    }
+
+    #[must_use]
+    pub fn sandbox(&self) -> &RetroSandboxPlan {
+        &self.sandbox
     }
 
     #[must_use]
@@ -150,6 +252,9 @@ impl RetroArchPlan {
             core_options_parent,
         ] {
             create_private_directory(directory)?;
+        }
+        for artifact in &self.materialized_artifacts {
+            materialize_verified_artifact(artifact)?;
         }
 
         let temporary = self
@@ -193,6 +298,54 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         canonical_package_file("base configuration", &request.base_config, &install_root)?;
     verify_file_hash("frontend", &frontend, &request.frontend_sha256)?;
     verify_file_hash("core", &core, &request.core_sha256)?;
+    verify_file_hash(
+        "base configuration",
+        &base_config,
+        &request.base_config_sha256,
+    )?;
+    let mut auxiliary = Vec::with_capacity(request.auxiliary.len());
+    let frontend_runtime = request
+        .runtime_root
+        .join("retroarch")
+        .join(&request.profile_id)
+        .join(&request.game_id)
+        .join("frontend");
+    let frontend_name = frontend
+        .file_name()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(frontend.clone()))?;
+    let materialized_frontend = frontend_runtime.join(frontend_name);
+    let mut materialized_artifacts = vec![MaterializedArtifact {
+        source: frontend.clone(),
+        destination: materialized_frontend.clone(),
+        sha256: request.frontend_sha256,
+    }];
+    let mut runtime_names =
+        std::collections::HashSet::from([frontend_name.to_string_lossy().to_ascii_lowercase()]);
+    for artifact in &request.auxiliary {
+        let path =
+            canonical_package_file("frontend auxiliary artifact", &artifact.path, &install_root)?;
+        verify_file_hash("frontend auxiliary artifact", &path, &artifact.sha256)?;
+        let runtime_name = artifact.runtime_name.as_deref().map_or_else(
+            || {
+                path.file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.clone()))
+            },
+            |name| {
+                validate_runtime_name(name)?;
+                Ok(name.to_owned())
+            },
+        )?;
+        if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
+            return Err(RetroArchError::DuplicateRuntimeArtifact(runtime_name));
+        }
+        materialized_artifacts.push(MaterializedArtifact {
+            source: path.clone(),
+            destination: frontend_runtime.join(runtime_name),
+            sha256: artifact.sha256,
+        });
+        auxiliary.push(path);
+    }
     let content = match (
         &request.content,
         &request.content_root,
@@ -237,7 +390,16 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
     for path in storage_paths(&storage) {
         validate_config_path(path)?;
     }
+    let sandbox = sandbox_plan(
+        &frontend,
+        &core,
+        &base_config,
+        &auxiliary,
+        content.as_deref(),
+        &storage,
+    )?;
 
+    let contentless = content.is_none();
     let generated_config = render_config(&storage);
     let mut arguments = vec![
         OsString::from("--config"),
@@ -248,7 +410,6 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         OsString::from("-L"),
         core.into_os_string(),
     ];
-    let contentless = content.is_none();
     if let Some(content) = content {
         arguments.push(content.into_os_string());
     } else {
@@ -257,7 +418,7 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         arguments.push(OsString::from("--menu"));
     }
 
-    let launch = LaunchSpec::new(frontend)
+    let launch = LaunchSpec::new(materialized_frontend)
         .map_err(|error| RetroArchError::LaunchPlan(error.to_string()))?
         .args(arguments)
         .current_dir(&session)
@@ -269,9 +430,171 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
     Ok(RetroArchPlan {
         launch,
         storage,
+        sandbox,
         generated_config,
         contentless,
+        materialized_artifacts,
     })
+}
+
+fn validate_runtime_name(name: &str) -> Result<(), RetroArchError> {
+    let valid = !name.is_empty()
+        && name.len() <= 128
+        && !name.ends_with(['.', ' '])
+        && name != "."
+        && name != ".."
+        && name
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-' | b'+'));
+    if valid {
+        Ok(())
+    } else {
+        Err(RetroArchError::UnsafeRuntimeName(name.to_owned()))
+    }
+}
+
+fn materialize_verified_artifact(artifact: &MaterializedArtifact) -> Result<(), RetroArchError> {
+    verify_file_hash(
+        "runtime source artifact",
+        &artifact.source,
+        &artifact.sha256,
+    )?;
+    let parent = artifact
+        .destination
+        .parent()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(artifact.destination.clone()))?;
+    create_private_directory(parent)?;
+    let temporary = artifact
+        .destination
+        .with_extension(format!("vcg-tmp-{}", std::process::id()));
+    if temporary.exists() {
+        fs::remove_file(&temporary).map_err(|source| RetroArchError::Io {
+            operation: "remove stale runtime artifact temporary",
+            path: temporary.clone(),
+            source,
+        })?;
+    }
+    fs::copy(&artifact.source, &temporary).map_err(|source| RetroArchError::Io {
+        operation: "materialize verified runtime artifact",
+        path: temporary.clone(),
+        source,
+    })?;
+    verify_file_hash(
+        "materialized runtime artifact",
+        &temporary,
+        &artifact.sha256,
+    )?;
+    if artifact.destination.exists() {
+        fs::remove_file(&artifact.destination).map_err(|source| RetroArchError::Io {
+            operation: "replace materialized runtime artifact",
+            path: artifact.destination.clone(),
+            source,
+        })?;
+    }
+    fs::rename(&temporary, &artifact.destination).map_err(|source| RetroArchError::Io {
+        operation: "publish materialized runtime artifact",
+        path: artifact.destination.clone(),
+        source,
+    })?;
+    Ok(())
+}
+
+fn sandbox_plan(
+    frontend: &Path,
+    core: &Path,
+    base_config: &Path,
+    auxiliary: &[PathBuf],
+    content: Option<&Path>,
+    storage: &RetroArchStorage,
+) -> Result<RetroSandboxPlan, RetroArchError> {
+    let mut read_only = vec![frontend.to_owned(), core.to_owned(), base_config.to_owned()];
+    read_only.extend_from_slice(auxiliary);
+    if let Some(content) = content {
+        read_only.push(content.to_owned());
+    }
+    let core_options_parent = storage
+        .core_options
+        .parent()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(storage.core_options.clone()))?;
+    let read_write = vec![
+        storage.session.clone(),
+        storage.saves.clone(),
+        storage.states.clone(),
+        storage.remaps.clone(),
+        storage.screenshots.clone(),
+        storage.system.clone(),
+        core_options_parent.to_owned(),
+    ];
+    for artifact in &read_only {
+        for writable in &read_write {
+            let comparable_writable = comparable_planned_path(writable)?;
+            if artifact.starts_with(&comparable_writable) {
+                return Err(RetroArchError::UnsafeSandboxOverlap {
+                    first: artifact.clone(),
+                    second: comparable_writable,
+                });
+            }
+        }
+    }
+    let mut mounts = read_only
+        .into_iter()
+        .map(|path| RetroSandboxMount {
+            path,
+            access: RetroSandboxAccess::ReadOnly,
+        })
+        .chain(read_write.into_iter().map(|path| RetroSandboxMount {
+            path,
+            access: RetroSandboxAccess::ReadWrite,
+        }))
+        .collect::<Vec<_>>();
+    mounts.sort_unstable_by(|left, right| left.path.cmp(&right.path));
+    if let Some(pair) = mounts.windows(2).find(|pair| pair[0].path == pair[1].path) {
+        return Err(RetroArchError::UnsafeSandboxOverlap {
+            first: pair[0].path.clone(),
+            second: pair[1].path.clone(),
+        });
+    }
+    Ok(RetroSandboxPlan {
+        mounts,
+        capabilities: RetroSandboxCapabilities {
+            allowed: vec![
+                RetroSandboxCapability::Display,
+                RetroSandboxCapability::Audio,
+                RetroSandboxCapability::Gamepad,
+            ],
+            denied: vec![
+                RetroSandboxCapability::Network,
+                RetroSandboxCapability::Camera,
+                RetroSandboxCapability::Microphone,
+                RetroSandboxCapability::RawInput,
+                RetroSandboxCapability::SourceMedia,
+                RetroSandboxCapability::Desktop,
+            ],
+        },
+    })
+}
+
+fn comparable_planned_path(path: &Path) -> Result<PathBuf, RetroArchError> {
+    let mut ancestor = path;
+    let mut suffix = Vec::new();
+    while !ancestor.exists() {
+        let name = ancestor
+            .file_name()
+            .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.to_owned()))?;
+        suffix.push(name.to_owned());
+        ancestor = ancestor
+            .parent()
+            .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.to_owned()))?;
+    }
+    let mut comparable = fs::canonicalize(ancestor).map_err(|source| RetroArchError::Io {
+        operation: "resolve sandbox path ancestor",
+        path: ancestor.to_owned(),
+        source,
+    })?;
+    for name in suffix.into_iter().rev() {
+        comparable.push(name);
+    }
+    Ok(comparable)
 }
 
 fn validate_id(kind: &'static str, value: &str) -> Result<(), RetroArchError> {
@@ -436,7 +759,15 @@ fn render_config(storage: &RetroArchStorage) -> String {
         ("menu_show_configurations", "false".to_owned()),
         ("menu_show_information", "false".to_owned()),
         ("kiosk_mode_enable", "true".to_owned()),
+        ("preemptive_frames_enable", "false".to_owned()),
+        ("rewind_enable", "false".to_owned()),
+        ("run_ahead_enabled", "false".to_owned()),
+        ("video_frame_delay", "0".to_owned()),
+        ("video_frame_delay_auto", "false".to_owned()),
         ("video_fullscreen", "true".to_owned()),
+        ("video_hard_sync", "false".to_owned()),
+        ("video_shader_enable", "false".to_owned()),
+        ("video_threaded", "false".to_owned()),
         ("load_dummy_on_core_shutdown", "false".to_owned()),
         ("savefile_directory", path_value(&storage.saves)),
         ("savestate_directory", path_value(&storage.states)),
@@ -539,6 +870,10 @@ pub enum RetroArchError {
     MissingContentRoot,
     MissingContentHash,
     UnexpectedContentHash,
+    UnsafeSandboxOverlap {
+        first: PathBuf,
+        second: PathBuf,
+    },
     HashMismatch {
         kind: &'static str,
         path: PathBuf,
@@ -546,6 +881,8 @@ pub enum RetroArchError {
         actual: ExpectedSha256,
     },
     UnsafeConfigPath(PathBuf),
+    UnsafeRuntimeName(String),
+    DuplicateRuntimeArtifact(String),
     LaunchPlan(String),
     Io {
         operation: &'static str,
@@ -595,6 +932,12 @@ impl fmt::Display for RetroArchError {
             Self::UnexpectedContentHash => {
                 formatter.write_str("contentless launch cannot declare a content SHA-256")
             }
+            Self::UnsafeSandboxOverlap { first, second } => write!(
+                formatter,
+                "sandbox paths overlap unsafely: {} and {}",
+                first.display(),
+                second.display()
+            ),
             Self::HashMismatch {
                 kind,
                 path,
@@ -610,6 +953,12 @@ impl fmt::Display for RetroArchError {
                 "path cannot be represented safely in RetroArch configuration: {}",
                 path.display()
             ),
+            Self::UnsafeRuntimeName(name) => {
+                write!(formatter, "unsafe frontend runtime filename: {name}")
+            }
+            Self::DuplicateRuntimeArtifact(name) => {
+                write!(formatter, "duplicate frontend runtime filename: {name}")
+            }
             Self::LaunchPlan(message) => write!(formatter, "cannot create launch plan: {message}"),
             Self::Io {
                 operation,
@@ -636,7 +985,10 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use super::{ExpectedSha256, RetroArchError, RetroArchRequest, digest_file, plan};
+    use super::{
+        ExpectedSha256, RetroArchAuxiliaryArtifact, RetroArchError, RetroArchRequest,
+        RetroSandboxAccess, RetroSandboxCapability, digest_file, plan,
+    };
 
     struct Fixture {
         root: PathBuf,
@@ -699,6 +1051,8 @@ mod tests {
                 content: Some(self.content.clone()),
                 content_sha256: Some(digest_file(&self.content).expect("hash content")),
                 base_config: self.config.clone(),
+                base_config_sha256: digest_file(&self.config).expect("hash base configuration"),
+                auxiliary: Vec::new(),
                 profile_id: "player-one".to_owned(),
                 game_id: "test-game".to_owned(),
             }
@@ -717,8 +1071,9 @@ mod tests {
         let plan = plan(&fixture.request()).expect("valid plan");
         assert_eq!(
             plan.launch().program(),
-            fs::canonicalize(&fixture.frontend)
-                .expect("canonical frontend")
+            fixture
+                .runtime
+                .join("retroarch/player-one/test-game/frontend/retroarch")
                 .as_path()
         );
         let arguments = plan.launch().arguments().collect::<Vec<_>>();
@@ -742,6 +1097,169 @@ mod tests {
             plan.generated_config()
                 .contains("kiosk_mode_enable = \"true\"")
         );
+        for conservative_default in [
+            "preemptive_frames_enable = \"false\"",
+            "rewind_enable = \"false\"",
+            "run_ahead_enabled = \"false\"",
+            "video_frame_delay = \"0\"",
+            "video_frame_delay_auto = \"false\"",
+            "video_hard_sync = \"false\"",
+            "video_shader_enable = \"false\"",
+            "video_threaded = \"false\"",
+        ] {
+            assert!(
+                plan.generated_config().contains(conservative_default),
+                "missing conservative experience default: {conservative_default}"
+            );
+        }
+    }
+
+    #[test]
+    fn derives_a_minimal_read_only_and_writable_sandbox_intent() {
+        let fixture = Fixture::new();
+        let plan = plan(&fixture.request()).expect("valid plan");
+        let sandbox = plan.sandbox();
+        let read_only = sandbox
+            .mounts()
+            .iter()
+            .filter(|mount| mount.access == RetroSandboxAccess::ReadOnly)
+            .map(|mount| mount.path.as_path())
+            .collect::<Vec<_>>();
+        let read_write = sandbox
+            .mounts()
+            .iter()
+            .filter(|mount| mount.access == RetroSandboxAccess::ReadWrite)
+            .map(|mount| mount.path.as_path())
+            .collect::<Vec<_>>();
+        for artifact in [
+            &fixture.frontend,
+            &fixture.core,
+            &fixture.config,
+            &fixture.content,
+        ] {
+            let canonical = fs::canonicalize(artifact).expect("artifact canonicalizes");
+            assert!(read_only.contains(&canonical.as_path()));
+        }
+        assert!(read_write.contains(&plan.storage().session.as_path()));
+        for directory in [
+            &plan.storage().saves,
+            &plan.storage().states,
+            &plan.storage().remaps,
+            &plan.storage().screenshots,
+            &plan.storage().system,
+        ] {
+            assert!(read_write.contains(&directory.as_path()));
+        }
+        assert!(
+            !sandbox.mounts().iter().any(|mount| {
+                mount.path == fixture.install || mount.path == fixture.content_store
+            })
+        );
+    }
+
+    #[test]
+    fn materializes_and_rehashes_signed_frontend_runtime_artifacts() {
+        let fixture = Fixture::new();
+        let auxiliary = fixture.install.join("libstdcxx-6.dll");
+        fs::write(&auxiliary, b"signed loader dependency").expect("write auxiliary artifact");
+        let mut request = fixture.request();
+        request.auxiliary.push(RetroArchAuxiliaryArtifact {
+            path: auxiliary.clone(),
+            sha256: digest_file(&auxiliary).expect("hash auxiliary artifact"),
+            runtime_name: Some("libstdc++-6.dll".to_owned()),
+        });
+
+        let plan = plan(&request).expect("plan with signed auxiliary artifact");
+        plan.prepare()
+            .expect("materialize verified frontend runtime");
+        assert_eq!(
+            fs::read(plan.launch().program()).expect("read materialized frontend"),
+            b"fixture"
+        );
+        assert_eq!(
+            fs::read(
+                fixture
+                    .runtime
+                    .join("retroarch/player-one/test-game/frontend/libstdc++-6.dll")
+            )
+            .expect("read materialized alias"),
+            b"signed loader dependency"
+        );
+        assert!(plan.sandbox().mounts().iter().any(|mount| {
+            mount.access == RetroSandboxAccess::ReadOnly
+                && mount.path == fs::canonicalize(&auxiliary).expect("canonical auxiliary")
+        }));
+
+        fs::write(&auxiliary, b"changed dependency").expect("change auxiliary artifact");
+        assert!(matches!(
+            plan.prepare(),
+            Err(RetroArchError::HashMismatch {
+                kind: "runtime source artifact",
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn denies_ambient_and_source_media_authority() {
+        let fixture = Fixture::new();
+        let plan = plan(&fixture.request()).expect("valid plan");
+        let capabilities = plan.sandbox().capabilities();
+        assert_eq!(
+            capabilities.allowed(),
+            [
+                RetroSandboxCapability::Display,
+                RetroSandboxCapability::Audio,
+                RetroSandboxCapability::Gamepad,
+            ]
+        );
+        assert_eq!(
+            capabilities.denied(),
+            [
+                RetroSandboxCapability::Network,
+                RetroSandboxCapability::Camera,
+                RetroSandboxCapability::Microphone,
+                RetroSandboxCapability::RawInput,
+                RetroSandboxCapability::SourceMedia,
+                RetroSandboxCapability::Desktop,
+            ]
+        );
+    }
+
+    #[test]
+    fn contentless_plan_exposes_no_content_store() {
+        let fixture = Fixture::new();
+        let mut request = fixture.request();
+        request.content = None;
+        request.content_sha256 = None;
+        request.content_root = None;
+        let plan = plan(&request).expect("contentless plan");
+        assert!(
+            !plan
+                .sandbox()
+                .mounts()
+                .iter()
+                .any(|mount| mount.path.starts_with(&fixture.content_store))
+        );
+    }
+
+    #[test]
+    fn rejects_read_only_content_nested_in_writable_game_data() {
+        let fixture = Fixture::new();
+        let content = fixture
+            .data
+            .join("profiles/player-one/games/test-game/saves/test.rom");
+        fs::create_dir_all(content.parent().expect("content parent"))
+            .expect("create writable content parent");
+        fs::write(&content, b"managed content in unsafe location").expect("write content");
+        let mut request = fixture.request();
+        request.content_root = Some(fixture.data.clone());
+        request.content = Some(content.clone());
+        request.content_sha256 = Some(digest_file(&content).expect("hash content"));
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::UnsafeSandboxOverlap { .. })
+        ));
     }
 
     #[test]
@@ -851,6 +1369,16 @@ mod tests {
         assert!(matches!(
             plan(&request),
             Err(RetroArchError::HashMismatch { kind: "core", .. })
+        ));
+
+        let mut request = fixture.request();
+        request.base_config_sha256 = ExpectedSha256([0; 32]);
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::HashMismatch {
+                kind: "base configuration",
+                ..
+            })
         ));
     }
 

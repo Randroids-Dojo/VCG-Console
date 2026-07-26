@@ -1,0 +1,283 @@
+{
+  "format": "vcg-retro-starter-candidate-screen/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "upstream-source-metadata-screen-only",
+  "qualification": "zero-candidates-approved",
+  "policy": {
+    "decision": "fail-closed-per-title-review",
+    "categoryLabelsGrantNoAuthority": true,
+    "productionCatalogMutation": false,
+    "packageDownloadOrInstallation": false,
+    "requiredGates": [
+      "exact-source-and-artifact",
+      "code-rights",
+      "content-rights",
+      "trademark-title",
+      "attribution-and-source",
+      "core-and-firmware-dependencies",
+      "content-and-age-notes",
+      "controller-and-reserved-actions",
+      "arm64-and-x86-64",
+      "reproducible-package",
+      "update-and-removal-owner"
+    ]
+  },
+  "candidates": [
+    {
+      "candidateId": "dinothawr",
+      "candidateKind": "game",
+      "upstreamRepository": "https://github.com/libretro/Dinothawr",
+      "observedRevision": "e608bc507d4e76940be4af3d74b5fecb2dfa26a6",
+      "observedRevisionUrl": "https://github.com/libretro/Dinothawr/commit/e608bc507d4e76940be4af3d74b5fecb2dfa26a6",
+      "runtimeShape": "libretro-core-plus-separate-game-data",
+      "codeRights": {
+        "status": "explicit-noncommercial-restriction",
+        "expression": "LicenseRef-Dinothawr-Noncommercial",
+        "evidenceUrl": "https://github.com/libretro/Dinothawr/blob/e608bc507d4e76940be4af3d74b5fecb2dfa26a6/LICENSE"
+      },
+      "contentRights": {
+        "status": "explicit-noncommercial-sharealike",
+        "expression": "CC-BY-NC-SA-3.0",
+        "evidenceUrl": "https://github.com/libretro/Dinothawr/blob/e608bc507d4e76940be4af3d74b5fecb2dfa26a6/LICENSE"
+      },
+      "artifactStatus": "not-downloaded-or-hash-pinned",
+      "dependencyStatus": "core-and-game-data-closure-unaudited",
+      "trademarkStatus": "title-and-art-review-unperformed",
+      "architectureStatus": "upstream-claims-not-vcg-target-evidence",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "code-rights",
+        "content-rights",
+        "trademark-title",
+        "attribution-and-source",
+        "core-and-firmware-dependencies",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner"
+      ],
+      "evidenceUrls": [
+        "https://docs.libretro.com/library/dinothawr/",
+        "https://github.com/libretro/Dinothawr",
+        "https://github.com/libretro/Dinothawr/blob/e608bc507d4e76940be4af3d74b5fecb2dfa26a6/LICENSE"
+      ]
+    },
+    {
+      "candidateId": "libretro-2048",
+      "candidateKind": "game",
+      "upstreamRepository": "https://github.com/libretro/libretro-2048",
+      "observedRevision": "c90437d3c3913999624deca3fb55ecfa632b72c4",
+      "observedRevisionUrl": "https://github.com/libretro/libretro-2048/commit/c90437d3c3913999624deca3fb55ecfa632b72c4",
+      "runtimeShape": "contentless-libretro-core",
+      "codeRights": {
+        "status": "dedication-present-selected-input-review-incomplete",
+        "expression": "LicenseRef-Unlicense",
+        "evidenceUrl": "https://github.com/libretro/libretro-2048/blob/c90437d3c3913999624deca3fb55ecfa632b72c4/COPYING"
+      },
+      "contentRights": {
+        "status": "embedded-font-provenance-unresolved",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/libretro/libretro-2048/blob/c90437d3c3913999624deca3fb55ecfa632b72c4/noncairo/font2.c"
+      },
+      "artifactStatus": "source-pinned-binary-unqualified",
+      "dependencyStatus": "source-closure-recorded-legal-review-incomplete",
+      "trademarkStatus": "title-and-brand-review-unperformed",
+      "architectureStatus": "ephemeral-x86-build-only-arm64-unverified",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "code-rights",
+        "content-rights",
+        "trademark-title",
+        "attribution-and-source",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner"
+      ],
+      "evidenceUrls": [
+        "https://docs.libretro.com/library/2048/",
+        "https://github.com/libretro/libretro-2048",
+        "https://github.com/libretro/libretro-2048/blob/c90437d3c3913999624deca3fb55ecfa632b72c4/COPYING",
+        "https://github.com/libretro/libretro-2048/blob/c90437d3c3913999624deca3fb55ecfa632b72c4/noncairo/font2.c"
+      ]
+    },
+    {
+      "candidateId": "libretro-samples",
+      "candidateKind": "developer-test-fixture",
+      "upstreamRepository": "https://github.com/libretro/libretro-samples",
+      "observedRevision": "bce193bc1b8c9a3da43b2ead0158a69e28b37ed8",
+      "observedRevisionUrl": "https://github.com/libretro/libretro-samples/commit/bce193bc1b8c9a3da43b2ead0158a69e28b37ed8",
+      "runtimeShape": "multiple-libretro-api-samples",
+      "codeRights": {
+        "status": "explicit-permissive-license",
+        "expression": "MIT",
+        "evidenceUrl": "https://github.com/libretro/libretro-samples/blob/bce193bc1b8c9a3da43b2ead0158a69e28b37ed8/license"
+      },
+      "contentRights": {
+        "status": "sample-code-only-no-starter-title",
+        "expression": "MIT",
+        "evidenceUrl": "https://github.com/libretro/libretro-samples/blob/bce193bc1b8c9a3da43b2ead0158a69e28b37ed8/license"
+      },
+      "artifactStatus": "not-downloaded-or-hash-pinned",
+      "dependencyStatus": "per-sample-build-closure-unaudited",
+      "trademarkStatus": "not-applicable-to-test-fixture",
+      "architectureStatus": "no-vcg-target-evidence",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner",
+        "not-a-user-facing-title"
+      ],
+      "evidenceUrls": [
+        "https://github.com/libretro/libretro-samples",
+        "https://github.com/libretro/libretro-samples/blob/bce193bc1b8c9a3da43b2ead0158a69e28b37ed8/license"
+      ]
+    },
+    {
+      "candidateId": "lutro-game-of-life",
+      "candidateKind": "demo",
+      "upstreamRepository": "https://github.com/libretro/lutro-game-of-life",
+      "observedRevision": "044d1678eac0163e25623f3f9e78301fe275cf87",
+      "observedRevisionUrl": "https://github.com/libretro/lutro-game-of-life/commit/044d1678eac0163e25623f3f9e78301fe275cf87",
+      "runtimeShape": "lutro-lua-content",
+      "codeRights": {
+        "status": "no-license-file-observed",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/libretro/lutro-game-of-life/tree/044d1678eac0163e25623f3f9e78301fe275cf87"
+      },
+      "contentRights": {
+        "status": "no-separate-content-license-observed",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/libretro/lutro-game-of-life/tree/044d1678eac0163e25623f3f9e78301fe275cf87"
+      },
+      "artifactStatus": "no-release-or-hash-pinned-package",
+      "dependencyStatus": "lutro-core-and-runtime-closure-unaudited",
+      "trademarkStatus": "title-review-unperformed",
+      "architectureStatus": "no-vcg-target-evidence",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "code-rights",
+        "content-rights",
+        "trademark-title",
+        "attribution-and-source",
+        "core-and-firmware-dependencies",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner"
+      ],
+      "evidenceUrls": [
+        "https://github.com/libretro/lutro-game-of-life",
+        "https://github.com/libretro/lutro-game-of-life/blob/044d1678eac0163e25623f3f9e78301fe275cf87/main.lua"
+      ]
+    },
+    {
+      "candidateId": "lutro-snake",
+      "candidateKind": "demo",
+      "upstreamRepository": "https://github.com/libretro/lutro-snake",
+      "observedRevision": "d1768203e0a2fe2c765135a303a27592c94b03d9",
+      "observedRevisionUrl": "https://github.com/libretro/lutro-snake/commit/d1768203e0a2fe2c765135a303a27592c94b03d9",
+      "runtimeShape": "lutro-lua-content",
+      "codeRights": {
+        "status": "no-license-file-observed",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/libretro/lutro-snake/tree/d1768203e0a2fe2c765135a303a27592c94b03d9"
+      },
+      "contentRights": {
+        "status": "no-separate-content-license-observed",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/libretro/lutro-snake/tree/d1768203e0a2fe2c765135a303a27592c94b03d9"
+      },
+      "artifactStatus": "no-release-or-hash-pinned-package",
+      "dependencyStatus": "lutro-core-and-runtime-closure-unaudited",
+      "trademarkStatus": "title-review-unperformed",
+      "architectureStatus": "no-vcg-target-evidence",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "code-rights",
+        "content-rights",
+        "trademark-title",
+        "attribution-and-source",
+        "core-and-firmware-dependencies",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner"
+      ],
+      "evidenceUrls": [
+        "https://github.com/libretro/lutro-snake",
+        "https://github.com/libretro/lutro-snake/blob/d1768203e0a2fe2c765135a303a27592c94b03d9/main.lua",
+        "https://lutro.libretro.com/doc/gettingstarted.html"
+      ]
+    },
+    {
+      "candidateId": "mrboom",
+      "candidateKind": "game",
+      "upstreamRepository": "https://github.com/Javanaise/mrboom-libretro",
+      "observedRevision": "96f89550a3518dffe2e7561c971119a39d90de97",
+      "observedRevisionUrl": "https://github.com/Javanaise/mrboom-libretro/commit/96f89550a3518dffe2e7561c971119a39d90de97",
+      "runtimeShape": "contentless-libretro-core",
+      "codeRights": {
+        "status": "explicit-permissive-repository-license",
+        "expression": "MIT",
+        "evidenceUrl": "https://github.com/Javanaise/mrboom-libretro/blob/96f89550a3518dffe2e7561c971119a39d90de97/LICENSE"
+      },
+      "contentRights": {
+        "status": "embedded-game-asset-scope-unverified",
+        "expression": "NOASSERTION",
+        "evidenceUrl": "https://github.com/Javanaise/mrboom-libretro"
+      },
+      "artifactStatus": "release-exists-exact-package-not-selected-or-hashed",
+      "dependencyStatus": "embedded-data-and-submodule-closure-unaudited",
+      "trademarkStatus": "bomberman-derived-title-and-art-review-required",
+      "architectureStatus": "upstream-platform-claims-not-vcg-target-evidence",
+      "admissionStatus": "blocked",
+      "blockerCodes": [
+        "exact-source-and-artifact",
+        "content-rights",
+        "trademark-title",
+        "attribution-and-source",
+        "core-and-firmware-dependencies",
+        "content-and-age-notes",
+        "controller-and-reserved-actions",
+        "arm64-and-x86-64",
+        "reproducible-package",
+        "update-and-removal-owner"
+      ],
+      "evidenceUrls": [
+        "https://docs.libretro.com/library/mr_boom/",
+        "https://github.com/Javanaise/mrboom-libretro",
+        "https://github.com/Javanaise/mrboom-libretro/blob/96f89550a3518dffe2e7561c971119a39d90de97/LICENSE",
+        "https://github.com/Javanaise/mrboom-libretro/tree/96f89550a3518dffe2e7561c971119a39d90de97/Assets"
+      ]
+    }
+  ],
+  "summary": {
+    "candidateCount": 6,
+    "gameOrDemoCount": 5,
+    "developerFixtureCount": 1,
+    "sourceLicenseDocumentCount": 4,
+    "admittedCount": 0,
+    "packageMutationCount": 0,
+    "downloadedArtifactCount": 0
+  },
+  "limitations": [
+    "All six heads came from git ls-remote on the evidence date; 2048 also matched its existing pinned revision. This screening downloaded no source archive or binary.",
+    "Repository-level licenses were not assumed to prove authorship or redistribution rights for every embedded asset.",
+    "No legal or trademark review, artifact hash, dependency closure, content rating, controller exercise, package build, target run, update owner, or removal exercise was completed.",
+    "The MIT libretro samples may support a developer fixture but are not a user-facing starter title.",
+    "This screen cannot admit a title; it only records why the six reviewed candidates remain blocked."
+  ]
+}

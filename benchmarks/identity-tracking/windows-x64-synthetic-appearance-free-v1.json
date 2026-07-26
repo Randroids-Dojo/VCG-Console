@@ -1,0 +1,670 @@
+{
+  "format": "vcg-identity-tracker-comparison",
+  "formatVersion": 1,
+  "generatedAt": "2026-07-24T17:28:24.878Z",
+  "sourceCommit": "4ea38825b6fc64098acfbe924be47a801e272b96",
+  "workingTreeClean": false,
+  "motionApiSchemaVersion": "0.4.0",
+  "implementation": {
+    "trackerSha256": "ba519b88fb75d46149bc28f3243de11d0a89ad5a797174df2f3f28d36fd6c7a9",
+    "suiteSha256": "9de4ebcec79b7637f2415afca43b3a4f96ae67087dc68868b3383227ac459edc",
+    "benchmarkSha256": "1b7313951a9d067c5f864ff6a3917ae11a731321b285cd0fe1aeebf3a6fff7a4"
+  },
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.18.0"
+  },
+  "suite": {
+    "version": "appearance-free-identity-synthetic/v1",
+    "serializedScenarioSha256": "1276dffb126f3182bfce942985f7b02cd9f92d056ab8e55fd8196e5fb8bf227d",
+    "containsRawFrames": false,
+    "source": "deterministic generated normalized core17 skeletons",
+    "scenarios": [
+      {
+        "id": "two-player-linear-crossing",
+        "description": "Two differently proportioned players exchange horizontal positions without disappearing.",
+        "framesPerSecond": 30,
+        "frameCount": 61,
+        "visibleTruthObservations": 122
+      },
+      {
+        "id": "brief-central-occlusion",
+        "description": "One of two crossing players disappears for five frames at the overlap and returns inside the retention window.",
+        "framesPerSecond": 30,
+        "frameCount": 70,
+        "visibleTruthObservations": 135
+      },
+      {
+        "id": "crossing-confidence-dip",
+        "description": "One crossing player's confidence falls below the high-confidence association threshold but stays observable.",
+        "framesPerSecond": 30,
+        "frameCount": 64,
+        "visibleTruthObservations": 128
+      },
+      {
+        "id": "fast-direction-reversal",
+        "description": "A moving player reverses direction near a mostly stationary second player.",
+        "framesPerSecond": 30,
+        "frameCount": 72,
+        "visibleTruthObservations": 144
+      },
+      {
+        "id": "long-exit-and-reentry",
+        "description": "A player leaves beyond the retention window and later re-enters near the retained player.",
+        "framesPerSecond": 30,
+        "frameCount": 85,
+        "visibleTruthObservations": 142
+      },
+      {
+        "id": "three-player-braided-crossing",
+        "description": "Three differently proportioned players cross through the center on nearby paths.",
+        "framesPerSecond": 30,
+        "frameCount": 76,
+        "visibleTruthObservations": 228
+      }
+    ]
+  },
+  "method": {
+    "maxTracks": 4,
+    "maxMissedFrames": 6,
+    "maxAssociationDistance": 0.22,
+    "minimumDetectionConfidence": 0.1,
+    "highConfidenceThreshold": 0.6,
+    "minimumOks": 0.15,
+    "warmupPasses": 10,
+    "measuredPasses": 100,
+    "latencyBoundary": "one tracker update over pre-generated detections",
+    "latencyTimer": "node-performance-now",
+    "latencySummaryMethod": "linear-interpolation-r7",
+    "truthVisibility": "truthId exists only in evaluator frames and is stripped before every tracker update"
+  },
+  "results": [
+    {
+      "algorithm": "nearest-centroid",
+      "classification": "frame-local nearest torso centroid",
+      "metrics": {
+        "algorithm": "nearest-centroid",
+        "totals": {
+          "visibleTruthObservations": 899,
+          "assignedObservations": 899,
+          "missedAssignments": 0,
+          "idSwitches": 3,
+          "falseTrackTransfers": 2,
+          "assignmentFragmentations": 0,
+          "distinctTracks": 14,
+          "identityCorrectAssignments": 814,
+          "idPrecision": 0.905451,
+          "idRecall": 0.905451,
+          "idF1": 0.905451
+        },
+        "scenarios": [
+          {
+            "scenarioId": "two-player-linear-crossing",
+            "visibleTruthObservations": 122,
+            "assignedObservations": 122,
+            "missedAssignments": 0,
+            "idSwitches": 2,
+            "falseTrackTransfers": 2,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 62,
+            "idPrecision": 0.508197,
+            "idRecall": 0.508197,
+            "idF1": 0.508197
+          },
+          {
+            "scenarioId": "brief-central-occlusion",
+            "visibleTruthObservations": 135,
+            "assignedObservations": 135,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 135,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "crossing-confidence-dip",
+            "visibleTruthObservations": 128,
+            "assignedObservations": 128,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 128,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "fast-direction-reversal",
+            "visibleTruthObservations": 144,
+            "assignedObservations": 144,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 144,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "long-exit-and-reentry",
+            "visibleTruthObservations": 142,
+            "assignedObservations": 142,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 117,
+            "idPrecision": 0.823944,
+            "idRecall": 0.823944,
+            "idF1": 0.823944
+          },
+          {
+            "scenarioId": "three-player-braided-crossing",
+            "visibleTruthObservations": 228,
+            "assignedObservations": 228,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 228,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          }
+        ]
+      },
+      "latencyMicroseconds": {
+        "samples": 42800,
+        "mean": 6.642,
+        "p50": 5.2,
+        "p95": 14.7,
+        "p99": 18.4,
+        "worst": 351.3,
+        "measuredThroughputFramesPerSecond": 150567.76
+      }
+    },
+    {
+      "algorithm": "kalman-centroid",
+      "classification": "constant-velocity Kalman torso-centroid prediction",
+      "metrics": {
+        "algorithm": "kalman-centroid",
+        "totals": {
+          "visibleTruthObservations": 899,
+          "assignedObservations": 899,
+          "missedAssignments": 0,
+          "idSwitches": 5,
+          "falseTrackTransfers": 4,
+          "assignmentFragmentations": 0,
+          "distinctTracks": 14,
+          "identityCorrectAssignments": 842,
+          "idPrecision": 0.936596,
+          "idRecall": 0.936596,
+          "idF1": 0.936596
+        },
+        "scenarios": [
+          {
+            "scenarioId": "two-player-linear-crossing",
+            "visibleTruthObservations": 122,
+            "assignedObservations": 122,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 122,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "brief-central-occlusion",
+            "visibleTruthObservations": 135,
+            "assignedObservations": 135,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 135,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "crossing-confidence-dip",
+            "visibleTruthObservations": 128,
+            "assignedObservations": 128,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 128,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "fast-direction-reversal",
+            "visibleTruthObservations": 144,
+            "assignedObservations": 144,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 144,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "long-exit-and-reentry",
+            "visibleTruthObservations": 142,
+            "assignedObservations": 142,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 117,
+            "idPrecision": 0.823944,
+            "idRecall": 0.823944,
+            "idF1": 0.823944
+          },
+          {
+            "scenarioId": "three-player-braided-crossing",
+            "visibleTruthObservations": 228,
+            "assignedObservations": 228,
+            "missedAssignments": 0,
+            "idSwitches": 4,
+            "falseTrackTransfers": 4,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 196,
+            "idPrecision": 0.859649,
+            "idRecall": 0.859649,
+            "idF1": 0.859649
+          }
+        ]
+      },
+      "latencyMicroseconds": {
+        "samples": 42800,
+        "mean": 5.982,
+        "p50": 4.8,
+        "p95": 13.9,
+        "p99": 16.6,
+        "worst": 294.7,
+        "measuredThroughputFramesPerSecond": 167164.123
+      }
+    },
+    {
+      "algorithm": "oks",
+      "classification": "consecutive-pose COCO-style object keypoint similarity",
+      "metrics": {
+        "algorithm": "oks",
+        "totals": {
+          "visibleTruthObservations": 899,
+          "assignedObservations": 899,
+          "missedAssignments": 0,
+          "idSwitches": 2,
+          "falseTrackTransfers": 0,
+          "assignmentFragmentations": 0,
+          "distinctTracks": 15,
+          "identityCorrectAssignments": 842,
+          "idPrecision": 0.936596,
+          "idRecall": 0.936596,
+          "idF1": 0.936596
+        },
+        "scenarios": [
+          {
+            "scenarioId": "two-player-linear-crossing",
+            "visibleTruthObservations": 122,
+            "assignedObservations": 122,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 122,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "brief-central-occlusion",
+            "visibleTruthObservations": 135,
+            "assignedObservations": 135,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 103,
+            "idPrecision": 0.762963,
+            "idRecall": 0.762963,
+            "idF1": 0.762963
+          },
+          {
+            "scenarioId": "crossing-confidence-dip",
+            "visibleTruthObservations": 128,
+            "assignedObservations": 128,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 128,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "fast-direction-reversal",
+            "visibleTruthObservations": 144,
+            "assignedObservations": 144,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 144,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "long-exit-and-reentry",
+            "visibleTruthObservations": 142,
+            "assignedObservations": 142,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 117,
+            "idPrecision": 0.823944,
+            "idRecall": 0.823944,
+            "idF1": 0.823944
+          },
+          {
+            "scenarioId": "three-player-braided-crossing",
+            "visibleTruthObservations": 228,
+            "assignedObservations": 228,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 228,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          }
+        ]
+      },
+      "latencyMicroseconds": {
+        "samples": 42800,
+        "mean": 5.139,
+        "p50": 4.3,
+        "p95": 9.2,
+        "p99": 10.5,
+        "worst": 116.4,
+        "measuredThroughputFramesPerSecond": 194594.015
+      }
+    },
+    {
+      "algorithm": "kalman-oks-hybrid",
+      "classification": "Kalman centroid plus object keypoint similarity",
+      "metrics": {
+        "algorithm": "kalman-oks-hybrid",
+        "totals": {
+          "visibleTruthObservations": 899,
+          "assignedObservations": 899,
+          "missedAssignments": 0,
+          "idSwitches": 2,
+          "falseTrackTransfers": 0,
+          "assignmentFragmentations": 0,
+          "distinctTracks": 15,
+          "identityCorrectAssignments": 842,
+          "idPrecision": 0.936596,
+          "idRecall": 0.936596,
+          "idF1": 0.936596
+        },
+        "scenarios": [
+          {
+            "scenarioId": "two-player-linear-crossing",
+            "visibleTruthObservations": 122,
+            "assignedObservations": 122,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 122,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "brief-central-occlusion",
+            "visibleTruthObservations": 135,
+            "assignedObservations": 135,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 103,
+            "idPrecision": 0.762963,
+            "idRecall": 0.762963,
+            "idF1": 0.762963
+          },
+          {
+            "scenarioId": "crossing-confidence-dip",
+            "visibleTruthObservations": 128,
+            "assignedObservations": 128,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 128,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "fast-direction-reversal",
+            "visibleTruthObservations": 144,
+            "assignedObservations": 144,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 144,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "long-exit-and-reentry",
+            "visibleTruthObservations": 142,
+            "assignedObservations": 142,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 117,
+            "idPrecision": 0.823944,
+            "idRecall": 0.823944,
+            "idF1": 0.823944
+          },
+          {
+            "scenarioId": "three-player-braided-crossing",
+            "visibleTruthObservations": 228,
+            "assignedObservations": 228,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 228,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          }
+        ]
+      },
+      "latencyMicroseconds": {
+        "samples": 42800,
+        "mean": 5.2,
+        "p50": 4.4,
+        "p95": 9.3,
+        "p99": 10.6,
+        "worst": 108.3,
+        "measuredThroughputFramesPerSecond": 192322.123
+      }
+    },
+    {
+      "algorithm": "two-stage-kalman-iou",
+      "classification": "ByteTrack-inspired high/low-confidence association using Kalman centroid and box overlap; not the upstream ByteTrack implementation",
+      "metrics": {
+        "algorithm": "two-stage-kalman-iou",
+        "totals": {
+          "visibleTruthObservations": 899,
+          "assignedObservations": 899,
+          "missedAssignments": 0,
+          "idSwitches": 1,
+          "falseTrackTransfers": 0,
+          "assignmentFragmentations": 0,
+          "distinctTracks": 14,
+          "identityCorrectAssignments": 874,
+          "idPrecision": 0.972191,
+          "idRecall": 0.972191,
+          "idF1": 0.972191
+        },
+        "scenarios": [
+          {
+            "scenarioId": "two-player-linear-crossing",
+            "visibleTruthObservations": 122,
+            "assignedObservations": 122,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 122,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "brief-central-occlusion",
+            "visibleTruthObservations": 135,
+            "assignedObservations": 135,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 135,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "crossing-confidence-dip",
+            "visibleTruthObservations": 128,
+            "assignedObservations": 128,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 128,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "fast-direction-reversal",
+            "visibleTruthObservations": 144,
+            "assignedObservations": 144,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 2,
+            "identityCorrectAssignments": 144,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          },
+          {
+            "scenarioId": "long-exit-and-reentry",
+            "visibleTruthObservations": 142,
+            "assignedObservations": 142,
+            "missedAssignments": 0,
+            "idSwitches": 1,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 117,
+            "idPrecision": 0.823944,
+            "idRecall": 0.823944,
+            "idF1": 0.823944
+          },
+          {
+            "scenarioId": "three-player-braided-crossing",
+            "visibleTruthObservations": 228,
+            "assignedObservations": 228,
+            "missedAssignments": 0,
+            "idSwitches": 0,
+            "falseTrackTransfers": 0,
+            "assignmentFragmentations": 0,
+            "distinctTracks": 3,
+            "identityCorrectAssignments": 228,
+            "idPrecision": 1,
+            "idRecall": 1,
+            "idF1": 1
+          }
+        ]
+      },
+      "latencyMicroseconds": {
+        "samples": 42800,
+        "mean": 7.118,
+        "p50": 5.9,
+        "p95": 15.5,
+        "p99": 18.4,
+        "worst": 136.1,
+        "measuredThroughputFramesPerSecond": 140494.343
+      }
+    }
+  ],
+  "claimBoundary": "Camera-free deterministic skeleton assignment evidence only. It does not measure real-player identity, pose-detector errors, room behavior, camera latency, target hardware, appearance privacy, or upstream ByteTrack.",
+  "limitations": [
+    "Synthetic poses do not reproduce real detector noise, missed limbs, duplicate detections, or camera geometry.",
+    "Truth labels are generated rather than independently annotated from consented people.",
+    "Body-proportion variants remain unrealistically stable through each scenario.",
+    "Long exit and re-entry is intentionally unresolvable without persistent appearance or explicit player confirmation.",
+    "The two-stage baseline borrows high/low-confidence association structure but is not the upstream ByteTrack implementation.",
+    "Latency excludes pose inference, capture, serialization, process transport, player-session control, rendering, and actions.",
+    "JavaScript timing on one Windows x86 development host does not qualify the Rust/native or target-Linux path.",
+    "No image, biometric template, face embedding, or appearance descriptor is generated or retained."
+  ]
+}

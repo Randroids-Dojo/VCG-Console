@@ -1,0 +1,207 @@
+{
+  "format": "vcg-motion-bridge-wall-clock-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "evidenceClass": "windows-x64-wall-clock-node-child-process-rehearsal",
+  "qualification": "desk-observation-not-target-qualification",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeVersion": "v24.18.0",
+    "logicalCpuCount": 24,
+    "executionLayer": "windows-node-child-process-ipc",
+    "startedAtUtc": "2026-07-24T20:15:17.353Z"
+  },
+  "configuration": {
+    "durationMs": 8000,
+    "requestedProducerFrequencyHz": 100,
+    "hostMaximumFramesPerSecond": 60,
+    "sessionTtlMs": 1000,
+    "maximumSessions": 3,
+    "telemetryIntervalMs": 100,
+    "stalledTerminationAtMs": 2000,
+    "healthyTerminationAtMs": 3500
+  },
+  "policy": {
+    "realChildProcessesUsed": true,
+    "wallClockUsed": true,
+    "nonAcknowledgingClientUsed": true,
+    "forcedRendererTerminationModeled": true,
+    "osSuspendUsed": false,
+    "trackerProcessUsed": false,
+    "nativeIpcUsed": false,
+    "targetLinuxUsed": false,
+    "productThresholdQualified": false
+  },
+  "observations": {
+    "elapsedMs": 9136.305,
+    "producerTickCount": 514,
+    "achievedProducerFrequencyHz": 64.25,
+    "host": {
+      "acceptedConnections": 3,
+      "rejectedConnections": 0,
+      "hostileOriginMessages": 0,
+      "invalidMessages": 0,
+      "publishedFrames": 257,
+      "rateLimitedFrames": 382,
+      "publishedHealthEvents": 0,
+      "expiredSessions": 2,
+      "invalidAcknowledgements": 0,
+      "peakSessions": 2,
+      "activeSessions": 1,
+      "pendingFrames": 0,
+      "activeSessionsBeforeShutdown": 1
+    },
+    "clients": [
+      {
+        "label": "initial-healthy",
+        "mode": "healthy",
+        "framesOfferedByHost": 114,
+        "lastReportedFramesReceived": 111,
+        "lastReportedFramesAcknowledged": 111,
+        "receivedHealthEvents": 1,
+        "telemetrySampleCount": 32,
+        "peakRssBytes": 69390336,
+        "peakHeapUsedBytes": 8585336,
+        "lastReportedCpuUserMicros": 32000,
+        "lastReportedCpuSystemMicros": 0,
+        "sendErrorCount": 0,
+        "termination": {
+          "requested": "forced-termination",
+          "exitCode": null,
+          "signal": "SIGTERM"
+        }
+      },
+      {
+        "label": "stalled",
+        "mode": "stalled",
+        "framesOfferedByHost": 1,
+        "lastReportedFramesReceived": 1,
+        "lastReportedFramesAcknowledged": 0,
+        "receivedHealthEvents": 1,
+        "telemetrySampleCount": 18,
+        "peakRssBytes": 68669440,
+        "peakHeapUsedBytes": 8091600,
+        "lastReportedCpuUserMicros": 0,
+        "lastReportedCpuSystemMicros": 0,
+        "sendErrorCount": 0,
+        "termination": {
+          "requested": "forced-termination",
+          "exitCode": null,
+          "signal": "SIGTERM"
+        }
+      },
+      {
+        "label": "replacement-healthy",
+        "mode": "healthy",
+        "framesOfferedByHost": 142,
+        "lastReportedFramesReceived": 142,
+        "lastReportedFramesAcknowledged": 142,
+        "receivedHealthEvents": 1,
+        "telemetrySampleCount": 51,
+        "peakRssBytes": 69427200,
+        "peakHeapUsedBytes": 8598792,
+        "lastReportedCpuUserMicros": 15000,
+        "lastReportedCpuSystemMicros": 0,
+        "sendErrorCount": 0,
+        "termination": {
+          "requested": "graceful-shutdown",
+          "exitCode": 0,
+          "signal": null
+        }
+      }
+    ],
+    "mainProcess": {
+      "rssStartedBytes": 87707648,
+      "peakRssBytes": 98942976,
+      "rssGrowthBytes": 11235328,
+      "cpuUserMicros": 110000,
+      "cpuSystemMicros": 31000,
+      "memorySampleCount": 73
+    },
+    "scheduler": {
+      "sampleCount": 514,
+      "p50DriftMs": 5.544,
+      "p95DriftMs": 6.228,
+      "p99DriftMs": 6.363,
+      "maximumDriftMs": 13.151
+    }
+  },
+  "assertions": [
+    {
+      "id": "stalled-client-received-one-frame-only",
+      "passed": true
+    },
+    {
+      "id": "stalled-and-killed-sessions-expired",
+      "passed": true
+    },
+    {
+      "id": "healthy-initial-delivery-continued",
+      "passed": true
+    },
+    {
+      "id": "healthy-replacement-delivery-continued",
+      "passed": true
+    },
+    {
+      "id": "one-healthy-session-remained-before-shutdown",
+      "passed": true
+    },
+    {
+      "id": "session-state-remained-bounded",
+      "passed": true
+    },
+    {
+      "id": "acknowledgements-remained-exact",
+      "passed": true
+    },
+    {
+      "id": "backpressure-dropped-producer-excess",
+      "passed": true
+    },
+    {
+      "id": "child-ipc-send-errors-absent",
+      "passed": true
+    },
+    {
+      "id": "scheduler-observation-remained-bounded",
+      "passed": true
+    },
+    {
+      "id": "main-rss-observation-remained-bounded",
+      "passed": true
+    },
+    {
+      "id": "child-rss-observations-remained-bounded",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "childProcessCount": 3,
+    "forcedTerminationCount": 2,
+    "gracefulShutdownCount": 1,
+    "assertionCount": 12,
+    "passedAssertionCount": 12,
+    "failedAssertionCount": 0,
+    "participantCount": 0,
+    "cameraFrameCount": 0
+  },
+  "provenance": {
+    "hostImplementationPath": "packages/motion-web-bridge/src/host.ts",
+    "hostImplementationPathSha256": "e7d91c12f00b0632a39f5a8a2657b51ece4a679aa8ae462372d7287ead0a93d3",
+    "clientPath": "scripts/motion-bridge-wall-clock-client.mjs",
+    "clientPathSha256": "f104fad74505a965049495c73a6e5676eb615363695053519b5b0303cb0460ee",
+    "runnerPath": "scripts/run-motion-bridge-wall-clock-evidence.mjs",
+    "runnerPathSha256": "f6a5648fb744279a4e7ef5c1ff4aca5ff2896c305079a5c83defc2120d773da0",
+    "validatorPath": "scripts/validate-motion-bridge-wall-clock-evidence.mjs",
+    "validatorPathSha256": "8c31bf7586a9e60d23a7edce05796ccc9d5b724c69b43e804e0a44f56bffa9ca"
+  },
+  "claimBoundary": "One Windows x64 desk observation using Node child-process IPC. It proves that this run preserved one healthy bridge client while one client stopped acknowledging and another was forcibly terminated, with bounded host session state and recorded process/scheduler telemetry. It does not qualify Linux, native IPC, browser/OS suspension, tracker isolation, latency, resource budgets, gameplay, or product reliability.",
+  "limitations": [
+    "The run used synthetic Motion frames and Node IPC on one Windows x64 development host, not the selected ARM64 or ordinary x86-64 Linux appliances.",
+    "A child that intentionally omitted acknowledgements models application-level stall only; no process was suspended by the operating system.",
+    "Forced Node child termination models a renderer disappearance but is not Chromium renderer, compositor, cgroup, service-manager, or crash-dump evidence.",
+    "RSS, CPU, and scheduler values are one observational run with generous harness ceilings, not pre-registered product performance budgets or statistical distributions.",
+    "No camera, tracker process, native transport, game, player, full pipeline, end-to-end action latency, thermal, or long-duration soak was exercised."
+  ]
+}

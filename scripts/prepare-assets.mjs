@@ -20,6 +20,14 @@ const downloads = [
     destination: resolve(publicDir, "fonts/OCRA.ttf"),
     bytes: 24_316,
     sha256: "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
+    provenance: {
+      version: "1.0",
+      upstreamProject: "https://sourceforge.net/projects/ocr-a-font/",
+      releaseFiles: "https://sourceforge.net/projects/ocr-a-font/files/OCR-A/1.0/",
+      upstreamLicenseLabel: "Public Domain",
+      notice: "../../../THIRD_PARTY_NOTICES.md#ocr-a-font-10",
+      retrievedAt: "2026-07-19",
+    },
   },
 ];
 
@@ -71,7 +79,14 @@ await writeFile(
   `${JSON.stringify(
     {
       package: "@mediapipe/tasks-vision@0.10.35",
-      assets: downloads.map(({ name, url, bytes, sha256 }) => ({ name, url, bytes, sha256 })),
+      generatedBy: "scripts/prepare-assets.mjs",
+      assets: downloads.map(({ name, url, bytes, sha256, provenance }) => ({
+        name,
+        url,
+        bytes,
+        sha256,
+        ...(provenance ? { provenance } : {}),
+      })),
     },
     null,
     2,

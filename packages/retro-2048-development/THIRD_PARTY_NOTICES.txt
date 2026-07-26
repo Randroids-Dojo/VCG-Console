@@ -1,0 +1,30 @@
+VCG Console Retro 2048 development package notices
+
+This notice describes a machine-local Windows x86_64 development package. It
+does not authorize redistribution or represent a completed legal review.
+
+RetroArch 1.22.2
+Project: https://github.com/libretro/RetroArch
+Source tag: https://github.com/libretro/RetroArch/tree/v1.22.2
+License: GNU General Public License version 3 only (GPL-3.0-only)
+License text: https://github.com/libretro/RetroArch/blob/v1.22.2/COPYING
+Official binary archive:
+https://buildbot.libretro.com/stable/1.22.2/windows/x86_64/RetroArch.7z
+
+libretro-2048 core from the RetroArch 1.22.2 stable Windows x86_64 core bundle
+Project: https://github.com/libretro/libretro-2048
+Audited source candidate revision:
+https://github.com/libretro/libretro-2048/commit/c90437d3c3913999624deca3fb55ecfa632b72c4
+Upstream license claim: Unlicense / public-domain dedication
+License text:
+https://github.com/libretro/libretro-2048/blob/c90437d3c3913999624deca3fb55ecfa632b72c4/COPYING
+Official core bundle:
+https://buildbot.libretro.com/stable/1.22.2/windows/x86_64/RetroArch_cores.7z
+
+Blocking redistribution issue
+
+The selected core contains an embedded bitmap labeled "Apple IIgs Original
+fonts" in noncairo/font2.c without established in-file license or provenance.
+The repository records this component as NOASSERTION. The package is therefore
+for local development evaluation only. Legal/title review, corresponding-source
+delivery, complete dependency notices, and redistribution approval remain open.

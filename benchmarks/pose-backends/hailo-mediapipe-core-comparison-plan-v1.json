@@ -1,0 +1,389 @@
+{
+  "format": "vcg-hailo-mediapipe-core-comparison-plan",
+  "formatVersion": 1,
+  "documentType": "plan",
+  "campaignId": "hailo-yolov8m-mediapipe-lite-core17-v1",
+  "createdAt": "2026-07-26T02:59:04.002Z",
+  "sourceCommit": "91b714d1c612411ee49d85a89f9b6d587fc7e9dc",
+  "workingTreeClean": false,
+  "execution": {
+    "status": "blocked",
+    "recordedAttemptCount": 0,
+    "resultArtifact": null,
+    "resultSha256": null,
+    "qualification": "not-run",
+    "selectedBackend": null,
+    "selectedGameProfileRequirements": [],
+    "blockers": [
+      "Motion has no honest Hailo source identity or reviewed explicit translator",
+      "the complete Raspberry Pi, Hailo runtime, HEF, post-processor, and camera tuple is unset",
+      "one exposure-authoritative camera stream cannot yet fan the same volatile frame to both backends",
+      "the exposure-to-game-receipt clock mapping and uncertainty proof are unset",
+      "the independent action and floor-contact ground-truth apparatus is unset",
+      "participant minimums, consent, privacy review, and metric gates are unset"
+    ]
+  },
+  "claimBoundary": "Pre-registered architecture and comparison plan only. No Hailo runtime, Hailo frame, participant, room session, same-exposure backend comparison, action or floor-contact score, latency result, richer-profile requirement, backend selection, Raspberry Pi qualification, or raw-frame retention authority exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 source text after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "hailo-core17-projection",
+      "path": "packages/motion-contract/src/hailo-core17.ts",
+      "sha256": "db644c5268cbe3010754135931c59437ac39ab433f5b3dad8f3e33a6920e1f0f"
+    },
+    {
+      "role": "mediapipe-motion-adapter",
+      "path": "apps/console-lab/src/mediapipe-adapter.ts",
+      "sha256": "65416e540d0534175f6ee97e29089393f4482a94421cf7fafc746ac720ac606b"
+    },
+    {
+      "role": "motion-schema",
+      "path": "packages/motion-contract/src/schema.ts",
+      "sha256": "2d9c2f1ba862714f51dd97fe110a131b73a129b00deb00877675acaf0c8531d5"
+    },
+    {
+      "role": "game-manifest-motion-vocabulary",
+      "path": "packages/game-manifest/src/index.ts",
+      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+    },
+    {
+      "role": "pi-image-recipe-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "pose-edge-accuracy-boundary",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    },
+    {
+      "role": "exposure-to-action-validation-boundary",
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
+    }
+  ],
+  "target": {
+    "productLane": "raspberry-pi-5-8gb-ai-hat-plus-26-tops",
+    "hostProcessor": "raspberry-pi-5-bcm2712",
+    "accelerator": "hailo-8-ai-hat-plus-26-tops",
+    "comparisonPlayerCount": 1,
+    "exactBoardRevision": null,
+    "exactHatRevision": null,
+    "operatingSystemImageSha256": null,
+    "kernelRelease": null,
+    "firmwareRevision": null,
+    "cameraUsbIdentity": null,
+    "cameraMode": null,
+    "roomManifestSha256": null
+  },
+  "backends": [
+    {
+      "backendId": "hailo-yolov8m-pose-core17",
+      "family": "hailo-native-pose",
+      "motionSource": null,
+      "requiredMotionBoundary": "visible Motion 0.5.0 hailo-native source or reviewed exact translation",
+      "adapterInput": "hailo-coco17-normalized/v1",
+      "implementation": "packages/motion-contract/src/hailo-core17.ts",
+      "model": {
+        "name": "YOLOv8m Pose",
+        "landmarkLayout": "COCO-17",
+        "hefBytes": null,
+        "hefSha256": null
+      },
+      "runtime": {
+        "pcieDriverVersion": null,
+        "hailoRtVersion": null,
+        "tappasCoreVersion": null,
+        "hailoAppsCommit": null,
+        "postProcessorSha256": null,
+        "cameraPipelineSha256": null
+      },
+      "expectedPoseProfilesAvailable": [
+        "body.core17"
+      ],
+      "expectedPoseProfilesUnavailable": [
+        "body.mediapipe33",
+        "body.world3d"
+      ],
+      "nativeActionProfilesAvailable": [],
+      "scoreCalibrationSha256": null
+    },
+    {
+      "backendId": "mediapipe-pose-landmarker-lite",
+      "family": "mediapipe-web-pose",
+      "motionSource": "mediapipe-web",
+      "requiredMotionBoundary": "Motion 0.4.0 exact source binding",
+      "adapterInput": "MediaPipe PoseLandmarkerResult",
+      "implementation": "apps/console-lab/src/mediapipe-adapter.ts",
+      "model": {
+        "name": "Pose Landmarker Lite float16 revision 1",
+        "landmarkLayout": "MediaPipe-33 plus provider-world",
+        "repositoryPath": "apps/console-lab/public/models/pose_landmarker_lite.task",
+        "bytes": 5777746,
+        "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+      },
+      "runtime": {
+        "package": "@mediapipe/tasks-vision",
+        "packageVersion": "0.10.35",
+        "browserVersion": null,
+        "wasmBundleSha256": null,
+        "delegate": null
+      },
+      "expectedPoseProfilesAvailable": [
+        "body.core17",
+        "body.mediapipe33",
+        "body.world3d"
+      ],
+      "expectedPoseProfilesUnavailable": [],
+      "nativeActionProfilesAvailable": [],
+      "scoreCalibrationSha256": null
+    }
+  ],
+  "capabilityComparison": {
+    "commonProfile": "body.core17",
+    "commonCoordinateSpecVersion": "0.1.0",
+    "commonCoordinateSystem": "image.normalized.top-left",
+    "sharedActionProfile": "actions.obstacle.v1",
+    "sharedActionOwner": "one versioned backend-neutral action engine applied after pose projection",
+    "sameExposureRequirement": "each scored attempt uses the exact same ordered exposure sequence for Hailo core17, MediaPipe core17, and the MediaPipe richer-profile ablation",
+    "comparisonViews": [
+      {
+        "viewId": "hailo-core17-vs-mediapipe-core17",
+        "purpose": "compare provider pose paths through the identical portable landmark and action boundary",
+        "hailoProfiles": [
+          "body.core17"
+        ],
+        "mediapipeProfiles": [
+          "body.core17"
+        ]
+      },
+      {
+        "viewId": "mediapipe-core17-vs-mediapipe-rich",
+        "purpose": "isolate whether MediaPipe heel, foot-index, hand, and provider-world extensions materially improve the same labeled mechanic",
+        "hailoProfiles": [],
+        "mediapipeProfiles": [
+          "body.core17",
+          "body.mediapipe33",
+          "body.world3d"
+        ]
+      },
+      {
+        "viewId": "unavailable-profile-conformance",
+        "purpose": "prove unavailable richer values remain absent and required-profile negotiation fails closed",
+        "hailoProfiles": [
+          "body.core17"
+        ],
+        "mediapipeProfiles": [
+          "body.core17",
+          "body.mediapipe33",
+          "body.world3d"
+        ]
+      }
+    ],
+    "unavailableValuePolicy": "an unavailable profile is omitted from capabilities and every field it owns is absent; never synthesize zero, null, copied core points, provider-world axes, or confidence",
+    "requiredNegotiationChecks": [
+      "Hailo accepts body.core17 as required",
+      "Hailo reports body.mediapipe33 as unavailable when optional",
+      "Hailo rejects body.mediapipe33 when required",
+      "Hailo reports body.world3d as unavailable when optional",
+      "Hailo rejects body.world3d when required",
+      "MediaPipe advertises only profiles present in every emitted frame"
+    ]
+  },
+  "capturePrivacy": {
+    "transport": "simultaneous-volatile-in-memory-fanout",
+    "sameFramePolicy": "one immutable exposure is delivered to both pinned backends before either result is scored",
+    "rawFramesRetained": false,
+    "rawFrameResultFieldsAllowed": false,
+    "temporaryRawCaptureAuthority": "not-authorized",
+    "fallbackWhenFanoutUnavailable": "block execution; do not substitute sequential, replayed, or different-session camera input",
+    "persistentFields": [
+      "opaque campaign, participant, session, cell, and attempt codes",
+      "backend and complete runtime-manifest digests",
+      "exposure-authoritative and receipt timestamps plus bounded uncertainty",
+      "normalized skeletons permitted by the compared capability view",
+      "independent action and floor-contact labels",
+      "derived action events, resource samples, invalid reasons, and aggregate metrics"
+    ],
+    "prohibitedFields": [
+      "RGB or depth image bytes",
+      "video or audio",
+      "name, display name, or contact detail",
+      "portrait, face crop, face embedding, or appearance embedding",
+      "durable body identity or profile identifier",
+      "filesystem path, URL, credential, or free-form participant text"
+    ],
+    "consentProtocolSha256": null,
+    "privacyReviewSha256": null,
+    "deletionAuditSha256": null
+  },
+  "timestampProtocol": {
+    "metricBoundary": "camera exposure to action receipt at the game boundary on one proven clock mapping",
+    "captureArrivalAcceptedAsExposure": false,
+    "acceptedExposureSources": [
+      "hardware-exposure-start",
+      "hardware-exposure-midpoint",
+      "validated-driver-exposure"
+    ],
+    "exposureSource": null,
+    "exposureClock": null,
+    "gameReceiptClock": null,
+    "clockMappingMethod": null,
+    "clockMappingProofSha256": null,
+    "exposureProofSha256": null,
+    "maximumPerAttemptUncertaintyUs": null,
+    "requiredLatencySummaries": [
+      "p50",
+      "p95",
+      "p99",
+      "worst"
+    ],
+    "requiredDropEvidence": [
+      "camera frames",
+      "fanout deliveries by backend",
+      "backend admissions",
+      "backend completions",
+      "action-engine admissions",
+      "game receipts"
+    ]
+  },
+  "study": {
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "exploratoryPersonaClasses": [
+      "seated-exploratory",
+      "limited-range-exploratory"
+    ],
+    "minimumParticipantsPerBlockingClass": null,
+    "attemptsPerPositiveLabelPerParticipantAndPlacement": 20,
+    "negativeMinutesPerParticipantAndPlacement": 15,
+    "cameraPlacements": [
+      "center-full-body",
+      "left-edge-full-body",
+      "right-edge-full-body",
+      "lower-body-near-frame-edge",
+      "partial-ankle-occlusion"
+    ],
+    "motionActions": [
+      "dodge_left",
+      "dodge_right",
+      "duck",
+      "jump"
+    ],
+    "floorEvents": [
+      "floor_contact",
+      "floor_lift"
+    ],
+    "negativeLabel": "negative",
+    "requiredNegativeStrata": [
+      "neutral standing",
+      "ordinary setup movement",
+      "single-foot weight shift",
+      "arm motion without dodge",
+      "bend without duck",
+      "toe or heel lift without jump",
+      "partial exit and re-entry",
+      "spectator or passerby"
+    ],
+    "attemptOrdering": "counterbalanced within participant; freeze the complete schedule and hash before the first scored attempt",
+    "thresholdPolicy": "freeze backend observation thresholds and the shared action engine before blocking evaluation; never tune one backend on the held-out comparison",
+    "invalidAttemptPolicy": "retain every scheduled attempt and its stable invalid reason; never replace or omit a failed backend attempt",
+    "independentLabelManifestSha256": null,
+    "floorContactApparatusManifestSha256": null,
+    "scheduleSha256": null
+  },
+  "scoring": {
+    "actionConfusionMatrixRows": [
+      "dodge_left",
+      "dodge_right",
+      "duck",
+      "jump",
+      "negative"
+    ],
+    "actionConfusionMatrixColumns": [
+      "dodge_left",
+      "dodge_right",
+      "duck",
+      "jump",
+      "no_action"
+    ],
+    "floorEventConfusionMatrixRows": [
+      "floor_contact",
+      "floor_lift",
+      "negative"
+    ],
+    "floorEventConfusionMatrixColumns": [
+      "floor_contact",
+      "floor_lift",
+      "no_event"
+    ],
+    "requiredPerLabelMetrics": [
+      "true positives",
+      "false positives",
+      "false negatives",
+      "true negatives",
+      "precision",
+      "recall",
+      "f1",
+      "false events per negative minute"
+    ],
+    "requiredTimingMetrics": [
+      "exposure-to-pose p50/p95/p99/worst",
+      "exposure-to-action-receipt p50/p95/p99/worst",
+      "ground-truth-to-action signed-error p50/p95/p99/worst"
+    ],
+    "requiredResourceMetrics": [
+      "pose FPS and dropped frames",
+      "CPU, GPU, NPU, RAM, and swap",
+      "temperature, clocks, power, and fan noise",
+      "concurrent obstacle-game frame-time p50/p95/p99/worst"
+    ],
+    "requiredSlices": [
+      "backend and capability view",
+      "participant",
+      "persona class",
+      "camera placement",
+      "action or floor event",
+      "confidence and missing-landmark stratum"
+    ],
+    "maximumActionP95LatencyMs": 120,
+    "perActionPrecisionGates": null,
+    "perActionRecallGates": null,
+    "floorEventMetricGates": null,
+    "resourceGates": null,
+    "aggregateMaskingPolicy": "report every blocking slice and incomplete cell; an aggregate pass cannot hide a failed persona, placement, action, floor event, unavailable profile, or invalid attempt",
+    "selectionPolicy": "select no backend or richer profile until every pre-registered gate is non-null and every blocking slice passes on complete same-exposure evidence"
+  },
+  "gameProfileDecision": {
+    "manifestImplementation": "packages/game-manifest/src/index.ts",
+    "currentManifestMotionProfiles": [
+      "body.core17",
+      "actions.obstacle.v1"
+    ],
+    "currentRicherProfileRequirements": [],
+    "auditScope": "every launchable first-party game and each compared dodge, duck, jump, and floor-contact mechanic",
+    "requiredEvidence": "same-exposure core-only and richer-profile metrics for the exact game mechanic, every blocking persona, and every required camera placement",
+    "richerRequirementRule": "a game may require a richer profile only when its pre-registered core-only gate fails, the richer view passes every blocking gate, the improvement is attributable to richer fields, and fail-closed unavailable-profile launch behavior is verified",
+    "coreSufficiencyRule": "retain body.core17 when it passes; do not require MediaPipe extensions from preference, aggregate improvement, or unmeasured floor-contact intuition",
+    "incompatibleBackendRule": "a backend missing a required richer profile is visibly incompatible for that game and receives no fabricated values or silent degraded control",
+    "result": "not-run",
+    "gamesRequiringRicherProfile": []
+  },
+  "requiredArtifacts": [
+    "complete source-binding and dependency-lock hashes",
+    "exact Pi, HAT, camera, OS, kernel, firmware, driver, HailoRT, TAPPAS, Hailo Apps, HEF, post-processor, MediaPipe, browser, delegate, and room manifests",
+    "consent, privacy, minimization, and deletion-audit hashes",
+    "same-exposure fanout proof with per-backend admission, completion, and drop accounting",
+    "exposure authority, common-clock mapping, and uncertainty proofs",
+    "independent action-label and floor-contact apparatus manifests",
+    "frozen participant/cell/attempt schedule and threshold hashes",
+    "closed capability manifests plus optional/required unavailable-profile negotiation transcripts",
+    "complete per-attempt skeleton, event, timing, resource, and invalid-reason records without raw media",
+    "per-view action and floor-event confusion matrices plus every required metric and slice",
+    "complete-system concurrent obstacle-game resource and frame-time evidence",
+    "per-game core-versus-richer profile audit with explicit no-requirement or requirement decision",
+    "an incomplete result when any scheduled evidence or prerequisite is missing; never a partial qualification"
+  ]
+}

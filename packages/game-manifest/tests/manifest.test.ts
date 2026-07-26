@@ -1,5 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { gameManifestJsonSchema, GameManifestSchema } from "../src";
+import {
+  deriveGamePermissionGrant,
+  formatGameManifestIssues,
+  GAME_PERMISSION_VALUES,
+  GAME_MANIFEST_SCHEMA_ID,
+  GAME_MANIFEST_SCHEMA_VERSION,
+  gameManifestJsonSchema,
+  GameManifestSchema,
+  motionProfilesForPermissions,
+} from "../src";
+import offlineNetworkErrors from "../fixtures/v1/invalid/offline-network.errors.json";
+import offlineNetworkFixture from "../fixtures/v1/invalid/offline-network.vcg-game.json";
+import qualifiedLibretroErrors from "../fixtures/v1/invalid/qualified-libretro-without-hashes.errors.json";
+import qualifiedLibretroFixture from "../fixtures/v1/invalid/qualified-libretro-without-hashes.vcg-game.json";
+import remoteOriginErrors from "../fixtures/v1/invalid/remote-origin.errors.json";
+import remoteOriginFixture from "../fixtures/v1/invalid/remote-origin.vcg-game.json";
+import unknownVersionErrors from "../fixtures/v1/invalid/unknown-version.errors.json";
+import unknownVersionFixture from "../fixtures/v1/invalid/unknown-version.vcg-game.json";
+import validLibretroFixture from "../fixtures/v1/valid/libretro.vcg-game.json";
+import validLocalWebFixture from "../fixtures/v1/valid/local-web.vcg-game.json";
+import validNativeFixture from "../fixtures/v1/valid/native.vcg-game.json";
+import validRemoteWebFixture from "../fixtures/v1/valid/remote-web.vcg-game.json";
 
 const valid = {
   schemaVersion: 1,
@@ -65,6 +86,17 @@ const validLibretro = {
 };
 
 describe("GameManifestSchema", () => {
+  it("exports the one supported schema version", () => {
+    expect(GAME_MANIFEST_SCHEMA_VERSION).toBe(1);
+    expect(gameManifestJsonSchema).toMatchObject({
+      $id: GAME_MANIFEST_SCHEMA_ID,
+      title: "VCG game manifest v1",
+    });
+    expect((gameManifestJsonSchema.properties as Record<string, unknown>)).toMatchObject({
+      schemaVersion: { const: GAME_MANIFEST_SCHEMA_VERSION },
+    });
+  });
+
   it("accepts an explicit unverified remote manifest", () => {
     expect(GameManifestSchema.parse(valid).compatibilityStatus).toBe("unverified");
   });
@@ -79,6 +111,79 @@ describe("GameManifestSchema", () => {
 
   it("rejects an offline package that requests network access", () => {
     expect(GameManifestSchema.safeParse({ ...valid, runtime: "local-web", network: "offline" }).success).toBe(false);
+  });
+
+  it("binds the existing v1 motion permissions to exact bridge profiles", () => {
+    expect(GAME_PERMISSION_VALUES).toContain("motion.core17");
+    expect(
+      motionProfilesForPermissions([
+        "gamepad",
+        "motion.core17",
+        "motion.actions.obstacle",
+      ]),
+    ).toEqual(["body.core17", "actions.obstacle.v1"]);
+    expect(
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["gamepad", "network", "motion.core17", "motion.actions.obstacle"],
+          inputProfiles: ["gamepad", "motion.obstacle.v1"],
+        }),
+      ),
+    ).toMatchObject({
+      network: true,
+      motionProfiles: ["body.core17", "actions.obstacle.v1"],
+    });
+  });
+
+  it("rejects action/profile escalation without the matching permission set", () => {
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.actions.obstacle"],
+          inputProfiles: ["motion.obstacle.v1"],
+        }),
+      ),
+    ).toThrow(/requires motion\.core17/);
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.core17", "motion.actions.obstacle"],
+          inputProfiles: [],
+        }),
+      ),
+    ).toThrow(/requires the motion\.obstacle\.v1/);
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["network", "motion.core17"],
+          inputProfiles: ["motion.obstacle.v1"],
+        }),
+      ),
+    ).toThrow(/requires the motion\.actions\.obstacle/);
+  });
+
+  it("denies raw video, microphone, and undeclared network authority in v1", () => {
+    for (const unavailable of ["camera.raw-video", "microphone"]) {
+      expect(
+        GameManifestSchema.safeParse({
+          ...valid,
+          permissions: ["network", unavailable],
+        }).success,
+        unavailable,
+      ).toBe(false);
+    }
+    expect(() =>
+      deriveGamePermissionGrant(
+        GameManifestSchema.parse({
+          ...valid,
+          permissions: ["gamepad"],
+        }),
+      ),
+    ).toThrow(/requires the network permission/);
   });
 
   it("preserves extension fields in runtime parsing and exported schema", () => {
@@ -149,5 +254,39 @@ describe("GameManifestSchema", () => {
         expect.objectContaining({ if: { properties: { runtime: { const: "libretro" } }, required: ["runtime"] } }),
       ]),
     );
+  });
+
+  it("accepts every canonical v1 valid fixture", () => {
+    const fixtures: Record<string, unknown> = {
+      "libretro.vcg-game.json": validLibretroFixture,
+      "local-web.vcg-game.json": validLocalWebFixture,
+      "native.vcg-game.json": validNativeFixture,
+      "remote-web.vcg-game.json": validRemoteWebFixture,
+    };
+    for (const [name, value] of Object.entries(fixtures)) {
+      const parsed = GameManifestSchema.safeParse(value);
+      expect(parsed, name).toMatchObject({ success: true });
+      if (parsed.success) expect(() => deriveGamePermissionGrant(parsed.data), name).not.toThrow();
+    }
+  });
+
+  it("rejects every canonical v1 invalid fixture with stable diagnostics", () => {
+    const fixtures: Record<string, Readonly<{ value: unknown; errors: readonly string[] }>> = {
+      "offline-network.vcg-game.json": { value: offlineNetworkFixture, errors: offlineNetworkErrors },
+      "qualified-libretro-without-hashes.vcg-game.json": {
+        value: qualifiedLibretroFixture,
+        errors: qualifiedLibretroErrors,
+      },
+      "remote-origin.vcg-game.json": { value: remoteOriginFixture, errors: remoteOriginErrors },
+      "unknown-version.vcg-game.json": { value: unknownVersionFixture, errors: unknownVersionErrors },
+    };
+    for (const [name, fixture] of Object.entries(fixtures)) {
+      const { value, errors } = fixture;
+      const parsed = GameManifestSchema.safeParse(value);
+      expect(parsed.success, name).toBe(false);
+      if (!parsed.success) {
+        expect(formatGameManifestIssues(parsed.error.issues), name).toEqual(errors);
+      }
+    }
   });
 });

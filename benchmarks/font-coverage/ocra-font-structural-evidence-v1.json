@@ -1,0 +1,1362 @@
+{
+  "format": "vcg-ocra-font-structural-evidence/v1",
+  "evidenceDate": "2026-07-24",
+  "subject": {
+    "path": "apps/console-lab/public/fonts/OCRA.ttf",
+    "bytes": 24316,
+    "sha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e"
+  },
+  "parserLimits": {
+    "maximumBytes": 131072,
+    "maximumTables": 64,
+    "maximumCmapSubtables": 32,
+    "maximumNameRecords": 256,
+    "maximumCodePoints": 65536,
+    "maximumSourceFiles": 512,
+    "maximumSourceFileBytes": 1048576,
+    "maximumSourceTreeBytes": 8388608
+  },
+  "sfnt": {
+    "scalarVersion": "0x00010000",
+    "tableCount": 13,
+    "tables": [
+      {
+        "tag": "GDEF",
+        "checksum": "0x0029007b",
+        "offset": 24284,
+        "length": 30
+      },
+      {
+        "tag": "OS/2",
+        "checksum": "0x58960656",
+        "offset": 344,
+        "length": 86
+      },
+      {
+        "tag": "cmap",
+        "checksum": "0xc82bbd04",
+        "offset": 672,
+        "length": 434
+      },
+      {
+        "tag": "cvt ",
+        "checksum": "0x00210279",
+        "offset": 1108,
+        "length": 4
+      },
+      {
+        "tag": "gasp",
+        "checksum": "0xffff0003",
+        "offset": 24276,
+        "length": 8
+      },
+      {
+        "tag": "glyf",
+        "checksum": "0xc3ffc5ea",
+        "offset": 1348,
+        "length": 21826
+      },
+      {
+        "tag": "head",
+        "checksum": "0xdcb5bc5d",
+        "offset": 220,
+        "length": 54
+      },
+      {
+        "tag": "hhea",
+        "checksum": "0x02b602cf",
+        "offset": 276,
+        "length": 36
+      },
+      {
+        "tag": "hmtx",
+        "checksum": "0x246e1a79",
+        "offset": 432,
+        "length": 240
+      },
+      {
+        "tag": "loca",
+        "checksum": "0xa304b948",
+        "offset": 1112,
+        "length": 236
+      },
+      {
+        "tag": "maxp",
+        "checksum": "0x00bb0081",
+        "offset": 312,
+        "length": 32
+      },
+      {
+        "tag": "name",
+        "checksum": "0xf1e8b4cc",
+        "offset": 23176,
+        "length": 783
+      },
+      {
+        "tag": "post",
+        "checksum": "0x6116ee35",
+        "offset": 23960,
+        "length": 316
+      }
+    ],
+    "names": {
+      "copyright": "Created by Sauter,U-TOWN_HALL\\Sauter,S-1-5-21-2526881554-1349 with FontForge 1.0 (http://fontforge.sf.net)",
+      "family": "OCRA",
+      "subfamily": "Medium",
+      "uniqueId": "FontForge : OCRA : 23-8-2004",
+      "fullName": "OCRA",
+      "version": "Version 001.000 ",
+      "postScriptName": "OCRA",
+      "licenseDescription": null,
+      "licenseUrl": null
+    },
+    "metrics": {
+      "unitsPerEm": 1000,
+      "boundingBox": {
+        "xMin": 82,
+        "yMin": -202,
+        "xMax": 603,
+        "yMax": 1048
+      },
+      "glyphCount": 117,
+      "weightClass": 500,
+      "widthClass": 5,
+      "embeddingFsType": 0,
+      "typoAscender": 800,
+      "typoDescender": -200,
+      "typoLineGap": 90,
+      "windowsAscent": 1048,
+      "windowsDescent": 202,
+      "horizontalHeaderAscender": 0,
+      "horizontalHeaderDescender": 0,
+      "horizontalHeaderLineGap": 90,
+      "italicAngle": 0,
+      "fixedPitch": true
+    },
+    "cmap": {
+      "selectedPlatformId": 3,
+      "selectedEncodingId": 1,
+      "selectedFormat": 4,
+      "mappingCount": 114,
+      "ranges": [
+        {
+          "start": "U+0020",
+          "end": "U+007F",
+          "count": 96
+        },
+        {
+          "start": "U+00A3",
+          "end": "U+00A3",
+          "count": 1
+        },
+        {
+          "start": "U+00A5",
+          "end": "U+00A6",
+          "count": 2
+        },
+        {
+          "start": "U+00AD",
+          "end": "U+00AD",
+          "count": 1
+        },
+        {
+          "start": "U+00B4",
+          "end": "U+00B4",
+          "count": 1
+        },
+        {
+          "start": "U+00B7",
+          "end": "U+00B8",
+          "count": 2
+        },
+        {
+          "start": "U+00BF",
+          "end": "U+00BF",
+          "count": 1
+        },
+        {
+          "start": "U+00C4",
+          "end": "U+00C6",
+          "count": 3
+        },
+        {
+          "start": "U+00D1",
+          "end": "U+00D1",
+          "count": 1
+        },
+        {
+          "start": "U+00D8",
+          "end": "U+00D8",
+          "count": 1
+        },
+        {
+          "start": "U+00F6",
+          "end": "U+00F6",
+          "count": 1
+        },
+        {
+          "start": "U+00FC",
+          "end": "U+00FC",
+          "count": 1
+        },
+        {
+          "start": "U+2440",
+          "end": "U+2442",
+          "count": 3
+        }
+      ],
+      "codePoints": [
+        "U+0020",
+        "U+0021",
+        "U+0022",
+        "U+0023",
+        "U+0024",
+        "U+0025",
+        "U+0026",
+        "U+0027",
+        "U+0028",
+        "U+0029",
+        "U+002A",
+        "U+002B",
+        "U+002C",
+        "U+002D",
+        "U+002E",
+        "U+002F",
+        "U+0030",
+        "U+0031",
+        "U+0032",
+        "U+0033",
+        "U+0034",
+        "U+0035",
+        "U+0036",
+        "U+0037",
+        "U+0038",
+        "U+0039",
+        "U+003A",
+        "U+003B",
+        "U+003C",
+        "U+003D",
+        "U+003E",
+        "U+003F",
+        "U+0040",
+        "U+0041",
+        "U+0042",
+        "U+0043",
+        "U+0044",
+        "U+0045",
+        "U+0046",
+        "U+0047",
+        "U+0048",
+        "U+0049",
+        "U+004A",
+        "U+004B",
+        "U+004C",
+        "U+004D",
+        "U+004E",
+        "U+004F",
+        "U+0050",
+        "U+0051",
+        "U+0052",
+        "U+0053",
+        "U+0054",
+        "U+0055",
+        "U+0056",
+        "U+0057",
+        "U+0058",
+        "U+0059",
+        "U+005A",
+        "U+005B",
+        "U+005C",
+        "U+005D",
+        "U+005E",
+        "U+005F",
+        "U+0060",
+        "U+0061",
+        "U+0062",
+        "U+0063",
+        "U+0064",
+        "U+0065",
+        "U+0066",
+        "U+0067",
+        "U+0068",
+        "U+0069",
+        "U+006A",
+        "U+006B",
+        "U+006C",
+        "U+006D",
+        "U+006E",
+        "U+006F",
+        "U+0070",
+        "U+0071",
+        "U+0072",
+        "U+0073",
+        "U+0074",
+        "U+0075",
+        "U+0076",
+        "U+0077",
+        "U+0078",
+        "U+0079",
+        "U+007A",
+        "U+007B",
+        "U+007C",
+        "U+007D",
+        "U+007E",
+        "U+007F",
+        "U+00A3",
+        "U+00A5",
+        "U+00A6",
+        "U+00AD",
+        "U+00B4",
+        "U+00B7",
+        "U+00B8",
+        "U+00BF",
+        "U+00C4",
+        "U+00C5",
+        "U+00C6",
+        "U+00D1",
+        "U+00D8",
+        "U+00F6",
+        "U+00FC",
+        "U+2440",
+        "U+2441",
+        "U+2442"
+      ],
+      "subtables": [
+        {
+          "platformId": 0,
+          "encodingId": 3,
+          "format": 4,
+          "supported": true,
+          "mappingCount": 114
+        },
+        {
+          "platformId": 1,
+          "encodingId": 0,
+          "format": 0,
+          "supported": false
+        },
+        {
+          "platformId": 3,
+          "encodingId": 1,
+          "format": 4,
+          "supported": true,
+          "mappingCount": 114
+        }
+      ]
+    }
+  },
+  "coverage": {
+    "sets": [
+      {
+        "id": "ascii-printable",
+        "description": "Every printable ASCII code point from SPACE through TILDE.",
+        "codePointCount": 95,
+        "codePoints": [
+          "U+0020",
+          "U+0021",
+          "U+0022",
+          "U+0023",
+          "U+0024",
+          "U+0025",
+          "U+0026",
+          "U+0027",
+          "U+0028",
+          "U+0029",
+          "U+002A",
+          "U+002B",
+          "U+002C",
+          "U+002D",
+          "U+002E",
+          "U+002F",
+          "U+0030",
+          "U+0031",
+          "U+0032",
+          "U+0033",
+          "U+0034",
+          "U+0035",
+          "U+0036",
+          "U+0037",
+          "U+0038",
+          "U+0039",
+          "U+003A",
+          "U+003B",
+          "U+003C",
+          "U+003D",
+          "U+003E",
+          "U+003F",
+          "U+0040",
+          "U+0041",
+          "U+0042",
+          "U+0043",
+          "U+0044",
+          "U+0045",
+          "U+0046",
+          "U+0047",
+          "U+0048",
+          "U+0049",
+          "U+004A",
+          "U+004B",
+          "U+004C",
+          "U+004D",
+          "U+004E",
+          "U+004F",
+          "U+0050",
+          "U+0051",
+          "U+0052",
+          "U+0053",
+          "U+0054",
+          "U+0055",
+          "U+0056",
+          "U+0057",
+          "U+0058",
+          "U+0059",
+          "U+005A",
+          "U+005B",
+          "U+005C",
+          "U+005D",
+          "U+005E",
+          "U+005F",
+          "U+0060",
+          "U+0061",
+          "U+0062",
+          "U+0063",
+          "U+0064",
+          "U+0065",
+          "U+0066",
+          "U+0067",
+          "U+0068",
+          "U+0069",
+          "U+006A",
+          "U+006B",
+          "U+006C",
+          "U+006D",
+          "U+006E",
+          "U+006F",
+          "U+0070",
+          "U+0071",
+          "U+0072",
+          "U+0073",
+          "U+0074",
+          "U+0075",
+          "U+0076",
+          "U+0077",
+          "U+0078",
+          "U+0079",
+          "U+007A",
+          "U+007B",
+          "U+007C",
+          "U+007D",
+          "U+007E"
+        ],
+        "covered": [
+          "U+0020",
+          "U+0021",
+          "U+0022",
+          "U+0023",
+          "U+0024",
+          "U+0025",
+          "U+0026",
+          "U+0027",
+          "U+0028",
+          "U+0029",
+          "U+002A",
+          "U+002B",
+          "U+002C",
+          "U+002D",
+          "U+002E",
+          "U+002F",
+          "U+0030",
+          "U+0031",
+          "U+0032",
+          "U+0033",
+          "U+0034",
+          "U+0035",
+          "U+0036",
+          "U+0037",
+          "U+0038",
+          "U+0039",
+          "U+003A",
+          "U+003B",
+          "U+003C",
+          "U+003D",
+          "U+003E",
+          "U+003F",
+          "U+0040",
+          "U+0041",
+          "U+0042",
+          "U+0043",
+          "U+0044",
+          "U+0045",
+          "U+0046",
+          "U+0047",
+          "U+0048",
+          "U+0049",
+          "U+004A",
+          "U+004B",
+          "U+004C",
+          "U+004D",
+          "U+004E",
+          "U+004F",
+          "U+0050",
+          "U+0051",
+          "U+0052",
+          "U+0053",
+          "U+0054",
+          "U+0055",
+          "U+0056",
+          "U+0057",
+          "U+0058",
+          "U+0059",
+          "U+005A",
+          "U+005B",
+          "U+005C",
+          "U+005D",
+          "U+005E",
+          "U+005F",
+          "U+0060",
+          "U+0061",
+          "U+0062",
+          "U+0063",
+          "U+0064",
+          "U+0065",
+          "U+0066",
+          "U+0067",
+          "U+0068",
+          "U+0069",
+          "U+006A",
+          "U+006B",
+          "U+006C",
+          "U+006D",
+          "U+006E",
+          "U+006F",
+          "U+0070",
+          "U+0071",
+          "U+0072",
+          "U+0073",
+          "U+0074",
+          "U+0075",
+          "U+0076",
+          "U+0077",
+          "U+0078",
+          "U+0079",
+          "U+007A",
+          "U+007B",
+          "U+007C",
+          "U+007D",
+          "U+007E"
+        ],
+        "missing": [],
+        "fullyCovered": true,
+        "disposition": "Required baseline: OCRA must cover this set directly."
+      },
+      {
+        "id": "console-source-non-ascii",
+        "description": "Every non-ASCII code point present in console-lab production CSS, Svelte, and TypeScript source.",
+        "codePointCount": 1,
+        "codePoints": [
+          "U+00B7"
+        ],
+        "covered": [
+          "U+00B7"
+        ],
+        "missing": [],
+        "fullyCovered": true,
+        "disposition": "Missing code points require a fallback or non-font asset; this audit does not approve either."
+      },
+      {
+        "id": "ocr-control-symbols",
+        "description": "OCR hook, chair, and fork symbols encoded at U+2440 through U+2442.",
+        "codePointCount": 3,
+        "codePoints": [
+          "U+2440",
+          "U+2441",
+          "U+2442"
+        ],
+        "covered": [
+          "U+2440",
+          "U+2441",
+          "U+2442"
+        ],
+        "missing": [],
+        "fullyCovered": true,
+        "disposition": "Inventory only; the console does not currently rely on these symbols."
+      },
+      {
+        "id": "localization-probe",
+        "description": "A bounded probe for common Western European accents, smart punctuation, and the euro sign.",
+        "codePointCount": 64,
+        "codePoints": [
+          "U+00C0",
+          "U+00C1",
+          "U+00C2",
+          "U+00C3",
+          "U+00C4",
+          "U+00C5",
+          "U+00C6",
+          "U+00C7",
+          "U+00C8",
+          "U+00C9",
+          "U+00CA",
+          "U+00CB",
+          "U+00CC",
+          "U+00CD",
+          "U+00CE",
+          "U+00CF",
+          "U+00D1",
+          "U+00D2",
+          "U+00D3",
+          "U+00D4",
+          "U+00D5",
+          "U+00D6",
+          "U+00D8",
+          "U+00D9",
+          "U+00DA",
+          "U+00DB",
+          "U+00DC",
+          "U+00DD",
+          "U+00E0",
+          "U+00E1",
+          "U+00E2",
+          "U+00E3",
+          "U+00E4",
+          "U+00E5",
+          "U+00E6",
+          "U+00E7",
+          "U+00E8",
+          "U+00E9",
+          "U+00EA",
+          "U+00EB",
+          "U+00EC",
+          "U+00ED",
+          "U+00EE",
+          "U+00EF",
+          "U+00F1",
+          "U+00F2",
+          "U+00F3",
+          "U+00F4",
+          "U+00F5",
+          "U+00F6",
+          "U+00F8",
+          "U+00F9",
+          "U+00FA",
+          "U+00FB",
+          "U+00FC",
+          "U+00FD",
+          "U+00FF",
+          "U+2014",
+          "U+2018",
+          "U+2019",
+          "U+201C",
+          "U+201D",
+          "U+2026",
+          "U+20AC"
+        ],
+        "covered": [
+          "U+00C4",
+          "U+00C5",
+          "U+00C6",
+          "U+00D1",
+          "U+00D8",
+          "U+00F6",
+          "U+00FC"
+        ],
+        "missing": [
+          "U+00C0",
+          "U+00C1",
+          "U+00C2",
+          "U+00C3",
+          "U+00C7",
+          "U+00C8",
+          "U+00C9",
+          "U+00CA",
+          "U+00CB",
+          "U+00CC",
+          "U+00CD",
+          "U+00CE",
+          "U+00CF",
+          "U+00D2",
+          "U+00D3",
+          "U+00D4",
+          "U+00D5",
+          "U+00D6",
+          "U+00D9",
+          "U+00DA",
+          "U+00DB",
+          "U+00DC",
+          "U+00DD",
+          "U+00E0",
+          "U+00E1",
+          "U+00E2",
+          "U+00E3",
+          "U+00E4",
+          "U+00E5",
+          "U+00E6",
+          "U+00E7",
+          "U+00E8",
+          "U+00E9",
+          "U+00EA",
+          "U+00EB",
+          "U+00EC",
+          "U+00ED",
+          "U+00EE",
+          "U+00EF",
+          "U+00F1",
+          "U+00F2",
+          "U+00F3",
+          "U+00F4",
+          "U+00F5",
+          "U+00F8",
+          "U+00F9",
+          "U+00FA",
+          "U+00FB",
+          "U+00FD",
+          "U+00FF",
+          "U+2014",
+          "U+2018",
+          "U+2019",
+          "U+201C",
+          "U+201D",
+          "U+2026",
+          "U+20AC"
+        ],
+        "fullyCovered": false,
+        "disposition": "Diagnostic only: this probe is not a localization requirement or supported-locale declaration."
+      }
+    ],
+    "productionSource": {
+      "fileCount": 90,
+      "totalBytes": 869365,
+      "files": [
+        {
+          "path": "apps/console-lab/src/action-engine.test.ts",
+          "bytes": 16392,
+          "sha256": "5c83b40cc00681781a419d9fda9fb6c19c886804fd3f54be36de9079711c7ccf"
+        },
+        {
+          "path": "apps/console-lab/src/action-engine.ts",
+          "bytes": 18365,
+          "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
+        },
+        {
+          "path": "apps/console-lab/src/action-feedback.test.ts",
+          "bytes": 1978,
+          "sha256": "463def40a3b2e37dcaadc2207497bd7c6564e3f7b96e43efbf2f9c9a1e9b7fee"
+        },
+        {
+          "path": "apps/console-lab/src/action-feedback.ts",
+          "bytes": 2304,
+          "sha256": "e83a49ffafc5cdd9de5d2d5e89168fdf9cb39ea4e4a2967ca82808af734e9e23"
+        },
+        {
+          "path": "apps/console-lab/src/body-visibility-fixture.test.ts",
+          "bytes": 1662,
+          "sha256": "097a41c2126f086c9732d26b6de91e6c7590134772b18ca1eb84f3b66e399c69"
+        },
+        {
+          "path": "apps/console-lab/src/body-visibility-fixture.ts",
+          "bytes": 1662,
+          "sha256": "95f3a2b3e3cbdc6044d784f38102d921ef3432b03904c6ab402f8c0c80fae115"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-client-fixture.ts",
+          "bytes": 1122,
+          "sha256": "58f0bec7673c44e3a6b8f2cfffbc46fda4768dce0f9651400f1d0fc80b6c0c1d"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-cross-origin-client-fixture.ts",
+          "bytes": 2724,
+          "sha256": "1c8f144998bd5143004a60dd1269f6daf737bb7112f39242544752eab09565ce"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-cross-origin-host-fixture.ts",
+          "bytes": 4179,
+          "sha256": "0a989937d6c5816bfcfa9aadb0ec099f7f84629b006d97c1324e4b87d23da248"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-host-fixture.ts",
+          "bytes": 2725,
+          "sha256": "69e0adc840af4d6b65abc0bc08c8bef85fe0ad3802665594a80be1b925ce8161"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-hostile-client-fixture.ts",
+          "bytes": 744,
+          "sha256": "e17c880176b76a471296dde06abbdfd21e9c4e1db9081a7fcf1a3c1722a58116"
+        },
+        {
+          "path": "apps/console-lab/src/bridge-stalled-client-fixture.ts",
+          "bytes": 1246,
+          "sha256": "da249b1be439c932e00a5af5aa025054b79ae95bbbc9d0d38d9fe176c0e5f19d"
+        },
+        {
+          "path": "apps/console-lab/src/browser-policy-hostile-fixture.ts",
+          "bytes": 4958,
+          "sha256": "7c0d486ed478e2775d8865baa43e585a7119ebef837472b01e0e2ae1e33945a6"
+        },
+        {
+          "path": "apps/console-lab/src/camera-state.test.ts",
+          "bytes": 2486,
+          "sha256": "b889a7f439139d47b535cd3277feb8504bdd8373d1dc0a8695d163bca58c05c8"
+        },
+        {
+          "path": "apps/console-lab/src/camera-state.ts",
+          "bytes": 3761,
+          "sha256": "b83402f610f97195288af1a0bc0f443513c3b373d6d061735e7750c7e725fe09"
+        },
+        {
+          "path": "apps/console-lab/src/frame-gate.test.ts",
+          "bytes": 680,
+          "sha256": "acd1472d57bc09adae00aab7bd635e38b7c6a820a49dbd82b05fe463f4bcddc9"
+        },
+        {
+          "path": "apps/console-lab/src/frame-gate.ts",
+          "bytes": 437,
+          "sha256": "0ab031eded017a8e993807bc04e0c0c49d00d3820bdcaeb141e410ddee1eb758"
+        },
+        {
+          "path": "apps/console-lab/src/gamepad-router.test.ts",
+          "bytes": 13834,
+          "sha256": "5ebe31027ed8851782d021ce80ccb34a524535ae16f4f5fc71376c367f88c8bc"
+        },
+        {
+          "path": "apps/console-lab/src/gamepad-router.ts",
+          "bytes": 9736,
+          "sha256": "20f410f2b922219814e6d7ca95014751019f591546536d6075e36235c640828f"
+        },
+        {
+          "path": "apps/console-lab/src/godot-bridge-host-fixture.ts",
+          "bytes": 2439,
+          "sha256": "0ab0b28b0ac7a175063d9e668e47c63b28aedf4a03776c9532437e866d2807ee"
+        },
+        {
+          "path": "apps/console-lab/src/godot-bridge-resilience-host-fixture.ts",
+          "bytes": 4220,
+          "sha256": "81f2719c4c219ddf85dafe53e9c8262921e75f7fc503fd029de57a046b7d05ac"
+        },
+        {
+          "path": "apps/console-lab/src/launcher.ts",
+          "bytes": 1557,
+          "sha256": "0e02637a3297f36aabbf5c94d941efbe97facea6a5b9ec8bd9320abd725e9610"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/BootScreen.svelte",
+          "bytes": 1263,
+          "sha256": "708fff3e6d9340dbf166fd7dcda476eeeffefe7e4af4763c5108b629c4222229"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/CalibrationRehearsalView.svelte",
+          "bytes": 15105,
+          "sha256": "87983e55e399023b3fb1c66bfa8eaf30c36afc07d08a9ade50ea34d6f04c5e64"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
+          "bytes": 6427,
+          "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/Launcher.svelte",
+          "bytes": 54548,
+          "sha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
+          "bytes": 8690,
+          "sha256": "74cb896df485c9cb383029b81ef9f8feb4f1e91023f0f46f3421ae33360bcd8a"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
+          "bytes": 19415,
+          "sha256": "66eb4f66e6fc1b181ee7855e074c1334ee51a464b8a867355712b13ea5afd675"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
+          "bytes": 2822,
+          "sha256": "be11867da2c4c62e27c207a6f4caf58ec188658c6a6fa9cbd10577f50f5c3c38"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
+          "bytes": 5100,
+          "sha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
+          "bytes": 6205,
+          "sha256": "024545c85403fb1e83a6aaa1d2164c3e92d3fcef8fd47b113913fb8cce6d76a0"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/SettingsView.svelte",
+          "bytes": 26544,
+          "sha256": "f3014aa405bf6009c6602fecbbddace60269e734e32c0992fe1885fe7170d4af"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
+          "bytes": 14519,
+          "sha256": "0ef5a820c62c6995762bb5ec16b5868d89d51c361aad98b752a8774b432fca9d"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/accessibility-preferences.test.ts",
+          "bytes": 5399,
+          "sha256": "42e297cf61dcf68eb1b9b9e75151cd407839f9d63de394fc20be6f810d208918"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/accessibility-preferences.ts",
+          "bytes": 6042,
+          "sha256": "1a19671b85856a21a0b3cbe22f23837e3e99e388dcbce55dcb151aaddc22e67c"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/av-settings-rehearsal.test.ts",
+          "bytes": 2143,
+          "sha256": "3c2ffa73d583e82c9b6509cb8d4ec1c11122a97d4266a1432a18f8a00084b32b"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/av-settings-rehearsal.ts",
+          "bytes": 2225,
+          "sha256": "cbb7a0ae4595ff4474e8d7501dcbee8edea36de93753861a980173c1adb556bc"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/calibration-rehearsal.test.ts",
+          "bytes": 15295,
+          "sha256": "65e9e46faa76f2eb2359459ad306afb25f3135b1819ddbe0c7fcb3b62c76b731"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/calibration-rehearsal.ts",
+          "bytes": 25218,
+          "sha256": "1f323c85267d70eba9fc07eb8287802851a4f96353b1fc114db746dd4609dbb3"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/catalog.generated.ts",
+          "bytes": 3258,
+          "sha256": "f7bb55eb2de3658081a639140ed7b96629d4368f798724ee7e30ef2cb0465f62"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/hosted-browser-preview.test.ts",
+          "bytes": 5076,
+          "sha256": "815090ccdf36c6d0adee670162967d9b19dc076e58a44adeeeb801d99d764f35"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/hosted-browser-preview.ts",
+          "bytes": 5912,
+          "sha256": "d2468af67876602da97bc6d5a5ffd76cc1d51dabd3829a97c9071bfd3a90f9b5"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/launch-supervisor.test.ts",
+          "bytes": 3788,
+          "sha256": "a920bf93c82b850f86c332f8a7dc76248c46fd08c4978c623551d03b3aea592e"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
+          "bytes": 6969,
+          "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/local-diagnostics.test.ts",
+          "bytes": 6560,
+          "sha256": "34b705b536080ce601308af938d9623925b802e552c4ec1c1101020d20f0a6ee"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/local-diagnostics.ts",
+          "bytes": 8301,
+          "sha256": "9fa775b95ba38f3798bbe74de879343669699f67e01386239e032bfe1e679b7b"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/motion-input.test.ts",
+          "bytes": 1287,
+          "sha256": "e8c58ccdb0ec9f93ba81c18234d4678cec691d7efca99099aca0ea41a50e39fd"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/motion-input.ts",
+          "bytes": 708,
+          "sha256": "f839e56c5e6966175b11b7dda93bf8e51c0ff2bdf8bca0af7f900d103ead7349"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/native-lifecycle.test.ts",
+          "bytes": 1866,
+          "sha256": "6a7d4df94460d8d4a4051bec0d7906cb9d1dae50eb5287b461e05f34a6eea1c6"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/native-lifecycle.ts",
+          "bytes": 971,
+          "sha256": "070851da57c4605cae5748231835cd08d9a3da08c31a87f5bc99852aec365316"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/operating-mode.test.ts",
+          "bytes": 4612,
+          "sha256": "59b44266a0d7a291c9d05d51062f007c70012a640ec23ccbe8fd8cc48deb8d7a"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/operating-mode.ts",
+          "bytes": 4488,
+          "sha256": "f96e8f8176f0687e627b965e26f8d20a2e92d29056ebfc01008a505372c168d1"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/portrait-capture.test.ts",
+          "bytes": 9524,
+          "sha256": "a140955aa5df23d9bd750f733d66c9b50dc4d703ff4fd646ecfb821ae602157d"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/portrait-capture.ts",
+          "bytes": 15187,
+          "sha256": "c5ff62237160e9dd3cf8587895d50509710e380d37a9ad0587c6edecc7ff0c38"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/power-lifecycle.test.ts",
+          "bytes": 17874,
+          "sha256": "e58a2ec0bec78676626cd5a8d251cc8d0dbd7cc1e2b2061c3c4e11512ea83535"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/power-lifecycle.ts",
+          "bytes": 22149,
+          "sha256": "641f96369dbc1008520a7b6e25cfd366fe47f3e9a2d76b8bc052de5a707dc743"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/profile-management.test.ts",
+          "bytes": 24333,
+          "sha256": "944d42d1fc609b8210857632f35c11cc0301140f8bbada0e6ec4685ad40420c1"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/profile-management.ts",
+          "bytes": 40019,
+          "sha256": "08c8fd9591bc9a436305ecb6c32c59aea673bc5a51636510e6755ed731a66e7e"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/types.ts",
+          "bytes": 1718,
+          "sha256": "30caf0ba823bbdf1e04a3b4b27f4fbdc7389638423a7d910c6ac6506c4c44155"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/unassigned-progress.test.ts",
+          "bytes": 7834,
+          "sha256": "7699f7732b49b75d158c398189ee9336055d4f961059664a8328262ffbd21f36"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/unassigned-progress.ts",
+          "bytes": 16448,
+          "sha256": "711b55c414610721af48a157cf6d90c014c8426cd3474816ec550c69a83bb52e"
+        },
+        {
+          "path": "apps/console-lab/src/local-leaderboard.test.ts",
+          "bytes": 4603,
+          "sha256": "127fa69aea14ca33027bbb9c4acecc0e959201eb32f15400ee9d79246dfdd52e"
+        },
+        {
+          "path": "apps/console-lab/src/local-leaderboard.ts",
+          "bytes": 7267,
+          "sha256": "21c4898083f8adb4579311595ed2820ba2a1b02d2e2fc7bd6381c2e317d01870"
+        },
+        {
+          "path": "apps/console-lab/src/main.ts",
+          "bytes": 56628,
+          "sha256": "3ae914bd0b5a1bf87bfedf0bbbace0e25c00c99ea37e56201f8f270324e44851"
+        },
+        {
+          "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
+          "bytes": 2162,
+          "sha256": "6374fbc41cae37009e03b1f315bf9e71f9f6542764485ff483b821e9cbf159b7"
+        },
+        {
+          "path": "apps/console-lab/src/mediapipe-adapter.ts",
+          "bytes": 3830,
+          "sha256": "65416e540d0534175f6ee97e29089393f4482a94421cf7fafc746ac720ac606b"
+        },
+        {
+          "path": "apps/console-lab/src/mediapipe-timestamp.test.ts",
+          "bytes": 501,
+          "sha256": "6959aa3f17192b1aeb3e4f413f131d809af62231ac50e9783257614c8a3b6839"
+        },
+        {
+          "path": "apps/console-lab/src/mediapipe-timestamp.ts",
+          "bytes": 224,
+          "sha256": "8b3604c9bb5f05c379025dfbd0a98940a530d02a49fb6604b7402f0da816e66c"
+        },
+        {
+          "path": "apps/console-lab/src/metrics.test.ts",
+          "bytes": 5765,
+          "sha256": "ae3a74f03f06cb61e53971592118822bd4a84117acb8bb6198b40e4117022456"
+        },
+        {
+          "path": "apps/console-lab/src/metrics.ts",
+          "bytes": 5420,
+          "sha256": "eb26f4f56b4072761c85782a76bff626b22eea6e540de1b2be7cb57203615d83"
+        },
+        {
+          "path": "apps/console-lab/src/native-host-client.test.ts",
+          "bytes": 19126,
+          "sha256": "d08bbcb82a3bc8db7262a72817049277e2366d60f38167372e3e6c3680c74c2f"
+        },
+        {
+          "path": "apps/console-lab/src/native-host-client.ts",
+          "bytes": 24798,
+          "sha256": "dabde615da1399150379da4a19b1346e0fa3f4d26b2042fc55e9f27f9605d489"
+        },
+        {
+          "path": "apps/console-lab/src/obstacle-game.ts",
+          "bytes": 6292,
+          "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+        },
+        {
+          "path": "apps/console-lab/src/player-session-adversarial.test.ts",
+          "bytes": 4119,
+          "sha256": "de27f85f154623777cf15da9c44623c333fe72d41e11ee53f6e6e54c769b9be9"
+        },
+        {
+          "path": "apps/console-lab/src/player-session-adversarial.ts",
+          "bytes": 14395,
+          "sha256": "9c2f7dada63d94bd540e27ac30d4514796c85ef46a807cedf47e3ccda91ffae9"
+        },
+        {
+          "path": "apps/console-lab/src/player-session.test.ts",
+          "bytes": 11146,
+          "sha256": "78ec003b3619f584a781f02ba9803cb5f524a8e43e5de4c375be25ead1fbaade"
+        },
+        {
+          "path": "apps/console-lab/src/player-session.ts",
+          "bytes": 17140,
+          "sha256": "0855bcbe196b6439b8173b4f2992213f88dfe51e3c977cfcf3553f526d34e500"
+        },
+        {
+          "path": "apps/console-lab/src/pose-simulator-integration.test.ts",
+          "bytes": 4585,
+          "sha256": "c1cc772574531cc904d439dccceafe87da36a31387887fffbcfd33b70b3a3513"
+        },
+        {
+          "path": "apps/console-lab/src/renderer.ts",
+          "bytes": 3759,
+          "sha256": "9e0e737ffd927646b072d633b3ebd39b91e07c5322996fc2676bbff882cf2be7"
+        },
+        {
+          "path": "apps/console-lab/src/styles.css",
+          "bytes": 108189,
+          "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
+        },
+        {
+          "path": "apps/console-lab/src/synthetic.ts",
+          "bytes": 2300,
+          "sha256": "541ed4fedcf8c139d7c8c44da756a12ff9a11ef1ad713b7f4239df89c665f16e"
+        },
+        {
+          "path": "apps/console-lab/src/trace-buffer.test.ts",
+          "bytes": 6413,
+          "sha256": "c767da1331c1c3bf15fc87abb303f24ca1b62a9d12cdd40c497b27eea3d2ecab"
+        },
+        {
+          "path": "apps/console-lab/src/trace-buffer.ts",
+          "bytes": 6558,
+          "sha256": "18cee18111405d9c0401d26e2729954d756375d97383dc7b6728c81fb5e2660c"
+        },
+        {
+          "path": "apps/console-lab/src/tracker-health.test.ts",
+          "bytes": 1407,
+          "sha256": "464bd8685f05d60851de637097b87f53b321a540d35002cbe4ffed40251d41cb"
+        },
+        {
+          "path": "apps/console-lab/src/tracker-health.ts",
+          "bytes": 3481,
+          "sha256": "70ee77df89e3456db2fe4d5a03e293a9af6789689616a447c367456ec9e27a4b"
+        },
+        {
+          "path": "apps/console-lab/src/tracker-worker-protocol.ts",
+          "bytes": 567,
+          "sha256": "f4f0c23ba49c606c95da122ae573dc1e3abd0514da64f51c3a4d76a9ec444176"
+        },
+        {
+          "path": "apps/console-lab/src/tracker-worker.ts",
+          "bytes": 3429,
+          "sha256": "e1e9ac3daa4c1e7f8a5a9ff04e3c5a593e9d1aaea57fd2c143badea8800493f1"
+        },
+        {
+          "path": "apps/console-lab/src/tracker.ts",
+          "bytes": 12704,
+          "sha256": "49e8df4c9ee37f5bd01cab6662631d9cdf103436a9b56671c0799b88e665e62d"
+        },
+        {
+          "path": "apps/console-lab/src/visual-tokens.test.ts",
+          "bytes": 5725,
+          "sha256": "e4939ac97d1f4b4f2a4711988948303c05ea428813eb7249a4088a0f4871cb65"
+        },
+        {
+          "path": "apps/console-lab/src/visual-tokens.ts",
+          "bytes": 1779,
+          "sha256": "4ba1985c3535fadf6821af97ff23d344659fddefe17964f24863fa149f93315c"
+        }
+      ],
+      "nonAsciiCodePoints": [
+        {
+          "codePoint": "U+00B7",
+          "character": "·",
+          "fontCovered": true,
+          "occurrences": [
+            {
+              "path": "apps/console-lab/src/launcher/CalibrationRehearsalView.svelte",
+              "lines": [
+                303
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/Launcher.svelte",
+              "lines": [
+                743,
+                810,
+                827,
+                840,
+                924,
+                1094,
+                1113
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
+              "lines": [
+                187
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/ProfileManagementView.svelte",
+              "lines": [
+                299
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
+              "lines": [
+                49
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/SessionAdversarialView.svelte",
+              "lines": [
+                145
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/SettingsView.svelte",
+              "lines": [
+                298,
+                300,
+                301,
+                330,
+                338,
+                347,
+                405,
+                410,
+                459,
+                480,
+                481
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
+              "lines": [
+                226,
+                378,
+                388
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/catalog.generated.ts",
+              "lines": [
+                48,
+                68,
+                89,
+                112
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
+              "lines": [
+                144
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/native-lifecycle.test.ts",
+              "lines": [
+                24,
+                27,
+                36,
+                48
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/native-lifecycle.ts",
+              "lines": [
+                13,
+                16,
+                19,
+                21
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/launcher/unassigned-progress.ts",
+              "lines": [
+                310,
+                326,
+                344
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/main.ts",
+              "lines": [
+                138,
+                246,
+                247,
+                765,
+                1116,
+                1120
+              ]
+            },
+            {
+              "path": "apps/console-lab/src/native-host-client.ts",
+              "lines": [
+                231,
+                317,
+                419
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "summary": {
+      "fontCodePointCount": 114,
+      "printableAsciiCodePointCount": 95,
+      "printableAsciiMissingCount": 0,
+      "productionSourceNonAsciiCodePointCount": 1,
+      "productionSourceNonAsciiCoveredCount": 1,
+      "productionSourceNonAsciiMissingCount": 0,
+      "fallbackRequired": false
+    }
+  },
+  "provenance": {
+    "assetProvenancePath": "apps/console-lab/public/ASSET_PROVENANCE.json",
+    "assetProvenancePathSha256": "179eff1260afc036a8cf53acc9ceb9737fa6149ae8a16f298a495de1a6ff6e14",
+    "preparationScriptPath": "scripts/prepare-assets.mjs",
+    "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
+    "stylePath": "apps/console-lab/src/styles.css",
+    "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
+    "parserPath": "scripts/ttf-inventory.mjs",
+    "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
+    "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
+    "generatorPathSha256": "3747a813df98cc59f97b8585af7a510d8d47058c99e10745201ed83c6048a44c",
+    "validatorPath": "scripts/validate-ocra-font-evidence.mjs",
+    "validatorPathSha256": "1d5d3183f3ed3e7620bb805fec8afcd5febdb03276197a77befa4a35a90555bd"
+  },
+  "disposition": {
+    "structuralInventoryVerified": true,
+    "exactFontIdentityVerified": true,
+    "printableAsciiCovered": true,
+    "allProductionSourceNonAsciiCoveredByOcra": true,
+    "fallbackRequired": false,
+    "fallbackIdentityVerified": false,
+    "glyphShapesVerified": false,
+    "tvLegibilityVerified": false,
+    "localizationQualified": false,
+    "accessibilityQualified": false,
+    "redistributionApproved": false,
+    "productionReady": false
+  },
+  "claimBoundary": "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and direct font coverage for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove dynamically supplied text coverage, glyph shape, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.",
+  "limitations": [
+    "The audit reads sfnt tables and source text; it does not rasterize glyphs, compare shapes, measure readability, or exercise a physical television.",
+    "Non-ASCII source inventory includes code points present in production .css, .svelte, and .ts files, but source presence does not prove every runtime state rendered or every dynamically supplied string.",
+    "Current static production-source text is directly covered, but dynamically supplied profile names or future localization may still use the platform fallback stack and vary by operating system and installed fonts.",
+    "The upstream Public Domain label and repository notice are provenance evidence, not a legal conclusion or final redistribution approval."
+  ]
+}

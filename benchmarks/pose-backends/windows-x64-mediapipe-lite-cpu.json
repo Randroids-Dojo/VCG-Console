@@ -1,0 +1,83 @@
+{
+  "format": "vcg-pose-backend-benchmark",
+  "formatVersion": 1,
+  "generatedAt": "2026-07-24T17:12:09.209493Z",
+  "sourceCommit": "c53136e152a96ab29ce1ed4bd8883917468cda04",
+  "workingTreeClean": false,
+  "implementationSha256": "78375e419dc256ecb5a605e6e3d691eb25114288e2677c64615e20caa3a83789",
+  "dependencyLockSha256": "3077fa2e779d05103de28bf749610a65da51bcc5961b37c3db54ed9402959c2f",
+  "environment": {
+    "platform": "win32",
+    "architecture": "amd64",
+    "python": "3.13.11",
+    "logicalCpuCount": 24
+  },
+  "backend": {
+    "name": "mediapipe-pose-landmarker-lite",
+    "library": "mediapipe",
+    "libraryVersion": "0.10.35",
+    "runtime": "mediapipe-tasks-cpu",
+    "runtimeVersion": "0.10.35",
+    "provider": "CPU",
+    "inputColorOrder": "srgb",
+    "modelRepositoryPath": "apps/console-lab/public/models/pose_landmarker_lite.task",
+    "modelBytes": 5777746,
+    "modelSha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+  },
+  "workload": {
+    "motionApiSchemaVersion": "0.4.0",
+    "width": 640,
+    "height": 640,
+    "timer": "python-time.perf_counter",
+    "latencyBoundary": "backend-call-only",
+    "latencySummaryMethod": "linear-interpolation-r7",
+    "inputs": [
+      "black",
+      "gray-114",
+      "horizontal-gradient",
+      "seeded-noise"
+    ],
+    "suiteSha256": "21b8b49feb5e0b3cfb512c74d5bbda72bd3ffd0f39faecd3ce8f63d6470373d7",
+    "warmupIterations": 20,
+    "measuredIterations": 100,
+    "containsRawFrames": false,
+    "inputClass": "deterministic-synthetic-negative-and-idle-compute-only"
+  },
+  "results": {
+    "latencyMs": {
+      "mean": 9.599,
+      "p50": 9.571,
+      "p95": 10.09,
+      "p99": 10.431,
+      "worst": 10.505
+    },
+    "throughputFps": 104.182,
+    "detections": {
+      "total": 0,
+      "maximumPerFrame": 0,
+      "byInput": {
+        "black": 0,
+        "gray-114": 0,
+        "horizontal-gradient": 0,
+        "seeded-noise": 0
+      }
+    },
+    "memoryBytes": {
+      "rssBeforeLoad": 42946560,
+      "rssAfterLoad": 177750016,
+      "rssAtEnd": 182865920,
+      "processPeakWorkingSet": 184098816
+    }
+  },
+  "claimBoundary": "Measures one process on deterministic 640x640 synthetic inputs using an explicit CPU provider. It does not measure pose accuracy, identity stability, live-camera latency, action quality, or target hardware.",
+  "limitations": [
+    "The inputs contain no consented people and cannot measure landmark accuracy.",
+    "The suite is synthetic and does not represent household lighting, clothing, occlusion, or motion.",
+    "The benchmark uses sequential single-frame calls rather than a live capture pipeline.",
+    "Reported latency starts immediately before backend inference and excludes camera exposure and capture.",
+    "Candidate identities and cross-frame player stability are not exercised.",
+    "Only this Windows x86 development host and CPU execution path are qualified.",
+    "GPU execution is not qualified because the required local CUDA and cuDNN runtime was unavailable.",
+    "Memory values describe the whole Python process and loaded dependencies, not model allocations alone."
+  ]
+}

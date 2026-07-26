@@ -51,6 +51,13 @@ The complete 4GB or 8GB Pi build can therefore approach or exceed a capable mini
 
 The official Hailo YOLO pose path provides the COCO-style 17-point skeleton: nose, eyes, ears, shoulders, elbows, wrists, hips, knees, and ankles. That is likely sufficient to prototype dodge, duck, and jump, but it lacks MediaPipe's extra hand, foot, heel, and toe landmarks and does not automatically provide the same world-coordinate semantics. Floor contact, foot direction, subtle stance, and edge-of-frame jumps need direct comparison.
 
+The desk code now has a strict pre-wire projection for an explicitly versioned,
+already-normalized named Hailo COCO-17 observation. It exposes only
+`body.core17`, rejects malformed/order-confused inputs, and keeps richer/world
+profiles unavailable. It does not parse an unpinned Hailo SDK object or emit a
+Motion frame: Motion `0.4.0` lacks an honest Hailo source value, and no hardware
+or runtime tuple has been exercised.
+
 The Motion API should mark unsupported landmarks absent rather than inventing values. Shared gestures must declare their minimum landmark set and confidence requirements.
 
 ### Host workload

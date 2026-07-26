@@ -1,0 +1,227 @@
+{
+  "format": "vcg-pi5-radio-coexistence-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-wifi-bluetooth-camera-coexistence-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": "I-026",
+  "claimBoundary": "Pre-registered Raspberry Pi 5 Wi-Fi/Bluetooth coexistence campaign only. No received target, enclosure, antenna, access point, channel, controller, camera, room, network, service, trial, packet, throughput, input-latency, disconnect, reconnect, capture, exposure-latency, RF, thermal, power, qualification, support, purchase, or product result exists.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "controller-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "camera-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "workload-boundary",
+      "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
+      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+    },
+    {
+      "role": "enclosed-thermal-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    }
+  ],
+  "targetBoundary": {
+    "hostProduct": "Raspberry Pi 5 8GB",
+    "acceleratorProduct": "Raspberry Pi AI HAT+ 26 TOPS",
+    "receivedHardwareSha256": null,
+    "imageKernelFirmwareSha256": null,
+    "wifiBluetoothDriverFirmwareSha256": null,
+    "regulatoryDomain": null,
+    "antennaAndEnclosureGeometrySha256": null,
+    "cameraUsbTopologySha256": null,
+    "controllerInventorySha256": null,
+    "accessPointInventoryAndConfigurationSha256": null,
+    "networkServerAndPathSha256": null,
+    "roomRfSurveySha256": null,
+    "workloadBundleSha256": null,
+    "instrumentCalibrationSha256": null
+  },
+  "radioBands": [
+    {
+      "bandId": "wifi-2g4-bluetooth-cochannel-risk",
+      "required": true,
+      "wifiCenterFrequencyHz": null,
+      "wifiChannelWidthHz": null,
+      "wifiChannel": null,
+      "bluetoothAdaptiveFrequencyHoppingVerified": null
+    },
+    {
+      "bandId": "wifi-5g-bluetooth-control",
+      "required": true,
+      "wifiCenterFrequencyHz": null,
+      "wifiChannelWidthHz": null,
+      "wifiChannel": null,
+      "bluetoothAdaptiveFrequencyHoppingVerified": null
+    }
+  ],
+  "placementStrata": [
+    {
+      "placementId": "open-enclosure-diagnostic",
+      "required": true,
+      "mayQualifyProduct": false,
+      "geometrySha256": null
+    },
+    {
+      "placementId": "closed-enclosure-installed-below-tv",
+      "required": true,
+      "mayQualifyProduct": true,
+      "geometrySha256": null
+    }
+  ],
+  "scenarios": [
+    {
+      "scenarioId": "wifi-idle-no-camera-no-controller",
+      "cameraMode": "disabled",
+      "bluetoothControllerCount": 0,
+      "networkLoad": "idle-associated"
+    },
+    {
+      "scenarioId": "wifi-download-camera-1080p60-no-controller",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 0,
+      "networkLoad": "bounded-sustained-download"
+    },
+    {
+      "scenarioId": "wifi-idle-camera-1080p60-one-controller",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 1,
+      "networkLoad": "idle-associated"
+    },
+    {
+      "scenarioId": "wifi-download-camera-1080p60-one-controller",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 1,
+      "networkLoad": "bounded-sustained-download"
+    },
+    {
+      "scenarioId": "wifi-bidirectional-camera-1080p60-two-controllers",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 2,
+      "networkLoad": "bounded-bidirectional"
+    },
+    {
+      "scenarioId": "hosted-workload-camera-1080p60-two-controllers",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 2,
+      "networkLoad": "representative-hosted-session"
+    },
+    {
+      "scenarioId": "update-download-camera-1080p60-one-controller",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 1,
+      "networkLoad": "qualified-update-download-no-install"
+    },
+    {
+      "scenarioId": "radio-loss-reconnect-under-full-load",
+      "cameraMode": "1920x1080-at-60-fps",
+      "bluetoothControllerCount": 2,
+      "networkLoad": "bounded-bidirectional-with-authorized-radio-fault"
+    }
+  ],
+  "schedule": {
+    "bandCount": 2,
+    "placementCount": 2,
+    "scenarioCount": 8,
+    "requiredCellCount": 32,
+    "warmupSecondsPerCell": 300,
+    "measuredSecondsPerCell": 1800,
+    "validTrialsPerInputLatencyCell": 20,
+    "validReconnectCyclesPerFaultCell": 20,
+    "samplingPeriodMs": 1000,
+    "counterbalancedOrder": true,
+    "invalidHarnessTrialsRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "scheduleSha256": null,
+    "operatorProtocolSha256": null,
+    "networkPayloadManifestSha256": null
+  },
+  "requiredMetrics": [
+    "Wi-Fi RSSI noise rate MCS retransmission retry disconnect and reassociation distributions",
+    "round-trip packet loss jitter and latency plus application throughput and stall distributions",
+    "Bluetooth connection event interval retransmission quality disconnect reconnect and new-epoch proof",
+    "controller physical-stimulus-to-SDL and shell-action p50 p95 p99 worst misses duplicates stuck and wrong-player events",
+    "camera negotiated mode capture cadence drops duplicates USB errors and reconnect state",
+    "exposure-to-action p50 p95 p99 and worst with timestamp uncertainty",
+    "pose FPS game FPS frame-time tails and capture-through-delivery drops",
+    "CPU GPU accelerator RAM network USB and process utilization",
+    "wall power SoC radio and enclosure temperatures clocks throttling and fan behavior",
+    "network Bluetooth camera tracker and game fault containment and fresh recovery",
+    "exact target enclosure radio controller camera access-point channel room workload schedule and evidence digests"
+  ],
+  "acceptance": {
+    "maximumExposureToActionP95Ms": 120,
+    "maximumControllerLifecycleFaults": 0,
+    "maximumStuckOrFabricatedActions": 0,
+    "maximumWrongPlayerOrOldEpochActions": 0,
+    "maximumUnrecoveredDisconnects": 0,
+    "requiredCaptureWidth": 1920,
+    "requiredCaptureHeight": 1080,
+    "requiredCaptureFramesPerSecond": 60,
+    "maximumPacketLossRatio": null,
+    "maximumRoundTripP95Ms": null,
+    "maximumJitterP95Ms": null,
+    "minimumDownloadBitsPerSecond": null,
+    "minimumUploadBitsPerSecond": null,
+    "maximumControllerInputP95Ms": null,
+    "maximumControllerReconnectMs": null,
+    "maximumWifiReassociationMs": null,
+    "maximumCaptureDropRatio": null,
+    "maximumPoseDropRatio": null,
+    "minimumPoseFps": null,
+    "minimumGameFps": null,
+    "maximumSustainedSocTemperatureC": null,
+    "maximumWallPowerW": null,
+    "everyRequiredCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "fiveGhzMayRescueFailedTwoGhzCell": false,
+    "openEnclosureMayQualifyClosedEnclosure": false,
+    "throughputMayRescueInputCameraOrRecoveryFailure": false
+  },
+  "dataPolicy": {
+    "rawMacBssidSsidOrControllerIdentifiersAuthorized": false,
+    "wifiCredentialsAuthorized": false,
+    "networkPayloadBodiesAuthorized": false,
+    "rawUsbBluetoothDescriptorsAuthorized": false,
+    "rawFramesOrAudioAuthorized": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "saltedPerCampaignOpaqueDeviceAliasesAllowed": true,
+    "aggregateTelemetryReleaseOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "networkTrafficAuthorized": false,
+    "hostedServiceUseAuthorized": false,
+    "radioFaultInjectionAuthorized": false,
+    "participantCollectionAuthorized": false,
+    "blockerCodes": [
+      "received-target-enclosure-controller-camera-and-access-point-identities",
+      "qualified-image-radio-driver-firmware-and-regulatory-domain",
+      "closed-enclosure-antenna-usb-and-placement-geometry",
+      "network-server-path-payload-and-hosted-service-authority",
+      "room-rf-survey-instruments-and-interference-boundary",
+      "counterbalanced-schedule-input-stimulus-and-recovery-oracles",
+      "packet-latency-throughput-camera-pose-power-thermal-and-recovery-gates",
+      "hardware-purchase-network-service-radio-fault-and-participant-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedCells": 0,
+    "qualifiedBands": [],
+    "qualifiedPlacements": [],
+    "productQualified": false
+  }
+}

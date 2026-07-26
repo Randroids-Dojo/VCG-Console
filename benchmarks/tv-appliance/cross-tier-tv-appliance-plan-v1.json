@@ -1,0 +1,252 @@
+{
+  "format": "vcg-cross-tier-tv-appliance-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-tv-sleep-wake-input-audio-hotplug-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-118"
+  ],
+  "claimBoundary": "Pre-registered physical-TV appliance behavior campaign only. No television, port, cable, receiver, display, audio, HDMI-CEC, sleep, wake, input-switch, hot-plug, controller-recovery, reliability, target, or product result exists. Browser pixels, EDID or ELD state, compositor state, an audio API event, CEC traffic, and a running launcher cannot establish physical picture, audible output, user control, or recovery.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "pi-hdmi-audio-cec-boundary",
+      "path": "benchmarks/pi5-hdmi-cec/pi5-hdmi-audio-cec-plan-v1.json",
+      "sha256": "ad962655bcd2d2c44bf9c42675582ca6c735d48615771e2acb95ad572801b6c0"
+    },
+    {
+      "role": "ordinary-x86-target-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "cross-tier-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "display-audio-settings-boundary",
+      "path": "docs/DISPLAY_AUDIO_SETTINGS_REHEARSAL_2026-07-25.md",
+      "sha256": "1a2403fccef854e5a460bf5cb39e9115ae1acea1a99942cdc770a44f3d74e02e"
+    },
+    {
+      "role": "power-recovery-policy-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional"
+    ],
+    "windowsMayQualifyOrdinaryLinux": false,
+    "wsl2MayQualifyOrdinaryLinux": false,
+    "steamMachineMaySubstituteRequiredTarget": false,
+    "oneRequiredTargetMayRescueAnother": false,
+    "piCampaignMayQualifyOrdinaryX86": false,
+    "automaticTargetSelection": false
+  },
+  "targets": [
+    {
+      "targetId": "ordinary-x86-linux-premium",
+      "role": "common-premium-required",
+      "required": true,
+      "idleStrategy": null,
+      "idleStrategyBoundary": "Q-270 must select platform suspend or low-power launcher idle for the exact ordinary-Linux tuple before execution.",
+      "hardwareAndFirmwareSha256": null,
+      "operatingSystemRuntimeAndCompositorSha256": null,
+      "displayAudioAndCecStackSha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "pi5-hailo26-reference",
+      "role": "lower-cost-reference-required",
+      "required": true,
+      "idleStrategy": "low-power-launcher-idle",
+      "idleStrategyBoundary": "D-095 requires measured low-power launcher idle unless reliable Raspberry Pi suspend is separately proven and selected.",
+      "hardwareAndFirmwareSha256": null,
+      "operatingSystemRuntimeAndCompositorSha256": null,
+      "displayAudioAndCecStackSha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "steam-machine-optional",
+      "role": "later-optional-compatibility",
+      "required": false,
+      "idleStrategy": "platform-suspend",
+      "idleStrategyBoundary": "D-095 assigns suspend to Steam Machine, but D-119 keeps this target optional and unable to rescue either common target.",
+      "hardwareAndFirmwareSha256": null,
+      "operatingSystemRuntimeAndCompositorSha256": null,
+      "displayAudioAndCecStackSha256": null,
+      "qualifiedConfigurationSha256": null
+    }
+  ],
+  "sharedEquipmentBoundary": {
+    "primaryTvManufacturerModelRevisionSha256": null,
+    "primaryTvFirmwareAndSettingsSha256": null,
+    "primaryTvPortSha256": null,
+    "hdmiCableIdentityAndCertificationSha256": null,
+    "externalSourceIdentitySha256": null,
+    "optionalReceiverOrSoundbarIdentitySha256": null,
+    "physicalVideoAndAudioOracleSha256": null,
+    "controllerAndPhysicalFallbackOracleSha256": null,
+    "independentTimingHarnessSha256": null,
+    "cecAdapterAndTraceToolSha256": null,
+    "roomAndViewingGeometrySha256": null
+  },
+  "scenarios": [
+    {
+      "scenarioId": "launcher-idle-tv-standby-and-approved-wake",
+      "domain": "sleep-wake",
+      "requiredOutcome": "The approved wake source restores a physically visible and audible controller-usable launcher inside the fixed warm-wake deadline without bypassing quiescence or privacy gates."
+    },
+    {
+      "scenarioId": "tv-standby-while-console-active-and-return",
+      "domain": "sleep-wake",
+      "requiredOutcome": "Television standby and return cannot create a false active state, leave capture or a game ambiguous, lose audio, or remove controller and physical recovery."
+    },
+    {
+      "scenarioId": "deliberate-input-switch-away-and-back",
+      "domain": "input-switch",
+      "requiredOutcome": "A deliberate switch away is respected and return restores the exact display and audio route without focus fighting, repeated commands, or an unusable shell."
+    },
+    {
+      "scenarioId": "external-source-takes-input-and-user-returns",
+      "domain": "input-switch",
+      "requiredOutcome": "The console does not fight an external source, claim success from CEC traffic alone, or retake input until the approved deliberate user action."
+    },
+    {
+      "scenarioId": "direct-tv-audio-route-loss-and-restoration",
+      "domain": "audio-change",
+      "requiredOutcome": "Loss and restoration of the direct-TV stereo route is reported honestly and returns correct left and right audible output without clipping, dropout, or stale routing."
+    },
+    {
+      "scenarioId": "audio-device-change-away-and-back",
+      "domain": "audio-change",
+      "requiredOutcome": "Changing to another approved output and back never lets an optional receiver rescue direct-TV failure and preserves a controller-usable recovery path."
+    },
+    {
+      "scenarioId": "hdmi-unplug-replug-and-safe-mode-recovery",
+      "domain": "hotplug",
+      "requiredOutcome": "Physical HDMI removal and reinsertion reacquires fresh display, audio, and CEC state before use and restores a safe controller-operable mode without a blind loop."
+    },
+    {
+      "scenarioId": "hotplug-during-launch-game-and-idle-boundaries",
+      "domain": "hotplug",
+      "requiredOutcome": "Hot-plug at launcher, loading, running-game, failure, and idle boundaries cannot manufacture readiness or strand the appliance without Back, Home, or physical fallback."
+    }
+  ],
+  "cycleProtocol": {
+    "phases": [
+      "prove baseline physical picture audible stereo and controller response",
+      "apply exactly one scheduled TV input audio sleep wake or hot-plug stimulus",
+      "observe physical state and host state independently without accepting API state as physical proof",
+      "apply the pre-registered recovery action without unscheduled operator intervention",
+      "prove restored physical picture audible stereo controller response and privileged fallback",
+      "hold the restored state for the complete post-recovery observation interval"
+    ],
+    "validCyclesPerScenarioPerTarget": 100,
+    "minimumPostRecoveryObservationSeconds": 60,
+    "counterbalancedTargetScenarioOrder": true,
+    "invalidHarnessCyclesRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "unscheduledOperatorInterventionIsProductFailure": true,
+    "scheduleSha256": null,
+    "operatorProtocolSha256": null,
+    "faultInjectionProtocolSha256": null,
+    "physicalObservationProtocolSha256": null
+  },
+  "requiredMetrics": [
+    "cycle target scenario and exact configuration digests with salted campaign equipment aliases",
+    "independent stimulus start physical picture audible output and first controller-response timestamps with uncertainty",
+    "requested host-observed and physically confirmed display input audio power and CEC states kept separate",
+    "wake input-switch audio-route and hot-plug recovery latency p50 p95 p99 worst and failure counts",
+    "video blanking link reset mode fallback overscan and unexpected active-source event counts",
+    "audible channel identity dropout clipping underrun stale-route and unexpected-device event counts",
+    "controller Back Home and physical fallback availability throughout every transition",
+    "launcher game tracker camera input storage and update lifecycle state before during and after each transition",
+    "CEC transmission acknowledgement retry timeout loop and false-success counts when CEC is supported",
+    "crash hang watchdog restart unscheduled intervention and unrecovered-cycle counts",
+    "wall power temperature throttling and resource state before during and after each transition"
+  ],
+  "acceptance": {
+    "maximumWarmWakeToControllerUsableMs": 5000,
+    "maximumUnrecoveredCycles": 0,
+    "maximumFalsePhysicalReadyOrAudibleClaims": 0,
+    "maximumCecLoopsOrRunawayRepeats": 0,
+    "maximumUnexpectedInputTakeovers": 0,
+    "maximumLostControllerOrPhysicalFallbacks": 0,
+    "maximumPrivacyOrQuiescenceGateViolations": 0,
+    "maximumCrashesHangsOrUnboundedRestarts": 0,
+    "maximumWakeFailureRatio": null,
+    "maximumInputSwitchRecoveryP95Ms": null,
+    "maximumAudioRouteRecoveryP95Ms": null,
+    "maximumHotPlugRecoveryP95Ms": null,
+    "maximumUnexpectedAudioDropouts": null,
+    "maximumUnexpectedVideoBlankingEvents": null,
+    "maximumWallPowerW": null,
+    "maximumSustainedTemperatureC": null,
+    "everyRequiredTargetScenarioCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "anotherTargetMayRescueFailedTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "cecTrafficMayEstablishPhysicalOutcome": false,
+    "edidEldOrCompositorStateMayEstablishPhysicalOutcome": false,
+    "audioApiStateMayEstablishAudibleOutput": false,
+    "runningLauncherMayEstablishControllerUsability": false
+  },
+  "schedule": {
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "scenarioCount": 8,
+    "requiredTargetScenarioCellCount": 16,
+    "requiredCycles": 1600,
+    "optionalCycles": 800,
+    "piI027I028CyclesMayBeReusedOnlyWithExactProtocolAndCellIdentity": true,
+    "reusedCycleMayAppearOnce": true,
+    "partialPiEvidenceMayQualifyCrossTierCampaign": false
+  },
+  "dataPolicy": {
+    "rawFramesVideoOrAudioRecordingAuthorized": false,
+    "rawEdidEldOrCecTraceReleaseAuthorized": false,
+    "stableEquipmentSerialsAllowed": false,
+    "networkAddressesOrCredentialsAllowed": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "saltedPerCampaignEquipmentAliasesAllowed": true,
+    "aggregateTelemetryReleaseOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "hardwareAccessAuthorized": false,
+    "purchaseAuthorized": false,
+    "tvPowerInputVolumeOrMuteMutationAuthorized": false,
+    "displayModeOrAudioRouteMutationAuthorized": false,
+    "cecTransmissionAuthorized": false,
+    "physicalHotPlugAuthorized": false,
+    "sustainedCampaignAuthorized": false,
+    "blockerCodes": [
+      "selected-received-target-tv-port-cable-source-and-optional-receiver-tuples",
+      "qualified-target-images-compositors-display-audio-cec-and-controller-stacks",
+      "ordinary-x86-idle-strategy-and-exact-wake-source-policy",
+      "physical-video-audio-controller-fallback-and-independent-timing-oracles",
+      "counterbalanced-hundred-cycle-schedule-and-fault-protocol",
+      "wake-input-audio-hotplug-reliability-power-and-thermal-gates",
+      "hardware-purchase-tv-mutation-cec-hotplug-and-sustained-campaign-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredCycles": 0,
+    "completedOptionalCycles": 0,
+    "qualifiedTargetIds": [],
+    "qualifiedScenarioIds": [],
+    "failedCellIds": []
+  }
+}

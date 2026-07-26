@@ -1,8 +1,9 @@
 import { MotionBridgeClient, type BridgeMessageReceiver, type BridgePostTarget } from "@vcg/motion-web-bridge";
 
 const status = document.querySelector<HTMLElement>("#client-status");
+const health = document.querySelector<HTMLOutputElement>("#health-state");
 const output = document.querySelector<HTMLOutputElement>("#frame-sequence");
-if (!status || !output) throw new Error("Bridge client fixture is incomplete");
+if (!status || !health || !output) throw new Error("Bridge client fixture is incomplete");
 
 const client = new MotionBridgeClient({
   receiver: window as unknown as BridgeMessageReceiver,
@@ -12,6 +13,9 @@ const client = new MotionBridgeClient({
   request: { requiredProfiles: ["body.core17"], optionalProfiles: [] },
   onStateChange: (state) => {
     status.textContent = state.toUpperCase();
+  },
+  onHealth: (event) => {
+    health.textContent = `HEALTH ${event.reason.toUpperCase()} / ${event.controlAvailability.toUpperCase()}`;
   },
   onFrame: (frame) => {
     output.textContent = `FRAME ${frame.sequence}`;
