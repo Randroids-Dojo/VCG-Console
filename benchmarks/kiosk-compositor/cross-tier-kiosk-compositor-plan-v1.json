@@ -1,0 +1,465 @@
+{
+  "format": "vcg-cross-tier-kiosk-compositor-plan/v1",
+  "status": "blocked",
+  "campaignId": "i092-cross-tier-kiosk-compositor-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-092",
+    "Q-047",
+    "Q-101"
+  ],
+  "claimBoundary": "This is a strict source-bound zero-result Cage, Gamescope, and VCG-wrapper comparison plan. Upstream descriptions, current source revisions, successful builds, Chromium flags, app mode, process survival, wrapper readiness or liveness, a compositor process, Windows or WSL evidence, and another target, route, workload, scenario, or aggregate do not prove a visible focused usable contained browser session, unstealable reserved controls, controller-only recovery, descendant cleanup, profile isolation, audio/video continuity, offline behavior, target qualification, or product selection. No download, build, install, target, display, controller, network workload, fault, power, session, qualification, selection, compatibility, or publication operation is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "upstream-candidate-source-screen",
+      "path": "docs/KIOSK_COMPOSITOR_SOURCE_SCREEN_2026-07-26.md",
+      "sha256": "68887a5ab5d7281b574612997bed3e63ac745e0d43d198b56c3c208e77d42a76"
+    },
+    {
+      "role": "hosted-browser-supervision-boundary",
+      "path": "docs/HOSTED_BROWSER_SUPERVISION.md",
+      "sha256": "d7469dad2550119a72e1f61d380fa174279cba2a72b6033260d1ca652b05cc43"
+    },
+    {
+      "role": "offline-and-service-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "security-boundary",
+      "path": "docs/SECURITY_THREAT_MODEL.md",
+      "sha256": "493d26ff3d494ead819232410e5b36aa8d0785073cc7d04617b7b54d719cb053"
+    },
+    {
+      "role": "reserved-recovery-boundary",
+      "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
+      "sha256": "fd8d01b3b22dae1d2849aa345331003abaff736f01242b9f81a4f2bc0970cd1f"
+    },
+    {
+      "role": "controller-qualification-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "tv-appliance-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "fae1d110986c17d4e7401a5fb337d9f12291d7359350a1fbb4b5243e42b69a36"
+    },
+    {
+      "role": "boot-resume-launch-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "ordinary-x86-target-boundary",
+      "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
+      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+    },
+    {
+      "role": "pi-target-boundary",
+      "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
+      "sha256": "c5127d4ae6b0ace6b24eb8634ae1a0507a0f9b53163a63f024d51e82271b9356"
+    },
+    {
+      "role": "desk-wrapper-implementation-boundary",
+      "path": "scripts/hosted-browser-supervisor.ts",
+      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+    }
+  ],
+  "sourceScreen": {
+    "capturedAt": "2026-07-26",
+    "cage": {
+      "repository": "https://github.com/cage-kiosk/cage",
+      "observedRevision": "5491610293a59123710861330be92e4c2ec93840",
+      "readmeUrl": "https://raw.githubusercontent.com/cage-kiosk/cage/5491610293a59123710861330be92e4c2ec93840/README.md",
+      "readmeBytes": 2518,
+      "readmeSha256": "7ad6d2850c21dc9c958ae4107c4e8729763397033bdf23503563a0087de58b10",
+      "manpageUrl": "https://raw.githubusercontent.com/cage-kiosk/cage/5491610293a59123710861330be92e4c2ec93840/cage.1.scd",
+      "manpageBytes": 1456,
+      "manpageSha256": "4612f4499a6c60c65049625efbaf6a66a822c773db4c29f35785ba3d910fab08",
+      "observedFacts": [
+        "single-maximized-application-wayland-kiosk",
+        "nested-virtual-output-or-tty-kms-drm-modes",
+        "observed-source-based-on-wlroots-0.20",
+        "xwayland-support-depends-on-build-and-installed-binary"
+      ],
+      "sourceFactsMayQualifyBuildTargetOrProduct": false
+    },
+    "gamescope": {
+      "repository": "https://github.com/ValveSoftware/gamescope",
+      "observedRevision": "17baf4abd1ab3353fb705e4d0d023f84e870f7e8",
+      "readmeUrl": "https://raw.githubusercontent.com/ValveSoftware/gamescope/17baf4abd1ab3353fb705e4d0d023f84e870f7e8/README.md",
+      "readmeBytes": 5595,
+      "readmeSha256": "d01cc26db47f9f69fabcda36abf48f26cbff3db1bb6fd7313b8e523db0c023aa",
+      "observedFacts": [
+        "embedded-and-nested-micro-compositor-modes",
+        "private-xwayland-desktop-described-for-nested-use",
+        "virtual-game-and-output-resolution-controls",
+        "documented-keyboard-shortcuts-include-screenshot-and-grab"
+      ],
+      "sourceFactsMayQualifyBuildTargetOrProduct": false
+    },
+    "chromium": {
+      "officialFlagsDocumentationUrl": "https://chromium.googlesource.com/playground/chromium-org-site/+/master/developers/how-tos/run-chromium-with-flags.md",
+      "observedFacts": [
+        "command-line-switches-change-browser-behavior",
+        "switches-are-not-supported-or-recommended",
+        "switches-may-break-in-the-future"
+      ],
+      "flagsAppModeOrKioskMayQualifyContainmentOrRecovery": false
+    }
+  },
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "pi5-ai-hat26",
+      "ordinary-x86-linux"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-steamos"
+    ],
+    "windowsOrWslMayQualifyRequiredLinuxTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "oneRequiredTargetMayRescueAnother": false,
+    "successfulNestedDesktopRunMayQualifyTtyOrApplianceSession": false,
+    "sourceBuildOrProcessSurvivalMayQualifyTarget": false
+  },
+  "targets": [
+    {
+      "targetId": "pi5-ai-hat26",
+      "role": "required-lower-cost-aarch64-reference",
+      "required": true,
+      "hardwareFirmwareDisplayAndInputSha256": null,
+      "osKernelGpuDriverAndSessionSha256": null,
+      "browserCompositorAndWrapperBuildSha256": null,
+      "audioStorageNetworkAndPowerSha256": null,
+      "faultHarnessClockAndOracleSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "ordinary-x86-linux",
+      "role": "required-premium-x86-64-reference",
+      "required": true,
+      "hardwareFirmwareDisplayAndInputSha256": null,
+      "osKernelGpuDriverAndSessionSha256": null,
+      "browserCompositorAndWrapperBuildSha256": null,
+      "audioStorageNetworkAndPowerSha256": null,
+      "faultHarnessClockAndOracleSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "steam-machine-steamos",
+      "role": "optional-steamos-compatibility-target",
+      "required": false,
+      "hardwareFirmwareDisplayAndInputSha256": null,
+      "osKernelGpuDriverAndSessionSha256": null,
+      "browserCompositorAndWrapperBuildSha256": null,
+      "audioStorageNetworkAndPowerSha256": null,
+      "faultHarnessClockAndOracleSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    }
+  ],
+  "routeCandidates": [
+    {
+      "routeId": "cage-chromium-vcg-wrapper",
+      "role": "dedicated-single-application-wayland-candidate",
+      "dedicatedCompositor": true,
+      "compositorFamily": "cage",
+      "observedUpstreamRevision": "5491610293a59123710861330be92e4c2ec93840",
+      "exactCompositorBuildAndDependencyManifestSha256": null,
+      "exactBrowserAndSignedWrapperBuildManifestSha256": null,
+      "exactSessionInvocationAndEnvironmentPolicySha256": null,
+      "exactPrivilegeInputFocusAndProcessPolicySha256": null,
+      "sourceDescriptionMayQualifyRoute": false,
+      "qualified": false
+    },
+    {
+      "routeId": "gamescope-chromium-vcg-wrapper",
+      "role": "dedicated-game-session-micro-compositor-candidate",
+      "dedicatedCompositor": true,
+      "compositorFamily": "gamescope",
+      "observedUpstreamRevision": "17baf4abd1ab3353fb705e4d0d023f84e870f7e8",
+      "exactCompositorBuildAndDependencyManifestSha256": null,
+      "exactBrowserAndSignedWrapperBuildManifestSha256": null,
+      "exactSessionInvocationAndEnvironmentPolicySha256": null,
+      "exactPrivilegeInputFocusAndProcessPolicySha256": null,
+      "sourceDescriptionMayQualifyRoute": false,
+      "qualified": false
+    },
+    {
+      "routeId": "vcg-wrapper-base-compositor-control",
+      "role": "wrapper-control-requiring-an-exact-owner-selected-base-compositor",
+      "dedicatedCompositor": false,
+      "compositorFamily": "owner-selected-base-compositor-required",
+      "observedUpstreamRevision": null,
+      "exactCompositorBuildAndDependencyManifestSha256": null,
+      "exactBrowserAndSignedWrapperBuildManifestSha256": null,
+      "exactSessionInvocationAndEnvironmentPolicySha256": null,
+      "exactPrivilegeInputFocusAndProcessPolicySha256": null,
+      "sourceDescriptionMayQualifyRoute": false,
+      "qualified": false
+    }
+  ],
+  "workloads": [
+    {
+      "workloadId": "controlled-static-local-ready",
+      "runtimeClass": "local-web-controlled-fixture",
+      "networkClass": "offline-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    },
+    {
+      "workloadId": "obstacle-local-web-motion",
+      "runtimeClass": "local-web-motion-consumer",
+      "networkClass": "offline-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    },
+    {
+      "workloadId": "vibebots-hosted-top-level",
+      "runtimeClass": "supervised-hosted-web",
+      "networkClass": "network-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    },
+    {
+      "workloadId": "mi-casa-hosted-top-level",
+      "runtimeClass": "supervised-hosted-web",
+      "networkClass": "network-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    },
+    {
+      "workloadId": "determined-hosted-top-level",
+      "runtimeClass": "supervised-hosted-web",
+      "networkClass": "network-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    },
+    {
+      "workloadId": "epoch-hosted-top-level",
+      "runtimeClass": "supervised-hosted-web-restrictive-framing-case",
+      "networkClass": "network-required",
+      "exactArtifactOrDeploymentSha256": null,
+      "exactRightsAdmissionAndInteractionSha256": null,
+      "qualified": false
+    }
+  ],
+  "hostileScenarios": [
+    "cold-launch-visible-focused-ready",
+    "warm-relaunch-fresh-profile-clean",
+    "fullscreen-enter-exit-output-scale",
+    "pointer-lock-relative-input-capture",
+    "focus-stolen-backgrounded-and-returned",
+    "popup-child-or-secondary-surface-attempt",
+    "foreign-origin-or-scheme-navigation-attempt",
+    "download-and-permission-request-attempt",
+    "main-thread-or-wrapper-liveness-hang",
+    "renderer-process-crash",
+    "browser-parent-exit-or-signal-race",
+    "compositor-or-session-process-loss",
+    "network-loss-redirect-loop-or-readiness-stall",
+    "controller-disconnect-reconnect-and-input-flood",
+    "reserved-home-back-and-forced-exit",
+    "profile-storage-corruption-and-cold-restart",
+    "audio-device-loss-focus-and-recovery",
+    "display-hotplug-mode-loss-and-recovery"
+  ],
+  "commonBrowserContract": {
+    "engineFamily": "chromium",
+    "exactBrowserVersionAndBuildSha256": null,
+    "exactSignedWrapperAdmissionAndBuildSha256": null,
+    "exactOriginNavigationPermissionAndProfilePolicySha256": null,
+    "maximumRemoteOriginAllowlistCount": 8,
+    "credentialedUrlsAllowed": false,
+    "httpFileDataOrCustomSchemeNavigationAllowed": false,
+    "downloadsAllowed": false,
+    "popupsOrSecondaryTargetsAllowed": false,
+    "directGameCameraMicrophoneLocationMidiOrNotificationPermissionsAllowed": false,
+    "topLevelExplicitReadyContractRequired": true,
+    "postReadyFreshChallengeAcknowledgementRequired": true,
+    "freshPerGameProfileRequired": true,
+    "sameBrowserWrapperAndPolicyRequiredAcrossRoutes": true,
+    "wrapperLivenessMaySubstituteForVisibleFocusedCompositorReadiness": false,
+    "processSurvivalMaySubstituteForPlayabilityOrRecovery": false
+  },
+  "authorityBoundary": {
+    "exactTargetImageDriverDisplayAudioInputAndPowerTupleSha256": null,
+    "exactCageBuildPackageClosureAndInvocationSha256": null,
+    "exactGamescopeBuildPackageClosureAndInvocationSha256": null,
+    "exactWrapperBaseCompositorPrivilegeAndInvocationSha256": null,
+    "exactChromiumWrapperOriginPermissionProfileAndUpdatePolicySha256": null,
+    "exactWorkloadBuildDeploymentRightsAdmissionAndInteractionSha256": null,
+    "exactControllerReservedActionFocusAndRecoveryPolicySha256": null,
+    "exactFaultHarnessStopCleanupAndSafetyProtocolSha256": null,
+    "exactIndependentOracleClockAndEvidenceSchemaSha256": null,
+    "exactScheduleOpenGatesRankingAndReviewProtocolSha256": null,
+    "downloadBuildInstallOrTargetMutationAuthorized": false,
+    "targetDisplayAudioControllerOrPowerOperationAuthorized": false,
+    "hostedNetworkLoginOrAccountOperationAuthorized": false,
+    "fullscreenFocusProcessStorageNetworkDisplayOrAudioFaultAuthorized": false,
+    "qualificationSelectionCompatibilityOrPublicationAuthorized": false
+  },
+  "qualificationMatrix": {
+    "requiredTargetIds": [
+      "pi5-ai-hat26",
+      "ordinary-x86-linux"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-steamos"
+    ],
+    "routeIds": [
+      "cage-chromium-vcg-wrapper",
+      "gamescope-chromium-vcg-wrapper",
+      "vcg-wrapper-base-compositor-control"
+    ],
+    "workloadIds": [
+      "controlled-static-local-ready",
+      "obstacle-local-web-motion",
+      "vibebots-hosted-top-level",
+      "mi-casa-hosted-top-level",
+      "determined-hosted-top-level",
+      "epoch-hosted-top-level"
+    ],
+    "scenarioIds": [
+      "cold-launch-visible-focused-ready",
+      "warm-relaunch-fresh-profile-clean",
+      "fullscreen-enter-exit-output-scale",
+      "pointer-lock-relative-input-capture",
+      "focus-stolen-backgrounded-and-returned",
+      "popup-child-or-secondary-surface-attempt",
+      "foreign-origin-or-scheme-navigation-attempt",
+      "download-and-permission-request-attempt",
+      "main-thread-or-wrapper-liveness-hang",
+      "renderer-process-crash",
+      "browser-parent-exit-or-signal-race",
+      "compositor-or-session-process-loss",
+      "network-loss-redirect-loop-or-readiness-stall",
+      "controller-disconnect-reconnect-and-input-flood",
+      "reserved-home-back-and-forced-exit",
+      "profile-storage-corruption-and-cold-restart",
+      "audio-device-loss-focus-and-recovery",
+      "display-hotplug-mode-loss-and-recovery"
+    ],
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "routeCount": 3,
+    "workloadCount": 6,
+    "scenarioCount": 18,
+    "requiredCellCount": 648,
+    "optionalCellCount": 324,
+    "validCyclesPerCell": 20,
+    "requiredCycleCount": 12960,
+    "optionalCycleCount": 6480,
+    "requiredSoakCellCount": 36,
+    "optionalSoakCellCount": 18,
+    "validOneHourSoakRunsPerCell": 3,
+    "minimumMeasuredSecondsPerSoakRun": 3600,
+    "requiredOneHourSoakRunCount": 108,
+    "optionalOneHourSoakRunCount": 54,
+    "counterbalancedOrderRequired": true,
+    "everyDeclaredCellAndSoakMustRun": true,
+    "failedBlockedInvalidStoppedRetriedAndWorstCaseEvidenceMustRemainVisible": true,
+    "routeEligibilityRequiresEveryRequiredTargetWorkloadAndScenarioCellPass": true,
+    "oneRouteMayNotQualifyAnotherRoute": true,
+    "oneTargetWorkloadScenarioSoakOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "request-to-first-visible-frame-ms",
+      "request-to-top-level-ready-ms",
+      "request-to-visible-focused-usable-ms",
+      "wrapper-challenge-acknowledgement-ms",
+      "compositor-surface-generation-and-focus-state",
+      "ordinary-controller-input-delivery-ms",
+      "reserved-action-pre-game-and-game-delivery-counts",
+      "focus-revocation-return-and-wrong-surface-counts",
+      "top-level-origin-navigation-popup-download-and-permission-counts",
+      "owned-process-session-surface-and-descendant-counts",
+      "profile-storage-cache-service-worker-and-cleanup-bytes",
+      "browser-compositor-and-game-exit-recovery-ms",
+      "video-frame-pacing-fps-long-frame-and-stall-counts",
+      "audio-start-underrun-device-loss-focus-and-recovery-counts",
+      "cpu-gpu-memory-storage-network-power-thermal-and-acoustic-metrics",
+      "offline-network-attempt-and-explicit-degradation-counts",
+      "display-mode-hotplug-black-frame-and-recovery-counts",
+      "controller-disconnect-reconnect-stuck-repeat-and-owner-counts"
+    ],
+    "independentInputFocusSurfaceProcessOriginPermissionStorageAudioVideoDisplayAndClockOraclesRequired": true,
+    "wrapperGameUiCopyProcessSurvivalOrSyntheticInputMayNotSubstitute": true,
+    "everyAttemptFaultTransitionFailureRecoveryAndWorstCaseMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidCyclesPerCell": 20,
+    "minimumMeasuredSecondsPerSoakRun": 3600,
+    "maximumInteractiveLaunchP95Ms": 15000,
+    "maximumFirstControllerFeedbackP95Ms": 250,
+    "maximumUnauthorizedOriginsSchemesPopupsDownloadsOrPermissions": 0,
+    "maximumReservedHomeOrBackDeliveriesToGame": 0,
+    "maximumKeyboardMouseShellOrOperatorRecoveries": 0,
+    "maximumUnownedOrEscapedProcessesSurfacesOrSessions": 0,
+    "maximumCrossGameOrCrossRunProfileStorageLeaks": 0,
+    "maximumMissingStaleOrSelfAssertedCompositorReadinessEvidence": 0,
+    "maximumUnrecoveredAudioVideoFocusInputDisplayOrNetworkFailuresPerCell": 0,
+    "sameBrowserWrapperWorkloadInputDisplayAudioAndEvidenceContractAcrossRoutesRequired": true,
+    "candidateFailureMustRemainARejectedOrIneligibleRoute": true,
+    "routeEligibilityRequiresEveryRequiredTargetCellPass": true,
+    "sourceFactsBuildSuccessFlagsProcessSurvivalOrWrapperLivenessMayQualifyRoute": false,
+    "oneRouteTargetWorkloadScenarioSoakOrAggregateMayRescueFailure": false,
+    "allOpenGatesRankingAndReviewRulesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "maximumVisibleFocusedUsableP99Ms": null,
+    "maximumVisibleFocusedUsableWorstMs": null,
+    "maximumWrapperChallengeP99Ms": null,
+    "maximumReservedActionRecoveryP95Ms": null,
+    "maximumCompositorOrBrowserCrashReturnP95Ms": null,
+    "maximumDisplayAndAudioRecoveryP95Ms": null,
+    "minimumSustainedGameFpsMilliFps": null,
+    "maximumGameFrameTimeP95Us": null,
+    "maximumAudioUnderrunsPerHour": null,
+    "maximumBrowserCompositorAndWrapperRssBytes": null,
+    "maximumGpuMemoryBytes": null,
+    "maximumWallPowerMilliwatts": null,
+    "maximumOneMeterAcousticsMilliDba": null,
+    "maximumPerGameProfileGrowthBytesPerHour": null,
+    "minimumPhysicalControllerSamplesPerMappingAndTransport": null,
+    "minimumPhysicalTvAndAudioConfigurationsPerTarget": null,
+    "candidateRankingWeightsTieBreakAndMaintenanceReviewSha256": null
+  },
+  "dataPolicy": {
+    "opaqueTargetRouteWorkloadScenarioCellCycleFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsAndRedactedCategoriesRequired": true,
+    "rawControllerHidBluetoothUsbOrRemotePayloadsAllowed": false,
+    "stableDeviceDisplayControllerNetworkOrHouseholdIdentifiersAllowed": false,
+    "urlsQueriesTitlesHeadersBodiesCookiesTokensCredentialsOrEnteredTextAllowed": false,
+    "pathsEnvironmentArgumentsWindowTitlesStorageValuesOrCrashLogsAllowed": false,
+    "screenVideoAudioCameraParticipantOrHouseholdMediaAllowed": false,
+    "freeTextBrowserCompositorDriverGameServiceOrResultLogsAllowed": false,
+    "externalEgressOutsideExactAuthorizedHostedOriginsAllowed": false,
+    "failedBlockedInvalidStoppedRetriedAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I092-001-exact-target-image-driver-display-audio-input-and-power-tuples",
+      "I092-002-exact-cage-revision-build-package-closure-and-invocation",
+      "I092-003-exact-gamescope-revision-build-package-closure-and-invocation",
+      "I092-004-exact-wrapper-base-compositor-privilege-and-invocation",
+      "I092-005-exact-chromium-wrapper-origin-permission-profile-and-update-policy",
+      "I092-006-exact-workload-build-deployment-rights-admission-and-interactions",
+      "I092-007-controller-reserved-action-focus-and-recovery-policy",
+      "I092-008-hostile-fault-harness-stop-cleanup-and-safety-protocol",
+      "I092-009-independent-input-focus-surface-process-media-storage-and-clock-oracles",
+      "I092-010-schedule-open-gates-ranking-tie-break-and-review-protocol",
+      "I092-011-result-schema-sanitization-retention-incident-and-adverse-evidence-policy",
+      "I092-012-operation-qualification-selection-compatibility-and-publication-authority"
+    ]
+  },
+  "result": null
+}
