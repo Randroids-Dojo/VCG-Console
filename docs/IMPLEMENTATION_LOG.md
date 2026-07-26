@@ -6345,3 +6345,40 @@ Motion qualification client, monitoring calibration, target supervisor,
 compositor-owned recovery, sixty-minute soak, fault attempt or result exists.
 The plan establishes no load, readiness, liveness, playability, focus,
 latency, accuracy, performance, thermal, acoustic, recovery or platform claim.
+
+## 2026-07-25: refreshed Hailo core17 versus MediaPipe richer-profile boundary
+
+### Delivered
+
+- Advanced I-161 from an open register row to an active, source-refreshed
+  blocked comparison without inventing a result path before its sample sizes,
+  thresholds or execution authorities exist.
+- Extended the strict plan's one-way source bindings from the Hailo projection,
+  MediaPipe adapter, Motion schema and game-manifest vocabulary to the current
+  Pi image recipe, pose edge-accuracy plan and exposure-to-action validator.
+- Avoided a digest cycle: I-158 continues to bind I-161 and I-159 continues to
+  bind I-158; I-161 does not bind either downstream plan. Both downstream
+  digests were refreshed mechanically.
+- Added Q-262 through Q-265 for honest Hailo Motion provenance, the trusted
+  native conversion tuple, blocking participant/metric gates and the narrowly
+  conditional same-exposure fanout fallback.
+
+### Verification evidence
+
+- Sixteen I-161 adversarial tests pass, including exact source reconstruction,
+  capability/unavailable-value behavior, same-exposure/no-raw-media policy,
+  timestamp authority, confusion matrices, target/runtime/persona/placement
+  locks, no premature result/selection, canonical JSON and bounded parsing.
+- The complete downstream I-161/I-158/I-159 focused chain passes 37 tests and
+  all three command-line validators report zero attempts/results.
+- The refreshed plan records the current pre-commit source revision and dirty
+  worktree honestly; neither field is promoted into target-hardware evidence.
+
+### Remaining boundary
+
+I-161 is active, not closed. Motion `0.4.0` still has no honest Hailo source;
+no trusted Hailo runtime converter, target tuple, same-exposure fanout,
+participant minimum, consent, privacy/deletion audit, independent ground truth,
+schedule, complete gate set, attempt, result, backend selection or richer game
+profile requirement exists. Sequential live sessions and capture-arrival time
+remain invalid substitutes.

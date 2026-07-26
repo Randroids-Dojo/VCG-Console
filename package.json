@@ -46,6 +46,7 @@
     "validate:godot-web-bridge": "tsx scripts/validate-godot-web-bridge-evidence.mjs && tsx --test scripts/validate-godot-web-bridge-evidence.test.mjs",
     "validate:godot-web-bridge-resilience": "tsx scripts/validate-godot-web-bridge-resilience-evidence.mjs && tsx --test scripts/validate-godot-web-bridge-resilience-evidence.test.mjs",
     "validate:hailo-accelerator-comparison": "node scripts/validate-hailo-accelerator-comparison-plan.mjs && node --test scripts/validate-hailo-accelerator-comparison-plan.test.mjs",
+    "validate:hailo-mediapipe-comparison": "node scripts/validate-hailo-mediapipe-comparison-plan.mjs && node --test scripts/validate-hailo-mediapipe-comparison-plan.test.mjs",
     "validate:launcher-tv-conformance": "node scripts/validate-launcher-tv-conformance-evidence.mjs && node --test scripts/validate-launcher-tv-conformance-evidence.test.mjs",
     "validate:launcher-search-tv": "node scripts/validate-launcher-search-tv-evidence.mjs && node --test scripts/validate-launcher-search-tv-evidence.test.mjs",
     "validate:launcher-tv-surfaces": "node scripts/validate-launcher-tv-surface-evidence.mjs && node --test scripts/validate-launcher-tv-surface-evidence.test.mjs",
