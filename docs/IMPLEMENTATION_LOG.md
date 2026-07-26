@@ -6695,3 +6695,26 @@ I-026 remains active. No received target/radio/controller/camera/AP, exact
 firmware/regulatory/channel/enclosure/USB/network/room tuple, RF survey,
 instrument, payload authority, schedule, stimulus, recovery oracle, numeric
 gate, trial or product result exists.
+
+## 2026-07-25: Pi HDMI video/audio and CEC qualification plan
+
+### Delivered
+
+- Advanced I-027/I-028 to one strict blocked campaign with three SDR/60 display
+  candidates, direct-TV stereo plus optional receiver audio, eight AV checks,
+  24 required direct-TV cells and one-hour sustained runs.
+- Defined ten CEC power/input/source/volume/wake/fault/recovery scenarios with
+  100 valid cycles each and mandatory controller/physical fallbacks.
+- Bound settings rehearsal, boot/wake timing, browser geometry and sustained
+  load sources without promoting screenshots, EDID, compositor or Web Audio to
+  physical evidence.
+- Preserved five-second wake, 120 ms p95 and zero AV/CEC/dropout/blanking/
+  recovery failures; open physical/video/audio/CEC/performance gates remain
+  null. HDR/surround and all physical mutations remain unauthorized.
+- Eight focused adversarial tests pass; no target TV result exists.
+
+### Remaining boundary
+
+I-027/I-028 remain active. No exact TV/cable/receiver/port/firmware stack,
+physical observation, room, CEC policy, schedule, gate, mutation authority,
+trial, cycle, qualified mode/audio route or vendor-quirk result exists.
