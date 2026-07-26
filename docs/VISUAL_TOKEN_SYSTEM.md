@@ -112,3 +112,13 @@ I-148 is active, not closed. Still required:
 I-206 owns the real target-TV prototype campaign. The current Windows
 headless-Chrome evidence remains useful regression evidence but grants no
 target-TV, hardware, participant, or release qualification.
+
+`PHYSICAL_TV_VISUAL_TOKEN_CAMPAIGN_2026-07-26.md` and the source-bound
+`vcg-physical-tv-visual-token-plan/v1` artifact now pre-register that work
+without inventing execution authority or results. The blocked plan covers nine
+real shell surfaces, 432 physical rendering cells with 1,296 runs, 324
+participant-observation cells whose cohort/run counts remain owner-gated, and
+216 target performance cells with 4,320 runs. Exact televisions, targets,
+seating/light/capture protocols, adult/child and accessibility protocols,
+numeric gates, instruments, execution, and publication remain unresolved in
+`OWNER_QUESTIONS_PHYSICAL_TV_VISUAL_TOKENS_2026-07-26.md`.
