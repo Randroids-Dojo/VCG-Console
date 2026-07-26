@@ -46,8 +46,8 @@ const EXPECTED_SURFACES = Object.freeze([
   },
   {
     id: "wifi-offline",
-    criticalTextCount: 21,
-    actionTargetCount: 15,
+    criticalTextCount: 23,
+    actionTargetCount: 17,
     focusTrace: ["scan-wifi", "launcher-home"],
   },
   {
@@ -71,8 +71,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 154468,
-    sha256: "c0e204a2862780b4d27aa00dbb7a0c010181e3e0a024a005d750ee92a9aafaca",
+    bytes: 158409,
+    sha256: "16429aa0317e4e52eb55ee75846489938efe5c7d5b6a9d166868d15fede49ce9",
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
@@ -86,8 +86,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 233643,
-    sha256: "48c6799e3bfdf93b3726761935e147f6372626f670fbbc0e50f3f660def550b2",
+    bytes: 238357,
+    sha256: "cf042f3445dc05c62b421c17542e291ebdded407d57989cd944df7e818c702fe",
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
@@ -101,8 +101,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "wifi-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 628313,
-    sha256: "75c6e8b43420a637809ab0a693420acf34efadc53cd79f089886ee686af40df7",
+    bytes: 635436,
+    sha256: "95282a1e1769a255d6543be1b8c97d0cff4bc6d1dd15909fa2e739df14209d81",
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",

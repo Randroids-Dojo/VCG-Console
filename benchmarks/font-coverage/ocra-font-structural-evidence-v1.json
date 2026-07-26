@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 88,
-      "totalBytes": 857255,
+      "fileCount": 90,
+      "totalBytes": 869365,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -854,8 +854,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 53988,
-          "sha256": "99abd39efcb507746c8edb49df80029ccc2cf81b1f4fbf2ab045eb7801b5e18d"
+          "bytes": 54548,
+          "sha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -884,8 +884,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SettingsView.svelte",
-          "bytes": 22458,
-          "sha256": "93cb8fcb8b7521ae96b7ddf921d482bd396a38911ff6a7c22ba6138e29ef38f3"
+          "bytes": 26544,
+          "sha256": "f3014aa405bf6009c6602fecbbddace60269e734e32c0992fe1885fe7170d4af"
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -901,6 +901,16 @@
           "path": "apps/console-lab/src/launcher/accessibility-preferences.ts",
           "bytes": 6042,
           "sha256": "1a19671b85856a21a0b3cbe22f23837e3e99e388dcbce55dcb151aaddc22e67c"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/av-settings-rehearsal.test.ts",
+          "bytes": 2143,
+          "sha256": "3c2ffa73d583e82c9b6509cb8d4ec1c11122a97d4266a1432a18f8a00084b32b"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/av-settings-rehearsal.ts",
+          "bytes": 2225,
+          "sha256": "cbb7a0ae4595ff4474e8d7501dcbee8edea36de93753861a980173c1adb556bc"
         },
         {
           "path": "apps/console-lab/src/launcher/calibration-rehearsal.test.ts",
@@ -1009,8 +1019,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1680,
-          "sha256": "0f563f0b4df831a9439e31f4abd30eaa4adc60a30483043ce35e2aacd4d2db34"
+          "bytes": 1718,
+          "sha256": "30caf0ba823bbdf1e04a3b4b27f4fbdc7389638423a7d910c6ac6506c4c44155"
         },
         {
           "path": "apps/console-lab/src/launcher/unassigned-progress.test.ts",
@@ -1114,8 +1124,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 105131,
-          "sha256": "66506ff40d971637c635c6b42dcbd5f13ac0b693819621e16530cbfe20216af3"
+          "bytes": 108189,
+          "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1183,13 +1193,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                737,
-                804,
-                821,
-                834,
-                918,
-                1088,
-                1107
+                743,
+                810,
+                827,
+                840,
+                924,
+                1094,
+                1113
               ]
             },
             {
@@ -1219,17 +1229,17 @@
             {
               "path": "apps/console-lab/src/launcher/SettingsView.svelte",
               "lines": [
-                275,
-                277,
-                278,
-                307,
-                315,
-                324,
-                335,
-                340,
-                389,
+                298,
+                300,
+                301,
+                330,
+                338,
+                347,
+                405,
                 410,
-                411
+                459,
+                480,
+                481
               ]
             },
             {
@@ -1320,7 +1330,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "66506ff40d971637c635c6b42dcbd5f13ac0b693819621e16530cbfe20216af3",
+    "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

@@ -13,7 +13,14 @@ export type LauncherView =
   | "unassigned"
   | "settings";
 export type LabMode = "tracker" | "obstacle" | "shell";
-export type SettingsPanel = "system" | "accessibility" | "network" | "storage" | "developer";
+export type SettingsPanel =
+  | "system"
+  | "accessibility"
+  | "display"
+  | "audio"
+  | "network"
+  | "storage"
+  | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
 export type LaunchFaultPreview = "slow" | "offline" | "hung" | "crashed" | "recovered";
 export type LaunchStatus = "loading" | "slow" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";

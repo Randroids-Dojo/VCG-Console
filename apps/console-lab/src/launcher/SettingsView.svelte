@@ -14,6 +14,11 @@
     AccessibilityPreferenceChange,
     AccessibilityPreferenceSnapshot,
   } from "./accessibility-preferences";
+  import {
+    AvSettingsRehearsalController,
+    type AudioCueLevel,
+    type AvSettingsRehearsalSnapshot,
+  } from "./av-settings-rehearsal";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, SettingsPanel } from "./types";
 
   let {
@@ -37,7 +42,7 @@
     accessibility: AccessibilityPreferenceSnapshot;
     onaccessibilitychange: (change: AccessibilityPreferenceChange) => void;
     onaccessibilityreset: () => void;
-    onpreviewaudiocue: () => void;
+    onpreviewaudiocue: (level?: AudioCueLevel) => void;
   } = $props();
   let panel = $state<SettingsPanel>("system");
   const panelPresentation: Record<SettingsPanel, { title: string; detail: string }> = {
@@ -48,6 +53,14 @@
     accessibility: {
       title: "Access.",
       detail: "Readable, calm, and recoverable before a game begins.",
+    },
+    display: {
+      title: "Display.",
+      detail: "Preview television layout without inventing signal authority.",
+    },
+    audio: {
+      title: "Audio.",
+      detail: "Test a local cue without claiming an output or channel layout.",
     },
     network: {
       title: "Wi-Fi.",
@@ -65,6 +78,8 @@
   let scanning = $state(false);
   let scanComplete = $state(false);
   let diagnostics = $state(false);
+  const avSettings = new AvSettingsRehearsalController();
+  let avSettingsSnapshot = $state<AvSettingsRehearsalSnapshot>(avSettings.snapshot());
   const operatingMode = new ConsoleOperatingModeController();
   let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
   let diagnosticReview = $state.raw<PreparedLocalDiagnosticExport | undefined>();
@@ -108,6 +123,14 @@
       scanning = false;
       scanComplete = true;
     }, 900);
+  }
+
+  function setSafeAreaGuide(visible: boolean): void {
+    avSettingsSnapshot = avSettings.setSafeAreaGuide(visible);
+  }
+
+  function setAudioCueLevel(level: AudioCueLevel): void {
+    avSettingsSnapshot = avSettings.setCueLevel(level);
   }
 
   function requestAdminAccess(): void {
@@ -243,7 +266,7 @@
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">
-    {#each ["system", "accessibility", "network", "storage", "developer"] as target}
+    {#each ["system", "accessibility", "display", "audio", "network", "storage", "developer"] as target}
       <button
         class:active={panel === target}
         type="button"
@@ -325,11 +348,58 @@
         <div role="group" aria-label="Audio cues">
           <button type="button" aria-pressed={accessibility.preferences.audioCues === "on"} onclick={() => onaccessibilitychange({ audioCues: "on" })}>On</button>
           <button type="button" aria-pressed={accessibility.preferences.audioCues === "off"} onclick={() => onaccessibilitychange({ audioCues: "off" })}>Off</button>
-          <button type="button" onclick={onpreviewaudiocue}>Play cue</button>
+          <button type="button" onclick={() => onpreviewaudiocue()}>Play cue</button>
         </div>
       </div>
 
       <button class="accessibility-reset" type="button" onclick={onaccessibilityreset}>Reset accessibility settings</button>
+    </section>
+    <section data-settings-panel="display" hidden={panel !== "display"}>
+      <div class="av-settings-summary">
+        <span>SESSION-ONLY REHEARSAL</span>
+        <strong>No display service is connected</strong>
+        <p>The browser cannot report the television, HDMI mode, HDR state, or overscan. These controls change only the preview below and reset on reload.</p>
+      </div>
+      <dl class="av-settings-facts">
+        <div><dt>Output identity</dt><dd>NOT ENUMERATED</dd></div>
+        <div><dt>Signal mode</dt><dd>NOT REPORTED</dd></div>
+        <div><dt>HDR</dt><dd>NOT REPORTED</dd></div>
+        <div><dt>Overscan</dt><dd>UNQUALIFIED</dd></div>
+      </dl>
+      <div class="display-safe-preview" data-safe-area-guide={avSettingsSnapshot.display.safeAreaGuide}>
+        <span>BROWSER LAYOUT PREVIEW</span>
+        <div><strong>5% ACTION-SAFE GUIDE</strong><small>Preview geometry only</small></div>
+      </div>
+      <div class="av-settings-choice">
+        <div><strong>Safe-area guide</strong><small>Does not change television or compositor output</small></div>
+        <div role="group" aria-label="Safe-area guide">
+          <button type="button" aria-pressed={avSettingsSnapshot.display.safeAreaGuide === "hidden"} onclick={() => setSafeAreaGuide(false)}>Hide</button>
+          <button type="button" aria-pressed={avSettingsSnapshot.display.safeAreaGuide === "visible"} onclick={() => setSafeAreaGuide(true)}>Show 5% guide</button>
+        </div>
+      </div>
+      <p class="av-settings-boundary">Preview only. Resolution, refresh rate, color, HDR, overscan, compositor focus, physical television behavior, and persistence remain unchanged and unverified.</p>
+    </section>
+    <section data-settings-panel="audio" hidden={panel !== "audio"}>
+      <div class="av-settings-summary">
+        <span>LOCAL CUE REHEARSAL</span>
+        <strong>No audio service is connected</strong>
+        <p>The browser sends one short local cue to its system-default destination. It does not enumerate the television, receiver, speakers, volume, or channel layout.</p>
+      </div>
+      <dl class="av-settings-facts">
+        <div><dt>Output</dt><dd>SYSTEM DEFAULT / UNVERIFIED</dd></div>
+        <div><dt>Channel layout</dt><dd>NOT TESTED</dd></div>
+        <div><dt>Microphone</dt><dd>NOT REQUESTED</dd></div>
+        <div><dt>Persistence</dt><dd>SESSION ONLY</dd></div>
+      </dl>
+      <div class="av-settings-choice">
+        <div><strong>Test-cue level</strong><small>Applies only to the next local preview cue</small></div>
+        <div role="group" aria-label="Test-cue level">
+          <button type="button" aria-pressed={avSettingsSnapshot.audio.cueLevel === "quiet"} onclick={() => setAudioCueLevel("quiet")}>Quiet</button>
+          <button type="button" aria-pressed={avSettingsSnapshot.audio.cueLevel === "standard"} onclick={() => setAudioCueLevel("standard")}>Standard</button>
+          <button type="button" onclick={() => onpreviewaudiocue(avSettingsSnapshot.audio.cueLevel)}>Play local test cue</button>
+        </div>
+      </div>
+      <p class="av-settings-boundary">No microphone request, speech service, network request, output selection, hardware volume change, or speaker/channel qualification occurs.</p>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
       <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>

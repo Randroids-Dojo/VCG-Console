@@ -67,7 +67,7 @@ const EXPECTED_STATES = Object.freeze([
     recoveryExpectation: {
       clearActionLabel: "Clear search",
       clearQuery: "",
-      clearResultCount: 18,
+      clearResultCount: 20,
       categoryActionLabel: "Motion",
       categoryQuery: "motion",
       categoryResultCount: 5,
@@ -87,9 +87,9 @@ const EXPECTED_STATES = Object.freeze([
   {
     id: "empty-query-scroll-activation",
     query: "",
-    resultCount: 18,
-    criticalTextCount: 39,
-    actionTargetCount: 19,
+    resultCount: 20,
+    criticalTextCount: 43,
+    actionTargetCount: 21,
     measurementMode: "fully-visible-marked",
     scrollingExpectedResolutionIds: ["720p", "1080p"],
     activation: {
@@ -310,8 +310,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-    bytes: 126573,
-    sha256: "efb12a4f0753c553b5ff66fe21abe71dd54069d84f30873a3f8f82a8e9d7e621",
+    bytes: 129267,
+    sha256: "7edc90c3427172bd7fe050558c38d20e57a90c6a7fd90bb40335097edacb2d38",
   },
   "offline-package-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
@@ -350,8 +350,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-    bytes: 186803,
-    sha256: "45166b11f5e76717540b8a7300177a366de970f88a08fd006d2a6aed2152503c",
+    bytes: 182862,
+    sha256: "3134fdf3f913a9d5c6a3509aed91ccca317594b19e91547097022e1da58c4faf",
   },
   "offline-package-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
@@ -390,8 +390,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-    bytes: 483802,
-    sha256: "be299283c0a6976b1c7311d6a8a7cfd8ba3202d17838bacc19532ae874e97ee0",
+    bytes: 516851,
+    sha256: "d4e1cb508b8c50d3a90556ca2f3298a82e1988c2a2e852b4447cdad02e48f210",
   },
   "offline-package-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
@@ -455,10 +455,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 523,
-      scrollHeightCssPx: 910,
+      scrollHeightCssPx: 1006,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 387,
-      maximumScrollTopCssPx: 387,
+      finalScrollTopCssPx: 483,
+      maximumScrollTopCssPx: 483,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -567,10 +567,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 798,
-      scrollHeightCssPx: 877,
+      scrollHeightCssPx: 973,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 79,
-      maximumScrollTopCssPx: 79,
+      finalScrollTopCssPx: 175,
+      maximumScrollTopCssPx: 175,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -673,13 +673,13 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "empty-query-scroll-activation/4k": {
-    measuredCriticalTextCount: 39,
+    measuredCriticalTextCount: 43,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 61,
     resultsScroll: {
-      clientHeightCssPx: 1158,
-      scrollHeightCssPx: 1158,
+      clientHeightCssPx: 1280,
+      scrollHeightCssPx: 1280,
       initialScrollTopCssPx: 0,
       finalScrollTopCssPx: 0,
       maximumScrollTopCssPx: 0,

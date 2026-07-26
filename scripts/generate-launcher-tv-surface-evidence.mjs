@@ -77,8 +77,8 @@ const SURFACES = Object.freeze([
   {
     id: "wifi-offline",
     rootSelector: "#launcher",
-    criticalTextCount: 21,
-    actionTargetCount: 15,
+    criticalTextCount: 23,
+    actionTargetCount: 17,
     sections: [".view-header", ".settings-layout"],
     focusTrace: ["scan-wifi", "launcher-home"],
   },

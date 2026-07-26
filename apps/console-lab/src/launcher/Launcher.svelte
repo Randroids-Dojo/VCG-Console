@@ -54,6 +54,7 @@
   import SearchOverlay from "./SearchOverlay.svelte";
   import SessionAdversarialView from "./SessionAdversarialView.svelte";
   import SettingsView from "./SettingsView.svelte";
+  import type { AudioCueLevel } from "./av-settings-rehearsal";
   import type { LabMode, LaunchAdapter, LaunchFaultPreview, LaunchSession, LauncherOptions, LauncherView, LocalProfile, SearchItem, SettingsPanel } from "./types";
   import UnassignedProgressView from "./UnassignedProgressView.svelte";
   import {
@@ -197,6 +198,8 @@
     { title: "Portrait rehearsal", detail: "Synthetic device-only capture lifecycle", group: "System", terms: "profile portrait camera preview retake consent", action: () => openPortraitCapture(activeProfileId) },
     { title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") },
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
+    { title: "Display", detail: "Television layout preview", group: "Settings", terms: "tv hdmi resolution refresh hdr overscan safe area", action: () => showSettings("display") },
+    { title: "Audio", detail: "Local output cue rehearsal", group: "Settings", terms: "sound hdmi speakers receiver volume test cue", action: () => showSettings("audio") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
     { title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") },
@@ -224,7 +227,7 @@
     accessibilitySnapshot = accessibilityPreferences.reset();
   }
 
-  function previewAudioCue(): void {
+  function previewAudioCue(level: AudioCueLevel = "standard"): void {
     if (accessibilitySnapshot.preferences.audioCues === "off") {
       toast("Audio cues are off.");
       return;
@@ -236,14 +239,17 @@
       oscillator.type = "sine";
       oscillator.frequency.value = 660;
       gain.gain.setValueAtTime(0.0001, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(
+        level === "quiet" ? 0.035 : 0.08,
+        context.currentTime + 0.01,
+      );
       gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.09);
       oscillator.connect(gain);
       gain.connect(context.destination);
       oscillator.addEventListener("ended", () => void context.close(), { once: true });
       oscillator.start();
       oscillator.stop(context.currentTime + 0.1);
-      toast("Audio cue played locally.");
+      toast(level === "quiet" ? "Quiet audio cue played locally." : "Audio cue played locally.");
     } catch {
       toast("Audio cue unavailable on this browser.");
     }

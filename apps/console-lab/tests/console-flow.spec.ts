@@ -68,6 +68,72 @@ test("boots into a purposeful launcher", async ({ page }) => {
   await page.screenshot({ path: "../../test-results/console-lab/boot-screen.png" });
 });
 
+test("rehearses display and audio settings without claiming hardware authority", async ({
+  page,
+}) => {
+  await installSyntheticStandardGamepad(
+    page,
+    "__setAvSettingsGamepad",
+    "Playwright display and audio controller",
+  );
+  await page.addInitScript(() => {
+    const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    let mediaRequests = 0;
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: (...args: Parameters<typeof getUserMedia>) => {
+        mediaRequests += 1;
+        return getUserMedia(...args);
+      },
+    });
+    (
+      window as unknown as { __avSettingsMediaRequests: () => number }
+    ).__avSettingsMediaRequests = () => mediaRequests;
+  });
+  await page.goto("/?skipBoot=1");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  const displayPanel = page.locator('[data-settings-panel="display"]');
+  await expect(displayPanel.getByText("No display service is connected")).toBeVisible();
+  await expect(displayPanel.getByText("NOT ENUMERATED")).toBeVisible();
+  const safePreview = displayPanel.locator(".display-safe-preview");
+  await expect(safePreview).toHaveAttribute("data-safe-area-guide", "hidden");
+  await displayPanel.getByRole("button", { name: "Show 5% guide" }).focus();
+  await pressSyntheticGamepadButton(page, "__setAvSettingsGamepad", 0);
+  await expect(safePreview).toHaveAttribute("data-safe-area-guide", "visible");
+  await page.screenshot({
+    path: "../../test-results/console-lab/display-settings.png",
+    fullPage: true,
+  });
+
+  await page.getByRole("button", { name: "Audio", exact: true }).click();
+  const audioPanel = page.locator('[data-settings-panel="audio"]');
+  await expect(audioPanel.getByText("No audio service is connected")).toBeVisible();
+  await expect(audioPanel.getByText("SYSTEM DEFAULT / UNVERIFIED")).toBeVisible();
+  await expect(audioPanel.getByText("NOT REQUESTED")).toBeVisible();
+  await audioPanel.getByRole("button", { name: "Quiet", exact: true }).focus();
+  await pressSyntheticGamepadButton(page, "__setAvSettingsGamepad", 0);
+  await expect(audioPanel.getByRole("button", { name: "Quiet", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await audioPanel.getByRole("button", { name: "Play local test cue" }).click();
+  await expect(page.locator("#launcher-toast")).toHaveText(
+    "Quiet audio cue played locally.",
+  );
+  expect(await page.evaluate(() =>
+    (
+      window as unknown as { __avSettingsMediaRequests: () => number }
+    ).__avSettingsMediaRequests(),
+  )).toBe(0);
+  await page.screenshot({
+    path: "../../test-results/console-lab/display-audio-settings.png",
+    fullPage: true,
+  });
+  await pressSyntheticGamepadButton(page, "__setAvSettingsGamepad", 1);
+  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+});
+
 test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
@@ -1835,7 +1901,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await trigger.click();
   await expect(input).toHaveValue("");
   const allResults = page.locator("#search-results button");
-  await expect(allResults).toHaveCount(18);
+  await expect(allResults).toHaveCount(20);
   const resultList = page.locator("#search-results");
   expect(
     await resultList.evaluate(
@@ -1876,7 +1942,7 @@ test("Search no-result recovery clears locally and opens stable category results
   await page.keyboard.press("Enter");
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect(page.locator("#search-results button")).toHaveCount(18);
+  await expect(page.locator("#search-results button")).toHaveCount(20);
 
   await input.fill("no-such-vcg-destination");
   await page.keyboard.press("ArrowDown");
