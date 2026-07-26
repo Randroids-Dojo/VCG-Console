@@ -5953,3 +5953,60 @@ policy, sound and illustration systems, seating-distance and
 low-vision/color-vision testing, child/adult comprehension, animation/GPU
 measurement, both reference tiers, release review, Q-077, I-206, and
 VTS-001 through VTS-006 remain.
+
+## 2026-07-24: hosted-game post-ready liveness candidate
+
+### Delivered
+
+- Added immutable desk policy v1 for one-second top-level challenges,
+  two-second acknowledgement deadlines, and termination after two consecutive
+  unavailable probes.
+- Added a fixed non-manifest-selected
+  `globalThis.vcgHostedLifecycleV1.acknowledgeChallenge` wrapper boundary.
+  Each probe carries a fresh random 128-bit lowercase-hex value, uses no user
+  gesture, and accepts only the exact current value.
+- Added distinct stable terminal results for an initially missing contract, a
+  contract lost after a valid acknowledgement, a wrong/malformed/throwing
+  acknowledgement, and bounded consecutive timeouts. Results expose only
+  counts, never challenge values or page exceptions.
+- Wired every liveness failure through the existing browser stop, process-tree
+  ownership, and ephemeral-profile removal path with no automatic restart or
+  page-selected recovery.
+- Recorded D-183 and HBL-001 through HBL-006 without treating a JavaScript echo
+  as rendering, focus, playability, login/network health, containment, or
+  target qualification.
+
+### Verification evidence
+
+- Four new focused cases cover policy immutability/bounds, missing versus lost
+  contracts, invalid/replayed/malformed acknowledgements, exact fresh echoes,
+  consecutive-miss reset, transport failure, and unresolved acknowledgements.
+- All 26 hosted-browser supervisor cases pass.
+- Installed Chrome 150 runs four fresh-profile probes: the existing forbidden
+  navigation, popup, and download terminations plus a new production-CDP
+  exact-echo probe. Every owned browser exits cleanly and every profile is
+  removed.
+- Captured and validated versioned Epoch top-level-load evidence v4 against
+  the changed supervisor. The artifact remains explicitly load-only and
+  claims zero readiness, liveness, play, controller, or participant tests.
+- Focused TypeScript checking for the supervisor, tests, and command passes.
+- In an isolated snapshot containing exactly HEAD plus this tranche,
+  workspace typechecking passes, all 62 workspace test files and 575 tests
+  pass through `pnpm -r test`, and the full production build passes.
+- The root `pnpm test` evidence chain reaches the pre-existing runtime-payload
+  scorecard after the hosted-browser and preceding evidence validators pass,
+  then stops because committed raw SHA-256 expectations for
+  `action-engine.ts` and `main.ts` do not match the normalized Windows
+  checkout. No liveness assertion fails at that boundary; the unrelated raw
+  line-ending commitment remains unresolved rather than being rewritten here.
+
+### Remaining boundary
+
+I-180 remains active. The wrapper is synthetic and unbound to signed hosted
+admission; the fixed timings are desk candidates. Exact reviewed wrappers,
+deployment/release binding, service/login/offline status, controller-safe
+recovery overlay, restart policy, overlay/suspend semantics, compositor-owned
+Home/Back/Pause and focus, browser/version policy, native service/cgroup
+ownership, adversarial main-thread/service-worker/storage/network evidence,
+and ARM64/ordinary x86-64 Linux timing remain under Q-250 and HBL-001 through
+HBL-006.

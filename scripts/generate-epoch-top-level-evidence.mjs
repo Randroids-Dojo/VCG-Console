@@ -14,7 +14,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = resolve(
   root,
-  "benchmarks/hosted-browser/epoch-top-level-windows-v3.json",
+  "benchmarks/hosted-browser/epoch-top-level-windows-v4.json",
 );
 
 export const EPOCH_TOP_LEVEL_EVIDENCE_FORMAT =
@@ -26,7 +26,7 @@ export const EPOCH_CLAIM_BOUNDARY =
   "One live Windows x64 Chrome desk observation proves that Epoch returned the reviewed restrictive framing headers yet loaded as the sole supervised top-level page under its exact HTTPS origin, then Chrome exited cleanly and the ephemeral profile was removed. It does not prove gameplay readiness, controller input, audio, fullscreen, storage, network degradation, Home/Back recovery, target Linux behavior, or catalog qualification.";
 export const EPOCH_LIMITATIONS = Object.freeze([
   "The response still excludes every VCG console origin from frame-ancestors; this evidence uses top-level navigation and does not authorize embedding.",
-  "Page load and document.readyState complete are not explicit in-game readiness or playability.",
+  "Page load and document.readyState complete do not invoke the live runner's explicit-ready marker or post-ready challenge/ack contract and are not in-game readiness, continuing liveness, or playability.",
   "No controller, recovery remote, keyboard-free exit, audio, fullscreen, storage, service worker, login, offline, or network-loss behavior was tested.",
   "The run used one Windows x64 development host and installed Chrome, not either selected Linux appliance or its compositor/service manager.",
   "The probe collected only URL, title, ready state, exit result, and profile removal; it did not inspect or retain game content, player data, or credentials.",

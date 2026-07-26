@@ -1,5 +1,6 @@
 import type { ChildProcess } from "node:child_process";
 import { spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { lstat, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, resolve } from "node:path";
@@ -16,6 +17,8 @@ const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
 const EXPLICIT_READY_POLL_INTERVAL_MS = 50;
 const EXPLICIT_READY_EXPRESSION =
   'document.documentElement?.getAttribute("data-vcg-ready") === "1"';
+const HOSTED_LIVENESS_CONTRACT_NAME = "vcgHostedLifecycleV1";
+const HOSTED_LIVENESS_CHALLENGE_BYTES = 16;
 const HEALTH_CHECK_ACCEPT =
   "application/vnd.vcg.health+json, application/json;q=0.1";
 const DENIED_BROWSER_PERMISSIONS = Object.freeze([
@@ -49,6 +52,34 @@ export interface HostedBrowserPolicy {
   readonly launchTimeoutMs: number;
 }
 
+export interface HostedBrowserLivenessPolicy {
+  readonly schemaVersion: 1;
+  readonly challengeIntervalMs: number;
+  readonly acknowledgementTimeoutMs: number;
+  readonly maximumConsecutiveMisses: number;
+}
+
+export const HOSTED_BROWSER_LIVENESS_POLICY_V1: HostedBrowserLivenessPolicy =
+  Object.freeze({
+    schemaVersion: 1 as const,
+    challengeIntervalMs: 1_000,
+    acknowledgementTimeoutMs: 2_000,
+    maximumConsecutiveMisses: 2,
+  });
+
+export type HostedBrowserLivenessFailureCode =
+  | "POST_READY_ACK_INVALID"
+  | "POST_READY_CONTRACT_LOST"
+  | "POST_READY_CONTRACT_MISSING"
+  | "POST_READY_HEARTBEAT_TIMEOUT";
+
+export interface HostedBrowserLivenessFailure {
+  readonly code: HostedBrowserLivenessFailureCode;
+  readonly challengeCount: number;
+  readonly acknowledgementCount: number;
+  readonly consecutiveMisses: number;
+}
+
 export type HostedBrowserViolationCode =
   | "DOWNLOAD_ATTEMPT"
   | "NAVIGATION_ORIGIN_DENIED"
@@ -66,9 +97,11 @@ export interface HostedBrowserRunResult {
     | "BROWSER_CRASHED"
     | "EXPLICIT_READY_TIMEOUT"
     | "LAUNCH_ABORTED"
-    | "POLICY_VIOLATION";
+    | "POLICY_VIOLATION"
+    | HostedBrowserLivenessFailureCode;
   readonly exitCode: number | null;
   readonly signal: NodeJS.Signals | null;
+  readonly liveness?: HostedBrowserLivenessFailure;
   readonly violation?: HostedBrowserViolation;
 }
 
@@ -104,6 +137,12 @@ export interface HostedBrowserTopLevelProbeResult {
   readonly title: string;
   readonly readyState: "interactive" | "complete";
   readonly browserProduct: string;
+  readonly exitCode: number | null;
+  readonly signal: NodeJS.Signals | null;
+}
+
+export interface HostedBrowserLivenessProbeResult {
+  readonly acknowledged: true;
   readonly exitCode: number | null;
   readonly signal: NodeJS.Signals | null;
 }
@@ -715,10 +754,20 @@ export async function runSupervisedHostedBrowser(
     }
     report({
       phase: "ready",
-      detail: "Hosted game explicitly reported readiness",
+      detail:
+        "Hosted game explicitly reported readiness; post-ready liveness monitoring active",
     });
 
+    const livenessObserved = monitorHostedBrowserLiveness(
+      ready.livenessChallenge,
+      HOSTED_BROWSER_LIVENESS_POLICY_V1,
+      readinessCancellation.signal,
+    );
     const terminal = await Promise.race([
+      livenessObserved.then((value) => ({
+        kind: "liveness" as const,
+        value,
+      })),
       violationObserved.then((value) => ({
         kind: "violation" as const,
         value,
@@ -727,10 +776,21 @@ export async function runSupervisedHostedBrowser(
       abortedObserved.then(() => ({ kind: "aborted" as const })),
       childExit.then((exit) => ({ kind: "exit" as const, exit })),
     ]);
+    if (terminal.kind === "liveness") {
+      requestStop(livenessFailureDetail(terminal.value.code));
+    }
     const exit =
       terminal.kind === "exit"
         ? terminal.exit
         : await (stopPromise ?? childExit);
+    if (terminal.kind === "liveness") {
+      return Object.freeze({
+        code: terminal.value.code,
+        exitCode: exit.code,
+        signal: exit.signal,
+        liveness: terminal.value,
+      });
+    }
     if (terminal.kind === "violation") {
       return Object.freeze({
         code: "POLICY_VIOLATION" as const,
@@ -869,6 +929,98 @@ export async function probeHostedBrowserContainment(
     return Object.freeze({
       attempt,
       violation: observed,
+      exitCode: exit.code,
+      signal: exit.signal,
+    });
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      await stopBrowserProcess(connection, child, childExit);
+    }
+    connection?.close();
+    await removeEphemeralProfile(profilePath);
+  }
+}
+
+/**
+ * Real-browser desk probe for the fixed post-ready wrapper function.
+ *
+ * The helper installs only a synthetic exact-echo producer in the initial
+ * blank page, verifies one fixed challenge through the production CDP
+ * expression, then closes the browser and removes its profile. It does not
+ * qualify a hosted game, wrapper, timing policy, or recovery surface.
+ */
+export async function probeHostedBrowserLivenessContract(
+  browserPath: string,
+  profilePath: string,
+): Promise<HostedBrowserLivenessProbeResult> {
+  profilePath = validateHostedBrowserProfilePath(profilePath);
+  const probePolicy = createHostedBrowserPolicy({
+    id: "liveness-probe",
+    runtime: "remote-web",
+    entrypoint: "https://allowed.invalid/",
+    allowedOrigins: ["https://allowed.invalid"],
+    launch: {
+      timeoutMs: 5_000,
+      healthCheck: { type: "http", path: "/" },
+    },
+  });
+  const child = spawn(
+    browserPath,
+    [
+      ...buildHostedBrowserArguments(profilePath),
+      "--headless=new",
+      "--disable-gpu",
+    ],
+    {
+      detached: process.platform !== "win32",
+      stdio: "ignore",
+      windowsHide: true,
+    },
+  );
+  const childExit = observeChildExit(child);
+  let connection: CdpConnection | undefined;
+  try {
+    const endpoint = await waitForDevToolsEndpoint(
+      profilePath,
+      child,
+      DEVTOOLS_ENDPOINT_TIMEOUT_MS,
+    );
+    connection = await CdpConnection.connect(endpoint);
+    const ready = await superviseCdpSession(
+      connection,
+      probePolicy,
+      () => undefined,
+      () => undefined,
+    );
+    const installed = await ready.evaluate(`
+      (() => {
+        globalThis.${HOSTED_LIVENESS_CONTRACT_NAME} = Object.freeze({
+          acknowledgeChallenge(challenge) {
+            return challenge;
+          }
+        });
+        return true;
+      })()
+    `);
+    if (installed !== true) {
+      throw new HostedBrowserPolicyError(
+        "real Chrome did not install the synthetic liveness producer",
+      );
+    }
+    const challenge = "0123456789abcdef0123456789abcdef";
+    const acknowledgement = await ready.livenessChallenge(challenge);
+    if (acknowledgement !== challenge) {
+      throw new HostedBrowserPolicyError(
+        "real Chrome did not return the exact liveness acknowledgement",
+      );
+    }
+    const exit = await stopBrowserProcess(
+      connection,
+      child,
+      childExit,
+    );
+    return Object.freeze({
+      acknowledged: true as const,
       exitCode: exit.code,
       signal: exit.signal,
     });
@@ -1078,6 +1230,7 @@ async function superviseCdpSession(
 ): Promise<{
   readonly evaluate: (expression: string) => Promise<unknown>;
   readonly explicitReady: () => Promise<boolean>;
+  readonly livenessChallenge: (challenge: string) => Promise<unknown>;
   readonly loaded: Promise<void>;
   readonly navigate: (url?: string) => Promise<void>;
 }> {
@@ -1255,6 +1408,51 @@ async function superviseCdpSession(
     },
     get loaded() {
       return loaded;
+    },
+    livenessChallenge: async (challenge: string) => {
+      if (!isHostedBrowserLivenessChallenge(challenge)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser liveness challenge is invalid",
+        );
+      }
+      const serializedChallenge = JSON.stringify(challenge);
+      const expression = `
+        (async () => {
+          try {
+            const contract = globalThis.${HOSTED_LIVENESS_CONTRACT_NAME};
+            if (
+              contract === null
+              || typeof contract !== "object"
+              || typeof contract.acknowledgeChallenge !== "function"
+            ) {
+              return undefined;
+            }
+            const acknowledgement =
+              await contract.acknowledgeChallenge(${serializedChallenge});
+            return acknowledgement === ${serializedChallenge}
+              ? acknowledgement
+              : null;
+          } catch {
+            return null;
+          }
+        })()
+      `;
+      const result = await connection.send(
+        "Runtime.evaluate",
+        {
+          awaitPromise: true,
+          expression,
+          returnByValue: true,
+          userGesture: false,
+        },
+        mainSessionId,
+      );
+      if (isRecord(result.exceptionDetails)) {
+        throw new HostedBrowserPolicyError(
+          "hosted browser liveness challenge failed",
+        );
+      }
+      return objectField(result, "result")?.value;
     },
     navigate: async (url = policy.entrypoint) => {
       resetLoaded();
@@ -1642,6 +1840,189 @@ function remainingDeadlineMs(deadline: number): number {
   return Math.ceil(deadline - performance.now());
 }
 
+type HostedBrowserLivenessProbe = (
+  challenge: string,
+) => Promise<unknown>;
+
+export async function monitorHostedBrowserLiveness(
+  probe: HostedBrowserLivenessProbe,
+  policy: HostedBrowserLivenessPolicy =
+    HOSTED_BROWSER_LIVENESS_POLICY_V1,
+  signal?: AbortSignal,
+): Promise<HostedBrowserLivenessFailure> {
+  validateHostedBrowserLivenessPolicy(policy);
+  if (typeof probe !== "function") {
+    throw new HostedBrowserPolicyError(
+      "hosted browser liveness probe is invalid",
+    );
+  }
+
+  let challengeCount = 0;
+  let acknowledgementCount = 0;
+  let consecutiveMisses = 0;
+  for (;;) {
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    const challenge = randomBytes(
+      HOSTED_LIVENESS_CHALLENGE_BYTES,
+    ).toString("hex");
+    challengeCount += 1;
+    const observation = await observeHostedBrowserLiveness(
+      probe,
+      challenge,
+      policy.acknowledgementTimeoutMs,
+      signal,
+    );
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+
+    if (observation.kind === "acknowledgement") {
+      acknowledgementCount += 1;
+      consecutiveMisses = 0;
+    } else if (observation.kind === "missing") {
+      return hostedBrowserLivenessFailure(
+        acknowledgementCount === 0
+          ? "POST_READY_CONTRACT_MISSING"
+          : "POST_READY_CONTRACT_LOST",
+        challengeCount,
+        acknowledgementCount,
+        consecutiveMisses,
+      );
+    } else if (observation.kind === "invalid") {
+      return hostedBrowserLivenessFailure(
+        "POST_READY_ACK_INVALID",
+        challengeCount,
+        acknowledgementCount,
+        consecutiveMisses,
+      );
+    } else {
+      consecutiveMisses += 1;
+      if (
+        consecutiveMisses >= policy.maximumConsecutiveMisses
+      ) {
+        return hostedBrowserLivenessFailure(
+          "POST_READY_HEARTBEAT_TIMEOUT",
+          challengeCount,
+          acknowledgementCount,
+          consecutiveMisses,
+        );
+      }
+    }
+
+    try {
+      await delay(
+        policy.challengeIntervalMs,
+        undefined,
+        signal === undefined ? undefined : { signal },
+      );
+    } catch (error) {
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
+      throw error;
+    }
+  }
+}
+
+function validateHostedBrowserLivenessPolicy(
+  policy: HostedBrowserLivenessPolicy,
+): void {
+  if (
+    !isRecord(policy)
+    || policy.schemaVersion !== 1
+    || !Number.isSafeInteger(policy.challengeIntervalMs)
+    || policy.challengeIntervalMs < 10
+    || policy.challengeIntervalMs > 30_000
+    || !Number.isSafeInteger(policy.acknowledgementTimeoutMs)
+    || policy.acknowledgementTimeoutMs < 10
+    || policy.acknowledgementTimeoutMs > 30_000
+    || !Number.isSafeInteger(policy.maximumConsecutiveMisses)
+    || policy.maximumConsecutiveMisses < 1
+    || policy.maximumConsecutiveMisses > 8
+  ) {
+    throw new HostedBrowserPolicyError(
+      "hosted browser liveness policy is invalid",
+    );
+  }
+}
+
+async function observeHostedBrowserLiveness(
+  probe: HostedBrowserLivenessProbe,
+  challenge: string,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<
+  | { readonly kind: "acknowledgement" }
+  | { readonly kind: "invalid" }
+  | { readonly kind: "missing" }
+  | { readonly kind: "unavailable" }
+> {
+  const observation = Promise.resolve()
+    .then(() => probe(challenge))
+    .then(
+      (value) => ({ kind: "value" as const, value }),
+      () => ({ kind: "unavailable" as const }),
+    );
+  let result:
+    | { readonly kind: "value"; readonly value: unknown }
+    | { readonly kind: "unavailable" }
+    | { readonly kind: "timeout" };
+  try {
+    result = await Promise.race([
+      observation,
+      delay(
+        timeoutMs,
+        { kind: "timeout" as const },
+        signal === undefined ? undefined : { signal },
+      ),
+    ]);
+  } catch (error) {
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
+    throw error;
+  }
+  if (result.kind !== "value") {
+    return { kind: "unavailable" };
+  }
+  if (result.value === challenge) {
+    return { kind: "acknowledgement" };
+  }
+  if (result.value === undefined) {
+    return { kind: "missing" };
+  }
+  return { kind: "invalid" };
+}
+
+function hostedBrowserLivenessFailure(
+  code: HostedBrowserLivenessFailureCode,
+  challengeCount: number,
+  acknowledgementCount: number,
+  consecutiveMisses: number,
+): HostedBrowserLivenessFailure {
+  return Object.freeze({
+    code,
+    challengeCount,
+    acknowledgementCount,
+    consecutiveMisses,
+  });
+}
+
+function livenessFailureDetail(
+  code: HostedBrowserLivenessFailureCode,
+): string {
+  switch (code) {
+    case "POST_READY_CONTRACT_MISSING":
+      return "Hosted game omitted its post-ready liveness contract";
+    case "POST_READY_CONTRACT_LOST":
+      return "Hosted game lost its post-ready liveness contract";
+    case "POST_READY_ACK_INVALID":
+      return "Hosted game returned an invalid liveness acknowledgement";
+    case "POST_READY_HEARTBEAT_TIMEOUT":
+      return "Hosted game stopped acknowledging liveness challenges";
+  }
+}
+
+function isHostedBrowserLivenessChallenge(
+  value: string,
+): boolean {
+  return /^[a-f0-9]{32}$/.test(value);
+}
+
 export async function waitForExplicitHostedBrowserReadiness(
   probe: () => Promise<boolean>,
   timeoutMs: number,
@@ -1659,7 +2040,7 @@ export async function waitForExplicitHostedBrowserReadiness(
   }
   const deadline = performance.now() + timeoutMs;
   for (;;) {
-    if (signal?.aborted) return pendingAfterReadinessCancellation();
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
     const probeBudgetMs = Math.ceil(deadline - performance.now());
     if (probeBudgetMs <= 0) return false;
     let observation:
@@ -1678,10 +2059,10 @@ export async function waitForExplicitHostedBrowserReadiness(
         ),
       ]);
     } catch (error) {
-      if (signal?.aborted) return pendingAfterReadinessCancellation();
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
       throw error;
     }
-    if (signal?.aborted) return pendingAfterReadinessCancellation();
+    if (signal?.aborted) return pendingAfterLifecycleCancellation();
     if (observation.kind === "timeout") return false;
     const ready = observation.value;
     if (typeof ready !== "boolean") {
@@ -1700,13 +2081,13 @@ export async function waitForExplicitHostedBrowserReadiness(
         signal === undefined ? undefined : { signal },
       );
     } catch (error) {
-      if (signal?.aborted) return pendingAfterReadinessCancellation();
+      if (signal?.aborted) return pendingAfterLifecycleCancellation();
       throw error;
     }
   }
 }
 
-function pendingAfterReadinessCancellation(): Promise<never> {
+function pendingAfterLifecycleCancellation(): Promise<never> {
   return new Promise<never>(() => undefined);
 }
 

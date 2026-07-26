@@ -8,9 +8,12 @@ import { describe, it } from "node:test";
 import {
   buildHostedBrowserArguments,
   createHostedBrowserPolicy,
+  HOSTED_BROWSER_LIVENESS_POLICY_V1,
   HostedBrowserNavigationGuard,
   HostedBrowserPolicyError,
+  monitorHostedBrowserLiveness,
   probeHostedBrowserContainment,
+  probeHostedBrowserLivenessContract,
   requireHealthyHostedEndpoint,
   type HostedBrowserManifestInput,
   validateHostedBrowserProfilePath,
@@ -293,6 +296,109 @@ describe("hosted browser explicit readiness", () => {
     assert.ok(calls >= 2);
     assert.ok(calls <= 3);
     assert.ok(elapsed < 500);
+  });
+});
+
+describe("hosted browser post-ready liveness", () => {
+  const fastPolicy = Object.freeze({
+    schemaVersion: 1 as const,
+    challengeIntervalMs: 10,
+    acknowledgementTimeoutMs: 10,
+    maximumConsecutiveMisses: 2,
+  });
+
+  it("publishes one immutable bounded desk policy", async () => {
+    assert.deepEqual(HOSTED_BROWSER_LIVENESS_POLICY_V1, {
+      schemaVersion: 1,
+      challengeIntervalMs: 1_000,
+      acknowledgementTimeoutMs: 2_000,
+      maximumConsecutiveMisses: 2,
+    });
+    assert.equal(
+      Object.isFrozen(HOSTED_BROWSER_LIVENESS_POLICY_V1),
+      true,
+    );
+    await assert.rejects(
+      monitorHostedBrowserLiveness(
+        async (challenge) => challenge,
+        {
+          ...fastPolicy,
+          maximumConsecutiveMisses: 0,
+        },
+      ),
+      /liveness policy is invalid/,
+    );
+  });
+
+  it("distinguishes a missing initial contract from a lost contract", async () => {
+    const missing = await monitorHostedBrowserLiveness(
+      async () => undefined,
+      fastPolicy,
+    );
+    assert.deepEqual(missing, {
+      code: "POST_READY_CONTRACT_MISSING",
+      challengeCount: 1,
+      acknowledgementCount: 0,
+      consecutiveMisses: 0,
+    });
+    assert.equal(Object.isFrozen(missing), true);
+
+    let calls = 0;
+    const lost = await monitorHostedBrowserLiveness(
+      async (challenge) => {
+        calls += 1;
+        return calls === 1 ? challenge : undefined;
+      },
+      fastPolicy,
+    );
+    assert.deepEqual(lost, {
+      code: "POST_READY_CONTRACT_LOST",
+      challengeCount: 2,
+      acknowledgementCount: 1,
+      consecutiveMisses: 0,
+    });
+  });
+
+  it("rejects a wrong, replayed, or malformed acknowledgement immediately", async () => {
+    for (const acknowledgement of [
+      "",
+      "replayed-ack",
+      null,
+      true,
+      { challenge: "echo" },
+    ]) {
+      const failure = await monitorHostedBrowserLiveness(
+        async () => acknowledgement,
+        fastPolicy,
+      );
+      assert.deepEqual(failure, {
+        code: "POST_READY_ACK_INVALID",
+        challengeCount: 1,
+        acknowledgementCount: 0,
+        consecutiveMisses: 0,
+      });
+    }
+  });
+
+  it("requires exact fresh acknowledgements and resets only consecutive misses", async () => {
+    let calls = 0;
+    const failure = await monitorHostedBrowserLiveness(
+      async (challenge) => {
+        calls += 1;
+        if (calls === 1 || calls === 3) {
+          throw new Error("redacted transport failure");
+        }
+        if (calls === 2) return challenge;
+        return new Promise<never>(() => undefined);
+      },
+      fastPolicy,
+    );
+    assert.deepEqual(failure, {
+      code: "POST_READY_HEARTBEAT_TIMEOUT",
+      challengeCount: 4,
+      acknowledgementCount: 1,
+      consecutiveMisses: 2,
+    });
   });
 });
 
@@ -642,7 +748,7 @@ describe("hosted browser process arguments", () => {
 
   const chrome = installedChromePath();
   it(
-    "actively terminates real Chrome on navigation, popup, and download abuse",
+    "actively terminates real Chrome abuse and proves the exact liveness echo",
     { skip: chrome === undefined, timeout: 60_000 },
     async () => {
       assert.ok(chrome);
@@ -664,6 +770,15 @@ describe("hosted browser process arguments", () => {
         assert.equal(result.violation.code, expectedCode);
         assert.equal(existsSync(profilePath), false);
       }
+      const livenessProfilePath = await mkdtemp(
+        join(tmpdir(), "vcg-hosted-probe-"),
+      );
+      const liveness = await probeHostedBrowserLivenessContract(
+        chrome,
+        livenessProfilePath,
+      );
+      assert.equal(liveness.acknowledged, true);
+      assert.equal(existsSync(livenessProfilePath), false);
     },
   );
 });

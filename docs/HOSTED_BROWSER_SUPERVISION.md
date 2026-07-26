@@ -108,9 +108,57 @@ means the page claims its initial reviewed game surface and handlers are
 ready; it does not prove compositor focus, responsiveness after the claim,
 playability, login, offline operation, or health.
 
+## Post-ready liveness candidate
+
+After the exact readiness marker, the live runner starts a fixed v1
+challenge/acknowledgement loop. The wrapper contract is deliberately not
+manifest-selected:
+
+```js
+globalThis.vcgHostedLifecycleV1 = Object.freeze({
+  async acknowledgeChallenge(challenge) {
+    // Respond only after the top-level game task loop handles this call.
+    return challenge;
+  },
+});
+```
+
+The supervisor creates a fresh random 128-bit lowercase-hex challenge for each
+probe, invokes only the top-level page through CDP with `userGesture: false`,
+awaits the wrapper result, and accepts only the exact current challenge. It
+does not accept a boolean, stale value, wrapper-selected token, DOM attribute,
+iframe message, network response, service-worker signal, or document-load
+event.
+
+The immutable desk policy challenges every 1,000 ms, allows 2,000 ms for an
+acknowledgement, and terminates after two consecutive unavailable probes. A
+successful exact acknowledgement resets only the consecutive-miss count. It
+does not reset another deadline or authorize a navigation, permission, input,
+save, or launch operation. The supervisor distinguishes:
+
+- `POST_READY_CONTRACT_MISSING` before any acknowledgement;
+- `POST_READY_CONTRACT_LOST` after at least one acknowledgement;
+- `POST_READY_ACK_INVALID` for a wrong, malformed, or throwing producer; and
+- `POST_READY_HEARTBEAT_TIMEOUT` for two consecutive timeout/transport
+  failures.
+
+Only counts cross the result boundary. Challenge values and page exceptions do
+not. Every terminal liveness result stops the owned browser and removes the
+temporary profile. There is no automatic restart and no page-controlled
+extension of ownership.
+
+This is a bounded candidate, not a production timing or qualification claim.
+Any script in the allowed top-level page can imitate the global function until
+admission binds an exact reviewed wrapper. A challenge acknowledgement proves
+only that this JavaScript call returned the current value; it does not prove
+correct rendering, controller focus, audio/video progress, network/login
+health, compositor containment, or that a native service scope terminated all
+descendants. The stable result is intended for a future console-owned recovery
+overlay rather than letting page JavaScript choose recovery.
+
 ## Automated evidence
 
-Twenty-two focused cases cover:
+Twenty-six focused cases cover:
 
 - strict policy derivation and immutability;
 - runtime, ID, origin, credential, duplicate, bound, timeout, entrypoint, and
@@ -124,6 +172,9 @@ Twenty-two focused cases cover:
 - invalid/nonboolean readiness producers, exact polling, success only after an
   explicit positive observation, and bounded no-marker timeout with no
   document-load fallback;
+- immutable post-ready timing bounds, exact fresh challenge echoes, missing
+  versus lost contracts, invalid/replayed/malformed acknowledgement refusal,
+  timeout counting, and successful-ack miss reset;
 - redirect-before-request enforcement, redirect bounds, missing locations, and
   unhealthy responses; and
 - fixed process arguments without `--no-sandbox` or
@@ -131,13 +182,15 @@ Twenty-two focused cases cover:
 - destructive-profile lexical scope, including refusal of the temporary root,
   unrelated names, short names, and nested paths.
 
-The final test launches installed Chrome headlessly three times through real
-random DevTools endpoints and separate ephemeral profiles. It arms the
-production guard, injects a forbidden `data:` top-level navigation, popup, and
-download, observes `NAVIGATION_ORIGIN_DENIED`, `POPUP_ATTEMPT`, and
-`DOWNLOAD_ATTEMPT`, closes each owned browser with exit code 0, and verifies
-each profile directory is gone. The 2026-07-24 Windows evidence used Chrome
-150.0.7871.182.
+The final test launches installed Chrome headlessly four times through real
+random DevTools endpoints and separate ephemeral profiles. Three runs arm the
+production guard, inject a forbidden `data:` top-level navigation, popup, and
+download, observe `NAVIGATION_ORIGIN_DENIED`, `POPUP_ATTEMPT`, and
+`DOWNLOAD_ATTEMPT`, and terminate. The fourth installs a synthetic exact-echo
+wrapper in the sole blank top-level target and proves the production CDP
+expression returns one fixed 128-bit challenge exactly. Every run closes the
+owned browser with exit code 0 and removes its profile directory. The
+2026-07-24 Windows evidence used Chrome 150.0.7871.182.
 
 Run:
 
@@ -157,9 +210,11 @@ original 2026-07-24 Windows x64 run.
 `benchmarks/hosted-browser/epoch-top-level-windows-v2.json` records the
 2026-07-25 successor against the privacy-hardened health-check request
 boundary.
-`benchmarks/hosted-browser/epoch-top-level-windows-v3.json` is the current
-2026-07-25 successor after the live runner gained explicit readiness. All
-three observations target
+`benchmarks/hosted-browser/epoch-top-level-windows-v3.json` is the
+2026-07-25 successor after the live runner gained explicit readiness.
+`benchmarks/hosted-browser/epoch-top-level-windows-v4.json` is the current
+2026-07-25 successor after the live runner gained post-ready challenge/ack
+monitoring. All four observations target
 `https://epoch-theta.vercel.app/`. The response returned HTTP 200 and retained:
 
 - `Content-Security-Policy: frame-ancestors 'self' https://randroid.dev https://www.randroid.dev`;
@@ -173,12 +228,12 @@ entrypoint as the sole guarded page, reported title `Epoch` and
 `document.readyState=complete`, observed no policy violation, exited with code
 0, and removed the fresh profile.
 
-The load-only probe reuses the production policy derivation, blank-page
+The v4 load-only probe reuses the production policy derivation, blank-page
 attachment, navigation guard, browser shutdown, and profile cleanup but
-deliberately does not invoke the live runner's explicit marker gate. Its
-result contains only final URL, title, document ready state, browser product,
-exit status, and cleanup state. It does not inspect game content or confer
-readiness authority.
+deliberately does not invoke the live runner's explicit marker or post-ready
+challenge/ack gates. Its result contains only final URL, title, document ready
+state, browser product, exit status, and cleanup state. It does not inspect
+game content or confer readiness or liveness authority.
 
 Each artifact binds the exact supervisor, live generator, and strict validator
 SHA-256 values. The active validator targets v3. Eight mutation tests reject
@@ -195,7 +250,7 @@ pnpm exec tsx scripts/generate-epoch-top-level-evidence.mjs
 ```
 
 Later evidence requires another versioned successor rather than silently
-overwriting v1, v2, or v3.
+overwriting v1 through v4.
 
 I-090 is closed at the framing-mode boundary. Q-046, Q-048, Q-049, Q-250, and
 I-180 remain open for unstealable target-compositor Home/Back, hostile capture
@@ -214,8 +269,9 @@ This tranche does not yet prove:
   protected native-host invocation;
 - network-request allowlisting inside an allowed page, service-worker egress,
   storage quotas, or DNS/IP containment;
-- qualified readiness producers for each game, post-ready heartbeat/hang
-  detection, or truthful login and offline recovery;
+- qualified readiness/liveness wrappers for each game, production liveness
+  timing, a console-owned recovery overlay, bounded restart policy, or
+  truthful login and offline recovery;
 - popup-based authentication, downloads, camera, microphone, or other
   permission-requiring hosted games; or
 - ARM64 and ordinary x86-64 Linux behavior.

@@ -4,8 +4,15 @@ Last updated: 2026-07-24
 
 The Node supervisor now requires the fixed initial marker
 `html[data-vcg-ready="1"]` under the same bounded deadline as navigation and
-document load. A load event no longer produces a `ready` phase. This does not
-select the final game-side producer or post-ready liveness policy.
+document load. A load event no longer produces a `ready` phase. It now also
+implements the fixed desk-only
+`globalThis.vcgHostedLifecycleV1.acknowledgeChallenge` candidate described in
+`HOSTED_BROWSER_SUPERVISION.md`: random 128-bit exact echoes every second, a
+two-second acknowledgement budget, and termination after two consecutive
+misses. This does not select or qualify the final game-side wrapper, timings,
+recovery UI, or signed admission binding. The remaining decisions have been
+copied into
+`OWNER_QUESTIONS_HOSTED_LIVENESS_2026-07-24.md` for owner review.
 
 ## Q-250: qualified readiness producer and post-ready recovery
 

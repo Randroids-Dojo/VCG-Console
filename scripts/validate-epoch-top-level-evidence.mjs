@@ -16,7 +16,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "benchmarks/hosted-browser/epoch-top-level-windows-v3.json",
+  "benchmarks/hosted-browser/epoch-top-level-windows-v4.json",
 );
 const MAX_ARTIFACT_BYTES = 64 * 1024;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;

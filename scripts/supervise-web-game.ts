@@ -46,6 +46,8 @@ async function main() {
     limitations: [
       "Back and Home are not yet global OS-level controls.",
       "The game must set html[data-vcg-ready=\"1\"] within the shared launch deadline.",
+      "After readiness, a reviewed wrapper must exactly echo host challenges through globalThis.vcgHostedLifecycleV1.acknowledgeChallenge.",
+      "The fixed one-second challenge, two-second acknowledgement, and two-miss policy is desk-only pending target qualification.",
       "Desk process-tree cleanup is not target service-manager or cgroup containment.",
       "Target Linux compositor, service-manager, resource, and crash qualification remain.",
     ],
@@ -81,6 +83,7 @@ async function main() {
       result.code === "POLICY_VIOLATION"
       || result.code === "BROWSER_CRASHED"
       || result.code === "EXPLICIT_READY_TIMEOUT"
+      || result.code.startsWith("POST_READY_")
     ) {
       process.exitCode = 1;
     }
