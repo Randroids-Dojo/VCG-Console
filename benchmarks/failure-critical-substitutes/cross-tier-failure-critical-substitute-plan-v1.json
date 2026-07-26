@@ -1,0 +1,407 @@
+{
+  "format": "vcg-cross-tier-failure-critical-substitute-plan/v1",
+  "status": "blocked",
+  "campaignId": "i031-cross-tier-failure-critical-substitutes-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-031",
+    "Q-072",
+    "D-043",
+    "D-044",
+    "D-047",
+    "D-094",
+    "D-095",
+    "D-108",
+    "D-109",
+    "D-110",
+    "D-111"
+  ],
+  "claimBoundary": "This is a strict source-bound zero-result umbrella plan for qualifying at least one substitute for every failure-critical hardware role on the required Raspberry Pi 5 and ordinary x86 Linux product tiers, with the Steam Machine retained as optional non-rescuing evidence. A BOM line, family name, seller listing, approved-vendor entry, stock state, lower price, specification sheet, compatible connector, successful component smoke test, shared manufacturer, regional alias, newer revision, one target, another role, another candidate, or an aggregate cannot establish exact received-part compatibility, complete-product performance, safety, reliability, recovery, service replacement, supply continuity, delivered cost or qualification. No candidate, vendor, revision, firmware, lot, target, threshold, schedule, result, approved-vendor list, purchase, return, firmware mutation, destructive test, target operation, qualification, publication or BOM substitution is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "quote-date-primary-bom-and-unapproved-substitution-screen",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "role": "quote-vendor-revision-and-cost-owner-boundary",
+      "path": "docs/OWNER_QUESTIONS_QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "7a647dd84cf0ddbc4191f2b7f064d1854eca8be98fb4f9d52cc39e0ecec3c27d"
+    },
+    {
+      "role": "cross-tier-product-contract",
+      "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
+      "sha256": "040bddc31499653831a8d688828c6c0c2677bd4fb68e9060d71a1c01352f6f53"
+    },
+    {
+      "role": "complete-system-economics-boundary",
+      "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
+      "sha256": "fa0fae6123581ee23edb73eb1797a2a4963f392a7a9ee89a7bcd2773f132fff4"
+    },
+    {
+      "role": "shared-camera-qualification-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "primary-storage-qualification-boundary",
+      "path": "benchmarks/microsd-qualification/sandisk-high-endurance-256gb-plan-v1.json",
+      "sha256": "0963e7d53db272e2d7335efc54f28430af182ae40f58b10e443efc6eafccf696"
+    },
+    {
+      "role": "storage-fallback-qualification-boundary",
+      "path": "benchmarks/usb3-ssd-fallback/pi5-usb3-ssd-fallback-plan-v1.json",
+      "sha256": "1b6a56d3f618550ce831514c4df8582c72842e0ffef954332b4558ffcbe2da5d"
+    },
+    {
+      "role": "cooling-thermal-acoustic-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    },
+    {
+      "role": "controller-and-recovery-remote-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "camera-interconnect-boundary",
+      "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
+      "sha256": "ed0047b21e8cde4cc9387e2cd8d9a8353c3938ed86bd0dd96e0c847926634f80"
+    },
+    {
+      "role": "display-audio-power-recovery-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "d35fc26d04b5dcf848d3a680f9c66f593e3986898afd8146577d5f70a65fe737"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "pi5-lower-cost-reference",
+      "ordinary-x86-linux-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-steamos"
+    ],
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "oneRequiredTargetMayQualifyOrRescueAnother": false,
+    "optionalTargetMayQualifyOrRescueRequiredTarget": false,
+    "proxyDevelopmentOrVendorEvidenceMayQualifyTarget": false
+  },
+  "targets": [
+    {
+      "targetId": "pi5-lower-cost-reference",
+      "requirement": "required",
+      "exactPrimaryProductAndRoleBaselineManifestSha256": null,
+      "exactTargetImageDriverFirmwarePowerAndPeripheralManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "ordinary-x86-linux-reference",
+      "requirement": "required",
+      "exactPrimaryProductAndRoleBaselineManifestSha256": null,
+      "exactTargetImageDriverFirmwarePowerAndPeripheralManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "steam-machine-steamos",
+      "requirement": "optional-non-rescuing",
+      "exactPrimaryProductAndRoleBaselineManifestSha256": null,
+      "exactTargetImageDriverFirmwarePowerAndPeripheralManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    }
+  ],
+  "roleDefinitions": [
+    {
+      "roleId": "compute-platform",
+      "productFunction": "bootable-accountless-compute-platform",
+      "mandatoryCheckIds": [
+        "architecture-memory-and-io",
+        "boot-firmware-update-and-recovery",
+        "complete-workload-performance-and-resource",
+        "power-thermal-acoustic-and-fault"
+      ]
+    },
+    {
+      "roleId": "pose-inference-device",
+      "productFunction": "camera-to-action-pose-inference",
+      "mandatoryCheckIds": [
+        "runtime-model-and-driver-closure",
+        "action-quality-and-d110-latency",
+        "concurrent-game-resource-and-thermal",
+        "fault-update-rollback-and-recovery"
+      ]
+    },
+    {
+      "roleId": "primary-writable-storage",
+      "productFunction": "boot-update-profile-save-and-package-storage",
+      "mandatoryCheckIds": [
+        "capacity-layout-and-full-disk",
+        "latency-writes-endurance-and-health",
+        "power-cut-corruption-and-atomicity",
+        "blank-media-recovery-and-permanent-loss"
+      ]
+    },
+    {
+      "roleId": "shared-rgb-camera",
+      "productFunction": "shared-wide-angle-motion-capture",
+      "mandatoryCheckIds": [
+        "genuine-1080p60-uvc-modes-and-controls",
+        "coverage-distortion-lighting-and-action-quality",
+        "exposure-to-action-latency-and-timestamps",
+        "privacy-reconnect-suspend-and-replacement"
+      ]
+    },
+    {
+      "roleId": "primary-power-supply",
+      "productFunction": "safe-complete-system-power",
+      "mandatoryCheckIds": [
+        "voltage-current-profiles-and-identity",
+        "inrush-peak-steady-margin-and-brownout",
+        "thermal-electrical-household-safety",
+        "load-fault-unplug-reconnect-and-recovery"
+      ]
+    },
+    {
+      "roleId": "cooling-assembly",
+      "productFunction": "sustained-thermal-and-acoustic-control",
+      "mandatoryCheckIds": [
+        "mechanical-interface-and-airflow",
+        "one-hour-and-four-hour-thermal-soak",
+        "one-metre-acoustics-tone-rattle-and-oscillation",
+        "fan-fault-stall-recovery-and-service"
+      ]
+    },
+    {
+      "roleId": "enclosure-chassis",
+      "productFunction": "abs-household-integration-and-service",
+      "mandatoryCheckIds": [
+        "material-fit-clearance-ports-and-insulation",
+        "thermal-airflow-radio-and-emi",
+        "tip-pull-impact-cable-and-household-load",
+        "assembly-opening-replacement-and-service"
+      ]
+    },
+    {
+      "roleId": "display-interconnect",
+      "productFunction": "television-video-audio-and-recovery-link",
+      "mandatoryCheckIds": [
+        "connector-length-and-received-identity",
+        "required-resolution-refresh-audio-and-signal",
+        "hotplug-mode-change-cec-and-recovery",
+        "bend-retention-routing-and-service"
+      ]
+    },
+    {
+      "roleId": "camera-interconnect",
+      "productFunction": "camera-data-power-and-physical-routing",
+      "mandatoryCheckIds": [
+        "genuine-1080p60-signal-and-usb-errors",
+        "length-bend-retention-pull-and-routing",
+        "radio-emi-power-and-concurrent-load",
+        "cold-hotplug-suspend-and-recovery"
+      ]
+    },
+    {
+      "roleId": "assembly-retention-and-fasteners",
+      "productFunction": "board-hat-camera-storage-and-cable-retention",
+      "mandatoryCheckIds": [
+        "dimensions-material-thread-and-package-identity",
+        "fit-clearance-insulation-and-torque",
+        "pull-vibration-cycle-and-household-load",
+        "service-removal-reassembly-and-damage"
+      ]
+    },
+    {
+      "roleId": "primary-controller",
+      "productFunction": "ordinary-play-and-reserved-system-control",
+      "mandatoryCheckIds": [
+        "exact-mapping-glyph-and-transport",
+        "input-latency-repeat-deadzone-and-battery",
+        "reserved-home-back-pause-and-focus",
+        "disconnect-reconnect-replacement-and-recovery"
+      ]
+    },
+    {
+      "roleId": "recovery-remote",
+      "productFunction": "independent-controller-loss-and-shell-recovery",
+      "mandatoryCheckIds": [
+        "system-action-mapping-and-ownership",
+        "primary-controller-loss-focus-and-forced-exit",
+        "power-input-audio-and-accessibility-recovery",
+        "battery-pairing-reconnect-and-replacement"
+      ]
+    }
+  ],
+  "candidateAndVendorPolicy": {
+    "minimumQualifiedSubstitutesPerTargetRoleCell": 1,
+    "exactPrimaryBaselineManifestSha256": null,
+    "exactSubstituteCandidateManifestSha256": null,
+    "approvedVendorListSha256": null,
+    "manufacturerRevisionFirmwareLotAliasAndRetestPolicySha256": null,
+    "quoteJurisdictionSellerCurrencyTaxShippingAndFreshnessPolicySha256": null,
+    "warrantyReturnSupportSupplyContinuityAndExpiryPolicySha256": null,
+    "manufacturerOrAuthorizedDistributorEvidenceRequired": true,
+    "receivedUnitMustMatchExactQuotedIdentity": true,
+    "regionalPackagingOrRevisionAliasRequiresReviewedEvidence": true,
+    "marketplaceUsedOpenBoxOrUnidentifiedSellerAllowed": false,
+    "vendorApprovalMayQualifyPartOrAuthorizePurchase": false,
+    "stockPriceSpecificationOrConnectorMatchMayQualify": false,
+    "candidateMayChangeAfterFirstResult": false
+  },
+  "acceptanceStageIds": [
+    "procurement-and-identity",
+    "interface-fit-and-safety",
+    "target-bringup-firmware-and-driver",
+    "complete-product-workload-and-performance",
+    "sustained-environmental-and-coexistence",
+    "fault-recovery-and-service-replacement",
+    "delivered-cost-supply-warranty-and-expiry",
+    "independent-review-and-approval"
+  ],
+  "qualificationMatrix": {
+    "requiredTargetIds": [
+      "pi5-lower-cost-reference",
+      "ordinary-x86-linux-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-steamos"
+    ],
+    "roleIds": [
+      "compute-platform",
+      "pose-inference-device",
+      "primary-writable-storage",
+      "shared-rgb-camera",
+      "primary-power-supply",
+      "cooling-assembly",
+      "enclosure-chassis",
+      "display-interconnect",
+      "camera-interconnect",
+      "assembly-retention-and-fasteners",
+      "primary-controller",
+      "recovery-remote"
+    ],
+    "acceptanceStageIds": [
+      "procurement-and-identity",
+      "interface-fit-and-safety",
+      "target-bringup-firmware-and-driver",
+      "complete-product-workload-and-performance",
+      "sustained-environmental-and-coexistence",
+      "fault-recovery-and-service-replacement",
+      "delivered-cost-supply-warranty-and-expiry",
+      "independent-review-and-approval"
+    ],
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "roleCount": 12,
+    "acceptanceStageCount": 8,
+    "requiredTargetRoleCellCount": 24,
+    "optionalTargetRoleCellCount": 12,
+    "minimumCandidateRecordsPerTargetRoleCell": 2,
+    "requiredCandidateRecordCount": 48,
+    "optionalCandidateRecordCount": 24,
+    "requiredAcceptanceStageResultCount": 384,
+    "optionalAcceptanceStageResultCount": 192,
+    "everyRequiredTargetRolePrimaryAndSubstituteRunsEveryStage": true,
+    "roleSpecificMandatoryChecksRequiredInsideEveryApplicableStage": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true,
+    "primaryAndSubstituteMustUseSameTargetProductWorkloadAndAcceptanceContract": true,
+    "candidateTargetRoleStageOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-receipt-revision-firmware-lot-and-vendor-disposition",
+      "interface-fit-electrical-mechanical-and-household-safety-disposition",
+      "boot-bringup-driver-firmware-update-and-rollback-disposition",
+      "complete-product-functional-performance-latency-and-resource-disposition",
+      "sustained-thermal-acoustic-power-radio-emi-and-coexistence-disposition",
+      "fault-recovery-service-replacement-and-data-continuity-disposition",
+      "fresh-delivered-cost-volume-mass-warranty-return-and-supply-disposition",
+      "independent-review-approval-expiry-and-retest-disposition",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-ledger"
+    ],
+    "independentIdentityFitSafetyPerformancePowerThermalAcousticFaultRecoveryCostSupplyAndClockOraclesRequired": true,
+    "vendorUiSpecificationComponentSmokeOrSelfReportMaySubstituteForIntegratedEvidence": false,
+    "everyAttemptFailureInvalidationRetryExceptionAndWorstCaseMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumQualifiedSubstitutesPerRequiredTargetRoleCell": 1,
+    "maximumMissingRequiredTargetRoleCells": 0,
+    "maximumUnqualifiedOrSilentSubstitutions": 0,
+    "maximumUnreviewedRevisionFirmwareLotOrSellerChanges": 0,
+    "maximumWeakenedInheritedProductGates": 0,
+    "maximumFailedSafetyIntegrityPrivacyRecoveryOrReservedControlGates": 0,
+    "maximumCandidateTargetRoleStageOrAggregateRescues": 0,
+    "maximumPiLowerCostDeliveredReferenceCents": 65000,
+    "sameOrStricterProductContractRequiredForPrimaryAndSubstitute": true,
+    "exactReceivedIdentityAndCompleteIntegratedTargetEvidenceRequired": true,
+    "failureRemainsFailureForThatExactCandidateTargetAndRole": true,
+    "architectureTierOrFunctionalRoleChangeRequiresSupersedingDecision": true,
+    "approvedVendorEntryStockPriceSpecificationOrSmokeTestMayQualify": false,
+    "optionalSteamEvidenceMayQualifyOrRescueRequiredTier": false,
+    "allOpenSamplesThresholdsScheduleRetestExpiryAndReviewRulesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumReceivedUnitsPerCandidateTargetRole": null,
+    "minimumIndependentLotsOrManufacturingBatchesPerCandidate": null,
+    "minimumValidCyclesPerBehavioralCheck": null,
+    "minimumSustainedSoakSecondsByRole": null,
+    "maximumPerformanceRegressionRatioPpmByRoleMetric": null,
+    "maximumPowerRegressionRatioPpmByRolePhase": null,
+    "maximumThermalRegressionMillicelsiusByRolePhase": null,
+    "maximumAcousticRegressionMilliDbaByRolePhase": null,
+    "maximumAssembledVolumeRegressionRatioPpmByRole": null,
+    "maximumAssembledMassRegressionRatioPpmByRole": null,
+    "maximumServiceReplacementSecondsByRole": null,
+    "maximumFreshQuoteAgeSeconds": null,
+    "minimumDocumentedSupplyContinuitySeconds": null,
+    "minimumWarrantySeconds": null,
+    "minimumReturnWindowSeconds": null,
+    "maximumDeliveredCostDeltaCentsByNonPiTargetRole": null,
+    "candidateRankingTieBreakExpiryRetestAndFamilyScopeSha256": null
+  },
+  "authorityBoundary": {
+    "failureCriticalRoleAndTargetOwnershipReviewSha256": null,
+    "exactPrimaryBaselineAndSubstituteCandidateManifestSha256": null,
+    "approvedVendorRevisionFirmwareLotQuoteAndSupplyPolicySha256": null,
+    "roleSpecificAcceptanceHarnessOraclesSafetyAndStopProtocolSha256": null,
+    "commonIntegratedProductWorkloadAndInheritedGateProtocolSha256": null,
+    "sampleScheduleRetestFamilyScopeRankingExpiryAndIndependentReviewSha256": null,
+    "serviceReplacementRecoveryDataContinuityAndIncidentProtocolSha256": null,
+    "resultSchemaDataRightsRetentionRedactionAndPublicationProtocolSha256": null,
+    "purchaseReturnOrVendorContactAuthorized": false,
+    "firmwareUpdateDestructiveFaultPowerOrTargetOperationAuthorized": false,
+    "approvedVendorListPublicationAuthorized": false,
+    "qualificationSelectionSubstitutionPublicationOrBomMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueTargetRoleCandidateUnitLotVendorStageAttemptFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawSerialUsbPciBluetoothFirmwareSmartOrDeviceIdentifiersAllowed": false,
+    "sellerReceiptOrderReturnWarrantySupportOrContactIdentifiersAllowed": false,
+    "hostnamesUsernamesPathsEnvironmentArgumentsNetworkOrFilesystemValuesAllowed": false,
+    "profileSaveBrowserCameraAudioVideoControllerPayloadOrParticipantDataAllowed": false,
+    "credentialsTokensKeysSecretsPaymentTaxOrStreetAddressDataAllowed": false,
+    "freeTextVendorFirmwareDriverKernelFaultServiceOrResultLogsAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I031-001-failure-critical-role-target-and-product-ownership-review",
+      "I031-002-exact-qualified-primary-baseline-manifests-by-target-role",
+      "I031-003-exact-substitute-candidates-approved-vendors-and-fresh-quotes",
+      "I031-004-received-unit-revision-firmware-lot-alias-and-retest-policy",
+      "I031-005-role-specific-acceptance-harness-oracles-safety-and-stop-rules",
+      "I031-006-common-integrated-product-workload-and-inherited-gates",
+      "I031-007-sample-counts-schedule-retest-family-scope-ranking-and-tie-break",
+      "I031-008-delivered-cost-volume-mass-warranty-return-and-supply-continuity",
+      "I031-009-service-replacement-recovery-and-data-continuity-protocol",
+      "I031-010-result-schema-data-rights-retention-adverse-evidence-and-incident-policy",
+      "I031-011-independent-review-vendor-list-publication-expiry-and-requalification",
+      "I031-012-purchase-destructive-operation-qualification-substitution-and-bom-authority"
+    ]
+  },
+  "result": null
+}
