@@ -6061,3 +6061,53 @@ error, privileged room/camera change detection, per-action requirements,
 representative accessibility and household cohorts, persistent native
 transactions, target fault evidence, and safety/privacy/security/legal review
 remain under Q-031 and Q-205 through Q-210 plus Q-251.
+
+## 2026-07-25: pose edge-accuracy campaign contract
+
+### Delivered
+
+- Advanced I-035 from open to active with an exact blocked plan for MediaPipe
+  core-17 landmark accuracy at the center, four quarters, and four distortion
+  edges.
+- Froze two separate blocking personas, seven postures, 20 valid trials in
+  each of 126 ordered cells, and a 2,520-trial blocking total. Seated evidence
+  remains exploratory and cannot rescue a blocking cell.
+- Bound the repository's canonical unmirrored normalized image coordinate
+  system, pixel-space Euclidean error, and shoulder-midpoint-to-hip-midpoint
+  ground-truth normalization so camera aspect ratio cannot silently alter the
+  metric.
+- Added a strict bounded plan/result validator. It requires exact camera,
+  room, placement, persona, ground-truth, timestamp, and data-handling digests
+  before collection; exact plan hashing; independent labels; per-landmark
+  missing/error/outlier accounting; per-cell gates; and an exact derived
+  summary with no aggregate rescue.
+- Kept raw room video, retained raw frames, participant identifiers, and free
+  text out of the release boundary. A ready manual-label plan must explicitly
+  authorize its temporary image workflow and still release skeleton-only
+  evidence.
+- Recorded Q-252 for pre-collection accuracy gates and operational placement
+  geometry, and Q-253 for temporary image consent, protection, retention, and
+  verified deletion authority.
+
+### Verification evidence
+
+- The tracked plan validates as blocked with 126 required cells, 2,520 valid
+  trials, five explicit blockers, null acceptance thresholds, and no camera,
+  participant, ground-truth, data-handling, or result authority.
+- Fourteen focused tests cover the blocked and ready states, LF/CRLF plan
+  identity, a complete passing result, matrix/trial weakening, hidden blocked
+  values, ground-truth substitution, noncanonical/malformed/oversized input,
+  forged hashes, missing/duplicate/reordered cells, landmark accounting,
+  non-monotonic statistics, aggregate rescue, honest failure, summary drift,
+  and prohibited retained material.
+
+### Remaining boundary
+
+I-035 is active, not closed. No camera, participant, room, target, physical
+trial, independent label, threshold, scorer, or result exists. The validator
+checks the plan/result admission envelope and derived accounting; the future
+detached-artifact scorer must independently recompute landmark statistics.
+Exact equipment and physical references remain under Q-251, accuracy and
+placement decisions under Q-252, and any temporary image workflow under
+Q-253. This work establishes no action, latency, calibration, floor-contact,
+identity, accessibility, safety, population, or production qualification.
