@@ -1,14 +1,15 @@
 # Camera exposure and shutter-state status audit — 2026-07-25
 
-Status: committed evidence reconciled; I-036 and I-046 are active, not complete
+Status: committed evidence reconciled; I-036, I-040 and I-046 are active, not
+complete
 
 Authority: D-002, D-016, D-043, D-044, D-045, D-110, I-036, I-040, I-046,
 I-177, Q-019, Q-211, Q-212
 
 ## Purpose
 
-The investigation backlog still marked I-036 and I-046 open after their first
-bounded implementation tranches were committed. This audit corrects that
+The investigation backlog still marked I-036, I-040 and I-046 open after their
+first bounded implementation tranches were committed. This audit corrects that
 status drift. It creates no new camera policy, physical result, purchase
 authority, or product claim.
 
@@ -32,6 +33,20 @@ The tracked plan intentionally contains null camera controls, lighting
 classification, protocols and gates. It proves an auditable method, not a
 selected policy or physical camera result. I-036 is therefore active rather
 than open or complete.
+
+## I-040 evidence already present
+
+The same capture-policy campaign enumerates daylight, backlight, warm-lamp,
+cool-lamp, television-only and dim lighting. Every condition must receive a
+closed millilux range and blocking classification before collection; each
+result cell records measured median illuminance, frame/drop observation,
+exposure, blur, color, landmark and action outcomes. The validator rejects an
+unmeasured “dim” label, a selected lux floor that the matrix does not exercise,
+and aggregate rescue across lighting conditions.
+
+The exact ranges, blocking floor and physical observations remain null. This
+is an active qualification method, not evidence that television-only or dim
+play works.
 
 ## I-046 evidence already present
 
@@ -61,10 +76,10 @@ qualify a physical camera, shutter, indicator, room, enclosure or target.
 
 ## Remaining boundary
 
-I-036 still needs an exact camera/room/control tuple, owner-approved lighting
-floor and gates, trustworthy exposure-clock proof, independent optical and
-pose/action truth, participant/data authority, all scheduled trials, and a
-derived policy result.
+I-036/I-040 still need an exact camera/room/control tuple, owner-approved
+lighting ranges, blocking floor and gates, trustworthy exposure-clock proof,
+independent optical and pose/action truth, participant/data authority, all
+scheduled trials, and a derived policy/lighting result.
 
 I-046 still needs physical optical-blocking evidence, a hardware/software
 indicator truth table across lifecycle and failure states, across-room

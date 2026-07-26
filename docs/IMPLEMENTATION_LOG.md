@@ -6943,7 +6943,7 @@ broker/vault/protector, consent/legal authority, real cohort/room/target test,
 accuracy/ambiguity/repeat-session gate, competitive normalization, persistence
 qualification or product result exists.
 
-## 2026-07-25: camera policy and shutter-state status reconciliation
+## 2026-07-25: camera policy, lighting and shutter-state status reconciliation
 
 ### Delivered
 
@@ -6951,6 +6951,9 @@ qualification or product result exists.
   campaign already pre-registers three ordered presets, 252 exact cells and
   5,040 physical trials across exposure, white balance, sustained frame rate,
   blur, low light, landmark accuracy and action outcomes.
+- Corrected I-040 from open to active because the same campaign explicitly
+  covers daylight, backlight, warm-lamp, cool-lamp, television-only and dim
+  strata with measured lux ranges, per-condition gates and no aggregate rescue.
 - Corrected I-046 from open to active because the Motion Lab already implements
   a closed camera-state truth table for disabled, starting, permission, active,
   unavailable, disconnected and failed states while always reporting physical
@@ -6963,7 +6966,7 @@ qualification or product result exists.
 
 ### Remaining boundary
 
-I-036/I-046 are active, not complete. No exact camera/room/control/lighting
-policy, exposure-clock authority, participant collection, physical shutter
-blocking, indicator truth table, across-room comprehension, enclosure check,
-selected preset, physical result or product qualification exists.
+I-036/I-040/I-046 are active, not complete. No exact camera/room/control/
+lighting policy, exposure-clock authority, participant collection, physical
+shutter blocking, indicator truth table, across-room comprehension, enclosure
+check, selected preset, physical result or product qualification exists.
