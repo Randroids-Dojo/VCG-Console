@@ -1,0 +1,424 @@
+{
+  "format": "vcg-shared-camera-qualification-plan/v1",
+  "campaignId": "shared-wide-angle-uvc-camera-v1",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "qualification": "blocked-zero-result-plan",
+  "sourceBindings": [
+    {
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "path": "docs/MICROPHONE_DISABLEMENT_QUALIFICATION_PLAN_2026-07-25.md",
+      "sha256": "0fef641eb72761f2b1f40a4c0ee8603be556e75c3bb220eb743d1c1c5a938855"
+    },
+    {
+      "path": "docs/CAMERA_CAPTURE_POLICY_CAMPAIGN_2026-07-25.md",
+      "sha256": "dbd7bb29f73c2b6b4c2079e3c53202acc1b31da159f9c019ee7d1322814752d5"
+    },
+    {
+      "path": "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json",
+      "sha256": "27fb5959a85125008634c94d503ba690e0bab5a3f6fff84f6ade6619c09f8db0"
+    },
+    {
+      "path": "docs/CAMERA_ACTION_LATENCY_CAMPAIGN_2026-07-24.md",
+      "sha256": "008119a4226a7494bcc0202dc01a85bbfe97068840897c332a4b4cee126e5d58"
+    },
+    {
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "64d3efdd9d8850020f77cabe9f774c7742b695cc87afcbe488db225427b2e1db"
+    },
+    {
+      "path": "docs/RESEARCH.md",
+      "sha256": "f02d677002b8806b9af51f9b5e0dd5426918d2d8233160859bb9b49ca9798c48"
+    }
+  ],
+  "candidate": {
+    "candidateId": "logitech-brio-pro-960-001105",
+    "manufacturer": "Logitech",
+    "productName": "Brio Pro Ultra HD Webcam",
+    "merchandiseModel": "960-001105",
+    "evidenceSourcePath": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+    "advertisedClaimsOnly": [
+      "manufacturer-stated-uvc",
+      "manufacturer-stated-1920x1080-at-60-fps",
+      "manufacturer-stated-adjustable-90-78-65-degree-diagonal-fov"
+    ],
+    "selected": false,
+    "ordered": false,
+    "purchaseAuthorized": false,
+    "deliveredQuoteSha256": null,
+    "receiptSha256": null,
+    "receivedDeviceIdentitySha256": null
+  },
+  "executionGate": {
+    "status": "blocked",
+    "selectedCandidateId": null,
+    "receivedDeviceInventorySha256": null,
+    "cameraControlInventorySha256": null,
+    "cameraFirmwareSha256": null,
+    "roomAndPlacementProtocolSha256": null,
+    "opticalGroundTruthProtocolSha256": null,
+    "exposureTimestampAuthority": null,
+    "exposureTimestampProofSha256": null,
+    "clockMappingProofSha256": null,
+    "participantProtocolSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "counterbalancedScheduleSha256": null,
+    "safetyReviewSha256": null,
+    "blockerCodes": [
+      "acceptance-gates",
+      "camera-controls",
+      "counterbalanced-schedule",
+      "data-handling-authority",
+      "delivered-quote",
+      "exposure-timestamp-authority",
+      "optical-ground-truth",
+      "participant-consent",
+      "received-device-identity",
+      "room-placement-binding",
+      "safety-review",
+      "target-runtime-bindings"
+    ]
+  },
+  "targets": [
+    {
+      "id": "ordinary-x86-linux-external-camera",
+      "role": "ordinary-x86-linux-reference",
+      "required": true,
+      "hardwareInventorySha256": null,
+      "operatingSystemImageSha256": null,
+      "kernelSha256": null,
+      "cameraDriverSha256": null,
+      "runtimeBundleSha256": null,
+      "usbTopologySha256": null,
+      "packagingProtocolSha256": null
+    },
+    {
+      "id": "steamos-external-camera",
+      "role": "steamos-reference",
+      "required": true,
+      "hardwareInventorySha256": null,
+      "operatingSystemImageSha256": null,
+      "kernelSha256": null,
+      "cameraDriverSha256": null,
+      "runtimeBundleSha256": null,
+      "usbTopologySha256": null,
+      "packagingProtocolSha256": null
+    },
+    {
+      "id": "raspberry-pi5-ai-hat-integrated-camera",
+      "role": "lower-cost-integrated-reference",
+      "required": true,
+      "hardwareInventorySha256": null,
+      "operatingSystemImageSha256": null,
+      "kernelSha256": null,
+      "cameraDriverSha256": null,
+      "runtimeBundleSha256": null,
+      "usbTopologySha256": null,
+      "packagingProtocolSha256": null
+    }
+  ],
+  "checks": [
+    {
+      "id": "candidate-delivered-identity",
+      "scope": "shared-camera",
+      "targetIds": [],
+      "requiredEvidence": [
+        "destination-aware-delivered-quote",
+        "purchase-receipt-if-authorized",
+        "received-model-revision-and-firmware",
+        "received-usb-vendor-product-and-descriptor-digest"
+      ]
+    },
+    {
+      "id": "physical-optical-shutter",
+      "scope": "shared-camera",
+      "targetIds": [],
+      "requiredEvidence": [
+        "physical-shutter-blocks-optical-path",
+        "ordinary-user-visible-state",
+        "repeated-open-close-cycle-record"
+      ]
+    },
+    {
+      "id": "capture-activity-indicator",
+      "scope": "shared-camera",
+      "targetIds": [],
+      "requiredEvidence": [
+        "indicator-on-for-every-capture-path",
+        "indicator-off-without-capture",
+        "ordinary-user-visibility"
+      ]
+    },
+    {
+      "id": "standard-connector-replacement-recalibration",
+      "scope": "shared-camera",
+      "targetIds": [],
+      "requiredEvidence": [
+        "standard-connector-and-cable-inventory",
+        "ordinary-fastener-replacement-procedure",
+        "replacement-detection",
+        "mandatory-recalibration-procedure"
+      ]
+    },
+    {
+      "id": "linux-usb-identity",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "linux-usb-descriptor-inventory",
+        "v4l2-device-and-format-inventory",
+        "driver-and-firmware-binding"
+      ]
+    },
+    {
+      "id": "genuine-1920x1080-at-60-fps-mode",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "negotiated-width-height-fps-and-pixel-format",
+        "exposure-ordered-captured-and-dropped-frame-accounting",
+        "no-duplicated-frame-rate-inflation"
+      ]
+    },
+    {
+      "id": "sustained-capture",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "complete-attempt-ledger",
+        "capture-and-drop-timeline",
+        "usb-cpu-memory-temperature-and-error-trace"
+      ]
+    },
+    {
+      "id": "field-of-view-and-room-coverage",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "measured-horizontal-vertical-and-diagonal-fov",
+        "center-and-qualified-zone-edge-coverage",
+        "adult-and-school-age-child-head-feet-margin"
+      ]
+    },
+    {
+      "id": "distortion-crop-and-floor-geometry",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "independent-distortion-target",
+        "crop-and-edge-error",
+        "floor-plane-and-action-geometry"
+      ]
+    },
+    {
+      "id": "exposure-and-low-light",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "bound-lighting-strata",
+        "exposure-gain-and-frame-cadence",
+        "blur-color-landmark-and-action-results"
+      ]
+    },
+    {
+      "id": "exposure-timestamp-authority",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "exact-camera-mode-driver-proof",
+        "clock-domain-and-uncertainty",
+        "capture-arrival-rejected-as-substitute"
+      ]
+    },
+    {
+      "id": "exposure-to-game-api-latency",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "attempt-level-exposure-and-game-receipt-events",
+        "p50-p95-p99-and-worst",
+        "concurrent-representative-workload"
+      ]
+    },
+    {
+      "id": "hot-plug-and-reconnect",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "disconnect-detection",
+        "safe-tracking-loss-state",
+        "fresh-device-rebind-and-recalibration",
+        "repeated-cycle-ledger"
+      ]
+    },
+    {
+      "id": "suspend-resume",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "pre-suspend-state",
+        "post-resume-device-identity",
+        "safe-recovery-and-recalibration",
+        "repeated-cycle-ledger"
+      ]
+    },
+    {
+      "id": "microphone-disablement",
+      "scope": "per-target",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera",
+        "steamos-external-camera",
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "device-and-audio-stack-denial",
+        "browser-and-package-denial",
+        "update-and-recovery-preservation",
+        "no-returned-audio-buffer"
+      ]
+    },
+    {
+      "id": "ordinary-x86-external-mount-fit",
+      "scope": "target-packaging",
+      "targetIds": [
+        "ordinary-x86-linux-external-camera"
+      ],
+      "requiredEvidence": [
+        "stable-supported-placement",
+        "anti-tip-and-cable-strain-relief",
+        "shutter-indicator-and-connector-access"
+      ]
+    },
+    {
+      "id": "steamos-external-mount-fit",
+      "scope": "target-packaging",
+      "targetIds": [
+        "steamos-external-camera"
+      ],
+      "requiredEvidence": [
+        "stable-supported-placement",
+        "anti-tip-and-cable-strain-relief",
+        "shutter-indicator-and-connector-access"
+      ]
+    },
+    {
+      "id": "raspberry-pi-integrated-fixed-angle-fit",
+      "scope": "target-packaging",
+      "targetIds": [
+        "raspberry-pi5-ai-hat-integrated-camera"
+      ],
+      "requiredEvidence": [
+        "received-component-envelope-and-cut-template",
+        "fixed-optical-axis-and-zone-coverage",
+        "airflow-radio-stability-and-strain-relief",
+        "shutter-indicator-and-service-access"
+      ]
+    }
+  ],
+  "schedule": {
+    "sharedCheckCount": 4,
+    "perTargetCheckCount": 11,
+    "targetPackagingCheckCount": 3,
+    "scheduledCellCount": 40,
+    "attemptsPerCell": null,
+    "sustainedCaptureDurationMs": null,
+    "hotPlugCyclesPerTarget": null,
+    "suspendResumeCyclesPerTarget": null,
+    "counterbalancedOrder": null
+  },
+  "acceptance": {
+    "requiredCaptureWidth": 1920,
+    "requiredCaptureHeight": 1080,
+    "requiredFramesPerSecondNumerator": 60,
+    "requiredFramesPerSecondDenominator": 1,
+    "maximumP95ExposureToGameApiMs": 120,
+    "physicalOpticalShutterRequired": true,
+    "captureActivityIndicatorRequired": true,
+    "standardConnectorRequired": true,
+    "audioCaptureAllowedByDefault": false,
+    "minimumHorizontalFieldOfViewMilliDegrees": null,
+    "minimumVerticalFieldOfViewMilliDegrees": null,
+    "maximumDistortionError": null,
+    "maximumDroppedFrameRate": null,
+    "maximumP95ExposureTimeUs": null,
+    "minimumLowLightIlluminanceMilliLux": null,
+    "maximumReconnectTimeMs": null,
+    "maximumResumeRecoveryTimeMs": null,
+    "maximumDeliveredPriceCents": null,
+    "perTargetPerCheckPassRequired": true,
+    "aggregateMayRescueFailedCell": false,
+    "unknownOrNotRunMayPass": false
+  },
+  "dataPolicy": {
+    "temporaryFrameAnalysisAuthorized": false,
+    "rawRoomVideoDefault": false,
+    "rawFrameRetentionAllowed": false,
+    "rawFrameNetworkEgressAllowed": false,
+    "skeletonAndNumericReleaseOnly": true,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false
+  },
+  "resultBoundary": {
+    "resultArtifactSha256": null,
+    "qualifiedTargetIds": [],
+    "cameraQualified": false,
+    "cameraSelected": false,
+    "purchaseAuthorized": false,
+    "productBomsChanged": false,
+    "executionAuthorized": false
+  },
+  "claimBoundary": "This file pre-registers a blocked I-177 shared-camera qualification campaign around one existing merchandise candidate only. It authorizes no order, purchase, camera use, participant, room capture, temporary frame analysis, target execution, qualification, selection, or BOM change and records no delivered quote, receipt, received device, USB mode, optical, latency, reliability, privacy, packaging, or product result.",
+  "limitations": [
+    "The Logitech Brio Pro 960-001105 is an existing merchandise candidate, not a selected, purchased, received, or qualified camera.",
+    "Manufacturer-stated UVC, 1920 by 1080 at 60 frames per second, and adjustable field of view do not prove a genuine sustained mode, latency, optical quality, Linux compatibility, privacy behavior, or packaging fit.",
+    "Every target identity, received-device binding, capture control, room, participant, timestamp, optical truth, schedule, safety review, data authority, and open numeric gate is unresolved.",
+    "The plan requires 40 explicit shared, per-target, and packaging cells with no aggregate rescue; it contains no attempt or result ledger.",
+    "No quote, order, receipt, USB observation, frame, audio sample, person, room, physical fit, qualification, selection, purchase authorization, or BOM mutation is recorded."
+  ]
+}
