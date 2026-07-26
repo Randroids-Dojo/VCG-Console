@@ -6866,3 +6866,26 @@ exact target stack, room/optical/exposure-clock evidence, microphone policy
 probe, approved schedule/gate/authority, physical cell, qualified camera or
 default-disablement result exists. The administrative microphone diagnostic
 path remains unresolved.
+
+## 2026-07-25: dependent hardware campaign status reconciliation
+
+### Delivered
+
+- Corrected I-160 to active because the I-016 plan already contains its gated
+  4GB-after-passing-8GB comparison and 40-cell evidence surface.
+- Corrected I-162 to active because the I-022/microSD umbrella already contains
+  its build, full-disk, power-cut, corruption, recovery and endurance phases
+  plus the measured USB-SSD fallback rule.
+- Corrected I-197 to active because the D-166 coordinator and I-023/I-117/I-118/
+  I-120 plans now divide its implementation, timing, controller, TV/CEC and
+  energy/privacy/write/reliability requirements without collapsing evidence.
+- Re-ran 78 focused plan tests: 8 memory, 17 microSD and 53 timing/controller/
+  TV/idle-energy tests all pass.
+- Did not rerun or modify native code while a concurrent package-generation
+  tranche intentionally leaves the shared crate incomplete.
+
+### Remaining boundary
+
+All three rows remain active, not complete. Stable prerequisites, received
+hardware, exact production adapters/wiring, instruments, schedules, gates,
+authority, physical/destructive/unattended trials and target results are absent.
