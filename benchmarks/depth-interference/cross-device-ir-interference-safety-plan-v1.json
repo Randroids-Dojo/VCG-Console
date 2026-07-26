@@ -19,17 +19,17 @@
     {
       "role": "oak-rgb-depth-candidate-boundary",
       "path": "benchmarks/depth-comparison/oak-d-pro-w-rgb-depth-comparison-plan-v1.json",
-      "sha256": "87412bc41d362690bb829e399c0615dce09ab139db6f91c08120790716c1ef3d"
+      "sha256": "38741dd635ad30a272c4758abd6502e021ef7d7a947f9a64261af2368f3bcfc7"
     },
     {
       "role": "orbbec-candidate-boundary",
       "path": "benchmarks/orbbec/gemini-335l-linux-target-plan-v1.json",
-      "sha256": "7d9708f141e655183cca0ac8b8d759b6629db594c5fd3d67aa0165daeef136fa"
+      "sha256": "e241c043ac993c20cf65ee8793e17dcf71cef6162676ca56a6fca3f742c06651"
     },
     {
       "role": "realsense-candidate-boundary",
       "path": "benchmarks/realsense/d455-linux-target-plan-v1.json",
-      "sha256": "dc1315dd2b493230b88b1073a27b5d345970a429b325c347d2e764049bfea283"
+      "sha256": "e407baef0b2d792ae94c77577a76070b85d6511614a1f3b786d2ae254dc7d16b"
     },
     {
       "role": "depth-option-research-boundary",

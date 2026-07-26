@@ -1,0 +1,369 @@
+{
+  "format": "vcg-pi5-usb3-ssd-fallback-plan/v1",
+  "status": "blocked",
+  "campaignId": "i021-pi5-usb3-ssd-fallback-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-021",
+    "I-022",
+    "I-202",
+    "Q-086",
+    "Q-196",
+    "Q-199",
+    "Q-200",
+    "Q-201",
+    "Q-202"
+  ],
+  "claimBoundary": "This is a strict source-bound zero-result plan for a Raspberry Pi 5 USB 3 SSD fallback. A rejected microSD card, advertised SSD speed or endurance, vendor compatibility, current availability, an exact part number, a desktop benchmark, one successful boot, USB enumeration, UAS attachment, a firmware check, a passing power-cut subset, larger capacity, lower price, or another candidate cannot qualify an SSD assembly. The exact received SSD, controller and firmware, shipped cable, Pi USB port and power state, mount, image, layout, filesystem, workload, update path, scheduled cuts, disconnects, corruption cases, recovery release, service projection, delivered cost and adverse evidence must pass one frozen reviewed campaign without weakening the microSD storage contract. No purchase, firmware mutation, image write, destructive workload, power cut, disconnect, corruption, recovery-media write, target mutation, qualification, selection, publication or product-BOM change is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "usb3-ssd-candidate-and-boundary-screen",
+      "path": "docs/USB3_SSD_FALLBACK_SCREEN_2026-07-24.md",
+      "sha256": "2aab8c23caed9e23ee8f13185924b336f77bd91c7a6d1cf842980afd837c7830"
+    },
+    {
+      "role": "existing-usb3-ssd-owner-questions",
+      "path": "docs/OWNER_QUESTIONS_USB3_SSD_FALLBACK_2026-07-24.md",
+      "sha256": "dc841a73a013733ae8fbc6122c205d074903006b0e88e09a78378098a0fe73cf"
+    },
+    {
+      "role": "microsd-trigger-and-common-storage-contract",
+      "path": "docs/MICROSD_QUALIFICATION_PROTOCOL_2026-07-24.md",
+      "sha256": "3cfe1dc87a36ecd3fb0979b5d5b5429d95d53aa4969e1b301b253830c13a24a1"
+    },
+    {
+      "role": "microsd-plan-result-envelope-boundary",
+      "path": "docs/MICROSD_QUALIFICATION_ENVELOPE_2026-07-25.md",
+      "sha256": "1b83c8c331b0e815964fdbfb183bb081f66785e6c478089feb376491de2f4578"
+    },
+    {
+      "role": "tracked-blocked-microsd-plan",
+      "path": "benchmarks/microsd-qualification/sandisk-high-endurance-256gb-plan-v1.json",
+      "sha256": "0963e7d53db272e2d7335efc54f28430af182ae40f58b10e443efc6eafccf696"
+    },
+    {
+      "role": "power-cut-plan-result-validator",
+      "path": "scripts/validate-power-cut-campaign.mjs",
+      "sha256": "3299a88490e517848301e03fb08154e383c1c4846622e5b392f4326e47ad3527"
+    },
+    {
+      "role": "lower-cost-reference-bom-boundary",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    },
+    {
+      "role": "power-recovery-state-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    }
+  ],
+  "triggerContract": {
+    "requiredMicroSdPlanFormat": "vcg-microsd-qualification-plan/v1",
+    "requiredMicroSdPlanCampaignId": "sandisk-high-endurance-256gb-v1",
+    "requiredMicroSdResultFormat": "vcg-microsd-qualification-result/v1",
+    "requiredMicroSdConclusion": "rejected",
+    "validRejectedMicroSdResultRequiredUnlessLabSampleOnlyAuthority": true,
+    "microSdPlanSha256": null,
+    "microSdResultSha256": null,
+    "triggeringFailureCode": null,
+    "triggeringFailureEvidenceSha256": null,
+    "rootCauseAndArchitectureApplicabilityReviewSha256": null,
+    "labSampleOnlyAuthoritySha256": null,
+    "labSampleMayQualifyFallback": false,
+    "oneCardFailureMayQualifyArbitrarySsd": false,
+    "nonStorageOrHarnessFailureMayInvokeProductionFallback": false,
+    "resultMayBeAddedWhileGateBlocked": false
+  },
+  "candidatePolicy": {
+    "requiredTopologyClass": "integrated-portable-ssd-bus-powered",
+    "screenedCandidateCount": 2,
+    "screenedCandidates": [
+      {
+        "candidateId": "kingston-xs1000-1tb-black",
+        "manufacturer": "Kingston",
+        "model": "XS1000 1TB black",
+        "exactPartNumber": "SXS1000/1000G",
+        "nominalCapacityBytes": 1000000000000,
+        "screenDisposition": "desk-lead-unavailable-unpriced-not-selected",
+        "screenObservedItemPriceCents": null,
+        "sourceFactsMaySelectPurchaseOrQualify": false
+      },
+      {
+        "candidateId": "samsung-t7-shield-1tb-black",
+        "manufacturer": "Samsung",
+        "model": "T7 Shield 1TB black",
+        "exactPartNumber": "MU-PE1T0S/AM",
+        "nominalCapacityBytes": 1000000000000,
+        "screenDisposition": "desk-screen-cost-failure-not-selected",
+        "screenObservedItemPriceCents": 28799,
+        "sourceFactsMaySelectPurchaseOrQualify": false
+      }
+    ],
+    "selectedAssemblyManifestSha256": null,
+    "exactReceivedUnitIdentityAndReceiptSha256": null,
+    "exactFirmwareAndManagementLifecycleSha256": null,
+    "exactUsbDescriptorsCablePortTopologyAndNegotiatedModeSha256": null,
+    "exactMountRetentionAndServiceManifestSha256": null,
+    "poweredHubOrSeparateSupplyAuthorized": false,
+    "separateBridgeEnclosureOrCableSubstitutionAuthorized": false,
+    "candidateMayChangeAfterFirstResult": false,
+    "screenFactsAvailabilityPriceOrAdvertisedSpeedMaySelectOrQualify": false,
+    "oneCandidateMayRescueAnother": false
+  },
+  "targetBoundary": {
+    "targetId": "pi5-ai-hat26-lower-cost-reference",
+    "exactBoardEepromKernelFirmwareAndDriverManifestSha256": null,
+    "exactPowerCoolingHatCameraControllerAndUsbTopologySha256": null,
+    "exactSignedImageLayoutFilesystemAndMountPolicySha256": null,
+    "exactWorkloadUpdateRecoveryAndServiceProjectionSha256": null,
+    "storageConnection": "pi5-usb3-type-a",
+    "powerInput": "pi5-usb-c-5v5a-reference-supply",
+    "microSdMustBeAbsentForBootQualification": true,
+    "unsafeUsbCurrentOverrideAllowed": false,
+    "extraStorageDevicesMaySelectRecoveryTarget": false,
+    "windowsDesktopOrOtherBoardProxyMayQualify": false
+  },
+  "phaseIds": [
+    "trigger-and-intake",
+    "identity-firmware-and-health",
+    "image-layout-capacity-and-full-disk",
+    "boot-enumeration-and-slot-selection",
+    "performance-concurrent-load-and-endurance",
+    "signed-update-promotion-and-rollback",
+    "scheduled-power-cut",
+    "disconnect-and-intermittent-contact",
+    "corruption-and-substitution",
+    "blank-device-recovery-and-offline-first-boot",
+    "mechanics-power-thermal-and-emi",
+    "delivered-cost-service-and-review"
+  ],
+  "scenarioDefinitions": [
+    {
+      "scenarioId": "valid-microsd-trigger-and-root-cause-review",
+      "phaseId": "trigger-and-intake"
+    },
+    {
+      "scenarioId": "receipt-unit-cable-mount-and-host-intake",
+      "phaseId": "trigger-and-intake"
+    },
+    {
+      "scenarioId": "firmware-health-before-and-after-approved-update",
+      "phaseId": "identity-firmware-and-health"
+    },
+    {
+      "scenarioId": "cold-boot-with-no-microsd",
+      "phaseId": "boot-enumeration-and-slot-selection"
+    },
+    {
+      "scenarioId": "warm-restart-and-correct-system-slot",
+      "phaseId": "boot-enumeration-and-slot-selection"
+    },
+    {
+      "scenarioId": "missing-drive-fail-closed-recovery",
+      "phaseId": "boot-enumeration-and-slot-selection"
+    },
+    {
+      "scenarioId": "late-enumerating-drive-fail-closed-recovery",
+      "phaseId": "boot-enumeration-and-slot-selection"
+    },
+    {
+      "scenarioId": "multiple-usb-storage-and-wrong-target-denial",
+      "phaseId": "boot-enumeration-and-slot-selection"
+    },
+    {
+      "scenarioId": "production-workload-clean-and-steady-state",
+      "phaseId": "performance-concurrent-load-and-endurance"
+    },
+    {
+      "scenarioId": "production-workload-dirty-near-full-and-reserve",
+      "phaseId": "image-layout-capacity-and-full-disk"
+    },
+    {
+      "scenarioId": "sustained-writes-with-ai-camera-controller-and-cooling",
+      "phaseId": "performance-concurrent-load-and-endurance"
+    },
+    {
+      "scenarioId": "signed-system-ab-update-stable-power",
+      "phaseId": "signed-update-promotion-and-rollback"
+    },
+    {
+      "scenarioId": "signed-package-promotion-and-rollback",
+      "phaseId": "signed-update-promotion-and-rollback"
+    },
+    {
+      "scenarioId": "scheduled-power-cut-every-authoritative-state",
+      "phaseId": "scheduled-power-cut"
+    },
+    {
+      "scenarioId": "disconnect-every-boot-read-write-update-and-user-state",
+      "phaseId": "disconnect-and-intermittent-contact"
+    },
+    {
+      "scenarioId": "intermittent-contact-every-authoritative-state",
+      "phaseId": "disconnect-and-intermittent-contact"
+    },
+    {
+      "scenarioId": "partition-slot-filesystem-metadata-data-and-controller-fault",
+      "phaseId": "corruption-and-substitution"
+    },
+    {
+      "scenarioId": "old-cloned-wrong-and-replacement-drive",
+      "phaseId": "corruption-and-substitution"
+    },
+    {
+      "scenarioId": "blank-drive-write-readback-and-offline-first-boot",
+      "phaseId": "blank-device-recovery-and-offline-first-boot"
+    },
+    {
+      "scenarioId": "supported-writer-platform-target-selection-and-readback",
+      "phaseId": "blank-device-recovery-and-offline-first-boot"
+    },
+    {
+      "scenarioId": "cable-retention-bend-connector-cycle-and-household-handling",
+      "phaseId": "mechanics-power-thermal-and-emi"
+    },
+    {
+      "scenarioId": "inrush-steady-peak-brownout-reconnect-and-shared-usb-load",
+      "phaseId": "mechanics-power-thermal-and-emi"
+    },
+    {
+      "scenarioId": "enclosure-thermal-emi-camera-and-controller-coexistence",
+      "phaseId": "mechanics-power-thermal-and-emi"
+    },
+    {
+      "scenarioId": "delivered-cost-volume-service-replacement-and-review",
+      "phaseId": "delivered-cost-service-and-review"
+    }
+  ],
+  "measurements": {
+    "requiredMetricIds": [
+      "cold-boot-time-p50-p95-worst-ms",
+      "warm-restart-time-p50-p95-worst-ms",
+      "bootloader-enumeration-failure-count",
+      "kernel-uas-bot-reset-disconnect-and-error-count",
+      "storage-operation-latency-p50-p95-p99-worst-us",
+      "image-and-update-duration-p50-p95-worst-ms",
+      "application-and-block-write-bytes",
+      "observable-write-amplification-ratio",
+      "health-wear-and-firmware-drift",
+      "usable-capacity-quota-reserve-and-full-disk-state",
+      "committed-corruption-event-count",
+      "unverified-or-uncommitted-launch-count",
+      "incorrect-recovery-target-mutation-count",
+      "valid-scheduled-cut-and-outcome-count",
+      "valid-disconnect-intermittent-contact-and-outcome-count",
+      "corruption-injection-detection-and-recovery-count",
+      "blank-device-write-readback-and-offline-boot-count",
+      "recovery-time-p50-p95-worst-ms",
+      "usb-negotiated-mode-and-speed",
+      "usb-and-system-inrush-peak-and-steady-milliamps",
+      "system-wall-power-milliwatts",
+      "undervoltage-brownout-and-reconnect-count",
+      "ssd-controller-and-enclosure-temperature-millicelsius",
+      "cable-retention-force-connector-cycles-and-failure-count",
+      "camera-controller-and-emi-failure-count",
+      "assembled-volume-and-mass",
+      "fresh-delivered-cost-cents",
+      "failed-invalid-stopped-retried-adverse-and-worst-case-ledger"
+    ],
+    "independentBootStoragePowerCutDisconnectCorruptionRecoveryPowerThermalMechanicalCostAndClockOraclesRequired": true,
+    "vendorToolUiKernelAttachmentAdvertisedSpeedOrFilesystemMountMaySubstituteForSemanticEvidence": false,
+    "everyScheduledAttemptFailureInvalidationRetryAndWorstCaseMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidColdBootCycles": 100,
+    "maximumCommittedCorruptionEvents": 0,
+    "maximumUnverifiedOrUncommittedLaunches": 0,
+    "maximumIncorrectRecoveryTargetMutations": 0,
+    "maximumUnsafeUsbCurrentOverrides": 0,
+    "maximumSilentUasToBotDowngrades": 0,
+    "maximumUnexpectedUsbResetsOrDisconnects": 0,
+    "maximumUnauthorizedCapacityQuotaOrPolicyExpansions": 0,
+    "maximumMissingScheduledAttempts": 0,
+    "maximumCandidatePhaseOrAggregateRescues": 0,
+    "maximumLowerCostReferenceDeliveredCents": 65000,
+    "coldBootWithoutMicroSdRequired": true,
+    "sameLogicalStorageUpdateRecoveryPrivacyAndPermanentLossContractRequired": true,
+    "everyRequiredPhaseScenarioAndExactAssemblyMustPass": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true,
+    "extraCapacityMayRelaxQuotasWritesOrSupportedContentPromise": false,
+    "failedGateMayBeOffsetBySpeedCapacityCostOrAnotherCandidate": false,
+    "screenFactsVendorClaimsUsbAttachmentOneBootOrPartialCampaignMayQualify": false,
+    "allOpenGatesScheduleResultSchemaAndReviewRulesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumCandidateAssemblyCount": null,
+    "minimumIndependentReceivedUnitsPerAssembly": null,
+    "minimumIndependentLotsOrManufacturingBatchesPerAssembly": null,
+    "minimumValidWarmRestartCycles": null,
+    "minimumValidMissingLateAndMultipleDeviceCyclesPerScenario": null,
+    "minimumValidPowerCutsPerAuthoritativeState": null,
+    "minimumValidDisconnectsPerAuthoritativeState": null,
+    "minimumValidIntermittentContactTrialsPerAuthoritativeState": null,
+    "minimumValidCorruptionTrialsPerFaultClass": null,
+    "minimumValidRecoveryRunsPerWriterPlatformAndImage": null,
+    "maximumColdBootP95Ms": null,
+    "maximumWarmRestartP95Ms": null,
+    "maximumStorageOperationP95UsByOperation": null,
+    "maximumImageAndUpdateP95MsByOperation": null,
+    "projectedServiceHostWriteBytes": null,
+    "minimumEnduranceMarginRatioPpm": null,
+    "maximumPerformanceDriftRatioPpm": null,
+    "minimumUsbCurrentMarginMilliamps": null,
+    "maximumSystemWallPowerMilliwattsByPhase": null,
+    "maximumControllerOrEnclosureTemperatureMillicelsius": null,
+    "minimumCableRetentionForceMillinewtons": null,
+    "minimumConnectorCycleCount": null,
+    "maximumAssembledVolumeCubicMillimetres": null,
+    "maximumAssembledMassMilligrams": null,
+    "maximumFreshQuoteAgeSeconds": null,
+    "failureRootCauseRetestFamilyScopeAndTieBreakProtocolSha256": null
+  },
+  "authorityBoundary": {
+    "validTriggerOrLabSampleOnlyAuthoritySha256": null,
+    "selectedExactCandidateReceiptFirmwareCablePortAndMountManifestSha256": null,
+    "exactPiTargetPowerUsbImageLayoutFilesystemAndWorkloadManifestSha256": null,
+    "exactServiceProjectionEndurancePerformanceAndFullDiskProtocolSha256": null,
+    "exactUpdatePowerCutDisconnectCorruptionAndSafetyProtocolSha256": null,
+    "exactRecoveryReleaseWriterTargetSelectionAndOfflineBootProtocolSha256": null,
+    "exactMechanicalThermalEmiPowerAndServiceProtocolSha256": null,
+    "freshDeliveredQuoteAndD111ReviewSha256": null,
+    "exactScheduleOpenGatesResultSchemaRetestAndIndependentReviewSha256": null,
+    "dataRightsRetentionRedactionIncidentAndPublicationProtocolSha256": null,
+    "purchaseOrReturnAuthorized": false,
+    "firmwareUpdateImageWriteOrRecoveryMediaMutationAuthorized": false,
+    "destructiveWorkloadPowerCutDisconnectOrCorruptionAuthorized": false,
+    "targetBootPowerUsbMechanicalOrServiceOperationAuthorized": false,
+    "qualificationSelectionPublicationOrProductBomMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueCandidateUnitLotCableMountTargetScenarioAttemptFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawUsbDescriptorsSerialsSmartValuesOrFirmwareToolPayloadsAllowed": false,
+    "sellerReceiptOrderReturnWarrantyOrSupportIdentifiersAllowed": false,
+    "hostnamesUsernamesPathsEnvironmentArgumentsOrFilesystemValuesAllowed": false,
+    "profileSaveRetroContentBrowserDataCredentialsTokensKeysOrSecretsAllowed": false,
+    "cameraScreenAudioVideoControllerPayloadOrHouseholdMediaAllowed": false,
+    "freeTextKernelFirmwareFilesystemToolRecoveryOrResultLogsAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I021-001-valid-microsd-rejection-trigger-or-lab-sample-only-authority",
+      "I021-002-exact-current-candidate-approved-seller-and-fresh-quote",
+      "I021-003-received-unit-firmware-usb-cable-port-and-mount-manifest",
+      "I021-004-exact-pi-power-usb-image-layout-filesystem-and-workload-tuple",
+      "I021-005-service-write-endurance-performance-full-disk-and-retest-gates",
+      "I021-006-uas-bot-power-current-and-independent-instrumentation-protocol",
+      "I021-007-power-cut-disconnect-corruption-harness-and-safety-protocol",
+      "I021-008-recovery-release-writer-target-selection-and-offline-boot-oracles",
+      "I021-009-mechanical-thermal-emi-retention-and-service-protocol",
+      "I021-010-delivered-cost-volume-and-d111-review",
+      "I021-011-schedule-result-schema-data-retention-adverse-evidence-and-review",
+      "I021-012-purchase-destructive-operation-qualification-selection-and-publication-authority"
+    ]
+  },
+  "result": null
+}

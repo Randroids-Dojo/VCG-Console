@@ -52,7 +52,7 @@
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "f25ef9473885d8a926c93343c0bd3bc29ba8ef9bff7bb7837982967ab38ad1c1"
+      "sha256": "1c551c581a3fec6d96f88d362a42cf430cd464101b0d770a98f8ada751c0e58a"
     },
     {
       "role": "controller-boundary",
