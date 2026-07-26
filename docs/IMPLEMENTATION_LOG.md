@@ -6422,3 +6422,44 @@ must qualify the camera/mount; and Q-259 must freeze value gates before any
 selection change. No cart, checkout, approved reseller quote, delivered total,
 order, receipt, physical fit, target runtime, performance result or purchase
 authorization exists.
+
+## 2026-07-25: ordinary x86-64 native-Linux premium-reference plan
+
+### Delivered
+
+- Advanced I-207 from an open row to a strict blocked qualification campaign
+  without selecting the owned Ryzen/RTX workstation or treating its Windows and
+  WSL2 evidence as native Linux.
+- Bound the development-host context, prototype and offline contracts,
+  exposure-to-action validator, obstacle workload, hosted supervisor and four
+  representative game manifests by normalized SHA-256.
+- Pre-registered seven workloads, eleven separate qualification phases, twenty
+  launch trials per path, twenty action trials per cell, fifteen-minute
+  negative windows, one-hour workload soaks and one hundred suspend/resume
+  cycles.
+- Preserved D-106 launch gates, D-110's exposure-to-game-action boundary and
+  D-130's action gates while leaving unapproved FPS, frame/drop, power, thermal,
+  acoustic and recovery-attempt values null.
+- Added Q-267 through Q-269 for exact host selection, the native-Linux runtime
+  tuple and premium performance/recovery gates. Q-203 still exclusively
+  controls disk, boot, Secure Boot and installation authority.
+
+### Verification evidence
+
+- Twenty focused tests accept the tracked plan and reject source drift or
+  substitution, hidden fields, premature target selection, Windows/WSL2/Steam
+  substitution, invented Linux-image evidence, deleted workloads, weakened
+  trials, false phase completion, the lower-cost 35 dBA gate, capture-arrival
+  latency, disk authority, fabricated results, noncanonical JSON, UTF-8 BOM
+  input and bare carriage returns.
+- The command-line validator reports seven workloads, eleven phases and twelve
+  blockers with no result.
+
+### Remaining boundary
+
+I-207 is active, not closed. No ordinary x86 host is selected; no native-Linux
+image/runtime tuple, disk or installation authority, exact peripherals, room,
+meters, participant/data authority, signed local package, exposure clock,
+execution protocol, premium numeric thresholds, physical run, recovery result,
+second rebuild or common premium comparison exists. No hardware or external
+service was changed.
