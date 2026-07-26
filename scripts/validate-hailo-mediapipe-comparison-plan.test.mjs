@@ -31,7 +31,18 @@ test("accepts the blocked zero-result Hailo/MediaPipe plan", async () => {
   assert.equal(plan.execution.recordedAttemptCount, 0);
   assert.equal(plan.execution.resultArtifact, null);
   assert.equal(plan.execution.qualification, "not-run");
-  assert.equal(plan.sourceBindings.length, 4);
+  assert.deepEqual(
+    plan.sourceBindings.map(({ role }) => role),
+    [
+      "hailo-core17-projection",
+      "mediapipe-motion-adapter",
+      "motion-schema",
+      "game-manifest-motion-vocabulary",
+      "pi-image-recipe-boundary",
+      "pose-edge-accuracy-boundary",
+      "exposure-to-action-validation-boundary",
+    ],
+  );
 });
 
 test("binds source text identically across LF and CRLF checkouts", () => {

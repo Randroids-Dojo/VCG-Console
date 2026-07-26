@@ -3,8 +3,8 @@
   "formatVersion": 1,
   "documentType": "plan",
   "campaignId": "hailo-yolov8m-mediapipe-lite-core17-v1",
-  "createdAt": "2026-07-25T04:25:37.319Z",
-  "sourceCommit": "5ea1fcd3542d32390ccbb66f3958ed216671ac2e",
+  "createdAt": "2026-07-26T02:59:04.002Z",
+  "sourceCommit": "91b714d1c612411ee49d85a89f9b6d587fc7e9dc",
   "workingTreeClean": false,
   "execution": {
     "status": "blocked",
@@ -45,6 +45,21 @@
       "role": "game-manifest-motion-vocabulary",
       "path": "packages/game-manifest/src/index.ts",
       "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+    },
+    {
+      "role": "pi-image-recipe-boundary",
+      "path": "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+      "sha256": "9abfaa0a4eb9aaa95c14b2c86243bdc7f2b251da0826eb9d9e36c4284389264f"
+    },
+    {
+      "role": "pose-edge-accuracy-boundary",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    },
+    {
+      "role": "exposure-to-action-validation-boundary",
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
     }
   ],
   "target": {

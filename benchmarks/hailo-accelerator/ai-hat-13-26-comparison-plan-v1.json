@@ -14,7 +14,7 @@
     {
       "role": "core17-provider-comparison-boundary",
       "path": "benchmarks/pose-backends/hailo-mediapipe-core-comparison-plan-v1.json",
-      "sha256": "107459a2537e68583322097e9f9ab3eef651f311d45a9fd6b4474f21f7705d35"
+      "sha256": "93fba93f4be3cb389ec2e06ee350e4b7ac5d82dfe3883fe3455b99c0def55860"
     },
     {
       "role": "edge-accuracy-campaign-boundary",

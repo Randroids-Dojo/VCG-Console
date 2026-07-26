@@ -22,6 +22,14 @@ The checked-in document records zero attempts, no result artifact, no selected
 backend, no Raspberry Pi qualification, and no game requiring a richer
 profile. This is a pre-registration artifact, not hardware evidence.
 
+The 2026-07-25 refresh extends the one-way source boundary from the Hailo
+projection, MediaPipe adapter, Motion schema and manifest vocabulary to the
+current blocked Pi image recipe, pose edge-accuracy plan and exposure-to-action
+validator. I-158 binds this I-161 plan, and I-159 binds I-158; the refresh does
+not add reverse bindings that would create an unsatisfiable digest cycle.
+Downstream digests were updated mechanically and all three validators continue
+to report zero results.
+
 The validator binds the plan to the current Hailo projection, MediaPipe
 adapter, Motion schema, and game-manifest motion vocabulary by SHA-256. It also
 requires canonical UTF-8 JSON, a 64 KiB limit, exact closed fields, dense
@@ -152,6 +160,11 @@ The strict plan cannot run until all of these are resolved:
 
 Any missing prerequisite produces an incomplete result, never a partial
 qualification.
+
+The remaining decisions now have stable IDs in
+`OWNER_QUESTIONS_HAILO_MEDIAPIPE_EXECUTION_2026-07-25.md`: Q-262 covers honest
+Hailo source identity, Q-263 the trusted native conversion tuple, Q-264 the
+participant and metric gates, and Q-265 the same-exposure fanout fallback.
 
 ## Verification
 

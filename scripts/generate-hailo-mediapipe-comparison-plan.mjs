@@ -46,6 +46,18 @@ const SOURCE_BINDINGS = [
     role: "game-manifest-motion-vocabulary",
     path: "packages/game-manifest/src/index.ts",
   },
+  {
+    role: "pi-image-recipe-boundary",
+    path: "benchmarks/pi-image/pi5-hailo-image-plan-v1.json",
+  },
+  {
+    role: "pose-edge-accuracy-boundary",
+    path: "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+  },
+  {
+    role: "exposure-to-action-validation-boundary",
+    path: "scripts/validate-camera-action-latency-campaign.mjs",
+  },
 ];
 
 function git(args, repositoryRoot) {
