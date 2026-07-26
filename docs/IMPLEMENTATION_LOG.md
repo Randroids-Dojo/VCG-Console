@@ -6718,3 +6718,36 @@ gate, trial or product result exists.
 I-027/I-028 remain active. No exact TV/cable/receiver/port/firmware stack,
 physical observation, room, CEC policy, schedule, gate, mutation authority,
 trial, cycle, qualified mode/audio route or vendor-quirk result exists.
+
+## 2026-07-25: cross-tier TV appliance qualification plan
+
+### Delivered
+
+- Advanced I-118 from an open row to a strict blocked campaign for the required
+  ordinary x86-64 native-Linux and Pi 5/Hailo 26 targets, with the later Steam
+  Machine isolated as optional and unable to rescue either common target.
+- Bound the existing Pi HDMI/CEC, ordinary-x86 target, cross-tier timing,
+  display/audio settings and power-recovery sources by normalized SHA-256.
+- Defined eight sleep/wake, deliberate/external input-switch, direct/alternate
+  audio-route and HDMI hot-plug scenarios with 100 valid cycles per target and
+  1,600 required cycles overall.
+- Required independent physical picture, audible stereo, controller/fallback
+  and timing evidence. EDID/ELD, compositor/audio API state, CEC traffic,
+  browser pixels and a running launcher cannot manufacture those claims.
+- Preserved the five-second warm-wake deadline and zero unrecovered, false-
+  ready, control-loop, takeover, fallback-loss, privacy/quiescence and crash/
+  hang gates. Result-dependent recovery, reliability, power and thermal gates
+  remain null.
+- Allowed exact I-027/I-028 cycle reuse only once under identical protocol and
+  cell identity; partial Pi evidence and cross-target aggregates cannot promote
+  the campaign.
+- Nine focused adversarial tests pass. No TV, target or product result and no
+  power/input/audio/CEC/hot-plug mutation authority exists.
+
+### Remaining boundary
+
+I-118 remains active. Exact received target, TV, port, cable, source and
+optional receiver tuples; the ordinary-x86 idle strategy; target display,
+audio, CEC and controller stacks; physical/timing oracles; counterbalanced
+schedule; fault protocol; numeric gates; authority; and all 1,600 required
+cycles remain absent.
