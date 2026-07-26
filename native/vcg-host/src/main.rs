@@ -966,6 +966,7 @@ fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest),
             base_config_sha256: options
                 .base_config_sha256
                 .ok_or_else(|| "retroarch requires --base-config-sha256".to_owned())?,
+            auxiliary: Vec::new(),
             profile_id: options
                 .profile_id
                 .ok_or_else(|| "retroarch requires --profile".to_owned())?,

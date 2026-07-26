@@ -55,6 +55,27 @@ impl UpdateArtifactKind {
     }
 }
 
+/// Builds the exact domain-separated message signed for one delegated
+/// artifact. Development tooling uses this helper so it cannot drift from the
+/// verifier's protocol prefix.
+#[must_use]
+pub fn artifact_signing_message(artifact: UpdateArtifactKind, payload: &[u8]) -> Vec<u8> {
+    let prefix = artifact.signed_message_prefix();
+    let mut message = Vec::with_capacity(prefix.len() + payload.len());
+    message.extend_from_slice(prefix);
+    message.extend_from_slice(payload);
+    message
+}
+
+/// Builds the exact domain-separated message signed by update-root keys.
+#[must_use]
+pub fn root_signing_message(payload: &[u8]) -> Vec<u8> {
+    let mut message = Vec::with_capacity(ROOT_SIGNED_MESSAGE_PREFIX.len() + payload.len());
+    message.extend_from_slice(ROOT_SIGNED_MESSAGE_PREFIX);
+    message.extend_from_slice(payload);
+    message
+}
+
 /// One host-provisioned offline root public key.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RootTrustAnchor {
