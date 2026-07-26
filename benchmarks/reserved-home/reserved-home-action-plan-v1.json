@@ -1,0 +1,355 @@
+{
+  "format": "vcg-reserved-home-action-plan/v1",
+  "status": "blocked",
+  "campaignId": "i091-reserved-home-action-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-091"
+  ],
+  "claimBoundary": "This is a strict zero-result compositor-owned Home qualification plan. Existing keyboard Escape, browser Back, process termination, controller mapping, Steam Input, shell, watchdog, fullscreen, pointer-lock, hosted-browser, native-package, or retro evidence does not prove a physical controller or recovery remote, a globally reserved Home binding, pre-game input ownership, hostile capture resistance, system-surface focus, forced-exit behavior, or target qualification. Back, Pause, ordinary game actions, a game-provided exit, a logged-in Steam overlay, and synthetic input cannot rescue Home failure. No target, controller, remote, compositor, input service, game, fault, mapping, persistence, package, process, participant, qualification, publication, compatibility, or product-policy operation is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "security-boundary",
+      "path": "docs/SECURITY_THREAT_MODEL.md",
+      "sha256": "493d26ff3d494ead819232410e5b36aa8d0785073cc7d04617b7b54d719cb053"
+    },
+    {
+      "role": "offline-input-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "tv-controller-boundary",
+      "path": "docs/TV_COMPATIBILITY_CONTRACT.md",
+      "sha256": "89d1e724bb2daff40243bc386c015ff8eb7a4b62149ae641fb545ab646dd31fe"
+    },
+    {
+      "role": "hosted-supervision-boundary",
+      "path": "docs/HOSTED_BROWSER_SUPERVISION.md",
+      "sha256": "d7469dad2550119a72e1f61d380fa174279cba2a72b6033260d1ca652b05cc43"
+    },
+    {
+      "role": "retro-supervision-boundary",
+      "path": "docs/RETROARCH_INTEGRATION.md",
+      "sha256": "f6d2d9c006b8ef72ba7e909088b844c76cb79477bd151bcbeeabcc29864d2e1e"
+    },
+    {
+      "role": "controller-qualification-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "steam-input-boundary",
+      "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
+      "sha256": "cd5a93bafd63a88aaedab650c273de5beb52ea0bbd79779e8d0835c5104ea786"
+    },
+    {
+      "role": "signed-native-boundary",
+      "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
+      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+    },
+    {
+      "role": "steamos-shell-boundary",
+      "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
+      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+    },
+    {
+      "role": "hosted-supervisor-implementation-boundary",
+      "path": "scripts/hosted-browser-supervisor.ts",
+      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "pi5-ai-hat26",
+      "ordinary-x86-linux"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-steamos"
+    ],
+    "windowsOrWslMayQualifyRequiredLinuxTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "oneRequiredTargetMayRescueAnother": false,
+    "browserSyntheticSteamInputOrGameHandlerMayQualifySystemReservation": false,
+    "automaticCompositorInputStackOrBindingSelection": false
+  },
+  "targets": [
+    {
+      "targetId": "pi5-ai-hat26",
+      "role": "required-lower-cost-reference",
+      "required": true,
+      "hardwareFirmwareAndInputTopologySha256": null,
+      "operatingSystemKernelCompositorAndInputServiceSha256": null,
+      "nativeHostBrowserRetroAndRuntimeManifestSha256": null,
+      "globalShortcutAndFocusPolicySha256": null,
+      "faultHarnessAndClockManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "ordinary-x86-linux",
+      "role": "required-premium-reference",
+      "required": true,
+      "hardwareFirmwareAndInputTopologySha256": null,
+      "operatingSystemKernelCompositorAndInputServiceSha256": null,
+      "nativeHostBrowserRetroAndRuntimeManifestSha256": null,
+      "globalShortcutAndFocusPolicySha256": null,
+      "faultHarnessAndClockManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "targetId": "steam-machine-steamos",
+      "role": "optional-compatibility-target",
+      "required": false,
+      "hardwareFirmwareAndInputTopologySha256": null,
+      "operatingSystemKernelCompositorAndInputServiceSha256": null,
+      "nativeHostBrowserRetroAndRuntimeManifestSha256": null,
+      "globalShortcutAndFocusPolicySha256": null,
+      "faultHarnessAndClockManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    }
+  ],
+  "inputRoles": [
+    {
+      "roleId": "first-party-standard",
+      "requirement": "required",
+      "homeBindingClass": "dedicated-system-button-or-owner-approved-chord",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    },
+    {
+      "roleId": "second-vendor-standard",
+      "requirement": "required",
+      "homeBindingClass": "dedicated-system-button-or-owner-approved-chord",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    },
+    {
+      "roleId": "generic-ambiguous",
+      "requirement": "required",
+      "homeBindingClass": "approved-guided-mapping-without-semantic-guessing",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    },
+    {
+      "roleId": "simultaneous-cross-vendor-pair",
+      "requirement": "required",
+      "homeBindingClass": "either-player-system-action-with-deterministic-host-ownership",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    },
+    {
+      "roleId": "dedicated-recovery-remote",
+      "requirement": "required",
+      "homeBindingClass": "dedicated-system-home-control",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    },
+    {
+      "roleId": "receiver-2.4ghz-if-claimed",
+      "requirement": "conditional-if-product-support-is-claimed",
+      "homeBindingClass": "dedicated-system-button-or-owner-approved-chord",
+      "physicalSampleManifestSha256s": [],
+      "mappingAndFirmwareManifestSha256": null,
+      "qualified": false
+    }
+  ],
+  "runtimeClasses": [
+    {
+      "runtimeId": "bundled-local-web",
+      "requiredRepresentativeArtifactSha256": null,
+      "gameMayReceiveHome": false
+    },
+    {
+      "runtimeId": "supervised-hosted-web",
+      "requiredRepresentativeArtifactSha256": null,
+      "gameMayReceiveHome": false
+    },
+    {
+      "runtimeId": "signed-native-game",
+      "requiredRepresentativeArtifactSha256": null,
+      "gameMayReceiveHome": false
+    },
+    {
+      "runtimeId": "supervised-retro",
+      "requiredRepresentativeArtifactSha256": null,
+      "gameMayReceiveHome": false
+    }
+  ],
+  "hostileStates": [
+    "interactive-focused",
+    "exclusive-fullscreen-or-equivalent",
+    "pointer-or-relative-input-capture",
+    "fullscreen-plus-input-capture",
+    "text-entry-or-ime-active",
+    "game-modal-or-overlay-active",
+    "input-flood-or-repeat-storm",
+    "main-thread-renderer-or-game-loop-hung",
+    "process-crash-or-exit-race",
+    "popup-child-window-or-secondary-surface-focused",
+    "focus-stolen-or-game-backgrounded",
+    "network-load-or-content-readiness-stalled"
+  ],
+  "homeSemantics": {
+    "reservedActionId": "home",
+    "owner": "system-compositor-or-pre-game-input-host",
+    "timerStart": "independent-router-observes-physical-home-edge-before-game-delivery",
+    "passingEnd": "system-owned-home-surface-is-visible-focused-and-accepts-one-canonical-controller-action",
+    "gameDeliveryAllowed": false,
+    "gameAcknowledgementRequired": false,
+    "steamOverlayMayBeSoleHomeAuthority": false,
+    "browserEscapeBackOrPageHandlerMaySubstitute": false,
+    "gameProvidedPauseExitOrMenuMaySubstitute": false,
+    "hostMustRevokeGameInputBeforeSystemSurfaceInteraction": true,
+    "hostMustRetainProcessAndFocusRecoveryAuthority": true,
+    "homeTransitionPolicySha256": null,
+    "resumeReturnAndFocusPolicySha256": null,
+    "forcedExitBindingHoldAndConfirmationPolicySha256": null,
+    "backAndPauseRemainSeparateUnqualifiedActions": true
+  },
+  "authorityBoundary": {
+    "exactInputSampleAndBindingDecisionSha256": null,
+    "compositorInputServiceAndPrivilegeDesignSha256": null,
+    "runtimeAdapterAndPreGameRoutingImplementationSha256": null,
+    "homeResumeForcedExitAndFocusPolicySha256": null,
+    "faultInjectionScheduleAndIndependentOracleSha256": null,
+    "numericGateAndStatisticalProtocolSha256": null,
+    "resultSchemaSanitizationRetentionAndReviewProtocolSha256": null,
+    "targetControllerRemoteOrParticipantOperationAuthorized": false,
+    "compositorInputMappingOrPersistenceMutationAuthorized": false,
+    "fullscreenPointerFocusProcessOrNetworkFaultAuthorized": false,
+    "gamePackageOrRuntimeLaunchAuthorized": false,
+    "qualificationPublicationCompatibilityOrProductPolicyAuthorized": false
+  },
+  "qualificationMatrix": {
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "requiredInputRoleIds": [
+      "first-party-standard",
+      "second-vendor-standard",
+      "generic-ambiguous",
+      "simultaneous-cross-vendor-pair",
+      "dedicated-recovery-remote"
+    ],
+    "conditionalInputRoleIds": [
+      "receiver-2.4ghz-if-claimed"
+    ],
+    "runtimeClassIds": [
+      "bundled-local-web",
+      "supervised-hosted-web",
+      "signed-native-game",
+      "supervised-retro"
+    ],
+    "hostileStateIds": [
+      "interactive-focused",
+      "exclusive-fullscreen-or-equivalent",
+      "pointer-or-relative-input-capture",
+      "fullscreen-plus-input-capture",
+      "text-entry-or-ime-active",
+      "game-modal-or-overlay-active",
+      "input-flood-or-repeat-storm",
+      "main-thread-renderer-or-game-loop-hung",
+      "process-crash-or-exit-race",
+      "popup-child-window-or-secondary-surface-focused",
+      "focus-stolen-or-game-backgrounded",
+      "network-load-or-content-readiness-stalled"
+    ],
+    "requiredInputRoleCount": 5,
+    "conditionalInputRoleCount": 1,
+    "runtimeClassCount": 4,
+    "hostileStateCount": 12,
+    "requiredCellCount": 480,
+    "optionalCellCount": 240,
+    "conditionalCellsPerTarget": 48,
+    "validCyclesPerCell": 20,
+    "requiredCycleCount": 9600,
+    "optionalCycleCount": 4800,
+    "conditionalCyclesPerTarget": 960,
+    "everyDeclaredCellMustRun": true,
+    "failedBlockedInvalidStoppedRetriedAndWorstCaseCyclesRemainVisible": true,
+    "otherActionInputTargetRuntimeStateOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "physical-home-edge-count",
+      "pre-game-router-home-edge-count",
+      "game-home-delivery-count",
+      "system-surface-visible-ms",
+      "system-surface-focused-ms",
+      "canonical-system-action-response-ms",
+      "game-input-revocation-ms",
+      "wrong-player-or-owner-count",
+      "swallowed-duplicate-stuck-or-fabricated-home-count",
+      "keyboard-mouse-shell-or-operator-recovery-count",
+      "unowned-process-or-focus-count",
+      "unrecovered-trap-or-failure-count"
+    ],
+    "independentPhysicalEdgeRecipientFocusSurfaceInputRevocationProcessAndClockOraclesRequired": true,
+    "everyAttemptDeliveryFocusTransitionFaultFailureAndRecoveryMustRemainVisible": true,
+    "uiCopyGameCallbackSyntheticInputProcessExitOrOtherActionMaySubstitute": false
+  },
+  "fixedAcceptance": {
+    "minimumValidCyclesPerCell": 20,
+    "maximumHomeEventsDeliveredToGame": 0,
+    "maximumHomeEventsSwallowedDuplicatedStuckOrFabricated": 0,
+    "maximumSystemSurfaceFocusOwnershipFailures": 0,
+    "maximumCanonicalSystemActionResponseFailures": 0,
+    "maximumWrongPlayerOrHostOwnershipTransitions": 0,
+    "maximumKeyboardMouseShellOrOperatorRecoveries": 0,
+    "maximumUnownedOrEscapedGameProcessesOrSurfaces": 0,
+    "maximumUnrecoveredTrapsOrValidProductFailuresPerCell": 0,
+    "everyRequiredCellMustPass": true,
+    "homeMustWorkWithoutMotionCameraNetworkOrSteamAccount": true,
+    "systemMustOwnHomeBeforeGameDelivery": true,
+    "gameMayNotOverrideDisableRemapAcknowledgeOrDelayHome": true,
+    "gameFailureMayNotDisableSystemSurfaceOrForcedRecovery": true,
+    "otherActionInputTargetRuntimeStateOrAggregateMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "maximumSystemSurfaceVisibleP95Ms": null,
+    "maximumSystemSurfaceFocusedP95Ms": null,
+    "maximumCanonicalSystemActionResponseP95Ms": null,
+    "maximumGameInputRevocationP95Ms": null,
+    "maximumHomeEndToEndP99Ms": null,
+    "maximumHomeEndToEndWorstMs": null,
+    "forcedExitBindingAndHoldMs": null,
+    "maximumForcedExitToLauncherP95Ms": null,
+    "resumeReturnAndFocusDeadlineMs": null,
+    "minimumPhysicalSamplesPerModelFirmwareAndTransport": null
+  },
+  "dataPolicy": {
+    "opaqueTargetInputRuntimeStateCellCycleAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsAndRedactedCategoriesRequired": true,
+    "rawUsbBluetoothHidInputOrRemotePayloadsAllowed": false,
+    "serialMacStableControllerOrRemoteIdentifiersAllowed": false,
+    "screenVideoAudioCameraOrParticipantDataAllowed": false,
+    "windowTitlesUrlsPathsEnvironmentArgumentsOrStorageValuesAllowed": false,
+    "accountProfileSavePackageOrEnteredTextDataAllowed": false,
+    "freeTextGameCompositorDriverServiceCrashOrResultLogsAllowed": false,
+    "failedBlockedInvalidStoppedRetriedAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I091-001-exact-target-compositor-and-input-stack",
+      "I091-002-exact-controller-remote-samples-and-bindings",
+      "I091-003-pre-game-global-reservation-design",
+      "I091-004-home-resume-forced-exit-and-focus-policy",
+      "I091-005-runtime-representatives-and-adapters",
+      "I091-006-hostile-state-fault-harness-and-safety",
+      "I091-007-independent-edge-recipient-focus-process-and-clock-oracles",
+      "I091-008-schedule-numeric-gates-and-statistics",
+      "I091-009-controller-only-accessibility-and-comprehension",
+      "I091-010-result-sanitization-retention-review-and-incident-policy",
+      "I091-011-target-input-fault-package-and-participant-authority",
+      "I091-012-qualification-publication-and-product-policy-authority"
+    ]
+  },
+  "result": null
+}
