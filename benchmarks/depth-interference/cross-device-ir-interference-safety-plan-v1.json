@@ -1,0 +1,480 @@
+{
+  "format": "vcg-cross-device-ir-interference-safety-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-device-ir-interference-safety-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-045",
+    "Q-018",
+    "Q-025"
+  ],
+  "claimBoundary": "Source-bound strict zero-result interference and safety plan only. Vendor wavelength, product, laser-class, sunlight, reflection, or multi-camera statements are test-design inputs, not VCG safety, compatibility, depth-benefit, selection, distribution, certification, or purchase evidence. One device, mode, frame, cell, recovery, aggregate, vendor, passive result, active result, mitigation, or participant cannot rescue another. No camera purchase, received-device claim, device operation, emitter or flood use, sunlight or reflective staging, external IR source, participant collection, fault injection, temporary image collection, result, selection, publication, or BOM change is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "campaign-contract",
+      "path": "docs/CROSS_DEVICE_IR_INTERFERENCE_SAFETY_CAMPAIGN_2026-07-26.md",
+      "sha256": "2edea889bebd75d330db175c39a041e5114ac0222f31e45c69ab376ba89494d6"
+    },
+    {
+      "role": "oak-rgb-depth-candidate-boundary",
+      "path": "benchmarks/depth-comparison/oak-d-pro-w-rgb-depth-comparison-plan-v1.json",
+      "sha256": "7167c743e8924618bf18cf3f2811b58c0047bd6eeb0f8f5cd2a4f30c1bb02306"
+    },
+    {
+      "role": "orbbec-candidate-boundary",
+      "path": "benchmarks/orbbec/gemini-335l-linux-target-plan-v1.json",
+      "sha256": "1ea0cd32694009eb68a7eedc36d62800248f5082c332abdf877d8c72de0a6234"
+    },
+    {
+      "role": "realsense-candidate-boundary",
+      "path": "benchmarks/realsense/d455-linux-target-plan-v1.json",
+      "sha256": "de04f0abf84f82ae56495c95bb2ce254a86a85f016bc0e1fbfcc53e078555f4f"
+    },
+    {
+      "role": "depth-option-research-boundary",
+      "path": "docs/RESEARCH.md",
+      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
+    },
+    {
+      "role": "prototype-acceptance-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "active-play-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "camera-capture-lighting-boundary",
+      "path": "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json",
+      "sha256": "27fb5959a85125008634c94d503ba690e0bab5a3f6fff84f6ade6619c09f8db0"
+    },
+    {
+      "role": "exposure-to-action-proof-boundary",
+      "path": "scripts/validate-camera-action-latency-campaign.mjs",
+      "sha256": "0a5226fbc45605cd0654688aac89beae18c17fd351763c68b04a26c19826ca37"
+    }
+  ],
+  "candidateModes": [
+    {
+      "modeId": "oak-d-pro-w-passive-stereo",
+      "candidateId": "oak-d-pro-w-a00573",
+      "manufacturer": "Luxonis",
+      "product": "OAK-D Pro W IMX378",
+      "exactSkuOrModel": "A00573",
+      "modeClass": "passive-stereo",
+      "illuminationSource": "off",
+      "nominalWavelengthNm": null,
+      "wavelengthStatus": "not-applicable-source-off",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "oak-d-pro-w-active-dot-940nm",
+      "candidateId": "oak-d-pro-w-a00573",
+      "manufacturer": "Luxonis",
+      "product": "OAK-D Pro W IMX378",
+      "exactSkuOrModel": "A00573",
+      "modeClass": "active-dot-stereo",
+      "illuminationSource": "dot-projector",
+      "nominalWavelengthNm": 940,
+      "wavelengthStatus": "official-product-documentation-bound",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "oak-d-pro-w-flood-mono-ir-940nm",
+      "candidateId": "oak-d-pro-w-a00573",
+      "manufacturer": "Luxonis",
+      "product": "OAK-D Pro W IMX378",
+      "exactSkuOrModel": "A00573",
+      "modeClass": "flood-mono-ir-exploratory",
+      "illuminationSource": "flood-illuminator",
+      "nominalWavelengthNm": 940,
+      "wavelengthStatus": "official-product-documentation-bound",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "orbbec-gemini-335l-passive-stereo",
+      "candidateId": "orbbec-gemini-335l-g40055-170",
+      "manufacturer": "Orbbec",
+      "product": "Gemini 335L",
+      "exactSkuOrModel": "G40055-170",
+      "modeClass": "passive-stereo",
+      "illuminationSource": "off",
+      "nominalWavelengthNm": null,
+      "wavelengthStatus": "not-applicable-source-off",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "orbbec-gemini-335l-active-850nm",
+      "candidateId": "orbbec-gemini-335l-g40055-170",
+      "manufacturer": "Orbbec",
+      "product": "Gemini 335L",
+      "exactSkuOrModel": "G40055-170",
+      "modeClass": "active-stereo",
+      "illuminationSource": "laser-projector",
+      "nominalWavelengthNm": 850,
+      "wavelengthStatus": "candidate-plan-official-source-bound",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "realsense-d455-passive-stereo",
+      "candidateId": "realsense-d455-82635dsd455-999wct",
+      "manufacturer": "RealSense",
+      "product": "Depth Camera D455",
+      "exactSkuOrModel": "82635DSD455/999WCT",
+      "modeClass": "passive-stereo",
+      "illuminationSource": "off",
+      "nominalWavelengthNm": null,
+      "wavelengthStatus": "not-applicable-source-off",
+      "blocking": true,
+      "operationAuthorized": false
+    },
+    {
+      "modeId": "realsense-d455-projector-on-wavelength-unbound",
+      "candidateId": "realsense-d455-82635dsd455-999wct",
+      "manufacturer": "RealSense",
+      "product": "Depth Camera D455",
+      "exactSkuOrModel": "82635DSD455/999WCT",
+      "modeClass": "projector-on-active-stereo",
+      "illuminationSource": "projector",
+      "nominalWavelengthNm": null,
+      "wavelengthStatus": "official-received-unit-evidence-required",
+      "blocking": true,
+      "operationAuthorized": false
+    }
+  ],
+  "authorityBoundary": {
+    "exactReceivedDeviceManifestSha256": null,
+    "exactFirmwareAndModeManifestSha256": null,
+    "roomSunWeatherAndInstrumentProtocolSha256": null,
+    "reflectiveFixtureAndBeamPathProtocolSha256": null,
+    "externalIrDeviceAndStateProtocolSha256": null,
+    "benchFixtureAndGroundTruthProtocolSha256": null,
+    "transitionSoakAndStopProtocolSha256": null,
+    "participantConsentAssentAndExposureProtocolSha256": null,
+    "legalRegulatoryAndSafetyReviewSha256": null,
+    "measurementAndAcceptanceProtocolSha256": null,
+    "operatorScheduleAndIncidentProtocolSha256": null,
+    "deviceAccessOrOperationAuthorized": false,
+    "irEmitterFloodOrExternalSourceUseAuthorized": false,
+    "sunlightReflectiveOrCompoundStagingAuthorized": false,
+    "faultOrTransitionInjectionAuthorized": false,
+    "adultParticipationAuthorized": false,
+    "childParticipationAuthorized": false,
+    "temporaryDiagnosticImageDepthIrOrPointCloudCollectionAuthorized": false,
+    "resultPublicationAuthorized": false,
+    "cameraSelectionPurchaseOrBomChangeAuthorized": false
+  },
+  "safetyBoundary": {
+    "vendorClassificationsAreFactsNotProjectAuthority": true,
+    "emittersAndFloodsDefaultOff": true,
+    "damagedOpenedModifiedUnofficiallyFlashedFilteredOrMismatchedDeviceMayOperate": false,
+    "magnifyingOpticsAllowed": false,
+    "deliberateDirectSunAimingAllowed": false,
+    "personOrAnimalAllowedInDirectOrSpecularBenchPath": false,
+    "independentCommandedAndObservedEmitterStateRequired": true,
+    "observerDisagreementMeansUnknownAndImmediateStop": true,
+    "unexpectedPersonAnimalReflectionTemperatureDamageBarrierOrOperatorControlEventStopsCampaign": true,
+    "stoppedFailedOrUnsafeModeMayBeRescuedByRecoveryAccuracyOrAnotherMode": false,
+    "exactReceivedRevisionFirmwareEnclosureIntensityDistanceDurationTemperatureAndGeographyRequired": true,
+    "reviewedBarriersInstrumentsOperatorStopCooldownQuarantineAndIncidentResponseRequired": true
+  },
+  "benchMatrix": {
+    "modeIds": [
+      "oak-d-pro-w-passive-stereo",
+      "oak-d-pro-w-active-dot-940nm",
+      "oak-d-pro-w-flood-mono-ir-940nm",
+      "orbbec-gemini-335l-passive-stereo",
+      "orbbec-gemini-335l-active-850nm",
+      "realsense-d455-passive-stereo",
+      "realsense-d455-projector-on-wavelength-unbound"
+    ],
+    "validRunsPerCell": 20,
+    "participantFreeCalibratedFixtureRequired": true,
+    "balancedRandomizedRunOrderRequired": true,
+    "allInvalidStoppedRetriedAndInterruptedRunsRemainVisible": true,
+    "matrixConditionIdsFrozenBeforeOperation": true,
+    "oneModeConditionDistanceSurfaceInterfererOrientationOrSceneMayRescueAnother": false,
+    "sunlight": {
+      "conditionIds": [
+        "indoor-control",
+        "diffuse-window-daylight",
+        "oblique-sun-patch-outside-optical-axis",
+        "backlit-window",
+        "moving-background-sun-patch",
+        "bright-sky-window-reflection"
+      ],
+      "subjectDistanceMm": [
+        1500,
+        2500,
+        3500
+      ],
+      "requiredCellCount": 126,
+      "requiredRunCount": 2520
+    },
+    "reflection": {
+      "surfaceIds": [
+        "matte-control",
+        "powered-off-glossy-tv",
+        "clear-window-glass",
+        "household-mirror",
+        "polished-metal",
+        "glossy-floor-fixture"
+      ],
+      "incidenceAngleDegrees": [
+        0,
+        45,
+        75
+      ],
+      "requiredCellCount": 126,
+      "requiredRunCount": 2520
+    },
+    "otherIr": {
+      "interfererIds": [
+        "none-control",
+        "second-same-model-active-camera",
+        "cross-vendor-850nm-camera",
+        "cross-vendor-940nm-camera",
+        "tv-remote-bursts",
+        "reviewed-ir-night-vision-illuminator"
+      ],
+      "separationMm": [
+        1000,
+        2000,
+        3000
+      ],
+      "orientationIds": [
+        "same-optical-axis",
+        "crossing-fields-of-view",
+        "back-to-back-control"
+      ],
+      "requiredCellCount": 378,
+      "requiredRunCount": 7560
+    },
+    "compound": {
+      "sceneIds": [
+        "diffuse-window-matte-no-external-ir-control",
+        "oblique-sun-patch-mirror-cross-vendor-850nm",
+        "backlit-window-glass-cross-vendor-940nm",
+        "moving-sun-patch-polished-metal-same-model-active",
+        "bright-sky-reflection-glossy-floor-tv-remote-bursts",
+        "indoor-control-glossy-tv-reviewed-night-vision-illuminator"
+      ],
+      "subjectDistanceMm": [
+        1500,
+        2500,
+        3500
+      ],
+      "requiredCellCount": 126,
+      "requiredRunCount": 2520
+    },
+    "requiredTotalCellCount": 756,
+    "requiredTotalRunCount": 15120
+  },
+  "transitionCampaign": {
+    "modeIds": [
+      "oak-d-pro-w-passive-stereo",
+      "oak-d-pro-w-active-dot-940nm",
+      "oak-d-pro-w-flood-mono-ir-940nm",
+      "orbbec-gemini-335l-passive-stereo",
+      "orbbec-gemini-335l-active-850nm",
+      "realsense-d455-passive-stereo",
+      "realsense-d455-projector-on-wavelength-unbound"
+    ],
+    "transitionIds": [
+      "sunlight-enter",
+      "sunlight-exit",
+      "matte-to-mirror",
+      "mirror-to-matte",
+      "no-interferer-to-active",
+      "active-to-off",
+      "commanded-observed-emitter-disagreement",
+      "invalid-depth-burst-recovery"
+    ],
+    "validCyclesPerModeTransitionCell": 20,
+    "requiredModeTransitionCellCount": 56,
+    "requiredTransitionCycleCount": 1120,
+    "detectionFailClosedStaleOutputRejectionAndHealthyReturnRequired": true,
+    "automaticRetryMayHideFailure": false,
+    "laterRecoveryOrAnotherTransitionModeMayRescueFailure": false
+  },
+  "soakCampaign": {
+    "modeIds": [
+      "oak-d-pro-w-passive-stereo",
+      "oak-d-pro-w-active-dot-940nm",
+      "oak-d-pro-w-flood-mono-ir-940nm",
+      "orbbec-gemini-335l-passive-stereo",
+      "orbbec-gemini-335l-active-850nm",
+      "realsense-d455-passive-stereo",
+      "realsense-d455-projector-on-wavelength-unbound"
+    ],
+    "validOneHourSoaksPerMode": 3,
+    "minimumMeasuredSecondsPerSoak": 3600,
+    "requiredSoakCount": 21,
+    "continuousStateThermalPowerFrameDepthAndStopObservationRequired": true,
+    "interruptedStoppedOrInvalidSoakMayBeSilentlyReplaced": false,
+    "oneSoakOrModeMayRescueAnother": false
+  },
+  "humanPhase": {
+    "status": "blocked",
+    "executionRequiresModeSpecificCompleteBenchTransitionSoakSafetyAndNumericGates": true,
+    "modeIds": [
+      "oak-d-pro-w-passive-stereo",
+      "oak-d-pro-w-active-dot-940nm",
+      "oak-d-pro-w-flood-mono-ir-940nm",
+      "orbbec-gemini-335l-passive-stereo",
+      "orbbec-gemini-335l-active-850nm",
+      "realsense-d455-passive-stereo",
+      "realsense-d455-projector-on-wavelength-unbound"
+    ],
+    "personaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "placementIds": [
+      "center",
+      "near-left-edge",
+      "near-right-edge",
+      "far-left-edge",
+      "far-right-edge"
+    ],
+    "motionIds": [
+      "neutral-full-body",
+      "jump",
+      "duck",
+      "dodge-left",
+      "dodge-right"
+    ],
+    "compoundSceneIds": [
+      "diffuse-window-matte-no-external-ir-control",
+      "oblique-sun-patch-mirror-cross-vendor-850nm",
+      "backlit-window-glass-cross-vendor-940nm",
+      "moving-sun-patch-polished-metal-same-model-active",
+      "bright-sky-reflection-glossy-floor-tv-remote-bursts",
+      "indoor-control-glossy-tv-reviewed-night-vision-illuminator"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredCellCount": 2100,
+    "requiredTrialCount": 42000,
+    "participantAbsentNegativeDistanceMm": [
+      1500,
+      2500,
+      3500
+    ],
+    "requiredParticipantAbsentNegativeSessionCount": 126,
+    "samePersonRoomModePlacementMotionSceneAndExposureProtocolRequired": true,
+    "consentAssentGuardianPrivacyExposureStopDeletionAndAdverseEventProtocolRequired": true,
+    "independentPoseActionAndSafetyGroundTruthRequired": true,
+    "benchSuccessMayAuthorizePeopleOrEstablishChildSafety": false,
+    "onePersonaPlacementMotionSceneOrModeMayRescueAnother": false
+  },
+  "measurements": {
+    "requiredMeasurements": [
+      "commanded-and-independently-observed-projector-flood-and-external-ir-state",
+      "irradiance-or-reviewed-vendor-approved-proxy-with-uncertainty",
+      "ambient-visible-and-ir-condition-with-time-weather-and-geometry",
+      "surface-material-reflectance-incidence-and-beam-path-geometry",
+      "camera-fixture-participant-and-interferer-distance-orientation",
+      "device-host-room-usb-and-wall-power-temperature-and-throttling",
+      "rgb-ir-saturation-valid-depth-fill-false-depth-missing-depth-and-instability",
+      "depth-rgb-alignment-exposure-device-host-and-application-timestamps",
+      "captured-dropped-duplicate-corrupt-out-of-order-and-stale-frames",
+      "transition-detection-fail-closed-output-rejection-and-healthy-return-time",
+      "independent-fixture-depth-pose-action-and-participant-absent-ground-truth",
+      "operator-stop-barrier-breach-discomfort-entry-damage-and-incident-ledger"
+    ],
+    "independentGroundTruthRequired": true,
+    "candidateDepthMayLabelItself": false,
+    "vendorClaimScreenshotOrOneFrameMaySubstituteMeasurement": false,
+    "captureArrivalMaySubstituteExposureTimestamp": false,
+    "meanAggregateOrBestCaseMayHideWorstCell": false,
+    "perModeCellRunTransitionSoakStopRetryAndWorstCaseReportingRequired": true
+  },
+  "fixedAcceptance": {
+    "minimumValidRunsPerBenchCell": 20,
+    "minimumValidTransitionCyclesPerModeTransitionCell": 20,
+    "minimumValidOneHourSoaksPerMode": 3,
+    "minimumValidHumanTrialsPerCellIfAuthorized": 20,
+    "maximumUnknownOrDisagreedEmitterStateObservations": 0,
+    "maximumUnreviewedDirectOrSpecularPathEntries": 0,
+    "maximumUnexpectedPersonOrAnimalBenchEntries": 0,
+    "maximumSilentlyDiscardedInvalidStoppedRetriedOrInterruptedRuns": 0,
+    "allGatesMustBeFrozenBeforeOperation": true,
+    "aggregateRecoveryMitigationOrCrossModeRescueAllowed": false
+  },
+  "openAcceptance": {
+    "maximumIrradianceOrProxy": null,
+    "maximumAmbientVisibleLevel": null,
+    "maximumAmbientIrLevel": null,
+    "maximumDeviceTemperatureMilliC": null,
+    "maximumWallPowerMilliW": null,
+    "maximumUsbPowerMilliW": null,
+    "maximumRgbSaturationPpm": null,
+    "maximumIrSaturationPpm": null,
+    "minimumValidDepthFillPpm": null,
+    "maximumFalseDepthPpm": null,
+    "maximumMissingDepthPpm": null,
+    "maximumDepthInstabilityP95Mm": null,
+    "maximumDepthErrorP95Mm": null,
+    "maximumRgbDepthAlignmentErrorP95Pixels": null,
+    "maximumTimestampErrorP95Us": null,
+    "maximumHealthyReturnTimeUs": null,
+    "minimumTriggerPrecisionPpm": null,
+    "minimumTriggerRecallPpm": null,
+    "maximumUnintendedPrivilegedActionsPerNegativeSession": null,
+    "minimumPredeclaredMaterialBenefitPpm": null
+  },
+  "dataPolicy": {
+    "rawRgbDepthIrPointCloudAudioOrVideoAllowedInRepositoryOrRelease": false,
+    "participantNamesFacesVoicesExactAgesAddressesOrStableIdentifiersAllowed": false,
+    "deviceSerialNumbersPathsCredentialsSecretsOrUnredactedLogsAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "temporaryRawDiagnosticsRequireSeparateAuthorityConsentSecurityAndDeletionProtocol": true,
+    "closedVocabularyPathFreeAggregateEvidenceRequired": true,
+    "networkEgressAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "ir-001-exact-received-devices-revisions-firmware-condition-cables-mounts-calibrations-and-seven-modes",
+      "ir-002-exact-emitter-flood-source-wavelength-intensity-temperature-protection-and-state-observers",
+      "ir-003-geography-legal-regulatory-laser-ir-electrical-child-safety-lab-records-and-stop-authority",
+      "ir-004-room-window-sun-weather-instruments-exclusion-zone-and-repeatability",
+      "ir-005-reflective-fixtures-beam-paths-barriers-operator-location-and-removal",
+      "ir-006-external-ir-devices-output-duty-orientation-separation-power-and-state",
+      "ir-007-presets-exposure-gain-hdr-filters-intensity-synchronization-and-mitigation-lanes",
+      "ir-008-bench-fixture-independent-ground-truth-instruments-uncertainty-and-invalid-run-rules",
+      "ir-009-transition-soak-stop-cooldown-emitter-off-quarantine-restart-and-incident-rules",
+      "ir-010-adult-child-consent-assent-guardian-exposure-privacy-stop-deletion-and-adverse-events",
+      "ir-011-all-open-numeric-gates-uncertainty-and-per-cell-disposition",
+      "ir-012-operation-diagnostic-publication-selection-purchase-and-bom-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "receivedDeviceCount": 0,
+    "qualifiedFixtureCount": 0,
+    "participantCount": 0,
+    "completedBenchCellCount": 0,
+    "completedBenchRunCount": 0,
+    "completedTransitionCycleCount": 0,
+    "completedSoakCount": 0,
+    "completedHumanCellCount": 0,
+    "completedHumanTrialCount": 0,
+    "completedParticipantAbsentNegativeSessionCount": 0,
+    "qualifiedModeIds": [],
+    "safetyConclusionIds": [],
+    "materialDepthBenefitIds": [],
+    "selectedCameraOrModeIds": [],
+    "purchaseOrBomRecommendation": null
+  }
+}
