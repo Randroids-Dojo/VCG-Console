@@ -98,13 +98,50 @@ Releasable evidence is skeleton and numeric data only.
 There is no result digest, qualified target, qualified or selected camera,
 purchase authority, BOM mutation, or execution authority.
 
+## Ready plan and result envelope
+
+`scripts/validate-shared-camera-qualification-result.mjs` defines the only
+accepted transition out of the blocked plan. A ready plan must preserve every
+source, candidate, target, check, evidence inventory, fixed gate, privacy
+boundary, and zero-result field while filling:
+
+- the delivered quote, receipt, and received-device identity digests;
+- every target hardware/image/kernel/driver/runtime/USB/packaging binding;
+- camera controls, firmware, room, optical truth, participant, safety, data,
+  schedule, and trustworthy exposure-clock proofs;
+- bounded attempt, sustained-capture, hot-plug, and suspend/resume counts; and
+- every previously open optical, drop, exposure, recovery, and price gate.
+
+All distinct bindings require distinct SHA-256 digests. Capture arrival is not
+an accepted exposure authority. A ready plan authorizes only its exact
+qualification execution; it still does not select a camera, authorize a
+purchase, or change a BOM.
+
+The result envelope expands the ready plan into the exact 40 ordered cells.
+Each cell retains the complete ordered evidence inventory plus every scheduled
+attempt. Attempts are closed records with only a valid pass/failure,
+`harness-invalid`, or `stopped` state and bounded codes. A product failure
+derives `rejected`; a stopped/invalid attempt or missing evidence digest
+derives `incomplete`; only complete passing evidence derives `passed`.
+
+The validator derives cell counts, target qualification, whole-camera
+qualification, and the overall disposition. Shared-camera failures withhold
+every target; target-specific failures withhold only that target. No supplied
+summary can rescue a cell. Even a complete 40-cell qualification keeps camera
+selection, purchase authority, and BOM mutation false.
+
+Every attempt and aggregate data disposition requires zero retained raw
+frames, zero returned audio buffers, and zero network egress. Paths,
+participant identifiers, and free text are prohibited.
+
 ## Validation
 
 Run:
 
 ```powershell
 node scripts/validate-shared-camera-qualification-plan.mjs
-node --test scripts/validate-shared-camera-qualification-plan.test.mjs
+node --test scripts/validate-shared-camera-qualification-plan.test.mjs `
+  scripts/validate-shared-camera-qualification-result.test.mjs
 ```
 
 The validator requires canonical bounded UTF-8 JSON, closed ordered fields,
@@ -112,9 +149,10 @@ fresh source bindings, the exact candidate and targets, all 18 check
 definitions and 40 derived cells, null unresolved gates, privacy exclusions,
 and the zero-result boundary.
 
-The adversarial suite changes sources, candidate authority, targets, checks,
-evidence, counts, capture/latency/privacy gates, result claims, and byte
-encoding to prove the plan fails closed.
+The 26 adversarial groups change sources, candidate authority, targets, checks,
+evidence, counts, capture/latency/privacy gates, readiness, attempt ordering,
+result bindings, derived dispositions, summaries, and byte encoding to prove
+the plan and result fail closed.
 
 ## Current boundary
 
