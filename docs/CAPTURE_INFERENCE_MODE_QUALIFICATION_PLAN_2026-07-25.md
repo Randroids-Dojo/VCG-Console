@@ -97,19 +97,64 @@ text stay forbidden; the releasable trace is skeleton-only.
 The current artifact contains no result digest, qualified mode, selected mode,
 product-default mutation, execution authority, or purchase authority.
 
+## Ready plan and derived result
+
+`scripts/validate-capture-inference-mode-result.mjs` defines the only accepted
+transition out of the blocked plan. A ready plan must preserve all source
+bindings, four mode identities and capture rates, personas, actions, fixed
+gates, fairness rules, privacy exclusions, and zero-result fields while
+filling:
+
+- the exact target, image, camera, qualified-camera result, capture-policy
+  result, tracker, room, participant, ground-truth, schedule, clock, and data
+  protocol bindings;
+- pixel format and capture-control preset for every mode;
+- strictly smaller inference dimensions for both downscaled rows;
+- placement and lighting IDs, warmups, interleave size, derived cell/attempt
+  counts, and resource sampling;
+- all open capture, inference, drop, p99/worst latency, exposure, CPU, RAM, USB,
+  and data-handling gates; and
+- a qualification-only selection policy that cannot mutate the product
+  default.
+
+All distinct bindings require distinct digests. Only hardware exposure start,
+an uncertainty-bounded exposure midpoint, or an independently validated exact
+driver exposure timestamp is accepted. Capture arrival remains invalid.
+
+The result expands the ready plan into every ordered mode/persona/placement/
+lighting cell. Each cell contains the four required evidence digests, all ten
+actions with exactly 20 attempts, and its complete negative window. Attempts
+record exposure time, uncertainty, ordered game-API events, capture/inference
+FPS, captured and dropped frames, exposure, CPU, RAM, USB, and an opaque
+evidence digest.
+
+The validator derives true positives, false negatives, wrong/duplicate/idle
+false positives, precision, recall, nearest-rank p50/p95/p99/worst latency,
+resource/drop/exposure gates, action dispositions, cell dispositions, mode
+qualification, and the overall result. A valid product failure remains a
+rejection even when another attempt is invalid; purely invalid or stopped work
+is incomplete. No summary can rescue a row.
+
+Qualified mode IDs may be reported only when all their cells pass. The result
+always keeps `selectedModeId` null and `productDefaultChanged` false. Raw-frame
+retention, replay, network egress, paths, participant identifiers, and free
+text remain prohibited.
+
 ## Validation
 
 Run the strict validator and adversarial tests with:
 
 ```powershell
 node scripts/validate-capture-inference-mode-qualification.mjs
-node --test scripts/validate-capture-inference-mode-qualification.test.mjs
+node --test scripts/validate-capture-inference-mode-qualification.test.mjs `
+  scripts/validate-capture-inference-mode-result.test.mjs
 ```
 
-The validator requires bounded canonical UTF-8 JSON, closed ordered fields,
-the exact four modes, source freshness, the complete action and negative
-matrix, fixed honest latency endpoints, null unresolved gates, and a
-zero-result boundary.
+The 26 adversarial groups require bounded canonical UTF-8 JSON, closed ordered
+fields, the exact four modes, source freshness, the complete action and
+negative matrix, honest latency endpoints, immutable ready-plan transitions,
+attempt-level scoring, derived summaries, privacy exclusions, and no product
+selection authority.
 
 ## Current boundary
 
