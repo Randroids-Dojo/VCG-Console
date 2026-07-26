@@ -7114,3 +7114,36 @@ accuracy, latency, floor contact, action outcome, persistent artifact or target
 qualification has been measured or approved. Physical execution remains
 blocked on `OWNER_QUESTIONS_LENS_DISTORTION_RECTIFICATION_2026-07-25.md` and the
 plan's exact source, protocol, threshold and authority bindings.
+
+## 2026-07-25: visual robustness campaign contract
+
+- Advanced I-041 from open to a strict blocked campaign for patterned and loose
+  clothing, stationary blanket occlusion, five opaque skin-tone sampling
+  strata and measured static/moving visual clutter.
+- Crossed two blocking personas, twelve full-motion scenarios, five real-room
+  placements, five motions and 20 trials into 3,000 cells and 60,000 trials.
+  Added three separately safety-bounded blanket scenarios with 300 cells and
+  6,000 stationary/slow trials, for 3,300 cells and 66,000 trials total.
+- Required 150 separate 15-minute negative sessions across every persona,
+  stratum and appearance scenario, preserving every gameplay and privileged
+  action with no shortened or substituted failed session.
+- Kept opaque skin-tone strata as consented sampling/analysis roles only: no
+  tracker inference, identity, ethnicity, health, profile or authentication
+  authority; no participant may fill multiple strata; no post-result exclusion
+  or cross-stratum rescue is allowed.
+- Prohibited jump/duck/dodge/rapid-turn blanket probes plus head/face/neck/
+  airway covering, floor drag, wrapping, tying, pinning and restraint. Tracking
+  success or consent cannot waive trip, entanglement, heat or balance failure.
+- Preserved 95% trigger precision, 90% recall, zero unintended privileged
+  actions and 120 ms exposure-to-game p95 while leaving new detection, error,
+  jitter, dropout, reacquisition, disparity and cohort gates null.
+- Added nine adversarial validator groups covering source drift, invented
+  authority, cohort/stratum weakening, condition substitution, matrix drift,
+  evidence shortcuts, unsafe/privacy-weakening changes, premature results and
+  malformed or noncanonical input.
+
+This is a canonical zero-result plan only. No participant, skin-tone stratum,
+garment, blanket, clutter fixture, room, camera, target, physical trial,
+accuracy, fairness, safety, latency or product result exists. Physical execution
+remains blocked on `OWNER_QUESTIONS_VISUAL_ROBUSTNESS_2026-07-25.md` and exact
+camera/room/fixture/cohort/ground-truth/data/threshold/authority bindings.
