@@ -1,0 +1,403 @@
+{
+  "format": "vcg-cross-tier-bluetooth-controller-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-bluetooth-pair-reconnect-battery-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-117"
+  ],
+  "claimBoundary": "Pre-registered physical Bluetooth controller pairing, reconnect, simultaneous-device and low-battery campaign only. No controller brand, model, revision, firmware, Bluetooth adapter, radio topology, BlueZ stack, bond, pairing UI, battery source, target, cycle, compatibility, support, purchase, or product result exists. Browser Gamepad, an SDL mapping entry, discovery, a stored bond, a connected flag, receiver or wired behavior, Windows, WSL2, and one successful attempt cannot establish Bluetooth qualification.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "cross-tier-controller-campaign-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "pi-radio-coexistence-boundary",
+      "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
+      "sha256": "90fc23e78ccc5b1855ace8f8d40ee65d77a09e6ba72847319a93d42effb40958"
+    },
+    {
+      "role": "controller-protocol-boundary",
+      "path": "docs/CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md",
+      "sha256": "bc20b07bd0c69d2e518a30dcfc9694c2f7df6fee2f29b8e2ff1d7181e8da7405"
+    },
+    {
+      "role": "cross-tier-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "power-recovery-policy-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    }
+  ],
+  "targetPolicy": {
+    "requiredTargetIds": [
+      "ordinary-x86-linux-premium",
+      "pi5-hailo26-reference"
+    ],
+    "optionalTargetIds": [
+      "steam-machine-optional"
+    ],
+    "windowsMayQualifyRequiredLinuxTarget": false,
+    "wsl2MayQualifyRequiredLinuxTarget": false,
+    "optionalTargetMayRescueRequiredTarget": false,
+    "oneRequiredTargetMayRescueAnother": false,
+    "piRadioCampaignMayQualifyOrdinaryX86": false,
+    "automaticTargetSelection": false
+  },
+  "targets": [
+    {
+      "targetId": "ordinary-x86-linux-premium",
+      "role": "common-premium-required",
+      "required": true,
+      "hardwareFirmwareAndRadioTopologySha256": null,
+      "operatingSystemKernelBluezAndSdlSha256": null,
+      "pairingAgentAndUiSha256": null,
+      "bondStorePolicySha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "pi5-hailo26-reference",
+      "role": "lower-cost-reference-required",
+      "required": true,
+      "hardwareFirmwareAndRadioTopologySha256": null,
+      "operatingSystemKernelBluezAndSdlSha256": null,
+      "pairingAgentAndUiSha256": null,
+      "bondStorePolicySha256": null,
+      "qualifiedConfigurationSha256": null
+    },
+    {
+      "targetId": "steam-machine-optional",
+      "role": "later-optional-compatibility",
+      "required": false,
+      "hardwareFirmwareAndRadioTopologySha256": null,
+      "operatingSystemKernelBluezAndSdlSha256": null,
+      "pairingAgentAndUiSha256": null,
+      "bondStorePolicySha256": null,
+      "qualifiedConfigurationSha256": null
+    }
+  ],
+  "samplePolicy": {
+    "requiredSampleRoles": [
+      "first-party-standard",
+      "second-vendor-standard",
+      "generic-ambiguous",
+      "simultaneous-cross-vendor-pair"
+    ],
+    "exactSampleSetDecision": "Q-227",
+    "bluetoothTransportRequired": true,
+    "wiredMayQualifyBluetooth": false,
+    "usbReceiverMayQualifyBluetooth": false,
+    "familyResemblanceMayQualify": false,
+    "mappingDatabaseEntryMayQualify": false,
+    "oneSuccessfulAttemptMayQualify": false,
+    "materialFirmwareOrHardwareRevisionIsSeparateConfiguration": true,
+    "automaticSampleSelection": false
+  },
+  "samples": [
+    {
+      "sampleId": "first-party-standard",
+      "role": "first-party-standard",
+      "expectedDisposition": "must-pass",
+      "physicalSampleManifestSha256s": [],
+      "firmwareManifestSha256": null,
+      "bluetoothIdentityAndCapabilitiesSha256": null,
+      "mappingManifestSha256": null,
+      "batterySourceManifestSha256": null
+    },
+    {
+      "sampleId": "second-vendor-standard",
+      "role": "second-vendor-standard",
+      "expectedDisposition": "must-pass",
+      "physicalSampleManifestSha256s": [],
+      "firmwareManifestSha256": null,
+      "bluetoothIdentityAndCapabilitiesSha256": null,
+      "mappingManifestSha256": null,
+      "batterySourceManifestSha256": null
+    },
+    {
+      "sampleId": "generic-ambiguous",
+      "role": "generic-ambiguous",
+      "expectedDisposition": "must-fail-closed-or-pass-approved-guided-mapping",
+      "physicalSampleManifestSha256s": [],
+      "firmwareManifestSha256": null,
+      "bluetoothIdentityAndCapabilitiesSha256": null,
+      "mappingManifestSha256": null,
+      "batterySourceManifestSha256": null
+    },
+    {
+      "sampleId": "simultaneous-cross-vendor-pair",
+      "role": "simultaneous-cross-vendor-pair",
+      "expectedDisposition": "both-devices-must-pass-with-distinct-epochs-and-assignments",
+      "physicalSampleManifestSha256s": [],
+      "firmwareManifestSha256": null,
+      "bluetoothIdentityAndCapabilitiesSha256": null,
+      "mappingManifestSha256": null,
+      "batterySourceManifestSha256": null
+    }
+  ],
+  "batteryConditions": [
+    {
+      "conditionId": "normal-or-charging",
+      "requiredOutcome": "Pairing, input and reporting behave normally, with charging or normal state reported only from a qualified fresh source."
+    },
+    {
+      "conditionId": "low",
+      "requiredOutcome": "Low battery remains usable for the approved interval, is reported without invented percentage, and retains the recovery path."
+    },
+    {
+      "conditionId": "critical",
+      "requiredOutcome": "Critical battery produces the approved warning and any disconnect synthesizes releases before a fresh reconnect epoch."
+    },
+    {
+      "conditionId": "unavailable",
+      "requiredOutcome": "Unavailable battery evidence remains visibly unavailable and cannot be inferred from elapsed time, transport, or model."
+    },
+    {
+      "conditionId": "stale",
+      "requiredOutcome": "Stale battery evidence is marked stale, never promoted as current, and cannot change pairing or player authority."
+    }
+  ],
+  "scenarios": [
+    {
+      "scenarioId": "fresh-unpaired-controller-present-before-cold-boot",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "generic-ambiguous"
+      ],
+      "domain": "pairing",
+      "requiredOutcome": "Cold boot exposes an honest controller-accessible or physical-fallback pairing route, grants no semantic action before trust, and reaches fresh mapped input only after exact completion."
+    },
+    {
+      "scenarioId": "fresh-unpaired-controller-at-launcher",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "generic-ambiguous"
+      ],
+      "domain": "pairing",
+      "requiredOutcome": "Discovery and pairing at the launcher cannot expose raw identity, accept an ambiguous mapping silently, or claim success before fresh SDL input and shell response are proven."
+    },
+    {
+      "scenarioId": "bonded-controller-off-during-cold-boot-then-wake",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard"
+      ],
+      "domain": "cold-boot-reconnect",
+      "requiredOutcome": "A previously bonded controller powered on after cold boot reconnects through a fresh epoch and reaches usable input without stale assignment or operator desktop interaction."
+    },
+    {
+      "scenarioId": "bonded-controller-on-during-cold-boot",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard"
+      ],
+      "domain": "cold-boot-reconnect",
+      "requiredOutcome": "A powered bonded controller reconnects during boot exactly once, produces no duplicate device or edge, and cannot establish readiness until the launcher responds to physical input."
+    },
+    {
+      "scenarioId": "controller-sleep-wake-and-reconnect",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard"
+      ],
+      "domain": "reconnect",
+      "requiredOutcome": "Controller sleep releases every held action and wake creates fresh connection and action epochs without stuck input, fabricated edges, or lost reserved actions."
+    },
+    {
+      "scenarioId": "host-radio-loss-and-recovery",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "domain": "fault-recovery",
+      "requiredOutcome": "Authorized host-radio loss releases all affected actions, keeps recovery truthful, and restores each controller through a distinct fresh epoch without silent rebinding."
+    },
+    {
+      "scenarioId": "bluetooth-service-restart",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "domain": "fault-recovery",
+      "requiredOutcome": "An authorized Bluetooth-service restart cannot retain stale device state, duplicate actions, swap players, or require an unrestricted desktop to recover."
+    },
+    {
+      "scenarioId": "controller-power-loss-while-action-held",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "simultaneous-cross-vendor-pair"
+      ],
+      "domain": "fault-recovery",
+      "requiredOutcome": "Power loss while each canonical action is held synthesizes release to the original recipient before disconnect and accepts no old-epoch edge after reconnect."
+    },
+    {
+      "scenarioId": "forget-bond-revoke-and-repair",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "generic-ambiguous"
+      ],
+      "domain": "pairing",
+      "requiredOutcome": "The approved forget flow revokes the exact bond without exposing key material, stale automatic reconnect is refused, and re-pairing creates a fresh non-durable session identity."
+    },
+    {
+      "scenarioId": "unauthorized-nearby-device-and-pairing-failure",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "generic-ambiguous"
+      ],
+      "domain": "pairing-failure",
+      "requiredOutcome": "A nearby unselected device, rejection, timeout, controller shutdown or malformed pairing flow fails closed without granting mapping, assignment, bond, or shell authority."
+    },
+    {
+      "scenarioId": "two-controller-pairing-in-both-orders",
+      "applicableSampleRoles": [
+        "simultaneous-cross-vendor-pair"
+      ],
+      "domain": "simultaneous-devices",
+      "requiredOutcome": "Pairing the two representative vendors in both orders yields two distinct mappings, connection epochs and explicit assignments without order-dependent support."
+    },
+    {
+      "scenarioId": "two-controller-simultaneous-reconnect-and-reassignment",
+      "applicableSampleRoles": [
+        "simultaneous-cross-vendor-pair"
+      ],
+      "domain": "simultaneous-devices",
+      "requiredOutcome": "Simultaneous reconnect, either-device loss, replacement and approved reassignment preserve recipient isolation and never use a durable hardware identifier as player authority."
+    },
+    {
+      "scenarioId": "low-battery-pair-reconnect-and-use",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard"
+      ],
+      "domain": "battery",
+      "requiredOutcome": "A physically established low-battery condition remains separately reported through pair, reconnect and use while input, warnings, epoch transitions and recovery remain correct."
+    },
+    {
+      "scenarioId": "critical-unavailable-and-stale-battery-evidence",
+      "applicableSampleRoles": [
+        "first-party-standard",
+        "second-vendor-standard",
+        "generic-ambiguous"
+      ],
+      "domain": "battery",
+      "requiredOutcome": "Critical, unavailable and stale conditions retain their exact dispositions; no percentage or remaining time is inferred and battery state cannot grant mapping or assignment."
+    }
+  ],
+  "cycleProtocol": {
+    "validCyclesPerApplicableTargetSampleScenarioCell": 20,
+    "counterbalancedTargetSampleScenarioOrder": true,
+    "coldBootRequiresElectricalOffState": true,
+    "bondedAndFreshPairingStartStatesAreSeparate": true,
+    "invalidHarnessCyclesRetainedAndRerun": true,
+    "productFailuresMayBeReplaced": false,
+    "unscheduledKeyboardMouseOrDesktopInterventionIsProductFailure": true,
+    "scheduleSha256": null,
+    "pairingOperatorProtocolSha256": null,
+    "batteryConditionProtocolSha256": null,
+    "faultInjectionProtocolSha256": null,
+    "physicalInputAndClockOracleSha256": null
+  },
+  "requiredMetrics": [
+    "target sample revision firmware transport scenario cycle and configuration digests using salted campaign aliases",
+    "pairing discovery selection confirmation bond and failure phases with closed reason codes and independent timestamps",
+    "connection disconnection reconnect first-SDL-event and first-shell-response latency p50 p95 p99 worst and failures",
+    "fresh controller identity connection epoch action epoch mapping confidence and player assignment transitions",
+    "every canonical physical press release synthetic release recipient duplicate miss stuck and old-epoch event",
+    "Home Back and Pause compositor delivery with zero game delivery throughout pairing reconnect and faults",
+    "battery condition source freshness units warning transition and explicit unavailable or stale disposition",
+    "controller-only and physical recovery availability plus every keyboard mouse desktop or operator intervention",
+    "Bluetooth radio service bond-store and coexistence state without raw addresses keys descriptors or packet payloads",
+    "host boot launcher loading game idle tracker camera network power thermal and watchdog state during each cycle"
+  ],
+  "acceptance": {
+    "maximumWarmReconnectToControllerUsableMs": 5000,
+    "maximumUnrecoveredPairingOrReconnectFailures": 0,
+    "maximumFalsePairingOrConnectedClaims": 0,
+    "maximumStuckFabricatedDuplicateOrOldEpochActions": 0,
+    "maximumWrongPlayerOrDurableIdentityAssignments": 0,
+    "maximumReservedActionGameDeliveries": 0,
+    "maximumLostControllerOrPhysicalRecoveryPaths": 0,
+    "maximumBondCredentialOrStableIdentityDisclosures": 0,
+    "maximumPairingP95Ms": null,
+    "maximumColdBootReconnectP95Ms": null,
+    "maximumFaultReconnectP95Ms": null,
+    "maximumLowBatteryInputP95Ms": null,
+    "maximumBatteryWarningLatencyMs": null,
+    "minimumLowBatteryUsableSeconds": null,
+    "maximumBluetoothDisconnectRatio": null,
+    "everyRequiredTargetSampleScenarioCellMustPass": true,
+    "aggregateMayRescueFailedCell": false,
+    "anotherTargetMayRescueFailedTarget": false,
+    "wiredOrReceiverResultMayRescueBluetooth": false,
+    "batteryStateMayBeInferred": false,
+    "connectedFlagMayEstablishUsableInput": false,
+    "storedBondMayEstablishFreshIdentityOrAssignment": false
+  },
+  "schedule": {
+    "requiredTargetCount": 2,
+    "optionalTargetCount": 1,
+    "sampleRoleCount": 4,
+    "scenarioCount": 14,
+    "applicableSampleScenarioCellCountPerTarget": 34,
+    "requiredTargetSampleScenarioCellCount": 68,
+    "requiredCycles": 1360,
+    "optionalCycles": 680,
+    "i152CycleMayBeReusedOnlyWithExactProtocolAndCellIdentity": true,
+    "i026CycleMayBeReusedOnlyWithExactProtocolAndCellIdentity": true,
+    "reusedCycleMayAppearOnce": true,
+    "partialControllerOrPiRadioEvidenceMayQualifyCampaign": false
+  },
+  "dataPolicy": {
+    "rawBluetoothAddressesNamesOrStableSerialsAllowed": false,
+    "bondKeysPasskeysOrCredentialsAllowed": false,
+    "rawHidDescriptorsEventsOrPacketPayloadsAllowed": false,
+    "rawRadioTraceReleaseAllowed": false,
+    "participantIdentifiersAllowed": false,
+    "freeTextAllowed": false,
+    "saltedPerCampaignDeviceAliasesAllowed": true,
+    "aggregateTelemetryReleaseOnly": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "controllerPurchaseAuthorized": false,
+    "physicalControllerExecutionAuthorized": false,
+    "pairForgetOrBondMutationAuthorized": false,
+    "bluetoothRadioOrServiceFaultAuthorized": false,
+    "batteryDischargeOrPowerFaultAuthorized": false,
+    "sustainedCampaignAuthorized": false,
+    "blockerCodes": [
+      "exact-received-controller-sample-revision-firmware-and-battery-roster-q227-q231",
+      "exact-required-target-radio-bluez-sdl-mapping-compositor-and-bond-store-tuples",
+      "controller-accessible-pairing-agent-ui-confirmation-and-recovery-policy",
+      "battery-source-low-critical-unavailable-stale-and-warning-policy-q231",
+      "pair-reconnect-battery-input-and-reliability-thresholds-q230-q232",
+      "counterbalanced-applicability-schedule-harness-oracles-and-ledger-schema",
+      "hardware-purchase-pair-bond-radio-service-battery-and-sustained-execution-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedRequiredCycles": 0,
+    "completedOptionalCycles": 0,
+    "qualifiedTargetIds": [],
+    "qualifiedSampleIds": [],
+    "qualifiedScenarioIds": [],
+    "failedCellIds": []
+  }
+}

@@ -6751,3 +6751,35 @@ optional receiver tuples; the ordinary-x86 idle strategy; target display,
 audio, CEC and controller stacks; physical/timing oracles; counterbalanced
 schedule; fault protocol; numeric gates; authority; and all 1,600 required
 cycles remain absent.
+
+## 2026-07-25: cross-tier Bluetooth controller qualification plan
+
+### Delivered
+
+- Advanced I-117 from an open row to a strict blocked campaign for required
+  ordinary x86-64 native Linux and Pi 5/Hailo 26, with Steam optional and no
+  cross-target, Windows, WSL2 or Pi-radio substitution.
+- Bound the existing cross-tier controller, Pi radio coexistence, controller
+  protocol, timing and power-recovery sources by normalized SHA-256.
+- Reused I-152's four representative sample roles and separated Bluetooth from
+  wired and 2.4 GHz receiver claims. Family resemblance, mapping entries,
+  discovery, stored bonds, connected flags and one attempt cannot qualify.
+- Defined five normal/low/critical/unavailable/stale battery conditions and
+  fourteen fresh-pair, cold-boot, reconnect, service/radio/power fault,
+  forget/re-pair, two-device and low-battery scenarios.
+- Fixed 20 valid cycles per applicable target/sample/scenario cell: 68 required
+  cells and 1,360 cycles. Exact I-152/I-026 cycles may be reused once only when
+  complete protocol and cell identity match.
+- Preserved five-second warm reconnect plus zero pairing/reconnect, false-state,
+  stale-action, wrong-player, reserved-action, recovery and disclosure gates;
+  result-dependent latency/reliability/battery gates remain null.
+- Prohibited raw Bluetooth identity, bond credentials, HID/packet data, radio
+  traces and free text. Nine focused adversarial tests pass; no physical
+  controller result or mutation authority exists.
+
+### Remaining boundary
+
+I-117 remains active. No exact received controller sample/revision/firmware,
+target radio/BlueZ/SDL/mapping/compositor/bond-store tuple, pairing UX, bond and
+assignment policy, battery source, applicability ledger, harness, schedule,
+numeric gate, mutation authority, physical cycle or compatibility result exists.
