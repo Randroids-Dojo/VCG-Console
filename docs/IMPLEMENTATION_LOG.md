@@ -6213,3 +6213,45 @@ radio result, center of gravity, tip/slip result, delivered quote, purchase
 authority, box, physical mockup or cut plan exists. The catalog screen proves
 neither fit nor safety, and IP/NEMA catalog ratings are not claimed to survive
 modification.
+
+## 2026-07-25: source-pinned Pi 5 and Hailo image recipe boundary
+
+### Delivered
+
+- Advanced I-157 from an unpinned future image to a strict blocked plan that
+  names the exact 2026-06-18 Raspberry Pi OS Trixie desktop artifact, download
+  URL, nominal kernel family and published compressed SHA-256.
+- Pinned Hailo Apps release `26.03.1` to tag object `8887f605...` and peeled
+  commit `891ce701...`; recorded HailoRT 4.23 and TAPPAS Core 5.1.0 only as the
+  release guide's Hailo-8/Hailo-8L candidate families.
+- Left received hardware, firmware, exact camera/UVC path, locally verified
+  image hashes, apt/Python inputs, installed Hailo tuple, HEF/resources/compiled
+  post-processor, browser/VCG/build and data-exclusion hashes null.
+- Froze eight blockers and false download, build, removable-write and
+  destructive-test authority. Added a ten-row boot-capture contract and nine
+  prohibited image-data classes.
+- Added Q-257 for the desktop-versus-Lite and exact graphical-stack decision;
+  retained Q-087 for immutable Hailo inputs and Q-254 for the camera tuple.
+
+### Verification evidence
+
+- Ten focused tests accept the tracked blocked plan and reject base-image or
+  Hailo substitution, fabricated hardware/camera identity, populated
+  unverified hashes, hidden authority, blocker drift, extra/sensitive keys,
+  weakened capture/boundary claims, malformed UTF-8, BOM, oversize, duplicate
+  and noncanonical JSON.
+- The source commit was independently resolved with `git ls-remote`; both the
+  tag object and peeled commit are recorded so a moving branch is never an
+  installation input.
+- The recipe separates immutable input admission, target build/capture and
+  qualification/recovery, including offline cold rebuild and blank-card
+  recovery rather than treating one successful boot as appliance evidence.
+
+### Remaining boundary
+
+I-157 is active, not closed. No large image download, tag-signature
+authentication, package cache, image build, card write, Pi boot, Hailo device,
+camera, runtime/model load, offline run, update, rollback or recovery test was
+performed. The published compressed hash has not been locally recomputed and
+the source pins do not establish installed compatibility, performance,
+playability, privacy, thermal behavior, storage durability or release fitness.
