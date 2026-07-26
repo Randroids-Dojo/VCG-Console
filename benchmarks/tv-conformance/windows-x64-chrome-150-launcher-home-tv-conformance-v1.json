@@ -3,7 +3,7 @@
   "evidenceDate": "2026-07-26",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-26T21:27:15.518Z",
+  "retrievedAtUtc": "2026-07-26T21:46:47.507Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -162,12 +162,12 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 3,
-      "/assets/main-C_K2RnSa.js": 3,
       "/assets/main-CDT6K0sT.css": 3,
+      "/assets/main-CduYloLh.js": 3,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
-      "/assets/src-EbToTsJV.js": 3,
-      "/assets/synthetic-BTWSnpMo.js": 3,
-      "/assets/tracker-health--oynSZbv.js": 3,
+      "/assets/src-CYOVH8wV.js": 3,
+      "/assets/synthetic-D3ZzT8jW.js": 3,
+      "/assets/tracker-health-bketT6qu.js": 3,
       "/fonts/OCRA.ttf": 3
     }
   },
@@ -221,7 +221,7 @@
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "generatorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "e26356daa39a291ad6d123cfc122a04326f2f429748d3260be797ec1dbf763db",
+    "validatorPathSha256": "328ea00ee5718ea642bae1f6a5f167623ad6ef49f797c9f3c5f88d78eee26bbc",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -238,8 +238,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 135,
-      "sha256": "e5c77fea14ecbaf66b6d1bb842635c99e6cb5e09dcd7ebb53fb0521c14ed75e7"
+      "fileCount": 136,
+      "sha256": "ddadd30cb0874e10755d4da52aa37ab7ae22ccfdbfc3a00d4a3081acf1a38d22"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

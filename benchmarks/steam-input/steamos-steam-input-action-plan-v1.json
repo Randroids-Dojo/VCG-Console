@@ -1,0 +1,429 @@
+{
+  "format": "vcg-steamos-steam-input-action-plan/v1",
+  "status": "blocked",
+  "campaignId": "steamos-steam-input-actions-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-169"
+  ],
+  "claimBoundary": "This is a strict zero-result Steam Input adapter plan. The TypeScript action contract, browser Gamepad behavior, native policy models, SDL mappings, Valve documentation, controller family names, Steam Input support lists, package plans, SteamOS plans, and prior controller campaigns do not prove a received target, controller, Steam client or SDK integration, action manifest, official configuration, glyph, text-entry path, privileged Home Back or Pause route, gameplay, accountless fallback, recovery, compatibility, or qualification. Steam Input remains optional behind the same canonical controller contract and cannot replace or weaken accountless SDL or ordinary Linux input. No target, controller, account, partner configuration, service mutation, fault, qualification, publication, or compatibility claim is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "portable-controller-policy",
+      "path": "docs/RESEARCH.md",
+      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
+    },
+    {
+      "role": "steam-machine-input-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "official-source-registry",
+      "path": "docs/SOURCES.md",
+      "sha256": "fba960847a8616ba66dddeac4b8650c9ddcfdab09b85553eeaff240ab1474b79"
+    },
+    {
+      "role": "canonical-mapping-boundary",
+      "path": "docs/CONTROLLER_MAPPING_CONTRACT.md",
+      "sha256": "7aa3e1f930fd4fa28f985643ac0ee05dbcfcaa4e5ad328048f74745577213cb6"
+    },
+    {
+      "role": "native-input-boundary",
+      "path": "docs/CONTROLLER_INPUT.md",
+      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+    },
+    {
+      "role": "steam-input-action-contract",
+      "path": "packages/motion-contract/src/steam-input-actions.ts",
+      "sha256": "fa503bc9cd8d9c543a77c8bbff2c908cceace272071ea384d9f9e034e6ad523e"
+    },
+    {
+      "role": "steam-input-action-contract-tests",
+      "path": "packages/motion-contract/tests/steam-input-actions.test.ts",
+      "sha256": "ebc2157333553c0e5fa0798b6b9439a07a36e49d592e5716f91bd1f188f6f08a"
+    },
+    {
+      "role": "controller-lifecycle-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "bluetooth-controller-boundary",
+      "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
+      "sha256": "cb96550ec3e8632436078d16bd22ac0e9018cf5ee083361d3a5498ea441d9b41"
+    },
+    {
+      "role": "controller-only-catalog-boundary",
+      "path": "benchmarks/catalog-controller-only/catalog-controller-only-qualification-plan-v1.json",
+      "sha256": "de2e16e9877b0bc11a2aa29934a25bfde68b71502f7dd037861771afb90661f2"
+    },
+    {
+      "role": "steamos-package-boundary",
+      "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
+      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+    },
+    {
+      "role": "steamos-workload-boundary",
+      "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
+      "sha256": "8d651db99f316cc3e720ba7a4da95f0329059388e7fd9e0fdbbd760ca36e1eaa"
+    },
+    {
+      "role": "accountless-offline-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "native-input-policy-model",
+      "path": "native/vcg-host/src/input.rs",
+      "sha256": "7aaa5ca2219dd1c3419bb46cbd3cffb4f22ab602de4df20bde673dbe1a2a4626"
+    }
+  ],
+  "prototypeContract": {
+    "schemaVersion": 1,
+    "contractId": "vcg-steam-input-actions-v1",
+    "contractSourceSha256": "fa503bc9cd8d9c543a77c8bbff2c908cceace272071ea384d9f9e034e6ad523e",
+    "disposition": "optional-steam-input-adapter",
+    "baseInputAuthority": "sdl-or-normal-linux-input",
+    "actionSetIds": [
+      "vcg-shell",
+      "vcg-game",
+      "vcg-console-overlay"
+    ],
+    "actionSetLayerIds": [
+      "vcg-text-entry"
+    ],
+    "reservedActionIds": [
+      "home",
+      "back",
+      "pause"
+    ],
+    "reservedActionsHostOrCompositorOnly": true,
+    "steamActionMayBeSoleReservedAuthority": false,
+    "steamAccountRequiredForCoreOperation": false,
+    "actualIgaVdfDefaultConfigurationsAndAppIdBound": false,
+    "softwareContractMayQualifyPhysicalOrSteamIntegration": false
+  },
+  "authorityBoundary": {
+    "selectedSteamOsTargetManifestSha256": null,
+    "steamClientSdkAppIdAndPartnerConfigurationSha256": null,
+    "igaVdfAndOfficialDefaultConfigurationSetSha256": null,
+    "sdlAndSteamInputAdapterBuildSha256": null,
+    "controllerSampleTransportFirmwareAndMappingManifestSha256": null,
+    "glyphOriginLocalizationAndGenericFallbackProtocolSha256": null,
+    "textEntryInvocationCancelConfirmAndDataProtocolSha256": null,
+    "reservedActionCompositorRouteAndHostileFocusProtocolSha256": null,
+    "unknownControllerGuidedMappingAndPersistenceProtocolSha256": null,
+    "workloadAccountlessFallbackFaultAndRecoveryProtocolSha256": null,
+    "scheduleNumericGateAndIndependentReviewSha256": null,
+    "dataRightsPrivacyRetentionDeletionAndIncidentProtocolSha256": null,
+    "targetControllerAccountOrPartnerOperationAuthorized": false,
+    "controllerMappingTextEntryOrServiceMutationAuthorized": false,
+    "clientOverlayProcessCompositorOrInputFaultAuthorized": false,
+    "qualificationPublicationOrCompatibilityClaimAuthorized": false
+  },
+  "inputRoutes": [
+    {
+      "routeId": "accountless-sdl-baseline",
+      "routeClass": "required-core-control",
+      "provider": "sdl-or-normal-linux-input",
+      "steamClientRequired": false,
+      "mayQualifySteamNativeActions": false,
+      "implementationBuildSha256": null,
+      "routeResultSha256": null,
+      "implementedOrQualified": false
+    },
+    {
+      "routeId": "steam-input-native-actions",
+      "routeClass": "optional-native-action-adapter",
+      "provider": "isteaminput-native-mode",
+      "steamClientRequired": true,
+      "mayQualifySteamNativeActions": true,
+      "implementationBuildSha256": null,
+      "routeResultSha256": null,
+      "implementedOrQualified": false
+    },
+    {
+      "routeId": "steam-input-legacy-gamepad",
+      "routeClass": "declared-legacy-compatibility",
+      "provider": "steam-input-gamepad-emulation",
+      "steamClientRequired": true,
+      "mayQualifySteamNativeActions": false,
+      "implementationBuildSha256": null,
+      "routeResultSha256": null,
+      "implementedOrQualified": false
+    },
+    {
+      "routeId": "steam-input-legacy-keyboard-mouse",
+      "routeClass": "declared-legacy-compatibility",
+      "provider": "steam-input-keyboard-mouse-emulation",
+      "steamClientRequired": true,
+      "mayQualifySteamNativeActions": false,
+      "implementationBuildSha256": null,
+      "routeResultSha256": null,
+      "implementedOrQualified": false
+    }
+  ],
+  "controllerRoles": [
+    {
+      "roleId": "steam-controller",
+      "mappingExpectation": "recognized-standard",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "xbox-protocol-standard",
+      "mappingExpectation": "recognized-standard",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "playstation-protocol-standard",
+      "mappingExpectation": "recognized-standard",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "switch-pro-protocol-standard",
+      "mappingExpectation": "recognized-standard",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "eightbitdo-multimode-standard",
+      "mappingExpectation": "recognized-standard-per-mode",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "generic-directinput-standard",
+      "mappingExpectation": "recognized-or-safe-generic",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    },
+    {
+      "roleId": "ambiguous-unknown-controller",
+      "mappingExpectation": "zero-authority-until-guided-mapping",
+      "exactSampleManifestSha256": null,
+      "mappingConfigurationSha256": null,
+      "roleResultSha256": null,
+      "sampleReceivedOrQualified": false
+    }
+  ],
+  "qualificationMatrix": {
+    "controllerRoleIds": [
+      "steam-controller",
+      "xbox-protocol-standard",
+      "playstation-protocol-standard",
+      "switch-pro-protocol-standard",
+      "eightbitdo-multimode-standard",
+      "generic-directinput-standard",
+      "ambiguous-unknown-controller"
+    ],
+    "scenarioGroups": [
+      {
+        "groupId": "controller-lifecycle-and-zero-setup",
+        "routeIds": [
+          "accountless-sdl-baseline",
+          "steam-input-native-actions",
+          "steam-input-legacy-gamepad",
+          "steam-input-legacy-keyboard-mouse"
+        ],
+        "scenarioIds": [
+          "attached-before-cold-boot-zero-setup-canonical-default",
+          "hotplug-at-shell-game-overlay-and-text-entry-boundaries",
+          "disconnect-reconnect-replacement-and-fresh-input-epoch",
+          "controller-sleep-console-suspend-and-fresh-wake",
+          "simultaneous-standard-comparator-assignment-and-isolation"
+        ],
+        "requiredCellCount": 140
+      },
+      {
+        "groupId": "native-action-semantics",
+        "routeIds": [
+          "steam-input-native-actions"
+        ],
+        "scenarioIds": [
+          "shell-digital-navigation-confirm-and-text-entry-request",
+          "game-digital-primary-secondary-and-shoulders",
+          "game-analog-move-joystick-mode",
+          "game-analog-look-absolute-mouse-mode",
+          "shell-game-overlay-action-set-and-text-layer-transitions",
+          "action-origin-controller-specific-and-generic-glyph-selection"
+        ],
+        "requiredCellCount": 42
+      },
+      {
+        "groupId": "legacy-emulation-compatibility",
+        "routeIds": [
+          "steam-input-legacy-gamepad",
+          "steam-input-legacy-keyboard-mouse"
+        ],
+        "scenarioIds": [
+          "declared-legacy-game-control-and-complete-release-edges",
+          "simultaneous-mouse-keyboard-gamepad-and-double-input-denial",
+          "legacy-glyph-truth-and-no-native-action-promotion",
+          "focus-fullscreen-pointer-lock-and-mode-switch-recovery"
+        ],
+        "requiredCellCount": 56
+      },
+      {
+        "groupId": "accountless-and-steam-unavailable-fallback",
+        "routeIds": [
+          "accountless-sdl-baseline"
+        ],
+        "scenarioIds": [
+          "steam-client-never-started-core-controller-operation",
+          "signed-out-offline-network-loss-and-local-restart",
+          "steam-client-exit-restart-update-and-adapter-unavailable",
+          "invalid-or-missing-steam-configuration-fails-to-accountless-base"
+        ],
+        "requiredCellCount": 28
+      },
+      {
+        "groupId": "privileged-actions-text-mapping-and-recovery",
+        "routeIds": [
+          "accountless-sdl-baseline",
+          "steam-input-native-actions",
+          "steam-input-legacy-gamepad",
+          "steam-input-legacy-keyboard-mouse"
+        ],
+        "scenarioIds": [
+          "controller-text-entry-open-confirm-cancel-and-no-evidence-disclosure",
+          "unknown-zero-authority-guided-mapping-reset-and-safe-generic-glyph",
+          "reserved-home-back-pause-responsive-fullscreen-and-pointer-lock",
+          "reserved-home-back-pause-hung-game-client-and-overlay-loss",
+          "mapping-client-sdk-and-default-configuration-update-rollback-recovery"
+        ],
+        "requiredCellCount": 140
+      }
+    ],
+    "controllerRoleCount": 7,
+    "routeCount": 4,
+    "declaredScenarioCount": 24,
+    "requiredCellCount": 406,
+    "validCyclesPerCell": 20,
+    "requiredCycleCount": 8120,
+    "everyDeclaredRoleRouteScenarioCellMustRun": true,
+    "failedInvalidStoppedRetriedUnsupportedAdverseAndWorstCaseCyclesRemainVisible": true,
+    "oneControllerRouteModeTargetOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-target-steam-client-sdk-appid-action-manifest-default-config-controller-route-build-and-schedule-digests",
+      "connection-disconnection-replacement-sleep-wake-input-epoch-and-player-assignment-events",
+      "active-action-set-layer-transition-order-and-stale-action-denial",
+      "canonical-digital-press-release-recipient-duplicate-miss-and-stuck-action-counts",
+      "native-digital-analog-value-mode-deadzone-and-controlled-response",
+      "legacy-gamepad-keyboard-mouse-output-mixed-input-double-event-and-mode-state",
+      "action-origin-glyph-family-localization-generic-fallback-and-update-timing",
+      "text-entry-request-overlay-open-confirm-cancel-close-return-and-data-disposition",
+      "home-back-pause-host-route-game-nonreceipt-latency-and-recovery",
+      "unknown-controller-zero-authority-guided-mapping-reset-persistence-and-conflict-state",
+      "accountless-steam-absent-signed-out-offline-network-loss-and-identity-flow",
+      "client-overlay-process-compositor-config-update-rollback-fault-and-fresh-recovery",
+      "controller-only-path-keyboard-mouse-operator-intervention-and-visible-failure-state",
+      "failed-invalid-stopped-retried-unsupported-adverse-and-worst-case-cell-ledger"
+    ],
+    "independentInputRecipientGlyphTextEntryAccountlessIdentityAndRecoveryOraclesRequired": true,
+    "everyScheduledCellCycleFailureUnavailableRouteAndConfigurationMustRemainVisible": true,
+    "vendorListMappingPresenceSyntheticBrowserOrOtherControllerMaySubstitutePhysicalEvidence": false
+  },
+  "fixedAcceptance": {
+    "minimumValidCyclesPerCell": 20,
+    "maximumSteamAccountDependenciesForCoreLocalControllerOperation": 0,
+    "maximumSteamClientDependenciesForCoreLocalControllerOperation": 0,
+    "maximumManualSetupRequirementsForRecognizedStandardControllers": 0,
+    "maximumWrongStaleOrUnannouncedActionSetOrLayerEvents": 0,
+    "maximumDoubleInputDuplicateStuckOrFabricatedActions": 0,
+    "maximumReservedActionsDeliveredToGameOrSwallowed": 0,
+    "maximumUnknownControllerSemanticActionsBeforeApprovedMapping": 0,
+    "maximumGuessedBrandedGlyphsOrSilentGlyphMismatches": 0,
+    "maximumKeyboardMouseOrOperatorInterventionsInControllerOnlyPath": 0,
+    "maximumUnhandledTextEntryConfirmCancelOrReturnFailures": 0,
+    "maximumEnteredTextDiagnosticEvidenceOrFreeTextDisclosures": 0,
+    "maximumLegacyResultsPromotedToNativeActionIntegration": 0,
+    "maximumSteamIdentityAccountControllerStableIdentifierPathOrCredentialDisclosures": 0,
+    "maximumUnrecoveredClientOverlayInputMappingUpdateOrFaultFailures": 0,
+    "maximumValidProductFailures": 0,
+    "everyRequiredCellMustPass": true,
+    "steamInputMayReplaceAccountlessBaseInput": false,
+    "aggregateMayRescueFailure": false,
+    "allOpenGatesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumPhysicalSamplesPerRoleFirmwareRevisionAndTransport": null,
+    "maximumDiscoveryP95Ms": null,
+    "maximumReconnectP95Ms": null,
+    "maximumOrdinaryActionDeliveryP95Ms": null,
+    "maximumReservedActionDeliveryP95Ms": null,
+    "maximumReservedActionDeliveryP99Ms": null,
+    "maximumReservedActionDeliveryWorstMs": null,
+    "maximumActionSetOrLayerTransitionP95Ms": null,
+    "maximumGlyphOriginUpdateP95Ms": null,
+    "maximumTextEntryOverlayOpenAndCloseP95Ms": null,
+    "maximumSteamUnavailableFallbackRecoveryP95Ms": null,
+    "maximumMappingOrConfigurationUpdateRollbackP95Ms": null
+  },
+  "dataPolicy": {
+    "opaqueTargetControllerRouteBuildCellCycleAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsAndRedactedCategoriesRequired": true,
+    "rawUsbBluetoothSteamInputOrTextEntryBuffersAllowedInRepositoryReleaseOrResult": false,
+    "enteredTypedPastedOrSuggestedTextAllowedInDiagnosticsEvidenceOrResult": false,
+    "namesFreeTextDeviceNamesSerialsMacsStableControllerIdsPathsOrQueryUrlsAllowed": false,
+    "steamIdsAccountsCredentialsTokensCookiesProfilesSavesEnvironmentOrArgumentValuesAllowed": false,
+    "arbitrarySteamClientSdkDriverServiceGameConsoleOrCrashMessagesAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "networkEgressOutsideDeclaredPackageHostedServiceAndProbeTrafficAllowed": false,
+    "failedInvalidStoppedRetriedUnsupportedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "sti-001-selected-received-steamos-target-steam-client-sdk-runtime-and-system-tuple",
+      "sti-002-steam-appid-partner-access-iga-vdf-and-official-default-configuration-authority",
+      "sti-003-seven-exact-controller-role-samples-firmware-transports-loan-and-purchase-authority",
+      "sti-004-accountless-sdl-native-action-and-two-legacy-route-implementations",
+      "sti-005-action-set-layer-name-handle-origin-config-localization-and-canonical-mapping-protocol",
+      "sti-006-privileged-host-or-compositor-home-back-pause-route-and-hostile-focus-oracles",
+      "sti-007-controller-text-entry-overlay-confirm-cancel-return-and-data-disposition-protocol",
+      "sti-008-controller-specific-action-origin-glyph-localization-and-safe-generic-fallback",
+      "sti-009-unknown-controller-zero-authority-guided-mapping-reset-signing-and-persistence",
+      "sti-010-player-assignment-simultaneous-controller-reconnect-and-replacement-ceremony",
+      "sti-011-exact-shell-game-overlay-hosted-native-and-legacy-workload-content-and-interactions",
+      "sti-012-all-open-sample-latency-transition-glyph-text-and-recovery-gates",
+      "sti-013-client-overlay-process-compositor-mapping-sdk-config-update-rollback-and-fault-protocol",
+      "sti-014-accountless-offline-steam-identity-data-rights-privacy-retention-and-incident-policy",
+      "sti-015-target-controller-account-partner-service-fault-qualification-and-publication-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "blocked",
+    "executedTargetManifestSha256": null,
+    "completedCellCount": 0,
+    "completedCycleCount": 0,
+    "controllerRouteResults": [],
+    "qualifiedControllerRoleIds": [],
+    "qualifiedInputRouteIds": [],
+    "nativeSteamInputActionsQualified": false,
+    "legacyCompatibilityQualified": false,
+    "accountlessBaseInputPreserved": false,
+    "standardsConformantCompatibilityClaimAuthorized": false,
+    "publishedClaims": []
+  }
+}

@@ -41,12 +41,12 @@ const EXPECTED_SCREENSHOT = Object.freeze({
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-C_K2RnSa.js": 1,
+  "/assets/main-CduYloLh.js": 1,
   "/assets/main-CDT6K0sT.css": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
-  "/assets/src-EbToTsJV.js": 1,
-  "/assets/synthetic-BTWSnpMo.js": 1,
-  "/assets/tracker-health--oynSZbv.js": 1,
+  "/assets/src-CYOVH8wV.js": 1,
+  "/assets/synthetic-D3ZzT8jW.js": 1,
+  "/assets/tracker-health-bketT6qu.js": 1,
   "/fonts/OCRA.ttf": 1,
 });
 const expectedFontByProbe = Object.freeze({

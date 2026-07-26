@@ -22,3 +22,4 @@ export * from "./schema";
 export * from "./simulator";
 export * from "./smoothing";
 export * from "./smoothing-benchmark";
+export * from "./steam-input-actions";
