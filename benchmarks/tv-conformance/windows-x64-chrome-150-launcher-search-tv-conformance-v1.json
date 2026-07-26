@@ -3,10 +3,10 @@
   "evidenceDate": "2026-07-26",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-26T20:06:05.973Z",
+  "retrievedAtUtc": "2026-07-26T20:20:13.890Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "46a148c6e19063f146232bc228a998d552c7b6b895a13d0827733c930eafe96e"
+    "sha256": "6af0bdaa59f33664c7ef60e1cb4749b1f65aded1d20dfa2a3fb430a336094c35"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -2051,7 +2051,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "46a148c6e19063f146232bc228a998d552c7b6b895a13d0827733c930eafe96e",
+    "representativeEvidencePathSha256": "6af0bdaa59f33664c7ef60e1cb4749b1f65aded1d20dfa2a3fb430a336094c35",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
@@ -2075,7 +2075,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 135,
-      "sha256": "8c32e8e7475bf4a6cd5f94cc2ac944f777a28b3d03d8c98cb2a951134be9db81"
+      "sha256": "44b4cb2a715777a92ceb6dd9a545604cc4c123e081d7dfba66937ded8f3ab4ed"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 20-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 20-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

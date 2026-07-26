@@ -1,0 +1,314 @@
+{
+  "format": "vcg-two-player-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "two-player-qualification-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-054"
+  ],
+  "claimBoundary": "Strict zero-result pre-registration for the two-player milestone after the complete one-player gate. No target, tracker, room, camera, participant pair, calibration, outline, runtime freeze adapter, physical trial, result, qualification, four-player authority, or product claim exists. Synthetic session and identity evidence cannot qualify physical identity continuity, action ownership, comprehension, room safety, latency, recovery, or multiplayer gameplay.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "multiplayer-decision-boundary",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "player-session-state-machine-boundary",
+      "path": "docs/PLAYER_SESSION_STATE_MACHINE.md",
+      "sha256": "aab1c90c93a4de3b7f0a046458884880c97aeb1b04b566d3d9f6027a28076107"
+    },
+    {
+      "role": "blocking-persona-boundary",
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb"
+    },
+    {
+      "role": "prototype-success-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "one-two-player-room-boundary",
+      "path": "docs/LIVING_ROOM_PLAY_ZONE_SURVEY_PLAN_2026-07-25.md",
+      "sha256": "cac0901eb463717c5ad9264362a50accaa6ed1b5f0024d84a2fc1ab5686563c8"
+    },
+    {
+      "role": "one-player-prerequisite-plan",
+      "path": "benchmarks/real-room-one-player/first-real-room-one-player-plan-v1.json",
+      "sha256": "b9c360d1135730ac1ed433db936a99d1c3927bc350298e44085bc67945ac4009"
+    },
+    {
+      "role": "synthetic-identity-evidence-boundary",
+      "path": "benchmarks/identity-tracking/windows-x64-synthetic-appearance-free-v1.json",
+      "sha256": "1b49dfef6dff8344ca254251bb5b5f64c57f0071469e8fc2e49ae92b51f6c274"
+    },
+    {
+      "role": "synthetic-session-interference-boundary",
+      "path": "benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json",
+      "sha256": "372d56321290e58982929bc81a0a12edfea6265bd4dff43c9423a91e45142890"
+    },
+    {
+      "role": "session-controller-implementation",
+      "path": "apps/console-lab/src/player-session.ts",
+      "sha256": "0855bcbe196b6439b8173b4f2992213f88dfe51e3c977cfcf3553f526d34e500"
+    },
+    {
+      "role": "session-adversarial-rehearsal",
+      "path": "apps/console-lab/src/player-session-adversarial.ts",
+      "sha256": "9c2f7dada63d94bd540e27ac30d4514796c85ef46a807cedf47e3ccda91ffae9"
+    }
+  ],
+  "prerequisiteGate": {
+    "completeOnePlayerResultSha256": null,
+    "onePlayerQualifiedTargetConfigurationSha256": null,
+    "onePlayerQualifiedCameraAndCapturePolicySha256": null,
+    "onePlayerQualifiedRoomAndPlayZoneSha256": null,
+    "onePlayerQualifiedPersonaAndPlacementSetSha256": null,
+    "onePlayerQualifiedTrackerConfigurationSha256": null,
+    "everyRequiredOnePlayerCellPassed": false,
+    "onePlayerResultMayBeReplacedBySyntheticOrAggregateEvidence": false,
+    "twoPlayerCollectionMayBeginBeforePrerequisiteClosure": false
+  },
+  "authorityBoundary": {
+    "selectedPrototypeTargetConfigurationSha256": null,
+    "cleanBuildAndRuntimeTupleSha256": null,
+    "selectedTwoPlayerTrackerConfigurationSha256": null,
+    "cameraCaptureCalibrationAndTimestampProtocolSha256": null,
+    "measuredRoomAndTwoPlayerSubzoneResultSha256": null,
+    "orderedParticipantPairCohortProtocolSha256": null,
+    "consentAssentAndComprehensionProtocolSha256": null,
+    "independentIdentityActionAndFreezeOracleSha256": null,
+    "accessibleOutlineAndInstructionProtocolSha256": null,
+    "runtimeFreezeAndStateIntegrityAdapterSha256": null,
+    "resourceTelemetryAndClockProtocolSha256": null,
+    "dataHandlingAndDeletionProtocolSha256": null,
+    "scheduleAndOperatorProtocolSha256": null,
+    "roomAccessAuthorized": false,
+    "adultParticipationAuthorized": false,
+    "childParticipationAuthorized": false,
+    "cameraCollectionAuthorized": false,
+    "runtimeMutationAuthorized": false,
+    "productOrFourPlayerAuthorityGranted": false
+  },
+  "identityBoundary": {
+    "trackerIdsAreOpaqueSessionLocalContinuityEvidence": true,
+    "trackerIdsMayIdentifyAuthenticateOrReassociateProfiles": false,
+    "numberPatternShapeAndColorAreRequiredTogether": true,
+    "colorAloneMayDistinguishPlayers": false,
+    "playerOneJoinsAndCalibratesBeforePlayerTwo": true,
+    "eachPlayerCalibrationIsIndependent": true,
+    "crossingOcclusionExitAndReentryRequireIndependentGroundTruth": true,
+    "automaticBodyOrFaceIdentityMatchingIsOutsideCampaignAuthority": true,
+    "syntheticTrackLabelsMayQualifyRealIdentityContinuity": false,
+    "identityFailureMayBeHiddenByActionOrAggregateSuccess": false
+  },
+  "matrices": {
+    "targetPolicy": {
+      "requiredTargetCount": 1,
+      "targetRole": "one-player-qualified-selected-prototype",
+      "substituteTargetMayRescueFailure": false
+    },
+    "orderedPersonaPairClasses": [
+      "child-p1-child-p2",
+      "child-p1-adult-p2",
+      "adult-p1-child-p2",
+      "adult-p1-adult-p2"
+    ],
+    "placementPairIds": [
+      "side-by-side-center",
+      "side-by-side-left",
+      "side-by-side-right",
+      "opposite-lateral-edges",
+      "near-far-depth-split"
+    ],
+    "identityScenarioIds": [
+      "side-by-side-static",
+      "swap-lateral-positions",
+      "cross-center-opposite-directions",
+      "depth-order-exchange",
+      "p1-front-partial-occlusion",
+      "p2-front-partial-occlusion",
+      "p1-crouch-behind-p2",
+      "p2-crouch-behind-p1",
+      "synchronized-same-motion",
+      "opposing-motion",
+      "p1-exit-and-reenter",
+      "p2-exit-and-reenter"
+    ],
+    "independentActionScenarioIds": [
+      "p1-dodge-left",
+      "p1-dodge-right",
+      "p1-duck",
+      "p1-jump",
+      "p2-dodge-left",
+      "p2-dodge-right",
+      "p2-duck",
+      "p2-jump",
+      "simultaneous-jump",
+      "simultaneous-duck",
+      "p1-jump-p2-duck",
+      "p1-duck-p2-jump",
+      "opposing-dodge-inward",
+      "opposing-dodge-outward"
+    ],
+    "sessionScenarioIds": [
+      "sequential-join-p1-then-p2",
+      "simultaneous-join-attempt-remains-sequential",
+      "independent-calibration-p1",
+      "independent-calibration-p2",
+      "launcher-initial-p1-owner",
+      "p1-pause-owns-overlay",
+      "p2-pause-owns-overlay",
+      "equal-update-pause-lower-slot-wins",
+      "earlier-p2-pause-completion-wins",
+      "overlay-nonowner-input-blocked",
+      "pause-exit-transfers-launcher-owner",
+      "p1-loss-freezes-entire-game",
+      "p2-loss-freezes-entire-game",
+      "both-loss-freezes-entire-game",
+      "all-original-tracks-silent-reacquire",
+      "wrong-track-cannot-silent-reacquire",
+      "expired-reacquisition-opens-recovery",
+      "full-roster-deliberate-resume",
+      "explicit-nonempty-roster-reduction",
+      "p1-leave-and-fresh-reentry",
+      "p2-leave-and-fresh-reentry",
+      "tracker-restart-hard-freeze",
+      "camera-disconnect-hard-freeze",
+      "time-regression-fails-closed"
+    ],
+    "accessibleIdentityTaskIds": [
+      "identify-own-number-pattern-outline",
+      "identify-other-player-number-pattern-outline",
+      "join-as-player-one",
+      "join-as-player-two",
+      "identify-launcher-owner",
+      "identify-pause-overlay-owner",
+      "recover-original-two-player-roster",
+      "choose-explicit-roster-reduction-or-exit"
+    ],
+    "requiredRuntimeSurfaces": [
+      "console-shell",
+      "obstacle-sample"
+    ],
+    "validTrialsPerCell": 20,
+    "identityCellCount": 240,
+    "identityTrialCount": 4800,
+    "actionCellCount": 280,
+    "actionTrialCount": 5600,
+    "sessionCellCount": 96,
+    "sessionCycleCount": 1920,
+    "accessibleIdentityCellCount": 32,
+    "accessibleIdentityTrialCount": 640,
+    "runtimeSoakCellCount": 40,
+    "runtimeSoakDurationMs": 3600000,
+    "runtimeSoakCount": 40,
+    "everyOrderedPairPlacementScenarioAndRuntimeCellMustPass": true,
+    "pairPlacementScenarioRuntimeOrBestCaseAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetrics": [
+      "per-player-pose-fps-and-core17-coverage",
+      "per-player-landmark-jitter-and-missingness",
+      "identity-switch-fragmentation-and-false-transfer-counts",
+      "per-player-action-trigger-precision-and-recall",
+      "cross-player-action-attribution-count",
+      "unintended-privileged-action-count",
+      "exposure-to-correct-player-game-api-p50-p95-p99-worst",
+      "join-and-separate-calibration-time",
+      "outline-and-owner-comprehension",
+      "loss-confirmation-and-global-freeze-time",
+      "simulation-timer-hazard-score-and-action-advance-during-freeze",
+      "same-track-silent-reacquisition-and-recovery-overlay-time",
+      "launcher-pause-and-recovery-owner-correctness",
+      "tracker-camera-and-clock-fault-recovery",
+      "cpu-gpu-memory-power-thermal-and-frame-pacing"
+    ],
+    "independentPerPlayerGroundTruthRequired": true,
+    "exactActionOwnerRequiredForEveryEvent": true,
+    "exactMenuOwnerRequiredForEveryShellAction": true,
+    "runtimeStateDigestRequiredBeforeFreezeDuringFreezeAndAfterResume": true,
+    "everyScheduledAttemptFailureInvalidationAndInterventionRemainsVisible": true,
+    "sameExposureClockRequiredForTwoPlayerLatency": true,
+    "captureArrivalOrInferenceCompletionMayQualifyExposureLatency": false,
+    "syntheticIdentityOrSessionEvidenceMaySubstitutePhysicalTrials": false,
+    "onePlayerResultMayRescueTwoPlayerFailure": false
+  },
+  "acceptance": {
+    "maximumIdentitySwitches": 0,
+    "maximumFalseControlTransfers": 0,
+    "maximumCrossPlayerActionAttributions": 0,
+    "maximumUnintendedPrivilegedActions": 0,
+    "maximumMissedGlobalFreezes": 0,
+    "maximumStateAdvancesDuringFreeze": 0,
+    "maximumIncorrectMenuOwnershipEvents": 0,
+    "maximumWrongTrackSilentReacquisitions": 0,
+    "maximumAutomaticRecoveryOverlayResumes": 0,
+    "maximumInvalidAttemptsPerCell": 0,
+    "minimumPerPlayerTriggerPrecisionPpm": 950000,
+    "minimumPerPlayerTriggerRecallPpm": 900000,
+    "maximumExposureToCorrectPlayerGameApiP95Us": 120000,
+    "minimumParticipantPairsPerOrderedClass": null,
+    "minimumPerPlayerPoseFpsMilliHz": null,
+    "minimumPerPlayerCore17CoveragePpm": null,
+    "maximumPerPlayerJitterMilliTorso": null,
+    "maximumIdentityFragmentationsPerTrial": null,
+    "maximumSequentialJoinAndCalibrationMs": null,
+    "minimumAccessibleIdentityComprehensionPpm": null,
+    "maximumOrdinaryLossConfirmationUs": null,
+    "maximumRecoveryOverlayReadyUs": null,
+    "pauseOwnershipLockoutMs": null,
+    "maximumCpuUtilizationPpm": null,
+    "maximumGpuUtilizationPpm": null,
+    "maximumResidentMemoryBytes": null,
+    "maximumWallPowerMw": null,
+    "maximumTemperatureMilliC": null,
+    "minimumGameFrameRateMilliHz": null,
+    "maximumGameFrameTimeP95Us": null,
+    "allZeroToleranceAndNumericGatesApplyPerPairPlacementScenarioAndRuntime": true,
+    "aggregateImprovementMayRescueAnyFailedCell": false
+  },
+  "dataPolicy": {
+    "rawRoomVideoDefault": false,
+    "rawFramesImagesAudioOrDepthAllowedInRepositoryReleaseOrResult": false,
+    "participantNamesStableIdentifiersFacesPortraitsOrProfileIdsAllowed": false,
+    "bodyMeasurementsCalibrationVectorsOrIdentityTemplatesAllowed": false,
+    "opaqueSessionLocalTrialAndPlayerLabelsRequired": true,
+    "skeletonOnlyTraceMayContainStableCrossSessionIdentity": false,
+    "freeTextResultEvidenceAllowed": false,
+    "networkEgressAllowed": false,
+    "temporaryDiagnosticImagesRequireSeparateProtocolConsentAndAuthorization": true,
+    "temporaryDiagnosticImagesMustBeDeletedAndDeletionVerified": true,
+    "adverseAttemptsMayBeDeletedOrHidden": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "complete-one-player-result-and-all-required-cell-closure",
+      "selected-prototype-target-build-camera-capture-calibration-and-tracker",
+      "measured-room-safe-two-player-subzones-and-placement-fixtures",
+      "ordered-child-adult-participant-pairs-consent-assent-and-comprehension",
+      "independent-identity-action-freeze-menu-and-clock-oracles",
+      "accessible-number-pattern-outline-and-instruction-protocol",
+      "console-shell-and-obstacle-runtime-freeze-state-integrity-adapters",
+      "participant-identity-performance-resource-and-recovery-gates",
+      "data-handling-deletion-schedule-instruments-and-operators",
+      "room-participant-camera-runtime-and-collection-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedIdentityTrialCount": 0,
+    "completedActionTrialCount": 0,
+    "completedSessionCycleCount": 0,
+    "completedAccessibleIdentityTrialCount": 0,
+    "completedRuntimeSoakCount": 0,
+    "qualifiedOrderedPersonaPairClasses": [],
+    "qualifiedPlacementPairIds": [],
+    "qualifiedRuntimeSurfaces": []
+  }
+}
