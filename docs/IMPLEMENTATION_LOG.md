@@ -6970,3 +6970,39 @@ I-036/I-040/I-046 are active, not complete. No exact camera/room/control/
 lighting policy, exposure-clock authority, participant collection, physical
 shutter blocking, indicator truth table, across-room comprehension, enclosure
 check, selected preset, physical result or product qualification exists.
+
+## 2026-07-25: first real-room one-player campaign plan
+
+### Delivered
+
+- Advanced I-053/I-210 from open rows to one strict blocked campaign over the
+  existing `household-one-player-v1` attempt and scoring contract.
+- Bound the benchmark plan/protocol, prototype gates, blocking personas,
+  living-room survey, camera capture-policy and exposure-action latency sources
+  by normalized SHA-256 so source drift invalidates the campaign.
+- Required the school-age-child-standing and adult-standing personas at center
+  plus four zone edges: ten independent 280-attempt runs and 2,800 scheduled
+  attempts total across all 14 shell/game/session blocks.
+- Required a separate 15-minute negative session for every persona/placement
+  cell, producing ten sessions and 150 minutes total with zero unintended
+  privileged-action tolerance.
+- Kept pose FPS, core-17 coverage/jitter, action and transition scores, drops,
+  loss/reacquisition/overlay timing, skeleton-only reproduction, independent
+  ground truth and exposure-authoritative action latency as separate evidence.
+- Preserved the decided 95% precision, 90% recall and 120 ms p95 gates while
+  leaving pose FPS/coverage/jitter thresholds null for owner review.
+- Added QRR-001 through QRR-009 for target/build, room/placements, camera and
+  lighting, participation, pose gates, ground truth/exposure clocks, negative
+  script, data handling and operators/schedule.
+- Nine focused adversarial groups pass. One initial invalid-UTF-8 case exposed
+  only the platform decoder message; the validator now reports an explicit
+  bounded UTF-8 error and the corrected suite passes.
+
+### Remaining boundary
+
+I-053/I-210 are active, not complete. The current validator intentionally
+accepts only the blocked zero-result plan; a reviewed ready-plan/result
+transition remains required before collection. No selected room/safe zone,
+target/build, camera/capture policy, participant consent/assent, ground truth,
+exposure clock, negative script, data authority, schedule, physical attempt,
+trace, score, latency result or product qualification exists.

@@ -1,0 +1,181 @@
+{
+  "format": "vcg-first-real-room-one-player-plan/v1",
+  "status": "blocked",
+  "campaignId": "first-real-room-one-player-mediapipe-v1",
+  "observedAt": "2026-07-25",
+  "qualificationScope": [
+    "I-053",
+    "I-210"
+  ],
+  "claimBoundary": "Pre-registered first real-room one-player MediaPipe campaign only. No room, participant, camera, placement, lighting condition, target, trace, action score, latency result, physical collection authority, or product qualification exists. A stream, capture-arrival timestamp, aggregate score, or passing adult cell cannot qualify another fact, placement, or persona.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "household-motion-benchmark-plan",
+      "path": "benchmarks/household-one-player-v1.json",
+      "sha256": "f40f60d0c68691744224ec7f7938c581b5016d7eee302e7852841abcc25da9cc"
+    },
+    {
+      "role": "household-motion-benchmark-protocol",
+      "path": "docs/MOTION_BENCHMARK_PROTOCOL.md",
+      "sha256": "4927253ed5bd61d69f20c828e75ec6f5c8e479d99f2da28c4101e58c87763bc2"
+    },
+    {
+      "role": "first-prototype-success-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "blocking-persona-boundary",
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb"
+    },
+    {
+      "role": "room-and-play-zone-boundary",
+      "path": "docs/LIVING_ROOM_PLAY_ZONE_SURVEY_PLAN_2026-07-25.md",
+      "sha256": "cac0901eb463717c5ad9264362a50accaa6ed1b5f0024d84a2fc1ab5686563c8"
+    },
+    {
+      "role": "camera-capture-policy-boundary",
+      "path": "docs/CAMERA_CAPTURE_POLICY_CAMPAIGN_2026-07-25.md",
+      "sha256": "dbd7bb29f73c2b6b4c2079e3c53202acc1b31da159f9c019ee7d1322814752d5"
+    },
+    {
+      "role": "exposure-action-latency-boundary",
+      "path": "docs/CAMERA_ACTION_LATENCY_CAMPAIGN_2026-07-24.md",
+      "sha256": "008119a4226a7494bcc0202dc01a85bbfe97068840897c332a4b4cee126e5d58"
+    }
+  ],
+  "collectionBoundary": {
+    "targetConfigurationSha256": null,
+    "cleanBuildSha256": null,
+    "roomSurveyResultSha256": null,
+    "cameraConfigurationSha256": null,
+    "cameraCapturePolicyResultSha256": null,
+    "participantConsentAndAssentProtocolSha256": null,
+    "independentGroundTruthProtocolSha256": null,
+    "exposureTimestampProofSha256": null,
+    "negativeSessionProtocolSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "scheduleSha256": null,
+    "roomAccessAuthorized": false,
+    "adultParticipationAuthorized": false,
+    "childParticipationAuthorized": false,
+    "cameraCollectionAuthorized": false,
+    "temporaryDiagnosticImageCollectionAuthorized": false
+  },
+  "matrix": {
+    "benchmarkProtocolId": "household-one-player-v1",
+    "benchmarkTrialBlockIds": [
+      "rest",
+      "stand",
+      "join",
+      "squat",
+      "jump",
+      "punch-left",
+      "punch-right",
+      "step-left",
+      "step-right",
+      "cross-shell",
+      "cross-game",
+      "occlude",
+      "exit-frame",
+      "reenter-frame"
+    ],
+    "blockingPersonaClasses": [
+      "school-age-child-standing",
+      "adult-standing"
+    ],
+    "placementIds": [
+      "center",
+      "near-left-edge",
+      "near-right-edge",
+      "far-left-edge",
+      "far-right-edge"
+    ],
+    "requiredRuntimeSurfaces": [
+      "console-shell",
+      "obstacle-sample"
+    ],
+    "benchmarkRunPerPersonaPlacement": true,
+    "requiredBenchmarkRunCount": 10,
+    "requiredBenchmarkAttemptsPerRun": 280,
+    "requiredBenchmarkAttemptCount": 2800,
+    "negativeSessionDurationMs": 900000,
+    "requiredNegativeSessionCount": 10,
+    "aggregateMayRescueFailedPersonaPlacement": false
+  },
+  "measurements": {
+    "requiredMetrics": [
+      "pose-fps",
+      "core17-coverage",
+      "core17-normalized-jitter",
+      "trigger-precision",
+      "trigger-recall",
+      "transition-precision",
+      "transition-recall",
+      "unintended-privileged-actions",
+      "exposure-to-game-api-p50-p95-p99-worst",
+      "capture-and-processing-drops",
+      "tracking-loss-confirmation",
+      "silent-reacquisition",
+      "recovery-overlay-transition"
+    ],
+    "benchmarkResultRequiredPerPersonaPlacement": true,
+    "actionLatencyResultRequiredPerPersonaPlacement": true,
+    "negativeSessionEvidenceRequiredPerPersonaPlacement": true,
+    "independentGroundTruthRequired": true,
+    "skeletonOnlyTraceReproductionRequired": true,
+    "everyScheduledAttemptAndFailureMustRemainVisible": true,
+    "captureArrivalMayQualifyExposureLatency": false,
+    "streamActiveMayEstablishFirstUsefulFrameOrOpticalUsability": false
+  },
+  "acceptance": {
+    "minimumTriggerPrecisionPpm": 950000,
+    "minimumTriggerRecallPpm": 900000,
+    "maximumUnintendedPrivilegedActionsPerNegativeSession": 0,
+    "maximumExposureToGameApiP95Us": 120000,
+    "maximumInvalidBenchmarkAttemptsPerRun": 0,
+    "minimumPoseFpsMilliHz": null,
+    "minimumCore17CoveragePpm": null,
+    "maximumCore17NormalizedJitterMilliTorso": null,
+    "everyPersonaPlacementCellMustPass": true,
+    "personaPlacementOrLightingAggregateMayRescueFailure": false,
+    "capturePolicyResultMaySubstituteActionEvidence": false,
+    "inferenceOrCaptureArrivalLatencyMaySubstituteExposureLatency": false
+  },
+  "dataPolicy": {
+    "rawRoomVideoDefault": false,
+    "rawRoomVideoAllowedInRepositoryOrRelease": false,
+    "rawFramesAllowedInRepositoryOrRelease": false,
+    "skeletonOnlyTraceRequired": true,
+    "participantNamesOrStableIdentifiersAllowed": false,
+    "faceTemplatesOrBodyProfileVectorsAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "temporaryDiagnosticImagesRequireSeparateConsentProtocol": true,
+    "temporaryDiagnosticImagesMustBeDeletedAndDeletionVerified": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "selected-room-survey-and-safe-play-zone",
+      "exact-target-build-camera-placement-and-capture-policy",
+      "adult-and-child-consent-assent-and-comprehension-authority",
+      "independent-ground-truth-and-exposure-clock-protocols",
+      "negative-session-script-and-privileged-action-oracle",
+      "pose-fps-coverage-and-jitter-gates",
+      "data-handling-schedule-instruments-and-operators",
+      "room-participant-camera-and-collection-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "completedBenchmarkRunCount": 0,
+    "completedBenchmarkAttemptCount": 0,
+    "completedNegativeSessionCount": 0,
+    "qualifiedPersonaPlacementIds": [],
+    "exposureLatencyQualifiedPersonaPlacementIds": []
+  }
+}
