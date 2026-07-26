@@ -1,0 +1,630 @@
+{
+  "format": "vcg-physical-shutter-camera-state-experience-plan/v1",
+  "status": "blocked",
+  "campaignId": "physical-shutter-camera-state-experience-v1",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-046",
+    "I-177"
+  ],
+  "claimBoundary": "Source-bound strict zero-result physical shutter, activity-indicator, lifecycle, camera-state comprehension, reach, and visibility plan only. Software access, stream activity, hardware activity indication, physical shutter position, useful frames, tracker health, and motion availability remain separate facts. A black frame, stopped tracker, idle UI, software badge, indicator, vendor claim, one target, one capture path, one state, one surface, one persona, one cycle, one recovery, or an aggregate cannot establish another fact or rescue another cell. No camera or enclosure selection, purchase, receipt, device operation, capture, shutter cycling, indicator observation, idle suspend disconnect or crash injection, participant collection, temporary diagnostic capture, product-surface change, result, qualification, publication, or product claim is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "campaign-contract",
+      "path": "docs/PHYSICAL_SHUTTER_CAMERA_STATE_EXPERIENCE_CAMPAIGN_2026-07-26.md",
+      "sha256": "19c7743c5be6ba33dcf16dda71e57372ad4ca5d7d52c74304111279fdc54e346"
+    },
+    {
+      "role": "software-camera-state-truth-boundary",
+      "path": "docs/CAMERA_STATE_TRUTH_2026-07-25.md",
+      "sha256": "bb69eeace5827409067f649bd80b82cc9cb0ec2c9f8b11e7d7d9d7d5def22485"
+    },
+    {
+      "role": "camera-state-status-audit",
+      "path": "docs/CAMERA_EXPOSURE_SHUTTER_STATUS_AUDIT_2026-07-25.md",
+      "sha256": "c52c4c82eeec34f9210071004f3f66ef8fde5c6b20319d4822d5cb704535e199"
+    },
+    {
+      "role": "camera-state-implementation",
+      "path": "apps/console-lab/src/camera-state.ts",
+      "sha256": "b83402f610f97195288af1a0bc0f443513c3b373d6d061735e7750c7e725fe09"
+    },
+    {
+      "role": "camera-state-unit-proof",
+      "path": "apps/console-lab/src/camera-state.test.ts",
+      "sha256": "b889a7f439139d47b535cd3277feb8504bdd8373d1dc0a8695d163bca58c05c8"
+    },
+    {
+      "role": "motion-lab-camera-state-surface",
+      "path": "apps/console-lab/src/main.ts",
+      "sha256": "3ae914bd0b5a1bf87bfedf0bbbace0e25c00c99ea37e56201f8f270324e44851"
+    },
+    {
+      "role": "motion-lab-camera-state-style",
+      "path": "apps/console-lab/src/styles.css",
+      "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
+    },
+    {
+      "role": "camera-state-browser-proof",
+      "path": "apps/console-lab/tests/console-flow.spec.ts",
+      "sha256": "17edcbee9833714a3d9021b71e08291d35611860cdef249b48e807ed14ae52f8"
+    },
+    {
+      "role": "shared-camera-physical-check-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "camera-geometry-reach-visibility-boundary",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "c51e680a514628668b624da5c5301d097bc0aefeef6a01eb1bc3e7fabd9c5423"
+    },
+    {
+      "role": "camera-cable-service-boundary",
+      "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
+      "sha256": "c1d28c6418681b9ddf47857feb8daf86b35c3717b64be6dc1245f311a3d61dcc"
+    },
+    {
+      "role": "idle-suspend-power-boundary",
+      "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
+      "sha256": "6ea58b259d86baa5e1f017f35bc72bb41ee27442389b527fd67023217f4fb9bc"
+    },
+    {
+      "role": "active-play-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "prototype-acceptance-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    }
+  ],
+  "targetPackageRoles": [
+    {
+      "targetId": "ordinary-x86-linux-external-camera",
+      "packageClass": "ordinary-native-linux-reference",
+      "cameraPlacement": "external-supported-placement",
+      "exactReceivedCameraEnclosureManifestSha256": null,
+      "exactUsbPowerMountAndCableManifestSha256": null,
+      "required": true,
+      "operationAuthorized": false
+    },
+    {
+      "targetId": "steamos-external-camera",
+      "packageClass": "steamos-reference",
+      "cameraPlacement": "external-supported-placement",
+      "exactReceivedCameraEnclosureManifestSha256": null,
+      "exactUsbPowerMountAndCableManifestSha256": null,
+      "required": true,
+      "operationAuthorized": false
+    },
+    {
+      "targetId": "raspberry-pi5-ai-hat-integrated-camera",
+      "packageClass": "lower-cost-integrated-reference",
+      "cameraPlacement": "integrated-fixed-angle-placement",
+      "exactReceivedCameraEnclosureManifestSha256": null,
+      "exactUsbPowerMountAndCableManifestSha256": null,
+      "required": true,
+      "operationAuthorized": false
+    }
+  ],
+  "capturePathRoles": [
+    {
+      "pathId": "primary-motion-tracking",
+      "currentStatus": "prototype-browser-path-present-native-authority-absent",
+      "requiredInConservativeInventory": true,
+      "operationAuthorized": false
+    },
+    {
+      "pathId": "calibration-and-room-setup",
+      "currentStatus": "product-path-unbound",
+      "requiredInConservativeInventory": true,
+      "operationAuthorized": false
+    },
+    {
+      "pathId": "profile-image-capture",
+      "currentStatus": "product-path-unbound",
+      "requiredInConservativeInventory": true,
+      "operationAuthorized": false
+    },
+    {
+      "pathId": "authorized-local-diagnostics",
+      "currentStatus": "product-path-unbound",
+      "requiredInConservativeInventory": true,
+      "operationAuthorized": false
+    }
+  ],
+  "softwareTruthContract": {
+    "physicalShutterState": "NOT SENSED",
+    "physicalShutterDetailMustRequireDirectCheck": true,
+    "streamActivityMayProveOpenShutterUsefulFramesTrackerHealthOrMotionAvailability": false,
+    "blackFrameMissingLandmarksStoppedTrackerIndicatorOrSoftwareBadgeMayProveShutterPosition": false,
+    "states": [
+      {
+        "stateId": "disabled",
+        "softwareAccess": "RELEASED",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "starting",
+        "softwareAccess": "PREPARING",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "requesting-permission",
+        "softwareAccess": "REQUESTING",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "active",
+        "softwareAccess": "ENABLED",
+        "streamActivity": "STREAM ACTIVE"
+      },
+      {
+        "stateId": "permission-denied",
+        "softwareAccess": "BLOCKED",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "unavailable",
+        "softwareAccess": "UNAVAILABLE",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "disconnected",
+        "softwareAccess": "LOST",
+        "streamActivity": "NO STREAM"
+      },
+      {
+        "stateId": "failed",
+        "softwareAccess": "FAILED",
+        "streamActivity": "NO STREAM"
+      }
+    ],
+    "hostedGameMayReplaceContradictOrHideConsoleOwnedState": false,
+    "unknownStaleOrContradictoryAuthorityStopsCapture": true
+  },
+  "authorityBoundary": {
+    "exactReceivedTargetManifestSha256": null,
+    "shutterConstructionOpticalTruthAndCycleProtocolSha256": null,
+    "indicatorElectricalAuthorityAndVisibilityProtocolSha256": null,
+    "completeCapturePathAndNativeLeaseInventorySha256": null,
+    "lifecycleIdleSuspendCrashAndRecoveryProtocolSha256": null,
+    "cameraFreeSurfaceBuildAndRenderProtocolSha256": null,
+    "roomDisplayLightingDistanceAndAngleProtocolSha256": null,
+    "participantConsentAssentAccessibilityAndSafetyProtocolSha256": null,
+    "comprehensionAndReachGroundTruthProtocolSha256": null,
+    "measurementAndAcceptanceProtocolSha256": null,
+    "dataHandlingDiagnosticsAndDeletionProtocolSha256": null,
+    "operatorScheduleStopAndIncidentProtocolSha256": null,
+    "cameraOrEnclosureSelectionPurchaseOrReceiptAuthorized": false,
+    "devicePowerCaptureOrShutterCyclingAuthorized": false,
+    "indicatorObservationAuthorized": false,
+    "idleSuspendDisconnectCrashOrRecoveryInjectionAuthorized": false,
+    "cameraFreeProductSurfaceImplementationAuthorized": false,
+    "adultParticipationAuthorized": false,
+    "childParticipationAuthorized": false,
+    "accessibilityStudyAuthorized": false,
+    "temporaryDiagnosticCaptureAuthorized": false,
+    "resultPublicationQualificationOrProductClaimAuthorized": false
+  },
+  "opticalShutterMatrix": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "operatorVerifiedShutterPositionIds": [
+      "open",
+      "closed"
+    ],
+    "lightingConditionIds": [
+      "daylight",
+      "warm-lamp",
+      "tv-only",
+      "dim"
+    ],
+    "calibratedFixtureIds": [
+      "center-resolution-target",
+      "perimeter-light-leak-target",
+      "moving-geometric-target"
+    ],
+    "validObservationsPerCell": 20,
+    "requiredCellCount": 72,
+    "requiredObservationCount": 1440,
+    "independentShutterPositionAndOpticalGroundTruthRequired": true,
+    "imageDarknessOrTrackerOutputMayLabelShutterPositionOrBlocking": false,
+    "oneTargetPositionLightingFixtureOrObservationMayRescueAnother": false
+  },
+  "shutterTransitionCampaign": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "transitionIds": [
+      "open-to-closed",
+      "closed-to-open",
+      "active-capture-to-closed",
+      "active-capture-to-open"
+    ],
+    "validCyclesPerTargetTransitionCell": 50,
+    "requiredTargetTransitionCellCount": 12,
+    "requiredCycleCount": 600,
+    "jamPartialCoverageReboundWearForceContradictionStopRetryAndInvalidCyclesRemainVisible": true,
+    "laterSuccessOrAnotherTargetTransitionMayRescueFailure": false
+  },
+  "indicatorTruthMatrix": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "capturePathIds": [
+      "primary-motion-tracking",
+      "calibration-and-room-setup",
+      "profile-image-capture",
+      "authorized-local-diagnostics"
+    ],
+    "lifecycleRows": [
+      {
+        "stateId": "software-disabled",
+        "softwareStateId": "disabled",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "backend-starting",
+        "softwareStateId": "starting",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "permission-requesting",
+        "softwareStateId": "requesting-permission",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "capture-active",
+        "softwareStateId": "active",
+        "cameraCaptureExpected": true,
+        "hardwareActivityIndicatorExpected": "on"
+      },
+      {
+        "stateId": "permission-denied",
+        "softwareStateId": "permission-denied",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "device-unavailable",
+        "softwareStateId": "unavailable",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "active-device-disconnected",
+        "softwareStateId": "disconnected",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "tracker-failed",
+        "softwareStateId": "failed",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "explicit-stop-complete",
+        "softwareStateId": "disabled",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "idle-timeout-complete",
+        "softwareStateId": "disabled",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "host-suspended",
+        "softwareStateId": null,
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      },
+      {
+        "stateId": "resume-awaiting-explicit-restart",
+        "softwareStateId": "disabled",
+        "cameraCaptureExpected": false,
+        "hardwareActivityIndicatorExpected": "off"
+      }
+    ],
+    "lightingConditionIds": [
+      "daylight",
+      "warm-lamp",
+      "tv-only",
+      "dim"
+    ],
+    "validObservationsPerCell": 20,
+    "requiredCellCount": 576,
+    "requiredObservationCount": 11520,
+    "independentOsDeviceApplicationIndicatorAndShutterObservationRequired": true,
+    "powerOnlyOrApplicationIntentLampMayQualifyCaptureActivityIndicator": false,
+    "oneTargetPathStateLightingOrObservationMayRescueAnother": false
+  },
+  "lifecycleTransitionCampaign": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "capturePathIds": [
+      "primary-motion-tracking",
+      "calibration-and-room-setup",
+      "profile-image-capture",
+      "authorized-local-diagnostics"
+    ],
+    "transitionIds": [
+      "active-to-explicit-stop",
+      "active-to-idle-timeout",
+      "active-to-host-suspend",
+      "resume-without-automatic-restart",
+      "resume-explicit-restart",
+      "active-to-device-disconnect",
+      "reconnect-without-automatic-restart",
+      "capture-owner-process-crash-to-release"
+    ],
+    "validCyclesPerTargetPathTransitionCell": 20,
+    "requiredTargetPathTransitionCellCount": 96,
+    "requiredCycleCount": 1920,
+    "captureReleaseIndicatorOffStaleStateRejectionAndExplicitRecoveryRequired": true,
+    "automaticResumeRetryOrLaterSuccessMayHideFailure": false,
+    "oneTargetPathTransitionMayRescueAnother": false
+  },
+  "negativeSessionCampaign": {
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "capturePathIds": [
+      "primary-motion-tracking",
+      "calibration-and-room-setup",
+      "profile-image-capture",
+      "authorized-local-diagnostics"
+    ],
+    "lightingConditionIds": [
+      "daylight",
+      "warm-lamp",
+      "tv-only",
+      "dim"
+    ],
+    "minimumMeasuredSecondsPerSession": 900,
+    "requiredSessionCount": 48,
+    "unexpectedAccessIndicatorStreamFrameAutoRetryOrNetworkEgressIsFailure": true,
+    "oneSessionTargetPathOrLightingConditionMayRescueAnother": false
+  },
+  "cameraFreeRenderMatrix": {
+    "surfaceIds": [
+      "motion-lab-camera-card",
+      "setup-settings-camera-surface",
+      "pause-recovery-camera-surface"
+    ],
+    "softwareStateIds": [
+      "disabled",
+      "starting",
+      "requesting-permission",
+      "active",
+      "permission-denied",
+      "unavailable",
+      "disconnected",
+      "failed"
+    ],
+    "resolutionIds": [
+      "1280x720",
+      "1920x1080",
+      "3840x2160"
+    ],
+    "requiredRenderCellCount": 72,
+    "unimplementedMissingOverflowingOverlappingOrInaccessibleSurfaceFails": true,
+    "renderEvidenceMayEstablishComprehensionPhysicalIndicatorVisibilityOrFinalLocation": false,
+    "oneSurfaceStateOrResolutionMayRescueAnother": false
+  },
+  "humanComprehensionPhase": {
+    "status": "blocked",
+    "personaClasses": [
+      "school-age-child-standing",
+      "adult-standing",
+      "seated-or-limited-range-adult",
+      "low-vision-adult",
+      "color-vision-deficiency-adult"
+    ],
+    "surfaceIds": [
+      "motion-lab-camera-card",
+      "setup-settings-camera-surface",
+      "pause-recovery-camera-surface"
+    ],
+    "softwareStateIds": [
+      "disabled",
+      "starting",
+      "requesting-permission",
+      "active",
+      "permission-denied",
+      "unavailable",
+      "disconnected",
+      "failed"
+    ],
+    "viewingDistanceMm": [
+      2500,
+      4500
+    ],
+    "viewingAngleDegrees": [
+      0,
+      30,
+      60
+    ],
+    "lightingConditionIds": [
+      "daylight",
+      "warm-lamp",
+      "tv-only",
+      "dim"
+    ],
+    "taskIds": [
+      "identify-software-access",
+      "identify-stream-activity",
+      "identify-that-physical-shutter-position-is-not-sensed",
+      "select-available-non-motion-recovery"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredCellCount": 2880,
+    "requiredTrialCount": 57600,
+    "uncoachedSeparateFactQuestionsAndIndependentGroundTruthRequired": true,
+    "correctButtonUseMayHideFalsePrivacyInference": false,
+    "onePersonaSurfaceStateDistanceAngleLightingOrTrialMayRescueAnother": false
+  },
+  "humanReachVisibilityPhase": {
+    "status": "blocked",
+    "personaClasses": [
+      "school-age-child-standing",
+      "adult-standing",
+      "seated-or-limited-range-adult",
+      "low-vision-adult",
+      "color-vision-deficiency-adult"
+    ],
+    "targetIds": [
+      "ordinary-x86-linux-external-camera",
+      "steamos-external-camera",
+      "raspberry-pi5-ai-hat-integrated-camera"
+    ],
+    "taskIds": [
+      "locate-hardware-activity-indicator",
+      "locate-and-operate-physical-shutter",
+      "reach-connector-or-service-release",
+      "use-non-motion-recovery-control"
+    ],
+    "approachPositionIds": [
+      "outside-zone-left",
+      "outside-zone-center",
+      "outside-zone-right",
+      "seated-service-position"
+    ],
+    "validTrialsPerCell": 20,
+    "requiredCellCount": 240,
+    "requiredTrialCount": 4800,
+    "independentReachVisibilityTaskSafetyAndDiscomfortGroundTruthRequired": true,
+    "unsafeZoneEntryOrAssistanceMayBeHiddenByTaskCompletion": false,
+    "onePersonaTargetTaskApproachOrTrialMayRescueAnother": false
+  },
+  "measurements": {
+    "requiredMeasurements": [
+      "independently-observed-open-partial-jammed-and-closed-shutter-position",
+      "optical-attenuation-center-resolution-perimeter-leakage-and-moving-target-visibility",
+      "shutter-force-cycle-wear-jam-rebound-partial-coverage-and-quarantine",
+      "os-device-capture-lease-stream-frame-and-release-state",
+      "application-software-access-stream-activity-and-stale-state",
+      "hardware-indicator-electrical-authority-on-off-latency-color-pattern-luminance-contrast-and-view-field",
+      "idle-suspend-disconnect-crash-stop-release-indicator-off-and-explicit-recovery-time",
+      "unexpected-access-indicator-stream-frame-auto-retry-and-network-egress",
+      "per-surface-state-resolution-safe-area-text-action-focus-overlap-and-overflow",
+      "uncoached-access-activity-shutter-truth-and-recovery-comprehension",
+      "indicator-shutter-connector-service-and-recovery-reach-time-force-errors-assistance-and-discomfort",
+      "participant-target-room-lighting-distance-angle-approach-operator-stop-and-incident-ledger"
+    ],
+    "independentGroundTruthRequired": true,
+    "cameraFrameTrackerSoftwareStateOrIndicatorMaySelfLabelAnotherFact": false,
+    "vendorClaimScreenshotOneParticipantMeanOrBestCaseMaySubstituteMeasurement": false,
+    "perTargetPathStateSurfacePersonaConditionCycleStopRetryAndWorstCaseReportingRequired": true
+  },
+  "fixedAcceptance": {
+    "minimumValidObservationsPerPhysicalMatrixCell": 20,
+    "minimumValidShutterCyclesPerTargetTransitionCell": 50,
+    "minimumValidLifecycleCyclesPerTargetPathTransitionCell": 20,
+    "minimumValidHumanTrialsPerCellIfAuthorized": 20,
+    "maximumActiveCaptureWithoutQualifiedHardwareActivityIndicator": 0,
+    "maximumIndicatorOffObservationsDuringActiveCapture": 0,
+    "maximumFalseSoftwareStreamActivityObservations": 0,
+    "maximumSoftwareOpenOrClosedShutterClaims": 0,
+    "maximumAutomaticCaptureRestartsAfterIdleSuspendDisconnectOrCrash": 0,
+    "maximumSilentlyDiscardedInvalidStoppedRetriedOrInterruptedEvidence": 0,
+    "allOpenGatesMustBeFrozenBeforeOperation": true,
+    "aggregateRecoveryCrossTargetPathStateSurfaceOrPersonaRescueAllowed": false
+  },
+  "openAcceptance": {
+    "minimumClosedShutterOpticalAttenuation": null,
+    "maximumClosedShutterPerimeterLeakage": null,
+    "maximumShutterOperationForceMilliNewton": null,
+    "maximumShutterWearOrJamRatePpm": null,
+    "minimumIndicatorLuminance": null,
+    "minimumIndicatorContrast": null,
+    "minimumIndicatorViewingFieldMilliDegrees": null,
+    "maximumIndicatorOnLatencyUs": null,
+    "maximumCaptureReleaseTimeUs": null,
+    "maximumIndicatorOffLatencyUs": null,
+    "maximumStaleStateTimeUs": null,
+    "maximumExplicitRecoveryTimeUs": null,
+    "minimumSoftwareAccessComprehensionPpm": null,
+    "minimumStreamActivityComprehensionPpm": null,
+    "minimumNotSensedShutterComprehensionPpm": null,
+    "minimumRecoverySelectionAccuracyPpm": null,
+    "minimumIndicatorDetectionAccuracyPpm": null,
+    "maximumShutterReachTimeUs": null,
+    "maximumServiceReachTimeUs": null,
+    "maximumUnsafeZoneEntriesPerCell": null,
+    "maximumParticipantDiscomfortEventsPerCell": null
+  },
+  "dataPolicy": {
+    "rawCameraRoomOpticalAudioPortraitOrVideoAllowedInRepositoryOrRelease": false,
+    "participantNamesFacesVoicesExactAgesAddressesAccessibilityNotesOrStableIdentifiersAllowed": false,
+    "deviceSerialsPathsCredentialsProviderMessagesSecretsOrUnredactedLogsAllowed": false,
+    "freeTextResultEvidenceAllowed": false,
+    "temporaryDiagnosticsRequireSeparateAuthoritySecurityConsentAndVerifiedDeletion": true,
+    "pathFreeClosedVocabularyAggregateEvidenceRequired": true,
+    "audioCollectionAllowed": false,
+    "networkEgressAllowed": false
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "cs-001-exact-received-camera-enclosure-revision-firmware-cable-mount-power-shutter-indicator-and-condition",
+      "cs-002-shutter-construction-position-observer-optical-fixture-instrument-force-wear-and-quarantine",
+      "cs-003-indicator-electrical-authority-color-pattern-luminance-field-latency-failure-and-probe",
+      "cs-004-complete-capture-path-inventory-native-lease-owner-state-reconciliation-and-stale-stop",
+      "cs-005-blocking-product-surface-location-and-console-owned-visibility-policy",
+      "cs-006-stop-idle-suspend-crash-disconnect-resume-retry-confirmation-and-quarantine-policy",
+      "cs-007-room-display-placement-zone-distance-angle-lighting-instrument-and-repeat-protocol",
+      "cs-008-personas-accessibility-consent-assent-guardian-safety-rest-stop-privacy-and-adverse-events",
+      "cs-009-pre-result-optical-indicator-force-wear-transition-release-stale-state-and-recovery-gates",
+      "cs-010-uncoached-comprehension-reach-visibility-time-force-error-discomfort-and-zone-entry-gates",
+      "cs-011-diagnostic-data-security-retention-deletion-incident-and-closed-release-evidence",
+      "cs-012-purchase-operation-fault-participant-surface-publication-qualification-and-claim-authority"
+    ]
+  },
+  "result": {
+    "artifactPath": null,
+    "sha256": null,
+    "disposition": "not-run",
+    "receivedTargetPackageCount": 0,
+    "boundCapturePathCount": 0,
+    "participantCount": 0,
+    "completedOpticalCellCount": 0,
+    "completedOpticalObservationCount": 0,
+    "completedShutterTransitionCycleCount": 0,
+    "completedIndicatorCellCount": 0,
+    "completedIndicatorObservationCount": 0,
+    "completedLifecycleTransitionCycleCount": 0,
+    "completedNegativeSessionCount": 0,
+    "completedRenderCellCount": 0,
+    "completedComprehensionCellCount": 0,
+    "completedComprehensionTrialCount": 0,
+    "completedReachVisibilityCellCount": 0,
+    "completedReachVisibilityTrialCount": 0,
+    "qualifiedTargetPathStateIds": [],
+    "qualifiedSurfaceIds": [],
+    "qualifiedPersonaIds": [],
+    "selectedCameraEnclosureOrSurfaceIds": [],
+    "publishedQualificationOrProductClaim": null
+  }
+}

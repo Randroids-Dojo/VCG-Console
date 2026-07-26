@@ -22,7 +22,7 @@
     {
       "role": "physical-tv-wake-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "d2977a696e131c8ce2be8a26281537198cd0e5fe515a43ea62ed5f33afb60043"
+      "sha256": "dee13a3cfe3382ee524d102c9536f7a5b6ef70d047c493ebeab08512cb0a4fc5"
     },
     {
       "role": "physical-controller-wake-boundary",
