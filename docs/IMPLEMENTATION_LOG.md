@@ -6111,3 +6111,63 @@ Exact equipment and physical references remain under Q-251, accuracy and
 placement decisions under Q-252, and any temporary image workflow under
 Q-253. This work establishes no action, latency, calibration, floor-contact,
 identity, accessibility, safety, population, or production qualification.
+
+## 2026-07-25: executable microSD qualification envelope
+
+### Delivered
+
+- Advanced I-022 from a prose-only pre-registration boundary to a canonical
+  blocked machine-checkable umbrella plan without authorizing a purchase,
+  write, power cut, corruption injection, or recovery-media operation.
+- Bound the existing SanDisk High Endurance 256GB candidate facts while
+  leaving the quoted `AN6IA` versus manufacturer-listed `GN6IA` relationship
+  unresolved. A ready plan must approve exactly one named part boundary and
+  cannot add a silent substitute.
+- Froze nine ordered qualification phases spanning intake, destructive
+  capacity, final image, console workload, full disk, power cuts, corruption,
+  blank-card recovery, and accelerated endurance/drift.
+- Added exact per-card power-cut accounting for valid pass, valid fail,
+  harness-invalid, and not-run trials. The four counts must equal the frozen
+  schedule; at least 200 valid cuts per card are required; invalid cuts never
+  count as valid; a valid failed cut derives rejection; and not-run or
+  insufficient-valid coverage derives incompleteness.
+- Added a service-write target derived from projected host writes times a
+  pre-registered margin, exact capacity and p95 performance gates, opaque
+  eight-hex card/lot IDs, and five immutable zero ceilings for media/filesystem
+  errors, committed corruption, unverified/uncommitted launches, unauthorized
+  reclamation, and recovery failures.
+- Derived qualified, rejected, and incomplete conclusions from every tested
+  card, independent lot, retained control, phase, fault ledger, endurance,
+  capacity, and performance row. Averages, extra good cards, advertised video
+  endurance, or desktop throughput cannot rescue one failed card.
+- Added `OWNER_QUESTIONS_MICROSD_ENVELOPE_2026-07-25.md` without answering or
+  widening Q-193 through Q-196.
+
+### Verification evidence
+
+- The tracked plan validates as blocked with nine exact phases, seven
+  blockers, null part/cohort/service/performance gates, false purchase and
+  destructive-test authority, and no physical result.
+- Seventeen focused tests cover blocked and ready plans, LF/CRLF identity, a
+  complete three-card/two-lot qualification, part substitution, hidden
+  authority, safety-gate weakening, phase drift, policy key reordering,
+  sensitive fields, malformed/oversized input, forged plan hashes, incomplete
+  cohort/control evidence, every-card failure, power-cut derivation,
+  harness-invalid exclusion, unrun and unfinished endurance, capacity/write
+  under-run, opaque IDs, duplicate cards, summary drift, and retained data.
+- In an exact isolated snapshot containing current HEAD plus only this tranche,
+  pinned Corepack pnpm 10.30.3 passes all 236 research-evidence tests, reports
+  zero TypeScript/Svelte diagnostics, passes all 63 workspace test files and
+  595 tests, verifies the pinned OCR-A/model assets and copies the pinned WASM
+  runtime, and completes the production build.
+
+### Remaining boundary
+
+I-022 is active, not closed. The validator checks a bounded admission and
+conclusion envelope; it does not authenticate physical logs behind digests or
+prove any card behavior. Q-193 through Q-196 still control part equivalence,
+cohort/purchase/destructive authority, service horizon and margin, and
+failure/retest/fallback policy. I-162 and I-202 retain the physical build,
+workload, hundreds-cut, corruption, full-disk, recovery, and endurance work.
+I-021 remains a separate qualification if a valid microSD failure invokes it;
+no USB SSD has been selected or qualified.

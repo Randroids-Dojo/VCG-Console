@@ -1,0 +1,98 @@
+{
+  "format": "vcg-microsd-qualification-plan/v1",
+  "campaignId": "sandisk-high-endurance-256gb-v1",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "qualification": "blocked-plan-only-no-purchase-or-destructive-test-authority",
+  "candidate": {
+    "manufacturer": "SanDisk",
+    "productFamily": "High Endurance microSD UHS-I",
+    "nominalCapacityBytes": 256000000000,
+    "quotedPartNumber": "SDSQQNR-256G-AN6IA",
+    "manufacturerListedPartNumber": "SDSQQNR-256G-GN6IA",
+    "approvedPartNumber": null,
+    "partRelationship": null
+  },
+  "executionGate": {
+    "status": "blocked",
+    "purchaseAuthorized": false,
+    "destructiveTestingAuthorized": false,
+    "cohortManifestSha256": null,
+    "hardwareManifestSha256": null,
+    "softwareImageManifestSha256": null,
+    "storageLayoutManifestSha256": null,
+    "filesystemMountPolicySha256": null,
+    "workloadTraceManifestSha256": null,
+    "recoveryReleaseManifestSha256": null,
+    "toolchainManifestSha256": null,
+    "powerCutPlanSha256": null,
+    "corruptionPlanSha256": null,
+    "dataHandlingProtocolSha256": null,
+    "blockerCodes": [
+      "cohort-and-lot-budget",
+      "destructive-test-authority",
+      "part-suffix-relationship",
+      "production-image-and-layout",
+      "qualification-thresholds",
+      "recovery-release",
+      "service-horizon-and-margin"
+    ]
+  },
+  "phaseIds": [
+    "intake-and-chain-of-custody",
+    "destructive-capacity-screen",
+    "final-image-baseline",
+    "console-workload-replay",
+    "capacity-quota-and-full-disk",
+    "power-cut-and-update-interruption",
+    "corruption-and-removal",
+    "blank-card-and-replacement-recovery",
+    "accelerated-endurance-and-drift"
+  ],
+  "acceptance": {
+    "minimumTestedCardCount": null,
+    "minimumIndependentLotCount": null,
+    "retainedUnpoweredControlRequired": null,
+    "scheduledPowerCutsPerCard": null,
+    "minimumValidPowerCutsPerCard": null,
+    "minimumReportedCapacityBytes": null,
+    "projectedServiceHostWriteBytesPerCard": null,
+    "minimumEnduranceMarginRatio": null,
+    "maximumBootP95Ms": null,
+    "maximumStorageOperationP95Ms": null,
+    "maximumPerformanceDriftRatio": null,
+    "maximumMediaOrFilesystemErrors": 0,
+    "maximumCommittedCorruptionEvents": 0,
+    "maximumUnverifiedOrUncommittedLaunches": 0,
+    "maximumUnauthorizedReclamationEvents": 0,
+    "maximumRecoveryFailures": 0,
+    "everyTestedCardMustPass": true,
+    "aggregateMayRescueFailedCard": false
+  },
+  "evidencePolicy": {
+    "powerCutResultFormat": "vcg-power-cut-campaign-result",
+    "powerCutResultFormatVersion": 1,
+    "allScheduledTrialsAccounted": true,
+    "harnessInvalidTrialsCannotCountAsValid": true,
+    "advertisedEnduranceCannotReplaceHostWriteEvidence": true,
+    "semanticCommittedStateOraclesRequired": true,
+    "readBackImageIdentityRequired": true
+  },
+  "dataPolicy": {
+    "opaqueCardAndLotIdsRequired": true,
+    "receiptOrAccountDataAllowed": false,
+    "filesystemPathsAllowed": false,
+    "hostUsernamesAllowed": false,
+    "wifiCredentialsAllowed": false,
+    "signingOrVaultSecretsAllowed": false,
+    "playerDataAllowed": false,
+    "freeTextAllowed": false
+  },
+  "claimBoundary": "This file pre-registers a blocked 256GB high-endurance microSD qualification envelope only. It authorizes no purchase, destructive write, power cut, corruption injection, recovery-media write, card selection, service-life claim, USB SSD fallback, or product qualification and records no physical result.",
+  "limitations": [
+    "The quoted AN6IA and manufacturer-listed GN6IA suffix relationship is unresolved and cannot be treated as an alias without approved evidence.",
+    "No physical card, cohort, independently purchased lot, retained control, exact Raspberry Pi assembly, image, filesystem, workload, or recovery release is bound.",
+    "Cohort size, lot count, per-card cut count, projected service writes, endurance margin, boot and storage deadlines, and drift ceiling are null.",
+    "The existing power-cut validator is not a physical result and no tracked power-cut plan or result is bound by this blocked envelope.",
+    "Manufacturer video-recording hours, speed classes, reseller text, desktop throughput, or one successful boot cannot establish console endurance or committed-state safety."
+  ]
+}
