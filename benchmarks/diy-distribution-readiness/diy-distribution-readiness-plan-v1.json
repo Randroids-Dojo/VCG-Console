@@ -1,0 +1,236 @@
+{
+  "schemaVersion": "vcg-diy-distribution-readiness-plan/v1",
+  "artifactId": "i143-i144-diy-distribution-readiness-plan-2026-07-26",
+  "investigationIds": [
+    "I-143",
+    "I-144"
+  ],
+  "status": "blocked-zero-result",
+  "generatedAt": "2026-07-26T23:59:59.000Z",
+  "claimBoundary": "Pre-registered DIY-distribution readiness plan only. No exact release candidate, hardware assembly, enclosure, bill of materials, software image, operator, business model, target market, applicable requirement, certification path, qualified reviewer, legal opinion, home pilot, accessibility result, safety result, privacy result, public release, warranty, support commitment, hardware sale, kit sale, or product-compliance conclusion exists or is authorized.",
+  "sourceDigestContract": {
+    "algorithm": "sha256",
+    "byteContract": "UTF-8 text with no BOM or bare CR, CRLF normalized to LF before hashing",
+    "pathBase": "repository-root"
+  },
+  "sourceBindings": [
+    {
+      "path": "docs/RELEASE_COMPLIANCE.md",
+      "sha256": "53575e74994429b2946cd87b8c5f4429eedd3ba6cfe5f7c394cf6930cc2650c1",
+      "role": "software-license-sbom-and-release-blocker-input"
+    },
+    {
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8",
+      "role": "engineering-active-play-hazard-input"
+    },
+    {
+      "path": "docs/CHILD_PRIVACY_REVIEW_BRIEF.md",
+      "sha256": "aee9e127fb945f4be104b1e8e92cd2ba5704fa9f62fffd48ffc454085b1f07f7",
+      "role": "engineering-child-and-family-privacy-input"
+    },
+    {
+      "path": "docs/DATA_RETENTION_AND_DELETION_POLICY.md",
+      "sha256": "fa8a956db90cca165dfd83f978e4bcd3644fad6627bda3374972fd57b53dd448",
+      "role": "engineering-data-lifecycle-input"
+    },
+    {
+      "path": "docs/CONSOLE_OPERATING_MODES.md",
+      "sha256": "5ef21a99927f7b42d08c0cc51fddcaad3d55ad753bedb491e58174e58bb8e0f9",
+      "role": "mode-authority-and-support-boundary-input"
+    },
+    {
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509",
+      "role": "prototype-evidence-and-claim-boundary-input"
+    },
+    {
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb",
+      "role": "intended-user-accessibility-and-consent-input"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "125bc9a2514327e541449d1e350c7b62d26375e36bcc064183ee26a14fdf7a29",
+      "role": "current-curated-notice-input"
+    }
+  ],
+  "scopeBoundary": {
+    "distributionModel": "open-source-diy-project-only",
+    "includedReleaseForms": [
+      "source-code",
+      "build-scripts",
+      "software-images-and-packages-after-separate-release-gates",
+      "bill-of-materials",
+      "enclosure-source-files-and-templates",
+      "build-use-recovery-and-safe-play-instructions"
+    ],
+    "excludedReleaseForms": [
+      "hardware-sales",
+      "kit-sales",
+      "preassembled-hardware",
+      "paid-services",
+      "warranty-backed-hardware",
+      "formal-hardware-support",
+      "certification-claims",
+      "compatibility-with-arbitrary-substitutions",
+      "entitlement-to-third-party-games-or-content"
+    ],
+    "scopeExpansionRequiresSupersedingDecision": true,
+    "repositoryPublicationIsNotMarketExemption": true,
+    "diyLabelIsNotComplianceEvidence": true
+  },
+  "prerequisites": {
+    "exactReleaseCandidate": null,
+    "exactSoftwareArtifactSet": null,
+    "exactHardwareAssembly": null,
+    "exactBillOfMaterials": null,
+    "exactEnclosureAndBuildFiles": null,
+    "legalOperatorAndBusinessModel": null,
+    "targetMarketsAndDistributionChannels": null,
+    "qualifiedReviewerRoster": null,
+    "homePilotAndAccessibilityAuthority": null,
+    "publicReleaseAuthority": null,
+    "state": "blocked"
+  },
+  "applicabilityMatrix": {
+    "domainIds": [
+      "electrical",
+      "radio",
+      "ir-laser-and-optical-emissions",
+      "thermal-fire-and-materials",
+      "consumer-product-and-instructions"
+    ],
+    "requiredFieldsPerDomain": [
+      "exact-market-and-channel",
+      "exact-candidate-scope",
+      "authoritative-source-identity-version-and-date",
+      "applicability-analysis",
+      "required-tests-records-labels-and-instructions",
+      "responsible-owner-and-qualified-reviewer",
+      "adverse-conflicting-and-not-applicable-evidence",
+      "dated-disposition"
+    ],
+    "domainCount": 5,
+    "dispositions": [],
+    "missingOrConflictedEvidenceDisposition": "blocked-not-applicable-cannot-be-assumed",
+    "crossDomainRescueAllowed": false,
+    "supplierDeclarationAloneQualifiesAssembly": false,
+    "componentCertificationAutomaticallyTransfers": false,
+    "diyOrNoWarrantyLabelWaivesRequirements": false
+  },
+  "releaseMaterialsMatrix": {
+    "materialIds": [
+      "safe-play-installation-and-stop-guidance",
+      "privacy-data-use-retention-deletion-and-family-notice",
+      "open-source-licenses-attributions-notices-and-source-availability",
+      "no-warranty-and-no-formal-support-scope",
+      "security-reporting-known-risk-and-incident-routing",
+      "assembly-operation-update-recovery-and-disposal-guidance",
+      "accessibility-readable-language-and-non-color-cue-review",
+      "exact-hardware-compatibility-and-substitution-limitations"
+    ],
+    "reviewLayerIds": [
+      "engineering-source-and-implementation-review",
+      "qualified-legal-and-applicability-review",
+      "home-pilot-safety-and-comprehension-review",
+      "target-tv-accessibility-and-controller-review"
+    ],
+    "materialCount": 8,
+    "reviewLayerCount": 4,
+    "requiredReviewCellCount": 32,
+    "reviewRecords": [],
+    "everyCellRequired": true,
+    "missingUnavailableAdverseAndConflictedEvidenceRetained": true,
+    "postResultExclusionAllowed": false,
+    "aggregateOrBestCaseRescueAllowed": false,
+    "existingEngineeringDocumentsAreReleaseApproval": false
+  },
+  "reviewProtocol": {
+    "authoritativeRequirementResearchAfterMarketFreeze": true,
+    "sourceCurrencyVerifiedAtReviewAndRelease": true,
+    "qualifiedReviewerIndependenceRequired": true,
+    "originalReviewRecordsRetained": true,
+    "conflictsEscalateWithoutSilentResolution": true,
+    "notApplicableRequiresMarketCandidateSourceAndReviewer": true,
+    "homePilotCannotProduceLegalApproval": true,
+    "legalReviewCannotSubstituteForPhysicalOrAccessibilityEvidence": true,
+    "engineeringPassCannotAuthorizePublication": true,
+    "ownerApprovalCannotWaiveFixedZeroGates": true
+  },
+  "outcomeGates": {
+    "exactApplicableRequirementSet": null,
+    "requiredEvidenceStandards": null,
+    "homePilotProtocolAndCohort": null,
+    "accessibilityProtocolAndCohort": null,
+    "reviewerConflictAndEscalationRules": null,
+    "releaseCandidateFreezeWindow": null,
+    "sourceCurrencyWindow": null,
+    "finalSignoffFormat": null,
+    "fixedZeroGates": {
+      "unresolvedApplicableRequirements": 0,
+      "missingRequiredReviewCells": 0,
+      "unsupportedSafetyPrivacyAccessibilityOrComplianceClaims": 0,
+      "unresolvedReleaseArtifactLicenseOrRedistributionBlockers": 0,
+      "unresolvedCriticalOrHighSeverityRisks": 0,
+      "unsafeOrMisleadingInstructions": 0,
+      "unreviewedChildOrFamilyPrivacyBlockers": 0,
+      "unresolvedAccessibilityBlockingFailures": 0
+    },
+    "allDomainsAndMaterialsMustPass": true,
+    "partialMarketOrArtifactResultCannotQualifyAnother": true,
+    "releaseDecision": null
+  },
+  "executionAuthority": {
+    "selectMarket": false,
+    "selectLegalOperatorOrBusinessModel": false,
+    "engageCounselOrExternalReviewer": false,
+    "recruitHouseholdsOrParticipants": false,
+    "collectHomeOrParticipantEvidence": false,
+    "purchaseOrModifyHardware": false,
+    "runElectricalRadioOpticalThermalOrDestructiveTests": false,
+    "submitCertificationOrRegulatoryFilings": false,
+    "makeComplianceSafetyPrivacyAccessibilityOrWarrantyClaims": false,
+    "publishOrDistributeReleaseArtifacts": false,
+    "sellHardwareKitsServicesOrSupport": false,
+    "contactVendorsRegulatorsOrThirdParties": false
+  },
+  "dataPolicy": {
+    "allowed": [
+      "authoritative-public-source-identifiers-versions-and-access-dates",
+      "candidate-artifact-identifiers-byte-lengths-and-sha256",
+      "closed-domain-material-review-codes",
+      "aggregate-path-free-test-and-review-counts",
+      "coded-adverse-conflict-blocker-and-disposition-records"
+    ],
+    "prohibited": [
+      "participant-child-household-reviewer-or-counsel-identities",
+      "home-addresses-precise-locations-photos-video-audio-or-room-layouts",
+      "raw-camera-skeleton-biometric-health-or-accessibility-payloads",
+      "account-credentials-secrets-payment-tax-or-shipping-details",
+      "device-serials-network-identifiers-filesystem-paths-or-support-bundle-content",
+      "unbounded-notes-opinions-correspondence-or-free-text-evidence"
+    ],
+    "releaseArtifactsContainOnlyReviewedMinimizedContent": true,
+    "adverseEvidenceMayNotBeDeleted": true
+  },
+  "blockers": [
+    "exact-release-candidate-not-frozen",
+    "target-markets-and-distribution-channels-not-selected",
+    "legal-operator-and-business-model-not-selected",
+    "exact-final-hardware-bom-enclosure-and-build-files-absent",
+    "exact-software-image-package-and-content-set-absent",
+    "first-party-code-documentation-and-hardware-file-licenses-unselected",
+    "pinned-model-and-content-redistribution-rights-unresolved",
+    "target-architecture-sbom-notices-and-source-availability-incomplete",
+    "market-specific-authoritative-applicability-research-absent",
+    "qualified-independent-reviewer-roster-and-conflict-policy-absent",
+    "home-pilot-safety-comprehension-protocol-and-authority-absent",
+    "child-family-privacy-and-data-flow-legal-review-absent",
+    "target-tv-accessibility-controller-and-readable-language-evidence-absent",
+    "security-reporting-incident-routing-and-support-ownership-unselected",
+    "warranty-no-support-known-risk-and-substitution-language-unapproved",
+    "final-owner-release-approval-absent"
+  ],
+  "result": null
+}
