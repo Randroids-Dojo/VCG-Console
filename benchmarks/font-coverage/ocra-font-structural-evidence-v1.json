@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 92,
-      "totalBytes": 876329,
+      "totalBytes": 880214,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1079,13 +1079,13 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.test.ts",
-          "bytes": 19126,
-          "sha256": "d08bbcb82a3bc8db7262a72817049277e2366d60f38167372e3e6c3680c74c2f"
+          "bytes": 21680,
+          "sha256": "ed7df623d4f948bb1b94faddb33228ec44532f3d4c0bef8f3a06c12e7cd696cd"
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
-          "bytes": 24798,
-          "sha256": "dabde615da1399150379da4a19b1346e0fa3f4d26b2042fc55e9f27f9605d489"
+          "bytes": 26129,
+          "sha256": "979d1d4964a80413d5be5d94e4502f6a0ae0f9f29dbd611815781188e9479a06"
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
@@ -1315,9 +1315,9 @@
             {
               "path": "apps/console-lab/src/native-host-client.ts",
               "lines": [
-                231,
-                317,
-                419
+                240,
+                326,
+                428
               ]
             }
           ]

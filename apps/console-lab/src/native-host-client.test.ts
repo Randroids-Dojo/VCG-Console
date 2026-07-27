@@ -96,17 +96,58 @@ describe("native host status", () => {
     ).resolves.toMatchObject({ ok: false, code: "HOST_PROTOCOL_MISMATCH" });
   });
 
-  it("rejects malformed successful status documents", async () => {
-    const invalid = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ ...STATUS, capabilities: ["launcher-shell", 7] }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
-    await expect(checkNativeHost(HOST_URL, invalid)).resolves.toMatchObject({
-      ok: false,
-      code: "HOST_PROTOCOL_INVALID",
+  it("accepts status metadata at the exact field and collection limits", async () => {
+    const boundaryStatus = {
+      ...STATUS,
+      hostVersion: "v".repeat(128),
+      target: `${"a".repeat(31)}-${"b".repeat(32)}`,
+      capabilities: [
+        "a".repeat(64),
+        ...Array.from({ length: 31 }, (_, index) => `capability-${index}`),
+      ],
+    };
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(JSON.stringify(boundaryStatus), { status: 200 }));
+
+    await expect(checkNativeHost(HOST_URL, fetcher)).resolves.toEqual({
+      ok: true,
+      status: boundaryStatus,
     });
+  });
+
+  it("rejects unsafe, ambiguous, or excessive status metadata", async () => {
+    const invalidDocuments: unknown[] = [
+      { ...STATUS, protocolVersion: "9".repeat(65) },
+      { ...STATUS, hostVersion: "" },
+      { ...STATUS, hostVersion: "v".repeat(129) },
+      { ...STATUS, hostVersion: `1.0.0${String.fromCodePoint(0x200b)}` },
+      { ...STATUS, target: "X86_64-windows" },
+      { ...STATUS, target: "x86_64/windows" },
+      { ...STATUS, target: `${"a".repeat(32)}-${"b".repeat(32)}` },
+      { ...STATUS, capabilities: ["launcher-shell", 7] },
+      { ...STATUS, capabilities: ["launcher-shell", "launcher-shell"] },
+      { ...STATUS, capabilities: ["Launcher-shell"] },
+      { ...STATUS, capabilities: ["a".repeat(65)] },
+      {
+        ...STATUS,
+        capabilities: Array.from({ length: 33 }, (_, index) => `capability-${index}`),
+      },
+      { ...STATUS, unexpected: true },
+    ];
+
+    for (const document of invalidDocuments) {
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(JSON.stringify(document), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      await expect(checkNativeHost(HOST_URL, fetcher)).resolves.toMatchObject({
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+      });
+    }
   });
 
   it("rejects oversized status bodies without consuming them", async () => {
@@ -256,6 +297,38 @@ describe("trusted native package catalog", () => {
     );
   });
 
+  it("rejects package versions outside the signed catalog visible-ASCII contract", async () => {
+    const invalidVersions = [
+      "",
+      "v".repeat(129),
+      "1.0.0 beta",
+      `1.0.0${String.fromCodePoint(0x200b)}`,
+      String.fromCodePoint(0x1f3ae),
+    ];
+
+    for (const version of invalidVersions) {
+      const fetcher = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              id: "retro-2048",
+              version,
+              runtime: "libretro",
+              catalogGeneration: 7,
+            }),
+            { status: 200 },
+          ),
+        );
+
+      await expect(checkNativePackage("retro-2048", HOST_URL, fetcher)).resolves.toMatchObject({
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+      });
+    }
+  });
+
   it("accepts a valid inventory larger than the small host-status body bound", async () => {
     const packages = Array.from({ length: 200 }, (_, index) => ({
       id: `game-${index.toString().padStart(4, "0")}`,
@@ -300,6 +373,10 @@ describe("trusted native package catalog", () => {
       {
         ...valid,
         packages: [{ ...valid.packages[0], installPath: "C:\\private" }],
+      },
+      {
+        ...valid,
+        packages: [{ ...valid.packages[0], version: `1.0.0${String.fromCodePoint(0x200b)}` }],
       },
       { ...valid, packages: excessive },
       { ...valid, unexpected: true },

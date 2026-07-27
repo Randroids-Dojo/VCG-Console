@@ -6,6 +6,15 @@ const HOST_LAUNCH_TIMEOUT_MS = 15_000;
 const MAX_HOST_STATUS_BYTES = 16_384;
 const MAX_HOST_PACKAGE_INVENTORY_BYTES = 1_048_576;
 const MAX_HOST_PACKAGE_COUNT = 1_024;
+const MAX_HOST_VERSION_CHARACTERS = 128;
+const MAX_HOST_TARGET_CHARACTERS = 64;
+const MAX_HOST_CAPABILITY_COUNT = 32;
+const MAX_HOST_CAPABILITY_CHARACTERS = 64;
+const MAX_HOST_PROTOCOL_VERSION_CHARACTERS = 64;
+const MAX_PACKAGE_VERSION_CHARACTERS = 128;
+const HOST_TARGET_PATTERN = /^[a-z0-9_]+-[a-z0-9_]+$/;
+const HOST_CAPABILITY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const VISIBLE_ASCII_PATTERN = /^[\x21-\x7e]+$/;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -696,17 +705,31 @@ async function readBoundedJson(
   return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
 }
 
-function isNativeHostStatus(value: unknown): value is Omit<NativeHostStatus, "protocolVersion"> & { protocolVersion: string } {
+function isNativeHostStatus(
+  value: unknown,
+): value is Omit<NativeHostStatus, "protocolVersion"> & { protocolVersion: string } {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Record<string, unknown>;
+  if (
+    !hasExactKeys(candidate, ["protocolVersion", "hostVersion", "target", "capabilities"]) ||
+    !isVisibleAscii(candidate.protocolVersion, MAX_HOST_PROTOCOL_VERSION_CHARACTERS) ||
+    !isVisibleAscii(candidate.hostVersion, MAX_HOST_VERSION_CHARACTERS) ||
+    typeof candidate.target !== "string" ||
+    candidate.target.length > MAX_HOST_TARGET_CHARACTERS ||
+    !HOST_TARGET_PATTERN.test(candidate.target) ||
+    !Array.isArray(candidate.capabilities) ||
+    candidate.capabilities.length > MAX_HOST_CAPABILITY_COUNT
+  ) {
+    return false;
+  }
+  const capabilities = candidate.capabilities;
   return (
-    typeof candidate.protocolVersion === "string" &&
-    typeof candidate.hostVersion === "string" &&
-    candidate.hostVersion.length > 0 &&
-    typeof candidate.target === "string" &&
-    candidate.target.length > 0 &&
-    Array.isArray(candidate.capabilities) &&
-    candidate.capabilities.every((capability) => typeof capability === "string")
+    capabilities.every(
+      (capability) =>
+        typeof capability === "string" &&
+        capability.length <= MAX_HOST_CAPABILITY_CHARACTERS &&
+        HOST_CAPABILITY_PATTERN.test(capability),
+    ) && new Set(capabilities).size === capabilities.length
   );
 }
 
@@ -761,11 +784,22 @@ function hasNativePackageSummaryFields(candidate: Record<string, unknown>): bool
     typeof candidate.id === "string" &&
     candidate.id.length <= 80 &&
     /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) &&
-    typeof candidate.version === "string" &&
-    candidate.version.length > 0 &&
-    candidate.version.length <= 128 &&
+    isVisibleAscii(candidate.version, MAX_PACKAGE_VERSION_CHARACTERS) &&
     candidate.runtime === "libretro"
   );
+}
+
+function isVisibleAscii(value: unknown, maxCharacters: number): value is string {
+  return (
+    typeof value === "string" &&
+    value.length <= maxCharacters &&
+    VISIBLE_ASCII_PATTERN.test(value)
+  );
+}
+
+function hasExactKeys(candidate: Record<string, unknown>, expected: readonly string[]): boolean {
+  const keys = Object.keys(candidate);
+  return keys.length === expected.length && keys.every((key) => expected.includes(key));
 }
 
 function isIntentId(value: string): boolean {

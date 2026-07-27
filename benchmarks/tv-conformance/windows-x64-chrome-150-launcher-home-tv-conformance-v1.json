@@ -162,7 +162,7 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 3,
-      "/assets/main-B_ct0AOz.js": 3,
+      "/assets/main-Bp9iEBxg.js": 3,
       "/assets/main-CDT6K0sT.css": 3,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
       "/assets/src-CYOVH8wV.js": 3,
@@ -221,7 +221,7 @@
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "generatorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
     "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "b417f0e018d1319430b08580ac926c8c957d3bf12125c160b9839cd66ad1c30a",
+    "validatorPathSha256": "1d6c0465fa84eaf99963681711c4831ee7f02d012895bf2d75ab872b50322743",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -239,7 +239,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 138,
-      "sha256": "a60f35bba9465b185321674e51dc31d9c208a317e8cb8aad23ae8b55aa3115b8"
+      "sha256": "eb7c1652517498d74eaf1558199afbdfed60f6cd85e2848cbba9149b00b62232"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",
