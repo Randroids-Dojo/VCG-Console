@@ -1,0 +1,306 @@
+{
+  "format": "vcg-pi5-shutdown-reserve-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "i032-pi5-shutdown-reserve-comparison-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-032",
+    "Q-022",
+    "D-047",
+    "D-050",
+    "D-084",
+    "D-089",
+    "D-109",
+    "D-111"
+  ],
+  "claimBoundary": "This is a strict source-bound zero-result plan for deciding whether a small external UPS or supercapacitor shutdown reserve is worthwhile for the Raspberry Pi 5 lower-cost reference. D-109 keeps software and storage resilience without required backup power as the incumbent. A vendor specification, UPS topology, capacitor calculation, quoted hold-up time, successful clean shutdown, fewer failures, average, unmeasured cut, one operation, one storage medium, one unit, one temperature, one state of charge, or an aggregate cannot establish sudden-power resilience, committed-state integrity, household safety, degraded-mode availability, lifecycle reliability, complete delivered cost, or net value. A reserve cannot relabel a failed software or storage campaign as qualified. The documented USB 3 SSD lane remains the first storage fallback when qualified microSD misses D-109. Exact final hardware, storage, image, workload, electrical fixture, reserve candidates, revisions, cells, firmware, thresholds, schedule, evidence, results, ranking and authority are open. No purchase, vendor contact, wiring, charging, firmware mutation, destructive electrical operation, target operation, candidate selection, D-109 supersession, BOM mutation, publication or product claim is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "d109-selected-software-storage-incumbent-boundary",
+      "path": "docs/OPEN_QUESTIONS.md",
+      "sha256": "5dd7b29050d6dc0e8a6a1a0fe88b5c929d46e3be25af74d966ee52dc2cfd1689"
+    },
+    {
+      "role": "sudden-power-operation-oracle-and-result-contract",
+      "path": "docs/POWER_CUT_CAMPAIGN_2026-07-24.md",
+      "sha256": "c6fb2adf8d973f014238de90c057b8c966e962d6785a630b7523765806adf01b"
+    },
+    {
+      "role": "current-power-cut-zero-result-status",
+      "path": "docs/POWER_CUT_CAMPAIGN_STATUS_AUDIT_2026-07-25.md",
+      "sha256": "2da1a066122ff8e6a2d6ece1709d388115338d4f1e595f0668c8a9acc52c0d53"
+    },
+    {
+      "role": "power-cut-reliability-and-electrical-scope-owner-boundary",
+      "path": "docs/OWNER_QUESTIONS_POWER_CUT_CAMPAIGN_2026-07-24.md",
+      "sha256": "a08d15767c99a8f9abd342afa709c9f7e6864a02b589c4b98207e6176f4914cd"
+    },
+    {
+      "role": "safe-shutdown-and-unclean-loss-state-machine-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    },
+    {
+      "role": "qualified-microsd-incumbent-boundary",
+      "path": "benchmarks/microsd-qualification/sandisk-high-endurance-256gb-plan-v1.json",
+      "sha256": "0963e7d53db272e2d7335efc54f28430af182ae40f58b10e443efc6eafccf696"
+    },
+    {
+      "role": "usb3-ssd-first-storage-fallback-boundary",
+      "path": "benchmarks/usb3-ssd-fallback/pi5-usb3-ssd-fallback-plan-v1.json",
+      "sha256": "1b6a56d3f618550ce831514c4df8582c72842e0ffef954332b4558ffcbe2da5d"
+    },
+    {
+      "role": "complete-system-value-and-lifecycle-boundary",
+      "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
+      "sha256": "d936827dbc4555126cf6a4bdcf11413793ad7346e1812cad065ca33825f15330"
+    },
+    {
+      "role": "pi5-complete-product-and-cost-contract",
+      "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
+      "sha256": "2adad240aa0681f48e156750bd0d5ddde4138ff4244af6286c5172e219472fdf"
+    },
+    {
+      "role": "current-reference-bom-and-no-purchase-boundary",
+      "path": "docs/QUOTE_DATE_BOMS_2026-07-24.md",
+      "sha256": "0b6c04f598eec71fd9cdc33c589929706895f40a6cb54ca209b019ce9c16cb4f"
+    }
+  ],
+  "incumbentPolicy": {
+    "selectedAlternativeId": "software-microsd-incumbent",
+    "backupPowerRequiredByCurrentDecision": false,
+    "softwareAndStorageResilienceMustQualifyIndependently": true,
+    "latestUncommittedProgressMayBeLost": true,
+    "completedCommittedStateMaySilentlyCorrupt": false,
+    "usb3SsdIsFirstDocumentedStorageFallbackAfterQualifiedMicrosdFailure": true,
+    "reserveEvidenceMayRelabelFailedSoftwareOrStorageEvidence": false,
+    "reserveSelectionRequiresSupersedingD109Decision": true
+  },
+  "alternatives": [
+    {
+      "alternativeId": "software-microsd-incumbent",
+      "alternativeClass": "software-storage-only",
+      "comparisonRole": "required-incumbent",
+      "exactReceivedHardwareStorageImageAndWorkloadManifestSha256": null,
+      "exactReserveCandidateRevisionCellFirmwareAndWiringManifestSha256": null,
+      "candidateReceivedInventoriedAndAuthorized": false
+    },
+    {
+      "alternativeId": "software-usb3-ssd-fallback",
+      "alternativeClass": "software-storage-only",
+      "comparisonRole": "required-d109-storage-fallback-comparator",
+      "exactReceivedHardwareStorageImageAndWorkloadManifestSha256": null,
+      "exactReserveCandidateRevisionCellFirmwareAndWiringManifestSha256": null,
+      "candidateReceivedInventoriedAndAuthorized": false
+    },
+    {
+      "alternativeId": "small-external-ups",
+      "alternativeClass": "backup-power",
+      "comparisonRole": "candidate-non-selected",
+      "exactReceivedHardwareStorageImageAndWorkloadManifestSha256": null,
+      "exactReserveCandidateRevisionCellFirmwareAndWiringManifestSha256": null,
+      "candidateReceivedInventoriedAndAuthorized": false
+    },
+    {
+      "alternativeId": "supercapacitor-shutdown-reserve",
+      "alternativeClass": "backup-power",
+      "comparisonRole": "candidate-non-selected",
+      "exactReceivedHardwareStorageImageAndWorkloadManifestSha256": null,
+      "exactReserveCandidateRevisionCellFirmwareAndWiringManifestSha256": null,
+      "candidateReceivedInventoriedAndAuthorized": false
+    }
+  ],
+  "operationIds": [
+    "idle",
+    "boot",
+    "system-update",
+    "package-update",
+    "package-rollback",
+    "retro-import",
+    "save-checkpoint",
+    "profile-update",
+    "log-rotation",
+    "low-space",
+    "filesystem-recovery"
+  ],
+  "commonElectricalEventProfileIds": [
+    "abrupt-production-input-removal",
+    "sustained-brownout",
+    "short-dropout",
+    "undervoltage-ramp",
+    "oscillating-loss-and-reconnect"
+  ],
+  "reserveFaultProfileIds": [
+    "reserve-depleted-before-event",
+    "reserve-disconnected-before-event",
+    "reserve-health-or-capacity-fault",
+    "shutdown-signal-or-control-path-fault",
+    "restore-or-boot-during-insufficient-reserve"
+  ],
+  "comparisonMatrix": {
+    "alternativeIds": [
+      "software-microsd-incumbent",
+      "software-usb3-ssd-fallback",
+      "small-external-ups",
+      "supercapacitor-shutdown-reserve"
+    ],
+    "backupPowerAlternativeIds": [
+      "small-external-ups",
+      "supercapacitor-shutdown-reserve"
+    ],
+    "operationIds": [
+      "idle",
+      "boot",
+      "system-update",
+      "package-update",
+      "package-rollback",
+      "retro-import",
+      "save-checkpoint",
+      "profile-update",
+      "log-rotation",
+      "low-space",
+      "filesystem-recovery"
+    ],
+    "commonElectricalEventProfileIds": [
+      "abrupt-production-input-removal",
+      "sustained-brownout",
+      "short-dropout",
+      "undervoltage-ramp",
+      "oscillating-loss-and-reconnect"
+    ],
+    "reserveFaultProfileIds": [
+      "reserve-depleted-before-event",
+      "reserve-disconnected-before-event",
+      "reserve-health-or-capacity-fault",
+      "shutdown-signal-or-control-path-fault",
+      "restore-or-boot-during-insufficient-reserve"
+    ],
+    "alternativeCount": 4,
+    "backupPowerAlternativeCount": 2,
+    "operationCount": 11,
+    "commonElectricalEventProfileCount": 5,
+    "reserveFaultProfileCount": 5,
+    "commonScenarioCellCount": 220,
+    "reserveFaultScenarioCellCount": 110,
+    "totalScenarioCellCount": 330,
+    "minimumValidPowerCutTrialsPerAlternative": 200,
+    "sameExactTargetWorkloadOperationEventScheduleAndOraclesRequired": true,
+    "everyAttemptFailureInvalidationRetryAndWorstCaseMustRemainVisible": true,
+    "alternativeOperationEventOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "cut-command-to-observed-input-and-rail-loss-microseconds",
+      "event-detection-to-shutdown-request-and-completion-microseconds",
+      "usable-hold-up-and-required-shutdown-margin-microseconds",
+      "rail-voltage-current-power-energy-and-brownout-waveform",
+      "bootability-committed-state-authority-and-filesystem-disposition",
+      "wrong-slot-package-profile-save-retro-and-recovery-counts",
+      "false-shutdown-missed-event-loop-and-degraded-mode-counts",
+      "recharge-time-state-of-charge-health-capacity-and-cycle-count",
+      "fresh-aged-hot-cold-and-depleted-reserve-margin",
+      "standby-load-charge-thermal-acoustic-radio-and-emi-effects",
+      "complete-delivered-cost-energy-cost-volume-mass-and-service-time",
+      "warranty-return-supply-maintenance-lifecycle-and-expiry-disposition",
+      "invalid-stopped-retried-adverse-and-worst-case-ledger"
+    ],
+    "independentElectricalTimingStateSafetyCostAndLifecycleOraclesRequired": true,
+    "vendorSpecificationCalculatedCapacityOrCleanShutdownMaySubstituteForIntegratedEvidence": false,
+    "preRepairFirstFailureEvidenceAndEveryAttemptMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidPowerCutTrialsPerAlternative": 200,
+    "maximumValidProductFailures": 0,
+    "maximumBootLoopsOrUnboundedRecoveryStates": 0,
+    "maximumCommittedStateCorruptionsOrUnauthorizedAuthorityChanges": 0,
+    "maximumMissedRequiredShutdownsOrUnsafeReserveTransitions": 0,
+    "maximumElectricalThermalFireShockLeakageSwellingOrHouseholdSafetyFailures": 0,
+    "maximumUnmeasuredOrHarnessInvalidTrialsCountedAsValid": 0,
+    "maximumAlternativeOperationEventOrAggregateFailureRescues": 0,
+    "maximumPiLowerCostDeliveredReferenceCents": 65000,
+    "sameExactProductWorkloadScheduleAndOraclesRequiredAcrossAlternatives": true,
+    "softwareAndStorageQualificationRemainsIndependentOfReserveEvidence": true,
+    "qualifiedMicrosdSoftwareBaselinePassKeepsNoBackupPowerAsIncumbent": true,
+    "failedMicrosdRequiresDocumentedUsb3SsdFallbackEvaluationBeforeReserveSelection": true,
+    "reserveFailureOrDepletionMustFailSafeWithoutFalseBootabilityOrCommitClaims": true,
+    "exactReceivedCandidateRevisionCellFirmwareWiringAndLifecycleEvidenceRequired": true,
+    "backupPowerSelectionRequiresSupersedingD109OwnerDecision": true,
+    "allOpenSamplesThresholdsSchedulesCostRulesAndRankingMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "repeatedInterruptionFailureTriggerCountAndWindow": null,
+    "minimumReceivedUnitsAndIndependentLotsPerAlternative": null,
+    "minimumValidTrialsPerCommonScenarioCell": null,
+    "minimumValidTrialsPerReserveFaultScenarioCell": null,
+    "minimumFreshAndEndOfLifeReserveMarginMicroseconds": null,
+    "maximumEventDetectionLatencyMicroseconds": null,
+    "maximumSafeShutdownCompletionMicroseconds": null,
+    "minimumSustainedOutputVoltageMillivoltsByLoadPhase": null,
+    "maximumFalseShutdownMissedEventOrReconnectLoopCount": null,
+    "maximumRechargeTimeMicroseconds": null,
+    "maximumStandbyAndChargingPowerMilliwatts": null,
+    "maximumTemperatureRiseMillicelsiusByPhase": null,
+    "minimumServiceLifeSecondsAndChargeDischargeCycles": null,
+    "maximumDeliveredCostDeltaCents": null,
+    "maximumLifetimeEnergyAndReplacementCostCents": null,
+    "maximumAssembledVolumeAndMassDelta": null,
+    "maximumInstallationAndServiceTimeSeconds": null,
+    "maximumAvailabilityOrUserRecoveryPenaltyMicroseconds": null,
+    "decisionHorizonRankingWeightsTieBreakExpiryAndRetestPolicySha256": null
+  },
+  "decisionProtocol": {
+    "softwareMicrosdPowerCutResultSha256": null,
+    "softwareUsb3SsdPowerCutResultSha256": null,
+    "smallExternalUpsPowerCutLifecycleAndCostResultSha256": null,
+    "supercapacitorPowerCutLifecycleAndCostResultSha256": null,
+    "completeComparisonResultSha256": null,
+    "recommendedAlternativeId": null,
+    "recommendedDisposition": null,
+    "d109SupersedingDecisionId": null,
+    "passingReserveAutomaticallyOverridesD109": false,
+    "fewerFailuresAverageOrLowerCostMayRescueAnyFixedGateFailure": false,
+    "selectionMustBeDerivedFromFrozenCompleteEvidenceAndIndependentReview": true
+  },
+  "authorityBoundary": {
+    "exactTargetStorageImageWorkloadAndElectricalFixtureManifestSha256": null,
+    "exactUpsSupercapacitorRevisionCellFirmwareWiringAndSafetyManifestSha256": null,
+    "eventScheduleTriggerObservationOracleAndRestoreProtocolSha256": null,
+    "agingTemperatureChargeDepletionFaultAndLifecycleProtocolSha256": null,
+    "costEnergyVolumeMassServiceSupplyWarrantyAndExpiryProtocolSha256": null,
+    "resultSchemaDataRightsRetentionIncidentAndIndependentReviewProtocolSha256": null,
+    "purchaseReturnOrVendorContactAuthorized": false,
+    "wiringChargingFirmwareMutationOrElectricalAssemblyAuthorized": false,
+    "destructivePowerFaultTargetOrReserveOperationAuthorized": false,
+    "candidateSelectionD109SupersessionBomMutationPublicationOrProductClaimAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueAlternativeUnitLotEventOperationTrialFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawSerialUsbPciFirmwareBatteryCellSmartOrDeviceIdentifiersAllowed": false,
+    "sellerReceiptOrderReturnWarrantySupportOrContactIdentifiersAllowed": false,
+    "hostnamesUsernamesPathsEnvironmentArgumentsNetworkOrFilesystemValuesAllowed": false,
+    "profileSaveBrowserCameraAudioVideoControllerPayloadOrParticipantDataAllowed": false,
+    "credentialsTokensKeysSecretsPaymentTaxOrStreetAddressDataAllowed": false,
+    "freeTextElectricalFirmwareKernelShutdownFaultServiceOrResultLogsAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I032-001-d109-trigger-and-incumbent-power-cut-result",
+      "I032-002-qualified-microsd-and-usb3-ssd-storage-results",
+      "I032-003-exact-final-pi-target-image-workload-and-power-manifest",
+      "I032-004-exact-ups-supercapacitor-revision-cell-firmware-and-wiring-candidates",
+      "I032-005-reviewed-electrical-fixture-waveform-safety-and-emergency-stop",
+      "I032-006-operation-transition-trigger-oracle-baseline-and-restore-readiness",
+      "I032-007-samples-trials-environments-aging-faults-and-stop-rules",
+      "I032-008-hold-up-shutdown-voltage-false-trigger-and-availability-thresholds",
+      "I032-009-cost-energy-volume-mass-service-lifecycle-and-supply-thresholds",
+      "I032-010-decision-horizon-ranking-tie-break-expiry-and-retest-policy",
+      "I032-011-result-data-rights-retention-incident-and-independent-review-policy",
+      "I032-012-purchase-operation-selection-and-d109-supersession-authority"
+    ]
+  },
+  "result": null
+}
