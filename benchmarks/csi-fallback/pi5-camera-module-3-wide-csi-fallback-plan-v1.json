@@ -1,0 +1,271 @@
+{
+  "format": "vcg-pi5-csi-fallback-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "i033-i034-pi5-camera-module-3-wide-csi-fallback-2026-07-26",
+  "observedAt": "2026-07-26",
+  "qualificationScope": [
+    "I-033",
+    "I-034",
+    "Q-013",
+    "D-043",
+    "D-044",
+    "D-045",
+    "D-090",
+    "D-091",
+    "D-092",
+    "D-110"
+  ],
+  "claimBoundary": "This is a strict source-bound zero-result conditional plan for testing Raspberry Pi Camera Module 3 Wide as a Pi-only CSI fallback after one exact shared-UVC product gate fails. D-043 keeps one replaceable wide-angle UVC camera as the cross-tier incumbent. The current source note that Camera Module 3 Wide has autofocus and a 120-degree diagonal field of view is merchandise capability context, not received-device, calibrated useful-area, image-quality, latency, enclosure, privacy, service, maintenance, or qualification evidence. Advertised field of view, a libcamera preview, one frame, lower glass-to-memory latency, cable convenience, a UVC driver fault, another camera, another target, an average, or an aggregate cannot open the fallback or prove that CSI materially closes the exact failure. Camera Module 3 Wide changes sensor, optics, lens, controls, rolling-shutter behavior and interface together, so its result is a complete camera-path comparison and cannot be attributed to CSI alone without a reviewed matched-hardware control. A failed UVC cell remains failed and CSI cannot qualify UVC, Steam Machine, ordinary x86 Linux, or the shared-camera product claim. Exact trigger evidence, cameras, revisions, lenses, drivers, modes, timestamps, target, enclosure, thresholds, schedule, results and authority remain open. No purchase, vendor contact, installation, ribbon routing, camera operation, participant collection, persistent calibration write, product selection, D-043 supersession, BOM mutation, publication, or compatibility claim is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "d043-uvc-incumbent-and-q013-conditional-csi-boundary",
+      "path": "docs/OPEN_QUESTIONS.md",
+      "sha256": "5dd7b29050d6dc0e8a6a1a0fe88b5c929d46e3be25af74d966ee52dc2cfd1689"
+    },
+    {
+      "role": "camera-module-3-wide-source-capability-note",
+      "path": "docs/RASPBERRY_PI_AI_HAT.md",
+      "sha256": "6f534aea4d068033e22fb0b47fee6d45b89da73548242fc234ae87b51bfe7faf"
+    },
+    {
+      "role": "shared-wide-uvc-incumbent-qualification-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "usb-and-conditional-csi-cabling-boundary",
+      "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
+      "sha256": "7ea4f9ce0915160042eac3c59e7a28e8d1229397a2d466f43e38e6b88de69e3d"
+    },
+    {
+      "role": "integrated-camera-placement-and-coverage-boundary",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "7ab1f623608aa11dc5089c0a2deb3c7d19ecacdba43fa8d4a3f509feadbf3227"
+    },
+    {
+      "role": "lens-distortion-and-inference-input-boundary",
+      "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
+      "sha256": "ba32557705618447aade0586578a9ab69730d0540b28878d65c1621041e10ad1"
+    },
+    {
+      "role": "capture-controls-lighting-and-frame-quality-boundary",
+      "path": "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json",
+      "sha256": "27fb5959a85125008634c94d503ba690e0bab5a3f6fff84f6ade6619c09f8db0"
+    },
+    {
+      "role": "center-quarter-edge-pose-accuracy-boundary",
+      "path": "benchmarks/pose-edge-accuracy/mediapipe-edge-accuracy-plan-v1.json",
+      "sha256": "29f69897de1c78fa074cfeed9043d2ad9662336c84d53546b47adb9a722afb14"
+    },
+    {
+      "role": "real-room-action-and-negative-session-boundary",
+      "path": "benchmarks/real-room-one-player/first-real-room-one-player-plan-v1.json",
+      "sha256": "b9c360d1135730ac1ed433db936a99d1c3927bc350298e44085bc67945ac4009"
+    },
+    {
+      "role": "pi5-complete-product-cost-and-latency-contract",
+      "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
+      "sha256": "21b55a9b5e5644ed5cff3598a432b195650cd08518f8ab4c02eeb9e27e621efb"
+    }
+  ],
+  "triggerPolicy": {
+    "incumbentCameraPathId": "shared-wide-uvc-incumbent",
+    "fallbackCameraPathId": "camera-module-3-wide-csi",
+    "requiredExactUvcFailureResultSha256": null,
+    "requiredFailedGateId": null,
+    "requiredFailureReproductionAndRootCauseProtocolSha256": null,
+    "ownerReviewedFallbackOpeningDecisionId": null,
+    "validSharedUvcProductFailureRequired": true,
+    "vendorSpecificationCableConvenienceDriverAvailabilityOrSingleRunMayOpenFallback": false,
+    "anotherTargetCameraModeCellOrAggregateMayOpenFallback": false,
+    "fallbackExecutionOpened": false
+  },
+  "cameraPaths": [
+    {
+      "cameraPathId": "shared-wide-uvc-incumbent",
+      "interfaceClass": "usb-uvc",
+      "comparisonRole": "required-incumbent-control",
+      "requiredTargetIds": [
+        "pi5-lower-cost-reference"
+      ],
+      "exactReceivedCameraRevisionLensAndCableManifestSha256": null,
+      "exactDriverFirmwareModeControlAndTimestampManifestSha256": null,
+      "exactIntegratedEnclosurePlacementPrivacyAndPowerManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "cameraPathId": "camera-module-3-wide-csi",
+      "interfaceClass": "pi-csi",
+      "comparisonRole": "conditional-fallback-candidate",
+      "requiredTargetIds": [
+        "pi5-lower-cost-reference"
+      ],
+      "exactReceivedCameraRevisionLensAndCableManifestSha256": null,
+      "exactDriverFirmwareModeControlAndTimestampManifestSha256": null,
+      "exactIntegratedEnclosurePlacementPrivacyAndPowerManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    }
+  ],
+  "attributionPolicy": {
+    "cameraModule3WideChangesSensorOpticsLensControlsAndInterfaceTogether": true,
+    "comparisonConclusionClass": "complete-camera-path-difference",
+    "matchedSensorOpticsLensControlInterfaceAttributionPlanSha256": null,
+    "pureCsiInterfaceBenefitMayBeClaimedWithoutMatchedControl": false,
+    "lowerLatencyWiderFieldOrBetterAccuracyMayBeAttributedToCsiAlone": false,
+    "combinedPathMayBeSelectedWithoutClosingExactTriggerAndAllProductGates": false
+  },
+  "phaseIds": [
+    "receipt-identity-install-and-mode-enumeration",
+    "calibrated-coverage-distortion-crop-and-floor-geometry",
+    "exposure-to-memory-latency-jitter-buffering-and-timestamps",
+    "capture-controls-lighting-image-quality-and-motion-blur",
+    "pose-edge-action-accuracy-and-exposure-to-action-latency",
+    "sustained-complete-workload-power-thermal-radio-and-frame-integrity",
+    "boot-update-reconnect-fault-recovery-and-calibration-invalidation",
+    "enclosure-privacy-service-maintenance-cost-and-independent-review"
+  ],
+  "comparisonMatrix": {
+    "cameraPathIds": [
+      "shared-wide-uvc-incumbent",
+      "camera-module-3-wide-csi"
+    ],
+    "phaseIds": [
+      "receipt-identity-install-and-mode-enumeration",
+      "calibrated-coverage-distortion-crop-and-floor-geometry",
+      "exposure-to-memory-latency-jitter-buffering-and-timestamps",
+      "capture-controls-lighting-image-quality-and-motion-blur",
+      "pose-edge-action-accuracy-and-exposure-to-action-latency",
+      "sustained-complete-workload-power-thermal-radio-and-frame-integrity",
+      "boot-update-reconnect-fault-recovery-and-calibration-invalidation",
+      "enclosure-privacy-service-maintenance-cost-and-independent-review"
+    ],
+    "requiredUpstreamCoverageIds": [
+      "shared-camera-qualification",
+      "integrated-camera-geometry",
+      "lens-distortion-rectification",
+      "capture-policy-and-lighting",
+      "center-quarter-edge-pose",
+      "real-room-one-player-action-and-negative-sessions",
+      "d110-camera-to-action-latency",
+      "complete-pi5-product-workload"
+    ],
+    "cameraPathCount": 2,
+    "phaseCount": 8,
+    "requiredPhaseCellCount": 16,
+    "requiredUpstreamCoverageCount": 8,
+    "everyPathRunsEveryPhaseAndApplicableUpstreamCoverage": true,
+    "sameExactTargetImageWorkloadPlacementLightingScheduleAndOraclesRequired": true,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true,
+    "pathPhaseCoveragePersonaPositionLightingOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-camera-lens-revision-cable-mode-driver-and-control-disposition",
+      "calibrated-horizontal-vertical-diagonal-and-usable-pose-area",
+      "distortion-crop-rectification-floor-and-edge-error",
+      "exposure-to-first-authoritative-memory-p50-p95-p99-worst-microseconds",
+      "capture-period-jitter-buffer-depth-drop-duplicate-corrupt-and-reorder-counts",
+      "exposure-gain-white-balance-focus-flicker-blur-color-and-image-quality",
+      "core17-coverage-jitter-landmark-error-action-precision-recall-and-recovery",
+      "exposure-to-game-api-p50-p95-p99-worst-microseconds",
+      "cpu-memory-bandwidth-power-thermal-radio-emi-and-coexistence",
+      "boot-update-reconnect-fault-calibration-invalidation-and-replacement",
+      "shutter-indicator-disablement-enclosure-cable-service-and-household-safety",
+      "delivered-cost-volume-mass-installation-maintenance-and-supply",
+      "invalid-stopped-retried-adverse-and-worst-case-ledger"
+    ],
+    "independentExposureClockOpticalPoseActionSystemSafetyCostAndServiceOraclesRequired": true,
+    "captureArrivalVendorUiAdvertisedFovPreviewOrInferenceOnlyTimingMaySubstitute": false,
+    "everyAttemptAndPreRepairFirstFailureMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "maximumValidProductFailures": 0,
+    "maximumMissingRequiredPhaseCells": 0,
+    "maximumUnmeasuredOrInvalidTrialsCountedAsPassing": 0,
+    "maximumPathPhaseCoveragePersonaPositionLightingOrAggregateRescues": 0,
+    "requiredCaptureWidthPixels": 1920,
+    "requiredCaptureHeightPixels": 1080,
+    "requiredSustainedCaptureFramesPerSecond": 60,
+    "maximumExposureToGameApiP95Microseconds": 120000,
+    "exactFailedUvcGateMustRemainFailedAndVisible": true,
+    "csiFallbackMustMateriallyCloseExactTriggerWithoutCreatingAnotherProductFailure": true,
+    "sameOrStricterProductSafetyPrivacyRecoveryAndActionGatesRequired": true,
+    "csiEvidenceMayQualifySharedUvcOrAnotherTarget": false,
+    "pureInterfaceAttributionRequiresMatchedHardwareControl": true,
+    "physicalOpticalShutterAndTruthfulSoftwareCameraStateRemainRequired": true,
+    "passingFallbackRequiresSupersedingD043OwnerDecisionBeforeSelection": true,
+    "allOpenTriggersSamplesThresholdsSchedulesRankingAndRetestRulesMustBeFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumRepeatedUvcFailureCountAndWindow": null,
+    "minimumReceivedUnitsAndIndependentLotsPerCameraPath": null,
+    "minimumValidTrialsPerPhaseAndUpstreamCoverageCell": null,
+    "minimumSustainedSoakSeconds": null,
+    "minimumMaterialImprovementOnExactFailedGate": null,
+    "maximumGlassToMemoryP95P99AndWorstMicroseconds": null,
+    "maximumCapturePeriodJitterAndBufferDepth": null,
+    "maximumFrameDropDuplicateCorruptAndReorderCounts": null,
+    "minimumCalibratedUsefulPoseAreaAndCoverage": null,
+    "maximumDistortionCropFloorAndEdgeRegression": null,
+    "maximumImageQualityBlurColorAndLightingRegression": null,
+    "maximumPoseActionAccuracyAndRecoveryRegression": null,
+    "maximumPowerThermalRadioAndResourceRegression": null,
+    "maximumBootReconnectFaultAndCalibrationRecoveryTime": null,
+    "maximumDeliveredCostVolumeMassInstallationAndMaintenanceDelta": null,
+    "minimumSupplyWarrantyReturnAndServiceContinuity": null,
+    "decisionRankingTieBreakExpiryRetestAndAttributionPolicySha256": null
+  },
+  "decisionProtocol": {
+    "exactUvcFailureAndTriggerReviewSha256": null,
+    "sharedUvcComparisonResultSha256": null,
+    "cameraModule3WideCsiComparisonResultSha256": null,
+    "completeMatchedComparisonResultSha256": null,
+    "recommendedCameraPathId": null,
+    "recommendedDisposition": null,
+    "d043SupersedingDecisionId": null,
+    "passingCsiPathAutomaticallyOverridesSharedUvc": false,
+    "lowerLatencyWiderCoverageLowerCostOrAggregateMayRescueFixedFailure": false,
+    "selectionMustBeDerivedFromFrozenCompleteEvidenceAndIndependentReview": true
+  },
+  "authorityBoundary": {
+    "exactTriggerTargetCameraDriverModeEnclosureAndWorkloadManifestSha256": null,
+    "opticalGeometryExposureClockPoseActionAndGroundTruthProtocolSha256": null,
+    "sustainedFaultRecoveryCalibrationPrivacyAndSafetyProtocolSha256": null,
+    "costServiceMaintenanceSupplyAttributionAndIndependentReviewProtocolSha256": null,
+    "resultSchemaDataRightsRetentionIncidentAndPublicationProtocolSha256": null,
+    "purchaseReturnOrVendorContactAuthorized": false,
+    "cameraInstallationRibbonRoutingDriverFirmwareOrPersistentCalibrationMutationAuthorized": false,
+    "cameraTargetParticipantOrDestructiveFaultOperationAuthorized": false,
+    "cameraPathSelectionD043SupersessionBomMutationPublicationOrCompatibilityClaimAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueCameraUnitLotSessionPersonaPositionLightingTrialFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawSerialUsbCsiFirmwareDeviceOrStableHardwareIdentifiersAllowed": false,
+    "sellerReceiptOrderReturnWarrantySupportOrContactIdentifiersAllowed": false,
+    "hostnamesUsernamesPathsEnvironmentArgumentsNetworkOrFilesystemValuesAllowed": false,
+    "rawFramesAudioVideoProfileSaveControllerPayloadOrParticipantIdentifiersAllowed": false,
+    "credentialsTokensKeysSecretsPaymentTaxOrStreetAddressDataAllowed": false,
+    "freeTextCameraDriverKernelOpticalFaultServiceOrResultLogsAllowed": false,
+    "failedInvalidStoppedRetriedAdverseAndWorstCaseEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I033-001-valid-shared-uvc-failure-result-and-exact-failed-gate",
+      "I033-002-owner-reviewed-q013-fallback-opening-and-d043-boundary",
+      "I033-003-exact-final-pi5-image-workload-enclosure-and-camera-manifests",
+      "I033-004-exact-received-uvc-and-camera-module-3-wide-units-lots-and-accessories",
+      "I034-005-matched-schedule-exposure-clock-optical-pose-action-and-ground-truth-protocol",
+      "I034-006-capture-mode-driver-control-buffer-and-inference-input-authority",
+      "I034-007-samples-repetitions-soak-lighting-placements-faults-and-stop-rules",
+      "I034-008-material-improvement-latency-jitter-quality-coverage-and-action-thresholds",
+      "I034-009-power-thermal-radio-enclosure-privacy-safety-and-recovery-thresholds",
+      "I034-010-cost-service-maintenance-supply-attribution-ranking-expiry-and-retest-policy",
+      "I034-011-result-data-rights-retention-incident-and-independent-review-policy",
+      "I034-012-purchase-installation-operation-selection-and-d043-supersession-authority"
+    ]
+  },
+  "result": null
+}
