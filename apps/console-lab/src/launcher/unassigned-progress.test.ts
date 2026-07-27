@@ -69,6 +69,34 @@ describe("UnassignedProgressController", () => {
     ).toThrow("too many");
   });
 
+  it("rejects invisible visible-text controls and counts labels in scalars", () => {
+    const gameController = String.fromCodePoint(0x1f3ae);
+    for (const unsafe of ["\u0085", "\u00ad", "\u200b", "\u202e", "\u2066", "\ufeff"]) {
+      expect(() =>
+        new UnassignedProgressController([entry({ gameTitle: `Game${unsafe}` })]),
+      ).toThrow("invalid game title");
+      expect(() =>
+        new UnassignedProgressController([entry({ slotLabel: `Slot${unsafe}` })]),
+      ).toThrow("invalid slot label");
+      expect(() =>
+        new UnassignedProgressController([
+          entry({ progressSummary: `Progress${unsafe}` }),
+        ]),
+      ).toThrow("invalid progress summary");
+    }
+
+    expect(() =>
+      new UnassignedProgressController([
+        entry({ gameTitle: gameController.repeat(48) }),
+      ]),
+    ).not.toThrow();
+    expect(() =>
+      new UnassignedProgressController([
+        entry({ gameTitle: gameController.repeat(49) }),
+      ]),
+    ).toThrow("invalid game title");
+  });
+
   it("creates a path-free play intent without changing ownership", () => {
     const controller = new UnassignedProgressController([entry()]);
     const plan = controller.planPlay("obstacle-main");

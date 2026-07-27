@@ -22,12 +22,12 @@
     {
       "role": "physical-tv-wake-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "2f6d18a3a88af5e3dfc1e49b7d0b3df52b50cf6ec7f6e95f80bd6d52c8e9a9e7"
+      "sha256": "eb9782d0590e8609319fc3b65f5fd11820e4f5967c075863469ccf496bc6f678"
     },
     {
       "role": "physical-controller-wake-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "cb96550ec3e8632436078d16bd22ac0e9018cf5ee083361d3a5498ea441d9b41"
+      "sha256": "6ae883dbca3ea743a6d7a75b0f66de6a4ec5b74a7dcf8585c9b774f44d32f39c"
     },
     {
       "role": "pi-thermal-boundary",

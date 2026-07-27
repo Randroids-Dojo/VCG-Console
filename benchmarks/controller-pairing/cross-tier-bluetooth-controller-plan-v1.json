@@ -12,12 +12,12 @@
     {
       "role": "cross-tier-controller-campaign-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+      "sha256": "804074372cbd5ae8111adf5fad7971792cbb5f1ebbd87916d4943d2ca5dc30ce"
     },
     {
       "role": "pi-radio-coexistence-boundary",
       "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
-      "sha256": "90fc23e78ccc5b1855ace8f8d40ee65d77a09e6ba72847319a93d42effb40958"
+      "sha256": "884852b709ac9447a71a6d7c261b54fd6267a090cf5e4a9ac61dbe1befb360be"
     },
     {
       "role": "controller-protocol-boundary",

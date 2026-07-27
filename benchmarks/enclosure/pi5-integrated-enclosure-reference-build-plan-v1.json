@@ -30,7 +30,7 @@
     {
       "role": "primary-room-and-required-eight-by-eight-zone-boundary",
       "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
-      "sha256": "4875ea21d07e4e1037a7d33d145c236250fe25944a58faa3985a3fad7d4a5e65"
+      "sha256": "0753391d59b629d6c85ea065d26163875186da158289dd84e9921199e516abeb"
     },
     {
       "role": "shared-wide-uvc-1080p60-shutter-and-indicator-boundary",
@@ -40,12 +40,12 @@
     {
       "role": "integrated-fixed-axis-coverage-and-calibration-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "3d2a2629847df256a0f68c5fbab763df1665d332dfe69eec3268b183dbb7bd6e"
+      "sha256": "0a9f4cb3f6e650a430bdc611a8f9dd622462a01e4a925539ef851e011e68d307"
     },
     {
       "role": "camera-cable-routing-strain-relief-and-recovery-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "6ee855ade5810f79575b6ee578bc28cdf0be333c3426d594be62289525c3ea0f"
+      "sha256": "3776e3240d1700d6927b9c895ee4c021e7f5b33d3355cd560502e62aa1fd8f30"
     },
     {
       "role": "enclosed-cooling-thermal-and-acoustic-boundary",
@@ -55,37 +55,37 @@
     {
       "role": "closed-enclosure-wifi-bluetooth-camera-and-controller-boundary",
       "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
-      "sha256": "90fc23e78ccc5b1855ace8f8d40ee65d77a09e6ba72847319a93d42effb40958"
+      "sha256": "884852b709ac9447a71a6d7c261b54fd6267a090cf5e4a9ac61dbe1befb360be"
     },
     {
       "role": "physical-shutter-indicator-idle-and-lifecycle-truth-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "52fce7f37ce498f174a076e752578bd8cea825b52537f63e959fd6cb77bcea43"
+      "sha256": "9cdc345de6dbc3d417cad515fcfff1a73292cf52d5b623894c7dd542fbc59338"
     },
     {
       "role": "ordinary-fastener-camera-service-and-recalibration-boundary",
       "path": "benchmarks/camera-service/camera-replacement-recalibration-plan-v1.json",
-      "sha256": "c1484739d8b1bd983f17e2f2b1ad901fdb17506ec520bf52c07dcb555747f60a"
+      "sha256": "bea660c826c985dad1da1e8cd258bb883a7e0a869de7f92891560a40dfa24294"
     },
     {
       "role": "pi-low-power-idle-wake-privacy-and-reliability-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "313fee2a12b16f45ba681aebb29890439667429d46e70b6c48cd86c0f7a7ce21"
+      "sha256": "f0bdbbdd72ba29585cf1ea820add76f81604eaea0e40032e9e37f70e5398479d"
     },
     {
       "role": "complete-delivered-pi-cost-and-no-cost-rescue-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "a39e8a5a0a867a61468412107edca51889c7ce11f103de8035512e2a3bd56465"
+      "sha256": "ce6ac9d37f3c67830af49ccf67b089692edd094cbaa81bdfd226954acba77a99"
     },
     {
       "role": "failure-critical-component-substitute-qualification-boundary",
       "path": "benchmarks/failure-critical-substitutes/cross-tier-failure-critical-substitute-plan-v1.json",
-      "sha256": "c207f218b3f4ac80f804ba024a1dfc5911be9e0fefaada0f2f2ff47cde15433d"
+      "sha256": "df1ffc1d69bf84b7c716631437ec2d12943a828db3ca4b17696c67827ee18eb5"
     },
     {
       "role": "pi-safe-shutdown-storage-and-reserve-boundary",
       "path": "benchmarks/shutdown-reserve/pi5-shutdown-reserve-comparison-plan-v1.json",
-      "sha256": "5fb9d906dbe603d9dd574f5051dcbb9d6ea42dd80460c052e87adb6413915f3f"
+      "sha256": "2e6b2810a2c565fac92acd124c77f7af8c988a8fd15cbeed3f0bb0a6b4c98595"
     }
   ],
   "prerequisiteGate": {

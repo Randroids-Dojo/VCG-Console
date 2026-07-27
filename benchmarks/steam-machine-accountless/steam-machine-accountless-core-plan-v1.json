@@ -45,12 +45,12 @@
     {
       "role": "steamos-input-plan-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "cd5a93bafd63a88aaedab650c273de5beb52ea0bbd79779e8d0835c5104ea786"
+      "sha256": "ac707704d261514b5dc51b8fd573e786248cbb86a8504ea082191489d16a07c8"
     },
     {
       "role": "steamos-shell-plan-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+      "sha256": "ce21102bb8737382674b6bea155b219b92637d7193f94fd166162a8e1ad14189"
     },
     {
       "role": "boot-resume-timing-boundary",

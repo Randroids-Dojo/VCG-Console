@@ -15,7 +15,7 @@
     {
       "role": "supported-dual-boot-zero-result-boundary",
       "path": "benchmarks/steam-machine-dual-boot/steam-machine-windows-dual-boot-status-v1.json",
-      "sha256": "a840c94bdfdcc1b1ee89fa16b0c24e40c18e6358975fe850266997ba7377b03b"
+      "sha256": "ddbad33f6888287e302d41ef912ecdb9335981f7010713a35e9cb8a037a57b83"
     },
     {
       "role": "windows-development-workstation-evidence-and-platform-limit",
@@ -40,17 +40,17 @@
     {
       "role": "steamos-input-action-and-accountless-base-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "cd5a93bafd63a88aaedab650c273de5beb52ea0bbd79779e8d0835c5104ea786"
+      "sha256": "ac707704d261514b5dc51b8fd573e786248cbb86a8504ea082191489d16a07c8"
     },
     {
       "role": "steam-machine-accountless-core-boundary",
       "path": "benchmarks/steam-machine-accountless/steam-machine-accountless-core-plan-v1.json",
-      "sha256": "3f5193edc0df7ad5989afeb6e5b1ff8fbbd1aa02685f15016cbfade23a958a91"
+      "sha256": "68ee9cfaad656d59ab29a70dc09a8fc81543e9ecfc2cb0e764fceaece2233d88"
     },
     {
       "role": "steamos-outer-shell-lifecycle-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+      "sha256": "ce21102bb8737382674b6bea155b219b92637d7193f94fd166162a8e1ad14189"
     },
     {
       "role": "cross-tier-boot-resume-launch-timing-boundary",
@@ -60,12 +60,12 @@
     {
       "role": "complete-system-economics-and-maintenance-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "a39e8a5a0a867a61468412107edca51889c7ce11f103de8035512e2a3bd56465"
+      "sha256": "ce6ac9d37f3c67830af49ccf67b089692edd094cbaa81bdfd226954acba77a99"
     },
     {
       "role": "controller-only-cold-start-and-recovery-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "402b183fc044719d2ff88b4b45c0dd7342cada057eb2d2adfe11460ca0a6953a"
+      "sha256": "d623f02f1d7527551476223d8c587a9d8722f2159a073edf7e60910d3586a8f2"
     },
     {
       "role": "fixed-product-success-and-latency-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "required-pi-and-ordinary-linux-tier-boundary",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "adc94e0481236b64cb6741f5dca16795417614e1682947e4e964c87f9c219218"
+      "sha256": "f23287c0fe418269412c59e103ca7d1ee076fa8c67d47d328db8fc859ace67fd"
     }
   ],
   "prerequisiteGate": {

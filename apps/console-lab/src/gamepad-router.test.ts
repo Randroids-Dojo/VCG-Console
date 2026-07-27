@@ -417,6 +417,51 @@ describe("GamepadRouter", () => {
     expect(connections).toEqual([]);
   });
 
+  it("rejects invisible controller identifiers and counts their limit in scalars", () => {
+    const gameController = String.fromCodePoint(0x1f3ae);
+    const environment = new FakeGamepadEnvironment();
+    const connections: string[] = [];
+    const faults: GamepadObservationFault[] = [];
+    const router = new GamepadRouter(
+      () => undefined,
+      (value) => connections.push(value.id),
+      environment,
+      undefined,
+      (fault) => faults.push(fault),
+    );
+    router.start();
+
+    for (const unsafe of ["\u0085", "\u00ad", "\u200b", "\u202e", "\u2066", "\ufeff"]) {
+      environment.dispatch(
+        "gamepadconnected",
+        browserGamepad(0, `Controller${unsafe}`),
+      );
+    }
+    environment.dispatch(
+      "gamepadconnected",
+      browserGamepad(0, gameController.repeat(256)),
+    );
+
+    expect(faults).toEqual(Array.from({ length: 6 }, () => "invalid-device"));
+    expect(connections).toEqual([gameController.repeat(256)]);
+
+    const overlongEnvironment = new FakeGamepadEnvironment();
+    const overlongFaults: GamepadObservationFault[] = [];
+    const overlongRouter = new GamepadRouter(
+      () => undefined,
+      () => undefined,
+      overlongEnvironment,
+      undefined,
+      (fault) => overlongFaults.push(fault),
+    );
+    overlongRouter.start();
+    overlongEnvironment.dispatch(
+      "gamepadconnected",
+      browserGamepad(0, gameController.repeat(257)),
+    );
+    expect(overlongFaults).toEqual(["invalid-device"]);
+  });
+
   it("cancels polling and ignores connection events after stop", () => {
     const environment = new FakeGamepadEnvironment();
     const connections: boolean[] = [];

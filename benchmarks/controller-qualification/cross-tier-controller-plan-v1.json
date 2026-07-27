@@ -19,7 +19,7 @@
     {
       "role": "browser-adapter-boundary",
       "path": "apps/console-lab/src/gamepad-router.ts",
-      "sha256": "20f410f2b922219814e6d7ca95014751019f591546536d6075e36235c640828f"
+      "sha256": "8e84ef0ef628762cfe2c028c478a5058e60798e4d9e9970190a4d15d17c2d6ab"
     },
     {
       "role": "canonical-mapping-boundary",

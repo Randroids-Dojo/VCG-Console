@@ -118,6 +118,37 @@ describe("ProfileManagementController", () => {
     ).toThrow("cannot claim a hosted-service boundary");
   });
 
+  it("rejects invisible visible-text controls and counts profile names in scalars", () => {
+    const gameController = String.fromCodePoint(0x1f3ae);
+    for (const unsafe of ["\u0085", "\u00ad", "\u200b", "\u202e", "\u2066", "\ufeff"]) {
+      expect(() =>
+        new ProfileManagementController(
+          [{ ...PROFILE_MANAGEMENT_DEMO_PROFILES[0]!, name: `Player${unsafe}` }],
+          [],
+        ),
+      ).toThrow("invalid profile name");
+      expect(() =>
+        new ProfileManagementController(
+          [{ ...PROFILE_MANAGEMENT_DEMO_PROFILES[0]!, detail: `Local${unsafe}` }],
+          [],
+        ),
+      ).toThrow("invalid profile detail");
+      expect(() =>
+        new ProfileManagementController(
+          PROFILE_MANAGEMENT_DEMO_PROFILES,
+          [{ ...PROFILE_MANAGEMENT_DEMO_PROGRESS[0]!, gameTitle: `Game${unsafe}` }],
+        ),
+      ).toThrow("invalid game title");
+    }
+
+    expect(controller().planCreate(gameController.repeat(24)).name).toBe(
+      gameController.repeat(24),
+    );
+    expect(() => controller().planCreate(gameController.repeat(25))).toThrow(
+      "invalid profile name",
+    );
+  });
+
   it("creates and renames with opaque identity while allowing duplicate display names", () => {
     const manager = controller();
     const create = manager.planCreate("  Randy  ");

@@ -1,3 +1,8 @@
+import {
+  hasUnsafeVisibleTextCharacter,
+  unicodeScalarLength,
+} from "../visible-text";
+
 export const UNASSIGNED_PROGRESS_MAX_ENTRIES = 64;
 export const UNASSIGNED_PROGRESS_MAX_BYTES = 64 * 1024 * 1024 * 1024;
 
@@ -495,9 +500,9 @@ function validateId(value: string, label: string): void {
 function validateText(value: string, maximum: number, label: string): void {
   if (
     typeof value !== "string"
-    || value.length === 0
-    || value.length > maximum
-    || /[\u0000-\u001f\u007f]/u.test(value)
+    || unicodeScalarLength(value) === 0
+    || unicodeScalarLength(value) > maximum
+    || hasUnsafeVisibleTextCharacter(value)
   ) {
     throw new UnassignedProgressError(`invalid ${label}`);
   }

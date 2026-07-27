@@ -1,3 +1,8 @@
+import {
+  hasUnsafeVisibleTextCharacter,
+  unicodeScalarLength,
+} from "./visible-text";
+
 export type ConsoleInputAction = "left" | "right" | "up" | "down" | "select" | "back" | "home" | "pause";
 
 export interface GamepadSnapshot {
@@ -236,9 +241,9 @@ function validateDevice(
     gamepad.index < 0 ||
     gamepad.index > 255 ||
     typeof gamepad.id !== "string" ||
-    gamepad.id.length < 1 ||
-    gamepad.id.length > 256 ||
-    /[\u0000-\u001f\u007f]/.test(gamepad.id) ||
+    unicodeScalarLength(gamepad.id) < 1 ||
+    unicodeScalarLength(gamepad.id) > 256 ||
+    hasUnsafeVisibleTextCharacter(gamepad.id) ||
     !["", "standard", "xr-standard"].includes(gamepad.mapping) ||
     typeof gamepad.connected !== "boolean" ||
     (requireConnected && !gamepad.connected) ||

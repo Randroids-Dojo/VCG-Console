@@ -3,6 +3,10 @@ import {
   AcceptedCalibrationResultCollection,
   type CalibrationReadyResult,
 } from "./calibration-rehearsal";
+import {
+  hasUnsafeVisibleTextCharacter,
+  unicodeScalarLength,
+} from "../visible-text";
 
 export const PROFILE_MANAGEMENT_MAX_PROFILES = 64;
 export const PROFILE_MANAGEMENT_MAX_PROGRESS_RECORDS = 256;
@@ -225,8 +229,6 @@ const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ownerPattern = /^[0-9a-f]{32}$/;
 const calibrationResultPattern =
   /^calibration-fixture-([1-9][0-9]*)-([1-9][0-9]*)$/;
-const unsafeTextPattern =
-  /[\u0000-\u001f\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/u;
 const runtimes = new Set<ProfileManagementRuntime>([
   "remote-web",
   "local-web",
@@ -1285,14 +1287,17 @@ function validateId(value: string, label: string): void {
 }
 
 function validateName(value: string): string {
-  if (typeof value !== "string") {
+  if (
+    typeof value !== "string"
+    || hasUnsafeVisibleTextCharacter(value)
+  ) {
     throw new ProfileManagementError("invalid profile name");
   }
   const normalized = value.trim().normalize("NFC");
   if (
-    normalized.length === 0
-    || normalized.length > 24
-    || unsafeTextPattern.test(normalized)
+    unicodeScalarLength(normalized) === 0
+    || unicodeScalarLength(normalized) > 24
+    || hasUnsafeVisibleTextCharacter(normalized)
   ) {
     throw new ProfileManagementError("invalid profile name");
   }
@@ -1302,9 +1307,9 @@ function validateName(value: string): string {
 function validateText(value: string, maximum: number, label: string): void {
   if (
     typeof value !== "string"
-    || value.length === 0
-    || value.length > maximum
-    || unsafeTextPattern.test(value)
+    || unicodeScalarLength(value) === 0
+    || unicodeScalarLength(value) > maximum
+    || hasUnsafeVisibleTextCharacter(value)
   ) {
     throw new ProfileManagementError(`invalid ${label}`);
   }
