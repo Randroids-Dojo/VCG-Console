@@ -1,0 +1,378 @@
+{
+  "format": "vcg-supervised-libretro-frontend-qualification-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-supervised-libretro-frontend-2026-07-26",
+  "observedAt": "2026-07-26T23:59:59.000Z",
+  "qualificationScope": "I-122, I-123 and I-198 supervised Libretro starter-title and frontend qualification",
+  "claimBoundary": "This is a source-bound zero-result qualification plan. Existing manifest parsing, native argument construction, storage isolation tests, candidate rights screening, synthetic controller evidence and desktop builds do not prove a rights-cleared title, signed frontend or core, target execution, controller-safe play, reserved Home or Back, save durability, audio or video quality, sandbox containment, recovery, update, rollback, uninstall or product qualification. No artifact download, build, install, title selection, rights approval, target operation, participant session, fault injection, publication or distribution is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "signed-package-libretro-rights-controller-and-product-decisions",
+      "path": "docs/DECISIONS.md",
+      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+    },
+    {
+      "role": "implemented-supervised-retroarch-boundary-and-remaining-gates",
+      "path": "docs/RETROARCH_INTEGRATION.md",
+      "sha256": "f6d2d9c006b8ef72ba7e909088b844c76cb79477bd151bcbeeabcc29864d2e1e"
+    },
+    {
+      "role": "starter-title-rights-and-artifact-candidate-screen",
+      "path": "docs/RETRO_STARTER_CATALOG_CANDIDATE_SCREEN_2026-07-24.md",
+      "sha256": "1b0b9edc19af64d0436e935dde34627e1df0c0ad6eb5c9b8a7af8655afcc0b08"
+    },
+    {
+      "role": "closed-zero-admission-starter-title-candidate-evidence",
+      "path": "compliance/retro-starter-candidates/candidate-screen-v1.json",
+      "sha256": "2ef4bf44ceb3385ee87b4e99707ef0b64544bc429381e9ed4dbbc3add28ab722"
+    },
+    {
+      "role": "unverified-uninstalled-retro-2048-candidate-manifest",
+      "path": "catalog/retro-2048.vcg-game.json",
+      "sha256": "920c2f6bcb82e18efb00a486c705dad881e8cec8d3043ebacee46503e028b2df"
+    },
+    {
+      "role": "closed-libretro-manifest-runtime-and-cross-field-contract",
+      "path": "packages/game-manifest/src/index.ts",
+      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+    },
+    {
+      "role": "per-game-profile-save-state-reset-and-removal-boundary",
+      "path": "docs/GAME_SAVE_LIFECYCLE.md",
+      "sha256": "071cf258388ce8f3e4e626105f76cd7670dbda5f08d6d9d3da35714197b55781"
+    },
+    {
+      "role": "canonical-controller-mapping-and-ambiguity-boundary",
+      "path": "docs/CONTROLLER_MAPPING_CONTRACT.md",
+      "sha256": "7aa3e1f930fd4fa28f985643ac0ee05dbcfcaa4e5ad328048f74745577213cb6"
+    },
+    {
+      "role": "unstealable-home-back-focus-and-forced-exit-boundary",
+      "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
+      "sha256": "fd8d01b3b22dae1d2849aa345331003abaff736f01242b9f81a4f2bc0970cd1f"
+    },
+    {
+      "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
+      "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
+      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+    },
+    {
+      "role": "native-trust-loading-containment-retry-and-return-boundary",
+      "path": "docs/GAME_TRUST_TIERS.md",
+      "sha256": "373feb89df4465f8737e62a172aa2e041e7f3c211583be080fea2ec81120dbbe"
+    },
+    {
+      "role": "retro-display-latency-accessibility-and-baseline-feature-policy",
+      "path": "docs/RETRO_DISPLAY_LATENCY_ACCESSIBILITY_POLICY.md",
+      "sha256": "fb0afe3419afdadc7e86722c40c7d4197c7a36443a69dd158cedf865b897c6f8"
+    },
+    {
+      "role": "launch-controller-offline-recovery-and-latency-success-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "cross-tier-cold-boot-controller-only-usability-boundary",
+      "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
+      "sha256": "5c9d35f4e5b3548a03f9a1e6aabcda7e85e0ecccf108f3f647ce1903089da61f"
+    }
+  ],
+  "prerequisiteGate": {
+    "exactRetroArchFrontendCoreBaseConfigAndPackageManifestSha256": null,
+    "exactFallbackFrontendCoreBaseConfigAndPackageManifestSha256": null,
+    "exactRightsClearedStarterTitleRightsArtifactAndPackageManifestSha256": null,
+    "exactManagedContentConformanceFixtureRightsArtifactAndPackageManifestSha256": null,
+    "completeSignedLocalPackageQualificationResultSha256": null,
+    "completeControllerReservedActionKioskAndTargetQualificationResultsSha256": null,
+    "completeSaveUpdateRollbackUninstallAndCleanupProtocolsSha256": null,
+    "exactTargetDisplayAudioControllerNetworkPowerAndInstrumentationManifestSha256": null,
+    "currentlyScreenedCandidateMayOpenExecutionOrCountAsRightsApproval": false,
+    "manifestNativeUnitDesktopOrSyntheticEvidenceMayQualifyTargetBehavior": false,
+    "oneFrontendTargetWorkloadScenarioOrBestCaseMayOpenOrQualifyAnother": false,
+    "executionOpened": false
+  },
+  "frontendRoles": [
+    {
+      "frontendRoleId": "primary-retroarch-required",
+      "frontendId": "retroarch",
+      "selectionRole": "selected-primary-by-D-096",
+      "exactVersionSourceRevisionLicensePackageAndArtifactManifestSha256": null,
+      "exactQualifiedReadinessLivenessWindowAndCleanupAdapterSha256": null,
+      "mustQualifyIndependentlyOnEveryTargetAndWorkload": true,
+      "selectedBuiltInstalledQualifiedAndAuthorized": false
+    },
+    {
+      "frontendRoleId": "fallback-libretro-frontend-required",
+      "frontendId": null,
+      "selectionRole": "unselected-fallback-required-by-I-123",
+      "exactVersionSourceRevisionLicensePackageAndArtifactManifestSha256": null,
+      "exactQualifiedReadinessLivenessWindowAndCleanupAdapterSha256": null,
+      "mustQualifyIndependentlyOnEveryTargetAndWorkload": true,
+      "selectedBuiltInstalledQualifiedAndAuthorized": false
+    }
+  ],
+  "targetRoles": [
+    {
+      "targetId": "ordinary-x86-64-linux-required",
+      "architecture": "x86_64",
+      "productRole": "required-premium-reference",
+      "exactHardwareFirmwareOsCompositorSdlAudioVideoStorageAndPowerManifestSha256": null,
+      "exactControllerDisplayNetworkAndInstrumentationManifestSha256": null,
+      "receivedInventoriedQualifiedAndAuthorized": false
+    },
+    {
+      "targetId": "pi5-lower-cost-aarch64-required",
+      "architecture": "aarch64",
+      "productRole": "required-lower-cost-reference",
+      "exactHardwareFirmwareOsCompositorSdlAudioVideoStorageAndPowerManifestSha256": null,
+      "exactControllerDisplayNetworkAndInstrumentationManifestSha256": null,
+      "receivedInventoriedQualifiedAndAuthorized": false
+    }
+  ],
+  "workloadRoles": [
+    {
+      "workloadRoleId": "rights-cleared-starter-title-required",
+      "catalogRole": "candidate-public-starter-title",
+      "contentMode": "selected-title-defined-contentless-or-managed-content",
+      "exactTitleCoreContentBiosRightsTrademarkAttributionPackageAndArtifactManifestSha256": null,
+      "retro2048OrAnyScreenedCandidateMayQualifyWithoutCompleteIndependentClosure": false,
+      "mustQualifyOnEveryFrontendAndTarget": true,
+      "selectedBuiltInstalledQualifiedAndAuthorized": false
+    },
+    {
+      "workloadRoleId": "managed-content-conformance-fixture-required",
+      "catalogRole": "hidden-developer-qualification-fixture-only",
+      "contentMode": "console-managed-content-required",
+      "exactTitleCoreContentBiosRightsAttributionPackageAndArtifactManifestSha256": null,
+      "retro2048OrAnyScreenedCandidateMayQualifyWithoutCompleteIndependentClosure": false,
+      "mustQualifyOnEveryFrontendAndTarget": true,
+      "selectedBuiltInstalledQualifiedAndAuthorized": false
+    }
+  ],
+  "lifecycleScenarioIds": [
+    "reproducible-signed-frontend-core-title-and-config-package-install",
+    "cold-launch-branded-loading-exact-readiness-and-usable-input",
+    "one-action-start-core-or-content-without-frontend-menu-detour",
+    "controller-discovery-curated-default-glyph-and-player-assignment",
+    "reserved-home-system-overlay-pause-and-exact-resume",
+    "reserved-back-exit-confirmation-cleanup-and-branded-return",
+    "save-write-clean-exit-restart-and-exact-restore",
+    "save-state-create-load-version-binding-and-corruption-refusal",
+    "approved-per-game-core-controller-and-accessibility-override",
+    "family-mode-menu-settings-core-content-and-filesystem-containment",
+    "offline-updater-achievement-command-interface-and-network-denial",
+    "audio-video-sync-latency-frame-pacing-and-baseline-feature-state",
+    "compositor-focus-fullscreen-window-descendant-and-desktop-containment",
+    "runtime-crash-detection-descendant-cleanup-and-branded-return",
+    "runtime-hang-readiness-loss-forced-cleanup-and-branded-return",
+    "signed-update-health-save-preservation-and-generation-switch",
+    "rollback-health-save-state-compatibility-and-last-known-good",
+    "uninstall-save-disposition-no-leftovers-and-clean-reinstall",
+    "suspend-resume-audio-video-input-focus-save-and-runtime-continuity",
+    "missing-tampered-incompatible-frontend-core-content-bios-or-config-refusal"
+  ],
+  "lifecycleMatrix": {
+    "frontendRoleIds": [
+      "primary-retroarch-required",
+      "fallback-libretro-frontend-required"
+    ],
+    "targetIds": [
+      "ordinary-x86-64-linux-required",
+      "pi5-lower-cost-aarch64-required"
+    ],
+    "workloadRoleIds": [
+      "rights-cleared-starter-title-required",
+      "managed-content-conformance-fixture-required"
+    ],
+    "scenarioCount": 20,
+    "requiredFrontendTargetWorkloadScenarioCellCount": 160,
+    "validCyclesPerCell": 20,
+    "requiredLifecycleCycleCount": 3200,
+    "everyCycleRequiresIndependentPackageProcessDescendantWindowInputAudioVideoNetworkStorageAndClockOracles": true,
+    "failedInvalidInterruptedRetriedRolledBackAndPreRepairEvidenceMustRemainVisible": true,
+    "oneFrontendTargetWorkloadScenarioCycleOrAggregateMayRescueFailure": false
+  },
+  "controllerActionIds": [
+    "retropad-dpad-up",
+    "retropad-dpad-down",
+    "retropad-dpad-left",
+    "retropad-dpad-right",
+    "retropad-face-south",
+    "retropad-face-east",
+    "retropad-face-west",
+    "retropad-face-north",
+    "retropad-left-shoulder",
+    "retropad-right-shoulder",
+    "retropad-left-trigger",
+    "retropad-right-trigger",
+    "retropad-left-stick-press",
+    "retropad-right-stick-press",
+    "retropad-select",
+    "retropad-start",
+    "system-home",
+    "system-back",
+    "system-pause",
+    "system-resume",
+    "system-exit-confirm"
+  ],
+  "controllerMatrix": {
+    "frontendCount": 2,
+    "targetCount": 2,
+    "workloadCount": 2,
+    "actionCount": 21,
+    "requiredFrontendTargetWorkloadActionCellCount": 168,
+    "validTrialsPerCell": 20,
+    "requiredControllerActionTrialCount": 3360,
+    "everyTrialRequiresPhysicalSourceCanonicalMappingRecipientGameAndSystemEventOracles": true,
+    "supportedStandardsConformantControllersRequireZeroManualMapping": true,
+    "systemHomeBackPauseResumeAndExitMustNeverReachTheFrontendCoreOrContent": true,
+    "oneControllerActionFrontendTargetWorkloadOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "package-source-revision-license-signature-artifact-readback-and-reproducibility",
+      "title-code-content-asset-trademark-attribution-age-and-update-owner-closure",
+      "frontend-core-content-bios-base-config-and-controller-profile-identity",
+      "process-descendant-cgroup-window-focus-fullscreen-compositor-and-cleanup-state",
+      "controller-source-canonical-action-recipient-epoch-glyph-and-player-assignment",
+      "reserved-home-back-pause-resume-exit-revocation-and-frontend-nondelivery",
+      "loading-first-frame-exact-readiness-visible-focused-usable-input-and-return",
+      "video-frame-time-frame-pacing-resolution-refresh-drops-tears-and-latency",
+      "audio-device-format-underrun-volume-latency-and-audio-video-sync",
+      "cpu-gpu-memory-storage-write-amplification-power-thermal-and-acoustic-state",
+      "network-attempt-updater-achievement-command-interface-and-offline-state",
+      "save-state-remap-core-option-screenshot-cache-history-and-profile-isolation",
+      "update-rollback-uninstall-reinstall-generation-health-and-leftover-state",
+      "fault-detection-classification-details-cleanup-retry-exit-and-recovery",
+      "failed-invalid-interrupted-retried-rolled-back-and-pre-repair-adverse-ledger"
+    ],
+    "independentPackageProcessWindowInputAudioVideoNetworkStoragePowerAndClockOraclesRequired": true,
+    "frontendSelfReportProcessStartFirstFrameHeartbeatOrWindowExistenceMayEstablishReadiness": false,
+    "configurationTextOrDisabledMenuEntryMayEstablishSandboxNetworkOrFilesystemContainment": false,
+    "everyAttemptFailureRetryRollbackOverrideAndDataDispositionMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidLifecycleCyclesPerFrontendTargetWorkloadScenarioCell": 20,
+    "minimumValidControllerTrialsPerFrontendTargetWorkloadActionCell": 20,
+    "maximumMissingRequiredLifecycleOrControllerCells": 0,
+    "maximumFailedRequiredLifecycleCyclesOrControllerTrials": 0,
+    "maximumUnsignedUnhashedUnlicensedUnreviewedOrNonreproducibleArtifacts": 0,
+    "maximumUnexpectedNetworkUpdaterAchievementTelemetryOrCommandInterfaceAttempts": 0,
+    "maximumDesktopShellFilesystemSourceMediaRawMenuOrArbitraryCoreContentExposureEvents": 0,
+    "maximumEscapedUnreapedOrUnaccountedFrontendCoreContentOrDescendantProcesses": 0,
+    "maximumCrossGameCrossProfilePackageContentSaveStateRemapCacheOrLogAccessEvents": 0,
+    "maximumSaveOrStateLossCorruptionRollbackRegressionOrWrongGenerationEvents": 0,
+    "maximumMissedDuplicatedStuckWrongRecipientWrongPlayerOrWrongMappedControllerActions": 0,
+    "maximumSystemHomeBackPauseResumeOrExitEventsDeliveredToFrontendCoreOrContent": 0,
+    "maximumKeyboardMouseShellOperatorHiddenSetupManualCoreSelectionOrManualMappingRecoveries": 0,
+    "maximumFalseReadyHealthySavedRecoveredUpdatedRolledBackUninstalledOrSuccessClaims": 0,
+    "maximumVisibleFeedbackMs": 250,
+    "maximumLocalLaunchToVisibleFocusedUsableInputMs": 15000,
+    "usableInputRequiresVisibleFocusedResponsiveIntendedControllerAndCorrectRecipient": true,
+    "processStartFirstFrameWindowHeartbeatOrFrontendSelfReportMayEstablishUsableInput": false,
+    "baselineShadersRunAheadPreemptiveFramesRewindFrameDelayHardGpuSyncAndThreadedVideoMustRemainDisabled": true,
+    "familyModeMustExposeOnlyTheCuratedGameAndSystemOwnedSurfaces": true,
+    "allOpenPerformanceControllerRecoveryCompatibilityAndRetentionGatesFrozenBeforeExecution": true,
+    "frontendTargetWorkloadScenarioControllerOrAggregatePassMayRescueFailure": false
+  },
+  "openAcceptance": {
+    "maximumControllerToVisibleResponseP95Us": null,
+    "maximumVideoInputToPhotonP95Us": null,
+    "maximumAudioOutputLatencyP95Us": null,
+    "maximumAbsoluteAudioVideoSyncErrorP95Us": null,
+    "maximumFrameTimeP95Us": null,
+    "maximumFramePacingErrorP95Us": null,
+    "minimumSustainedFpsMilliFps": null,
+    "maximumDroppedOrRepeatedFrameRatePpm": null,
+    "maximumCpuUtilizationPpm": null,
+    "maximumGpuUtilizationPpm": null,
+    "maximumResidentMemoryBytes": null,
+    "maximumTargetWallPowerMilliW": null,
+    "maximumRecoveryToLauncherP95AndWorstMsByFault": null,
+    "maximumSuspendResumeToUsableInputP95AndWorstMs": null,
+    "maximumSaveStateCreateLoadAndRestoreP95Ms": null,
+    "minimumDistinctPhysicalControllerSamplesPerTargetAndFrontend": null,
+    "exactReadinessLivenessCleanupAndWindowQualificationPolicySha256": null,
+    "exactPerGameOverrideCompatibilityWarningAndFamilyModePolicySha256": null,
+    "exactSaveStateUpdateRollbackUninstallRetentionAndCompatibilityPolicySha256": null,
+    "exactIssueSeverityTriageClosureRetestExpiryAndRegressionPolicySha256": null
+  },
+  "packageAndRightsPolicy": {
+    "exactSignedFrontendCoreBaseConfigTitleContentBiosAndControllerProfilePackagesRequired": true,
+    "exactSourceRevisionArtifactHashArchitectureLicenseAndCorrespondingSourceRequired": true,
+    "titleCodeContentAssetTrademarkAttributionAgeAndMaintenanceReviewRequired": true,
+    "frontendCoreContentBiosAndBaseConfigReadBackBeforeEveryLaunchRequired": true,
+    "artifactFilenameVersionFamilyOrCandidateLabelMaySubstituteForDigestIdentity": false,
+    "currentlyUnverifiedRetro2048ManifestOrZeroAdmissionScreenMayBecomeLaunchAuthority": false,
+    "networkDownloadCoreUpdaterContentScannerOrRuntimePackageMutationAllowedDuringQualification": false,
+    "passingDeveloperFixtureMayCountAsAStarterCatalogTitle": false
+  },
+  "saveAndLifecyclePolicy": {
+    "opaqueRegisteredProfileIdAndExactGamePackageGenerationBindingRequired": true,
+    "saveStateRemapCoreOptionScreenshotSystemCacheLogAndRuntimeNamespacesMustRemainSeparate": true,
+    "healthyUpdateAndRollbackMustPreserveCompatibleSavesAndDeclareStateCompatibility": true,
+    "uninstallRequiresControllerConfirmedSaveDispositionAndNoUnexplainedLeftovers": true,
+    "factoryResetProfileDeletionPackageRemovalAndGameUninstallScopesMustRemainDistinct": true,
+    "displayNamePortraitBodyDataIdentitySecretPathOrFreeTextMayEnterSaveLifecycleEvidence": false,
+    "successfulRestoreUpdateRollbackOrReinstallMayHidePriorFailureOrLoss": false
+  },
+  "decisionProtocol": {
+    "completeRetroArchCrossTierResultSha256": null,
+    "completeFallbackFrontendCrossTierResultSha256": null,
+    "completeStarterTitleRightsPackageAndCrossTierResultSha256": null,
+    "completeManagedContentFixtureCrossTierResultSha256": null,
+    "completeIndependentSecurityAccessibilityAndReleaseReviewSha256": null,
+    "fallbackFrontendId": null,
+    "starterTitleId": null,
+    "frontendQualificationDisposition": null,
+    "starterCatalogDisposition": null,
+    "productCatalogPackageControllerOrSupportMutation": null,
+    "primaryFrontendPassMayEliminateOrQualifyTheFallbackLane": false,
+    "technicalPassAutomaticallyApprovesRightsDistributionCatalogOrProductSupport": false,
+    "selectionRequiresEveryRequiredCellPassingAndSeparateOwnerRightsSecurityAndReleaseReview": true
+  },
+  "authorityBoundary": {
+    "exactArtifactBuildSigningInstallTargetControllerFaultAndMeasurementManifestSha256": null,
+    "exactRightsTrademarkAttributionAgeMaintenanceAndReleaseReviewProtocolSha256": null,
+    "exactSaveUpdateRollbackUninstallCleanupRetentionAndIncidentProtocolSha256": null,
+    "artifactDownloadSourceCheckoutBuildSigningInstallOrPackageMutationAuthorized": false,
+    "titleFrontendCoreContentBiosControllerProfileOrFallbackSelectionAuthorized": false,
+    "targetControllerDisplayAudioNetworkPowerSuspendOrFaultOperationAuthorized": false,
+    "profileSaveStateRemapContentPackageOrPersistentDataMutationAuthorized": false,
+    "rightsTrademarkLegalSecurityAccessibilityOrReleaseApprovalAuthorized": false,
+    "catalogAdmissionPublicationDistributionCompatibilityOrProductMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueFrontendTargetWorkloadScenarioCycleActionControllerProfileIssueAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCategoriesAndDispositionCodesRequired": true,
+    "rawRomContentBiosSaveStateSaveRemapScreenshotAudioVideoOrMemoryBytesAllowed": false,
+    "filesystemPathsUsernamesHostnamesEnvironmentCommandsArgumentsOrProcessIdsAllowed": false,
+    "profileDisplayNamesPortraitsBodyDataIdentitySecretsCredentialsTokensOrStableIdentifiersAllowed": false,
+    "rawControllerHidUsbBluetoothPayloadSerialMacOrStableDeviceIdentifiersAllowed": false,
+    "freeTextFrontendCoreGameDriverCompositorServiceCrashParticipantOrOperatorLogsAllowed": false,
+    "failedInvalidInterruptedRetriedRolledBackAdverseAndPreRepairEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I123-001-exact-primary-retroarch-source-version-license-build-package-signature-and-artifact-closure",
+      "I123-002-selected-fallback-frontend-source-version-license-build-package-signature-and-artifact-closure",
+      "I123-003-rights-cleared-starter-title-code-content-asset-trademark-attribution-age-and-maintenance-closure",
+      "I123-004-managed-content-conformance-fixture-rights-core-content-bios-and-package-closure",
+      "I123-005-exact-x86-64-and-aarch64-target-os-compositor-sdl-audio-video-storage-and-power-manifests",
+      "I123-006-qualified-readiness-liveness-window-focus-descendant-cgroup-cleanup-and-no-desktop-adapters",
+      "I123-007-curated-controller-profile-player-assignment-glyph-reserved-action-and-physical-sample-manifests",
+      "I123-008-exact-package-signing-anti-rollback-immutable-verification-to-use-update-and-health-protocol",
+      "I123-009-exact-save-state-remap-override-update-rollback-uninstall-reinstall-and-retention-protocol",
+      "I123-010-exact-audio-video-latency-sync-frame-pacing-accessibility-and-baseline-feature-protocol",
+      "I123-011-exact-network-filesystem-family-mode-menu-command-interface-and-source-media-containment-protocol",
+      "I123-012-complete-lifecycle-controller-fault-suspend-measurement-invalid-cycle-and-independent-oracle-protocol",
+      "I123-013-frozen-performance-controller-recovery-compatibility-retention-and-issue-acceptance-gates",
+      "I123-014-exact-target-controller-display-audio-network-power-storage-fault-instrument-operator-and-schedule-authority",
+      "I123-015-closed-path-free-data-redaction-retention-deletion-incident-and-independent-review-policy",
+      "I123-016-owner-rights-trademark-security-accessibility-release-catalog-and-product-decision-boundary"
+    ]
+  },
+  "result": null
+}

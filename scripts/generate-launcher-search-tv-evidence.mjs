@@ -13,6 +13,8 @@ import {
   countOverlaps,
   findChrome,
   insideSafeArea,
+  installFrozenLauncherClock,
+  LAUNCHER_TV_BROWSER_CLOCK,
   measureElements,
   normalizedSha256,
   rounded,
@@ -1094,9 +1096,7 @@ async function exercise(chromePath) {
             window.open = () => null;
           });
         }
-        await page.clock.install({
-          time: new Date("2026-07-24T19:00:00-07:00"),
-        });
+        await installFrozenLauncherClock(page);
         page.on("console", (message) => {
           if (message.type() === "error") consoleErrors.push(message.text());
         });
@@ -1277,7 +1277,7 @@ export async function generateLauncherSearchTvEvidence() {
       nodeVersion: process.version,
       browserProduct: browser.browserProduct,
       devicePixelRatio: 1,
-      browserClock: "2026-07-24T19:00:00-07:00",
+      browserClock: LAUNCHER_TV_BROWSER_CLOCK,
     },
     contract: {
       states: SEARCH_STATES,

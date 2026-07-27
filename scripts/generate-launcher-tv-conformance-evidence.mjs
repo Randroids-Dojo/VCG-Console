@@ -23,6 +23,7 @@ import {
 
 export const LAUNCHER_TV_EVIDENCE_FORMAT =
   "vcg-launcher-home-tv-conformance-evidence/v1";
+export const LAUNCHER_TV_BROWSER_CLOCK = "2026-07-24T19:00:00-07:00";
 export const LAUNCHER_TV_CLAIM_BOUNDARY =
   "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_TV_LIMITATIONS = Object.freeze([
@@ -84,6 +85,29 @@ export function normalizedSha256(bytes) {
 
 export function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
+}
+
+export async function installFrozenLauncherClock(page) {
+  await page.clock.install({
+    time: new Date(LAUNCHER_TV_BROWSER_CLOCK),
+  });
+  await page.addInitScript((timestampMs) => {
+    const NativeDate = Date;
+    class EvidenceDate extends NativeDate {
+      constructor(...args) {
+        super(...(args.length > 0 ? args : [timestampMs]));
+      }
+
+      static now() {
+        return timestampMs;
+      }
+    }
+    Object.defineProperty(globalThis, "Date", {
+      configurable: true,
+      value: EvidenceDate,
+      writable: true,
+    });
+  }, Date.parse(LAUNCHER_TV_BROWSER_CLOCK));
 }
 
 export async function provenance() {
@@ -294,9 +318,7 @@ async function exercise(chromePath) {
         },
         deviceScaleFactor: 1,
       });
-      await page.clock.install({
-        time: new Date("2026-07-24T19:00:00-07:00"),
-      });
+      await installFrozenLauncherClock(page);
       page.on("console", (message) => {
         if (message.type() === "error") {
           consoleErrorCount += 1;
@@ -511,8 +533,7 @@ export async function generateLauncherTvConformanceEvidence() {
       nodeVersion: process.version,
       browserProduct: browser.browserProduct,
       devicePixelRatio: 1,
-      browserClock:
-        "2026-07-24T19:00:00-07:00",
+      browserClock: LAUNCHER_TV_BROWSER_CLOCK,
     },
     baseContract: {
       format: "vcg-tv-conformance-evidence/v1",

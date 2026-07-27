@@ -12,7 +12,7 @@
     {
       "role": "pi-hdmi-audio-cec-boundary",
       "path": "benchmarks/pi5-hdmi-cec/pi5-hdmi-audio-cec-plan-v1.json",
-      "sha256": "78e837d6ce4575ab56a4fcb23007a60737913b1e159b007f6c9258e46c131e2c"
+      "sha256": "3873ca0ca67039dfa61c5657fd9239a50833a9a59e2318d0960620e6cc51642d"
     },
     {
       "role": "ordinary-x86-target-boundary",

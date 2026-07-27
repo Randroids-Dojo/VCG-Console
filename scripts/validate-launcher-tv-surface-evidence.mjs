@@ -76,8 +76,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-    bytes: 162390,
-    sha256: "bfb07926c1617a95c5dc9c1e432b7f3d3366b8deb6e9e524582d7a62681b3981",
+    bytes: 162417,
+    sha256: "9174b43b6422919a56154fcf1c43fc6b4a75c8fb59ad169faec41ab97321dcf8",
   },
   "motion-catalog/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
@@ -91,8 +91,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-    bytes: 256542,
-    sha256: "f059c0130d8e399e35f679315b24eae4d6a543042bac135f4f380e13d3249e1c",
+    bytes: 256872,
+    sha256: "63e34169786d3f8b1fd8277f42e8ae9f7df36e32ceb2d2df9c4c86df5bac77cc",
   },
   "motion-catalog/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
@@ -106,8 +106,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-    bytes: 661167,
-    sha256: "38520115721cdc6b0525e34c215d4e3d2aedc0ec8d0d17d4e649b321bef0d4d3",
+    bytes: 661929,
+    sha256: "573db8e872d86dcdcd594aa7d1a7fd6ecd2e6f175752e6ba881c2f50ea0066ce",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({

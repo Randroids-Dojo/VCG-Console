@@ -6,7 +6,7 @@
   "retrievedAtUtc": "2026-07-26T23:59:57.000Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "0054449c8ca0581b12067ee095836b87b32298c2e36ea0fc79e2c0a4baa219a2"
+    "sha256": "5fd76a86a30741b5c8c2f889bf60acc6f820603e11275dacfca6fa3339df8c71"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -172,8 +172,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-          "bytes": 162390,
-          "sha256": "bfb07926c1617a95c5dc9c1e432b7f3d3366b8deb6e9e524582d7a62681b3981"
+          "bytes": 162417,
+          "sha256": "9174b43b6422919a56154fcf1c43fc6b4a75c8fb59ad169faec41ab97321dcf8"
         }
       },
       {
@@ -276,8 +276,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-          "bytes": 256542,
-          "sha256": "f059c0130d8e399e35f679315b24eae4d6a543042bac135f4f380e13d3249e1c"
+          "bytes": 256872,
+          "sha256": "63e34169786d3f8b1fd8277f42e8ae9f7df36e32ceb2d2df9c4c86df5bac77cc"
         }
       },
       {
@@ -380,8 +380,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-          "bytes": 661167,
-          "sha256": "38520115721cdc6b0525e34c215d4e3d2aedc0ec8d0d17d4e649b321bef0d4d3"
+          "bytes": 661929,
+          "sha256": "573db8e872d86dcdcd594aa7d1a7fd6ecd2e6f175752e6ba881c2f50ea0066ce"
         }
       }
     ],
@@ -448,13 +448,13 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "0054449c8ca0581b12067ee095836b87b32298c2e36ea0fc79e2c0a4baa219a2",
+    "homeEvidencePathSha256": "5fd76a86a30741b5c8c2f889bf60acc6f820603e11275dacfca6fa3339df8c71",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "5bc7c3812ebea4a418eedfbf13174cb316717c5cd630dfb5626cb85754f45d23",
+    "commonGeneratorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
-    "generatorPathSha256": "a9c0ca4ad988cf275ffd63113910b821b7726a16af880fe5ecc0a20cfb418ab3",
+    "generatorPathSha256": "933d69da5deb4c2616222763164d95314601b188a17a0d10d8cb5722f85629fd",
     "validatorPath": "scripts/validate-launcher-tv-surface-evidence.mjs",
-    "validatorPathSha256": "1effd9e24293503b9993d375f5522b405e3f46f44db58e8cc5963df092fa19ea",
+    "validatorPathSha256": "65e06b1f1ede2afc3abb41b54f063e07b3afc111722eafcaf2a46cc510b94851",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -472,7 +472,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 136,
-      "sha256": "da0748326dde23c1bdec92b4fdaa7f0dfb9e4228d79341643cc538d9d29c0085"
+      "sha256": "27d38b5a4d4bfbff706177058c90f715be8179a037eb4ce51c1f12d5ace1f84b"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

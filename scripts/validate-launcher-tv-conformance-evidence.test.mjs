@@ -2,6 +2,12 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
+
+import {
+  installFrozenLauncherClock,
+  LAUNCHER_TV_BROWSER_CLOCK,
+} from "./generate-launcher-tv-conformance-evidence.mjs";
 
 import {
   expectedLauncherTvProvenance,
@@ -50,6 +56,40 @@ test("accepts the exact launcher-home TV conformance evidence", async () => {
   assert.equal(artifact.summary.resolutionCount, 3);
   assert.equal(artifact.summary.launcherViewCount, 1);
   assert.equal(artifact.summary.physicalTelevisionCount, 0);
+});
+
+test("installs a real frozen page Date before launcher navigation", async () => {
+  let installedTime;
+  let initScript;
+  let initArgument;
+  await installFrozenLauncherClock({
+    clock: {
+      async install({ time }) {
+        installedTime = time;
+      },
+    },
+    async addInitScript(callback, argument) {
+      initScript = callback;
+      initArgument = argument;
+    },
+  });
+
+  assert.equal(
+    installedTime.toISOString(),
+    new Date(LAUNCHER_TV_BROWSER_CLOCK).toISOString(),
+  );
+  assert.equal(initArgument, Date.parse(LAUNCHER_TV_BROWSER_CLOCK));
+  const context = {};
+  runInNewContext(`(${initScript.toString()})(${initArgument})`, context);
+  assert.equal(runInNewContext("Date.now()", context), initArgument);
+  assert.equal(
+    runInNewContext("new Date().toISOString()", context),
+    new Date(LAUNCHER_TV_BROWSER_CLOCK).toISOString(),
+  );
+  assert.equal(
+    runInNewContext("new Date('2024-01-02T03:04:05.000Z').toISOString()", context),
+    "2024-01-02T03:04:05.000Z",
+  );
 });
 
 test("rejects base contract, resolution, or environment substitution", async () => {
