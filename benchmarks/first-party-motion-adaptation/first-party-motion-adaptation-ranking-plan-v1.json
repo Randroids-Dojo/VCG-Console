@@ -1,0 +1,417 @@
+{
+  "format": "vcg-first-party-motion-adaptation-ranking-plan/v1",
+  "status": "blocked",
+  "campaignId": "i103-first-party-motion-adaptation-ranking-2026-07-26",
+  "observedAt": "2026-07-26T23:59:59.000Z",
+  "qualificationScope": "I-103 evidence-backed ranking of the exact existing first-party game pool for a later custom motion adaptation, only after the obstacle sample, shell navigation, one-player and complete two-player gates pass",
+  "claimBoundary": "This is a strict zero-result ranking plan. The public catalog, repository organization, rights screen, source metadata, hosted reachability, desk runtime scorecard, synthetic play-support matrix, obstacle sample, one-player plan, two-player plan, game names, screenshots, popularity, familiarity, or subjective preference do not prove rights, ownership, build identity, mechanic fit, code effort, latency, accessibility, multiplayer value, showcase value, target compatibility, rank, selection, adaptation authority, catalog admission, publication, or product work. D-113 keeps every existing-game custom motion adaptation outside the first milestone. No source checkout, artifact retrieval, build, branch, game or service mutation, participant collection, ranking, selection, adaptation, publication, or product commitment is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "exact-first-party-game-pool-and-zero-rights-approval-boundary",
+      "path": "compliance/first-party-game-rights/repository-rights-screen-v1.json",
+      "sha256": "6be221e38ccce134aa3396e865355d94768dbf18de13519dab43ca63f6c20326"
+    },
+    {
+      "role": "full-catalog-candidate-and-zero-admission-boundary",
+      "path": "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
+      "sha256": "7f2a0e085706451da65bed64f6ea25ab569428428da7b04f358f80ec24d2b9ca"
+    },
+    {
+      "role": "per-game-runtime-scorecard-and-zero-selection-boundary",
+      "path": "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
+      "sha256": "845e39b160225a4b042693eb5092d3a066b3d81fe71e3da900802d8cf0a46849"
+    },
+    {
+      "role": "first-real-room-one-player-prerequisite-boundary",
+      "path": "benchmarks/real-room-one-player/first-real-room-one-player-plan-v1.json",
+      "sha256": "b9c360d1135730ac1ed433db936a99d1c3927bc350298e44085bc67945ac4009"
+    },
+    {
+      "role": "complete-two-player-prerequisite-boundary",
+      "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
+      "sha256": "07a8788b49da3ad9bc3be64e0894f618d711121ab8bcf822cfce7fd200bd31d8"
+    },
+    {
+      "role": "synthetic-accessibility-support-nonqualification-boundary",
+      "path": "benchmarks/play-support/seated-partial-assisted-synthetic-matrix-v1.json",
+      "sha256": "5155cb6528e0dbb0ff800fef2f68e342925b2c6ea37e277f3290be6565ed4a92"
+    },
+    {
+      "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
+      "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
+      "sha256": "834d6d64afd7ca5ffb331c4442744f88ecdb839ceec2ac8a36409e3241ee8178"
+    },
+    {
+      "role": "fixed-product-success-and-motion-latency-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "blocking-persona-and-accessibility-boundary",
+      "path": "docs/PLAYER_PERSONAS.md",
+      "sha256": "58dea19b91bac090b42c135339c732a115990956f8b37bde7ee8520fe9c2b7eb"
+    },
+    {
+      "role": "canonical-controller-and-reserved-action-boundary",
+      "path": "docs/CONTROLLER_INPUT.md",
+      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+    },
+    {
+      "role": "offline-and-hosted-service-separation-boundary",
+      "path": "docs/ONLINE_OFFLINE_SERVICE_MATRIX.md",
+      "sha256": "c1af97a085f971c1f403ef1d975798940848362beef1ad24f76b8d459c4f2b5f"
+    },
+    {
+      "role": "game-trust-containment-readiness-and-recovery-boundary",
+      "path": "docs/GAME_TRUST_TIERS.md",
+      "sha256": "373feb89df4465f8737e62a172aa2e041e7f3c211583be080fea2ec81120dbbe"
+    },
+    {
+      "role": "runtime-neutral-signed-local-package-boundary",
+      "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
+      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+    },
+    {
+      "role": "obstacle-sample-mechanic-and-current-implementation-boundary",
+      "path": "apps/console-lab/src/obstacle-game.ts",
+      "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+    },
+    {
+      "role": "motion-api-actions-players-clocks-and-trace-contract-boundary",
+      "path": "packages/motion-contract/src/schema.ts",
+      "sha256": "2d9c2f1ba862714f51dd97fe110a131b73a129b00deb00877675acaf0c8531d5"
+    },
+    {
+      "role": "play-support-policy-implementation-boundary",
+      "path": "packages/motion-contract/src/play-support-matrix.ts",
+      "sha256": "866cd68bdd04f4ab59b624bd98c06849f4d7a2a199c1bea5fe79664ffc82b939"
+    }
+  ],
+  "prerequisiteGate": {
+    "completeObstacleSampleMilestoneResultSha256": null,
+    "completeOnePlayerQualifiedResultSha256": null,
+    "completeTwoPlayerQualifiedResultSha256": null,
+    "completeControllerOnlyShellNavigationAndRecoveryResultSha256": null,
+    "exactFirstPartyCandidatePoolSourceRevisionAndDeploymentManifestSha256": null,
+    "exactRightsOwnershipServiceAssetTrademarkAndMaintainerReviewProtocolSha256": null,
+    "exactMotionConceptLatencyAccessibilityMultiplayerEffortAndShowcaseEvidenceProtocolSha256": null,
+    "exactScoringWeightTieBreakSensitivityConflictAndIndependentReviewProtocolSha256": null,
+    "everyObstacleOnePlayerTwoPlayerAndShellPrerequisitePassed": false,
+    "syntheticDeskHostedOrAggregateEvidenceMayOpenRanking": false,
+    "rankingOpened": false
+  },
+  "candidatePoolContract": {
+    "candidateGameIds": [
+      "vibebots",
+      "vibe-pinball",
+      "vibe-racer",
+      "vibe-pins",
+      "fracking-asteroids",
+      "hoops",
+      "mi-casa-es-su-casa",
+      "block-punch-kick",
+      "epoch",
+      "game-tape",
+      "go-pit",
+      "block-you",
+      "determined",
+      "software-dev-sim",
+      "baby-piano",
+      "clankers",
+      "vibe-city",
+      "flatline",
+      "vibe-gear-2",
+      "text-racer",
+      "drop-dead-keep",
+      "streamer-billboard",
+      "go-dig"
+    ],
+    "candidateCount": 23,
+    "poolClass": "exact-first-party-rights-screen-candidate-pool",
+    "currentRightsDisposition": "zero-offline-redistribution-approvals",
+    "currentAdmissionDisposition": "zero-new-admissions",
+    "everyCandidateRequiresExactSourceBuildDeploymentServiceAndRightsIdentity": true,
+    "everyCandidateStartsIneligibleUnscoredUnrankedAndUnselected": true,
+    "candidateMayBeExcludedForPopularityFamiliarityPreferenceOrMissingEasyEvidence": false,
+    "hostedReachabilityRepositoryMembershipGameNameOrExistingCatalogCardMayEstablishEligibility": false,
+    "communityGamesObstacleSampleAndGodotSampleMayEnterThisRankingPool": false,
+    "candidatePoolChangeRequiresACompleteNewPlanAndRerun": true
+  },
+  "scoringDimensions": [
+    {
+      "dimensionId": "mechanic-fit",
+      "higherScoreMeans": "a clearer safe body-to-game mechanic with bounded states and minimal semantic distortion",
+      "requiredEvidence": "exact current mechanic/state/input map, proposed motion action map, controller alternative, failure behavior, safety constraints and no-op or cancellation semantics",
+      "blockingConditions": "no coherent deliberate body mechanic, hidden continuous inference, unsafe movement, controller removal or game-rule distortion",
+      "mayBeScoredFromGenreNameScreenshotPopularityOrReviewerPreference": false
+    },
+    {
+      "dimensionId": "ownership",
+      "higherScoreMeans": "more complete accountable rights, maintenance and change authority over every shipped byte and service dependency",
+      "requiredEvidence": "exact code asset font audio model title trademark contributor service deployment corresponding-source notice and maintenance-owner closure",
+      "blockingConditions": "missing grant, unresolved asset or title scope, unknown deployment identity, absent service authority or no accountable maintenance owner",
+      "mayBeScoredFromOrganizationMembershipPublicRepositoryOrPackageLicenseField": false
+    },
+    {
+      "dimensionId": "code-effort",
+      "higherScoreMeans": "less bounded implementation test packaging migration and ongoing maintenance effort with lower uncertainty",
+      "requiredEvidence": "exact change inventory, architecture, runtime, build, package, Motion API, controller, save, service, test, migration, update and maintenance work breakdown",
+      "blockingConditions": "unbounded rewrite, unavailable build, unsupported target/runtime, unknown service coupling or estimate without source-bound work items",
+      "mayBeScoredFromRepositorySizeLanguageLabelOrUnreviewedPersonHourGuess": false
+    },
+    {
+      "dimensionId": "latency",
+      "higherScoreMeans": "more exposure-to-action and game-response headroom under the same concurrent target workload",
+      "requiredEvidence": "game-specific action timing budget, target/runtime instrumentation design, exposure-authoritative trace or approved spike evidence and worst-path recovery impact",
+      "blockingConditions": "predicted or measured path cannot meet 120000 microseconds p95, depends on capture-arrival or inference-only timing, or hides game integration overhead",
+      "mayBeScoredFromDesktopFrameRateSyntheticReplayOrAverageTimingAlone": false
+    },
+    {
+      "dimensionId": "accessibility",
+      "higherScoreMeans": "more equivalent understandable safe ways to play across blocking personas and approved standing seated partial-motion and controller routes",
+      "requiredEvidence": "mechanic-specific comprehension, posture, reach, fatigue, contraindication, partial-observation, controller-equivalence, text/audio/visual and failure-recovery review",
+      "blockingConditions": "required unsafe motion, no equivalent controller path, silent score normalization, unapproved body substitution, inaccessible recovery or exclusion of a blocking persona",
+      "mayBeScoredFromSyntheticSupportDispositionOrReviewerAssumptionAlone": false
+    },
+    {
+      "dimensionId": "multiplayer-value",
+      "higherScoreMeans": "more meaningful proven value from the qualified one- and two-player identity action menu freeze join leave and recovery contract",
+      "requiredEvidence": "exact one-player and two-player mechanic, ownership, simultaneous-action, interference, shared-state, freeze, menu, join/leave, loss and recovery analysis",
+      "blockingConditions": "identity ambiguity, cross-player actions, unowned menus, unsafe shared-state progression, aggregate rescue or dependence on unqualified four-player behavior",
+      "mayBeScoredFromNominalPlayerCountNetworkMultiplayerOrFourPlayerPotentialAlone": false
+    },
+    {
+      "dimensionId": "showcase-value",
+      "higherScoreMeans": "a more immediately understandable truthful demonstration of VCG value in a bounded household task without masking product limitations",
+      "requiredEvidence": "pre-registered controller and motion tasks, comprehension rubric, failure disclosure, repeat-use intent, novelty decay, setup burden and representative household review protocol",
+      "blockingConditions": "value depends on misleading readiness, hidden service/account setup, unsafe spectacle, inaccessible presentation or unreviewed brand preference",
+      "mayBeScoredFromPopularityVisualNoveltyMarketingPreferenceOrSingleReviewerEnthusiasm": false
+    }
+  ],
+  "evidenceMatrix": {
+    "candidateGameIds": [
+      "vibebots",
+      "vibe-pinball",
+      "vibe-racer",
+      "vibe-pins",
+      "fracking-asteroids",
+      "hoops",
+      "mi-casa-es-su-casa",
+      "block-punch-kick",
+      "epoch",
+      "game-tape",
+      "go-pit",
+      "block-you",
+      "determined",
+      "software-dev-sim",
+      "baby-piano",
+      "clankers",
+      "vibe-city",
+      "flatline",
+      "vibe-gear-2",
+      "text-racer",
+      "drop-dead-keep",
+      "streamer-billboard",
+      "go-dig"
+    ],
+    "dimensionIds": [
+      "mechanic-fit",
+      "ownership",
+      "code-effort",
+      "latency",
+      "accessibility",
+      "multiplayer-value",
+      "showcase-value"
+    ],
+    "candidateCount": 23,
+    "dimensionCount": 7,
+    "requiredCandidateDimensionCellCount": 161,
+    "independentReviewsPerCell": 2,
+    "requiredIndependentReviewCount": 322,
+    "everyCellRequiresExactEvidencePacketDigestClosedScoreReasonAndBlockingDisposition": true,
+    "reviewersMustScoreIndependentlyBeforeSeeingEachOtherOrAggregate": true,
+    "disagreementAdjudicationMustPreserveBothOriginalScoresAndEvidence": true,
+    "missingUnavailableBlockedConflictOrAdverseEvidenceRemainsVisible": true,
+    "missingEvidenceMayBeConvertedToZeroMeanNeutralOrEstimatedScore": false,
+    "oneCandidateDimensionReviewerBestCaseOrAggregateMayRescueAnother": false
+  },
+  "scoringScale": {
+    "minimumScore": 0,
+    "maximumScore": 4,
+    "integerScoresOnly": true,
+    "scoreDefinitions": [
+      {
+        "score": 0,
+        "label": "blocking",
+        "meaning": "required evidence proves a blocking condition or the candidate is ineligible"
+      },
+      {
+        "score": 1,
+        "label": "weak",
+        "meaning": "complete evidence shows material disadvantages and no blocking gate only under the frozen rule"
+      },
+      {
+        "score": 2,
+        "label": "adequate",
+        "meaning": "complete evidence meets the dimension baseline with bounded limitations"
+      },
+      {
+        "score": 3,
+        "label": "strong",
+        "meaning": "complete evidence materially exceeds the baseline under the frozen comparison rule"
+      },
+      {
+        "score": 4,
+        "label": "exceptional",
+        "meaning": "complete evidence establishes the strongest pre-registered outcome without hidden tradeoffs"
+      }
+    ],
+    "eligibilityGatesRemainSeparateFromWeightedScores": true,
+    "scoreMayNotOverrideRightsSafetyAccessibilityLatencyControllerTargetOrServiceFailure": true,
+    "unavailableMissingOrIncomparableIsAClosedDispositionNotANumericScore": true,
+    "reviewerNarrativeMaySubstituteForClosedEvidenceReasonAndDigest": false
+  },
+  "rankingProtocol": {
+    "dimensionWeightPpm": {
+      "mechanic-fit": null,
+      "ownership": null,
+      "code-effort": null,
+      "latency": null,
+      "accessibility": null,
+      "multiplayer-value": null,
+      "showcase-value": null
+    },
+    "requiredWeightSumPpm": 1000000,
+    "minimumEligibleDimensionScoreById": {
+      "mechanic-fit": null,
+      "ownership": null,
+      "code-effort": null,
+      "latency": null,
+      "accessibility": null,
+      "multiplayer-value": null,
+      "showcase-value": null
+    },
+    "tieBreakDimensionOrder": [],
+    "minimumMaterialWeightedLeadPpm": null,
+    "maximumRankedCandidateCount": null,
+    "exactNormalizationMissingDataUncertaintyAndSensitivityProtocolSha256": null,
+    "exactReviewerQualificationConflictBlindScoringAndAdjudicationProtocolSha256": null,
+    "exactCandidateEvidenceFreezeCutoffAndExpiryProtocolSha256": null,
+    "weightsThresholdsTieBreaksAndMaterialityMustBeFrozenBeforeAnyScoring": true,
+    "rankingRequiresEveryCandidateDimensionCellAndBothIndependentReviews": true,
+    "rankingIncludesOnlyCandidatesPassingEverySeparateEligibilityGate": true,
+    "sensitivityAnalysisAcrossApprovedWeightBoundsRequired": true,
+    "resultMustPublishCompleteOrderedScoresUncertaintyBlockersAndExcludedCandidates": true,
+    "postEvidenceWeightThresholdTieBreakCandidateOrEvidenceExclusionAllowed": false,
+    "bestCaseReviewerDimensionCandidateOrAggregateMayRescueFailure": false
+  },
+  "fixedAcceptance": {
+    "minimumCandidateCount": 23,
+    "minimumDimensionCount": 7,
+    "minimumIndependentReviewsPerCandidateDimensionCell": 2,
+    "maximumMissingCandidateDimensionCells": 0,
+    "maximumMissingIndependentReviews": 0,
+    "maximumPostEvidenceWeightThresholdTieBreakOrCandidateChanges": 0,
+    "maximumCandidatesEligibleWithIncompleteRightsOwnershipOrMaintenanceAuthority": 0,
+    "maximumCandidatesEligibleWithoutExactSourceBuildDeploymentAndServiceIdentity": 0,
+    "maximumCandidatesEligibleWithoutEquivalentControllerAlternative": 0,
+    "maximumCandidatesEligibleWithUnresolvedSafetyOrBlockingPersonaAccessibilityFailure": 0,
+    "maximumCandidatesEligibleWithPredictedOrMeasuredExposureToActionP95UsAbove120000": 0,
+    "maximumCandidatesEligibleWithCrossPlayerActionIdentityMenuFreezeOrRecoveryFailure": 0,
+    "maximumCandidatesEligibleFromPopularityFamiliarityScreenshotGenreNameOrSubjectivePreference": 0,
+    "maximumFirstMilestoneExistingGameAdaptationsStartedOrCommitted": 0,
+    "everyObstacleOnePlayerTwoPlayerAndShellPrerequisiteMustPassBeforeScoring": true,
+    "everyCandidateMustRetainIndependentEvidenceForEveryDimension": true,
+    "missingBlockedUnavailableConflictOrAdverseEvidenceMayBeHiddenOrImputed": false,
+    "weightedScoreMayOverrideASeparateEligibilityGate": false,
+    "rankOrTechnicalPassMaySelectAuthorizeAdaptAdmitPackagePublishOrCommitAProduct": false,
+    "allOpenWeightsThresholdsMaterialityRankDepthAndReviewPoliciesFrozenBeforeScoring": true
+  },
+  "openAcceptance": {
+    "mechanicFitWeightPpm": null,
+    "ownershipWeightPpm": null,
+    "codeEffortWeightPpm": null,
+    "latencyWeightPpm": null,
+    "accessibilityWeightPpm": null,
+    "multiplayerValueWeightPpm": null,
+    "showcaseValueWeightPpm": null,
+    "minimumEligibleMechanicFitScore": null,
+    "minimumEligibleOwnershipScore": null,
+    "minimumEligibleCodeEffortScore": null,
+    "minimumEligibleLatencyScore": null,
+    "minimumEligibleAccessibilityScore": null,
+    "minimumEligibleMultiplayerValueScore": null,
+    "minimumEligibleShowcaseValueScore": null,
+    "maximumBoundedAdaptationImplementationPersonHours": null,
+    "maximumAnnualMaintenancePersonHours": null,
+    "minimumHouseholdTaskComprehensionPpm": null,
+    "minimumRepeatUseIntentPpm": null,
+    "minimumMaterialWeightedLeadPpm": null,
+    "maximumRankedCandidateCount": null,
+    "tieBreakDimensionOrderSha256": null,
+    "exactReviewerQualificationConflictBlindScoringAndAdjudicationProtocolSha256": null,
+    "exactScoreNormalizationUncertaintySensitivityAndMissingDataProtocolSha256": null,
+    "exactEvidenceExpiryRegressionAndRerankingProtocolSha256": null
+  },
+  "decisionProtocol": {
+    "rankingResultSha256": null,
+    "eligibleCandidateIds": [],
+    "orderedRankedCandidateIds": [],
+    "selectedAdaptationCandidateId": null,
+    "ownerSelectionDecisionSha256": null,
+    "adaptationScopeAndBudgetDecisionSha256": null,
+    "rightsSecurityAccessibilityAndReleaseDecisionSetSha256": null,
+    "d113FirstMilestoneObstacleOnlyBoundaryRemains": true,
+    "topRankedCandidateAutomaticallySelected": false,
+    "technicalRankAutomaticallyAuthorizesSourceArtifactServiceParticipantOrTargetOperation": false,
+    "rankAutomaticallyGrantsRightsAdmissionPackagingPublicationOrSupportAuthority": false,
+    "selectionMayOccurWithoutSeparateOwnerDecisionAndCompleteEligibilityReview": false,
+    "rankingMayCreateWorkInTheFirstMotionApiMilestone": false
+  },
+  "authorityBoundary": {
+    "sourceRepositoryCheckoutBranchForkIssuePullRequestOrMutationAuthorized": false,
+    "artifactDependencyModelAssetOrServiceRetrievalBuildOrExecutionAuthorized": false,
+    "gameDeploymentServiceAccountDataOrCatalogMutationAuthorized": false,
+    "targetCameraControllerNetworkPowerOrFaultOperationAuthorized": false,
+    "adultChildHouseholdReviewerOrParticipantCollectionAuthorized": false,
+    "motionMechanicControllerMappingAccessibilityOrMultiplayerPrototypeAuthorized": false,
+    "scoreWeightThresholdTieBreakExclusionRankingOrSelectionAuthorized": false,
+    "rightsTrademarkSecurityPrivacyAccessibilityOrReleaseApprovalGranted": false,
+    "adaptationPackagingAdmissionPublicationSupportOrProductCommitmentAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueCandidateDimensionReviewerCellAttemptBlockerAndReasonLabelsRequired": true,
+    "closedScoresCountsRangesDigestsMetricsCategoriesAndDispositionsRequired": true,
+    "sourceArtifactServiceOrDeploymentPayloadBytesAllowedInPlanRepositoryOrResult": false,
+    "participantReviewerOwnerMaintainerContributorOrHouseholdNamesAndStableIdentifiersAllowed": false,
+    "facesVoicesScreenshotsVideoAudioBodyDataProfilesSavesOrEnteredTextAllowed": false,
+    "pathsUsernamesHostnamesRepositoryBranchesIssueIdsUrlsWithQueriesCommandsArgumentsOrEnvironmentValuesAllowed": false,
+    "credentialsTokensCookiesAccountIdsServicePayloadsOrPrivateRightsDocumentsAllowed": false,
+    "freeTextGameSourceServiceParticipantReviewerLegalOrOperatorEvidenceAllowed": false,
+    "missingBlockedUnavailableConflictAdverseAndBothOriginalReviewerRecordsMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I103-001-complete-obstacle-sample-motion-api-milestone-result",
+      "I103-002-complete-one-player-qualified-result-and-stable-action-contract",
+      "I103-003-complete-two-player-qualified-identity-action-menu-freeze-and-recovery-result",
+      "I103-004-complete-controller-only-shell-navigation-loading-exit-and-recovery-result",
+      "I103-005-exact-twenty-three-game-source-build-deployment-service-and-candidate-pool-manifest",
+      "I103-006-exact-code-asset-font-audio-model-title-trademark-contributor-service-rights-and-maintenance-closure",
+      "I103-007-exact-per-candidate-motion-mechanic-controller-alternative-and-failure-semantics-packets",
+      "I103-008-exact-blocking-persona-safety-accessibility-comprehension-and-equivalent-control-protocol",
+      "I103-009-exact-target-runtime-package-performance-exposure-latency-and-recovery-evidence-protocol",
+      "I103-010-exact-one-and-two-player-value-identity-action-menu-freeze-interference-and-recovery-protocol",
+      "I103-011-exact-source-bound-implementation-test-package-migration-maintenance-effort-and-uncertainty-protocol",
+      "I103-012-exact-household-showcase-task-comprehension-repeat-value-disclosure-and-novelty-protocol",
+      "I103-013-frozen-dimension-weights-eligibility-thresholds-tie-break-materiality-rank-depth-and-sensitivity-rules",
+      "I103-014-exact-independent-reviewer-qualification-conflict-blind-scoring-adjudication-and-evidence-expiry-policy",
+      "I103-015-closed-path-free-data-retention-deletion-incident-and-complete-adverse-evidence-policy",
+      "I103-016-owner-reviewed-ranking-selection-scope-budget-rights-release-publication-and-product-decision-boundary"
+    ],
+    "mayScoreOrRank": false
+  },
+  "result": null
+}
