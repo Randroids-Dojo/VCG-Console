@@ -30,7 +30,7 @@
     {
       "role": "primary-room-and-required-eight-by-eight-zone-boundary",
       "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
-      "sha256": "3e1bfa2b5bb3be7415e6ad3da626338fd098762010550d090307ccb5b68de8df"
+      "sha256": "df57202b22dc0e8be53a51108f7dc1511a6ca5e5483def716526818fe288475b"
     },
     {
       "role": "shared-wide-uvc-1080p60-shutter-and-indicator-boundary",
@@ -40,12 +40,12 @@
     {
       "role": "integrated-fixed-axis-coverage-and-calibration-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "e99c38b612de4b4c3bf3303b4395b6cd04041fe822101560b063832cd0dc8354"
+      "sha256": "5ed81d858474fb24438d827addcba5f13517eefc4be1061c613a6d73f24295cb"
     },
     {
       "role": "camera-cable-routing-strain-relief-and-recovery-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "cd5be1d000c799e438b8466661c4a5ee57148f8d032f4f2ed97ea6d9b5f5929b"
+      "sha256": "ab03c3725589eff7b485b50b3903005cefde2339fbbe22e180feadb807a7d383"
     },
     {
       "role": "enclosed-cooling-thermal-and-acoustic-boundary",
@@ -60,32 +60,32 @@
     {
       "role": "physical-shutter-indicator-idle-and-lifecycle-truth-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "20517f2fa9c54e8489a65942c59e67e9be580b2a3b412bf51b60a386431f854d"
+      "sha256": "fa615af4a12be0a8a62911842ac0d6dafe05698be61c9595b220a4efaadaaab1"
     },
     {
       "role": "ordinary-fastener-camera-service-and-recalibration-boundary",
       "path": "benchmarks/camera-service/camera-replacement-recalibration-plan-v1.json",
-      "sha256": "4ccd94fa63b42b77f43e8d91a2db3d9f892d70b4e3ca1c2a69e8f8258e1ecbb1"
+      "sha256": "00c64ba9e8b38961158026e02a8098adf38bf2765fd53ea6a73694651efa125b"
     },
     {
       "role": "pi-low-power-idle-wake-privacy-and-reliability-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "88f0b86f010b75f62aa78f44e265b87aa1f00c71bce17d9ef4133930bbb09166"
+      "sha256": "89f40a1da6a14eaa1635dabc5458232a3491ba2c514e7ffd7f03ead57acefdbd"
     },
     {
       "role": "complete-delivered-pi-cost-and-no-cost-rescue-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "946e262dd3763d6f68b98372773b09511d45afc30036199666a7e04c9470ec83"
+      "sha256": "9fdac004d9d825eb454c8e14131da0b69b87b13aa54b4b5faadb46826a205dba"
     },
     {
       "role": "failure-critical-component-substitute-qualification-boundary",
       "path": "benchmarks/failure-critical-substitutes/cross-tier-failure-critical-substitute-plan-v1.json",
-      "sha256": "65f8a5c3ad5ad0484ad7b2355878ad98cace199a3c900e93f6391d25cc5a2d45"
+      "sha256": "4f78c9b8d5f0ee394858d85edf8cd14c1fd76978791818daddcbb244ad8ffbd4"
     },
     {
       "role": "pi-safe-shutdown-storage-and-reserve-boundary",
       "path": "benchmarks/shutdown-reserve/pi5-shutdown-reserve-comparison-plan-v1.json",
-      "sha256": "99ab63dd4396015ee4ff40097ab055cd590521f8fb523184f3f718057958dece"
+      "sha256": "93eb8efd1705237833f6e41afe32b674c7303c91cc443f828b43ec7cca9c1761"
     }
   ],
   "prerequisiteGate": {

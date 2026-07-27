@@ -1,0 +1,464 @@
+{
+  "format": "vcg-steam-machine-steamos-windows-comparison-plan/v1",
+  "status": "blocked",
+  "campaignId": "i176-steam-machine-steamos-windows-same-hardware-2026-07-26",
+  "observedAt": "2026-07-26T23:59:59.000Z",
+  "qualificationScope": "I-176 same-received-hardware comparison of SteamOS as the primary optional Steam Machine environment and Windows as a conditional compatibility fallback, without changing the required ordinary x86-64 Linux or Raspberry Pi product tiers",
+  "claimBoundary": "This is a strict zero-result comparison plan. The preorder, vendor descriptions, dual-boot status screen, Windows development-workstation pass, SteamOS plans, proxy results, synthetic traces, software tests, or another target do not prove receipt of the Steam Machine, a supported dual-boot path, either operating-system lane, same-hardware parity, live camera behavior, controller behavior, accountless automatic entry, offline operation, loading, recovery, power, maintenance, a measured SteamOS gap, Windows closure of that gap, fallback acceptance, qualification, publication, or tier selection. No artifact retrieval, target operation, operating-system installation, account use, network mutation, fault injection, data mutation, fallback decision, publication, or product-tier change is authorized.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "optional-steam-machine-platform-and-known-unknowns-boundary",
+      "path": "docs/STEAM_MACHINE_2026.md",
+      "sha256": "d12a581d8b4ddb56fd84d0c45f4077a5296f6b5effb436a9786d223d5b0409e9"
+    },
+    {
+      "role": "supported-dual-boot-zero-result-boundary",
+      "path": "benchmarks/steam-machine-dual-boot/steam-machine-windows-dual-boot-status-v1.json",
+      "sha256": "a840c94bdfdcc1b1ee89fa16b0c24e40c18e6358975fe850266997ba7377b03b"
+    },
+    {
+      "role": "windows-development-workstation-evidence-and-platform-limit",
+      "path": "docs/WINDOWS_QUALIFICATION_RESULT_2026-07-24.md",
+      "sha256": "6bb4be6d93bc536847d20439f379081cd647d1b480ad52f583776d7a6dbdc6bd"
+    },
+    {
+      "role": "steamos-update-safe-package-boundary",
+      "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
+      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+    },
+    {
+      "role": "steamos-uvc-permission-and-live-camera-boundary",
+      "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
+      "sha256": "9b94475f0f37d294ae0787ebdff27a05840f2e973affc183aee5e8114a4018b8"
+    },
+    {
+      "role": "steamos-pose-concurrent-game-workload-boundary",
+      "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
+      "sha256": "8d651db99f316cc3e720ba7a4da95f0329059388e7fd9e0fdbbd760ca36e1eaa"
+    },
+    {
+      "role": "steamos-input-action-and-accountless-base-input-boundary",
+      "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
+      "sha256": "cd5a93bafd63a88aaedab650c273de5beb52ea0bbd79779e8d0835c5104ea786"
+    },
+    {
+      "role": "steam-machine-accountless-core-boundary",
+      "path": "benchmarks/steam-machine-accountless/steam-machine-accountless-core-plan-v1.json",
+      "sha256": "3f5193edc0df7ad5989afeb6e5b1ff8fbbd1aa02685f15016cbfade23a958a91"
+    },
+    {
+      "role": "steamos-outer-shell-lifecycle-boundary",
+      "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
+      "sha256": "41be72e3dab83c30420566c0d9a360d9797848460e24b27e5d91f3dea5bebf96"
+    },
+    {
+      "role": "cross-tier-boot-resume-launch-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "complete-system-economics-and-maintenance-boundary",
+      "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
+      "sha256": "9fdac004d9d825eb454c8e14131da0b69b87b13aa54b4b5faadb46826a205dba"
+    },
+    {
+      "role": "controller-only-cold-start-and-recovery-usability-boundary",
+      "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
+      "sha256": "18d568cfbf5084260fa1fb4214579114a86ab5ff140f66b746975e04ae36a8d1"
+    },
+    {
+      "role": "fixed-product-success-and-latency-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "required-pi-and-ordinary-linux-tier-boundary",
+      "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
+      "sha256": "7e60abfbea22aa01cec35126ef93c448e3ac07b028daa671cfafd1a79171c55c"
+    }
+  ],
+  "prerequisiteGate": {
+    "exactReceivedSteamMachineHardwareFirmwareStorageAndCustodyManifestSha256": null,
+    "qualifiedSupportedDualBootInstallUpdateBootSelectionAndRecoveryResultSha256": null,
+    "qualifiedSteamOsPackageCameraWorkloadInputAccountlessAndShellResultSetSha256": null,
+    "qualifiedWindowsPackageCameraWorkloadInputAccountlessAndShellResultSetSha256": null,
+    "exactCommonVcgBuildCatalogConfigurationModelAndPackageSetSha256": null,
+    "exactCommonWorkloadTraceGroundTruthAndRightsManifestSha256": null,
+    "exactCommonControllerCameraDisplayAudioNetworkPowerAndInstrumentManifestSha256": null,
+    "exactPairedScheduleResetCounterbalanceInvalidationAndIndependentReviewProtocolSha256": null,
+    "receivedTargetMayBeReplacedByWindowsWorkstationProxyOrDifferentSteamMachine": false,
+    "oneOperatingSystemPlanProxyTraceOrAggregateMayOpenExecution": false,
+    "executionOpened": false
+  },
+  "hardwareAndPairingContract": {
+    "targetId": "exact-received-optional-steam-machine",
+    "targetRole": "optional-compatibility-target-not-required-reference",
+    "sameExactChassisMainboardCpuGpuRamStorageFirmwareCameraControllerDisplayAudioNetworkPowerAndInstrumentationRequired": true,
+    "exactSupportedDualBootPartitionEncryptionAndRecoveryLayoutSha256": null,
+    "exactBiosFirmwareMicrocodeAndPerformanceProfileSha256": null,
+    "exactPeripheralPortCableOrientationPlacementAndRoomGeometrySha256": null,
+    "exactPowerThermalAcousticAmbientAndCooldownProtocolSha256": null,
+    "exactCacheDataClockNetworkServiceAndAccountResetProtocolSha256": null,
+    "exactOsOrderCounterbalancePairingAndRandomizationScheduleSha256": null,
+    "exactCrossOsArtifactReadbackAndConfigurationParityProtocolSha256": null,
+    "everyPairedAttemptUsesOneOpaquePairIdAndBothOperatingSystemLanes": true,
+    "everyPairUsesTheSameFrozenWorkloadTraceFaultScheduleAndAcceptanceRules": true,
+    "coldWarmCachedAndUncachedStatesMustRemainSeparatelyLabeled": true,
+    "unavoidableOsNativeRuntimeDriverCompositorAndUpdateDifferencesMustRemainExplicit": true,
+    "laneSpecificOptimizationOutsideTheFrozenManifestAllowed": false,
+    "hardwareFirmwarePeripheralRoomInstrumentOrGateChangeRequiresCompleteComparisonRerun": true,
+    "failedInvalidInterruptedRetriedPreRepairAndWorstCasePairsRemainVisible": true,
+    "windowsDevelopmentWorkstationProxyOrVendorSpecificationMaySubstitute": false,
+    "oneLaneWorkloadScenarioPairOrAggregateMayRescueAnother": false
+  },
+  "operatingSystemLanes": [
+    {
+      "osLaneId": "steamos-primary",
+      "productRole": "primary-optional-steam-machine-environment",
+      "exactImageKernelFirmwareDriverSteamClientGamescopeRuntimeAndUpdateChannelManifestSha256": null,
+      "exactSupportedPackageAutoEntryAccountlessOfflineAndRecoveryRouteSha256": null,
+      "exactLaneSpecificDifferenceAndLimitationManifestSha256": null,
+      "qualifiedForComparison": false,
+      "qualifiedForProductUse": false,
+      "mayBeRescuedByWindowsAverageOrBestCase": false
+    },
+    {
+      "osLaneId": "windows-conditional-fallback",
+      "productRole": "compatibility-fallback-only-after-measured-steamos-gap",
+      "exactEditionBuildFirmwareDriverShellRuntimePackageAndUpdateChannelManifestSha256": null,
+      "exactSupportedPackageAutoEntryAccountlessOfflineAndRecoveryRouteSha256": null,
+      "exactLaneSpecificDifferenceAndLimitationManifestSha256": null,
+      "qualifiedForComparison": false,
+      "qualifiedForProductUse": false,
+      "mayBecomePrimaryOrFallbackFromTechnicalPassAlone": false
+    }
+  ],
+  "workloadRoles": [
+    {
+      "workloadId": "launcher-shell",
+      "runtimeClass": "console-shell",
+      "networkClass": "offline-required",
+      "motionRole": "shell-and-reserved-action-owner",
+      "exactArtifactConfigurationInteractionAndReadinessManifestSha256": null,
+      "mustRunOnBothOperatingSystemLanes": true
+    },
+    {
+      "workloadId": "obstacle-motion-sample",
+      "runtimeClass": "local-web-motion",
+      "networkClass": "offline-required",
+      "motionRole": "primary-camera-pose-action-consumer",
+      "exactArtifactConfigurationInteractionAndReadinessManifestSha256": null,
+      "mustRunOnBothOperatingSystemLanes": true
+    },
+    {
+      "workloadId": "selected-signed-local-package",
+      "runtimeClass": "installed-controlled-package",
+      "networkClass": "offline-required",
+      "motionRole": "manifest-declared-motion-or-controller-profile",
+      "exactArtifactConfigurationInteractionAndReadinessManifestSha256": null,
+      "mustRunOnBothOperatingSystemLanes": true
+    },
+    {
+      "workloadId": "rights-cleared-supervised-libretro-package",
+      "runtimeClass": "supervised-libretro",
+      "networkClass": "offline-required",
+      "motionRole": "controller-only-negative-motion-control",
+      "exactArtifactConfigurationInteractionAndReadinessManifestSha256": null,
+      "mustRunOnBothOperatingSystemLanes": true
+    },
+    {
+      "workloadId": "selected-hosted-game-compatibility",
+      "runtimeClass": "remote-web",
+      "networkClass": "network-required",
+      "motionRole": "declared-title-specific-motion-or-negative-control",
+      "exactArtifactConfigurationInteractionAndReadinessManifestSha256": null,
+      "mustRunOnBothOperatingSystemLanes": true
+    }
+  ],
+  "traceBundleRoles": [
+    {
+      "traceBundleId": "launcher-shell-common-trace",
+      "workloadId": "launcher-shell",
+      "requiredContents": "controller-navigation-reserved-actions-loading-focus-accountless-offline-and-fault-schedule",
+      "exactRightsGroundTruthEventsTimestampsPayloadAndScheduleManifestSha256": null,
+      "replayMayQualifyLiveCameraControllerOrProductBehavior": false
+    },
+    {
+      "traceBundleId": "obstacle-motion-common-trace",
+      "workloadId": "obstacle-motion-sample",
+      "requiredContents": "camera-transport-exposure-pose-ground-truth-motion-action-controller-game-and-fault-schedule",
+      "exactRightsGroundTruthEventsTimestampsPayloadAndScheduleManifestSha256": null,
+      "replayMayQualifyLiveCameraControllerOrProductBehavior": false
+    },
+    {
+      "traceBundleId": "signed-local-package-common-trace",
+      "workloadId": "selected-signed-local-package",
+      "requiredContents": "package-loading-motion-controller-save-return-update-and-fault-schedule",
+      "exactRightsGroundTruthEventsTimestampsPayloadAndScheduleManifestSha256": null,
+      "replayMayQualifyLiveCameraControllerOrProductBehavior": false
+    },
+    {
+      "traceBundleId": "supervised-libretro-common-trace",
+      "workloadId": "rights-cleared-supervised-libretro-package",
+      "requiredContents": "retropad-reserved-action-loading-save-state-return-audio-video-and-fault-schedule",
+      "exactRightsGroundTruthEventsTimestampsPayloadAndScheduleManifestSha256": null,
+      "replayMayQualifyLiveCameraControllerOrProductBehavior": false
+    },
+    {
+      "traceBundleId": "hosted-game-common-trace",
+      "workloadId": "selected-hosted-game-compatibility",
+      "requiredContents": "controller-or-motion-loading-service-network-loss-return-and-fault-schedule",
+      "exactRightsGroundTruthEventsTimestampsPayloadAndScheduleManifestSha256": null,
+      "replayMayQualifyLiveCameraControllerOrProductBehavior": false
+    }
+  ],
+  "pairedTraceMatrix": {
+    "osLaneIds": [
+      "steamos-primary",
+      "windows-conditional-fallback"
+    ],
+    "workloadIds": [
+      "launcher-shell",
+      "obstacle-motion-sample",
+      "selected-signed-local-package",
+      "rights-cleared-supervised-libretro-package",
+      "selected-hosted-game-compatibility"
+    ],
+    "traceBundleIds": [
+      "launcher-shell-common-trace",
+      "obstacle-motion-common-trace",
+      "signed-local-package-common-trace",
+      "supervised-libretro-common-trace",
+      "hosted-game-common-trace"
+    ],
+    "osLaneCount": 2,
+    "workloadTracePairCount": 5,
+    "requiredLaneWorkloadTraceCellCount": 10,
+    "validRunsPerCell": 20,
+    "requiredTraceRunCount": 200,
+    "eachWorkloadUsesOnlyItsExactBoundTraceBundle": true,
+    "bothLanesReceiveByteIdenticalTracePayloadAndSchedulePerPair": true,
+    "replayComparisonRemainsSeparateFromLiveIntegratedQualification": true,
+    "failedInvalidInterruptedRetriedPreRepairAndWorstCaseRunsRemainVisible": true,
+    "oneLaneWorkloadTraceRunOrAggregateMayRescueFailure": false
+  },
+  "lifecycleScenarioIds": [
+    "clean-package-install-readback-and-supported-auto-entry",
+    "accountless-first-vcg-entry-without-steam-or-microsoft-identity",
+    "accountless-online-cold-boot-to-controller-usable",
+    "accountless-offline-cold-boot-to-controller-usable",
+    "network-loss-local-continuity-truthful-hosted-failure-and-restore",
+    "branded-loading-exact-readiness-usable-input-and-bounded-cancel",
+    "live-uvc-permission-mode-exposure-timestamp-hotplug-and-reconnect",
+    "live-camera-pose-action-concurrent-game-quality-and-latency",
+    "controller-discovery-zero-setup-glyph-reserved-actions-and-reconnect",
+    "normal-exit-descendant-cleanup-focus-restore-and-fresh-input-epoch",
+    "game-crash-detection-cleanup-truthful-recovery-and-fresh-retry",
+    "game-hang-readiness-loss-forced-cleanup-and-system-owned-exit",
+    "camera-or-tracker-loss-fresh-stream-epoch-and-bounded-recovery",
+    "suspend-resume-camera-audio-video-input-focus-save-and-network-state",
+    "os-driver-runtime-vcg-package-update-health-failure-and-rollback",
+    "uninstall-reinstall-explicit-local-profile-save-and-cache-disposition",
+    "one-hour-steady-state-power-thermal-acoustic-resource-and-frame-quality",
+    "operator-maintenance-diagnostics-repair-recovery-and-time-burden"
+  ],
+  "lifecycleMatrix": {
+    "osLaneIds": [
+      "steamos-primary",
+      "windows-conditional-fallback"
+    ],
+    "workloadIds": [
+      "launcher-shell",
+      "obstacle-motion-sample",
+      "selected-signed-local-package",
+      "rights-cleared-supervised-libretro-package",
+      "selected-hosted-game-compatibility"
+    ],
+    "osLaneCount": 2,
+    "workloadCount": 5,
+    "scenarioCount": 18,
+    "requiredLaneWorkloadScenarioCellCount": 180,
+    "validCyclesPerCell": 20,
+    "requiredLifecycleCycleCount": 3600,
+    "minimumSteadyStateSecondsPerLaneWorkloadInSteadyStateScenario": 3600,
+    "everyCellUsesTheSameFrozenStartEndOraclesScheduleAndAcceptanceRules": true,
+    "liveCameraControllerDisplayAudioNetworkPowerAndRecoveryEvidenceRequiredWhereApplicable": true,
+    "nonApplicableOutcomeRequiresPreRegisteredReasonAndCannotCountAsPass": true,
+    "failedInvalidInterruptedRetriedPreRepairAndWorstCaseCyclesRemainVisible": true,
+    "oneLaneWorkloadScenarioCycleTraceOrAggregateMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "exact-hardware-firmware-storage-os-driver-runtime-package-model-catalog-workload-trace-and-configuration-digests",
+      "pair-order-cache-temperature-ambient-network-power-clock-and-reset-state",
+      "install-update-rollback-uninstall-reinstall-artifact-readback-root-write-and-operator-time",
+      "account-process-identity-auto-entry-offline-network-request-egress-profile-save-and-data-ownership-state",
+      "external-power-action-feedback-phase-ready-visible-focused-interactive-and-terminal-timestamps-with-uncertainty",
+      "uvc-device-permission-format-resolution-rate-control-exposure-timestamp-buffer-hotplug-reconnect-and-epoch-state",
+      "pose-action-ground-truth-precision-recall-capture-pose-action-game-and-end-to-end-timing",
+      "controller-source-transport-mapping-glyph-player-recipient-reserved-action-reconnect-and-input-epoch-state",
+      "process-descendant-window-focus-fullscreen-compositor-shell-service-and-cleanup-state",
+      "game-tracker-camera-input-audio-video-network-save-and-package-fault-detection-recovery-and-freshness",
+      "frame-rate-frame-time-pacing-drop-tear-audio-latency-audio-video-sync-and-visible-response",
+      "cpu-gpu-memory-vram-storage-write-amplification-wall-power-energy-temperature-throttle-and-one-meter-acoustics",
+      "os-driver-runtime-service-package-maintenance-frequency-duration-operator-intervention-rollback-and-recovery-burden",
+      "unavoidable-os-native-difference-gap-cause-windows-closure-new-failure-and-maintenance-delta-ledger",
+      "failed-invalid-interrupted-retried-pre-repair-adverse-worst-case-and-excluded-pair-ledger"
+    ],
+    "independentHardwareClockInputCameraGroundTruthGameProcessNetworkStoragePowerThermalAcousticAndRecoveryOraclesRequired": true,
+    "operatingSystemSelfReportProcessStartFirstPixelsHeartbeatAverageOrBestCaseMayEstablishProductSuccess": false,
+    "replayTraceMayEstablishLiveCameraControllerRoomOrUserBehavior": false,
+    "everyAttemptFailureRetryRepairExclusionDifferenceAndMaintenanceActionMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidTraceRunsPerLaneWorkloadTraceCell": 20,
+    "minimumValidLifecycleCyclesPerLaneWorkloadScenarioCell": 20,
+    "minimumSteadyStateSecondsPerLaneWorkloadInSteadyStateScenario": 3600,
+    "maximumMissingRequiredTraceOrLifecycleCells": 0,
+    "maximumFailedRequiredTraceRunsOrLifecycleCycles": 0,
+    "maximumVisibleFeedbackMs": 250,
+    "maximumColdBootToControllerUsableMs": 60000,
+    "maximumWarmResumeToControllerUsableMs": 5000,
+    "maximumLocalLaunchToVisibleFocusedUsableInputMs": 15000,
+    "maximumHostedLaunchToInteractiveOrTruthfulObservablePhaseMs": 30000,
+    "maximumCameraExposureToActionDeliveryP95Us": 120000,
+    "maximumSteamOrMicrosoftAccountDependenciesForCoreLocalOperation": 0,
+    "maximumRequiredNetworkRequestsForCoreLocalOfflineOperation": 0,
+    "maximumUndeclaredNetworkEgresses": 0,
+    "maximumIdentityCredentialTokenCookieProfileSaveOrDeviceOwnerReassociationsAcrossOsLanes": 0,
+    "maximumSilentProfileSavePackageCacheOrProgressLossCorruptionOrCrossLaneAccessEvents": 0,
+    "maximumReadOnlyRootUnsupportedSystemMutationOrUndeclaredWriteEvents": 0,
+    "maximumKeyboardMouseShellOperatorOrHiddenSetupInterventionsInControllerOnlyProductPaths": 0,
+    "maximumMissedDuplicatedStuckWrongRecipientWrongPlayerOrWrongMappedControllerActions": 0,
+    "maximumReservedHomeBackPauseResumeExitOrPowerActionsDeliveredToGameContent": 0,
+    "maximumEscapedUnreapedOrUnaccountedGameTrackerBrowserOrPackageDescendants": 0,
+    "maximumUnrecoveredCrashHangCameraTrackerInputUpdateRollbackOrSuspendFailures": 0,
+    "maximumFalseReadyInteractiveOfflineRecoveredUpdatedRolledBackOrSuccessClaims": 0,
+    "maximumOsLaneSpecificUnreviewedTuningTraceScheduleGateOrInstrumentationDifferences": 0,
+    "maximumWindowsFallbackAcceptancesWithoutMeasuredRequiredSteamOsGap": 0,
+    "maximumWindowsFallbackAcceptancesWithAnyNewRequiredGateFailure": 0,
+    "maximumWindowsFallbackAcceptancesWithoutOwnerApproval": 0,
+    "everyRequiredSteamOsCellRetainsIndependentPassFailEvidence": true,
+    "everyCitedWindowsClosureCellRetainsPairedSameHardwarePassEvidence": true,
+    "hostedTruthfulPhaseMaySatisfyOnlyTheLaunchTimingGate": true,
+    "hostedTruthfulPhaseMayEstablishPlayability": false,
+    "replayTraceMayQualifyLiveIntegratedBehavior": false,
+    "windowsAggregateAverageBestCaseProxyOrDevelopmentWorkstationMayRescueSteamOs": false,
+    "steamMachineResultMayReplaceRescueOrWeakenRequiredOrdinaryLinuxOrPiTiers": false,
+    "allOpenQualityResourceMaintenanceMaterialityAndReviewGatesFrozenBeforeOperation": true
+  },
+  "openAcceptance": {
+    "minimumPerActionPrecisionPpmByLaneWorkload": null,
+    "minimumPerActionRecallPpmByLaneWorkload": null,
+    "minimumPoseFrameRateMilliHzByLaneWorkload": null,
+    "minimumGameFrameRateMilliHzByLaneWorkload": null,
+    "maximumGameFrameTimeP95UsByLaneWorkload": null,
+    "maximumFramePacingErrorP95UsByLaneWorkload": null,
+    "maximumDroppedCaptureRatePpmByLaneWorkload": null,
+    "maximumDroppedPoseRatePpmByLaneWorkload": null,
+    "maximumExposureTimestampUncertaintyUsByLane": null,
+    "maximumCaptureToPoseP95UsByLaneWorkload": null,
+    "maximumActionDeliveryOverheadP95UsByLaneWorkload": null,
+    "maximumControllerToVisibleResponseP95UsByLaneWorkload": null,
+    "maximumAudioOutputLatencyP95UsByLaneWorkload": null,
+    "maximumAbsoluteAudioVideoSyncErrorP95UsByLaneWorkload": null,
+    "maximumCpuUtilizationPpmByLaneWorkload": null,
+    "maximumGpuUtilizationPpmByLaneWorkload": null,
+    "maximumResidentMemoryBytesByLaneWorkload": null,
+    "maximumVramBytesByLaneWorkload": null,
+    "maximumPersistentStorageGrowthBytesPerHourByLaneWorkload": null,
+    "maximumDiagnosticLogGrowthBytesPerHourByLaneWorkload": null,
+    "maximumWallPowerMilliwattsByLaneWorkloadPhase": null,
+    "maximumEnergyMilliwattHoursByLaneScenario": null,
+    "maximumSustainedCpuTemperatureMilliCByLaneWorkload": null,
+    "maximumSustainedGpuTemperatureMilliCByLaneWorkload": null,
+    "maximumThermalThrottleEventsByLaneWorkload": null,
+    "maximumOneMeterAcousticsMilliDbaByLaneWorkloadPhase": null,
+    "maximumCrashHangOrComponentRecoveryP95AndWorstMsByFaultAndLane": null,
+    "maximumUpdateRollbackReinstallAndRecoveryP95AndWorstMsByLane": null,
+    "maximumOperatorMaintenanceSecondsPerScenarioByLane": null,
+    "maximumScheduledMaintenanceEventsPerYearByLane": null,
+    "maximumUnscheduledMaintenanceEventsPerYearByLane": null,
+    "maximumWindowsMaintenanceBurdenDeltaSecondsPerYear": null,
+    "minimumMaterialWindowsGapClosureDeltaByMetric": null,
+    "exactGapClassificationRootCauseAndAttributionProtocolSha256": null,
+    "exactPairedStatisticalUncertaintyOutlierAndMissingDataProtocolSha256": null,
+    "exactWindowsFallbackScopeExpiryRegressionAndReturnToSteamOsProtocolSha256": null,
+    "exactIndependentEvidenceReviewAndOwnerDecisionPacketProtocolSha256": null
+  },
+  "fallbackDecisionProtocol": {
+    "steamOsPrimaryByDefault": true,
+    "windowsCandidateOnlyAfterAtLeastOneFrozenRequiredSteamOsGateFails": true,
+    "eachCandidateGapRequiresExactSteamOsFailingCellPairAndMetricIds": true,
+    "eachCandidateGapRequiresOsLocalRootCauseOrExplicitUnresolvedAttribution": true,
+    "windowsMustPassTheSamePairedCellsTracesWorkloadsOraclesAndFrozenGates": true,
+    "windowsMustCloseEveryCitedGapByTheFrozenMaterialityRule": true,
+    "windowsMustIntroduceZeroNewRequiredGateFailures": true,
+    "windowsMustPreserveAccountlessOfflineControllerCameraDataRecoveryAndTimingContracts": true,
+    "windowsMaintenancePowerThermalAcousticAndSupportDeltaMustPassFrozenGates": true,
+    "fallbackScopeMustBeLimitedToExactQualifiedWorkloadsFeaturesAndHardware": true,
+    "fallbackRequiresSeparateOwnerApprovalAfterCompleteIndependentReview": true,
+    "fallbackExpiresOnBoundOsDriverRuntimePackageHardwareOrGateChange": true,
+    "fallbackMustReturnToSteamOsWhenTheCitedGapIsClosedAndRegressionReviewPasses": true,
+    "windowsPassWithoutSteamOsFailureMaySelectFallback": false,
+    "aggregateAverageBestCaseDifferentHardwareOrProxyMayCloseGap": false,
+    "technicalComparisonMayChangePrimaryEnvironmentOptionalTargetOrRequiredTiers": false,
+    "candidateGapLedgerSha256": null,
+    "completePairedComparisonResultSha256": null,
+    "independentReviewPacketSha256": null,
+    "ownerFallbackDecisionSha256": null,
+    "windowsFallbackAccepted": false
+  },
+  "authorityBoundary": {
+    "exactTargetCustodyInventoryAndOperationAuthorized": false,
+    "firmwareBiosStorageDualBootInstallBootSelectionOrRecoveryMutationAuthorized": false,
+    "steamOsWindowsDriverRuntimePackageOrUpdateMutationAuthorized": false,
+    "artifactTraceModelGamePackageOrSourceRetrievalBuildSigningOrInstallAuthorized": false,
+    "steamMicrosoftHostedServiceOrOtherAccountCreationLoginRemovalOrMutationAuthorized": false,
+    "cameraControllerDisplayAudioNetworkPowerInstrumentOrRoomOperationAuthorized": false,
+    "networkDisableRestoreInspectionOrServiceFaultAuthorized": false,
+    "processCameraInputStorageUpdateSuspendCrashHangPowerOrRecoveryFaultAuthorized": false,
+    "profileSavePackageCacheIdentityOrPersistentDataMutationAuthorized": false,
+    "rawMediaTraceScreenAudioVideoNetworkBodyOrMemoryCaptureAuthorized": false,
+    "numericGateScheduleDifferenceExclusionOrResultSelectionAuthorized": false,
+    "windowsFallbackAcceptanceOrSteamOsPrimaryMutationAuthorized": false,
+    "qualificationPublicationSupportPromiseOrProductTierMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueTargetLaneBuildWorkloadTracePairCellCycleFaultGapAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsResourceCostAndRedactedCategoriesRequired": true,
+    "rightsAuthorityAndDeletionProtocolRequiredBeforeAnyEphemeralInputTraceUse": true,
+    "rawCameraScreenAudioVideoSkeletonControllerNetworkStorageSaveOrMemoryBytesAllowedInPlanRepositoryOrResult": false,
+    "namesFacesVoicesExactAgesDisplayNamesPortraitsBodyDataOrStableIdentifiersAllowed": false,
+    "steamMicrosoftHostedAccountCredentialsTokensCookiesIdentityOrProfileAssociationsAllowed": false,
+    "pathsUsernamesHostnamesSerialsMacsUrlsWithQueriesEnvironmentCommandsArgumentsOrProcessIdsAllowed": false,
+    "freeTextOsDriverRuntimeServiceGameCrashParticipantOperatorOrMaintenanceLogsAllowed": false,
+    "failedInvalidInterruptedRetriedPreRepairAdverseWorstCaseAndExcludedEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I176-001-exact-received-steam-machine-hardware-firmware-storage-custody-and-peripheral-manifest",
+      "I176-002-qualified-supported-dual-boot-install-update-boot-selection-backup-and-recovery-result",
+      "I176-003-exact-steamos-image-driver-runtime-package-auto-entry-update-and-recovery-lane-manifest",
+      "I176-004-exact-windows-image-driver-runtime-package-auto-entry-update-and-recovery-lane-manifest",
+      "I176-005-exact-common-vcg-build-model-catalog-package-workload-configuration-and-readback-manifest",
+      "I176-006-qualified-live-camera-permission-mode-timestamp-pose-action-and-reconnect-protocol",
+      "I176-007-qualified-controller-zero-setup-glyph-reserved-action-reconnect-and-input-epoch-protocol",
+      "I176-008-qualified-accountless-auto-entry-offline-identity-profile-save-and-service-boundary-protocol",
+      "I176-009-exact-rights-cleared-common-trace-ground-truth-payload-retention-and-deletion-manifest",
+      "I176-010-exact-loading-readiness-process-window-descendant-audio-video-network-storage-and-clock-oracles",
+      "I176-011-exact-package-os-driver-runtime-update-rollback-uninstall-reinstall-and-data-disposition-protocol",
+      "I176-012-exact-crash-hang-camera-tracker-input-suspend-resume-and-recovery-fault-protocol",
+      "I176-013-exact-power-thermal-acoustic-resource-ambient-cooldown-and-maintenance-instrumentation-protocol",
+      "I176-014-frozen-quality-resource-maintenance-materiality-uncertainty-and-regression-gates",
+      "I176-015-exact-paired-order-reset-counterbalance-invalid-cycle-exclusion-and-complete-rerun-protocol",
+      "I176-016-closed-path-free-data-redaction-retention-deletion-incident-and-independent-review-policy",
+      "I176-017-exact-target-account-network-data-fault-update-recovery-capture-and-operator-authority",
+      "I176-018-owner-reviewed-windows-fallback-scope-expiry-publication-and-product-decision-boundary"
+    ],
+    "mayExecute": false
+  },
+  "result": null
+}
