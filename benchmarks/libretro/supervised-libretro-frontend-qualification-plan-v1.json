@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "03bcbbf05a1bd07ddaca880da062ad57faa6d338e8bf31daf78a0847022d339f"
+      "sha256": "402b183fc044719d2ff88b4b45c0dd7342cada057eb2d2adfe11460ca0a6953a"
     }
   ],
   "prerequisiteGate": {

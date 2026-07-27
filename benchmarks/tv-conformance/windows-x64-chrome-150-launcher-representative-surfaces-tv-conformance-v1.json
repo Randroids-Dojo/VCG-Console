@@ -6,7 +6,7 @@
   "retrievedAtUtc": "2026-07-26T23:59:57.000Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "3cd1b918d2dcfde159a1c6ab26f3e7879cdd37811a36072ea1f9df34de817091"
+    "sha256": "5bccbe8c2ae1b33b77ae7adbb7c52e4afa3df4166318db79d51767da133e6f19"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -448,7 +448,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "3cd1b918d2dcfde159a1c6ab26f3e7879cdd37811a36072ea1f9df34de817091",
+    "homeEvidencePathSha256": "5bccbe8c2ae1b33b77ae7adbb7c52e4afa3df4166318db79d51767da133e6f19",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
@@ -472,7 +472,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 136,
-      "sha256": "99619d0913a25fdfc5778e7e7d08a1d94e09fbac43aca7a4bf9521e7c0f8d279"
+      "sha256": "49af64a043e7e3bb9a82fd8141addb9d93590c4d1669fdee3547721dacbecf9f"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

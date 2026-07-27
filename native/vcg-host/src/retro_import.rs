@@ -2171,15 +2171,37 @@ fn validate_visible_title(value: &str) -> Result<(), RetroImportError> {
         || value.chars().count() > 80
         || value.trim() != value
         || !is_nfc(value)
-        || value
-            .chars()
-            .any(|character| character.is_control() || matches!(character, '/' | '\\'))
+        || value.chars().any(|character| {
+            is_unsafe_display_character(character) || matches!(character, '/' | '\\')
+        })
     {
         return Err(RetroImportError::InvalidLibrary(
             "installed title is not a safe NFC display value".to_owned(),
         ));
     }
     Ok(())
+}
+
+fn is_unsafe_display_character(character: char) -> bool {
+    let code_point = character as u32;
+    character.is_control()
+        || (character.is_whitespace() && character != ' ')
+        || matches!(
+            code_point,
+            0x00ad
+                | 0x061c
+                | 0x180e
+                | 0x200b..=0x200f
+                | 0x202a..=0x202e
+                | 0x2060..=0x2064
+                | 0x2066..=0x206f
+                | 0xfeff
+                | 0xfff9..=0xfffb
+                | 0x1bca0..=0x1bca3
+                | 0x1d173..=0x1d17a
+                | 0xe0001
+                | 0xe0020..=0xe007f
+        )
 }
 
 fn validate_bounded_text(
@@ -2943,6 +2965,30 @@ mod tests {
     const INSPECTION_ID: &str = "rii-11111111111111111111111111111111";
     const SOURCE_HANDLE: &str = "rih-22222222222222222222222222222222";
     const SESSION_ID: &str = "ris-33333333333333333333333333333333";
+
+    #[test]
+    fn installed_titles_reject_invisible_directional_and_nonportable_unicode() {
+        for value in [
+            "Game\u{85}",
+            "Game\u{ad}",
+            "Game\u{200b}",
+            "Game\u{2028}",
+            "Game\u{202e}",
+            "Game\u{2066}",
+            "Game\u{feff}",
+        ] {
+            assert!(matches!(
+                validate_visible_title(value),
+                Err(RetroImportError::InvalidLibrary(_))
+            ));
+        }
+
+        assert!(validate_visible_title(&"🎮".repeat(80)).is_ok());
+        assert!(matches!(
+            validate_visible_title(&"🎮".repeat(81)),
+            Err(RetroImportError::InvalidLibrary(_))
+        ));
+    }
 
     struct Fixture {
         root: PathBuf,

@@ -242,6 +242,69 @@ describe("closed import contracts", () => {
       "UNKNOWN_OR_MISSING_FIELD",
     );
   });
+
+  it("rejects invisible, directional, and non-portable Unicode in names, paths, and titles", () => {
+    const unsafeCharacters = [
+      "\u0085",
+      "\u00ad",
+      "\u200b",
+      "\u2028",
+      "\u202e",
+      "\u2066",
+      "\ufeff",
+      "\ud800",
+    ];
+
+    for (const unsafe of unsafeCharacters) {
+      const plain = clone(baseCandidate);
+      plain.sourceName = `Game${unsafe}.gb`;
+      expectCode(() => parseRetroImportCandidate(plain), "UNSAFE_NAME");
+
+      const archive = clone(baseCandidate);
+      archive.sourceName = "Games.zip";
+      archive.inspection = {
+        kind: "archive",
+        format: "zip",
+        expandedBytes: 1_024,
+        entries: [
+          {
+            relativeName: `folder/Game${unsafe}.gb`,
+            sizeBytes: 1_024,
+            sha256: HASH_B,
+          },
+        ],
+      };
+      expectCode(
+        () => parseRetroImportCandidate(archive),
+        "UNSAFE_ARCHIVE_PATH",
+      );
+
+      const library: RetroInstalledLibrary = {
+        schemaVersion: 1,
+        generation: 1,
+        entries: [installedEntry(HASH_A, { title: `Game${unsafe}` })],
+      };
+      expectCode(() => parseRetroInstalledLibrary(library), "INVALID_LIBRARY");
+    }
+  });
+
+  it("counts installed-title limits in Unicode scalars like JSON Schema and Rust", () => {
+    const exact = parseRetroInstalledLibrary({
+      schemaVersion: 1,
+      generation: 1,
+      entries: [installedEntry(HASH_A, { title: "🎮".repeat(80) })],
+    });
+    expect(exact.entries[0]?.title).toBe("🎮".repeat(80));
+
+    expectCode(
+      () => parseRetroInstalledLibrary({
+        schemaVersion: 1,
+        generation: 1,
+        entries: [installedEntry(HASH_A, { title: "🎮".repeat(81) })],
+      }),
+      "INVALID_STRING",
+    );
+  });
 });
 
 describe("shared USB and paired-LAN planning", () => {

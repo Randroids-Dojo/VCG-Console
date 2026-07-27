@@ -58,17 +58,17 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "3c702895cfdf37099a488c6051b687f4555eaba9ea91a2faac5741fa6016c827"
+      "sha256": "3d2a2629847df256a0f68c5fbab763df1665d332dfe69eec3268b183dbb7bd6e"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "1777ea9a452905ad51eaeb4fb695789050e4058bf452ffed0f52f5d8086e07f6"
+      "sha256": "6ee855ade5810f79575b6ee578bc28cdf0be333c3426d594be62289525c3ea0f"
     },
     {
       "role": "idle-suspend-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "686d1595e32c41130d90092a72c7ba689a6c1e6edac390b23e75a36ffd8f421c"
+      "sha256": "313fee2a12b16f45ba681aebb29890439667429d46e70b6c48cd86c0f7a7ce21"
     },
     {
       "role": "active-play-safety-boundary",

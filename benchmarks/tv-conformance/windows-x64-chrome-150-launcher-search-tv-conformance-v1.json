@@ -6,7 +6,7 @@
   "retrievedAtUtc": "2026-07-26T23:59:58.000Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "5a04f846db911b40de678e6a49cc9219c176c6dae89acb522a119b060c02b81a"
+    "sha256": "5dd606edfcff3143c7660f74224279d625bf702a7b08159669444fcf695a3917"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -2051,7 +2051,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "5a04f846db911b40de678e6a49cc9219c176c6dae89acb522a119b060c02b81a",
+    "representativeEvidencePathSha256": "5dd606edfcff3143c7660f74224279d625bf702a7b08159669444fcf695a3917",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
@@ -2075,7 +2075,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 136,
-      "sha256": "99619d0913a25fdfc5778e7e7d08a1d94e09fbac43aca7a4bf9521e7c0f8d279"
+      "sha256": "49af64a043e7e3bb9a82fd8141addb9d93590c4d1669fdee3547721dacbecf9f"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 20-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 20-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

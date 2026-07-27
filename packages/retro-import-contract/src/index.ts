@@ -1241,7 +1241,7 @@ function requirePortableBasename(value: unknown, label: string): string {
     name !== name.normalize("NFC")
     || name.includes("/")
     || name.includes("\\")
-    || /[\u0000-\u001f\u007f]/u.test(name)
+    || [...name].some(isUnsafeDisplayCharacter)
     || /[<>"|?*]/u.test(name)
     || name.endsWith(".")
     || name.endsWith(" ")
@@ -1260,7 +1260,7 @@ function requirePortableRelativePath(value: unknown): string {
     || path.startsWith("/")
     || path.includes("\\")
     || path.includes(":")
-    || /[\u0000-\u001f\u007f]/u.test(path)
+    || [...path].some(isUnsafeDisplayCharacter)
     || /[<>"|?*]/u.test(path)
   ) {
     fail("UNSAFE_ARCHIVE_PATH", "archive path is not portable");
@@ -1292,15 +1292,47 @@ function requirePortableSegment(segment: string, label: string): void {
 }
 
 function requireVisibleTitle(value: unknown, label: string): string {
-  const title = requireBoundedString(value, 1, 80, label);
+  if (typeof value !== "string") {
+    fail("INVALID_STRING", `${label} must be a bounded string`);
+  }
+  const title = value as string;
+  const scalarLength = [...title].length;
+  if (scalarLength < 1 || scalarLength > 80) {
+    fail("INVALID_STRING", `${label} must be a bounded string`);
+  }
   if (
     title !== title.normalize("NFC")
-    || /[\u0000-\u001f\u007f/\\]/u.test(title)
+    || [...title].some(isUnsafeDisplayCharacter)
+    || /[/\\]/u.test(title)
     || title.trim() !== title
   ) {
     fail("INVALID_LIBRARY", `${label} is not a safe visible title`);
   }
   return title;
+}
+
+function isUnsafeDisplayCharacter(character: string): boolean {
+  const codePoint = character.codePointAt(0);
+  if (codePoint === undefined) return true;
+  return (
+    (codePoint <= 0x1f)
+    || (codePoint >= 0x7f && codePoint <= 0x9f)
+    || (codePoint >= 0xd800 && codePoint <= 0xdfff)
+    || codePoint === 0x00ad
+    || codePoint === 0x061c
+    || codePoint === 0x180e
+    || (codePoint >= 0x200b && codePoint <= 0x200f)
+    || (codePoint >= 0x2028 && codePoint <= 0x202e)
+    || (codePoint >= 0x2060 && codePoint <= 0x2064)
+    || (codePoint >= 0x2066 && codePoint <= 0x206f)
+    || codePoint === 0xfeff
+    || (codePoint >= 0xfff9 && codePoint <= 0xfffb)
+    || (codePoint >= 0x1bca0 && codePoint <= 0x1bca3)
+    || (codePoint >= 0x1d173 && codePoint <= 0x1d17a)
+    || codePoint === 0xe0001
+    || (codePoint >= 0xe0020 && codePoint <= 0xe007f)
+    || (character !== " " && /\s/u.test(character))
+  );
 }
 
 function sumEntryBytes(entries: readonly RetroInstalledEntry[]): number {
