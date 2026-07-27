@@ -6,7 +6,7 @@
   "retrievedAtUtc": "2026-07-26T23:59:57.000Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "416e789d4bccb4ff2b514bd865689818b582b523c49428c46a07aa10e7f40821"
+    "sha256": "4f847420590c5adef11c91fa9e87aa3e70886241e523a22c2ecb981b626e6341"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -390,7 +390,7 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-Bp9iEBxg.js": 9,
+      "/assets/main-BH0ZfrlY.js": 9,
       "/assets/main-CDT6K0sT.css": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
       "/assets/src-CYOVH8wV.js": 9,
@@ -448,7 +448,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "416e789d4bccb4ff2b514bd865689818b582b523c49428c46a07aa10e7f40821",
+    "homeEvidencePathSha256": "4f847420590c5adef11c91fa9e87aa3e70886241e523a22c2ecb981b626e6341",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
@@ -471,8 +471,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 138,
-      "sha256": "eb7c1652517498d74eaf1558199afbdfed60f6cd85e2848cbba9149b00b62232"
+      "fileCount": 140,
+      "sha256": "0c136194531a42a06bbfb1b98ee07c26d2f28eab18072475417694c002cc8a74"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

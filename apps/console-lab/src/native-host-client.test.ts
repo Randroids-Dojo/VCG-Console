@@ -150,6 +150,21 @@ describe("native host status", () => {
     }
   });
 
+  it("rejects duplicate status fields, including escaped aliases", async () => {
+    const duplicateDocuments = [
+      '{"protocolVersion":"0.1.0","hostVersion":"0.1.0","hostVersion":"9.9.9","target":"x86_64-windows","capabilities":["launcher-shell"]}',
+      '{"protocolVersion":"0.1.0","hostVersion":"0.1.0","host\\u0056ersion":"9.9.9","target":"x86_64-windows","capabilities":["launcher-shell"]}',
+    ];
+
+    for (const document of duplicateDocuments) {
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(document, { status: 200 }));
+      await expect(checkNativeHost(HOST_URL, fetcher)).resolves.toMatchObject({
+        ok: false,
+        code: "HOST_PROTOCOL_INVALID",
+      });
+    }
+  });
+
   it("rejects oversized status bodies without consuming them", async () => {
     const oversized = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(" ".repeat(16_385), {
@@ -391,6 +406,20 @@ describe("trusted native package catalog", () => {
         code: "HOST_PROTOCOL_INVALID",
       });
     }
+  });
+
+  it("rejects duplicate fields nested inside a package inventory", async () => {
+    const duplicateInventory =
+      '{"protocolVersion":"0.1.0","catalogGeneration":7,"packages":[{"id":"retro-2048","version":"1.0.0","version":"2.0.0","runtime":"libretro"}]}';
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(catalogStatus), { status: 200 }))
+      .mockResolvedValueOnce(new Response(duplicateInventory, { status: 200 }));
+
+    await expect(listNativePackages(HOST_URL, fetcher)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
   });
 
   it("rejects an oversized package inventory before reading its body", async () => {

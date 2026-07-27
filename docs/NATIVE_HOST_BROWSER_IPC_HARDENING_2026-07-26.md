@@ -11,6 +11,14 @@ exact-origin, timeout, fatal UTF-8, and bounded-body protections remain
 unchanged. This tranche narrows the semantic values that may reach launcher
 state and visible progress text after those transport checks pass.
 
+All response bodies also pass through
+`apps/console-lab/src/strict-json.ts` before schema validation. The parser
+permits ordinary JSON whitespace and field ordering, rejects duplicate object
+fields at every nesting level after decoding escaped names, and limits
+container nesting to 64. The platform `JSON.parse` still performs the final
+grammar and value parse. This removes last-field-wins ambiguity without making
+the loopback protocol depend on a canonical byte layout.
+
 ## Status contract
 
 The status object contains exactly `protocolVersion`, `hostVersion`, `target`,
@@ -43,9 +51,11 @@ their existing checks.
 `apps/console-lab/src/native-host-client.test.ts` covers invisible Unicode,
 controls and spaces, unknown status fields, malformed and excessive targets,
 duplicate and excessive capabilities, non-ASCII package versions, and both
-single-package and inventory rejection paths. The production build was
-regenerated and the launcher TV and OCR-A source-bound artifacts were rerun
-against it.
+single-package and inventory rejection paths. `apps/console-lab/src/strict-json.test.ts`
+covers top-level, nested, and escaped-alias duplicate fields, the exact nesting
+limit, excessive nesting, ordinary whitespace and order, and malformed input.
+The production build was regenerated and the launcher TV and OCR-A source-bound
+artifacts were rerun against it.
 
 This proves browser-side rejection for the tested document classes. It does not
 qualify a native target, package signature, profile registry, process launch,

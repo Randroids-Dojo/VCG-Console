@@ -1,3 +1,5 @@
+import { parseJsonWithUniqueObjectFields } from "./strict-json";
+
 const HOST_API_PROTOCOL_VERSION = "0.1.0";
 const HOST_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
 const HOST_PORT_PATTERN = /^[1-9][0-9]{0,4}$/;
@@ -675,7 +677,7 @@ async function readBoundedJson(
     if (new TextEncoder().encode(text).byteLength > maxBytes) {
       throw new Error("host status body is too large");
     }
-    return JSON.parse(text) as unknown;
+    return parseJsonWithUniqueObjectFields(text);
   }
 
   const reader = response.body.getReader();
@@ -702,7 +704,9 @@ async function readBoundedJson(
     bytes.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
+  return parseJsonWithUniqueObjectFields(
+    new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+  );
 }
 
 function isNativeHostStatus(
