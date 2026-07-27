@@ -42,17 +42,17 @@
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "0875f644e6841efec6bd0d153efecbaf2c193ff0936be119e2dc2c72bba88757"
+      "sha256": "54c6fa56a7aa508bc9571534aef09ad596cf16e6ccc137a1ba96bd48495b1a98"
     },
     {
       "role": "camera-geometry-invalidation-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "dfd3d5e2bd8f960f25b30fa65b83b12424f01c18c313b431b4ebc306c593eba6"
+      "sha256": "464d4f2cd57ddd58484a4bad7ddff18dc2ea66264f740493828bebc1d3dfbc94"
     },
     {
       "role": "physical-camera-state-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "dda1951397d2e2d0268b5b53f78f2c888aa432cc6f3afaed7d9f501bc8c22470"
+      "sha256": "184f74a50e3340f0064cdaff3acda4c7183962e3c4ed1ef516d47a36578ab076"
     },
     {
       "role": "coordinate-frame-invalidation-boundary",

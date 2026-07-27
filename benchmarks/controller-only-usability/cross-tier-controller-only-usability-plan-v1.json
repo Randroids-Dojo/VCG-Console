@@ -1,0 +1,358 @@
+{
+  "format": "vcg-cross-tier-controller-only-usability-plan/v1",
+  "status": "blocked",
+  "campaignId": "cross-tier-controller-only-usability-2026-07-26",
+  "observedAt": "2026-07-26T23:59:59.000Z",
+  "qualificationScope": "I-155 controller-only cold-boot through launch, play, Back, recovery Retry, return, and shutdown usability across both required Linux reference targets",
+  "claimBoundary": "Pre-registration only. No target, controller, participant, runtime path, session, recording, issue, usability result, or product qualification is represented as complete.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "prototype-navigation-loading-recovery-and-controller-success-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "cross-tier-controller-qualification-protocol",
+      "path": "docs/CONTROLLER_QUALIFICATION_PROTOCOL_2026-07-24.md",
+      "sha256": "bc20b07bd0c69d2e518a30dcfc9694c2f7df6fee2f29b8e2ff1d7181e8da7405"
+    },
+    {
+      "role": "canonical-controller-mapping-and-ambiguity-boundary",
+      "path": "docs/CONTROLLER_MAPPING_CONTRACT.md",
+      "sha256": "7aa3e1f930fd4fa28f985643ac0ee05dbcfcaa4e5ad328048f74745577213cb6"
+    },
+    {
+      "role": "controller-lifecycle-and-zero-keyboard-recovery-boundary",
+      "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
+      "sha256": "5b9081eb5d6efcf9964ecfd74af5b7e9ae00b3c4e04d598fdd71d866990caf5c"
+    },
+    {
+      "role": "cold-boot-launch-feedback-and-usable-input-timing-boundary",
+      "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
+      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+    },
+    {
+      "role": "unstealable-home-back-focus-and-forced-exit-boundary",
+      "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
+      "sha256": "fd8d01b3b22dae1d2849aa345331003abaff736f01242b9f81a4f2bc0970cd1f"
+    },
+    {
+      "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
+      "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
+      "sha256": "fccc3f8675e4c3144400c3673f15c5e3e09ea8e0e83b2c0a44fb1fb6f7301bb6"
+    },
+    {
+      "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
+      "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
+      "sha256": "65ae4b542d129dc2dfd19c64869c176d2ebf0066a061e7a7502f9f8360eb54c8"
+    },
+    {
+      "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
+      "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
+      "sha256": "66fac6f6ef155eb772a9cbf9b463e4465ab5c77be93c859bc188ec7330de16ca"
+    },
+    {
+      "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
+      "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
+      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+    },
+    {
+      "role": "supervised-hosted-browser-containment-and-exit-boundary",
+      "path": "docs/HOSTED_BROWSER_SUPERVISION.md",
+      "sha256": "d7469dad2550119a72e1f61d380fa174279cba2a72b6033260d1ca652b05cc43"
+    },
+    {
+      "role": "shared-branded-loading-retry-details-and-exit-surface",
+      "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
+      "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
+    },
+    {
+      "role": "deterministic-loading-fault-retry-and-recovery-state-machine",
+      "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
+      "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+    },
+    {
+      "role": "current-launcher-navigation-runtime-adapter-and-power-surface",
+      "path": "apps/console-lab/src/launcher/Launcher.svelte",
+      "sha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c"
+    },
+    {
+      "role": "shutdown-restart-power-loss-and-safe-return-boundary",
+      "path": "docs/POWER_RECOVERY_STATE_MACHINE.md",
+      "sha256": "04ea3f86d90cd45ab88f3422f641265ef0396b3f2260a2b5aa23b57b57fee653"
+    },
+    {
+      "role": "runtime-trust-loading-retry-details-exit-and-no-desktop-boundary",
+      "path": "docs/GAME_TRUST_TIERS.md",
+      "sha256": "373feb89df4465f8737e62a172aa2e041e7f3c211583be080fea2ec81120dbbe"
+    },
+    {
+      "role": "closed-four-runtime-manifest-and-input-contract",
+      "path": "packages/game-manifest/src/index.ts",
+      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+    }
+  ],
+  "prerequisiteGate": {
+    "completeRequiredTargetQualificationResultsSha256": null,
+    "completeControllerQualificationResultSha256": null,
+    "completeReservedHomeAndBackQualificationResultSha256": null,
+    "completePhysicalTvKioskAndVisualQualificationResultsSha256": null,
+    "exactRuntimeReleaseManifestAndPlayTaskSetSha256": null,
+    "exactControllerSamplesMappingsTransportsAndGlyphsSha256": null,
+    "exactParticipantRecruitmentConsentAssentAccessibilityAndSafetyProtocolSha256": null,
+    "exactSessionFaultRecordingIssueScoringAndStopProtocolSha256": null,
+    "browserDesktopSyntheticInputOrAutomatedFlowMayQualifyHumanControllerOnlyUsability": false,
+    "oneTargetRuntimePersonaFaultOrBestCaseMayOpenOrQualifyAnother": false,
+    "collectionOpened": false
+  },
+  "targetRoles": [
+    {
+      "targetId": "ordinary-x86-linux-required",
+      "comparisonRole": "required-premium-reference",
+      "exactHardwareFirmwareOsCompositorBrowserSdlAndRuntimeManifestSha256": null,
+      "exactPhysicalTvAudioPowerControllerAndNetworkManifestSha256": null,
+      "receivedInventoriedQualifiedAndAuthorized": false
+    },
+    {
+      "targetId": "pi5-lower-cost-reference-required",
+      "comparisonRole": "required-lower-cost-reference",
+      "exactHardwareFirmwareOsCompositorBrowserSdlAndRuntimeManifestSha256": null,
+      "exactPhysicalTvAudioPowerControllerAndNetworkManifestSha256": null,
+      "receivedInventoriedQualifiedAndAuthorized": false
+    }
+  ],
+  "runtimePaths": [
+    {
+      "runtimePathId": "remote-web-supervised-top-level",
+      "runtimeClass": "remote-web",
+      "interactiveDeadlineMs": 30000,
+      "networkExpectation": "network-required-with-truthful-offline-failure",
+      "exactGameReleaseManifestPolicyAndTargetResultSha256": null,
+      "requiredOnEveryTarget": true
+    },
+    {
+      "runtimePathId": "local-web-signed-package",
+      "runtimeClass": "local-web",
+      "interactiveDeadlineMs": 15000,
+      "networkExpectation": "offline-required",
+      "exactGameReleaseManifestPolicyAndTargetResultSha256": null,
+      "requiredOnEveryTarget": true
+    },
+    {
+      "runtimePathId": "native-godot-signed-package",
+      "runtimeClass": "native",
+      "interactiveDeadlineMs": 15000,
+      "networkExpectation": "declared-by-exact-manifest",
+      "exactGameReleaseManifestPolicyAndTargetResultSha256": null,
+      "requiredOnEveryTarget": true
+    },
+    {
+      "runtimePathId": "libretro-supervised-local",
+      "runtimeClass": "libretro",
+      "interactiveDeadlineMs": 15000,
+      "networkExpectation": "offline-required",
+      "exactGameReleaseManifestPolicyAndTargetResultSha256": null,
+      "requiredOnEveryTarget": true
+    }
+  ],
+  "participantRoles": [
+    {
+      "personaId": "school-age-child-blocking",
+      "role": "blocking-child-controller-usability",
+      "exactCohortRecruitmentConsentAssentAccessibilityAndSafetyManifestSha256": null,
+      "participationAuthorized": false
+    },
+    {
+      "personaId": "adult-blocking",
+      "role": "blocking-adult-controller-usability",
+      "exactCohortRecruitmentConsentAssentAccessibilityAndSafetyManifestSha256": null,
+      "participationAuthorized": false
+    }
+  ],
+  "taskIds": [
+    "apply-power-and-receive-immediate-branded-feedback",
+    "controller-discovered-with-canonical-glyphs-and-no-manual-setup",
+    "cold-boot-to-visible-focused-usable-home",
+    "navigate-home-catalog-search-and-runtime-disclosure",
+    "select-one-exact-game-and-start-launch",
+    "understand-loading-waiting-progress-and-current-escape-action",
+    "cancel-in-progress-launch-with-system-back",
+    "relaunch-the-same-game-without-stale-state",
+    "reach-visible-focused-interactive-gameplay",
+    "perform-the-declared-controller-only-play-task",
+    "open-system-owned-home-or-pause-surface-during-play",
+    "resume-the-exact-game-with-focus-and-input-restored",
+    "exit-the-game-through-universal-back-or-system-exit",
+    "return-to-launcher-with-one-visible-valid-focus-target",
+    "open-power-menu-without-keyboard-mouse-or-hidden-shell",
+    "confirm-shutdown-and-observe-the-exact-physical-terminal-state"
+  ],
+  "sessionMatrix": {
+    "targetIds": [
+      "ordinary-x86-linux-required",
+      "pi5-lower-cost-reference-required"
+    ],
+    "runtimePathIds": [
+      "remote-web-supervised-top-level",
+      "local-web-signed-package",
+      "native-godot-signed-package",
+      "libretro-supervised-local"
+    ],
+    "personaIds": [
+      "school-age-child-blocking",
+      "adult-blocking"
+    ],
+    "taskCountPerSession": 16,
+    "requiredTargetRuntimePersonaCellCount": 16,
+    "validCompleteSessionsPerCell": 20,
+    "requiredCompleteSessionCount": 320,
+    "requiredTaskObservationCount": 5120,
+    "everySessionBeginsAtVerifiedColdOffAndEndsAtVerifiedShutdownState": true,
+    "sameFrozenTargetRuntimeControllerTaskInstructionsScoringAndOraclesRequired": true,
+    "failedInvalidStoppedRetriedAssistedAndPreRepairEvidenceMustRemainVisible": true,
+    "targetRuntimePersonaTaskSessionAverageOrBestCaseMayRescueFailure": false
+  },
+  "recoveryScenarioIds": [
+    "slow-launch-with-truthful-progress-before-deadline",
+    "absolute-launch-timeout-or-runtime-hang",
+    "runtime-crash-or-unexpected-process-exit",
+    "readiness-heartbeat-or-visible-focus-loss",
+    "network-offline-or-required-resource-unavailable",
+    "controller-disconnect-sleep-and-reconnect",
+    "fullscreen-pointer-lock-focus-or-compositor-capture-attempt",
+    "failed-retry-followed-by-safe-details-exit-and-clean-return"
+  ],
+  "recoveryMatrix": {
+    "targetCount": 2,
+    "runtimePathCount": 4,
+    "personaCount": 2,
+    "scenarioCount": 8,
+    "requiredTargetRuntimePersonaScenarioCellCount": 128,
+    "validRecoveryCyclesPerCell": 20,
+    "requiredRecoveryCycleCount": 2560,
+    "everyCycleRequiresIndependentFaultDetectionStateCopyFocusInputRetryExitAndReturnOracles": true,
+    "successfulRetryMayNotHideFailedRetryDetailsExitOrPreRepairEvidence": true,
+    "anotherFaultRuntimeTargetPersonaOrNormalSessionMayRescueFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "physical-power-application-feedback-boot-and-terminal-shutdown-state",
+      "controller-discovery-mapping-glyph-transport-epoch-focus-and-action-recipient",
+      "task-start-first-feedback-completion-abandonment-assistance-and-wrong-action",
+      "loading-state-copy-progress-phase-timeout-details-retry-exit-and-comprehension",
+      "visible-focused-usable-home-game-overlay-and-return-surface",
+      "reserved-home-back-pause-resume-exit-delivery-revocation-and-game-nondelivery",
+      "interactive-gameplay-input-audio-video-frame-and-state-continuity",
+      "fault-injection-detection-classification-retry-exit-return-and-cleanup",
+      "keyboard-mouse-shell-desktop-operator-hidden-setup-and-manual-mapping-use",
+      "screen-recording-input-ledger-clock-issue-and-independent-observer-binding",
+      "participant-comprehension-confidence-discomfort-stop-and-accessibility-category",
+      "invalid-stopped-retried-assisted-adverse-and-pre-repair-failure-ledger"
+    ],
+    "independentPhysicalPowerInputRecipientFocusSurfaceProcessNetworkAndClockOraclesRequired": true,
+    "screenCopyFirstPixelsProcessStartHeartbeatOrSelfReportMayEstablishUsableInteraction": false,
+    "sessionRecordingMaySelfEstablishPhysicalInputRecipientPowerOrAbsenceOfKeyboardMouse": false,
+    "everyAttemptIssueAssistanceWrongActionFailureRetryAndStopMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "minimumValidCompleteSessionsPerTargetRuntimePersonaCell": 20,
+    "minimumValidRecoveryCyclesPerTargetRuntimePersonaScenarioCell": 20,
+    "maximumMissingRequiredSessionTaskOrRecoveryCells": 0,
+    "maximumFailedRequiredSessionsOrRecoveryCycles": 0,
+    "maximumKeyboardMouseShellDesktopOperatorOrHiddenSetupRecoveries": 0,
+    "maximumManualMappingEventsForSupportedStandardsConformantControllers": 0,
+    "maximumMissedDuplicatedStuckWrongRecipientOrWrongMappedControllerActions": 0,
+    "maximumHomeBackPauseResumeOrExitEventsDeliveredToGame": 0,
+    "maximumFocusTrapsDesktopExposureBlankDeadEndsOrUnboundedWaits": 0,
+    "maximumUnpromptedWrongActionGuessOrAssistanceEvents": 0,
+    "maximumFalseReadyRecoveredInteractiveShutdownOrSuccessClaims": 0,
+    "maximumUnintendedPrivilegedBackHomePauseResumeExitOrShutdownActions": 0,
+    "maximumVisibleFeedbackMs": 250,
+    "maximumColdBootToControllerUsableHomeMs": 60000,
+    "maximumLocalGameLaunchToInteractiveMs": 15000,
+    "maximumHostedLaunchToInteractiveOrTruthfulPhaseMs": 30000,
+    "interactiveMeansVisibleFocusedAndResponsiveToTheIntendedController": true,
+    "firstPixelsProcessStartHeartbeatOrTruthfulHostedPhaseMayEstablishPlayability": false,
+    "systemMustOwnHomeBackPauseRetryExitAndShutdownOutsideGameAuthority": true,
+    "allOpenCohortTaskFaultTimingComprehensionAndIssueGatesFrozenBeforeCollection": true,
+    "targetRuntimePersonaFaultTaskAverageOrBestCaseMayRescueFailure": false
+  },
+  "openAcceptance": {
+    "minimumDistinctParticipantsPerPersonaClass": null,
+    "maximumSessionsPerParticipantAndRequiredCounterbalancingPolicySha256": null,
+    "maximumControllerDiscoveryAndUsableFocusP95Ms": null,
+    "maximumTaskCompletionP95AndWorstMsByTaskPersonaAndRuntime": null,
+    "minimumFirstAttemptTaskCompletionPpmByTaskPersonaAndRuntime": null,
+    "minimumLoadingFaultAndRecoveryCopyComprehensionPpm": null,
+    "maximumFaultDetectionClassificationDetailsAndRetryP95Ms": null,
+    "maximumHomeBackPauseResumeExitAndShutdownP95Ms": null,
+    "maximumControllerReconnectAndInputRestoreP95Ms": null,
+    "maximumParticipantDiscomfortStopOrAccessibilityFailureEvents": null,
+    "minimumPhysicalControllerSamplesPerMappingTransportAndTarget": null,
+    "issueSeverityBlockingThresholdTriageAndClosurePolicySha256": null,
+    "recordingReviewSamplingRetentionDeletionAndIndependentAuditPolicySha256": null,
+    "decisionRankingExpiryRetestAndRegressionPolicySha256": null
+  },
+  "recordingAndIssuePolicy": {
+    "exactScreenOnlyRecordingInputLedgerClockAndObserverProtocolSha256": null,
+    "exactClosedIssueTaxonomySeverityDispositionAndEvidenceSchemaSha256": null,
+    "screenOnlyRecordingRequiredForEveryValidSessionAndRecoveryCycle": true,
+    "recordingMustExcludeRoomFacesBodiesVoicesCameraAndHouseholdIdentity": true,
+    "recordingMetadataMustBeRemovedAndPublishedArtifactMayBeDigestOnly": true,
+    "issueRecordsRequireClosedCodesCountsTimingsCellIdentityAndEvidenceDigests": true,
+    "participantOrOperatorFreeTextIssueNarrativesAllowed": false,
+    "issuesFailuresStopsRetriesAssistanceAndWrongActionsMayBeDeletedOrHidden": false
+  },
+  "decisionProtocol": {
+    "completeOrdinaryX86ResultSha256": null,
+    "completePi5ResultSha256": null,
+    "completeCrossTierIndependentReviewSha256": null,
+    "controllerOnlyUsabilityDisposition": null,
+    "productGuidanceOrCompatibilityMutation": null,
+    "oneTargetRuntimePersonaOrAggregatePassAutomaticallyQualifiesAnother": false,
+    "completeTechnicalPassAutomaticallyChangesProductSupportOrInputPromise": false,
+    "selectionRequiresEveryRequiredCellPassingAndSeparateOwnerReview": true
+  },
+  "authorityBoundary": {
+    "exactTargetRuntimeControllerTvPowerNetworkAndFaultManifestSha256": null,
+    "exactParticipantSessionTaskScoringSafetyConsentAndStopProtocolSha256": null,
+    "exactRecordingIssueRetentionIncidentAndIndependentReviewProtocolSha256": null,
+    "targetPowerControllerTvAudioNetworkRuntimeOrGameOperationAuthorized": false,
+    "participantAdultChildRecruitmentConsentAssentOrCollectionAuthorized": false,
+    "controllerPurchaseLoanPairingMappingOrPersistenceMutationAuthorized": false,
+    "networkProcessFullscreenFocusCrashHangOrPowerFaultAuthorized": false,
+    "screenInputIssueDiagnosticOrHumanFactorsRecordingAuthorized": false,
+    "productQualificationCompatibilityPublicationOrPolicyMutationAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueTargetRuntimePersonaParticipantSessionTaskScenarioCycleIssueAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsMetricsCategoriesAndDispositionCodesRequired": true,
+    "rawRoomFacesBodiesVoicesCameraFramesAudioOrHouseholdMediaAllowed": false,
+    "participantNamesExactAgesAddressesDiagnosesProfilesSavesOrStableIdentifiersAllowed": false,
+    "rawControllerHidUsbBluetoothPayloadSerialMacOrStableDeviceIdentifiersAllowed": false,
+    "credentialsTokensCookiesStorageValuesUrlsPathsEnvironmentOrEnteredTextAllowed": false,
+    "freeTextParticipantOperatorGameDriverCompositorServiceCrashOrIssueLogsAllowed": false,
+    "failedInvalidStoppedRetriedAssistedAdverseAndPreRepairEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I155-001-exact-qualified-ordinary-x86-and-pi-target-runtime-tv-audio-power-network-manifests",
+      "I155-002-complete-controller-reserved-home-back-kiosk-tv-and-visual-qualification-results",
+      "I155-003-exact-supported-controller-samples-mappings-transports-glyphs-and-physical-inventory",
+      "I155-004-exact-four-runtime-game-release-manifests-play-tasks-data-and-fault-dispositions",
+      "I155-005-participant-cohort-counterbalancing-consent-assent-accessibility-safety-and-stop-protocol",
+      "I155-006-complete-session-task-instruction-scoring-ground-truth-and-invalid-attempt-protocol",
+      "I155-007-complete-fault-detection-details-retry-exit-return-cleanup-and-recovery-protocol",
+      "I155-008-physical-power-input-recipient-focus-surface-process-network-tv-and-clock-oracles",
+      "I155-009-frozen-cohort-controller-task-comprehension-timing-assistance-and-discomfort-gates",
+      "I155-010-frozen-issue-severity-triage-closure-ranking-expiry-retest-and-regression-policy",
+      "I155-011-screen-only-recording-input-ledger-metadata-retention-deletion-and-independent-review-policy",
+      "I155-012-exact-session-and-recovery-schedule-environment-order-randomization-and-stop-rules",
+      "I155-013-target-controller-tv-network-participant-fault-recording-and-diagnostic-operation-authority",
+      "I155-014-product-guidance-compatibility-publication-and-input-promise-decision-boundary"
+    ]
+  },
+  "result": null
+}

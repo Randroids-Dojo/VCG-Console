@@ -36,17 +36,17 @@
     {
       "role": "usb-and-conditional-csi-cabling-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "0875f644e6841efec6bd0d153efecbaf2c193ff0936be119e2dc2c72bba88757"
+      "sha256": "54c6fa56a7aa508bc9571534aef09ad596cf16e6ccc137a1ba96bd48495b1a98"
     },
     {
       "role": "integrated-camera-placement-and-coverage-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "dfd3d5e2bd8f960f25b30fa65b83b12424f01c18c313b431b4ebc306c593eba6"
+      "sha256": "464d4f2cd57ddd58484a4bad7ddff18dc2ea66264f740493828bebc1d3dfbc94"
     },
     {
       "role": "lens-distortion-and-inference-input-boundary",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "f82ec7754e91df0d24f5fccf88428e7fdfefddf8a1bc800439c24f1090aa4e36"
+      "sha256": "0e9f5ada2902722907a05ed89a8c8b7628928b096c920c5488b9855421ab14ac"
     },
     {
       "role": "capture-controls-lighting-and-frame-quality-boundary",
@@ -66,7 +66,7 @@
     {
       "role": "pi5-complete-product-cost-and-latency-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "495426f5b15decc53deb876e7645fd958cc2248b720e5d3a126fd7b9a0fa26cf"
+      "sha256": "1ec0887f0035e002388945228896342afdc578c885c66cc1e3689f97a60bb89c"
     }
   ],
   "triggerPolicy": {
