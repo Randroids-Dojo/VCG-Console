@@ -30,7 +30,7 @@
     {
       "role": "boot-resume-launch-plan",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
     },
     {
       "role": "privileged-power-lifecycle-boundary",
@@ -55,7 +55,7 @@
     {
       "role": "steam-input-campaign-plan",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "ac707704d261514b5dc51b8fd573e786248cbb86a8504ea082191489d16a07c8"
+      "sha256": "887c83b5742f8403ed53f31fc861d572583320c90e672866ac41f69c826cd545"
     },
     {
       "role": "steamos-update-safe-content-campaign",
@@ -65,7 +65,7 @@
     {
       "role": "steamos-update-safe-content-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+      "sha256": "e15bee66c77d508ed4ce48faa017be4bb0d606ab465b07965afc1f5000c84637"
     },
     {
       "role": "hosted-browser-wrapper-boundary",

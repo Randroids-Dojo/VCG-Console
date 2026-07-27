@@ -17,7 +17,7 @@
     {
       "role": "public-game-manifest-contract",
       "path": "packages/game-manifest/src/index.ts",
-      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+      "sha256": "01c734ac098f0e618a83b48990872f490cce82cb3398a51f0ec2ce7886442177"
     },
     {
       "role": "synthetic-local-web-manifest-fixture",

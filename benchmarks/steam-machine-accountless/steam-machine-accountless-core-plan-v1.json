@@ -40,27 +40,27 @@
     {
       "role": "steamos-package-plan-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "47ae73f066706bcc20bfe988ac95d6f01e168cabf7e46bac3f404df54ce4b5c2"
+      "sha256": "e15bee66c77d508ed4ce48faa017be4bb0d606ab465b07965afc1f5000c84637"
     },
     {
       "role": "steamos-input-plan-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "ac707704d261514b5dc51b8fd573e786248cbb86a8504ea082191489d16a07c8"
+      "sha256": "887c83b5742f8403ed53f31fc861d572583320c90e672866ac41f69c826cd545"
     },
     {
       "role": "steamos-shell-plan-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "ce21102bb8737382674b6bea155b219b92637d7193f94fd166162a8e1ad14189"
+      "sha256": "a9695590ed295926285e93019f3e579765ae3cd06f06564c9e077d9248e3b8ef"
     },
     {
       "role": "boot-resume-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
     },
     {
       "role": "signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
     }
   ],
   "officialReferenceRecords": [

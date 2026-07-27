@@ -126,7 +126,11 @@
               ]
             },
             "path": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^/(?!/)[^\\\\?#]*$",
+              "$comment": "Runtime parsing also rejects malformed percent encoding, unsafe invisible or control Unicode, and encoded unsafe characters."
             }
           },
           "required": [

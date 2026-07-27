@@ -35,7 +35,7 @@
     {
       "role": "closed-libretro-manifest-runtime-and-cross-field-contract",
       "path": "packages/game-manifest/src/index.ts",
-      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+      "sha256": "01c734ac098f0e618a83b48990872f490cce82cb3398a51f0ec2ce7886442177"
     },
     {
       "role": "per-game-profile-save-state-reset-and-removal-boundary",
@@ -50,12 +50,12 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "8b3f29d1796de13df64e397bb1993e639758075dc9cc6ddacdaa9cd944750604"
+      "sha256": "e1e1377f01fdc5fb2892854d5e5a1e5e77a88ef334df8fd938d32f8b4e738ea8"
     },
     {
       "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
     },
     {
       "role": "native-trust-loading-containment-retry-and-return-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "d623f02f1d7527551476223d8c587a9d8722f2159a073edf7e60910d3586a8f2"
+      "sha256": "1e191686b288646376450a8221199f0684a8238d3514a7dbf2b61ae760a8b80f"
     }
   ],
   "prerequisiteGate": {

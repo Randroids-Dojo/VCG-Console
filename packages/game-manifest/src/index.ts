@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const GAME_MANIFEST_SCHEMA_VERSION = 1 as const;
 export const GAME_MANIFEST_SCHEMA_ID = "urn:vcg:schema:game-manifest:1" as const;
+export const HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS = 1_024 as const;
 export const GAME_PERMISSION_VALUES = [
   "gamepad",
   "pointer",
@@ -49,6 +50,104 @@ const HttpsUrlSchema = z.url().refine((value) => value.startsWith("https://"), "
 const PackageIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/, "SHA-256 values must be 64 lowercase hexadecimal characters");
 const NativeArchitectureSchema = z.enum(["aarch64", "x86_64"]);
+
+/**
+ * Validates the author-supplied v1 HTTP health route before URL resolution.
+ * The limit is Unicode scalar values rather than JavaScript UTF-16 code units.
+ */
+export function isHostedHealthCheckPath(value: string): boolean {
+  if (
+    value.length === 0
+    || !value.startsWith("/")
+    || value.startsWith("//")
+    || value.includes("\\")
+    || value.includes("?")
+    || value.includes("#")
+  ) {
+    return false;
+  }
+
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    return false;
+  }
+
+  let characterCount = 0;
+  for (const character of value) {
+    characterCount += 1;
+    if (
+      characterCount > HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS
+      || isUnsafeHealthCheckPathCharacter(character)
+    ) {
+      return false;
+    }
+  }
+  return isSafeDecodedHostedHealthCheckPath(decoded);
+}
+
+/** Validates the serialized pathname returned by the URL parser. */
+export function isHostedHealthCheckUrlPathname(value: string): boolean {
+  try {
+    return isSafeDecodedHostedHealthCheckPath(decodeURIComponent(value));
+  } catch {
+    return false;
+  }
+}
+
+export const HostedHealthCheckPathSchema = z
+  .string()
+  .refine(
+    isHostedHealthCheckPath,
+    `health-check path must be one safe absolute URL path of at most ${HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS} characters`,
+  );
+
+function isUnsafeHealthCheckPathCharacter(character: string): boolean {
+  const codePoint = character.codePointAt(0);
+  if (codePoint === undefined) return true;
+  return (
+    codePoint <= 0x1f
+    || (codePoint >= 0x7f && codePoint <= 0x9f)
+    || (codePoint >= 0xd800 && codePoint <= 0xdfff)
+    || codePoint === 0x00ad
+    || codePoint === 0x061c
+    || codePoint === 0x180e
+    || (codePoint >= 0x200b && codePoint <= 0x200f)
+    || (codePoint >= 0x2028 && codePoint <= 0x202e)
+    || (codePoint >= 0x2060 && codePoint <= 0x2064)
+    || (codePoint >= 0x2066 && codePoint <= 0x206f)
+    || codePoint === 0xfeff
+    || (codePoint >= 0xfff9 && codePoint <= 0xfffb)
+    || (codePoint >= 0x1bca0 && codePoint <= 0x1bca3)
+    || (codePoint >= 0x1d173 && codePoint <= 0x1d17a)
+    || codePoint === 0xe0001
+    || (codePoint >= 0xe0020 && codePoint <= 0xe007f)
+    || (character !== " " && /\s/u.test(character))
+  );
+}
+
+function isSafeDecodedHostedHealthCheckPath(value: string): boolean {
+  if (
+    value.length === 0
+    || !value.startsWith("/")
+    || value.startsWith("//")
+    || value.includes("\\")
+  ) {
+    return false;
+  }
+  let characterCount = 0;
+  for (const character of value) {
+    characterCount += 1;
+    if (
+      characterCount > HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS
+      || isUnsafeHealthCheckPathCharacter(character)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 const LibretroArtifactSchema = z
   .object({
@@ -112,7 +211,7 @@ export const GameManifestSchema = z
       timeoutMs: z.number().int().min(1_000).max(120_000),
       healthCheck: z.object({
         type: z.enum(["http", "process", "explicit-ready"]),
-        path: z.string().optional(),
+        path: HostedHealthCheckPathSchema.optional(),
       }).passthrough(),
     }).passthrough(),
     rights: z.object({
@@ -255,6 +354,22 @@ export const gameManifestJsonSchema: Record<string, unknown> = {
   title: "VCG game manifest v1",
   ...(z.toJSONSchema(GameManifestSchema, { target: "draft-2020-12" }) as Record<string, unknown>),
 };
+const healthCheckPathJsonSchema = (
+  gameManifestJsonSchema.properties as {
+    launch: {
+      properties: {
+        healthCheck: { properties: { path: Record<string, unknown> } };
+      };
+    };
+  }
+).launch.properties.healthCheck.properties.path;
+Object.assign(healthCheckPathJsonSchema, {
+  minLength: 1,
+  maxLength: HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS,
+  pattern: "^/(?!/)[^\\\\?#]*$",
+  $comment:
+    "Runtime parsing also rejects malformed percent encoding, unsafe invisible or control Unicode, and encoded unsafe characters.",
+});
 gameManifestJsonSchema.allOf = [
   {
     if: { properties: { runtime: { const: "remote-web" } }, required: ["runtime"] },

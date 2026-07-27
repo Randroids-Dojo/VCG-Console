@@ -24,9 +24,11 @@ before starting the browser:
 - the manifest must use the `remote-web` runtime and `http` health-check kind;
 - the entrypoint and every allowed origin must be credential-free HTTPS;
 - the health route must be one absolute path beginning with `/`;
-- the path is limited to 1,024 characters;
-- scheme-relative paths, backslashes, controls, queries, and fragments are
-  rejected;
+- the path is limited to 1,024 Unicode scalar values, including the leading
+  slash;
+- scheme-relative paths, backslashes, malformed percent encoding, unsafe
+  invisible/control Unicode (including encoded forms), queries, and fragments
+  are rejected;
 - the resulting origin must already be in the manifest's bounded exact-origin
   allowlist; and
 - redirects are manual, limited to five, revalidated before the next request,
@@ -60,13 +62,13 @@ adapter never reads it.
 
 ## Executable coverage
 
-Nineteen hosted-supervisor tests include:
+Twenty-eight hosted-supervisor tests include:
 
 - exact immutable policy construction;
 - malformed, downgraded, credentialed, foreign, excessive, duplicate, and
   non-origin authority rejection;
-- relative, scheme-relative, oversized, query-bearing, fragment-bearing, and
-  backslash health-path rejection;
+- relative, scheme-relative, scalar-oversized, query-bearing, fragment-bearing,
+  backslash, malformed-encoding, and unsafe-Unicode health-path rejection;
 - exact bodyless, credentialless, no-cache, no-referrer request assertions;
 - permitted bounded redirect handling;
 - foreign-origin and query-bearing redirect refusal before the next request;

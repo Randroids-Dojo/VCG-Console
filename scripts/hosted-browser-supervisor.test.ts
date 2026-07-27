@@ -246,6 +246,79 @@ describe("hosted browser policy", () => {
       );
     }
   });
+
+  it("rejects invisible, encoded-control, malformed, and scalar-oversized health paths", () => {
+    const unsafeCodePoints = [
+      0x85,
+      0xa0,
+      0xad,
+      0x61c,
+      0x180e,
+      0x200b,
+      0x202e,
+      0x2066,
+      0xd800,
+      0xfeff,
+      0xfff9,
+      0x1bca0,
+      0x1d173,
+      0xe0001,
+      0xe0020,
+    ];
+    for (const codePoint of unsafeCodePoints) {
+      const character = String.fromCodePoint(codePoint);
+      const paths = [`/health${character}`];
+      if (codePoint < 0xd800 || codePoint > 0xdfff) {
+        paths.push(`/health${encodeURIComponent(character)}`);
+      }
+      for (const path of paths) {
+        assert.throws(
+          () =>
+            createHostedBrowserPolicy(
+              manifest({
+                launch: {
+                  timeoutMs: 30_000,
+                  healthCheck: { type: "http", path },
+                },
+              }),
+            ),
+          /health-check path/u,
+          `U+${codePoint.toString(16)} in ${path}`,
+        );
+      }
+    }
+    for (const path of ["/bad%ZZ", `/${"a".repeat(1_024)}`]) {
+      assert.throws(
+        () =>
+          createHostedBrowserPolicy(
+            manifest({
+              launch: {
+                timeoutMs: 30_000,
+                healthCheck: { type: "http", path },
+              },
+            }),
+          ),
+        /health-check path/u,
+      );
+    }
+  });
+
+  it("accepts exactly 1,024 Unicode scalar values in a health path", () => {
+    const astral = String.fromCodePoint(0x1f3ae);
+    const path = `/${astral.repeat(1_023)}`;
+    assert.equal([...path].length, 1_024);
+    assert.equal(
+      createHostedBrowserPolicy(
+        manifest({
+          launch: {
+            timeoutMs: 30_000,
+            healthCheck: { type: "http", path },
+          },
+        }),
+      ).healthCheckUrl,
+      new URL(path, "https://game.example/play").href,
+    );
+  });
 });
 
 describe("hosted browser explicit readiness", () => {
@@ -595,22 +668,29 @@ describe("hosted browser health check", () => {
     assert.equal(canceled, true);
   });
 
-  it("rejects redirect query data before a second request", async () => {
-    const seen: string[] = [];
-    await assert.rejects(
-      requireHealthyHostedEndpoint(
-        policy(),
-        async (input) => {
-          seen.push(String(input));
-          return new Response(null, {
-            status: 302,
-            headers: { location: "/ready?profile=private" },
-          });
-        },
-      ),
-      /omit query and fragment/,
-    );
-    assert.deepEqual(seen, ["https://game.example/health"]);
+  it("rejects unsafe redirect paths or query data before a second request", async () => {
+    for (const location of [
+      "/ready?profile=private",
+      "/ready%E2%80%8B",
+      "/bad%ZZ",
+      `/${"a".repeat(1_024)}`,
+    ]) {
+      const seen: string[] = [];
+      await assert.rejects(
+        requireHealthyHostedEndpoint(
+          policy(),
+          async (input) => {
+            seen.push(String(input));
+            return new Response(null, {
+              status: 302,
+              headers: { location },
+            });
+          },
+        ),
+        /omit query and fragment/,
+      );
+      assert.deepEqual(seen, ["https://game.example/health"]);
+    }
   });
 
   it("redacts arbitrary transport exceptions", async () => {

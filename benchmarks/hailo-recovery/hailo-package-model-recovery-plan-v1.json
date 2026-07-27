@@ -32,7 +32,7 @@
     {
       "role": "hailo-model-accelerator-candidates",
       "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
-      "sha256": "ba246aef91b8f9b08d7460b2797eb21df92eb03999ae1c88807f259fd45e8a3f"
+      "sha256": "3b0c290f4582b1e4203669bf694ae276f4dc50054f2047b8236fa182996c747a"
     },
     {
       "role": "delegated-update-trust",

@@ -25,37 +25,37 @@
     {
       "role": "controller-lifecycle-and-zero-keyboard-recovery-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "804074372cbd5ae8111adf5fad7971792cbb5f1ebbd87916d4943d2ca5dc30ce"
+      "sha256": "c2eb6c8837bbdc473811269d33b50e6b45ebbd1cfc1d18804ef4815beb338c3a"
     },
     {
       "role": "cold-boot-launch-feedback-and-usable-input-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
     },
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "8b3f29d1796de13df64e397bb1993e639758075dc9cc6ddacdaa9cd944750604"
+      "sha256": "e1e1377f01fdc5fb2892854d5e5a1e5e77a88ef334df8fd938d32f8b4e738ea8"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "eb9782d0590e8609319fc3b65f5fd11820e4f5967c075863469ccf496bc6f678"
+      "sha256": "2a7827e9ec40cfc7d378c183d4b856753e96de2454cfd0680063148b80b0629f"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "0e94eff33446423028469d81cb31f0fea3f759739e23a1734de8f0850a96c10b"
+      "sha256": "7bdfb0c867a9d9c8c0e5c9803926f6bd4f42425fb1b1ea3a57e27926e466b920"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "d1dd6fa9b718135c361cbac48017d7054d08521135e019b68536b36dfa1c29be"
+      "sha256": "bc160c02c9affa7432c3d85d46a586dd0f09e7effba3855a3e14712b458e2980"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
     },
     {
       "role": "supervised-hosted-browser-containment-and-exit-boundary",
@@ -90,7 +90,7 @@
     {
       "role": "closed-four-runtime-manifest-and-input-contract",
       "path": "packages/game-manifest/src/index.ts",
-      "sha256": "6d179af7b2f68f6778a2715bf18d015216d3ab372c4db99fc8d1487431a6c4e5"
+      "sha256": "01c734ac098f0e618a83b48990872f490cce82cb3398a51f0ec2ce7886442177"
     }
   ],
   "prerequisiteGate": {

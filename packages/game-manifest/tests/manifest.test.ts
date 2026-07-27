@@ -7,6 +7,8 @@ import {
   GAME_MANIFEST_SCHEMA_VERSION,
   gameManifestJsonSchema,
   GameManifestSchema,
+  HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS,
+  HostedHealthCheckPathSchema,
   motionProfilesForPermissions,
 } from "../src";
 import offlineNetworkErrors from "../fixtures/v1/invalid/offline-network.errors.json";
@@ -99,6 +101,91 @@ describe("GameManifestSchema", () => {
 
   it("accepts an explicit unverified remote manifest", () => {
     expect(GameManifestSchema.parse(valid).compatibilityStatus).toBe("unverified");
+  });
+
+  it("enforces one scalar-bounded Unicode-safe hosted health path", () => {
+    const astral = String.fromCodePoint(0x1f3ae);
+    expect(
+      HostedHealthCheckPathSchema.safeParse(
+        `/${astral.repeat(HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS - 1)}`,
+      ).success,
+    ).toBe(true);
+    expect(
+      HostedHealthCheckPathSchema.safeParse(
+        `/${astral.repeat(HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS)}`,
+      ).success,
+    ).toBe(false);
+
+    const unsafeCodePoints = [
+      0x00,
+      0x85,
+      0xa0,
+      0xad,
+      0x61c,
+      0x180e,
+      0x200b,
+      0x202e,
+      0x2066,
+      0xd800,
+      0xfeff,
+      0xfff9,
+      0x1bca0,
+      0x1d173,
+      0xe0001,
+      0xe0020,
+    ];
+    for (const codePoint of unsafeCodePoints) {
+      const character = String.fromCodePoint(codePoint);
+      expect(
+        HostedHealthCheckPathSchema.safeParse(`/health${character}`).success,
+        `raw U+${codePoint.toString(16)}`,
+      ).toBe(false);
+      if (codePoint < 0xd800 || codePoint > 0xdfff) {
+        expect(
+          HostedHealthCheckPathSchema.safeParse(
+            `/health${encodeURIComponent(character)}`,
+          ).success,
+          `encoded U+${codePoint.toString(16)}`,
+        ).toBe(false);
+      }
+    }
+    for (const path of [
+      "",
+      "health",
+      "//foreign.example",
+      "/bad\\path",
+      "/bad?query",
+      "/bad#fragment",
+      "/bad%ZZ",
+    ]) {
+      expect(HostedHealthCheckPathSchema.safeParse(path).success, path).toBe(false);
+    }
+    expect(
+      GameManifestSchema.safeParse({
+        ...valid,
+        launch: {
+          ...valid.launch,
+          healthCheck: { type: "http", path: `/health${String.fromCodePoint(0x200b)}` },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("exports the representable hosted health-path constraints", () => {
+    const pathSchema = (
+      gameManifestJsonSchema.properties as {
+        launch: {
+          properties: {
+            healthCheck: { properties: { path: Record<string, unknown> } };
+          };
+        };
+      }
+    ).launch.properties.healthCheck.properties.path;
+    expect(pathSchema).toMatchObject({
+      minLength: 1,
+      maxLength: HOSTED_HEALTH_CHECK_PATH_MAX_CHARACTERS,
+      pattern: "^/(?!/)[^\\\\?#]*$",
+    });
   });
 
   it("rejects a remote manifest that omits its own origin", () => {

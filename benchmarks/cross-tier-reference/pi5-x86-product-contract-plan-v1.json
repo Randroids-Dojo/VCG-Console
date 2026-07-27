@@ -22,7 +22,7 @@
     {
       "role": "ordinary-x86-plan",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "5747d00f6c317e0f3c55a87ec61d0c82020066b50262d46f902e176f461c476c"
+      "sha256": "103b5d636eeea33acb87fee252651d55b57cb3ae51da4437952c3299c1b701af"
     },
     {
       "role": "standard-concurrent-workload-campaign",
@@ -32,7 +32,7 @@
     {
       "role": "standard-concurrent-workload-plan",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "fe0be5a87922c0679c4e4fa2fbd0178a40b7a2dbc7634c8840a9adb1391d00b5"
+      "sha256": "24ac2d6b0c449c7a9e9857c60944bd24655d0d294f6cabe90091fad8ece0c8f4"
     },
     {
       "role": "pi-image-boundary",
@@ -42,17 +42,17 @@
     {
       "role": "hailo-package-model-recovery-boundary",
       "path": "benchmarks/hailo-recovery/hailo-package-model-recovery-plan-v1.json",
-      "sha256": "5136e34de5527271ca9e1e1ddfa5fed5052582757c7632be9799249e84272d13"
+      "sha256": "5f4324c511acf349c27256be9ef56e56722d9301b2ea2eccff8548da7c35ee86"
     },
     {
       "role": "hailo-26-accelerator-boundary",
       "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
-      "sha256": "ba246aef91b8f9b08d7460b2797eb21df92eb03999ae1c88807f259fd45e8a3f"
+      "sha256": "3b0c290f4582b1e4203669bf694ae276f4dc50054f2047b8236fa182996c747a"
     },
     {
       "role": "runtime-neutral-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
     },
     {
       "role": "shared-camera-boundary",
@@ -67,27 +67,27 @@
     {
       "role": "controller-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "804074372cbd5ae8111adf5fad7971792cbb5f1ebbd87916d4943d2ca5dc30ce"
+      "sha256": "c2eb6c8837bbdc473811269d33b50e6b45ebbd1cfc1d18804ef4815beb338c3a"
     },
     {
       "role": "boot-resume-launch-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "3707f4ac37f182e4a2d423624315a9a5e45812f34051486c419e2f5025649c72"
+      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
     },
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "eb9782d0590e8609319fc3b65f5fd11820e4f5967c075863469ccf496bc6f678"
+      "sha256": "2a7827e9ec40cfc7d378c183d4b856753e96de2454cfd0680063148b80b0629f"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "f0bdbbdd72ba29585cf1ea820add76f81604eaea0e40032e9e37f70e5398479d"
+      "sha256": "c3b529fe856504a7a0d56adf593ba2b8fcc5c2855d80d2ba66028a79f9cb4b2d"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+      "sha256": "4b0c6c5ae12c9a46f6a124f976f2d5999b15a2a4238d499fd128ba69c35d0ba1"
     },
     {
       "role": "accountless-offline-boundary",
@@ -102,12 +102,12 @@
     {
       "role": "pi-same-date-quote-boundary",
       "path": "benchmarks/hardware-quotes/pi5-ai-hat-same-date-quote-v1.json",
-      "sha256": "2f729f9728fb5bd8eff57cdeafd6f8b79d34ebf6f7cc6dada238e471da654f0d"
+      "sha256": "5095e9cfb31cddac0669920637e16f4a08ecd8a2054ade2cc5b2f44cc60bb5a2"
     },
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "8d651db99f316cc3e720ba7a4da95f0329059388e7fd9e0fdbbd760ca36e1eaa"
+      "sha256": "c6551854ba8f5551f28464dac2526ea0461a6ddc3b1e3603f9638e75317e761b"
     }
   ],
   "targetTiers": [

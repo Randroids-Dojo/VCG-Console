@@ -34,7 +34,7 @@
     {
       "role": "hosted-supervisor-boundary",
       "path": "scripts/hosted-browser-supervisor.ts",
-      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+      "sha256": "cae7b755a65c3e8269c068290b5da40054abe3770d72a3f8ab10361c20ecf128"
     },
     {
       "role": "vibebots-catalog-boundary",

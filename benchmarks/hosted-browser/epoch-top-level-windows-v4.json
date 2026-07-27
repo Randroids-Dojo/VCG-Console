@@ -58,7 +58,7 @@
   },
   "provenance": {
     "supervisorPath": "scripts/hosted-browser-supervisor.ts",
-    "supervisorPathSha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959",
+    "supervisorPathSha256": "cae7b755a65c3e8269c068290b5da40054abe3770d72a3f8ab10361c20ecf128",
     "generatorPath": "scripts/generate-epoch-top-level-evidence.mjs",
     "generatorPathSha256": "1c58b2540e4e8723aaac02dc41852ae3160213f2c4764b1708d0a3bd1b439390",
     "validatorPath": "scripts/validate-epoch-top-level-evidence.mjs",

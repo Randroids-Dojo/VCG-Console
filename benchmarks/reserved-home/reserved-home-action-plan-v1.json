@@ -37,27 +37,27 @@
     {
       "role": "controller-qualification-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "804074372cbd5ae8111adf5fad7971792cbb5f1ebbd87916d4943d2ca5dc30ce"
+      "sha256": "c2eb6c8837bbdc473811269d33b50e6b45ebbd1cfc1d18804ef4815beb338c3a"
     },
     {
       "role": "steam-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "ac707704d261514b5dc51b8fd573e786248cbb86a8504ea082191489d16a07c8"
+      "sha256": "887c83b5742f8403ed53f31fc861d572583320c90e672866ac41f69c826cd545"
     },
     {
       "role": "signed-native-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9a00756a8f50d4b216aab717947f88d925d9741b8b81f62fb3ac0d1cbb3a3b70"
+      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
     },
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "ce21102bb8737382674b6bea155b219b92637d7193f94fd166162a8e1ad14189"
+      "sha256": "a9695590ed295926285e93019f3e579765ae3cd06f06564c9e077d9248e3b8ef"
     },
     {
       "role": "hosted-supervisor-implementation-boundary",
       "path": "scripts/hosted-browser-supervisor.ts",
-      "sha256": "e33476318863cdd7f4cbc263f368e93332eddf04dd9906676b5b6f42a33f4959"
+      "sha256": "cae7b755a65c3e8269c068290b5da40054abe3770d72a3f8ab10361c20ecf128"
     }
   ],
   "targetPolicy": {

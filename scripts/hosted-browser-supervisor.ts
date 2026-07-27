@@ -5,13 +5,16 @@ import { lstat, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import {
+  isHostedHealthCheckPath,
+  isHostedHealthCheckUrlPathname,
+} from "@vcg/game-manifest";
 import WebSocket, { type RawData } from "ws";
 
 const MAX_ALLOWED_ORIGINS = 8;
 const MAX_CDP_MESSAGE_BYTES = 1_048_576;
 const MAX_CDP_PENDING_COMMANDS = 128;
 const MAX_TOP_LEVEL_PROBE_URL_LENGTH = 4_096;
-const MAX_HEALTH_CHECK_PATH_LENGTH = 1_024;
 const CDP_COMMAND_TIMEOUT_MS = 5_000;
 const DEVTOOLS_ENDPOINT_TIMEOUT_MS = 10_000;
 const EXPLICIT_READY_POLL_INTERVAL_MS = 50;
@@ -240,12 +243,7 @@ export function createHostedBrowserPolicy(
   const healthCheckPath = manifest.launch.healthCheck.path ?? "/";
   if (
     typeof healthCheckPath !== "string"
-    || healthCheckPath.length === 0
-    || healthCheckPath.length > MAX_HEALTH_CHECK_PATH_LENGTH
-    || !healthCheckPath.startsWith("/")
-    || healthCheckPath.startsWith("//")
-    || healthCheckPath.includes("\\")
-    || /[\u0000-\u001f\u007f]/u.test(healthCheckPath)
+    || !isHostedHealthCheckPath(healthCheckPath)
   ) {
     throw new HostedBrowserPolicyError(
       "hosted browser health-check path must be one bounded absolute URL path",
@@ -2133,7 +2131,7 @@ function requirePrivacySafeHealthUrl(value: string, label: string): URL {
     parsed.search !== ""
     || parsed.hash !== ""
     || parsed.pathname.length === 0
-    || parsed.pathname.length > MAX_HEALTH_CHECK_PATH_LENGTH
+    || !isHostedHealthCheckUrlPathname(parsed.pathname)
   ) {
     throw new HostedBrowserPolicyError(
       `hosted browser ${label} must omit query and fragment data`,
