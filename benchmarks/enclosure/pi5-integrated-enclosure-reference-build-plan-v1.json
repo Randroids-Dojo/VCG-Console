@@ -1,0 +1,340 @@
+{
+  "format": "vcg-pi5-integrated-enclosure-reference-build-plan/v1",
+  "status": "blocked",
+  "campaignId": "pi5-integrated-enclosure-reference-build-2026-07-26",
+  "observedAt": "2026-07-26T23:59:59.000Z",
+  "qualificationScope": "I-192 first secured below-TV integrated Raspberry Pi ABS enclosure mockup and I-195 independently reproduced DIY enclosure reference build",
+  "claimBoundary": "Pre-registration only. No enclosure has been selected, purchased, cut, assembled, operated, photographed, qualified, reproduced, or published.",
+  "sourceDigestContract": "SHA-256 over strict UTF-8 after CRLF-to-LF normalization; bare carriage returns are rejected",
+  "sourceBindings": [
+    {
+      "role": "d090-through-d095-d102-d103-owner-selected-enclosure-room-and-idle-boundary",
+      "path": "docs/OPEN_QUESTIONS.md",
+      "sha256": "5dd7b29050d6dc0e8a6a1a0fe88b5c929d46e3be25af74d966ee52dc2cfd1689"
+    },
+    {
+      "role": "off-the-shelf-abs-candidate-and-no-selection-boundary",
+      "path": "docs/ABS_PROJECT_BOX_CANDIDATE_SCREEN_2026-07-25.md",
+      "sha256": "796e0d0ebf8355c174983fe6820e33a10ad23553c333e7902e6091b2aece2946"
+    },
+    {
+      "role": "household-active-play-enclosure-cable-and-stop-safety-boundary",
+      "path": "docs/ACTIVE_PLAY_SAFETY.md",
+      "sha256": "48d7a62aedc0a36eaaf7f5d954872620c94a9bd10c68320b20a141fd63747ca8"
+    },
+    {
+      "role": "prototype-product-success-and-latency-boundary",
+      "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
+      "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
+    },
+    {
+      "role": "primary-room-and-required-eight-by-eight-zone-boundary",
+      "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
+      "sha256": "e271202393fcf25004e7115e4d4bdc71b1d7f397ee44fda5ab8141b03be88b6f"
+    },
+    {
+      "role": "shared-wide-uvc-1080p60-shutter-and-indicator-boundary",
+      "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
+      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+    },
+    {
+      "role": "integrated-fixed-axis-coverage-and-calibration-boundary",
+      "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
+      "sha256": "dfd3d5e2bd8f960f25b30fa65b83b12424f01c18c313b431b4ebc306c593eba6"
+    },
+    {
+      "role": "camera-cable-routing-strain-relief-and-recovery-boundary",
+      "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
+      "sha256": "0875f644e6841efec6bd0d153efecbaf2c193ff0936be119e2dc2c72bba88757"
+    },
+    {
+      "role": "enclosed-cooling-thermal-and-acoustic-boundary",
+      "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
+      "sha256": "8a53cc7de21f72d4f36f8d776b0b26f182038eb5ed01a48fc7bf0ac521114ee7"
+    },
+    {
+      "role": "closed-enclosure-wifi-bluetooth-camera-and-controller-boundary",
+      "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
+      "sha256": "90fc23e78ccc5b1855ace8f8d40ee65d77a09e6ba72847319a93d42effb40958"
+    },
+    {
+      "role": "physical-shutter-indicator-idle-and-lifecycle-truth-boundary",
+      "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
+      "sha256": "dda1951397d2e2d0268b5b53f78f2c888aa432cc6f3afaed7d9f501bc8c22470"
+    },
+    {
+      "role": "ordinary-fastener-camera-service-and-recalibration-boundary",
+      "path": "benchmarks/camera-service/camera-replacement-recalibration-plan-v1.json",
+      "sha256": "0c773b3a740912574cbab2e1b38bec2f59c4be6ddcc8adf08e2c1095696f15f7"
+    },
+    {
+      "role": "pi-low-power-idle-wake-privacy-and-reliability-boundary",
+      "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
+      "sha256": "8fd889c98a924b23f17a6068a0533d89d6848af79c5586233a5b09fbe9662f9a"
+    },
+    {
+      "role": "complete-delivered-pi-cost-and-no-cost-rescue-boundary",
+      "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
+      "sha256": "1abff349b4bfeb33616c46e6069ca4d5c4019e42759a95aefdfdc30fff9da2e1"
+    },
+    {
+      "role": "failure-critical-component-substitute-qualification-boundary",
+      "path": "benchmarks/failure-critical-substitutes/cross-tier-failure-critical-substitute-plan-v1.json",
+      "sha256": "ce5f64066c03076fc16313f5cf230d6561fdba5ced3e7a90b6b37955e168ed2c"
+    },
+    {
+      "role": "pi-safe-shutdown-storage-and-reserve-boundary",
+      "path": "benchmarks/shutdown-reserve/pi5-shutdown-reserve-comparison-plan-v1.json",
+      "sha256": "dfad8a5454d3b446f4a2ae140a1c743186e07b566b98426ae45c4f74a001d911"
+    }
+  ],
+  "prerequisiteGate": {
+    "exactSelectedPiTargetImageRuntimeAndCompleteBomManifestSha256": null,
+    "exactReceivedBoxComponentAccessoryToolAndInstrumentInventorySha256": null,
+    "completePrimaryRoomSurveyAndEightByEightZoneResultSha256": null,
+    "completeSharedWideUvcCameraQualificationResultSha256": null,
+    "reviewedConstructionElectricalHouseholdAndOperatorSafetyProtocolSha256": null,
+    "reviewedCutTemplateToleranceDatumJigAndInspectionProtocolSha256": null,
+    "reviewedThermalAcousticRadioPowerCableServiceAndFaultProtocolSha256": null,
+    "candidateScreenOrCatalogDimensionsMaySelectOrderOrAuthorizeCutting": false,
+    "vendorClaimsCadModelsCardboardFitOrOneSuccessfulAssemblyMayQualifyABox": false,
+    "sharedWideUvcRemainsIncumbentAbsentASeparateValidD043Supersession": true,
+    "collectionOpened": false
+  },
+  "specimens": [
+    {
+      "specimenId": "primary-i192-integrated-prototype",
+      "role": "primary-adjustable-discovery-and-locked-fixed-axis-qualification-build",
+      "builderIndependence": "first-build-team",
+      "experimentalPitchAdjustmentAllowedBeforeAxisFreezeOnly": true,
+      "qualifyingEvidenceRequiresLockedFixedPitch": true,
+      "exactReceivedBoxRevisionDimensionsMaterialAndDeliveredCostManifestSha256": null,
+      "exactComputeCameraCoolingPowerStorageCableAndControlManifestSha256": null,
+      "exactMountFastenerFeetVentGuardStrainReliefManifestSha256": null,
+      "exactAssemblyToolBuilderEnvironmentAndSafetyManifestSha256": null,
+      "exactFixedAxisCameraDatumAndJigManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    },
+    {
+      "specimenId": "independent-i195-reference-reproduction",
+      "role": "independently-constructed-fixed-axis-reference-reproduction",
+      "builderIndependence": "different-builder-with-source-package-only",
+      "experimentalPitchAdjustmentAllowedBeforeAxisFreezeOnly": false,
+      "qualifyingEvidenceRequiresLockedFixedPitch": true,
+      "exactReceivedBoxRevisionDimensionsMaterialAndDeliveredCostManifestSha256": null,
+      "exactComputeCameraCoolingPowerStorageCableAndControlManifestSha256": null,
+      "exactMountFastenerFeetVentGuardStrainReliefManifestSha256": null,
+      "exactAssemblyToolBuilderEnvironmentAndSafetyManifestSha256": null,
+      "exactFixedAxisCameraDatumAndJigManifestSha256": null,
+      "receivedInventoriedAndAuthorized": false
+    }
+  ],
+  "designPackage": {
+    "editableSourceDimensionsAndCutTemplateSha256": null,
+    "oneToOnePrintCalibrationAndScaleCheckSha256": null,
+    "componentEnclosureKeepoutBendRadiusToleranceStackSha256": null,
+    "cameraOpticalDatumFixedAxisJigAndAllowedToleranceSha256": null,
+    "mountFastenerTorqueFeetTipSlipVentGuardAndDeburrSpecificationSha256": null,
+    "powerHdmiUsbCameraCableRoutingAndStrainReliefSpecificationSha256": null,
+    "shutterIndicatorWakeRestartShutdownAndServiceAccessSpecificationSha256": null,
+    "coolingAirflowRadioKeepoutAndInstrumentationSpecificationSha256": null,
+    "assemblyDisassemblyRecalibrationInspectionAndFaultProcedureSha256": null,
+    "exactBomDeliveredCostToolListPhotoRedactionAndPublicationPackageSha256": null,
+    "undocumentedDimensionsToolsShimsOralInstructionsOrHiddenSetupAllowed": false,
+    "modifiedEnclosureMayRetainManufacturerIngressOrSafetyRatingWithoutEvidence": false
+  },
+  "stageIds": [
+    "receipt-identity-dimensions-material-and-delivered-cost",
+    "measured-component-stack-connector-keepout-and-tolerance-model",
+    "editable-cut-template-camera-datum-fixed-axis-jig-and-source-review",
+    "one-to-one-paper-cardboard-fit-assembly-order-and-collision-review",
+    "cut-edge-deburr-fastener-vent-guard-and-rating-inspection",
+    "mounted-assembly-tip-slip-cable-pull-and-strain-relief",
+    "shutter-indicator-wake-power-and-ordinary-fastener-service-access",
+    "fixed-axis-room-coverage-calibration-floor-contact-and-action",
+    "enclosed-thermal-acoustic-power-and-sustained-complete-workload",
+    "closed-enclosure-wifi-bluetooth-camera-controller-radio-coexistence",
+    "shutdown-idle-wake-disconnect-fault-recovery-and-recalibration",
+    "disassembly-reassembly-cost-household-safety-and-independent-review"
+  ],
+  "buildMatrix": {
+    "specimenIds": [
+      "primary-i192-integrated-prototype",
+      "independent-i195-reference-reproduction"
+    ],
+    "stageCountPerSpecimen": 12,
+    "requiredSpecimenStageCellCount": 24,
+    "everySpecimenMustCompleteEveryStage": true,
+    "sameFrozenDesignPackageBomAxisGatesOraclesAndResultSchemaRequired": true,
+    "primaryAndReproductionEvidenceLedgersMustRemainSeparate": true,
+    "failedInvalidStoppedRetriedReworkedAndPreRepairEvidenceMustRemainVisible": true,
+    "firstBuildSecondBuildStageUpstreamPlanBestCaseOrAggregateMayRescueFailure": false
+  },
+  "safetyScenarioIds": [
+    "child-finger-probe-near-vents-openings-controls-and-connectors",
+    "child-reach-pull-push-and-control-access",
+    "pet-paw-tail-fur-and-body-contact-near-vents-and-base",
+    "pet-snag-and-pull-on-every-external-cable",
+    "walking-trip-and-cable-loop-interception",
+    "forward-rear-left-and-right-tip-loading",
+    "surface-slide-under-cable-and-control-load",
+    "sharp-edge-burr-swarf-and-cutout-inspection",
+    "fan-blade-hot-part-and-electrical-conductor-access",
+    "fastener-loosening-small-part-and-choking-hazard-inspection",
+    "assembly-disassembly-pinch-shear-and-tool-slip",
+    "vent-partial-blockage-and-fan-stall-stop-response",
+    "power-hdmi-usb-camera-connector-pull-and-bend",
+    "shutter-indicator-wake-and-power-control-reach-without-zone-entry",
+    "normal-furniture-door-egress-and-eight-by-eight-zone-preservation",
+    "emergency-stop-power-isolation-and-safe-recovery"
+  ],
+  "safetyMatrix": {
+    "specimenCount": 2,
+    "scenarioCountPerSpecimen": 16,
+    "requiredSpecimenScenarioCellCount": 32,
+    "independentPhysicalGroundTruthAndPredefinedStopRulesRequired": true,
+    "absenceOfObservedInjuryMayEstablishSafety": false,
+    "successfulOperationSignalQualityOrLowCostMayRescueSafetyFailure": false
+  },
+  "measurements": {
+    "requiredMetricIds": [
+      "received-identities-revisions-dimensions-mass-material-and-delivered-cost",
+      "source-template-scale-cutout-datum-jig-and-tolerance-errors",
+      "component-mount-fastener-boss-rib-connector-keepout-and-bend-clearance",
+      "edge-burr-swarf-opening-guard-probe-and-access-inspection",
+      "center-of-gravity-tip-slip-cable-pull-strain-relief-and-displacement",
+      "shutter-indicator-wake-power-port-control-and-service-access",
+      "fixed-axis-pitch-roll-yaw-stability-room-coverage-calibration-and-floor-error",
+      "camera-frame-integrity-pose-action-accuracy-and-exposure-to-game-api-latency",
+      "soc-accelerator-storage-camera-surface-temperature-power-and-acoustics",
+      "wifi-bluetooth-camera-controller-throughput-latency-drop-and-recovery",
+      "shutdown-idle-wake-write-privacy-disconnect-fault-and-recovery",
+      "disassembly-reassembly-fastener-connector-cable-mount-wear-and-recalibration",
+      "assembly-service-tool-time-assistance-damage-discomfort-and-safety",
+      "complete-bom-tools-consumables-shipping-tax-rework-and-replacement-cost",
+      "invalid-stopped-retried-reworked-adverse-and-pre-repair-failure-ledger"
+    ],
+    "independentDimensionalOpticalElectricalThermalAcousticRadioSafetyCostAndServiceOraclesRequired": true,
+    "catalogCadPreviewHostTelemetrySelfReportOrSuccessfulBootMaySubstitutePhysicalMeasurement": false,
+    "everyAttemptAndPreRepairFirstFailureMustRemainVisible": true
+  },
+  "fixedAcceptance": {
+    "maximumMissingRequiredSpecimenStageCells": 0,
+    "maximumMissingRequiredSpecimenSafetyCells": 0,
+    "maximumUnmeasuredInvalidOrStoppedCellsCountedAsPassing": 0,
+    "maximumBurrSharpEdgeLooseSwarfOrUnsecuredFastenerFindings": 0,
+    "maximumAccessibleMovingHotOrConductiveHazards": 0,
+    "maximumUnstrainRelievedRequiredExternalCables": 0,
+    "maximumTipSlipPetSnagTripPinchEgressOrUnsafeZoneFailures": 0,
+    "maximumShutterIndicatorWakePowerPortVentGuardOrServiceAccessFailures": 0,
+    "maximumCameraDropDisconnectRadioControllerRecoveryOrPrivacyFailures": 0,
+    "requiredCaptureWidthPixels": 1920,
+    "requiredCaptureHeightPixels": 1080,
+    "requiredSustainedCaptureFramesPerSecond": 60,
+    "maximumExposureToGameApiP95Microseconds": 120000,
+    "minimumRequiredZoneWidthMm": 2438.4,
+    "minimumRequiredZoneDepthMm": 2438.4,
+    "maximumOneMeterAcousticsDba": 35,
+    "maximumEndToEndCameraServiceDurationMs": 300000,
+    "minimumValidCompleteDisassemblyReassemblyRecalibrationAttemptsPerSpecimen": 20,
+    "minimumIndependentReproductionBuilders": 1,
+    "minimumCompleteIndependentReproductions": 1,
+    "exactlyOneLockedIntegratedFixedPitchMustQualify": true,
+    "manualOrMotorizedPitchAdjustmentAllowedInQualifiedReferenceBuild": false,
+    "physicalOpticalShutterTruthfulCaptureIndicatorAndVisibleWakeFallbackRequired": true,
+    "ordinaryReversibleFastenersAndStandardCameraConnectorRequiredWherePractical": true,
+    "allOpenThresholdsProtocolsSamplesAndStopRulesMustBeFrozenBeforePhysicalWork": true,
+    "firstBuildSecondBuildUpstreamResultCostOrAggregateMayRescueFailure": false
+  },
+  "openAcceptance": {
+    "maximumCompleteDeliveredEnclosureAndIncludedHardwareCostCents": null,
+    "maximumCompleteDeliveredPiReferenceSystemCostCents": null,
+    "maximumExternalLengthWidthHeightMm": null,
+    "maximumCompleteAssemblyMassGrams": null,
+    "minimumStaticTipAngleMilliDegreesByDirection": null,
+    "minimumSlipForceMilliNewtonsByDirection": null,
+    "minimumCableRetentionPullForceMilliNewtonsByConnector": null,
+    "maximumPermanentMountCableJigOrEnclosureDisplacementMicrometers": null,
+    "maximumTemplateCutoutAndFastenerLocationErrorMicrometers": null,
+    "maximumFixedAxisPitchRollYawErrorMilliDegrees": null,
+    "minimumCameraOpticalAndVentGuardClearanceMm": null,
+    "maximumAllowedProbeOpeningAndReachMm": null,
+    "maximumSustainedSocAcceleratorStorageCameraAndSurfaceTemperatureMilliC": null,
+    "maximumThermalThrottleRattleOscillationOrFanFaultEvents": null,
+    "maximumIdleAndActiveWallPowerMilliwatts": null,
+    "maximumRadioThroughputInputLatencyAndRecoveryRegressionPpm": null,
+    "maximumWakeP95AndWorstMilliseconds": null,
+    "maximumAssemblyDisassemblyAndRecalibrationTimeMs": null,
+    "maximumAssistanceDamageDiscomfortOrToolSubstitutionEvents": null,
+    "minimumFastenerConnectorCableMountAndJigWearCycleCount": null,
+    "minimumMeasurementSamplesTrialsSoaksAndFaultCyclesByStageSha256": null,
+    "decisionRankingTieBreakExpiryRetestAndTemplateVersionPolicySha256": null
+  },
+  "reproductionProtocol": {
+    "primaryCompleteResultSha256": null,
+    "frozenReferenceSourcePackageSha256": null,
+    "independentBuilderAdmissionAndNoPriorHiddenSetupAttestationSha256": null,
+    "independentReproductionCompleteResultSha256": null,
+    "sameExactBoxBomSourceTemplateFixedAxisAndAcceptanceGatesRequired": true,
+    "differentBuilderUsingPublishedCandidatePackageOnlyRequired": true,
+    "oralCorrectionsUndocumentedShimsPreCutPartsOrFirstBuildTeamInterventionAllowed": false,
+    "reproductionFailureMayBeRepairedWithoutVersioningAndRestartingAffectedEvidence": false,
+    "firstBuildPassMayRescueReproductionFailure": false,
+    "referencePackageMayPublishBeforeBothCompleteResultsPassIndependentReview": false
+  },
+  "decisionProtocol": {
+    "completePrimaryBuildResultSha256": null,
+    "selectedFixedIntegratedPitchMilliDegrees": null,
+    "completeIndependentReproductionResultSha256": null,
+    "independentSafetyTechnicalCostAndPublicationReviewSha256": null,
+    "selectedExactBoxAndReferenceBuildDisposition": null,
+    "supersedingDecisionId": null,
+    "primaryBuildPassAutomaticallySelectsBoxAxisBomOrPublication": false,
+    "reproductionPassAutomaticallyCreatesProductWarrantyComplianceOrSupportClaim": false,
+    "lowerCostSmallerSizeBetterThermalsOrEasierAssemblyMayRescueAnyFixedFailure": false,
+    "selectionAndPublicationRequireFrozenCompleteEvidenceAndSeparateOwnerDecision": true
+  },
+  "authorityBoundary": {
+    "exactConstructionCuttingDrillingDeburringFasteningAndInspectionProtocolSha256": null,
+    "exactElectricalPowerThermalRadioCameraFaultAndRecoveryProtocolSha256": null,
+    "exactRoomParticipantPhotoDataRetentionAndIncidentProtocolSha256": null,
+    "exactIndependentBuildPublicationLicenseSupportAndExpiryProtocolSha256": null,
+    "purchaseReturnVendorContactOrDeliveredQuoteTransactionAuthorized": false,
+    "cuttingDrillingHeatingAdhesiveElectricalOrMechanicalConstructionAuthorized": false,
+    "devicePowerCameraCaptureRadioFaultThermalSoakOrDestructiveOperationAuthorized": false,
+    "roomAccessHouseholdParticipantChildPetOrHumanFactorsOperationAuthorized": false,
+    "photoVideoAudioRawTelemetryOrIdentifyingEvidenceCollectionAuthorized": false,
+    "boxCameraCoolingPowerPartAxisBomOrBuildSelectionAuthorized": false,
+    "referencePackagePublicationCompatibilityWarrantyComplianceOrSupportClaimAuthorized": false
+  },
+  "dataPolicy": {
+    "opaqueSpecimenBuilderSessionStageScenarioTrialFaultAndReasonLabelsRequired": true,
+    "closedCountsTimingsDigestsDimensionsMetricsCostsAndRedactedCategoriesRequired": true,
+    "rawRoomFacesBodiesChildrenPetsPortraitsAudioVideoOrCameraFramesAllowed": false,
+    "namesAddressesReceiptsOrdersPaymentTaxSellerSupportOrBuilderIdentifiersAllowed": false,
+    "serialsMacAddressesWifiNamesCredentialsHostnamesUsernamesPathsOrEnvironmentValuesAllowed": false,
+    "freeTextFailureToolElectricalThermalRadioServiceOrResultLogsAllowed": false,
+    "buildPhotosRequireSeparateAuthorityRedactionNoPeopleNoHomeIdentityAndMetadataRemoval": true,
+    "failedInvalidStoppedRetriedReworkedAdverseAndPreRepairEvidenceMustRemainVisible": true
+  },
+  "executionGate": {
+    "status": "blocked",
+    "blockerCodes": [
+      "I192-001-exact-pi-target-image-runtime-complete-bom-and-incumbent-camera-manifest",
+      "I192-002-complete-primary-room-survey-eight-by-eight-zone-and-household-safety-result",
+      "I192-003-exact-received-box-components-accessories-tools-instruments-and-delivered-cost",
+      "I192-004-reviewed-editable-template-tolerance-datum-jig-one-to-one-fit-and-inspection-package",
+      "I192-005-reviewed-cut-deburr-fastener-vent-guard-tip-slip-cable-and-strain-relief-protocol",
+      "I192-006-complete-camera-qualification-fixed-axis-coverage-calibration-floor-action-and-latency-protocol",
+      "I192-007-complete-enclosed-cooling-thermal-acoustic-power-and-sustained-workload-protocol",
+      "I192-008-complete-closed-enclosure-wifi-bluetooth-camera-controller-radio-protocol",
+      "I192-009-complete-shutter-indicator-idle-wake-shutdown-fault-and-privacy-protocol",
+      "I192-010-complete-ordinary-fastener-service-wear-reassembly-and-recalibration-protocol",
+      "I192-011-frozen-samples-thresholds-instruments-oracles-stop-rules-ranking-expiry-and-retest-policy",
+      "I192-012-construction-electrical-room-camera-fault-photo-and-result-authority",
+      "I195-013-frozen-versioned-reference-source-bom-tool-photo-redaction-and-publication-package",
+      "I195-014-independent-builder-build-result-review-publication-license-and-support-boundary"
+    ]
+  },
+  "result": null
+}
