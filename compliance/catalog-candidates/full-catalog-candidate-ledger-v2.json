@@ -21,11 +21,11 @@
   },
   "provenance": {
     "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
-    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "firstPartyRightsObservationSha256": "fafe22bc50d287b03bda84df10acc96f5acfe0fe54f104cb719968731f683ba9",
     "remoteOfflineFormat": "vcg-remote-game-offline-observation/v2",
     "remoteOfflineObservationSha256": "8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0",
     "gameServiceFormat": "vcg-game-service-dependency-screen/v2",
-    "gameServiceObservationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9"
+    "gameServiceObservationSha256": "c7be00262624c9499f786dfbd7e10c382079ef65b161feac2ff0b62a6b042e07"
   },
   "scope": {
     "catalogSnapshotDate": "2026-07-19",
@@ -50,7 +50,7 @@
       "source": {
         "status": "exact-public-source-screened",
         "repository": "VibeBots",
-        "commit": "f9b988ca72bbd2f2083ad3530366f8c57847e482"
+        "commit": "c09d767c361079fb8f325d3d4a9d0c61abf2b6c9"
       },
       "runtime": {
         "candidate": "remote-web",
@@ -92,7 +92,7 @@
           "analytics": 0,
           "notifications": 4,
           "payments": 0,
-          "externalNetwork": 18
+          "externalNetwork": 23
         }
       },
       "rights": {
@@ -2205,7 +2205,7 @@
       ]
     }
   ],
-  "observationSha256": "65798f7bcb3f08e3b6f2dceb0c28e0ea382091352ff72c480e822b9f68bee245",
+  "observationSha256": "8af1fb9d56b15ed0c3735a9b6131897090fb044651c47f8396d0712b16170e59",
   "summary": {
     "entryCount": 26,
     "firstPartyCount": 23,

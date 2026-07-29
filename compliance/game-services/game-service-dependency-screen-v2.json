@@ -1,7 +1,7 @@
 {
   "format": "vcg-game-service-dependency-screen/v2",
   "evidenceDate": "2026-07-24",
-  "observedAtUtc": "2026-07-25T03:20:40.074Z",
+  "observedAtUtc": "2026-07-29T04:51:26.269Z",
   "evidenceClass": "exact-source-and-fresh-browser-service-signal-screen",
   "qualification": "zero-verified-degradation-or-offline-claims",
   "policy": {
@@ -12,7 +12,7 @@
   },
   "provenance": {
     "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
-    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "firstPartyRightsObservationSha256": "fafe22bc50d287b03bda84df10acc96f5acfe0fe54f104cb719968731f683ba9",
     "remoteOfflineFormat": "vcg-remote-game-offline-observation/v2",
     "remoteOfflineObservationSha256": "8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0"
   },
@@ -36,12 +36,12 @@
         "status": "exact-public-source-screened",
         "repository": "VibeBots",
         "repositoryUrl": "https://github.com/Randroids-Dojo/VibeBots",
-        "commit": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
-        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeBots/zip/f9b988ca72bbd2f2083ad3530366f8c57847e482",
-        "archiveBytes": 8039484,
-        "archiveSha256": "1cb50daac586dc6bc2a4a003a1101e9ec4ff1917b696237b6008f9acf24c4f0d",
-        "sourceFileCount": 702,
-        "screenedTextFileCount": 679,
+        "commit": "c09d767c361079fb8f325d3d4a9d0c61abf2b6c9",
+        "archiveUrl": "https://codeload.github.com/Randroids-Dojo/VibeBots/zip/c09d767c361079fb8f325d3d4a9d0c61abf2b6c9",
+        "archiveBytes": 8166750,
+        "archiveSha256": "5b45bdeef0ba3cccf27303db56f2c0ebbb2d412f820704dc97a7b38827d01089",
+        "sourceFileCount": 710,
+        "screenedTextFileCount": 687,
         "skippedOversizeTextFileCount": 0,
         "unreadableTextFileCount": 0,
         "packageManifestPaths": [
@@ -136,6 +136,7 @@
           "CI",
           "CI_CASE_COMMIT_SHA",
           "CI_CASE_RESULTS_PATH",
+          "CI_PREVIEW_SMOKE",
           "CI_REPRO_REPORT_DIR",
           "CLERK_AFTER_SIGN_IN_URL",
           "CLERK_AFTER_SIGN_UP_URL",
@@ -145,6 +146,10 @@
           "DATABASE_URL",
           "E2E_GLOBAL_TIMEOUT_MS",
           "E2E_SOFTWARE_GL",
+          "GITHUB_EVENT_PATH",
+          "GITHUB_OUTPUT",
+          "GITHUB_REPOSITORY",
+          "GITHUB_TOKEN",
           "NEXT_PUBLIC_APP_BUILD",
           "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
           "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
@@ -165,8 +170,10 @@
           "PW_CHROMIUM_PATH",
           "VAPID_PRIVATE_KEY",
           "VAPID_PUBLIC_KEY",
+          "VERCEL_AUTOMATION_BYPASS_SECRET",
           "VERCEL_ENV",
           "VERCEL_GIT_COMMIT_SHA",
+          "VIBEBOTS_E2E_MODE",
           "WEB_PUSH_CONTACT_EMAIL"
         ],
         "apiRoutePaths": [
@@ -249,6 +256,7 @@
           "http://127.0.0.1:3860",
           "http://127.0.0.1:3862",
           "http://127.0.0.1:59999",
+          "http://exact-sha.vercel.app",
           "http://localhost",
           "http://localhost:3000",
           "https://accounts.example.test",
@@ -256,13 +264,17 @@
           "https://app",
           "https://biomejs.dev",
           "https://evil.test",
+          "https://exact-sha.vercel.app",
+          "https://example.com",
           "https://push.example",
           "https://push.example.test",
           "https://remote-playtest.test",
+          "https://vercel.app",
           "https://vibe-bots.test",
           "https://vibebots.randroid.dev",
           "https://vibebots.test",
           "https://vibecoded.games",
+          "https://wrong-sha.vercel.app",
           "https://www.googleapis.com"
         ],
         "submodulePaths": []
@@ -314,6 +326,7 @@
           "origin:http://127.0.0.1:3860",
           "origin:http://127.0.0.1:3862",
           "origin:http://127.0.0.1:59999",
+          "origin:http://exact-sha.vercel.app",
           "origin:http://localhost",
           "origin:http://localhost:3000",
           "origin:https://accounts.example.test",
@@ -321,12 +334,16 @@
           "origin:https://app",
           "origin:https://biomejs.dev",
           "origin:https://evil.test",
+          "origin:https://exact-sha.vercel.app",
+          "origin:https://example.com",
           "origin:https://push.example",
           "origin:https://push.example.test",
           "origin:https://remote-playtest.test",
+          "origin:https://vercel.app",
           "origin:https://vibe-bots.test",
           "origin:https://vibebots.test",
           "origin:https://vibecoded.games",
+          "origin:https://wrong-sha.vercel.app",
           "origin:https://www.googleapis.com"
         ]
       },
@@ -2488,7 +2505,7 @@
       "offlineQualification": "none"
     }
   ],
-  "observationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9",
+  "observationSha256": "c7be00262624c9499f786dfbd7e10c382079ef65b161feac2ff0b62a6b042e07",
   "summary": {
     "gameCount": 26,
     "exactSourceScreenedCount": 23,

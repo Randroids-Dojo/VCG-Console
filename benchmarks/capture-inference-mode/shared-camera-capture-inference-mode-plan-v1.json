@@ -19,11 +19,11 @@
     },
     {
       "path": "apps/console-lab/src/tracker.ts",
-      "sha256": "734520c35cfdeda857bc0629d6deb1fcc12ac37d26bef60f377c9900f56505a6"
+      "sha256": "921ad16b2b133d6d9bb1a28ee7e58a56cadb31ee56cc0a10a5e24f06228d4a68"
     },
     {
       "path": "apps/console-lab/src/tracker-worker.ts",
-      "sha256": "bb37c2c64292f80b7f791715884323648e2dabb857fe2dca4cb78861890a0085"
+      "sha256": "5f09d7d1457c9d96c29b9c31b06544fec80a89dc4d7582c8643d51165756065b"
     },
     {
       "path": "packages/motion-contract/src/index.ts",

@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
 import { FilesetResolver, PoseLandmarker, type PoseLandmarkerResult } from "@mediapipe/tasks-vision";
-import { mediapipeResultToMotionFrame } from "./mediapipe-adapter";
+import { MAX_TRACKED_POSES, MediaPipeFrameAdapter } from "./mediapipe-adapter";
 import { nextMediaPipeTimestampMs } from "./mediapipe-timestamp";
 import type { TrackerWorkerRequest, TrackerWorkerResponse } from "./tracker-worker-protocol";
 
@@ -12,6 +12,7 @@ const workerScope = globalThis as unknown as {
 
 let landmarker: PoseLandmarker | undefined;
 let lastMediaPipeTimestampMs: number | undefined;
+let frameAdapter = new MediaPipeFrameAdapter();
 
 function monotonicTimestampMs(): number {
   return performance.timeOrigin + performance.now();
@@ -22,13 +23,15 @@ function respond(message: TrackerWorkerResponse): void {
 }
 
 async function initialize(wasmRoot: string, modelAssetPath: string): Promise<void> {
+  frameAdapter = new MediaPipeFrameAdapter();
+  lastMediaPipeTimestampMs = undefined;
   // Module workers must select MediaPipe's ES module WASM loader. The default
   // classic loader is imported into module scope and never exposes ModuleFactory.
   const vision = await FilesetResolver.forVisionTasks(wasmRoot, true);
   const options = {
     baseOptions: { modelAssetPath, delegate: "GPU" as const },
     runningMode: "VIDEO" as const,
-    numPoses: 1,
+    numPoses: MAX_TRACKED_POSES,
     minPoseDetectionConfidence: 0.5,
     minPosePresenceConfidence: 0.5,
     minTrackingConfidence: 0.5,
@@ -61,7 +64,7 @@ function infer(request: Extract<TrackerWorkerRequest, { type: "frame" }>): void 
     respond({
       type: "frame",
       runId: request.runId,
-      frame: mediapipeResultToMotionFrame(result, {
+      frame: frameAdapter.convert(result, {
         sequence: request.sequence,
         sourceTimestampMs: request.sourceTimestampMs,
         inferenceStartedAtMs,

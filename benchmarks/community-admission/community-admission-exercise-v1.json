@@ -1,9 +1,9 @@
 {
   "format": "vcg-community-admission-exercise/v1",
-  "evidenceDate": "2026-07-24",
+  "evidenceDate": "2026-07-29",
   "evidenceClass": "deterministic-isolated-community-admission-desk-exercise",
   "qualification": "workflow-exercise-only-not-game-or-product-approval",
-  "generatedAtUtc": "2026-07-24T21:54:35.376Z",
+  "generatedAtUtc": "2026-07-29T04:46:04.551Z",
   "policy": {
     "testNamespace": "isolated-community-review-exercise",
     "familyModeAdmission": false,
@@ -36,7 +36,7 @@
       "caseId": "hosted-test-submission",
       "source": {
         "manifestPath": "catalog/determined.vcg-game.json",
-        "manifestBytes": 1015,
+        "manifestBytes": 992,
         "manifestSha256": "c4c1632b8226889a471763a42308f0ae48927d694fd9823040dd0420290eadc6",
         "gameId": "determined",
         "version": "hosted-7d9a38dc-2026-07-19",
@@ -344,7 +344,7 @@
     "contractPath": "docs/COMMUNITY_GAME_ADMISSION.md",
     "contractPathSha256": "bb3b8603902176e7afb9e995b9d01bee9774f447aedf8893c11cff7511457ead",
     "generatorPath": "scripts/generate-community-admission-evidence.mjs",
-    "generatorPathSha256": "9cf5a7513b77647332b46cd3c9fa385abdb353f5dbb163c7b0f726e7faff3b2a",
+    "generatorPathSha256": "ef16ce1ce4df39161b0120d2b9b5f747d5142a60951bb39d60e1daf1e265d297",
     "validatorPath": "scripts/validate-community-admission-evidence.mjs",
     "validatorPathSha256": "f6dd9d439d479c91fb556acb8fbd4c27e9021b8ba9322f7099b5b2e3db1bd4ed"
   },

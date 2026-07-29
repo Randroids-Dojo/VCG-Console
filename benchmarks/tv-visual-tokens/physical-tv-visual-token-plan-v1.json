@@ -12,7 +12,7 @@
     {
       "role": "visual-accessibility-and-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
     },
     {
       "role": "visual-token-contract",
@@ -37,12 +37,12 @@
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
-      "sha256": "9d6e4da35240f577dfce978f300db1d6cf577d565108ba5687a3e97be69bfeb0"
+      "sha256": "e37e6f4cb7af62794d6ff09dc289e0e31a6b51683525626132aed840750b83c4"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "d07186ef86dd2f206b9e5bcc99d2f2557d38ce1187ba7aba380c9ee939f597ae"
+      "sha256": "15b86804faf09fb2fdb1c781eba42ddc8317463d1f7840bd28b41bb235892e2d"
     }
   ],
   "executionBoundary": {

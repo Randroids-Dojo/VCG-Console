@@ -22,7 +22,7 @@
     {
       "role": "steamos-package-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "e15bee66c77d508ed4ce48faa017be4bb0d606ab465b07965afc1f5000c84637"
+      "sha256": "183ff5c8af4eb8f0a0c35838a8b53f5b5e00a8df74eda1d0406efe63adc18c5c"
     },
     {
       "role": "steamos-camera-campaign",
@@ -32,7 +32,7 @@
     {
       "role": "steamos-camera-plan",
       "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
-      "sha256": "99a99e4a4212ae6c18dbf2e7ba523aa3e66d5bcee492370671924d0be35af3f5"
+      "sha256": "5bedad8f2f13854d510232b08b501c4cbfeb6e15178ac96cb03291984bcd8e9a"
     },
     {
       "role": "standard-concurrent-workload-campaign",
@@ -42,7 +42,7 @@
     {
       "role": "standard-concurrent-workload-plan",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "24ac2d6b0c449c7a9e9857c60944bd24655d0d294f6cabe90091fad8ece0c8f4"
+      "sha256": "3fbccefa945c7be64222d3f2c74b305c5bfde31cc132288a7e913d4e43304221"
     },
     {
       "role": "camera-action-latency-campaign",
@@ -72,7 +72,7 @@
     {
       "role": "pi-cpu-comparison-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "6c6880f1951bc5866414eb7623de7f493dff817a392457dc7ceaa8a33334da29"
+      "sha256": "27353c8838ca71f1273aca6afe3292f8aa118362ddb77e4e2fa970dfa936f691"
     },
     {
       "role": "prototype-gate-boundary",
@@ -87,7 +87,7 @@
     {
       "role": "current-tracker-implementation-boundary",
       "path": "apps/console-lab/src/tracker-worker.ts",
-      "sha256": "e1e9ac3daa4c1e7f8a5a9ff04e3c5a593e9d1aaea57fd2c143badea8800493f1"
+      "sha256": "5f09d7d1457c9d96c29b9c31b06544fec80a89dc4d7582c8643d51165756065b"
     }
   ],
   "targetCandidates": [

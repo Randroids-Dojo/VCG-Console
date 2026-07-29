@@ -34,7 +34,7 @@
     {
       "role": "mediapipe-motion-adapter",
       "path": "apps/console-lab/src/mediapipe-adapter.ts",
-      "sha256": "65416e540d0534175f6ee97e29089393f4482a94421cf7fafc746ac720ac606b"
+      "sha256": "1c7f3ceb62056b14287b4c686f9a8a52d2f776d8dfb5fb874a17595298f8a6b6"
     },
     {
       "role": "motion-schema",

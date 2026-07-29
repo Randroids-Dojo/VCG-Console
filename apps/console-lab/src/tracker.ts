@@ -6,7 +6,7 @@ import type {
   TrackerHealthStatus,
 } from "@vcg/motion-contract";
 import { FrameGate } from "./frame-gate";
-import { mediapipeResultToMotionFrame } from "./mediapipe-adapter";
+import { MAX_TRACKED_POSES, MediaPipeFrameAdapter } from "./mediapipe-adapter";
 import { trackerHealthFixture } from "./tracker-health";
 import type { TrackerWorkerResponse } from "./tracker-worker-protocol";
 
@@ -25,6 +25,7 @@ function monotonicTimestampMs(): number {
 export class MediaPipeTracker {
   readonly #video = document.createElement("video");
   readonly #frameGate = new FrameGate();
+  #frameAdapter = new MediaPipeFrameAdapter();
   #landmarker: PoseLandmarker | undefined;
   #worker: Worker | undefined;
   #stream: MediaStream | undefined;
@@ -97,6 +98,7 @@ export class MediaPipeTracker {
     }
     this.#running = true;
     this.#runId += 1;
+    this.#frameAdapter = new MediaPipeFrameAdapter();
     this.#lastMediaTime = -1;
     this.#frameGate.reset();
     const isolation = this.#backend === "worker"
@@ -212,7 +214,7 @@ export class MediaPipeTracker {
         delegate: "GPU" as const,
       },
       runningMode: "VIDEO" as const,
-      numPoses: 1,
+      numPoses: MAX_TRACKED_POSES,
       minPoseDetectionConfidence: 0.5,
       minPosePresenceConfidence: 0.5,
       minTrackingConfidence: 0.5,
@@ -297,7 +299,7 @@ export class MediaPipeTracker {
       const inferenceCompletedAtMs = monotonicTimestampMs();
       const publishedAtMs = monotonicTimestampMs();
       this.callbacks.onFrame({
-        ...mediapipeResultToMotionFrame(result, {
+        ...this.#frameAdapter.convert(result, {
           sequence: this.#sequence++,
           sourceTimestampMs,
           inferenceStartedAtMs,

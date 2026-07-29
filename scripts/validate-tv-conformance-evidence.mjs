@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_CLAIM_BOUNDARY,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_EVIDENCE_FORMAT,
@@ -12,7 +13,6 @@ import {
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 
@@ -328,7 +328,7 @@ export function validateTvConformanceEvidence(
     producerPlatform: "win32",
     producerArchitecture: "x64",
     nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: GODOT_EXPORT_BROWSER_PRODUCT,
+    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
     devicePixelRatio: 1,
   });
 
@@ -363,7 +363,7 @@ export function validateTvConformanceEvidence(
     ],
     "artifact.browser",
   );
-  assert.equal(value.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
+  assert.equal(value.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   assert.ok(Array.isArray(value.browser.observations));
   assert.equal(
     value.browser.observations.length,

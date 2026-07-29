@@ -5,7 +5,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 import {
@@ -14,6 +13,7 @@ import {
   LAUNCHER_TV_LIMITATIONS,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_EVIDENCE_FORMAT,
   TV_CONFORMANCE_RESOLUTIONS,
@@ -125,7 +125,7 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-BH0ZfrlY.js": 3,
+  "/assets/main-Yvtqx0v1.js": 3,
   "/assets/main-CDT6K0sT.css": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
   "/assets/src-CYOVH8wV.js": 3,
@@ -400,7 +400,7 @@ export function validateLauncherTvConformanceEvidence(
     producerPlatform: "win32",
     producerArchitecture: "x64",
     nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: GODOT_EXPORT_BROWSER_PRODUCT,
+    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
     devicePixelRatio: 1,
     browserClock: "2026-07-24T19:00:00-07:00",
   });
@@ -445,7 +445,7 @@ export function validateLauncherTvConformanceEvidence(
     ],
     "artifact.browser",
   );
-  assert.equal(value.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
+  assert.equal(value.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   assert.ok(Array.isArray(value.browser.observations));
   assert.equal(
     value.browser.observations.length,

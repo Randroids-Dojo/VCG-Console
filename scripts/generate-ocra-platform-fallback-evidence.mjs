@@ -13,13 +13,15 @@ import {
   startProductionPreview,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
+import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
+} from "./generate-tv-conformance-evidence.mjs";
 
 export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
-export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-25";
+export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-29";
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
   "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
@@ -239,6 +241,8 @@ export async function generateOcraPlatformFallbackEvidence() {
     headless: true,
     args: ["--disable-gpu"],
   });
+  const browserProduct = `Chrome/${browser.version()}`;
+  assert.equal(browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const page = await browser.newPage({
     viewport: { width: 1920, height: 1080 },
     deviceScaleFactor: 1,
@@ -320,7 +324,7 @@ export async function generateOcraPlatformFallbackEvidence() {
     evidenceDate: OCRA_FALLBACK_EVIDENCE_DATE,
     environment: {
       platform: "windows-x64",
-      browserProduct: GODOT_EXPORT_BROWSER_PRODUCT,
+      browserProduct,
       node: GODOT_EXPORT_NODE_VERSION,
       headless: true,
       devicePixelRatio: 1,

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 export const COMMUNITY_ADMISSION_FORMAT =
   "vcg-community-admission-exercise/v1";
-export const COMMUNITY_ADMISSION_DATE = "2026-07-24";
+export const COMMUNITY_ADMISSION_DATE = "2026-07-29";
 export const COMMUNITY_ADMISSION_REVIEW_CATEGORIES = Object.freeze([
   "submission-authority",
   "content",

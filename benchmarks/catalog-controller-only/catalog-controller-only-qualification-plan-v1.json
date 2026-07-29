@@ -17,7 +17,7 @@
     {
       "role": "exact-catalog-candidate-ledger",
       "path": "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
-      "sha256": "7f2a0e085706451da65bed64f6ea25ab569428428da7b04f358f80ec24d2b9ca"
+      "sha256": "7371b9dd3bf157eaa26cd9384c0dc0ef68b6a2f91dd846f13206ed572198f5c1"
     },
     {
       "role": "neutral-input-audit-boundary",

@@ -32,7 +32,7 @@
     {
       "role": "steamos-update-safe-content-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "e15bee66c77d508ed4ce48faa017be4bb0d606ab465b07965afc1f5000c84637"
+      "sha256": "183ff5c8af4eb8f0a0c35838a8b53f5b5e00a8df74eda1d0406efe63adc18c5c"
     },
     {
       "role": "shared-camera-qualification-campaign",
@@ -42,7 +42,7 @@
     {
       "role": "shared-camera-qualification-plan",
       "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
-      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+      "sha256": "9430aed84f992209b904193b5ed27ebcef5157009fd427e65647a7091c594f84"
     },
     {
       "role": "microphone-disablement-campaign",

@@ -13,12 +13,12 @@
     {
       "role": "concurrent-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "24ac2d6b0c449c7a9e9857c60944bd24655d0d294f6cabe90091fad8ece0c8f4"
+      "sha256": "3fbccefa945c7be64222d3f2c74b305c5bfde31cc132288a7e913d4e43304221"
     },
     {
       "role": "memory-pressure-boundary",
       "path": "benchmarks/pi5-memory-pressure/pi5-memory-tier-plan-v1.json",
-      "sha256": "0dada182d95c81a36a2f2c8c9183b22ed7c786c256c1ac108212691f256e00d9"
+      "sha256": "b0ed9217fc6859efa482620c6da0bcc26e499a1ca4dd7c0563f64f7c6792cc9c"
     },
     {
       "role": "enclosure-screen-boundary",

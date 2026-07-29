@@ -16,9 +16,11 @@ import {
   sourceTreeCommitment,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
+import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
+} from "./generate-tv-conformance-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
@@ -41,7 +43,7 @@ const EXPECTED_SCREENSHOT = Object.freeze({
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-BH0ZfrlY.js": 1,
+  "/assets/main-Yvtqx0v1.js": 1,
   "/assets/main-CDT6K0sT.css": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
   "/assets/src-CYOVH8wV.js": 1,
@@ -144,7 +146,7 @@ export async function validateOcraPlatformFallbackEvidence(
   assert.equal(artifact.evidenceDate, OCRA_FALLBACK_EVIDENCE_DATE);
   assert.deepEqual(artifact.environment, {
     platform: "windows-x64",
-    browserProduct: GODOT_EXPORT_BROWSER_PRODUCT,
+    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
     node: GODOT_EXPORT_NODE_VERSION,
     headless: true,
     devicePixelRatio: 1,

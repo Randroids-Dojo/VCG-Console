@@ -10,17 +10,17 @@
     {
       "role": "exact-first-party-game-pool-and-zero-rights-approval-boundary",
       "path": "compliance/first-party-game-rights/repository-rights-screen-v1.json",
-      "sha256": "6be221e38ccce134aa3396e865355d94768dbf18de13519dab43ca63f6c20326"
+      "sha256": "afb1dec18f24dd50f16bf1d92e6dfcaad0b95fbe695b7055b939e3b99f46864b"
     },
     {
       "role": "full-catalog-candidate-and-zero-admission-boundary",
       "path": "compliance/catalog-candidates/full-catalog-candidate-ledger-v2.json",
-      "sha256": "7f2a0e085706451da65bed64f6ea25ab569428428da7b04f358f80ec24d2b9ca"
+      "sha256": "7371b9dd3bf157eaa26cd9384c0dc0ef68b6a2f91dd846f13206ed572198f5c1"
     },
     {
       "role": "per-game-runtime-scorecard-and-zero-selection-boundary",
       "path": "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
-      "sha256": "845e39b160225a4b042693eb5092d3a066b3d81fe71e3da900802d8cf0a46849"
+      "sha256": "2ff78c91f713c0cb4236ae8bb452def49570ff1661eb1f346daf36949df15505"
     },
     {
       "role": "first-real-room-one-player-prerequisite-boundary",
@@ -30,7 +30,7 @@
     {
       "role": "complete-two-player-prerequisite-boundary",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "07a8788b49da3ad9bc3be64e0894f618d711121ab8bcf822cfce7fd200bd31d8"
+      "sha256": "708b224c3a203dfe5dc08fde9f5f805d3389f57a133768bbd2e7433e255c71ab"
     },
     {
       "role": "synthetic-accessibility-support-nonqualification-boundary",
@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "33222c9b8e7bba9cd230692cbdcbe9b82a108339a088c4d2e5cdd69f7c114687"
+      "sha256": "84e51cc1f119f1266cbb31c4afc04a96a199b9409b4d5ca3bc92fcd88caea6a6"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -70,7 +70,7 @@
     {
       "role": "runtime-neutral-signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
+      "sha256": "fd5718d7afad04faf6acf9162e8bcaf099bf6e9186aa2be1c99afdfe834638f6"
     },
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",

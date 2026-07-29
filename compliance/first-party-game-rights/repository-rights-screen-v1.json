@@ -1,7 +1,7 @@
 {
   "format": "vcg-first-party-game-repository-rights-screen/v1",
-  "evidenceDate": "2026-07-24",
-  "observedAtUtc": "2026-07-24T23:20:02.328Z",
+  "evidenceDate": "2026-07-29",
+  "observedAtUtc": "2026-07-29T04:50:30.669Z",
   "evidenceClass": "public-repository-exact-head-rights-screen",
   "qualification": "zero-offline-redistribution-approvals",
   "policy": {
@@ -30,7 +30,7 @@
       "repository": "VibeBots",
       "repositoryUrl": "https://github.com/Randroids-Dojo/VibeBots",
       "defaultBranch": "main",
-      "observedHeadCommit": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
+      "observedHeadCommit": "c09d767c361079fb8f325d3d4a9d0c61abf2b6c9",
       "repositoryPublic": true,
       "repositoryArchived": false,
       "githubDetectedLicense": {
@@ -42,20 +42,20 @@
       "rootLicenses": [],
       "packageManifest": {
         "present": true,
-        "bytes": 2529,
-        "sha256": "bcd9ab3a787f389d1dbee547c1d0363eb22b92541d41693b87bd0fd2c140c5e5",
+        "bytes": 2764,
+        "sha256": "151b2c06b0cb8714296659c2f44b7894f914a294965180097eb30c624147ad8c",
         "parsed": true,
         "name": "vibebots",
         "private": true,
         "license": null
       },
       "assetInventory": {
-        "image": 70,
+        "image": 72,
         "audio": 0,
         "font": 0,
         "model": 0,
         "video": 0,
-        "total": 70
+        "total": 72
       },
       "submodulePaths": [],
       "rights": {
@@ -1267,7 +1267,7 @@
       }
     }
   ],
-  "observationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+  "observationSha256": "fafe22bc50d287b03bda84df10acc96f5acfe0fe54f104cb719968731f683ba9",
   "summary": {
     "gameCount": 23,
     "publicRepositoryCount": 23,

@@ -12,13 +12,13 @@
   },
   "provenance": {
     "fullCatalogCandidateFormat": "vcg-full-catalog-candidate-ledger/v2",
-    "fullCatalogCandidateObservationSha256": "65798f7bcb3f08e3b6f2dceb0c28e0ea382091352ff72c480e822b9f68bee245",
+    "fullCatalogCandidateObservationSha256": "8af1fb9d56b15ed0c3735a9b6131897090fb044651c47f8396d0712b16170e59",
     "firstPartyRightsFormat": "vcg-first-party-game-repository-rights-screen/v1",
-    "firstPartyRightsObservationSha256": "a74854b7041f9c206433dd35cd8370825e26c710ceb58e2d1c0ddc2ae99f1e81",
+    "firstPartyRightsObservationSha256": "fafe22bc50d287b03bda84df10acc96f5acfe0fe54f104cb719968731f683ba9",
     "remoteOfflineFormat": "vcg-remote-game-offline-observation/v2",
     "remoteOfflineObservationSha256": "8a85aaf7ce5c03d72c9751bd4aa9ab349b73ad0de29658c6b7b0287b073535b0",
     "gameServiceFormat": "vcg-game-service-dependency-screen/v2",
-    "gameServiceObservationSha256": "16298d6ced48cd1bc76edeae12ca78e5e4812a28f6e999ed069171dad25827a9",
+    "gameServiceObservationSha256": "c7be00262624c9499f786dfbd7e10c382079ef65b161feac2ff0b62a6b042e07",
     "remoteInputFormat": "vcg-remote-game-input-surface-observation/v2",
     "remoteInputObservationSha256": "81dae4f12644140f6fb1a58a37e7238c0bd07be21e48df65cd22d5c797be1dd2",
     "godotExportFormat": "vcg-godot-export-evidence/v1",
@@ -129,13 +129,13 @@
       "source": {
         "kind": "exact-public-source-archive",
         "repository": "VibeBots",
-        "revision": "f9b988ca72bbd2f2083ad3530366f8c57847e482",
-        "fileCount": 702,
-        "totalBytes": 8039484,
-        "sha256": "1cb50daac586dc6bc2a4a003a1101e9ec4ff1917b696237b6008f9acf24c4f0d",
+        "revision": "c09d767c361079fb8f325d3d4a9d0c61abf2b6c9",
+        "fileCount": 710,
+        "totalBytes": 8166750,
+        "sha256": "5b45bdeef0ba3cccf27303db56f2c0ebbb2d412f820704dc97a7b38827d01089",
         "runtimeDependencyCount": 13,
         "apiRouteCount": 73,
-        "assetLikeFileCount": 70,
+        "assetLikeFileCount": 72,
         "files": []
       },
       "measurements": {
@@ -163,7 +163,7 @@
           "analytics": 0,
           "notifications": 4,
           "payments": 0,
-          "externalNetwork": 18
+          "externalNetwork": 23
         },
         "degradationStatus": "unverified-source-signal-only",
         "offlineQualification": "none",
@@ -668,16 +668,16 @@
         "repository": "VCG-Console",
         "revision": null,
         "fileCount": 5,
-        "totalBytes": 87348,
-        "sha256": "ed785dadd7d07e014bdc04d75af2411e4fd8d0b0064d4143b472504436905bb5",
+        "totalBytes": 89732,
+        "sha256": "6cfce048f57b72255da0e3e37a5c81ae64fd0c1d65c794f23cafc73d4a888364",
         "runtimeDependencyCount": null,
         "apiRouteCount": 0,
         "assetLikeFileCount": 0,
         "files": [
           {
             "path": "apps/console-lab/src/action-engine.ts",
-            "bytes": 18365,
-            "sha256": "58deb186b7c96bf26d7068a2f0db1cab249f754221a0f5bf2552b590bd6e5c88"
+            "bytes": 18306,
+            "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
           },
           {
             "path": "apps/console-lab/src/action-feedback.ts",
@@ -686,18 +686,18 @@
           },
           {
             "path": "apps/console-lab/src/main.ts",
-            "bytes": 56628,
-            "sha256": "df45c6a65ec4a7f9130130b6ae68c39b2899f26f1b75814ea694de1fcff2f186"
+            "bytes": 58599,
+            "sha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6"
           },
           {
             "path": "apps/console-lab/src/obstacle-game.ts",
-            "bytes": 6292,
-            "sha256": "e0a03178672a5ff9ca4edd0388ec8b0ad66c9cb115b0d6293e8465e0f494df88"
+            "bytes": 6112,
+            "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
           },
           {
             "path": "apps/console-lab/src/renderer.ts",
-            "bytes": 3759,
-            "sha256": "5b0addc8f9f37d89522b63f8ec5b99fc665b335f5da54911001fb45a331a4989"
+            "bytes": 4411,
+            "sha256": "72279ad80fe76cee6478f8c1a80bf12661f9904f1f670d485e97376f4ae86fe3"
           }
         ]
       },
@@ -1086,7 +1086,7 @@
       }
     }
   ],
-  "observationSha256": "1d9c419c4e0d7bdeec8538afba0a8965ed802a86d831aaf65fef4d319c4d9edd",
+  "observationSha256": "52b725a03922a64c48b089dc349f91d3bb5de8aeb4128450e2b4486ec6dc6699",
   "summary": {
     "subjectCount": 5,
     "publicSourceSubjectCount": 3,
