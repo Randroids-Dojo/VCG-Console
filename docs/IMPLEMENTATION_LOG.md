@@ -1,8 +1,20 @@
 # Implementation record
 
-Last updated: 2026-07-24
+Last updated: 2026-07-28
 
 This file records what has actually been built and verified. It does not convert desk evidence into Raspberry Pi, ordinary x86-64 Linux, SteamOS, real-room, or product qualification.
+
+## 2026-07-28: two-player identity and spectator-safe action isolation
+
+- Raised the MediaPipe pose detector from one to four visible poses while retaining two active session slots.
+- Integrated the D-169 appearance-free two-stage Kalman and IoU associator into both worker and main-thread camera paths, with a fresh identity epoch after camera restart.
+- Added one independent action engine per persistent track so gesture baselines, holds, cooldowns, and actions cannot transfer between players or background candidates.
+- Kept every detected body non-authoritative until deliberate join assigns its exact track ID to Player 1 or Player 2. Session synchronization strips authority after leave or roster-changing recovery.
+- Added separate Player 1 and Player 2 controls and rendered all visible skeletons, using numbered labels and distinct candidate treatment.
+- Added deterministic coverage for detector-order reversal, three visible bodies with two-player capacity, independent simultaneous action state, stable slots, and spectator non-promotion.
+- Refreshed 25 zero-result research-plan source-binding chains after the requirement and tracker changes; no physical result, threshold, selection, or qualification field changed.
+
+The console-lab unit suite and TypeScript checks cover the desk implementation only. Real-camera two-player crossing, overlap, occlusion, spectator traffic, target performance, and the D-103 safe play zone remain unqualified.
 
 ## 2026-07-19: first reversible desk slice
 

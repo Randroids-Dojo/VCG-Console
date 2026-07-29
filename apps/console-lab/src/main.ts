@@ -15,7 +15,7 @@ import {
   type MotionSimulatorPose,
 } from "@vcg/motion-contract";
 import { actionFeedback } from "./action-feedback";
-import { ActionEngine } from "./action-engine";
+import { MultiPlayerActionEngine } from "./multi-player-action-engine";
 import {
   applyBodyVisibilityFixture,
   type BodyVisibilityFixture,
@@ -266,6 +266,7 @@ app.innerHTML = `
         <p class="measurement-note" id="measurement-note">No source timing samples are available. This diagnostic never substitutes for exposure-to-action qualification.</p>
         <div class="controls">
           <button id="join-button" class="primary-control" type="button">JOIN PLAYER 1</button>
+          <button id="join-player-2-button" class="primary-control" type="button" disabled>JOIN PLAYER 2</button>
           <button id="camera-button" type="button">START CAMERA</button>
           <button id="replay-button" type="button" disabled>USE REPLAY</button>
           <button id="export-button" type="button">EXPORT SKELETON TRACE</button>
@@ -306,11 +307,13 @@ const renderer = new SkeletonRenderer(required<HTMLCanvasElement>("#skeleton"));
 const motionLab = required<HTMLElement>("#motion-lab");
 const trace = new TraceBuffer();
 const metrics = new Metrics();
-const actionEngine = new ActionEngine();
-const playerSession = new PlayerSessionController({ maxPlayers: 1 });
+const actionEngine = new MultiPlayerActionEngine();
+const playerSession = new PlayerSessionController({ maxPlayers: 2 });
 const cameraButton = required<HTMLButtonElement>("#camera-button");
 const replayButton = required<HTMLButtonElement>("#replay-button");
 const joinButton = required<HTMLButtonElement>("#join-button");
+const joinPlayer2Button = required<HTMLButtonElement>("#join-player-2-button");
+const joinButtons = [joinButton, joinPlayer2Button] as const;
 const exportButton = required<HTMLButtonElement>("#export-button");
 exportButton.disabled = true;
 const statusDetail = required<HTMLElement>("#status-detail");
@@ -489,6 +492,7 @@ function acceptFrame(rawFrame: MotionFrame): void {
   )) {
     handlePlayerSessionEvent(event);
   }
+  synchronizeActionEngineAssignment();
   const trackActions = frame.players.flatMap((player) =>
     player.actions.map((action) => ({
       action,
@@ -532,11 +536,11 @@ function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
     obstacle.setPaused(true);
     statusDetail.textContent =
       event.reason === "tracking-loss"
-        ? "Tracking loss confirmed. Gameplay is frozen while Player 1 is reacquired."
+        ? `Tracking loss confirmed for player ${event.lostSlots.join(" and ")}. Gameplay is frozen without substituting a spectator.`
         : "Tracker continuity failed. Gameplay is frozen pending deliberate recovery.";
   } else if (event.type === "silent-recovery") {
     if (!overlayKind && currentMode === "obstacle") obstacle.setPaused(false);
-    statusDetail.textContent = "Player 1 reacquired inside the two-second recovery window.";
+    statusDetail.textContent = `Player ${event.recoveredSlots.join(" and ")} reacquired inside the two-second recovery window.`;
   } else if (event.type === "show-recovery") {
     showOverlay("recovery");
   }
@@ -633,18 +637,24 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     if (playerSession.snapshot().players.length === 0) joinPlayer();
     else if (
       currentMode === "tracker"
-      && document.activeElement === joinButton
+      && joinButtons.includes(document.activeElement as HTMLButtonElement)
     ) {
-      joinButton.click();
+      (document.activeElement as HTMLButtonElement).click();
     }
     else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump");
     else selectFocused();
   }
 }
 
-function joinPlayer(trackId?: string): void {
+function joinPlayer(trackId?: string, requestedSlot?: 1 | 2): void {
+  const snapshot = playerSession.snapshot();
+  if (requestedSlot === 2 && !snapshot.players.some((player) => player.slot === 1)) {
+    statusDetail.textContent = "Join Player 1 before Player 2 so controller ownership stays deterministic.";
+    return;
+  }
+  const joinedTrackIds = new Set(snapshot.players.map((player) => player.trackId));
   const candidate = trackId === undefined
-    ? latestFrame?.players[0]
+    ? latestFrame?.players.find((player) => !joinedTrackIds.has(player.id))
     : latestFrame?.players.find((player) => player.id === trackId);
   if (!candidate) {
     statusDetail.textContent = "No visible candidate is available to join.";
@@ -652,47 +662,60 @@ function joinPlayer(trackId?: string): void {
     return;
   }
   try {
-    playerSession.join(candidate.id);
+    const event = playerSession.join(candidate.id);
+    if (event.type !== "player-joined") throw new Error("join did not produce a player assignment");
+    if (requestedSlot !== undefined && event.slot !== requestedSlot) {
+      playerSession.leave(event.slot);
+      throw new Error(`Player ${requestedSlot} is not the next available slot`);
+    }
+    actionEngine.join(event.trackId, event.slot);
   } catch (error) {
     if (trackId !== undefined) synchronizeActionEngineAssignment();
     statusDetail.textContent = error instanceof Error ? error.message : String(error);
     return;
   }
-  actionEngine.join();
-  joinButton.disabled = false;
-  joinButton.textContent = "LEAVE PLAYER 1";
-  statusDetail.textContent = "Player 1 joined. Automatic standing calibration is collecting its initial baseline.";
+  updatePlayerAssignmentControls();
+  const joined = playerSession.snapshot().players.find((player) => player.trackId === candidate.id);
+  statusDetail.textContent = `Player ${joined?.slot ?? requestedSlot ?? 1} joined. Its gesture baseline is isolated from every other visible body.`;
 }
 
 function synchronizeActionEngineAssignment(): void {
-  if (playerSession.snapshot().players.length === 0) actionEngine.leave();
-  else actionEngine.join();
+  actionEngine.synchronize(playerSession.snapshot().players);
+  updatePlayerAssignmentControls();
 }
 
-function leavePlayer(): void {
-  const player = playerSession.snapshot().players[0];
+function leavePlayer(slot: 1 | 2): void {
+  const player = playerSession.snapshot().players.find((candidate) => candidate.slot === slot);
   if (!player) {
     statusDetail.textContent = "No joined player is available to leave.";
     return;
   }
   try {
-    playerSession.leave(player.slot);
+    const event = playerSession.leave(player.slot);
+    if (event.type !== "player-left") throw new Error("leave did not remove the player assignment");
+    actionEngine.leave(event.trackId);
   } catch (error) {
     statusDetail.textContent =
       error instanceof Error ? error.message : String(error);
     return;
   }
-  actionEngine.leave();
   obstacle.setPaused(true);
-  joinButton.disabled = false;
-  joinButton.textContent = "JOIN PLAYER 1";
+  updatePlayerAssignmentControls();
   statusDetail.textContent =
-    "Player 1 left deliberately. Visible bodies remain candidates; release the join gesture before a fresh re-entry.";
+    `Player ${slot} left deliberately. Visible bodies remain candidates; release the join gesture before a fresh re-entry.`;
 }
 
-function togglePlayerAssignment(): void {
-  if (playerSession.snapshot().players.length === 0) joinPlayer();
-  else leavePlayer();
+function togglePlayerAssignment(slot: 1 | 2): void {
+  if (playerSession.snapshot().players.some((player) => player.slot === slot)) leavePlayer(slot);
+  else joinPlayer(undefined, slot);
+}
+
+function updatePlayerAssignmentControls(): void {
+  const joinedSlots = new Set(playerSession.snapshot().players.map((player) => player.slot));
+  joinButton.textContent = joinedSlots.has(1) ? "LEAVE PLAYER 1" : "JOIN PLAYER 1";
+  joinPlayer2Button.textContent = joinedSlots.has(2) ? "LEAVE PLAYER 2" : "JOIN PLAYER 2";
+  joinButton.disabled = false;
+  joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
 }
 
 function paintMetrics(frame: MotionFrame): void {
@@ -706,7 +729,11 @@ function paintMetrics(frame: MotionFrame): void {
       : simulatorEnabled
         ? "SIMULATOR"
         : "SYNTHETIC";
-  required<HTMLElement>("#metric-player").textContent = player ? `${player.state.toUpperCase()} 01` : "NOT FOUND";
+  const joinedCount = frame.players.filter((candidate) => candidate.state === "joined").length;
+  const candidateCount = frame.players.length - joinedCount;
+  required<HTMLElement>("#metric-player").textContent = player
+    ? `${joinedCount} JOINED / ${candidateCount} CANDIDATE`
+    : "NOT FOUND";
   required<HTMLElement>("#metric-confidence").textContent = player ? `${Math.round(player.confidence * 100)}%` : "--";
   required<HTMLElement>("#metric-fps").textContent = snapshot.fps ? snapshot.fps.toFixed(1) : "--";
   required<HTMLElement>("#metric-inference-p50").textContent =
@@ -1014,6 +1041,7 @@ function chooseOverlayAction(
     }
     try {
       playerSession.resumeRecovery(candidate.id);
+      synchronizeActionEngineAssignment();
     } catch (error) {
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
       return;
@@ -1049,8 +1077,7 @@ function paintActionFeedback(action: MotionAction): void {
 function resetPlayerSession(): void {
   playerSession.reset();
   actionEngine.reset();
-  joinButton.disabled = false;
-  joinButton.textContent = "JOIN PLAYER 1";
+  updatePlayerAssignmentControls();
 }
 
 function closeOverlay(resume: boolean): void {
@@ -1173,7 +1200,8 @@ cameraButton.addEventListener("click", async () => {
   }
 });
 
-joinButton.addEventListener("click", togglePlayerAssignment);
+joinButton.addEventListener("click", () => togglePlayerAssignment(1));
+joinPlayer2Button.addEventListener("click", () => togglePlayerAssignment(2));
 replayButton.addEventListener("click", () => startReplay());
 simulatorToggle.addEventListener("click", () => setSimulatorEnabled(!simulatorEnabled));
 simulatorPlayerToggle.addEventListener("click", () => {

@@ -1,6 +1,7 @@
 import { CORE_CONNECTIONS, type CoreLandmarkName, type MotionFrame } from "@vcg/motion-contract";
 
 const ACCENT = "#53dac3";
+const PLAYER_TWO = "#ff9b71";
 const OFF_WHITE = "#efeee6";
 const MUTED = "#778084";
 
@@ -20,8 +21,8 @@ export class SkeletonRenderer {
     context.clearRect(0, 0, width, height);
     this.#drawZone(width, height);
 
-    const player = frame?.players[0];
-    if (!player) {
+    const players = frame?.players ?? [];
+    if (players.length === 0) {
       context.fillStyle = MUTED;
       context.font = `${Math.max(18, width * 0.018)}px OCRA, ui-monospace, monospace`;
       context.textAlign = "center";
@@ -29,40 +30,55 @@ export class SkeletonRenderer {
       return;
     }
 
-    const points = new Map(player.coreLandmarks.map((landmark) => [landmark.name, landmark]));
-    const mapPoint = (name: CoreLandmarkName) => {
-      const landmark = points.get(name);
-      if (!landmark) return undefined;
-      return {
-        x: (1 - landmark.position.x) * width,
-        y: landmark.position.y * height,
-        observed: landmark.observed,
+    for (const player of players) {
+      const color = player.state === "joined"
+        ? player.sessionSlot === 2 ? PLAYER_TWO : ACCENT
+        : MUTED;
+      const playerAlpha = player.state === "joined" ? 1 : 0.42;
+      const points = new Map(player.coreLandmarks.map((landmark) => [landmark.name, landmark]));
+      const mapPoint = (name: CoreLandmarkName) => {
+        const landmark = points.get(name);
+        if (!landmark) return undefined;
+        return {
+          x: (1 - landmark.position.x) * width,
+          y: landmark.position.y * height,
+          observed: landmark.observed,
+        };
       };
-    };
 
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    for (const [fromName, toName] of CORE_CONNECTIONS) {
-      const from = mapPoint(fromName);
-      const to = mapPoint(toName);
-      if (!from || !to) continue;
-      context.beginPath();
-      context.moveTo(from.x, from.y);
-      context.lineTo(to.x, to.y);
-      context.strokeStyle = from.observed && to.observed ? OFF_WHITE : MUTED;
-      context.globalAlpha = from.observed && to.observed ? 0.9 : 0.3;
-      context.lineWidth = Math.max(3, width * 0.004);
-      context.stroke();
-    }
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      for (const [fromName, toName] of CORE_CONNECTIONS) {
+        const from = mapPoint(fromName);
+        const to = mapPoint(toName);
+        if (!from || !to) continue;
+        context.beginPath();
+        context.moveTo(from.x, from.y);
+        context.lineTo(to.x, to.y);
+        context.strokeStyle = from.observed && to.observed ? OFF_WHITE : MUTED;
+        context.globalAlpha = (from.observed && to.observed ? 0.9 : 0.3) * playerAlpha;
+        context.lineWidth = Math.max(3, width * 0.004);
+        context.stroke();
+      }
 
-    for (const landmark of player.coreLandmarks) {
-      const point = mapPoint(landmark.name);
-      if (!point) continue;
-      context.beginPath();
-      context.arc(point.x, point.y, Math.max(4, width * 0.006), 0, Math.PI * 2);
-      context.fillStyle = point.observed ? ACCENT : MUTED;
-      context.globalAlpha = point.observed ? 1 : 0.35;
-      context.fill();
+      for (const landmark of player.coreLandmarks) {
+        const point = mapPoint(landmark.name);
+        if (!point) continue;
+        context.beginPath();
+        context.arc(point.x, point.y, Math.max(4, width * 0.006), 0, Math.PI * 2);
+        context.fillStyle = point.observed ? color : MUTED;
+        context.globalAlpha = (point.observed ? 1 : 0.35) * playerAlpha;
+        context.fill();
+      }
+
+      const nose = mapPoint("nose");
+      if (nose) {
+        context.globalAlpha = playerAlpha;
+        context.fillStyle = color;
+        context.font = `${Math.max(12, width * 0.012)}px OCRA, ui-monospace, monospace`;
+        context.textAlign = "center";
+        context.fillText(player.state === "joined" ? `PLAYER ${player.sessionSlot}` : "CANDIDATE", nose.x, nose.y - 18);
+      }
     }
     context.globalAlpha = 1;
     this.#drawCenterReticle(width, height);
