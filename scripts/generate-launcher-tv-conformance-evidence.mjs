@@ -13,10 +13,10 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
@@ -517,7 +517,7 @@ export async function generateLauncherTvConformanceEvidence() {
     `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
   );
   const browser = await exercise(findChrome());
-  assert.equal(browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
+  assert.equal(browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const baseContractBytes = await readFile(baseContractPath);
   return {
     format: LAUNCHER_TV_EVIDENCE_FORMAT,

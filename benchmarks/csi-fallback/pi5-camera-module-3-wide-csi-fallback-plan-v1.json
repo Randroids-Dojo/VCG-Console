@@ -21,7 +21,7 @@
     {
       "role": "d043-uvc-incumbent-and-q013-conditional-csi-boundary",
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "5dd7b29050d6dc0e8a6a1a0fe88b5c929d46e3be25af74d966ee52dc2cfd1689"
+      "sha256": "378c0bb1e6b4f86d5bf20a40419f071ff463d96e6b31887d95fb65e642e96c44"
     },
     {
       "role": "camera-module-3-wide-source-capability-note",
@@ -31,22 +31,22 @@
     {
       "role": "shared-wide-uvc-incumbent-qualification-boundary",
       "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
-      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+      "sha256": "9430aed84f992209b904193b5ed27ebcef5157009fd427e65647a7091c594f84"
     },
     {
       "role": "usb-and-conditional-csi-cabling-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "179d4b2c1cbf1e74bd2d931fdc1b9b5183952cd462c29802b92a0d3a0a79606d"
+      "sha256": "e3ba9d8c889b09395e753be47a77e1e7846fa8b1415555706206716f1f069610"
     },
     {
       "role": "integrated-camera-placement-and-coverage-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "7639657c0d330da939084974505bb54efefffb6822d38bfc0dea77bc28897654"
+      "sha256": "97e863b605c3f79112a2dc826ac41716f0aae5df8ed27ee9518ba9e57abc03f6"
     },
     {
       "role": "lens-distortion-and-inference-input-boundary",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "edad77f9e0aab643530c2bc2a2d57aafa8092477a1475c1b10884c918b91c5fb"
+      "sha256": "60a075fa433998d0a3cc7fdbd8841c5b228133c74aa26b530e0e1fd671c97ea4"
     },
     {
       "role": "capture-controls-lighting-and-frame-quality-boundary",
@@ -66,7 +66,7 @@
     {
       "role": "pi5-complete-product-cost-and-latency-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "513e17a79b8662a81c88594a3651d955c50c486a62c876b5b3db33f5d083f0a0"
+      "sha256": "a5a38538729431d7069b3042f5c5b7e82d46796afd478e9520d0be29a795bf06"
     }
   ],
   "triggerPolicy": {

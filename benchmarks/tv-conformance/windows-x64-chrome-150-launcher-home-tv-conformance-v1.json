@@ -1,20 +1,20 @@
 {
   "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-07-26",
+  "evidenceDate": "2026-07-29",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-07-26T23:59:56.000Z",
+  "retrievedAtUtc": "2026-07-29T04:43:29.691Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/150.0.7871.182",
+    "browserProduct": "Chrome/150.0.7871.187",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
   "baseContract": {
     "format": "vcg-tv-conformance-evidence/v1",
-    "sha256": "a82b2dfcf5315c4a9f54d98e93fb9c8f7bc83cbadc356d9d91346b7f9619eb38"
+    "sha256": "a8510b3b92c13b697b2598eb00e52377ff73173431df2c755fbfd2af8f12b84f"
   },
   "contract": {
     "surface": "launcher-home",
@@ -40,7 +40,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/150.0.7871.182",
+    "browserProduct": "Chrome/150.0.7871.187",
     "observations": [
       {
         "id": "720p",
@@ -162,8 +162,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 3,
-      "/assets/main-BH0ZfrlY.js": 3,
       "/assets/main-CDT6K0sT.css": 3,
+      "/assets/main-Yvtqx0v1.js": 3,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
       "/assets/src-CYOVH8wV.js": 3,
       "/assets/synthetic-D3ZzT8jW.js": 3,
@@ -207,7 +207,7 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "3ae914bd0b5a1bf87bfedf0bbbace0e25c00c99ea37e56201f8f270324e44851",
+    "entryPathSha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -217,11 +217,11 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "baseContractPath": "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
-    "baseContractPathSha256": "a82b2dfcf5315c4a9f54d98e93fb9c8f7bc83cbadc356d9d91346b7f9619eb38",
+    "baseContractPathSha256": "a8510b3b92c13b697b2598eb00e52377ff73173431df2c755fbfd2af8f12b84f",
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "21d9aafce0380eafc97988c3b4305ba7a8a2020aa525c6d54dc887b6b24128c2",
+    "generatorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "57d06b5a6a3cce3d6744f7cb389643f7288fcfaa628b9a6ac123e36d2dbf2ce3",
+    "validatorPathSha256": "5e2775c951f8faba72c5227f7ce0d807cc2bf5894436bdb01b734ec363641940",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -238,8 +238,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 140,
-      "sha256": "0c136194531a42a06bbfb1b98ee07c26d2f28eab18072475417694c002cc8a74"
+      "fileCount": 142,
+      "sha256": "d1b64009fcf0214c25c6b7fed18876917e2c95c6c550e33104d9a88c78e29b0d"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

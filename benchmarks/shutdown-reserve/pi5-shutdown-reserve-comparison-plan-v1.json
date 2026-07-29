@@ -19,7 +19,7 @@
     {
       "role": "d109-selected-software-storage-incumbent-boundary",
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "5dd7b29050d6dc0e8a6a1a0fe88b5c929d46e3be25af74d966ee52dc2cfd1689"
+      "sha256": "378c0bb1e6b4f86d5bf20a40419f071ff463d96e6b31887d95fb65e642e96c44"
     },
     {
       "role": "sudden-power-operation-oracle-and-result-contract",
@@ -54,12 +54,12 @@
     {
       "role": "complete-system-value-and-lifecycle-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "e4cc2f4c01e1d8b39b55f121f774c1e82d6500b88e3d0e1e8eb9b98e8e287679"
+      "sha256": "73cf06a74d0d4fc3d8eea965fd404a19d617dbdea3f04d90cc7bcf49a458d9ce"
     },
     {
       "role": "pi5-complete-product-and-cost-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "513e17a79b8662a81c88594a3651d955c50c486a62c876b5b3db33f5d083f0a0"
+      "sha256": "a5a38538729431d7069b3042f5c5b7e82d46796afd478e9520d0be29a795bf06"
     },
     {
       "role": "current-reference-bom-and-no-purchase-boundary",

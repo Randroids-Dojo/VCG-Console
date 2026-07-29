@@ -27,7 +27,7 @@
     {
       "role": "runtime-neutral-signed-package-plan",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "0e91b4c5a0d32290f8b34f0c0aa8cedff11c89b0e583c6b287c2b1d890c1e35f"
+      "sha256": "fd5718d7afad04faf6acf9162e8bcaf099bf6e9186aa2be1c99afdfe834638f6"
     },
     {
       "role": "native-package-process-boundary",

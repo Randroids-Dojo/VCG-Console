@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 export const FIRST_PARTY_RIGHTS_SCREEN_FORMAT =
   "vcg-first-party-game-repository-rights-screen/v1";
-export const FIRST_PARTY_RIGHTS_SCREEN_DATE = "2026-07-24";
+export const FIRST_PARTY_RIGHTS_SCREEN_DATE = "2026-07-29";
 export const FIRST_PARTY_RIGHTS_LIMITATIONS = Object.freeze([
   "This is an exact-revision public-repository metadata and file-inventory screen, not legal advice or a complete code, asset, trademark, patent, privacy, service, build, dependency, or deployment audit.",
   "A repository under the project organization, a public source tree, a package license field, or GitHub license detection does not prove that every contributor, asset, font, audio file, model, title, service, generated output, or deployed byte is covered by that grant.",

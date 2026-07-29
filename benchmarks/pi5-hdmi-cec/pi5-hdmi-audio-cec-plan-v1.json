@@ -23,12 +23,12 @@
     {
       "role": "browser-tv-geometry-boundary",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "d07186ef86dd2f206b9e5bcc99d2f2557d38ce1187ba7aba380c9ee939f597ae"
+      "sha256": "15b86804faf09fb2fdb1c781eba42ddc8317463d1f7840bd28b41bb235892e2d"
     },
     {
       "role": "sustained-load-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "4b0c6c5ae12c9a46f6a124f976f2d5999b15a2a4238d499fd128ba69c35d0ba1"
+      "sha256": "f9a343d9788ea64745dc936b3df2e31d55cdedc22b2d2613a348d41648d98161"
     }
   ],
   "targetBoundary": {

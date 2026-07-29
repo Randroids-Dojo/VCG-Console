@@ -14,7 +14,7 @@
     {
       "role": "camera-packaging-and-optical-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d6665b5297f936e52f36c6bd532c5731d19d479b195ab782be8f8678ea362117"
+      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
     },
     {
       "role": "active-play-safety-boundary",
@@ -29,12 +29,12 @@
     {
       "role": "room-and-play-zone-plan",
       "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
-      "sha256": "9a22bc1317874d1a8610d57c04210ae60f614a301adf53c5189fe61e929095f4"
+      "sha256": "9d9951e7d4ec764bedc5272b528724917166c030f96eee3c16935c541bac1395"
     },
     {
       "role": "shared-camera-plan",
       "path": "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json",
-      "sha256": "ca69b01bf6a0036b24ad0d8206d141f1b79c1953a12803fddbc46f4331773971"
+      "sha256": "9430aed84f992209b904193b5ed27ebcef5157009fd427e65647a7091c594f84"
     },
     {
       "role": "pose-edge-plan",

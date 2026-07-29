@@ -44,7 +44,7 @@
     {
       "role": "hailo-accelerator-boundary",
       "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
-      "sha256": "3b0c290f4582b1e4203669bf694ae276f4dc50054f2047b8236fa182996c747a"
+      "sha256": "afa7bbc6c7cc407448cc22042ade257ad83d1c1ed6a07f5c9a641d9329331276"
     }
   ],
   "targetBoundary": {

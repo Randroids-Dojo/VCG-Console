@@ -6,7 +6,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 import {
@@ -23,6 +22,7 @@ import {
   startProductionPreview,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
@@ -387,7 +387,7 @@ export async function generateLauncherTvSurfaceEvidence() {
     `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
   );
   const browser = await exercise(findChrome());
-  assert.equal(browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
+  assert.equal(browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const homeEvidenceBytes = await readFile(
     resolve(root, homeEvidenceRelativePath),
   );

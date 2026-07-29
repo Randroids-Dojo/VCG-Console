@@ -14,11 +14,11 @@ import {
   LAUNCHER_TV_SURFACE_LIMITATIONS,
 } from "./generate-launcher-tv-surface-evidence.mjs";
 import {
+  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
 import {
-  GODOT_EXPORT_BROWSER_PRODUCT,
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 
@@ -386,7 +386,7 @@ export async function validateLauncherTvSurfaceEvidence(
     producerPlatform: "win32",
     producerArchitecture: "x64",
     nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: GODOT_EXPORT_BROWSER_PRODUCT,
+    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
     devicePixelRatio: 1,
     browserClock: "2026-07-24T19:00:00-07:00",
   });
@@ -410,7 +410,7 @@ export async function validateLauncherTvSurfaceEvidence(
     ],
     "browser",
   );
-  assert.equal(artifact.browser.browserProduct, GODOT_EXPORT_BROWSER_PRODUCT);
+  assert.equal(artifact.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   assert.equal(artifact.browser.observations.length, 9);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {

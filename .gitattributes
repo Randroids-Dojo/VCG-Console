@@ -1,0 +1,31 @@
+* text=auto
+.gitattributes text eol=lf
+
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.jsx text eol=lf
+*.lock text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.sh text eol=lf
+*.svelte text eol=lf
+*.toml text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.7z binary
+*.gz binary
+*.ico binary
+*.png binary
+*.ttf binary
+*.wasm binary
+*.zip binary

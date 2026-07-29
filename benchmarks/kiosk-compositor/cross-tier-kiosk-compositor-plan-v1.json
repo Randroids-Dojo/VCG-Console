@@ -34,7 +34,7 @@
     {
       "role": "reserved-recovery-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "e1e1377f01fdc5fb2892854d5e5a1e5e77a88ef334df8fd938d32f8b4e738ea8"
+      "sha256": "7af3fb3a9ee78a501cec02e406b22bc89501ad3d58d7d54a154be32e53180969"
     },
     {
       "role": "controller-qualification-boundary",
@@ -44,7 +44,7 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "3e1ca718df735502626edf70844563aadb52e08668d2dcd2e5bb67742d451173"
+      "sha256": "8187bd70b5e6a7e6f29773a50137ea8a0acfdb1c55e65a3b21b7267127cfc419"
     },
     {
       "role": "boot-resume-launch-boundary",
@@ -59,7 +59,7 @@
     {
       "role": "pi-target-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "6c6880f1951bc5866414eb7623de7f493dff817a392457dc7ceaa8a33334da29"
+      "sha256": "27353c8838ca71f1273aca6afe3292f8aa118362ddb77e4e2fa970dfa936f691"
     },
     {
       "role": "desk-wrapper-implementation-boundary",

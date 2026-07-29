@@ -724,17 +724,17 @@
       }
     ],
     "productionSource": {
-      "fileCount": 94,
-      "totalBytes": 886400,
+      "fileCount": 96,
+      "totalBytes": 897561,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
-          "bytes": 16392,
+          "bytes": 16357,
           "sha256": "5c83b40cc00681781a419d9fda9fb6c19c886804fd3f54be36de9079711c7ccf"
         },
         {
           "path": "apps/console-lab/src/action-engine.ts",
-          "bytes": 18365,
+          "bytes": 18306,
           "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
         },
         {
@@ -759,7 +759,7 @@
         },
         {
           "path": "apps/console-lab/src/bridge-client-fixture.ts",
-          "bytes": 1122,
+          "bytes": 1107,
           "sha256": "58f0bec7673c44e3a6b8f2cfffbc46fda4768dce0f9651400f1d0fc80b6c0c1d"
         },
         {
@@ -774,7 +774,7 @@
         },
         {
           "path": "apps/console-lab/src/bridge-host-fixture.ts",
-          "bytes": 2725,
+          "bytes": 2703,
           "sha256": "69e0adc840af4d6b65abc0bc08c8bef85fe0ad3802665594a80be1b925ce8161"
         },
         {
@@ -804,22 +804,22 @@
         },
         {
           "path": "apps/console-lab/src/frame-gate.test.ts",
-          "bytes": 680,
+          "bytes": 658,
           "sha256": "acd1472d57bc09adae00aab7bd635e38b7c6a820a49dbd82b05fe463f4bcddc9"
         },
         {
           "path": "apps/console-lab/src/frame-gate.ts",
-          "bytes": 437,
+          "bytes": 411,
           "sha256": "0ab031eded017a8e993807bc04e0c0c49d00d3820bdcaeb141e410ddee1eb758"
         },
         {
           "path": "apps/console-lab/src/gamepad-router.test.ts",
-          "bytes": 15317,
+          "bytes": 15310,
           "sha256": "07e744f58856fde4a417b0a28d44b367dbe1be80f110308c4bf0e4388a6a58a6"
         },
         {
           "path": "apps/console-lab/src/gamepad-router.ts",
-          "bytes": 9855,
+          "bytes": 9841,
           "sha256": "8e84ef0ef628762cfe2c028c478a5058e60798e4d9e9970190a4d15d17c2d6ab"
         },
         {
@@ -834,12 +834,12 @@
         },
         {
           "path": "apps/console-lab/src/launcher.ts",
-          "bytes": 1557,
+          "bytes": 1498,
           "sha256": "0e02637a3297f36aabbf5c94d941efbe97facea6a5b9ec8bd9320abd725e9610"
         },
         {
           "path": "apps/console-lab/src/launcher/BootScreen.svelte",
-          "bytes": 1263,
+          "bytes": 1224,
           "sha256": "708fff3e6d9340dbf166fd7dcda476eeeffefe7e4af4763c5108b629c4222229"
         },
         {
@@ -849,12 +849,12 @@
         },
         {
           "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-          "bytes": 6427,
+          "bytes": 6290,
           "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 54548,
+          "bytes": 54256,
           "sha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c"
         },
         {
@@ -869,12 +869,12 @@
         },
         {
           "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
-          "bytes": 2822,
+          "bytes": 2809,
           "sha256": "be11867da2c4c62e27c207a6f4caf58ec188658c6a6fa9cbd10577f50f5c3c38"
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-          "bytes": 5100,
+          "bytes": 5029,
           "sha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b"
         },
         {
@@ -884,7 +884,7 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SettingsView.svelte",
-          "bytes": 26544,
+          "bytes": 26495,
           "sha256": "f3014aa405bf6009c6602fecbbddace60269e734e32c0992fe1885fe7170d4af"
         },
         {
@@ -939,12 +939,12 @@
         },
         {
           "path": "apps/console-lab/src/launcher/launch-supervisor.test.ts",
-          "bytes": 3788,
+          "bytes": 3679,
           "sha256": "a920bf93c82b850f86c332f8a7dc76248c46fd08c4978c623551d03b3aea592e"
         },
         {
           "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
-          "bytes": 6969,
+          "bytes": 6776,
           "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
         },
         {
@@ -1019,7 +1019,7 @@
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1718,
+          "bytes": 1683,
           "sha256": "30caf0ba823bbdf1e04a3b4b27f4fbdc7389638423a7d910c6ac6506c4c44155"
         },
         {
@@ -1044,18 +1044,18 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 56628,
-          "sha256": "3ae914bd0b5a1bf87bfedf0bbbace0e25c00c99ea37e56201f8f270324e44851"
+          "bytes": 58599,
+          "sha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
-          "bytes": 2162,
-          "sha256": "6374fbc41cae37009e03b1f315bf9e71f9f6542764485ff483b821e9cbf159b7"
+          "bytes": 3945,
+          "sha256": "035de2265adbcdbe0654da37063f16502019fced2e0f667cab5b98cb2230ea59"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.ts",
-          "bytes": 3830,
-          "sha256": "65416e540d0534175f6ee97e29089393f4482a94421cf7fafc746ac720ac606b"
+          "bytes": 6343,
+          "sha256": "1c7f3ceb62056b14287b4c686f9a8a52d2f776d8dfb5fb874a17595298f8a6b6"
         },
         {
           "path": "apps/console-lab/src/mediapipe-timestamp.test.ts",
@@ -1078,6 +1078,16 @@
           "sha256": "eb26f4f56b4072761c85782a76bff626b22eea6e540de1b2be7cb57203615d83"
         },
         {
+          "path": "apps/console-lab/src/multi-player-action-engine.test.ts",
+          "bytes": 3700,
+          "sha256": "664e1cf62db9b1aa40533ea4ab1fb27f5a281c26517be0eaada65c5bb884cad1"
+        },
+        {
+          "path": "apps/console-lab/src/multi-player-action-engine.ts",
+          "bytes": 4012,
+          "sha256": "aeda42ae70d91b13e52e63a7d83f05d2d039188e969631ee8b34bc8ed104bcd0"
+        },
+        {
           "path": "apps/console-lab/src/native-host-client.test.ts",
           "bytes": 23037,
           "sha256": "c10630fdbb1d3545e45ac9825c659624564f35f66c5133029357784aa8301ad8"
@@ -1089,7 +1099,7 @@
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
-          "bytes": 6292,
+          "bytes": 6112,
           "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
         },
         {
@@ -1119,8 +1129,8 @@
         },
         {
           "path": "apps/console-lab/src/renderer.ts",
-          "bytes": 3759,
-          "sha256": "9e0e737ffd927646b072d633b3ebd39b91e07c5322996fc2676bbff882cf2be7"
+          "bytes": 4411,
+          "sha256": "72279ad80fe76cee6478f8c1a80bf12661f9904f1f670d485e97376f4ae86fe3"
         },
         {
           "path": "apps/console-lab/src/strict-json.test.ts",
@@ -1134,22 +1144,22 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 108189,
+          "bytes": 106155,
           "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
-          "bytes": 2300,
+          "bytes": 2224,
           "sha256": "541ed4fedcf8c139d7c8c44da756a12ff9a11ef1ad713b7f4239df89c665f16e"
         },
         {
           "path": "apps/console-lab/src/trace-buffer.test.ts",
-          "bytes": 6413,
+          "bytes": 6409,
           "sha256": "c767da1331c1c3bf15fc87abb303f24ca1b62a9d12cdd40c497b27eea3d2ecab"
         },
         {
           "path": "apps/console-lab/src/trace-buffer.ts",
-          "bytes": 6558,
+          "bytes": 6557,
           "sha256": "18cee18111405d9c0401d26e2729954d756375d97383dc7b6728c81fb5e2660c"
         },
         {
@@ -1164,18 +1174,18 @@
         },
         {
           "path": "apps/console-lab/src/tracker-worker-protocol.ts",
-          "bytes": 567,
+          "bytes": 556,
           "sha256": "f4f0c23ba49c606c95da122ae573dc1e3abd0514da64f51c3a4d76a9ec444176"
         },
         {
           "path": "apps/console-lab/src/tracker-worker.ts",
-          "bytes": 3429,
-          "sha256": "e1e9ac3daa4c1e7f8a5a9ff04e3c5a593e9d1aaea57fd2c143badea8800493f1"
+          "bytes": 3507,
+          "sha256": "5f09d7d1457c9d96c29b9c31b06544fec80a89dc4d7582c8643d51165756065b"
         },
         {
           "path": "apps/console-lab/src/tracker.ts",
-          "bytes": 12704,
-          "sha256": "49e8df4c9ee37f5bd01cab6662631d9cdf103436a9b56671c0799b88e665e62d"
+          "bytes": 12659,
+          "sha256": "921ad16b2b133d6d9bb1a28ee7e58a56cadb31ee56cc0a10a5e24f06228d4a68"
         },
         {
           "path": "apps/console-lab/src/visible-text.test.ts",
@@ -1317,9 +1327,9 @@
                 138,
                 246,
                 247,
-                765,
-                1116,
-                1120
+                792,
+                1143,
+                1147
               ]
             },
             {

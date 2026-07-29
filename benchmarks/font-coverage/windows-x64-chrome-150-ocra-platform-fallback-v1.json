@@ -1,9 +1,9 @@
 {
   "format": "vcg-ocra-platform-fallback-observation/v1",
-  "evidenceDate": "2026-07-25",
+  "evidenceDate": "2026-07-29",
   "environment": {
     "platform": "windows-x64",
-    "browserProduct": "Chrome/150.0.7871.182",
+    "browserProduct": "Chrome/150.0.7871.187",
     "node": "v24.18.0",
     "headless": true,
     "devicePixelRatio": 1,
@@ -67,8 +67,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/": 1,
-      "/assets/main-BH0ZfrlY.js": 1,
       "/assets/main-CDT6K0sT.css": 1,
+      "/assets/main-Yvtqx0v1.js": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-CYOVH8wV.js": 1,
       "/assets/synthetic-D3ZzT8jW.js": 1,
@@ -96,13 +96,13 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "2c9bd92f4d31fd06628372a73b22051a01d2379ff1cf9cfe389d7db6290895a3",
+    "baseEvidencePathSha256": "6153692f446f351f67735e3af5720982002ab1ea6164f4a0d1d48b1bf6b2fdc4",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "445ddd85e2b3715c9d25d922b5b99dbc1c45c0a479d0ac8235685368f7e01eeb",
+    "generatorPathSha256": "f386f58997e62d36a1a6d3f6243ce80e22ca0cb2a9e28ba768e0e9570caee353",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "e0e59458aa5f5d3a759d38b349ac78847c442e1b112e98a633ea3c263dbfe585",
-    "baseEvidenceBytes": 40906,
-    "baseEvidenceSha256": "2c9bd92f4d31fd06628372a73b22051a01d2379ff1cf9cfe389d7db6290895a3",
+    "validatorPathSha256": "b9a0f4e20213aaceeb480e51dc219f9e2b043051dfcf97f7b46bd94fc3399134",
+    "baseEvidenceBytes": 41321,
+    "baseEvidenceSha256": "6153692f446f351f67735e3af5720982002ab1ea6164f4a0d1d48b1bf6b2fdc4",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -119,8 +119,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 140,
-      "sha256": "0c136194531a42a06bbfb1b98ee07c26d2f28eab18072475417694c002cc8a74"
+      "fileCount": 142,
+      "sha256": "d1b64009fcf0214c25c6b7fed18876917e2c95c6c550e33104d9a88c78e29b0d"
     }
   },
   "disposition": {
