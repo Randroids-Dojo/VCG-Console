@@ -1,0 +1,21 @@
+[package]
+name = "vcg-host-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+vcg-host = { path = ".." }
+
+[[bin]]
+name = "native_parser_boundaries"
+path = "fuzz_targets/native_parser_boundaries.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]

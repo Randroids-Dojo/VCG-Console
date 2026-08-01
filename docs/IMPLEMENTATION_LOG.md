@@ -7351,3 +7351,39 @@ hardware, protocol, threshold and authority binding in the plan.
 This refresh changes provenance identities only. It adds no physical TV,
 controller, room, camera, cable, lens, visual, depth, energy, radio, target or
 product evidence and does not alter any blocked plan's authority or result.
+
+## 2026-07-27: native parser coverage-guided fuzz smoke harness
+
+- Added `native/vcg-host/fuzz`, a detached cargo-fuzz crate pinned to
+  `libfuzzer-sys` 0.4.13, whose empty `[workspace]` table keeps it out of the
+  parent Cargo workspace and off the normal build and test path.
+- Bound one `native_parser_boundaries` target to ten pure, bounded native
+  parsers: accessibility preferences, update root anchors, detached
+  signatures, protected developer trust state, the developer registry loader,
+  protected package-generation, system-update and update-root state,
+  loopback-origin parsing and canonical SHA-256 parsing. The target performs
+  no filesystem or network mutation.
+- Tracked eight valid seed documents for schema-deep coverage and generated
+  four 1,025-, 4,097-, 16,385- and 32,769-byte inputs per run so every
+  declared parser-size boundary is crossed in the initial corpus.
+- Confined corpus, build target and crash artifacts to a `mktemp` scratch
+  directory removed by a pattern-guarded exit trap, so neither coverage
+  discoveries nor crash outputs can modify the repository.
+- Pinned reproducibility: cargo-fuzz 0.13.2, `nightly-2026-07-26`, fixed
+  mutation seed, 20,000 runs, 64 KiB maximum input and a two-second
+  per-input timeout under AddressSanitizer.
+- Added `scripts/run-native-parser-fuzz-smoke.sh` and an `.mjs` wrapper that
+  maps the repository root into WSL so the campaign runs from Windows.
+- Advanced I-142 from "coverage-guided fuzzing remains" to a recorded bounded
+  result and narrowed the open list.
+
+This is a bounded x86-64 Ubuntu WSL development smoke campaign only. It found
+no crash, timeout, sanitizer finding or Rust panic in the named pure
+boundaries. It is not target-process observation, a sustained or
+coverage-saturation campaign, or proof that every accepted document is
+semantically safe. Package and archive extraction, media and portrait
+decoders, filesystem race behavior, hostile browser navigation, native HTTP
+framing, signature authority, cryptographic correctness and ARM64/x86-64
+Linux targets remain unfuzzed; archive and decoder work stays blocked on a
+disposable sandbox that contains any write caused by a traversal or decoder
+defect.
