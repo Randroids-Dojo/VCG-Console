@@ -20,7 +20,7 @@
     {
       "role": "per-game-runtime-scorecard-and-zero-selection-boundary",
       "path": "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
-      "sha256": "2ff78c91f713c0cb4236ae8bb452def49570ff1661eb1f346daf36949df15505"
+      "sha256": "3cb74e2340f7ce32fd807160b5f6103450d79ef084b3d73ec0fb0ddc73b4d859"
     },
     {
       "role": "first-real-room-one-player-prerequisite-boundary",
@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "84e51cc1f119f1266cbb31c4afc04a96a199b9409b4d5ca3bc92fcd88caea6a6"
+      "sha256": "ce6a74cb735cd7c9f600c5a5ca7835f5774dbff13cd9d00a65abc9a26772a843"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -70,7 +70,7 @@
     {
       "role": "runtime-neutral-signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "fd5718d7afad04faf6acf9162e8bcaf099bf6e9186aa2be1c99afdfe834638f6"
+      "sha256": "d5978219a357c12d1cab6933c1936cdff504968f09f3e5b44ce43b07a3273749"
     },
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",

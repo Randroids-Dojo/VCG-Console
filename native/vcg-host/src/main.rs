@@ -1,9 +1,11 @@
 use std::env;
 use std::ffi::OsString;
+use std::fmt;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::str::FromStr;
 use std::time::Duration;
 
 use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
@@ -16,7 +18,9 @@ use vcg_host::package_generation::{
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::profile_registry::{HostProfileRegistry, MAX_PROFILE_REGISTRY_BYTES};
-use vcg_host::retroarch::{ExpectedSha256, RetroArchRequest, plan as plan_retroarch};
+use vcg_host::retroarch::{
+    ContentlessStart, ExpectedSha256, RetroArchRequest, plan as plan_retroarch,
+};
 use vcg_host::update_root_store::{
     MAX_PROTECTED_UPDATE_ROOT_STATE_BYTES, ProtectedUpdateRootState, RootAcceptance,
     UpdateRootStore, UpdateRootStoreConfig,
@@ -51,6 +55,7 @@ fn run(arguments: &[OsString]) -> Result<ExitCode, String> {
             println!("game-watchdog: heartbeat-and-bounded-restart");
             println!("retroarch-adapter: plan-and-direct-launch");
             println!("retroarch-integrity: sha256-required");
+            println!("retroarch-contentless-start: core-direct-default");
             println!("installed-catalog: ed25519-signed-target-qualified");
             println!("package-generations: protected-crash-recoverable-active-store");
             println!("native-launch: fixed-intent-process-lifecycle");
@@ -874,6 +879,11 @@ fn retroarch(arguments: &[OsString]) -> Result<ExitCode, String> {
         println!("saves: {}", plan.storage().saves.display());
         println!("states: {}", plan.storage().states.display());
         println!("contentless: {}", plan.contentless());
+        println!(
+            "contentless-start: {}",
+            plan.contentless_start()
+                .map_or("not-applicable", ContentlessStart::as_str)
+        );
         return Ok(ExitCode::SUCCESS);
     }
 
@@ -919,6 +929,7 @@ struct RetroArchOptions {
     base_config_sha256: Option<ExpectedSha256>,
     profile_id: Option<String>,
     game_id: Option<String>,
+    contentless_start: Option<ContentlessStart>,
 }
 
 fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest), String> {
@@ -973,6 +984,7 @@ fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest),
             game_id: options
                 .game_id
                 .ok_or_else(|| "retroarch requires --game".to_owned())?,
+            contentless_start: options.contentless_start,
         },
     ))
 }
@@ -1014,7 +1026,7 @@ fn parse_retroarch_option(
             required_path(arguments, *cursor, option)?,
             option,
         ),
-        "--frontend-sha256" => set_hash_option(
+        "--frontend-sha256" => set_parsed_option(
             &mut output.frontend_sha256,
             &required_text(arguments, *cursor, option)?,
             option,
@@ -1024,7 +1036,7 @@ fn parse_retroarch_option(
             required_path(arguments, *cursor, option)?,
             option,
         ),
-        "--core-sha256" => set_hash_option(
+        "--core-sha256" => set_parsed_option(
             &mut output.core_sha256,
             &required_text(arguments, *cursor, option)?,
             option,
@@ -1034,7 +1046,7 @@ fn parse_retroarch_option(
             required_path(arguments, *cursor, option)?,
             option,
         ),
-        "--content-sha256" => set_hash_option(
+        "--content-sha256" => set_parsed_option(
             &mut output.content_sha256,
             &required_text(arguments, *cursor, option)?,
             option,
@@ -1044,7 +1056,7 @@ fn parse_retroarch_option(
             required_path(arguments, *cursor, option)?,
             option,
         ),
-        "--base-config-sha256" => set_hash_option(
+        "--base-config-sha256" => set_parsed_option(
             &mut output.base_config_sha256,
             &required_text(arguments, *cursor, option)?,
             option,
@@ -1057,6 +1069,11 @@ fn parse_retroarch_option(
         "--game" => set_text_option(
             &mut output.game_id,
             required_text(arguments, *cursor, option)?,
+            option,
+        ),
+        "--contentless-start" => set_parsed_option(
+            &mut output.contentless_start,
+            &required_text(arguments, *cursor, option)?,
             option,
         ),
         value => Err(format!("unknown retroarch option: {value}")),
@@ -1087,13 +1104,14 @@ fn set_number_option(slot: &mut Option<u64>, value: u64, option: &str) -> Result
     }
 }
 
-fn set_hash_option(
-    slot: &mut Option<ExpectedSha256>,
-    value: &str,
-    option: &str,
-) -> Result<(), String> {
+/// Parses one option value and records it, rejecting a repeated option.
+fn set_parsed_option<T>(slot: &mut Option<T>, value: &str, option: &str) -> Result<(), String>
+where
+    T: FromStr,
+    T::Err: fmt::Display,
+{
     let value = value
-        .parse()
+        .parse::<T>()
         .map_err(|error| format!("{option}: {error}"))?;
     if slot.replace(value).is_some() {
         Err(format!("{option} may only be supplied once"))
@@ -1349,17 +1367,17 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>] [--contentless-start core|menu]"
         .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        LauncherCatalogOptions, LauncherCatalogSourceOptions, LauncherProfileSource,
-        LauncherUpdateTrustOptions, ProtectedUpdateRootState, UpdateRootOptions, current_target,
-        launcher_request, parse_update_root_option, plan_launcher, retroarch_request, supervise,
-        supervise_plan, watchdog_plan,
+        ContentlessStart, LauncherCatalogOptions, LauncherCatalogSourceOptions,
+        LauncherProfileSource, LauncherUpdateTrustOptions, ProtectedUpdateRootState,
+        UpdateRootOptions, current_target, launcher_request, parse_update_root_option,
+        plan_launcher, retroarch_request, supervise, supervise_plan, watchdog_plan,
     };
     use ed25519_dalek::{Signer, SigningKey};
     use std::ffi::OsString;
@@ -2158,6 +2176,58 @@ mod tests {
         assert_eq!(request.core_sha256.to_string(), hash);
         assert_eq!(request.base_config_sha256.to_string(), hash);
         assert!(request.content_sha256.is_none());
+        assert!(request.contentless_start.is_none());
+    }
+
+    #[test]
+    fn retroarch_parser_reads_the_contentless_start_policy() {
+        let hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        let base = |policy: &'static str| {
+            args(&[
+                "--dry-run",
+                "--install-root",
+                "/installed",
+                "--runtime-root",
+                "/runtime",
+                "--data-root",
+                "/data",
+                "--frontend",
+                "/installed/retroarch",
+                "--frontend-sha256",
+                hash,
+                "--core",
+                "/installed/core.so",
+                "--core-sha256",
+                hash,
+                "--base-config",
+                "/installed/base.cfg",
+                "--base-config-sha256",
+                hash,
+                "--profile",
+                "player-one",
+                "--game",
+                "retro-2048",
+                "--contentless-start",
+                policy,
+            ])
+        };
+        let (_, request) = retroarch_request(&base("menu")).expect("menu policy parses");
+        assert_eq!(request.contentless_start, Some(ContentlessStart::Menu));
+        let (_, request) = retroarch_request(&base("core")).expect("core policy parses");
+        assert_eq!(
+            request.contentless_start,
+            Some(ContentlessStart::CoreDirect)
+        );
+        assert!(retroarch_request(&base("Start Core")).is_err());
+        assert!(
+            retroarch_request(&args(&[
+                "--contentless-start",
+                "core",
+                "--contentless-start",
+                "menu"
+            ]))
+            .is_err()
+        );
     }
 
     #[test]

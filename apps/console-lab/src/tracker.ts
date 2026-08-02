@@ -5,6 +5,13 @@ import type {
   TrackerHealthReason,
   TrackerHealthStatus,
 } from "@vcg/motion-contract";
+import {
+  captureConstraints,
+  captureModeLabel,
+  describeCaptureMode,
+  type CaptureProfile,
+  type ObservedCaptureMode,
+} from "./capture-profile";
 import { FrameGate } from "./frame-gate";
 import { MAX_TRACKED_POSES, MediaPipeFrameAdapter } from "./mediapipe-adapter";
 import { trackerHealthFixture } from "./tracker-health";
@@ -20,6 +27,16 @@ interface TrackerCallbacks {
 
 function monotonicTimestampMs(): number {
   return performance.timeOrigin + performance.now();
+}
+
+/**
+ * Reads the mode the camera actually granted. `getSettings` is optional in
+ * practice, so an absent or partial result is reported as unknown rather than
+ * assumed to match the request.
+ */
+function readObservedCaptureMode(stream: MediaStream): ObservedCaptureMode | undefined {
+  const [track] = stream.getVideoTracks();
+  return typeof track?.getSettings === "function" ? track.getSettings() : undefined;
 }
 
 export class MediaPipeTracker {
@@ -54,7 +71,8 @@ export class MediaPipeTracker {
     return this.#frameGate.droppedFrames;
   }
 
-  async start(): Promise<void> {
+  /** Starts one camera session in the given capture mode. */
+  async start(captureProfile: CaptureProfile): Promise<void> {
     if (this.#running) return;
     this.#emitHealth(this.#attemptedStart ? "restarting" : "initializing");
     this.#attemptedStart = true;
@@ -66,18 +84,16 @@ export class MediaPipeTracker {
       throw error;
     }
 
-    this.callbacks.onStatus("requesting-camera", "Waiting for camera permission");
+    this.callbacks.onStatus(
+      "requesting-camera",
+      `Waiting for camera permission. ${captureModeLabel(captureProfile)} requested.`,
+    );
     try {
       this.#stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
-        video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          // Prefer the product target, but do not reject otherwise useful cameras.
-          // Qualification uses measured frame rate rather than a hard constraint.
-          frameRate: { ideal: 60 },
-          facingMode: "user",
-        },
+        // Ideal-only: prefer the selected mode, but do not reject otherwise
+        // usable cameras. Qualification uses the observed mode below.
+        video: captureConstraints(captureProfile),
       });
     } catch (error) {
       this.#emitHealth("camera-unavailable");
@@ -86,6 +102,7 @@ export class MediaPipeTracker {
     for (const track of this.#stream.getVideoTracks()) {
       track.addEventListener("ended", this.#handleCameraEnded, { once: true });
     }
+    const observedCaptureMode = readObservedCaptureMode(this.#stream);
     this.#video.srcObject = this.#stream;
     try {
       await this.#video.play();
@@ -105,7 +122,10 @@ export class MediaPipeTracker {
       ? "Pose inference is isolated from the console UI thread."
       : `Worker initialization failed; inference is using the main-thread fallback. ${this.#backendFallbackReason ?? "No worker error was reported."}`;
     this.#emitHealth(this.#backend === "worker" ? "healthy" : "fallback-backend");
-    this.callbacks.onStatus("running", `Camera frames stay local and are not displayed or recorded. ${isolation}`);
+    this.callbacks.onStatus(
+      "running",
+      `Camera frames stay local and are not displayed or recorded. ${isolation} ${describeCaptureMode(captureProfile, observedCaptureMode)}`,
+    );
     this.#scheduleFrame();
   }
 

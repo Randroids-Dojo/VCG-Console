@@ -66,7 +66,7 @@
     {
       "role": "one-player-lab-configuration-boundary",
       "path": "apps/console-lab/src/main.ts",
-      "sha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6"
+      "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
     }
   ],
   "prerequisiteGate": {

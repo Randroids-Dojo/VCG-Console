@@ -57,7 +57,17 @@ The direct command is a diagnostic adapter boundary. Normal launcher discovery b
 
 Package and content storage must be immutable to the launched runtime account between verification and use. File-descriptor-bound execution/content handoff or an equivalent target-Linux mount/package guarantee remains required to close the verification-to-use race under a compromised local account.
 
-The launch is a direct `Command`; no string is interpreted by a shell. The generated RetroArch arguments use an explicit base config, a console-generated append config, verbose diagnostics, exact core, and optional exact content. Contentless launch adds `--menu` because the official CLI requires a menu when no content is passed. One-action `Start Core` remains a qualification gate rather than an assumed behavior.
+The launch is a direct `Command`; no string is interpreted by a shell. The generated RetroArch arguments use an explicit base config, a console-generated append config, verbose diagnostics, exact core, and optional exact content.
+
+A contentless launch passes `-L <core>` and nothing else. RetroArch does not load the core named by `-L` when `--menu` is also present: it starts in the menu with its built-in dummy core, which is the recorded cause of the earlier `MAIN MENU > Start Core` stop. See [the 2026-07-31 start-policy observation](RETRO_CONTENTLESS_START_OBSERVATION_2026-07-31.md). The menu handoff remains available as an explicit CLI diagnostic:
+
+```sh
+vcg-host retroarch ... --contentless-start menu
+```
+
+`--contentless-start` accepts exactly `core` or `menu`, may be supplied once, and is rejected when the launch carries managed content. The signed installed-catalog path always uses the `core` default; the override cannot enter through a package. `--dry-run` reports the selection as `contentless-start:`.
+
+A core that requires content is expected to fail closed under the `core` default rather than fall back to a menu. That expectation is unverified. One-action playability — an observed, controllable game board on target hardware — remains a qualification gate rather than an assumed behavior.
 
 ## Storage boundary
 

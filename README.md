@@ -20,6 +20,12 @@ pnpm dev
 
 Open the printed local URL. The boot sequence resolves into the launcher; Motion opens the existing synthetic skeletal replay and camera lab. Select **Enable Pose Simulator** for deterministic camera-free keyboard/controller fixtures, or **Start Camera** to run the pinned MediaPipe model locally. Camera pixels are not displayed or written. **Export Skeleton Trace** is the only diagnostic export in this prototype.
 
+The camera is asked for the low-power 640x480 at 30 FPS mode by default, because browser pose inference on the Raspberry Pi 5 candidate runs on the CPU. Append `?capture=balanced` (1280x720 at 30) or `?capture=target` (1920x1080 at 60, the camera contract mode) to request a larger one. Every dimension is requested as `ideal`, and the running status line reports the requested mode alongside the mode the camera actually reported.
+
+To serve a built console instead of the dev server, use `pnpm serve`. It applies the same cross-origin isolation, CSP, and camera permission policy as the dev server; a plain static file server returns the same bytes without them and silently breaks threaded inference and the camera. `pnpm verify:console-headers` checks a running server and fails when the boundary is absent.
+
+For a first session on delivered Raspberry Pi hardware, follow [the day-one bring-up guide](docs/PI_DAY_ONE_BRINGUP.md) and its `scripts/pi/bootstrap.sh`.
+
 Useful verification commands:
 
 ```sh
@@ -27,6 +33,8 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:e2e
+pnpm serve
+pnpm verify:console-headers
 pnpm validate:benchmarks
 pnpm validate:manifests
 pnpm validate:schemas
@@ -53,6 +61,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Deny-by-default game permission model](docs/GAME_PERMISSION_MODEL.md)
 - [Canonical launcher catalog policy](docs/LAUNCHER_CATALOG_POLICY.md)
 - [Game trust tiers and admission lifecycle](docs/GAME_TRUST_TIERS.md)
+- [Raspberry Pi day-one bring-up guide](docs/PI_DAY_ONE_BRINGUP.md)
 - [Raspberry Pi 5 and AI HAT feasibility brief](docs/RASPBERRY_PI_AI_HAT.md)
 - [Hardware purchase ledger](docs/HARDWARE_PURCHASES.md)
 - [Quote-date reuse, Raspberry Pi, and premium hardware BOMs](docs/QUOTE_DATE_BOMS_2026-07-24.md)
@@ -118,6 +127,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Signed package generation-store contract](docs/PACKAGE_GENERATION_STORE.md)
 - [Package-generation protected-state adapter](docs/PACKAGE_GENERATION_PROTECTED_STATE.md)
 - [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
+- [Contentless RetroArch start-policy observation](docs/RETRO_CONTENTLESS_START_OBSERVATION_2026-07-31.md)
 - [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
 - [Windows x86-64 qualification result (2026-07-24)](docs/WINDOWS_QUALIFICATION_RESULT_2026-07-24.md)
 - [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)

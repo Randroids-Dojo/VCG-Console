@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 96,
-      "totalBytes": 897561,
+      "fileCount": 98,
+      "totalBytes": 905015,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -801,6 +801,16 @@
           "path": "apps/console-lab/src/camera-state.ts",
           "bytes": 3761,
           "sha256": "b83402f610f97195288af1a0bc0f443513c3b373d6d061735e7750c7e725fe09"
+        },
+        {
+          "path": "apps/console-lab/src/capture-profile.test.ts",
+          "bytes": 2711,
+          "sha256": "69670cd2cf142af3e8995122175d416154df3f63bdc4c29d4db62704604a8eb8"
+        },
+        {
+          "path": "apps/console-lab/src/capture-profile.ts",
+          "bytes": 3690,
+          "sha256": "db0a07d256f998c6d53d4e5e0268d30059f13b411eac5bf30d5988766a5bed53"
         },
         {
           "path": "apps/console-lab/src/frame-gate.test.ts",
@@ -1044,8 +1054,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 58599,
-          "sha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6"
+          "bytes": 58905,
+          "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1184,8 +1194,8 @@
         },
         {
           "path": "apps/console-lab/src/tracker.ts",
-          "bytes": 12659,
-          "sha256": "921ad16b2b133d6d9bb1a28ee7e58a56cadb31ee56cc0a10a5e24f06228d4a68"
+          "bytes": 13406,
+          "sha256": "46e0a312ce554398016d3e5ea7946d8d1f2c4ee49386493957b36ad1fe5d9919"
         },
         {
           "path": "apps/console-lab/src/visible-text.test.ts",
@@ -1324,12 +1334,12 @@
             {
               "path": "apps/console-lab/src/main.ts",
               "lines": [
-                138,
-                246,
+                139,
                 247,
-                792,
-                1143,
-                1147
+                248,
+                797,
+                1148,
+                1152
               ]
             },
             {

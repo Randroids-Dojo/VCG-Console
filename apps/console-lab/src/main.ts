@@ -28,6 +28,7 @@ import {
   cameraStatePresentation,
   type CameraSoftwareState,
 } from "./camera-state";
+import { captureProfileFromSearch } from "./capture-profile";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
@@ -416,6 +417,10 @@ const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"
 obstacle.start();
 obstacle.setPaused(true);
 paintLeaderboard();
+
+// `?capture=balanced|target` opts one session into a larger camera mode. The
+// default stays the low-power mode so a constrained tier is the normal case.
+const captureProfile = captureProfileFromSearch(window.location.search);
 
 const tracker = new MediaPipeTracker({
   onFrame(frame) {
@@ -1187,7 +1192,7 @@ cameraButton.addEventListener("click", async () => {
   exportButton.disabled = true;
   resetPlayerSession();
   try {
-    await tracker.start();
+    await tracker.start(captureProfile);
     replayButton.disabled = false;
   } catch (error) {
     const cameraState = cameraStateForStartFailure(error);

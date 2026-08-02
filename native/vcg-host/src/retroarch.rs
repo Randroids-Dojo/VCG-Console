@@ -68,6 +68,65 @@ impl fmt::Display for ExpectedSha256Error {
 
 impl std::error::Error for ExpectedSha256Error {}
 
+/// How a contentless libretro core reaches its first playable frame.
+///
+/// `RetroArch` treats `--menu` as "start in the menu"; a core passed with `-L`
+/// alongside `--menu` is not loaded at all, so the player lands on
+/// `MAIN MENU > Start Core` and must supply a second action. Omitting the flag
+/// makes `RetroArch` initialize the named core directly, which is the only
+/// one-action path for a core that declares `SET_SUPPORT_NO_GAME`.
+///
+/// A core that requires content fails closed under [`Self::CoreDirect`]
+/// instead of silently dropping the player into a menu.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum ContentlessStart {
+    /// Load the declared core immediately. The console default.
+    #[default]
+    CoreDirect,
+    /// Start in the `RetroArch` menu without loading the core. Diagnostic only.
+    Menu,
+}
+
+impl ContentlessStart {
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::CoreDirect => "core",
+            Self::Menu => "menu",
+        }
+    }
+}
+
+impl fmt::Display for ContentlessStart {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+impl FromStr for ContentlessStart {
+    type Err = ContentlessStartError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "core" => Ok(Self::CoreDirect),
+            "menu" => Ok(Self::Menu),
+            _ => Err(ContentlessStartError),
+        }
+    }
+}
+
+/// Invalid contentless-start policy text.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ContentlessStartError;
+
+impl fmt::Display for ContentlessStartError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("contentless start policy must be exactly \"core\" or \"menu\"")
+    }
+}
+
+impl std::error::Error for ContentlessStartError {}
+
 /// Trusted inputs resolved from an installed libretro manifest.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RetroArchRequest {
@@ -86,6 +145,11 @@ pub struct RetroArchRequest {
     pub auxiliary: Vec<RetroArchAuxiliaryArtifact>,
     pub profile_id: String,
     pub game_id: String,
+    /// Diagnostic override for the contentless start policy.
+    ///
+    /// `None` selects the console default. Declaring any policy alongside
+    /// managed content is rejected rather than ignored.
+    pub contentless_start: Option<ContentlessStart>,
 }
 
 /// One additional frontend runtime file bound by the signed installed catalog.
@@ -197,7 +261,7 @@ pub struct RetroArchPlan {
     storage: RetroArchStorage,
     sandbox: RetroSandboxPlan,
     generated_config: String,
-    contentless: bool,
+    contentless_start: Option<ContentlessStart>,
     materialized_artifacts: Vec<MaterializedArtifact>,
 }
 
@@ -222,9 +286,17 @@ impl RetroArchPlan {
         &self.generated_config
     }
 
+    /// A launch is contentless exactly when a start policy applies to it.
     #[must_use]
     pub fn contentless(&self) -> bool {
-        self.contentless
+        self.contentless_start.is_some()
+    }
+
+    /// The start policy applied to a contentless launch, or `None` when the
+    /// launch carries managed content.
+    #[must_use]
+    pub fn contentless_start(&self) -> Option<ContentlessStart> {
+        self.contentless_start
     }
 
     /// Creates private runtime/data directories and atomically publishes the
@@ -399,7 +471,8 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         &storage,
     )?;
 
-    let contentless = content.is_none();
+    let contentless_start =
+        resolve_contentless_start(content.is_some(), request.contentless_start)?;
     let generated_config = render_config(&storage);
     let mut arguments = vec![
         OsString::from("--config"),
@@ -412,11 +485,14 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
     ];
     if let Some(content) = content {
         arguments.push(content.into_os_string());
-    } else {
-        // Official CLI guidance requires --menu when no content is passed.
-        // The pinned core must still be qualified for one-action Start Core.
+    } else if contentless_start == Some(ContentlessStart::Menu) {
+        // Diagnostic handoff only. RetroArch does not load the core named by
+        // `-L` when `--menu` is present, so the player must still choose
+        // `Start Core` before any frame is produced.
         arguments.push(OsString::from("--menu"));
     }
+    // A contentless `CoreDirect` launch passes no trailing positional or menu
+    // argument: `-L <core>` alone makes RetroArch initialize the declared core.
 
     let launch = LaunchSpec::new(materialized_frontend)
         .map_err(|error| RetroArchError::LaunchPlan(error.to_string()))?
@@ -432,9 +508,23 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         storage,
         sandbox,
         generated_config,
-        contentless,
+        contentless_start,
         materialized_artifacts,
     })
+}
+
+/// Resolves the start policy for one launch. A policy declared alongside
+/// managed content is rejected rather than ignored, so a stale flag cannot
+/// silently mean nothing.
+fn resolve_contentless_start(
+    has_content: bool,
+    requested: Option<ContentlessStart>,
+) -> Result<Option<ContentlessStart>, RetroArchError> {
+    match (has_content, requested) {
+        (true, Some(_)) => Err(RetroArchError::UnexpectedContentlessStart),
+        (true, None) => Ok(None),
+        (false, selected) => Ok(Some(selected.unwrap_or_default())),
+    }
 }
 
 fn validate_runtime_name(name: &str) -> Result<(), RetroArchError> {
@@ -870,6 +960,7 @@ pub enum RetroArchError {
     MissingContentRoot,
     MissingContentHash,
     UnexpectedContentHash,
+    UnexpectedContentlessStart,
     UnsafeSandboxOverlap {
         first: PathBuf,
         second: PathBuf,
@@ -932,6 +1023,9 @@ impl fmt::Display for RetroArchError {
             Self::UnexpectedContentHash => {
                 formatter.write_str("contentless launch cannot declare a content SHA-256")
             }
+            Self::UnexpectedContentlessStart => formatter.write_str(
+                "a launch with managed content cannot declare a contentless start policy",
+            ),
             Self::UnsafeSandboxOverlap { first, second } => write!(
                 formatter,
                 "sandbox paths overlap unsafely: {} and {}",
@@ -986,8 +1080,8 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use super::{
-        ExpectedSha256, RetroArchAuxiliaryArtifact, RetroArchError, RetroArchRequest,
-        RetroSandboxAccess, RetroSandboxCapability, digest_file, plan,
+        ContentlessStart, ExpectedSha256, RetroArchAuxiliaryArtifact, RetroArchError,
+        RetroArchRequest, RetroSandboxAccess, RetroSandboxCapability, digest_file, plan,
     };
 
     struct Fixture {
@@ -1055,7 +1149,16 @@ mod tests {
                 auxiliary: Vec::new(),
                 profile_id: "player-one".to_owned(),
                 game_id: "test-game".to_owned(),
+                contentless_start: None,
             }
+        }
+
+        fn contentless_request(&self) -> RetroArchRequest {
+            let mut request = self.request();
+            request.content = None;
+            request.content_sha256 = None;
+            request.content_root = None;
+            request
         }
     }
 
@@ -1084,6 +1187,7 @@ mod tests {
         assert!(arguments.contains(&canonical_content.as_os_str()));
         assert!(!arguments.contains(&OsStr::new("--menu")));
         assert!(!plan.contentless());
+        assert_eq!(plan.contentless_start(), None);
         assert!(
             plan.storage()
                 .saves
@@ -1229,11 +1333,7 @@ mod tests {
     #[test]
     fn contentless_plan_exposes_no_content_store() {
         let fixture = Fixture::new();
-        let mut request = fixture.request();
-        request.content = None;
-        request.content_sha256 = None;
-        request.content_root = None;
-        let plan = plan(&request).expect("contentless plan");
+        let plan = plan(&fixture.contentless_request()).expect("contentless plan");
         assert!(
             !plan
                 .sandbox()
@@ -1282,19 +1382,62 @@ mod tests {
     }
 
     #[test]
-    fn contentless_core_uses_the_bounded_menu_handoff() {
+    fn contentless_core_starts_directly_without_a_menu_handoff() {
         let fixture = Fixture::new();
-        let mut request = fixture.request();
-        request.content = None;
-        request.content_sha256 = None;
-        request.content_root = None;
-        let plan = plan(&request).expect("contentless plan");
+        let plan = plan(&fixture.contentless_request()).expect("contentless plan");
         assert!(plan.contentless());
+        assert_eq!(plan.contentless_start(), Some(ContentlessStart::CoreDirect));
+        let arguments = plan.launch().arguments().collect::<Vec<_>>();
+        assert!(!arguments.contains(&OsStr::new("--menu")));
+        // `-L <core>` must be the final pair: no trailing positional content
+        // may be invented for a contentless core.
+        let canonical_core = fs::canonicalize(&fixture.core).expect("canonical core");
+        assert_eq!(arguments[arguments.len() - 2], OsStr::new("-L"));
+        assert_eq!(arguments[arguments.len() - 1], canonical_core.as_os_str());
+    }
+
+    #[test]
+    fn contentless_menu_policy_remains_available_for_diagnosis() {
+        let fixture = Fixture::new();
+        let mut request = fixture.contentless_request();
+        request.contentless_start = Some(ContentlessStart::Menu);
+        let plan = plan(&request).expect("contentless plan");
+        assert_eq!(plan.contentless_start(), Some(ContentlessStart::Menu));
         assert!(
             plan.launch()
                 .arguments()
                 .any(|argument| argument == OsStr::new("--menu"))
         );
+    }
+
+    #[test]
+    fn rejects_a_contentless_start_policy_on_a_content_launch() {
+        let fixture = Fixture::new();
+        let mut request = fixture.request();
+        request.contentless_start = Some(ContentlessStart::CoreDirect);
+        assert!(matches!(
+            plan(&request),
+            Err(RetroArchError::UnexpectedContentlessStart)
+        ));
+    }
+
+    #[test]
+    fn parses_only_the_two_declared_contentless_start_policies() {
+        assert_eq!(
+            "core".parse::<ContentlessStart>(),
+            Ok(ContentlessStart::CoreDirect)
+        );
+        assert_eq!(
+            "menu".parse::<ContentlessStart>(),
+            Ok(ContentlessStart::Menu)
+        );
+        assert_eq!(ContentlessStart::default(), ContentlessStart::CoreDirect);
+        for rejected in ["", "Core", "MENU", "core-direct", " core", "start"] {
+            assert!(
+                rejected.parse::<ContentlessStart>().is_err(),
+                "accepted an undeclared policy: {rejected}"
+            );
+        }
     }
 
     #[test]

@@ -472,6 +472,9 @@ impl TrustedPackageCatalog {
                     auxiliary,
                     profile_id: profile_id.to_owned(),
                     game_id: package.id.clone(),
+                    // Catalog-resolved launches always take the console default
+                    // start policy; the menu handoff stays a CLI-only diagnostic.
+                    contentless_start: None,
                 })))
             }
             InstalledRuntime::Native(native) => Ok(ResolvedPackage::Native(NativePackageRequest {

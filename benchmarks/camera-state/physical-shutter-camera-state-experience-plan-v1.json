@@ -38,7 +38,7 @@
     {
       "role": "motion-lab-camera-state-surface",
       "path": "apps/console-lab/src/main.ts",
-      "sha256": "eb27b400577f736e0c83e97bcd36a9f96133226ef6ee80f0982f20ddd6b1eee6"
+      "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
     },
     {
       "role": "motion-lab-camera-state-style",
@@ -58,17 +58,17 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "97e863b605c3f79112a2dc826ac41716f0aae5df8ed27ee9518ba9e57abc03f6"
+      "sha256": "e9171e624dfb835c2a2b9170f895a38bf86fdb8d476f9f903b62c7a543bff8fa"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "e3ba9d8c889b09395e753be47a77e1e7846fa8b1415555706206716f1f069610"
+      "sha256": "ffadd375fb690ede91ce38b5c61cbfac0e1afc859890aaeef15eab233a758728"
     },
     {
       "role": "idle-suspend-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "31af937413b02b916adedf946f01ee15f10fe52c9e4615a4641753e1c80af797"
+      "sha256": "640597aabd70c6627f3f7dd862e527912c5c42f78483d24c00553227f6b9d085"
     },
     {
       "role": "active-play-safety-boundary",

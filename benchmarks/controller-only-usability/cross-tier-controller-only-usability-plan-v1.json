@@ -35,27 +35,27 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "7af3fb3a9ee78a501cec02e406b22bc89501ad3d58d7d54a154be32e53180969"
+      "sha256": "9af9d55e89988ed6c0fad167955bdef54c144b3eb5484264be8ab70d7a319f27"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "8187bd70b5e6a7e6f29773a50137ea8a0acfdb1c55e65a3b21b7267127cfc419"
+      "sha256": "481f47e5a137e0fb1251db76256f9e82573d92513e47a50fe4eb59ca7fb4da9b"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "efa18bfae4b6cb0c9dc17db60a2440791fd8e5e8bda26e4e03bd2ea46e917c8f"
+      "sha256": "bde143e14c7afe1fb2c9b997a1a5b5b8ff07cdc6adac0e64c2871396efbf5768"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "08a8d8357d22809b2aa8feb28e51615b52b42c9d50367d4ac9ea3c5ec1fb178b"
+      "sha256": "fd958561319f8380e62024bac19802b9dba37f1095af1d89737872f2db034ae3"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "fd5718d7afad04faf6acf9162e8bcaf099bf6e9186aa2be1c99afdfe834638f6"
+      "sha256": "d5978219a357c12d1cab6933c1936cdff504968f09f3e5b44ce43b07a3273749"
     },
     {
       "role": "supervised-hosted-browser-containment-and-exit-boundary",

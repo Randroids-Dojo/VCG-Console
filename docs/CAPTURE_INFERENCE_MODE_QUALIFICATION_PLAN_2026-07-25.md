@@ -165,3 +165,19 @@ latency or action gate passed, or that a product default should change.
 
 Execution remains blocked on the decisions recorded in
 `OWNER_QUESTIONS_CAPTURE_INFERENCE_MODE_2026-07-25.md`.
+
+## Stale source binding — 2026-07-31
+
+`sourceBindings[3]` of the plan binds `apps/console-lab/src/tracker.ts`. That
+file changed when the console gained selectable capture profiles and a
+low-power default of 640x480 at 30 FPS
+(`apps/console-lab/src/capture-profile.ts`).
+
+The binding was deliberately left stale rather than refreshed. This campaign
+pre-registers exact capture modes, and the console no longer requests
+1920x1080 at 60 FPS unless a session asks for it, so the declared mode set and
+the comparison design must be re-read against the new tracker before the digest
+is refreshed. Refreshing the hash first would silently change what the campaign
+compares.
+
+`pnpm validate:capture-inference-mode` fails until that re-read is recorded.

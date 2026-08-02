@@ -192,3 +192,22 @@ The validator checks normalized source provenance, the closed schema, exact
 frontend/target/workload/scenario/action identities, matrix arithmetic, fixed
 and open gates, rights/package/save/authority/data boundaries, blockers,
 canonical JSON, strict UTF-8, and parser limits.
+
+## Stale source binding — 2026-07-31
+
+The plan binds `docs/RETROARCH_INTEGRATION.md`. That contract changed when the
+contentless launch policy stopped passing `--menu`: the host now loads the
+declared core directly, and the menu handoff became an explicit CLI-only
+diagnostic. See
+[the start-policy observation](RETRO_CONTENTLESS_START_OBSERVATION_2026-07-31.md).
+
+The binding was deliberately left stale rather than refreshed. The observation
+that established the new default is Windows x86-64 and log-level only, and this
+campaign owns the supervised-frontend qualification on both reference
+architectures. Whether one-action core-direct start becomes a required lane
+outcome — and whether a content-requiring core must be shown to fail closed
+rather than fall back to a menu — is a campaign design decision, not a digest
+refresh.
+
+`pnpm validate:supervised-libretro-qualification` fails until that decision is
+recorded.
