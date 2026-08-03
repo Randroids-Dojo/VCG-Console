@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import type { ChildProcess } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -72,6 +72,50 @@ function installedChromePath(): string | undefined {
   return candidates
     .filter((candidate): candidate is string => candidate !== undefined)
     .find(existsSync);
+}
+
+/**
+ * Runs the browser binary once and waits for it to exit, so the containment
+ * probes below do not pay first-launch cost inside their own bound.
+ *
+ * `probeHostedBrowserContainment` gives the browser
+ * `DEVTOOLS_ENDPOINT_TIMEOUT_MS` (10s) to write `DevToolsActivePort`. That is a
+ * supervision bound on an already-warm appliance, not a launch-latency budget
+ * for a cold continuous-integration host. On a cold Windows runner a first
+ * Chrome start exceeded it and failed two of four runs, always on the first
+ * probe. Paging the binary in first removes that variable; it does not relax
+ * the bound the probes are measured against, and every assertion still runs
+ * against a real browser.
+ *
+ * Failures here are deliberately ignored: this is a cache warm-up, and the
+ * probes themselves remain the assertion.
+ */
+async function warmBrowserBinary(browserPath: string): Promise<void> {
+  await new Promise<void>((resolve) => {
+    const settle = (): void => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const child = spawn(
+      browserPath,
+      [
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--dump-dom",
+        "about:blank",
+      ],
+      { stdio: "ignore" },
+    );
+    const timer = setTimeout(() => {
+      child.kill();
+      resolve();
+    }, 30_000);
+    timer.unref?.();
+    child.once("exit", settle);
+    child.once("error", settle);
+  });
 }
 
 function manifest(
@@ -829,9 +873,12 @@ describe("hosted browser process arguments", () => {
   const chrome = installedChromePath();
   it(
     "actively terminates real Chrome abuse and proves the exact liveness echo",
-    { skip: chrome === undefined, timeout: 60_000 },
+    // Warm-up plus four real browser launches. This is the harness budget for
+    // the whole test, not the supervision bound each probe is measured against.
+    { skip: chrome === undefined, timeout: 180_000 },
     async () => {
       assert.ok(chrome);
+      await warmBrowserBinary(chrome);
       const attempts = [
         ["foreign-navigation", "NAVIGATION_ORIGIN_DENIED"],
         ["popup", "POPUP_ATTEMPT"],
