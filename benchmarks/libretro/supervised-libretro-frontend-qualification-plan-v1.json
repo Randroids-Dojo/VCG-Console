@@ -15,7 +15,7 @@
     {
       "role": "implemented-supervised-retroarch-boundary-and-remaining-gates",
       "path": "docs/RETROARCH_INTEGRATION.md",
-      "sha256": "f6d2d9c006b8ef72ba7e909088b844c76cb79477bd151bcbeeabcc29864d2e1e"
+      "sha256": "ee88856cef6f7ccc2d6126b611c1cbd38c3dc16910d4690ab319f7874ebd56dd"
     },
     {
       "role": "starter-title-rights-and-artifact-candidate-screen",
@@ -50,12 +50,12 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "7af3fb3a9ee78a501cec02e406b22bc89501ad3d58d7d54a154be32e53180969"
+      "sha256": "bee2454824f983878668d4c6c76a4d7e9bbb8c0839cc9dcffc518198ff14fcb0"
     },
     {
       "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "fd5718d7afad04faf6acf9162e8bcaf099bf6e9186aa2be1c99afdfe834638f6"
+      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
     },
     {
       "role": "native-trust-loading-containment-retry-and-return-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "84e51cc1f119f1266cbb31c4afc04a96a199b9409b4d5ca3bc92fcd88caea6a6"
+      "sha256": "17e8f95c7f666a9bd853635bb049e472e01b784232ea637d44754172d0bcd46b"
     }
   ],
   "prerequisiteGate": {

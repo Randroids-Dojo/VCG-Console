@@ -541,7 +541,10 @@ struct InstalledPackage {
 
 #[derive(Clone, Debug)]
 enum InstalledRuntime {
-    Libretro(LibretroPackage),
+    // Boxed so the enum is not sized by its largest variant. `LibretroPackage`
+    // holds five `PathBuf`-bearing records, which on Windows (32-byte
+    // `PathBuf`) exceeds clippy's `large_enum_variant` threshold.
+    Libretro(Box<LibretroPackage>),
     Native(NativePackage),
 }
 
@@ -667,119 +670,162 @@ fn parse_installed_runtime(
     has_content_root: bool,
 ) -> Result<InstalledRuntime, CatalogError> {
     match runtime {
-        RuntimeKind::Libretro => {
-            if native.is_some() {
-                return Err(CatalogError::InvalidRecord(format!(
-                    "libretro package {package_id} has a native launch record"
-                )));
-            }
-            let libretro = libretro.ok_or_else(|| {
-                CatalogError::InvalidRecord(format!(
-                    "libretro package {package_id} is missing its launch record"
-                ))
-            })?;
-            validate_relative_file("frontend", &libretro.frontend.path)?;
-            validate_relative_file("core", &libretro.core.path)?;
-            validate_relative_file("base configuration", &libretro.base_config.path)?;
-            if libretro.auxiliary.len() > MAX_LIBRETRO_AUXILIARY_FILES {
-                return Err(CatalogError::InvalidRecord(format!(
-                    "libretro package {package_id} exceeds the {MAX_LIBRETRO_AUXILIARY_FILES} auxiliary-file limit"
-                )));
-            }
-            let mut artifact_paths = HashSet::from([
-                libretro.frontend.path.clone(),
-                libretro.core.path.clone(),
-                libretro.base_config.path.clone(),
-            ]);
-            let mut runtime_names = HashSet::new();
-            let mut auxiliary = Vec::with_capacity(libretro.auxiliary.len());
-            for file in libretro.auxiliary {
-                validate_relative_file("frontend auxiliary artifact", &file.path)?;
-                if !artifact_paths.insert(file.path.clone()) {
-                    return Err(CatalogError::InvalidRecord(format!(
-                        "libretro package {package_id} repeats artifact path {}",
-                        file.path.display()
-                    )));
-                }
-                if file.runtime_name.is_some() && qualification != Qualification::Development {
-                    return Err(CatalogError::InvalidRecord(format!(
-                        "libretro package {package_id} may use runtimeName only in the development channel"
-                    )));
-                }
-                if let Some(runtime_name) = file.runtime_name.as_deref() {
-                    validate_runtime_name(package_id, runtime_name)?;
-                }
-                let runtime_name = file.runtime_name.as_deref().unwrap_or_else(|| {
-                    file.path
-                        .file_name()
-                        .and_then(|name| name.to_str())
-                        .expect("validated relative artifact paths have a UTF-8 filename")
-                });
-                if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
-                    return Err(CatalogError::InvalidRecord(format!(
-                        "libretro package {package_id} repeats runtime filename {runtime_name}"
-                    )));
-                }
-                auxiliary.push(InstalledAuxiliary {
-                    file: InstalledFile {
-                        path: file.path,
-                        sha256: parse_hash("frontend auxiliary artifact", &file.sha256)?,
-                    },
-                    runtime_name: file.runtime_name,
-                });
-            }
-            let content = match libretro.content {
-                ContentDocument::None => None,
-                ContentDocument::Managed { path, sha256 } => {
-                    if !has_content_root {
-                        return Err(CatalogError::InvalidRecord(format!(
-                            "package {package_id} requires a content root"
-                        )));
-                    }
-                    validate_relative_file("content", &path)?;
-                    Some(ManagedContent {
-                        path,
-                        sha256: parse_hash("content", &sha256)?,
-                    })
-                }
-            };
-            Ok(InstalledRuntime::Libretro(LibretroPackage {
-                frontend: InstalledFile {
-                    path: libretro.frontend.path,
-                    sha256: parse_hash("frontend", &libretro.frontend.sha256)?,
-                },
-                core: InstalledFile {
-                    path: libretro.core.path,
-                    sha256: parse_hash("core", &libretro.core.sha256)?,
-                },
-                base_config: InstalledFile {
-                    path: libretro.base_config.path,
-                    sha256: parse_hash("base configuration", &libretro.base_config.sha256)?,
-                },
-                auxiliary,
-                content,
-            }))
+        RuntimeKind::Libretro => parse_libretro_runtime(
+            package_id,
+            qualification,
+            libretro,
+            native.as_ref(),
+            has_content_root,
+        ),
+        RuntimeKind::Native => parse_native_runtime(package_id, libretro.as_ref(), native),
+    }
+}
+
+fn parse_libretro_runtime(
+    package_id: &str,
+    qualification: Qualification,
+    libretro: Option<LibretroDocument>,
+    native: Option<&NativeDocument>,
+    has_content_root: bool,
+) -> Result<InstalledRuntime, CatalogError> {
+    if native.is_some() {
+        return Err(CatalogError::InvalidRecord(format!(
+            "libretro package {package_id} has a native launch record"
+        )));
+    }
+    let libretro = libretro.ok_or_else(|| {
+        CatalogError::InvalidRecord(format!(
+            "libretro package {package_id} is missing its launch record"
+        ))
+    })?;
+    validate_relative_file("frontend", &libretro.frontend.path)?;
+    validate_relative_file("core", &libretro.core.path)?;
+    validate_relative_file("base configuration", &libretro.base_config.path)?;
+    if libretro.auxiliary.len() > MAX_LIBRETRO_AUXILIARY_FILES {
+        return Err(CatalogError::InvalidRecord(format!(
+            "libretro package {package_id} exceeds the {MAX_LIBRETRO_AUXILIARY_FILES} auxiliary-file limit"
+        )));
+    }
+    let artifact_paths = HashSet::from([
+        libretro.frontend.path.clone(),
+        libretro.core.path.clone(),
+        libretro.base_config.path.clone(),
+    ]);
+    let auxiliary = parse_libretro_auxiliary(
+        package_id,
+        qualification,
+        libretro.auxiliary,
+        artifact_paths,
+    )?;
+    let content = parse_libretro_content(package_id, libretro.content, has_content_root)?;
+    Ok(InstalledRuntime::Libretro(Box::new(LibretroPackage {
+        frontend: InstalledFile {
+            path: libretro.frontend.path,
+            sha256: parse_hash("frontend", &libretro.frontend.sha256)?,
+        },
+        core: InstalledFile {
+            path: libretro.core.path,
+            sha256: parse_hash("core", &libretro.core.sha256)?,
+        },
+        base_config: InstalledFile {
+            path: libretro.base_config.path,
+            sha256: parse_hash("base configuration", &libretro.base_config.sha256)?,
+        },
+        auxiliary,
+        content,
+    })))
+}
+
+fn parse_libretro_auxiliary(
+    package_id: &str,
+    qualification: Qualification,
+    files: Vec<AuxiliaryDocument>,
+    mut artifact_paths: HashSet<PathBuf>,
+) -> Result<Vec<InstalledAuxiliary>, CatalogError> {
+    let mut runtime_names = HashSet::new();
+    let mut auxiliary = Vec::with_capacity(files.len());
+    for file in files {
+        validate_relative_file("frontend auxiliary artifact", &file.path)?;
+        if !artifact_paths.insert(file.path.clone()) {
+            return Err(CatalogError::InvalidRecord(format!(
+                "libretro package {package_id} repeats artifact path {}",
+                file.path.display()
+            )));
         }
-        RuntimeKind::Native => {
-            if libretro.is_some() {
+        if file.runtime_name.is_some() && qualification != Qualification::Development {
+            return Err(CatalogError::InvalidRecord(format!(
+                "libretro package {package_id} may use runtimeName only in the development channel"
+            )));
+        }
+        if let Some(runtime_name) = file.runtime_name.as_deref() {
+            validate_runtime_name(package_id, runtime_name)?;
+        }
+        let runtime_name = file.runtime_name.as_deref().unwrap_or_else(|| {
+            file.path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .expect("validated relative artifact paths have a UTF-8 filename")
+        });
+        if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
+            return Err(CatalogError::InvalidRecord(format!(
+                "libretro package {package_id} repeats runtime filename {runtime_name}"
+            )));
+        }
+        auxiliary.push(InstalledAuxiliary {
+            file: InstalledFile {
+                path: file.path,
+                sha256: parse_hash("frontend auxiliary artifact", &file.sha256)?,
+            },
+            runtime_name: file.runtime_name,
+        });
+    }
+    Ok(auxiliary)
+}
+
+fn parse_libretro_content(
+    package_id: &str,
+    content: ContentDocument,
+    has_content_root: bool,
+) -> Result<Option<ManagedContent>, CatalogError> {
+    match content {
+        ContentDocument::None => Ok(None),
+        ContentDocument::Managed { path, sha256 } => {
+            if !has_content_root {
                 return Err(CatalogError::InvalidRecord(format!(
-                    "native package {package_id} has a libretro launch record"
+                    "package {package_id} requires a content root"
                 )));
             }
-            let native = native.ok_or_else(|| {
-                CatalogError::InvalidRecord(format!(
-                    "native package {package_id} is missing its launch record"
-                ))
-            })?;
-            validate_relative_file("native executable", &native.executable.path)?;
-            Ok(InstalledRuntime::Native(NativePackage {
-                executable: InstalledFile {
-                    path: native.executable.path,
-                    sha256: parse_hash("native executable", &native.executable.sha256)?,
-                },
+            validate_relative_file("content", &path)?;
+            Ok(Some(ManagedContent {
+                path,
+                sha256: parse_hash("content", &sha256)?,
             }))
         }
     }
+}
+
+fn parse_native_runtime(
+    package_id: &str,
+    libretro: Option<&LibretroDocument>,
+    native: Option<NativeDocument>,
+) -> Result<InstalledRuntime, CatalogError> {
+    if libretro.is_some() {
+        return Err(CatalogError::InvalidRecord(format!(
+            "native package {package_id} has a libretro launch record"
+        )));
+    }
+    let native = native.ok_or_else(|| {
+        CatalogError::InvalidRecord(format!(
+            "native package {package_id} is missing its launch record"
+        ))
+    })?;
+    validate_relative_file("native executable", &native.executable.path)?;
+    Ok(InstalledRuntime::Native(NativePackage {
+        executable: InstalledFile {
+            path: native.executable.path,
+            sha256: parse_hash("native executable", &native.executable.sha256)?,
+        },
+    }))
 }
 
 fn validate_runtime_name(package_id: &str, name: &str) -> Result<(), CatalogError> {

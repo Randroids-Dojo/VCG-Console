@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "ce6a74cb735cd7c9f600c5a5ca7835f5774dbff13cd9d00a65abc9a26772a843"
+      "sha256": "17e8f95c7f666a9bd853635bb049e472e01b784232ea637d44754172d0bcd46b"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -70,7 +70,7 @@
     {
       "role": "runtime-neutral-signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "d5978219a357c12d1cab6933c1936cdff504968f09f3e5b44ce43b07a3273749"
+      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
     },
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",

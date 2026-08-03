@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 98,
-      "totalBytes": 905015,
+      "totalBytes": 905968,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1154,8 +1154,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 106155,
-          "sha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea"
+          "bytes": 107108,
+          "sha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1370,7 +1370,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "e2ac55b94c96c2b0aaedfc62f315780994300661d14db9bf0822649df66af1ea",
+    "stylePathSha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
