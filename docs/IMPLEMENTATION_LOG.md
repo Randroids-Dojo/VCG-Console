@@ -1,8 +1,37 @@
 # Implementation record
 
-Last updated: 2026-07-28
+Last updated: 2026-08-02
 
 This file records what has actually been built and verified. It does not convert desk evidence into Raspberry Pi, ordinary x86-64 Linux, SteamOS, real-room, or product qualification.
+
+## 2026-08-02: first Linux exercise, day-one bring-up repair, and continuous verification
+
+The repository had never been exercised on Linux and had no continuous
+integration. Running the complete pipeline on x86-64 Linux found four defects,
+all of which predated this work.
+
+- Fixed `scripts/pi/bootstrap.sh`, which aborted at the native host step. The crate gained a second binary in `c324fe8` without declaring `default-run`, so every documented `cargo run -p vcg-host -- ...` invocation was ambiguous. Eleven call sites across `README.md`, `native/vcg-host/README.md`, and `docs/WINDOWS_QUALIFICATION.md` were affected; one manifest key repairs all of them. The day-one Pi script had never completed.
+- Fixed a 720p launcher layout defect that overlapped critical text on Linux. `.home-view` gave its heading row a fixed `180px` minimum, which overrides the content-derived minimum and lets the row be sized smaller than the text it holds. The heading's trailing line then spilled into the destinations row. The defect existed on both platforms; only Linux font metrics wrapped `.destination small` to a second line, which took the remaining slack and turned the latent spill into a visible collision. The row minimum is now content-derived and the TV vertical rhythm scales with viewport height.
+- Fixed seven `clippy` findings under the workspace's opted-in `pedantic` lints. One, `large_enum_variant` on `InstalledRuntime`, was visible only on Windows: `PathBuf` is 32 bytes there against 24 on Linux, which pushed the variant gap across the 200-byte threshold. Four more were masked entirely, because the library failed first and the second binary never compiled.
+- Added `scripts/validate-source-bindings.mjs`. Each per-plan validator stops at its first mismatch, so a single drifted document hid every later drift, including drift in unrelated plans. Fourteen bindings had drifted without detection.
+
+Re-registered zero-result plan source bindings. Seventeen had drifted directly:
+fourteen undetected before this work, plus `apps/console-lab/src/styles.css`
+(two plans) and `native/vcg-host/src/installed_catalog.rs` (one plan), which
+this work changed. Because plans bind other plans, re-registering those
+propagated to 63 bindings over 10 passes before the repository reached a fixed
+point. All 551 bindings across 59 plans are now current. No physical result,
+threshold, gate, selection, authorization, or qualification field changed. The
+frozen `runtime-payload-scorecard-desk-baseline-v1.json` was deliberately left
+untouched: no script reads it, and it is a historical record.
+
+Added GitHub Actions covering Linux and Windows. Every defect above would have
+been caught before merge.
+
+Verification is desk and WSL2 only. The Logitech C920 was exercised through
+usbip and enumerated correctly under V4L2, but its frame rate over that
+transport is a property of USB-over-TCP, not of the camera, Linux, or the
+Raspberry Pi. Nothing here is a hardware qualification result.
 
 ## 2026-07-28: two-player identity and spectator-safe action isolation
 

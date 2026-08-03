@@ -1,4 +1,4 @@
-//! Machine-local package builder for the Windows x86_64 Retro 2048 candidate.
+//! Machine-local package builder for the Windows `x86_64` Retro 2048 candidate.
 
 use std::collections::BTreeMap;
 use std::env;
@@ -40,7 +40,8 @@ const FRONTEND_SHA256: &str = "81c11b6f24932bf7918f05eee8928035bff3887335fd2a081
 const CORE_SHA256: &str = "60227525eb9b222497dde0c6b8707876f6458e65675b9f24d91e333372bdc151";
 
 fn main() -> ExitCode {
-    match run(env::args_os().skip(1).collect()) {
+    let arguments: Vec<OsString> = env::args_os().skip(1).collect();
+    match run(&arguments) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("vcg-development-package: {error}");
@@ -49,7 +50,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn run(arguments: Vec<OsString>) -> Result<(), Box<dyn std::error::Error>> {
+fn run(arguments: &[OsString]) -> Result<(), Box<dyn std::error::Error>> {
     if env::consts::ARCH != "x86_64" || env::consts::OS != "windows" {
         return Err("this development package tool supports only x86_64-windows".into());
     }
@@ -144,7 +145,7 @@ struct Options {
 }
 
 impl Options {
-    fn parse(arguments: Vec<OsString>) -> Result<Self, Box<dyn std::error::Error>> {
+    fn parse(arguments: &[OsString]) -> Result<Self, Box<dyn std::error::Error>> {
         let mut values = BTreeMap::new();
         let mut cursor = 0;
         while cursor < arguments.len() {
@@ -466,6 +467,18 @@ struct PreparedRelease {
     auxiliary: Vec<(PathBuf, Option<String>)>,
 }
 
+/// Console-owned staging tree for one development release. Every path is
+/// created by `stage_release_tree`, so later stages never invent a location.
+struct StagedTree {
+    source: PathBuf,
+    install: PathBuf,
+    package_dir: PathBuf,
+    frontend: PathBuf,
+    core: PathBuf,
+    base_config: PathBuf,
+    auxiliary: Vec<(PathBuf, Option<String>)>,
+}
+
 fn prepare_release_source(
     options: &Options,
     paths: &DevelopmentPaths,
@@ -473,6 +486,33 @@ fn prepare_release_source(
     trust: &TrustMaterial,
     generation: u64,
 ) -> Result<PreparedRelease, Box<dyn std::error::Error>> {
+    let tree = stage_release_tree(options, paths, extraction)?;
+    let (manifest, frontend_hash, core_hash) = tree.write_package_manifest()?;
+    let (catalog, catalog_signatures) =
+        tree.write_signed_catalog(&manifest, &frontend_hash, &core_hash, trust, generation)?;
+    let (archive, descriptor, descriptor_signatures) =
+        tree.write_signed_descriptor(paths, &catalog, trust, generation)?;
+    Ok(PreparedRelease {
+        archive,
+        descriptor,
+        descriptor_signatures,
+        catalog,
+        catalog_signatures,
+        manifest,
+        frontend: tree.frontend,
+        core: tree.core,
+        base_config: tree.base_config,
+        auxiliary: tree.auxiliary,
+    })
+}
+
+/// Copies every upstream artifact into a fresh console-owned tree. Refuses to
+/// reuse an existing source directory so a stale build cannot be republished.
+fn stage_release_tree(
+    options: &Options,
+    paths: &DevelopmentPaths,
+    extraction: &Path,
+) -> Result<StagedTree, Box<dyn std::error::Error>> {
     let source = paths.build.join("release-source-1");
     if source.exists() {
         return Err(format!(
@@ -518,12 +558,29 @@ fn prepare_release_source(
     fs::copy(&options.base_config, &base_config)?;
     let notices = package_dir.join("THIRD_PARTY_NOTICES.txt");
     fs::copy(&options.notices, &notices)?;
-    auxiliary.push((notices.clone(), None));
+    auxiliary.push((notices, None));
     auxiliary.sort_by(|left, right| left.0.cmp(&right.0));
-    let manifest = package_dir.join("vcg-game.json");
-    let frontend_hash = digest_file(&frontend)?;
-    let core_hash = digest_file(&core)?;
-    let manifest_document = json!({
+    Ok(StagedTree {
+        source,
+        install,
+        package_dir,
+        frontend,
+        core,
+        base_config,
+        auxiliary,
+    })
+}
+
+impl StagedTree {
+    /// Writes the author-facing game manifest and returns it with the exact
+    /// frontend and core digests every later stage must reuse.
+    fn write_package_manifest(
+        &self,
+    ) -> Result<(PathBuf, String, String), Box<dyn std::error::Error>> {
+        let manifest = self.package_dir.join("vcg-game.json");
+        let frontend_hash = digest_file(&self.frontend)?;
+        let core_hash = digest_file(&self.core)?;
+        let manifest_document = json!({
         "schemaVersion": 1,
         "id": PACKAGE_ID,
         "version": PACKAGE_VERSION,
@@ -567,117 +624,133 @@ fn prepare_release_source(
             "controllerProfile": "gamepad",
             "saveNamespace": "retro-2048"
         }
-    });
-    fs::write(&manifest, serde_json::to_vec_pretty(&manifest_document)?)?;
-    let auxiliary_documents = auxiliary
-        .iter()
-        .map(|(path, runtime_name)| {
-            let mut document = json!({
-                "path": relative_slash(&install, path)?,
-                "sha256": digest_file(path)?,
-            });
-            if let Some(runtime_name) = runtime_name {
-                document["runtimeName"] = json!(runtime_name);
-            }
-            Ok(document)
-        })
-        .collect::<Result<Vec<Value>, Box<dyn std::error::Error>>>()?;
-    let catalog_document = json!({
-        "schemaVersion": 1,
-        "generation": generation,
-        "target": TARGET,
-        "packages": [{
-            "id": PACKAGE_ID,
-            "version": PACKAGE_VERSION,
-            "qualification": "development",
-            "runtime": "libretro",
-            "manifest": {
-                "path": relative_slash(&install, &manifest)?,
-                "sha256": digest_file(&manifest)?,
+        });
+        fs::write(&manifest, serde_json::to_vec_pretty(&manifest_document)?)?;
+        Ok((manifest, frontend_hash, core_hash))
+    }
+
+    /// Writes the installed catalog and its detached catalog-role signature.
+    fn write_signed_catalog(
+        &self,
+        manifest: &Path,
+        frontend_hash: &str,
+        core_hash: &str,
+        trust: &TrustMaterial,
+        generation: u64,
+    ) -> Result<(PathBuf, PathBuf), Box<dyn std::error::Error>> {
+        let install = &self.install;
+        let auxiliary_documents = self
+            .auxiliary
+            .iter()
+            .map(|(path, runtime_name)| {
+                let mut document = json!({
+                    "path": relative_slash(install, path)?,
+                    "sha256": digest_file(path)?,
+                });
+                if let Some(runtime_name) = runtime_name {
+                    document["runtimeName"] = json!(runtime_name);
+                }
+                Ok(document)
+            })
+            .collect::<Result<Vec<Value>, Box<dyn std::error::Error>>>()?;
+        let catalog_document = json!({
+            "schemaVersion": 1,
+            "generation": generation,
+            "target": TARGET,
+            "packages": [{
+                "id": PACKAGE_ID,
+                "version": PACKAGE_VERSION,
+                "qualification": "development",
+                "runtime": "libretro",
+                "manifest": {
+                    "path": relative_slash(install, manifest)?,
+                    "sha256": digest_file(manifest)?,
+                },
+                "libretro": {
+                    "frontend": {
+                        "path": relative_slash(install, &self.frontend)?,
+                        "sha256": frontend_hash,
+                    },
+                    "core": {
+                        "path": relative_slash(install, &self.core)?,
+                        "sha256": core_hash,
+                    },
+                    "baseConfig": {
+                        "path": relative_slash(install, &self.base_config)?,
+                        "sha256": digest_file(&self.base_config)?,
+                    },
+                    "auxiliary": auxiliary_documents,
+                    "content": { "mode": "none" },
+                },
+            }],
+        });
+        let catalog = self.source.join("installed-catalog.json");
+        let catalog_bytes = serde_json::to_vec_pretty(&catalog_document)?;
+        fs::write(&catalog, &catalog_bytes)?;
+        let catalog_signatures = self.source.join("installed-catalog.sig");
+        fs::write(
+            &catalog_signatures,
+            signature_bundle(
+                CATALOG_KEY_ID,
+                &trust
+                    .catalog_key
+                    .sign(&artifact_signing_message(
+                        UpdateArtifactKind::InstalledCatalog,
+                        &catalog_bytes,
+                    ))
+                    .to_bytes(),
+            )?,
+        )?;
+        Ok((catalog, catalog_signatures))
+    }
+
+    /// Packs the staged tree into a deterministic archive and writes the
+    /// release descriptor with its detached release-role signature.
+    fn write_signed_descriptor(
+        &self,
+        paths: &DevelopmentPaths,
+        catalog: &Path,
+        trust: &TrustMaterial,
+        generation: u64,
+    ) -> Result<(PathBuf, PathBuf, PathBuf), Box<dyn std::error::Error>> {
+        let archive = paths.build.join("retro-2048-development-1.tar");
+        let (expanded_bytes, file_count) = create_deterministic_tar(&self.source, &archive)?;
+        let descriptor_document = json!({
+            "schemaVersion": 1,
+            "generation": generation,
+            "target": TARGET,
+            "archive": {
+                "format": "tar",
+                "sha256": digest_file(&archive)?,
+                "sizeBytes": fs::metadata(&archive)?.len(),
             },
-            "libretro": {
-                "frontend": {
-                    "path": relative_slash(&install, &frontend)?,
-                    "sha256": frontend_hash,
-                },
-                "core": {
-                    "path": relative_slash(&install, &core)?,
-                    "sha256": core_hash,
-                },
-                "baseConfig": {
-                    "path": relative_slash(&install, &base_config)?,
-                    "sha256": digest_file(&base_config)?,
-                },
-                "auxiliary": auxiliary_documents,
-                "content": { "mode": "none" },
+            "expanded": { "sizeBytes": expanded_bytes, "fileCount": file_count },
+            "catalog": {
+                "sha256": digest_file(catalog)?,
+                "sizeBytes": fs::metadata(catalog)?.len(),
             },
-        }],
-    });
-    let catalog = source.join("installed-catalog.json");
-    let catalog_bytes = serde_json::to_vec_pretty(&catalog_document)?;
-    fs::write(&catalog, &catalog_bytes)?;
-    let catalog_signatures = source.join("installed-catalog.sig");
-    fs::write(
-        &catalog_signatures,
-        signature_bundle(
-            CATALOG_KEY_ID,
-            &trust
-                .catalog_key
-                .sign(&artifact_signing_message(
-                    UpdateArtifactKind::InstalledCatalog,
-                    &catalog_bytes,
-                ))
-                .to_bytes(),
-        )?,
-    )?;
-    let archive = paths.build.join("retro-2048-development-1.tar");
-    let (expanded_bytes, file_count) = create_deterministic_tar(&source, &archive)?;
-    let descriptor_document = json!({
-        "schemaVersion": 1,
-        "generation": generation,
-        "target": TARGET,
-        "archive": {
-            "format": "tar",
-            "sha256": digest_file(&archive)?,
-            "sizeBytes": fs::metadata(&archive)?.len(),
-        },
-        "expanded": { "sizeBytes": expanded_bytes, "fileCount": file_count },
-        "catalog": {
-            "sha256": digest_file(&catalog)?,
-            "sizeBytes": fs::metadata(&catalog)?.len(),
-        },
-    });
-    let descriptor = paths.build.join("retro-2048-development-1.release.json");
-    let descriptor_bytes = serde_json::to_vec_pretty(&descriptor_document)?;
-    fs::write(&descriptor, &descriptor_bytes)?;
-    let descriptor_signatures = paths
-        .build
-        .join("retro-2048-development-1.release.signatures.json");
-    fs::write(
-        &descriptor_signatures,
-        signature_bundle(
-            RELEASE_KEY_ID,
-            &trust
-                .release_key
-                .sign(&artifact_signing_message(
-                    UpdateArtifactKind::PackageRelease,
-                    &descriptor_bytes,
-                ))
-                .to_bytes(),
-        )?,
-    )?;
-    Ok(PreparedRelease {
-        archive,
-        descriptor,
-        descriptor_signatures,
-        catalog,
-        catalog_signatures,
-        manifest,
-        frontend,
-        core,
-        base_config,
-        auxiliary,
-    })
+        });
+        let descriptor = paths.build.join("retro-2048-development-1.release.json");
+        let descriptor_bytes = serde_json::to_vec_pretty(&descriptor_document)?;
+        fs::write(&descriptor, &descriptor_bytes)?;
+        let descriptor_signatures = paths
+            .build
+            .join("retro-2048-development-1.release.signatures.json");
+        fs::write(
+            &descriptor_signatures,
+            signature_bundle(
+                RELEASE_KEY_ID,
+                &trust
+                    .release_key
+                    .sign(&artifact_signing_message(
+                        UpdateArtifactKind::PackageRelease,
+                        &descriptor_bytes,
+                    ))
+                    .to_bytes(),
+            )?,
+        )?;
+        Ok((archive, descriptor, descriptor_signatures))
+    }
 }
 
 fn create_deterministic_tar(
@@ -768,7 +841,9 @@ fn verify_exact_file(
 fn digest_file(path: &Path) -> io::Result<String> {
     let mut file = File::open(path)?;
     let mut digest = Sha256::new();
-    let mut buffer = [0_u8; 64 * 1024];
+    // Heap-allocated: a 64 KiB stack buffer trips clippy's large-stack-arrays
+    // bound and risks the smaller default stacks on the target appliances.
+    let mut buffer = vec![0_u8; 64 * 1024];
     loop {
         let count = file.read(&mut buffer)?;
         if count == 0 {

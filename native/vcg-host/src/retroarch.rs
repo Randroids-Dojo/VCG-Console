@@ -375,90 +375,19 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         &base_config,
         &request.base_config_sha256,
     )?;
-    let mut auxiliary = Vec::with_capacity(request.auxiliary.len());
-    let frontend_runtime = request
-        .runtime_root
-        .join("retroarch")
-        .join(&request.profile_id)
-        .join(&request.game_id)
-        .join("frontend");
-    let frontend_name = frontend
-        .file_name()
-        .ok_or_else(|| RetroArchError::UnsafeConfigPath(frontend.clone()))?;
-    let materialized_frontend = frontend_runtime.join(frontend_name);
-    let mut materialized_artifacts = vec![MaterializedArtifact {
-        source: frontend.clone(),
-        destination: materialized_frontend.clone(),
-        sha256: request.frontend_sha256,
-    }];
-    let mut runtime_names =
-        std::collections::HashSet::from([frontend_name.to_string_lossy().to_ascii_lowercase()]);
-    for artifact in &request.auxiliary {
-        let path =
-            canonical_package_file("frontend auxiliary artifact", &artifact.path, &install_root)?;
-        verify_file_hash("frontend auxiliary artifact", &path, &artifact.sha256)?;
-        let runtime_name = artifact.runtime_name.as_deref().map_or_else(
-            || {
-                path.file_name()
-                    .map(|name| name.to_string_lossy().into_owned())
-                    .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.clone()))
-            },
-            |name| {
-                validate_runtime_name(name)?;
-                Ok(name.to_owned())
-            },
-        )?;
-        if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
-            return Err(RetroArchError::DuplicateRuntimeArtifact(runtime_name));
-        }
-        materialized_artifacts.push(MaterializedArtifact {
-            source: path.clone(),
-            destination: frontend_runtime.join(runtime_name),
-            sha256: artifact.sha256,
-        });
-        auxiliary.push(path);
-    }
-    let content = match (
-        &request.content,
-        &request.content_root,
-        &request.content_sha256,
-    ) {
-        (Some(path), Some(root), Some(expected)) => {
-            let root = canonical_directory("content root", root)?;
-            let path = canonical_managed_file("content", path, &root)?;
-            verify_file_hash("content", &path, expected)?;
-            Some(path)
-        }
-        (Some(_), None, _) => return Err(RetroArchError::MissingContentRoot),
-        (Some(_), Some(_), None) => return Err(RetroArchError::MissingContentHash),
-        (None, _, Some(_)) => return Err(RetroArchError::UnexpectedContentHash),
-        (None, _, None) => None,
-    };
+    let FrontendArtifacts {
+        materialized_frontend,
+        materialized_artifacts,
+        auxiliary,
+    } = plan_frontend_artifacts(request, &install_root, &frontend)?;
+    let content = resolve_content(request)?;
 
     let session = request
         .runtime_root
         .join("retroarch")
         .join(&request.profile_id)
         .join(&request.game_id);
-    let persistent = request
-        .data_root
-        .join("profiles")
-        .join(&request.profile_id)
-        .join("games")
-        .join(&request.game_id);
-    let storage = RetroArchStorage {
-        config: session.join("vcg-session.cfg"),
-        cache: session.join("cache"),
-        logs: session.join("logs"),
-        playlists: session.join("playlists"),
-        session: session.clone(),
-        saves: persistent.join("saves"),
-        states: persistent.join("states"),
-        remaps: persistent.join("remaps"),
-        screenshots: persistent.join("screenshots"),
-        system: persistent.join("system"),
-        core_options: persistent.join("config").join("retroarch-core-options.cfg"),
-    };
+    let storage = build_storage(request, &session);
     for path in storage_paths(&storage) {
         validate_config_path(path)?;
     }
@@ -511,6 +440,118 @@ pub fn plan(request: &RetroArchRequest) -> Result<RetroArchPlan, RetroArchError>
         contentless_start,
         materialized_artifacts,
     })
+}
+
+/// Console-owned frontend payload for one launch: the materialized frontend
+/// binary, every artifact that must be copied beside it, and the verified
+/// auxiliary sources.
+struct FrontendArtifacts {
+    materialized_frontend: PathBuf,
+    materialized_artifacts: Vec<MaterializedArtifact>,
+    auxiliary: Vec<PathBuf>,
+}
+
+/// Verifies each declared frontend artifact and assigns its exact runtime
+/// destination. Runtime filenames are compared case-insensitively so a
+/// case-only collision cannot silently overwrite a verified artifact.
+fn plan_frontend_artifacts(
+    request: &RetroArchRequest,
+    install_root: &Path,
+    frontend: &Path,
+) -> Result<FrontendArtifacts, RetroArchError> {
+    let mut auxiliary = Vec::with_capacity(request.auxiliary.len());
+    let frontend_runtime = request
+        .runtime_root
+        .join("retroarch")
+        .join(&request.profile_id)
+        .join(&request.game_id)
+        .join("frontend");
+    let frontend_name = frontend
+        .file_name()
+        .ok_or_else(|| RetroArchError::UnsafeConfigPath(frontend.to_path_buf()))?;
+    let materialized_frontend = frontend_runtime.join(frontend_name);
+    let mut materialized_artifacts = vec![MaterializedArtifact {
+        source: frontend.to_path_buf(),
+        destination: materialized_frontend.clone(),
+        sha256: request.frontend_sha256,
+    }];
+    let mut runtime_names =
+        std::collections::HashSet::from([frontend_name.to_string_lossy().to_ascii_lowercase()]);
+    for artifact in &request.auxiliary {
+        let path =
+            canonical_package_file("frontend auxiliary artifact", &artifact.path, install_root)?;
+        verify_file_hash("frontend auxiliary artifact", &path, &artifact.sha256)?;
+        let runtime_name = artifact.runtime_name.as_deref().map_or_else(
+            || {
+                path.file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .ok_or_else(|| RetroArchError::UnsafeConfigPath(path.clone()))
+            },
+            |name| {
+                validate_runtime_name(name)?;
+                Ok(name.to_owned())
+            },
+        )?;
+        if !runtime_names.insert(runtime_name.to_ascii_lowercase()) {
+            return Err(RetroArchError::DuplicateRuntimeArtifact(runtime_name));
+        }
+        materialized_artifacts.push(MaterializedArtifact {
+            source: path.clone(),
+            destination: frontend_runtime.join(runtime_name),
+            sha256: artifact.sha256,
+        });
+        auxiliary.push(path);
+    }
+    Ok(FrontendArtifacts {
+        materialized_frontend,
+        materialized_artifacts,
+        auxiliary,
+    })
+}
+
+/// Resolves managed content for one launch. A partial content declaration is
+/// rejected rather than silently dropped.
+fn resolve_content(request: &RetroArchRequest) -> Result<Option<PathBuf>, RetroArchError> {
+    match (
+        &request.content,
+        &request.content_root,
+        &request.content_sha256,
+    ) {
+        (Some(path), Some(root), Some(expected)) => {
+            let root = canonical_directory("content root", root)?;
+            let path = canonical_managed_file("content", path, &root)?;
+            verify_file_hash("content", &path, expected)?;
+            Ok(Some(path))
+        }
+        (Some(_), None, _) => Err(RetroArchError::MissingContentRoot),
+        (Some(_), Some(_), None) => Err(RetroArchError::MissingContentHash),
+        (None, _, Some(_)) => Err(RetroArchError::UnexpectedContentHash),
+        (None, _, None) => Ok(None),
+    }
+}
+
+/// Lays out the console-owned session and persistent storage for one profile
+/// and one retro title.
+fn build_storage(request: &RetroArchRequest, session: &Path) -> RetroArchStorage {
+    let persistent = request
+        .data_root
+        .join("profiles")
+        .join(&request.profile_id)
+        .join("games")
+        .join(&request.game_id);
+    RetroArchStorage {
+        config: session.join("vcg-session.cfg"),
+        cache: session.join("cache"),
+        logs: session.join("logs"),
+        playlists: session.join("playlists"),
+        session: session.to_path_buf(),
+        saves: persistent.join("saves"),
+        states: persistent.join("states"),
+        remaps: persistent.join("remaps"),
+        screenshots: persistent.join("screenshots"),
+        system: persistent.join("system"),
+        core_options: persistent.join("config").join("retroarch-core-options.cfg"),
+    }
 }
 
 /// Resolves the start policy for one launch. A policy declared alongside

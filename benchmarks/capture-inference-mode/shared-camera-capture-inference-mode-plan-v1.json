@@ -19,7 +19,7 @@
     },
     {
       "path": "apps/console-lab/src/tracker.ts",
-      "sha256": "921ad16b2b133d6d9bb1a28ee7e58a56cadb31ee56cc0a10a5e24f06228d4a68"
+      "sha256": "46e0a312ce554398016d3e5ea7946d8d1f2c4ee49386493957b36ad1fe5d9919"
     },
     {
       "path": "apps/console-lab/src/tracker-worker.ts",

@@ -69,23 +69,23 @@ const frozenScreenshots = Object.freeze({
   "720p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
-    bytes: 206995,
+    bytes: 206241,
     sha256:
-      "e39157e0ba8e61552a5f8a4fbe389899aaa31fc3cda7162139623d65112cd7c7",
+      "bb5f400dba380fa1c6b05b3898979333db0b321456579aee02efae74432bedc9",
   }),
   "1080p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
-    bytes: 296876,
+    bytes: 296543,
     sha256:
-      "09247f6667d6548f60c57657bc0e6ffbc2b044e32f03926268cd46d286205b16",
+      "741afc45bbe42e1c1067c409f746def0e0e0c691eea37384b44e36b3c986c19d",
   }),
   "4k": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
-    bytes: 752441,
+    bytes: 753082,
     sha256:
-      "0f6bffdbb9b0872252e67d530eaff09aaa4e5c72104378b1aaf4c0ee5a95525d",
+      "c1866951e2118d77df07b2a8fcd0d29323553847c868a6f2c19000f9a0b260d2",
   }),
 });
 const observationExpectations = Object.freeze({
@@ -125,8 +125,8 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-BF_D4jxM.js": 3,
-  "/assets/main-CDT6K0sT.css": 3,
+  "/assets/main-qWVNJvLq.js": 3,
+  "/assets/main-CH0z2Hrb.css": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
   "/assets/src-CYOVH8wV.js": 3,
   "/assets/synthetic-D3ZzT8jW.js": 3,

@@ -1,0 +1,192 @@
+name: CI
+
+# Every job below exists because something it checks reached `main` unnoticed.
+# The repository had no continuous integration until 2026-08-02; the first
+# Linux run of the existing suite found four defects, all merged directly to
+# `main`. See docs/IMPLEMENTATION_LOG.md for that record.
+#
+# Linux is the product target (Raspberry Pi 5 and ordinary x86-64 Linux).
+# Windows is the development host. Both are exercised because defects have been
+# found that are invisible on the other: a clippy lint that only fires where
+# `PathBuf` is 32 bytes, and a launcher layout collision that only appears
+# under Linux font metrics.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+
+jobs:
+  node:
+    name: node / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # `packageManager` in package.json pins the exact pnpm version.
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # prepare:assets fetches the pinned pose model and typeface by exact
+      # SHA-256, so a substituted upstream artifact fails here.
+      - name: Prepare pinned assets and generated sources
+        run: |
+          pnpm prepare:assets
+          pnpm prepare:catalog
+          pnpm prepare:schemas
+
+      # The generators are expected to be deterministic. A dirty tree here
+      # means generated output was committed stale, or differs by platform.
+      - name: Generated output is deterministic and committed
+        shell: bash
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated output differs from what is committed. Run the prepare scripts and commit the result."
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Includes validate:source-bindings, which catches a pre-registration
+      # plan whose bound documents changed after it was reviewed. Fourteen
+      # such bindings had drifted undetected before this check existed.
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Validate game manifests
+        run: pnpm validate:manifests
+
+  native:
+    name: native / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      # rust-toolchain.toml pins the channel and the clippy/rustfmt components.
+      - name: Show toolchain
+        run: |
+          rustup show active-toolchain
+          cargo --version
+          cargo clippy --version
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      # Runs on both platforms deliberately. `clippy::large_enum_variant` on
+      # InstalledRuntime fires only on Windows, where PathBuf is 32 bytes
+      # against 24 on Linux, which pushes the variant gap past the 200-byte
+      # threshold. A Linux-only lint job would not have seen it.
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace
+
+      # Guards the `default-run` manifest key. Without it, adding a second
+      # binary to the crate makes every documented `cargo run -p vcg-host`
+      # invocation ambiguous, which silently broke the Raspberry Pi day-one
+      # bring-up script and eleven documented commands.
+      - name: Host doctor responds
+        run: cargo run -q -p vcg-host -- doctor
+
+  e2e:
+    name: e2e / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare pinned assets and generated sources
+        run: |
+          pnpm prepare:assets
+          pnpm prepare:catalog
+          pnpm prepare:schemas
+
+      # playwright.config.ts pins `channel: "chrome"`, so the suite needs real
+      # Google Chrome rather than the bundled Chromium.
+      - name: Install Chrome for Playwright
+        run: pnpm --filter @vcg/console-lab exec playwright install --with-deps chrome
+
+      # The TV conformance suite measures real layout geometry. A 720p launcher
+      # text collision reached main because it only reproduced under Linux font
+      # metrics, which wrap a subtitle the Windows metrics fit on one line.
+      - name: End-to-end
+        run: pnpm test:e2e
+
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ matrix.os }}
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  pi-bringup:
+    name: pi bring-up script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Runs the operator-facing script itself rather than reimplementing its
+      # steps, so the script cannot rot while its individual commands pass. It
+      # installs dependencies, prepares assets, builds, builds and runs the
+      # native host, then proves the real preview server serves the browser
+      # boundary the camera path depends on.
+      #
+      # The script warns that a non-aarch64 host is not Raspberry Pi evidence.
+      # That warning is correct: this job proves the script runs, not that the
+      # Pi is qualified.
+      - name: scripts/pi/bootstrap.sh
+        run: scripts/pi/bootstrap.sh

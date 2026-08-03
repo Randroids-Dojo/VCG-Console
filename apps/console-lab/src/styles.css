@@ -483,7 +483,12 @@ a:focus-visible {
 
 .home-view {
   display: grid;
-  grid-template-rows: minmax(230px, 1fr) auto auto;
+  /* The heading row's minimum is its own content, not a fixed height: a fixed
+     minimum lets the row be sized smaller than the text it holds, which spills
+     the trailing line into the destinations below it. The destinations row is
+     the flexible one -- it carries slack above its own min-height floor, so it
+     absorbs the shortfall on short viewports instead of being overlapped. */
+  grid-template-rows: minmax(min-content, 1fr) auto auto;
 }
 
 .home-heading h1,
@@ -4892,7 +4897,23 @@ kbd {
   }
 
   .home-view {
-    grid-template-rows: minmax(180px, 1fr) auto auto;
+    grid-template-rows: minmax(min-content, 1fr) auto auto;
+  }
+
+  /* Vertical rhythm scales with viewport height. At 720p the fixed desktop
+     spacing consumed more than the home view had to give, so the heading's
+     trailing line was pushed into the destinations. These floors keep the
+     rhythm intact on tall displays and reclaim it on short ones. */
+  .home-view .view-kicker {
+    margin-bottom: clamp(6px, 1.1vh, 18px);
+  }
+
+  .home-view .home-heading > p:last-child {
+    margin-top: clamp(8px, 1.5vh, 24px);
+  }
+
+  .home-view .destination-action {
+    margin-top: clamp(8px, 1.5vh, 18px);
   }
 
   .destination {
@@ -4934,7 +4955,7 @@ kbd {
 
   .home-status {
     gap: clamp(18px, 2vw, 76px);
-    padding-top: clamp(12px, 2vh, 43px);
+    padding-top: clamp(8px, 1.1vh, 43px);
   }
 
   .launch-screen {

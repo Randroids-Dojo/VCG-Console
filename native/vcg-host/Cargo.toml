@@ -1,6 +1,10 @@
 [package]
 name = "vcg-host"
 description = "Native appliance host for VCG Console"
+# The crate ships a second binary (`vcg-development-package`), so every
+# documented `cargo run -p vcg-host -- ...` invocation is ambiguous without an
+# explicit default. The appliance host is the primary entry point.
+default-run = "vcg-host"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
