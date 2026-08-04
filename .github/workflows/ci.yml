@@ -70,7 +70,14 @@ jobs:
       # Includes validate:source-bindings, which catches a pre-registration
       # plan whose bound documents changed after it was reviewed. Fourteen
       # such bindings had drifted undetected before this check existed.
+      #
+      # The containment probes that launch real Chrome run on Linux only: on a
+      # cold Windows runner the first launch exceeded the supervisor's 10s
+      # DevTools bound and failed two of four runs. Everything else in this
+      # suite is pure computation and runs identically on both platforms.
       - name: Test
+        env:
+          VCG_SKIP_REAL_BROWSER_TESTS: ${{ matrix.os == 'windows-latest' && '1' || '' }}
         run: pnpm test
 
       - name: Build
@@ -118,13 +125,28 @@ jobs:
       - name: Host doctor responds
         run: cargo run -q -p vcg-host -- doctor
 
+  # Linux only, on purpose. Linux is the product target: the Raspberry Pi 5 and
+  # ordinary x86-64 Linux. This suite drives a real browser and measures live
+  # layout geometry, so it depends on real OS resources and is only as stable as
+  # the runner it lands on.
+  #
+  # Windows runs of it produced five spurious failures across this suite and the
+  # other real-resource tests -- a different test each time, every one passing on
+  # rerun -- and never once caught a defect that Linux did not. The one real
+  # layout defect found here, a 720p text collision, reproduced only under Linux
+  # font metrics and was caught by the Linux job. A required check that fails
+  # spuriously trains people to ignore it, which is worse than not having it.
+  #
+  # Windows keeps the deterministic checks: fmt, clippy, build, typecheck, and
+  # the computational test suite. That is where it earns its place -- the
+  # `large_enum_variant` divergence on InstalledRuntime is invisible on Linux.
   e2e:
     name: e2e / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
 
