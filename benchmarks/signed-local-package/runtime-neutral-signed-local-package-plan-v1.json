@@ -12,7 +12,7 @@
     {
       "role": "package-and-runtime-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "f4399e0ede0820bed240b523688663846a0e655fa1b0adac191dd2b9b9251a4f"
+      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
     },
     {
       "role": "public-game-manifest-contract",

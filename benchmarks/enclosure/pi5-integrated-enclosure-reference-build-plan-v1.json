@@ -40,12 +40,12 @@
     {
       "role": "integrated-fixed-axis-coverage-and-calibration-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "c563731efcc3974e91363241febcb9a221444e538c8ed25173c57366878f150f"
+      "sha256": "9386d34f3dd9dfabdd84ceb5e5e970dbc722b5984e88d04fc9339bf7f78217ac"
     },
     {
       "role": "camera-cable-routing-strain-relief-and-recovery-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "e07d96a33daac7518c3fecbd99ebf69843aed58a84c597b9e9ab347e372ba803"
+      "sha256": "ef70a17b31e3722803192dc22e9ec0d811d6c97d4544be3a6ad95e7fa6e0ce5d"
     },
     {
       "role": "enclosed-cooling-thermal-and-acoustic-boundary",
@@ -60,12 +60,12 @@
     {
       "role": "physical-shutter-indicator-idle-and-lifecycle-truth-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "ffbf849887114ed751067522f3f15d873e8005708999151b0ee546e2e13224fe"
+      "sha256": "a70e19bf2f1c383f0f23a16a7a8f602d89f96b249203dead78abc53b2dab4548"
     },
     {
       "role": "ordinary-fastener-camera-service-and-recalibration-boundary",
       "path": "benchmarks/camera-service/camera-replacement-recalibration-plan-v1.json",
-      "sha256": "f0ff8432565db214646d424da7d25b82c71de911c030cd7d12c146b2eaaf7323"
+      "sha256": "b28643f2e4e1a1649dd004204543654339b5363b8987512166762dc519afe3e4"
     },
     {
       "role": "pi-low-power-idle-wake-privacy-and-reliability-boundary",
@@ -75,17 +75,17 @@
     {
       "role": "complete-delivered-pi-cost-and-no-cost-rescue-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "6856174a14babaafa03aefe2ab5c3d64a8bf95621077033228fbca4dbb5c68ea"
+      "sha256": "237ec797dfb0652b1472ec3c7ff32c246f905fc8894c67e80e84f31a48dcce25"
     },
     {
       "role": "failure-critical-component-substitute-qualification-boundary",
       "path": "benchmarks/failure-critical-substitutes/cross-tier-failure-critical-substitute-plan-v1.json",
-      "sha256": "ac8051bf7daa1b21e051e2ceaa1ab02540b6a51f3ad26be41f1f75d952af05a9"
+      "sha256": "8bc24f1b24dbf751122f299eadc2e704ce683ab5e2301891134f1334b3777fa3"
     },
     {
       "role": "pi-safe-shutdown-storage-and-reserve-boundary",
       "path": "benchmarks/shutdown-reserve/pi5-shutdown-reserve-comparison-plan-v1.json",
-      "sha256": "0dee8e4b030d5c991bcf423116f20d2c2fd23a1ecfd79eee06b3165418a2a555"
+      "sha256": "df5f26c7bf44cad35d5e858833ff652d5d1d7f79ffac5eea33e41d0c3fca4f60"
     }
   ],
   "prerequisiteGate": {

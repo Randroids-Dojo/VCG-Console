@@ -32,12 +32,12 @@
     {
       "role": "cross-tier-product-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "8079dc0f768873d57c63306bc47295875e985b7126a1e0f7c944ee30dd2073ed"
+      "sha256": "5d2f92ff9807fa88c07f2d5eaeba79c7ff9d2ce35c26a031b6e5c2e33c404fee"
     },
     {
       "role": "complete-system-economics-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "6856174a14babaafa03aefe2ab5c3d64a8bf95621077033228fbca4dbb5c68ea"
+      "sha256": "237ec797dfb0652b1472ec3c7ff32c246f905fc8894c67e80e84f31a48dcce25"
     },
     {
       "role": "shared-camera-qualification-boundary",
@@ -67,7 +67,7 @@
     {
       "role": "camera-interconnect-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "e07d96a33daac7518c3fecbd99ebf69843aed58a84c597b9e9ab347e372ba803"
+      "sha256": "ef70a17b31e3722803192dc22e9ec0d811d6c97d4544be3a6ad95e7fa6e0ce5d"
     },
     {
       "role": "display-audio-power-recovery-boundary",

@@ -58,12 +58,12 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "c563731efcc3974e91363241febcb9a221444e538c8ed25173c57366878f150f"
+      "sha256": "9386d34f3dd9dfabdd84ceb5e5e970dbc722b5984e88d04fc9339bf7f78217ac"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "e07d96a33daac7518c3fecbd99ebf69843aed58a84c597b9e9ab347e372ba803"
+      "sha256": "ef70a17b31e3722803192dc22e9ec0d811d6c97d4544be3a6ad95e7fa6e0ce5d"
     },
     {
       "role": "idle-suspend-power-boundary",

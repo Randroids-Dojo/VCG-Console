@@ -37,7 +37,7 @@
     {
       "role": "jetson-plan-boundary",
       "path": "benchmarks/jetson/jetson-orin-nano-super-tensorrt-plan-v1.json",
-      "sha256": "dfc56a23f8c810d237581152e3a2f0a71fda36cffcaf5173d587f58cf3b95dd7"
+      "sha256": "cd04ce173887c4cfabed5e84fd8eaf9144c3e91ef9a22a870fb140f36f072bf7"
     },
     {
       "role": "ordinary-x86-boundary",
@@ -62,7 +62,7 @@
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "86d2e08b7694f4bb11bf96d7141df7ec7226d148370c4f347488e067a053ab7a"
+      "sha256": "c4bd9032eddcbc4d7a58e8c3beb9665577953c3364bdd02979987382427c7582"
     }
   ],
   "candidates": [
