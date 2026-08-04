@@ -164,6 +164,50 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  native-aarch64:
+    name: native / aarch64 cross
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+    steps:
+      - uses: actions/checkout@v4
+
+      # The Raspberry Pi 5 is aarch64 and nothing had ever compiled this crate
+      # for it: every other job builds x86-64, and scripts/pi/bootstrap.sh warns
+      # that a non-aarch64 host is not Raspberry Pi evidence. A target that only
+      # fails when the hardware is on the desk is a target nobody checked.
+      - name: Add the aarch64 target and cross linker
+        run: |
+          rustup target add aarch64-unknown-linux-gnu
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: aarch64
+
+      # --all-targets compiles the test code for aarch64 too, so a target-only
+      # compile error in a test is caught without running anything.
+      - name: Clippy for aarch64
+        run: cargo clippy --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
+
+      # Linking is the part `cargo check` cannot prove, and a missing or
+      # incompatible target library shows up only here.
+      - name: Link for aarch64
+        run: cargo build --target aarch64-unknown-linux-gnu -p vcg-host
+
+      - name: Artifact really is aarch64
+        run: |
+          file target/aarch64-unknown-linux-gnu/debug/vcg-host
+          file target/aarch64-unknown-linux-gnu/debug/vcg-host | grep -q 'ARM aarch64'
+
+      # Deliberately no `cargo test` here. Under qemu-user the suite fails 17 of
+      # 393 tests, all of them in child-process supervision and journal file
+      # locking, which the emulator does not reproduce faithfully -- a test that
+      # re-executes itself cannot exec an aarch64 child on an x86-64 kernel.
+      # Emulated results would be noise, not evidence. The suite runs natively
+      # on the Pi during bring-up; see docs/PI_DAY_ONE_BRINGUP.md.
+
   pi-bringup:
     name: pi bring-up script
     runs-on: ubuntu-latest
