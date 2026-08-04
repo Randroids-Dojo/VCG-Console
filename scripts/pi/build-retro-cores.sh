@@ -115,7 +115,22 @@ for entry in "${CORES[@]}"; do
   echo
   echo "== ${id} =="
 
-  if [ -n "${deps}" ] && ! have_zlib_for_target; then
+  # Dispatch on the declared dependency rather than assuming it is zlib: the
+  # field is generic, so a future core declaring something else must not be
+  # silently checked for the wrong library.
+  dep_ok=1
+  case "${deps}" in
+    "") ;;
+    zlib1g-dev) have_zlib_for_target || dep_ok=0 ;;
+    *)
+      echo "  SKIP: this recipe has no probe for the declared dependency '${deps}'." >&2
+      echo "        Add one rather than letting the build fail at its link step." >&2
+      skipped=$((skipped + 1))
+      continue
+      ;;
+  esac
+
+  if [ "${dep_ok}" -eq 0 ]; then
     # A missing development library is a declared dependency, not a build
     # defect: snes9x compiles -DUNZIP_SUPPORT, bundles no zlib, and links -lz.
     #

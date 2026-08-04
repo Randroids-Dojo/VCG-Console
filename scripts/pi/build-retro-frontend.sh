@@ -32,18 +32,28 @@ RA_BYTES="13564476"
 # Discovered empirically by building this exact release, not copied from a wiki.
 # The build reached its link step and failed only on libx11-xcb-dev, so that
 # package is required and not optional.
-BUILD_DEPS="pkg-config libsdl2-dev libgl1-mesa-dev libasound2-dev libx11-xcb-dev zlib1g-dev"
+BUILD_DEPS="pkg-config libsdl2-dev libasound2-dev libx11-xcb-dev zlib1g-dev"
+
+# The GPU development headers differ by target and only one is needed. A
+# Raspberry Pi provides GLES; an x86-64 desktop provides desktop GL. Requiring
+# the desktop package by name would refuse to run on the very target this recipe
+# exists for.
+BUILD_DEPS_GPU_ANY_OF="libgl1-mesa-dev libgles2-mesa-dev"
 
 # A deliberately small console profile. Qt is a desktop UI this appliance never
 # shows, and the glslang and Vulkan tool stacks pull in a large dependency set
 # for shader features the Pi profile does not use.
+#
+# Wayland is deliberately NOT disabled. Raspberry Pi OS defaults to a Wayland
+# session, so forcing it off could leave the frontend unable to present in the
+# operator's actual session. configure detects it and disables it on its own when
+# the libraries are absent, which is what happens on a host without them.
 CONFIGURE_FLAGS=(
   --disable-qt
   --disable-cg
   --disable-discord
   --disable-cheevos
   --disable-vulkan
-  --disable-wayland
   --enable-sdl2
   --enable-alsa
 )
@@ -75,16 +85,35 @@ for tool in curl tar make sha256sum cc; do
   command -v "$tool" >/dev/null 2>&1 || { echo "Missing prerequisite: $tool" >&2; exit 1; }
 done
 
-missing=""
-for dep in ${BUILD_DEPS}; do
-  dpkg-query -W -f='${Status}' "${dep}" 2>/dev/null | grep -q "install ok installed" || missing="${missing} ${dep}"
-done
-if [ -n "${missing}" ]; then
-  echo "Missing build dependencies:${missing}" >&2
-  echo "Install them with: sudo apt-get install -y${missing}" >&2
-  echo "On a Raspberry Pi the GPU stack is GLES rather than desktop GL, so" >&2
-  echo "libgles2-mesa-dev may be required in place of libgl1-mesa-dev." >&2
-  exit 1
+installed() {
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
+}
+
+if command -v dpkg-query >/dev/null 2>&1; then
+  missing=""
+  for dep in ${BUILD_DEPS}; do
+    installed "${dep}" || missing="${missing} ${dep}"
+  done
+
+  gpu_ok=0
+  for dep in ${BUILD_DEPS_GPU_ANY_OF}; do
+    installed "${dep}" && gpu_ok=1
+  done
+
+  if [ -n "${missing}" ] || [ "${gpu_ok}" -eq 0 ]; then
+    echo "Missing build dependencies." >&2
+    [ -n "${missing}" ] && echo "  required:${missing}" >&2
+    if [ "${gpu_ok}" -eq 0 ]; then
+      echo "  GPU headers: one of ${BUILD_DEPS_GPU_ANY_OF}" >&2
+      echo "    Raspberry Pi OS provides GLES: libgles2-mesa-dev" >&2
+      echo "    x86-64 desktops provide desktop GL: libgl1-mesa-dev" >&2
+    fi
+    exit 1
+  fi
+else
+  # Not a dpkg system. Let configure be the authority rather than guessing at
+  # another package manager's names.
+  echo "note: dpkg-query absent; skipping the dependency precheck." >&2
 fi
 
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/vcg-retro-frontend.XXXXXX")"

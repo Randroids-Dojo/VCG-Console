@@ -245,6 +245,15 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      # The operator-facing recipes are shell, and the retro build recipes are
+      # not run in CI because they depend on upstream archive availability. This
+      # lint is the part that can be checked deterministically with no network,
+      # so a quoting or word-splitting defect cannot reach the Raspberry Pi
+      # unreviewed. All three scripts are clean at --severity=style; keep them
+      # that way rather than lowering the bar.
+      - name: Lint the operator scripts
+        run: shellcheck --severity=style scripts/pi/*.sh
+
       # Runs the operator-facing script itself rather than reimplementing its
       # steps, so the script cannot rot while its individual commands pass. It
       # installs dependencies, prepares assets, builds, builds and runs the
