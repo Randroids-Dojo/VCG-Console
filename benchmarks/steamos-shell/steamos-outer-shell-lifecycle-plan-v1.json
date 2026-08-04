@@ -55,7 +55,7 @@
     {
       "role": "steam-input-campaign-plan",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "22c1347e6a43c9d6186188735170987d988bba90dda2fc88bd1e4fc0ed91563e"
+      "sha256": "0bf32578b5afe3f7401582ecee1c46ee3a01f82144a7c87115b32ad4b34aa050"
     },
     {
       "role": "steamos-update-safe-content-campaign",

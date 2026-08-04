@@ -32,7 +32,7 @@
     {
       "role": "steamos-camera-plan",
       "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
-      "sha256": "05c49403b008ab9f3244593bb5ff1931a8ca3d06b50c1d8867dccf87d09a36dc"
+      "sha256": "89f7e17e7a118f6965ff2ad8f5b1f9961f99367ed906ef4b01a48b5564324441"
     },
     {
       "role": "standard-concurrent-workload-campaign",

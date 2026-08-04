@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "ab6467924c1f6979de56d2fb13c60233016bb01a40efd9817e1b066b8a2d260e"
+      "sha256": "9798e28f1ceae0893b06253dea467ee210a61ba76e7a70d0cf170862b44b772f"
     }
   ],
   "targetTiers": [

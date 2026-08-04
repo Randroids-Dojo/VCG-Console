@@ -75,17 +75,17 @@
     {
       "role": "complete-delivered-pi-cost-and-no-cost-rescue-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "b19b89e7f4fb3672ddab32b078cd3d39ff4f1b14a703386f8cd38bd92729cdd3"
+      "sha256": "0729111803a68aa5de936f9e364d91bfba09907891ee1f0d19a49127b2c412e7"
     },
     {
       "role": "failure-critical-component-substitute-qualification-boundary",
       "path": "benchmarks/failure-critical-substitutes/cross-tier-failure-critical-substitute-plan-v1.json",
-      "sha256": "2ea074a3f11ce4337b7b0d2ee691e92a0a598e2c5cebb44a899589ce280e2811"
+      "sha256": "47dc2199eb58c38ea4a73e6a30d9b343a99fe10dd09911cd04dced300cb5e684"
     },
     {
       "role": "pi-safe-shutdown-storage-and-reserve-boundary",
       "path": "benchmarks/shutdown-reserve/pi5-shutdown-reserve-comparison-plan-v1.json",
-      "sha256": "3be892b7c25f43a091872f9ee074a5d0a5abede132c8e8cbe431c388a85f0406"
+      "sha256": "84ed0bef000a3f9f54a14e0683c1eb2b23804cf6ffcf88ac342730747453c7db"
     }
   ],
   "prerequisiteGate": {

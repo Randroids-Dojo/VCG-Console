@@ -66,7 +66,7 @@
     {
       "role": "pi5-complete-product-cost-and-latency-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "28027ef1b842e26f85dcb9e2584f828ce7954b3e0e57ff0d72c726177c94401f"
+      "sha256": "5e8cee66892937a5a0cac2ba5aeae279fc6b2765a16bc4cfbe2bb1ab57f1f8e1"
     }
   ],
   "triggerPolicy": {

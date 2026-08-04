@@ -66,6 +66,7 @@ The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proo
 - [Hardware purchase ledger](docs/HARDWARE_PURCHASES.md)
 - [Quote-date reuse, Raspberry Pi, and premium hardware BOMs](docs/QUOTE_DATE_BOMS_2026-07-24.md)
 - [Low-power x86 mini-PC comparator](docs/X86_MINI_PC_COMPARATOR_2026-07-24.md)
+- [Camera purchase derisk and return-window plan](docs/CAMERA_PURCHASE_DERISK_2026-07-26.md)
 - [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
 - [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
 - [First implementation record](docs/IMPLEMENTATION_LOG.md)

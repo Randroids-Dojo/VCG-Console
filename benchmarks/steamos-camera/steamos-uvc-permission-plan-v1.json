@@ -22,7 +22,7 @@
     {
       "role": "flatpak-source-register",
       "path": "docs/SOURCES.md",
-      "sha256": "fba960847a8616ba66dddeac4b8650c9ddcfdab09b85553eeaff240ab1474b79"
+      "sha256": "40c3629666107abc3999dd7b4539117df02bf2afcd03c1ee5d76c0e5950227a3"
     },
     {
       "role": "steamos-update-safe-content-campaign",

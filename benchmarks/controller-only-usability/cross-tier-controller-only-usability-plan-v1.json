@@ -35,7 +35,7 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "bee2454824f983878668d4c6c76a4d7e9bbb8c0839cc9dcffc518198ff14fcb0"
+      "sha256": "4245614516469ada878d1137a1bfb5611f23ebaf802311b53e51911545c65061"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
@@ -45,7 +45,7 @@
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "e75bda583a8f313aa1c598c122d5a8568eb43e870e3191c0d64d78d87c47a90b"
+      "sha256": "a3399d47ebdf7ba13b7c1a98c4730009c9afe6952e121f0f3a797db550aa5aef"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",

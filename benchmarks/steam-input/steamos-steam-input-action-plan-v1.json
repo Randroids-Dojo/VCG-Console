@@ -22,7 +22,7 @@
     {
       "role": "official-source-registry",
       "path": "docs/SOURCES.md",
-      "sha256": "fba960847a8616ba66dddeac4b8650c9ddcfdab09b85553eeaff240ab1474b79"
+      "sha256": "40c3629666107abc3999dd7b4539117df02bf2afcd03c1ee5d76c0e5950227a3"
     },
     {
       "role": "canonical-mapping-boundary",
@@ -67,7 +67,7 @@
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "ab6467924c1f6979de56d2fb13c60233016bb01a40efd9817e1b066b8a2d260e"
+      "sha256": "9798e28f1ceae0893b06253dea467ee210a61ba76e7a70d0cf170862b44b772f"
     },
     {
       "role": "accountless-offline-boundary",

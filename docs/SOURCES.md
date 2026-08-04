@@ -1,6 +1,6 @@
 # Research source ledger
 
-Last updated: 2026-07-24
+Last updated: 2026-07-26
 
 Prefer primary project repositories, official documentation, standards, and official lifecycle notices. Product claims are candidates for local measurement, not substitutes for it.
 
@@ -40,6 +40,8 @@ Prefer primary project repositories, official documentation, standards, and offi
 | Source | Relevant evidence |
 |---|---|
 | [Raspberry Pi Camera Module 3](https://www.raspberrypi.com/products/camera-module-3/) | Wide model lists 120-degree diagonal field of view, autofocus, 1080p50, libcamera support, and production lifetime to at least January 2030. |
+| [ELP AR0234 global-shutter USB camera](https://www.alibaba.com/product-detail/ELP-1080P-Global-Shutter-USB-Camera_1600956611041.html) | Manufacturer marketplace quote for a 2.3MP AR0234, Linux UVC, global-shutter module advertised at 1920x1080 or 1920x1200 at 90 FPS with a 120-degree lens. The 2026-07-26 single-unit listing was about $75 to $80 before tax or import charges. Every claim, exact lens, revision, delivered cost, and return policy remains subject to written confirmation and local qualification. |
+| [ELP AR0234 lens and trigger options](https://www.svpro.cc/product/elp-120fps-90fps-global-shutter-usb-camera-module-support-external-triggeruvc-software-trigger-no-distortion-85-degree-lens-mini-usb2-0-webcam-module/) | Vendor page lists 68, 85, 101, 112, and 126-degree lens options, 3.0 micrometer pixels, Linux/Raspberry Pi UVC, and 1080p90 MJPEG. Field-of-view orientation and delivered lens must be confirmed rather than inferred from the option name. |
 | [Raspberry Pi AI HAT+ documentation](https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html) | Official integration and 13/26/40 TOPS product-family documentation. |
 | [AI HAT+ product brief](https://datasheets.raspberrypi.com/ai-hat-plus/raspberry-pi-ai-hat-plus-product-brief.pdf) | Official 13 TOPS and 26 TOPS pricing and hardware overview at publication. Re-quote at purchase. |
 | [Raspberry Pi AI HAT documentation](https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html) | Current comparison of Hailo-8L 13 TOPS, Hailo-8 26 TOPS, and Hailo-10H 40 TOPS, including host versus on-board memory, camera integration, mounting, and cooling. |

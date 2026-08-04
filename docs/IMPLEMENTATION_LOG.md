@@ -7381,6 +7381,31 @@ This refresh changes provenance identities only. It adds no physical TV,
 controller, room, camera, cable, lens, visual, depth, energy, radio, target or
 product evidence and does not alter any blocked plan's authority or result.
 
+## 2026-07-26: camera purchase derisk and optical preflight
+
+### Delivered
+
+- A dependency-free `scripts/camera-optics.mjs` command computes the minimum horizontal and vertical field-of-view envelope from camera height, near/far player distance, zone width, lateral margin, blocking player height, and headroom.
+- The command is invoked directly instead of through a root `package.json` script. The root manifest is a committed member of the production source tree that the launcher TV conformance, launcher TV surface, launcher search TV, and OCRA platform fallback evidence bind to by hash. Registering a script there would have invalidated four families of recorded Windows x64 Chrome browser evidence that cannot be honestly regenerated on a different host.
+- The report compares the BRIO 90-degree diagonal claim with ELP AR0234 H100, H110, and H120 lens claims, including estimated far-player pixel height and explicit horizontal/vertical pass flags.
+- Default conservative 8 x 8 ft assumptions require approximately 96.7 degrees horizontal and 74.5 degrees vertical. Under those assumptions, BRIO fails both dimensions, H100 misses the vertical envelope, H110 passes with better pixel density than H120, and H120 supplies more optical margin.
+- A dated purchase-derisk plan records the lower-cost AR0234 candidate, no-purchase phone rehearsal, exact seller evidence request, staged single-unit purchase boundary, delivery-day acceptance run, Pi qualification handoff, and hard return criteria.
+- The source ledger records current vendor claims and pricing while retaining exact-revision, return-policy, and local-measurement boundaries.
+- The two added ledger rows changed the bytes of `docs/SOURCES.md`, so three pre-registered plans that bind it by hash were deliberately re-registered. That re-registration cascaded through the plan-to-plan binding graph and updated hashes in eighteen plan documents. Only recorded hashes changed; no plan text, threshold, authority or result was altered.
+
+### Verification evidence
+
+- Default text and JSON reports execute successfully.
+- Argument validation rejects a far boundary that is not beyond the near boundary.
+- Repository typecheck passes with zero errors.
+- The full `pnpm test` chain passes, including every script validator suite, the source-binding gate at zero drifted bindings, the research-evidence gate, and 1091 workspace unit tests.
+- The launcher TV conformance, launcher TV surface, launcher search TV, and OCRA platform fallback suites pass unchanged, confirming the production source tree they commit to was not disturbed.
+- `git diff --check` reports no whitespace errors.
+
+### Remaining boundary
+
+The geometry report is a pinhole screen using unverified vendor field-of-view labels. It does not qualify distortion, focus, low-light exposure, MJPEG decoding, timestamps, latency, sustained capture, reconnect, physical shutter, indicator, room placement, or action accuracy. The existing I-194 campaign remains active pending measured room inputs, a delivered camera, and the full target-zone matrix.
+
 ## 2026-07-27: native parser coverage-guided fuzz smoke harness
 
 - Added `native/vcg-host/fuzz`, a detached cargo-fuzz crate pinned to
