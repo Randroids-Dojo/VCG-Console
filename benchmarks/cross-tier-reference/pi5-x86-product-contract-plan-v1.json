@@ -42,7 +42,7 @@
     {
       "role": "hailo-package-model-recovery-boundary",
       "path": "benchmarks/hailo-recovery/hailo-package-model-recovery-plan-v1.json",
-      "sha256": "9a35579d089a7f84b1a25d2cb861a0489cc6d1c95b4b1a727be32286f84a8159"
+      "sha256": "2bd9eba9ec5e49db679d95fa8899b00fecc32eb685b83c941305616c82c965f8"
     },
     {
       "role": "hailo-26-accelerator-boundary",
@@ -52,7 +52,7 @@
     {
       "role": "runtime-neutral-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
+      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
     },
     {
       "role": "shared-camera-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "9798e28f1ceae0893b06253dea467ee210a61ba76e7a70d0cf170862b44b772f"
+      "sha256": "0dfa29e80f0667c6b8c5cd7dbca5eea6e271c225e5e7b824c767a9983a17b1da"
     }
   ],
   "targetTiers": [

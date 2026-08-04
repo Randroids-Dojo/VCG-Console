@@ -34,7 +34,7 @@
     {
       "role": "reserved-recovery-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "4245614516469ada878d1137a1bfb5611f23ebaf802311b53e51911545c65061"
+      "sha256": "5ea1eaea0b717a68aa66cbfeac08f32d46a08a961d71e3201092e44fe0c6079c"
     },
     {
       "role": "controller-qualification-boundary",

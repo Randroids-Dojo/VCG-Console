@@ -35,7 +35,7 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "4245614516469ada878d1137a1bfb5611f23ebaf802311b53e51911545c65061"
+      "sha256": "5ea1eaea0b717a68aa66cbfeac08f32d46a08a961d71e3201092e44fe0c6079c"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
@@ -45,17 +45,17 @@
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "a3399d47ebdf7ba13b7c1a98c4730009c9afe6952e121f0f3a797db550aa5aef"
+      "sha256": "68d9d4f64b5e345e0965ac96b6309aee6f60117f39a234c52eb141717d9559d0"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "6639584a9e113f3de8da9fa1cfeee522b5d92ece9cb10c9eedc98d9a61016159"
+      "sha256": "6e14c7d39e3354bfe5f2e4a188c56f9596ee2ebee7c476f0a9aa949985983453"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
+      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
     },
     {
       "role": "supervised-hosted-browser-containment-and-exit-boundary",

@@ -12,7 +12,7 @@
     {
       "role": "system-update-and-recovery-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
+      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
     },
     {
       "role": "blocked-pi-hailo-image-plan",
