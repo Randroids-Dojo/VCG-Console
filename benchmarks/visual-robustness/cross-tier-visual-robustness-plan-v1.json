@@ -12,7 +12,7 @@
     {
       "role": "privacy-camera-and-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
+      "sha256": "f4399e0ede0820bed240b523688663846a0e655fa1b0adac191dd2b9b9251a4f"
     },
     {
       "role": "active-play-safety-boundary",
@@ -52,7 +52,7 @@
     {
       "role": "lens-rectification-plan",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "d669f63e62243063da1de745a53f3cccdc7785b3d5a46797da3c8c81473183ca"
+      "sha256": "b94c0d4c3c87c53dae5417d92f1b4e23ffbcee20bfc37b015d388ab53d182ae5"
     }
   ],
   "collectionBoundary": {

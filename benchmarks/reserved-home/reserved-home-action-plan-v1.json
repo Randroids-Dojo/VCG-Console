@@ -42,17 +42,17 @@
     {
       "role": "steam-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "0bf32578b5afe3f7401582ecee1c46ee3a01f82144a7c87115b32ad4b34aa050"
+      "sha256": "28e988044fa513031568a4b0d9c32dbf0caaa81bf571fac7955481e086398be9"
     },
     {
       "role": "signed-native-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
+      "sha256": "e5f8f248e63d53f0bb5cf45dada9d7b019d927e23e52387372b48dc3a5839c22"
     },
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "3c4ded7bfd49ca87a2f05e37fcd7b1a06c30e75379d42fdfceac9837bfcb9132"
+      "sha256": "86d2e08b7694f4bb11bf96d7141df7ec7226d148370c4f347488e067a053ab7a"
     },
     {
       "role": "hosted-supervisor-implementation-boundary",

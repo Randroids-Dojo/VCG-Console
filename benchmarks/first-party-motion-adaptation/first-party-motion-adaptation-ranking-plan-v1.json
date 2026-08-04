@@ -30,7 +30,7 @@
     {
       "role": "complete-two-player-prerequisite-boundary",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "708b224c3a203dfe5dc08fde9f5f805d3389f57a133768bbd2e7433e255c71ab"
+      "sha256": "d7dc7091e56d0bbd74c32fac8371b3d9281e7dc93734da174f7b27ff1a8b6953"
     },
     {
       "role": "synthetic-accessibility-support-nonqualification-boundary",
@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "424b4f920c2ea043ae8d51bdcaab163e71c53587fa674d603a3f1b3a47f46d7c"
+      "sha256": "da62876dae1ca77685410c2baa61b2585c8c6dd6992470e7901c73a086137a9c"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -70,7 +70,7 @@
     {
       "role": "runtime-neutral-signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "f48d06e468d08dfe8857a709ba4aba39ce255dfcadf14f134fbccfe980f8ebae"
+      "sha256": "e5f8f248e63d53f0bb5cf45dada9d7b019d927e23e52387372b48dc3a5839c22"
     },
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",

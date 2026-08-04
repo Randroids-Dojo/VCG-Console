@@ -16,7 +16,7 @@
     {
       "role": "multiplayer-decision-boundary",
       "path": "docs/DECISIONS.md",
-      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
+      "sha256": "f4399e0ede0820bed240b523688663846a0e655fa1b0adac191dd2b9b9251a4f"
     },
     {
       "role": "implemented-session-semantics-boundary",
@@ -41,7 +41,7 @@
     {
       "role": "complete-two-player-prerequisite-plan",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "708b224c3a203dfe5dc08fde9f5f805d3389f57a133768bbd2e7433e255c71ab"
+      "sha256": "d7dc7091e56d0bbd74c32fac8371b3d9281e7dc93734da174f7b27ff1a8b6953"
     },
     {
       "role": "motion-api-shape-boundary",

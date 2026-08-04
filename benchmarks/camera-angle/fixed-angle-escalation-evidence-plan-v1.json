@@ -22,7 +22,7 @@
     {
       "role": "fixed-angle-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "1c11f4d84ed6cca44a8a0cea8054477b4a1aeafa719a764546c63f019c2f47df"
+      "sha256": "f4399e0ede0820bed240b523688663846a0e655fa1b0adac191dd2b9b9251a4f"
     },
     {
       "role": "investigation-acceptance-boundary",
@@ -37,7 +37,7 @@
     {
       "role": "camera-geometry-baseline-plan",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "f58a4cc93a4e26a6e09500ebc881acba37327fef1d2051909eefd2b06d3990ca"
+      "sha256": "c563731efcc3974e91363241febcb9a221444e538c8ed25173c57366878f150f"
     },
     {
       "role": "shared-camera-qualification-boundary",
@@ -47,7 +47,7 @@
     {
       "role": "physical-camera-state-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "f13c2f7e8178d129bde1af96d650e02f91210c99c5499b61b0a7a642ff387ef9"
+      "sha256": "ffbf849887114ed751067522f3f15d873e8005708999151b0ee546e2e13224fe"
     },
     {
       "role": "active-play-safety-boundary",
@@ -67,7 +67,7 @@
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "5eb272f37f18249d02c8fdc70d817806df0dcce5bd81be4c60a817a92796007f"
+      "sha256": "e07d96a33daac7518c3fecbd99ebf69843aed58a84c597b9e9ab347e372ba803"
     },
     {
       "role": "idle-power-boundary",
