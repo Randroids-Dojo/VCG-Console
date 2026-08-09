@@ -2,184 +2,40 @@
 
 An open home game console for the games at [VibeCoded.Games](https://vibecoded.games), new body-controlled games, and an optional rights-respecting retro arcade.
 
-The target experience is a living-room appliance: turn it on, stand in front of a wide-angle camera, select a game with a controller or remote, and play through body movement. Camera processing is intended to stay on the console by default.
+Turn it on, stand in front of a wide-angle camera, pick a game with a controller or remote, and play through body movement — no wearables, no controller required once you're in a game. Camera frames are processed on the console and never leave it.
 
-This repository now contains the first reversible desk prototype alongside the research workspace: a Svelte 5 boot-to-launcher experience, Motion hub, cooperative web bridge, skeletal replay, body-control lab, and initial Rust native host. Raspberry Pi 5 8GB plus AI HAT+ 26 TOPS is the selected lower-cost reference candidate, while ordinary x86-64 Linux/PC hardware is the premium reference class. Both remain subject to reproducible room, latency, thermal, storage, and multi-player qualification. The preordered 2026 Steam Machine is an optional compatibility target, not a requirement of the core console.
+## Why it's interesting
 
-## Run the desk prototype
+- **Body control without a black box.** A single RGB camera feeds a pluggable pose tracker behind a versioned Motion API, so games never couple to a specific camera, model, or engine. A camera-free pose simulator drives the same API with deterministic keyboard/controller fixtures, so motion features are testable without a camera or a body.
+- **Three catalogs, one appliance.** The existing VibeCoded.Games web catalog, new body-controlled games, and an optional retro arcade all launch through the same TV-safe launcher, with a controller or remote escape path from every screen, independent of tracking.
+- **Privacy by construction.** Camera pixels are never displayed or written; the only diagnostic export is a skeleton trace. Player identity, profiles, and saves stay device-local.
+- **A real native host, not a browser trick.** `vcg-host`, a Rust process, owns the parts a browser tab can't: child-process supervision, heartbeat/restart, signed package resolution, and launch lifecycle. The web launcher stays a client of that host, not a privileged process itself.
+- **No emulator code vendored.** The retro path (RetroArch + libretro cores) is built from pinned, hash-verified upstream sources by a local recipe rather than checked into the repo — see [Retro arcade](#retro-arcade) below.
+- **Reproducible, not just documented.** Every architectural claim in this repo traces to a decision, evidence, or an open question in `docs/`, and hundreds of automated `pnpm validate:*` checks hold that trail to the code.
 
-Prerequisites: Node.js 22 or newer, pnpm 10.30.3 (directly or through Corepack), and Chrome for the end-to-end camera test. Native-host development also uses the exact Rust toolchain declared in `rust-toolchain.toml`.
+## Components
 
-```sh
-pnpm install
-pnpm prepare:assets
-pnpm prepare:catalog
-pnpm prepare:schemas
-pnpm dev
-```
+| Component | What it is |
+|---|---|
+| `apps/console-lab` | The Svelte 5 boot-to-launcher desk prototype: launcher, Motion hub, skeletal replay, body-control lab, and cooperative web bridge test harnesses. |
+| `native/vcg-host` | The Rust boundary for privileged console behavior — process supervision, watchdog, signed package/profile intake, native and RetroArch launch adapters. See [its README](native/vcg-host/README.md). |
+| `packages/motion-contract`, `packages/motion-web-bridge` | The versioned Motion API and the transport that carries it between the native host and web games. |
+| `packages/game-manifest`, `packages/launcher-catalog` | The canonical game manifest format and the catalog the launcher reads. |
+| `packages/retro-*` | Contracts for the retro import, firmware, and performance boundaries, plus the pinned RetroArch/2048 development package. |
+| `scripts/pi/` | Raspberry Pi bring-up, and the pinned build recipes for the retro cores and frontend (see below). |
+| `catalog/`, `schemas/`, `benchmarks/`, `compliance/` | Game manifests, exported JSON schemas, hardware/motion benchmark evidence, and release compliance (SBOM) output. |
 
-Open the printed local URL. The boot sequence resolves into the launcher; Motion opens the existing synthetic skeletal replay and camera lab. Select **Enable Pose Simulator** for deterministic camera-free keyboard/controller fixtures, or **Start Camera** to run the pinned MediaPipe model locally. Camera pixels are not displayed or written. **Export Skeleton Trace** is the only diagnostic export in this prototype.
+## Retro arcade
 
-The camera is asked for the low-power 640x480 at 30 FPS mode by default, because browser pose inference on the Raspberry Pi 5 candidate runs on the CPU. Append `?capture=balanced` (1280x720 at 30) or `?capture=target` (1920x1080 at 60, the camera contract mode) to request a larger one. Every dimension is requested as `ideal`, and the running status line reports the requested mode alongside the mode the camera actually reported.
+The retro lane runs real emulator software under a hard rule: **no third-party emulator, frontend, or core source or binary is vendored in this repository.** Instead, `docs/DECISIONS.md` records exact provenance for each component — repository, revision, archive SHA-256, byte length, and license — and `scripts/pi/build-retro-cores.sh` / `scripts/pi/build-retro-frontend.sh` fetch, hash-verify, and build from those pins on demand, refusing to continue on any mismatch.
 
-To serve a built console instead of the dev server, use `pnpm serve`. It applies the same cross-origin isolation, CSP, and camera permission policy as the dev server; a plain static file server returns the same bytes without them and silently breaks threaded inference and the camera. `pnpm verify:console-headers` checks a running server and fails when the boundary is absent.
+Selected so far: the FCEUmm libretro core for NES (GPL-2.0), Genesis Plus GX for Mega Drive/Master System/Game Gear, Snes9x for SNES, and RetroArch 1.22.2 as the frontend. Licenses differ — two of the three cores forbid commercial use — so read the decision log before redistributing anything a recipe produces. Both build scripts are linted with `shellcheck` in CI; neither runs there, since both depend on upstream archive availability.
 
-For a first session on delivered Raspberry Pi hardware, follow [the day-one bring-up guide](docs/PI_DAY_ONE_BRINGUP.md) and its `scripts/pi/bootstrap.sh`.
+## Hardware targets
 
-Useful verification commands:
+Raspberry Pi 5 (8GB) plus AI HAT+ (26 TOPS) is the selected lower-cost reference candidate; ordinary x86-64 Linux/PC hardware is the premium reference class. Both remain subject to reproducible room, latency, thermal, storage, and multi-player qualification — nothing here claims that qualification yet. The preordered 2026 Steam Machine is an optional compatibility target, not a requirement of the core console.
 
-```sh
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm test:e2e
-pnpm serve
-pnpm verify:console-headers
-pnpm validate:benchmarks
-pnpm validate:manifests
-pnpm validate:schemas
-pnpm supervise:game catalog/determined.vcg-game.json --dry-run
-pnpm native:verify
-cargo run -p vcg-host -- doctor
-cargo run -p vcg-host -- launcher --dry-run --browser /path/to/chromium --profile-dir /absolute/path/to/profile --url http://127.0.0.1:5173/
-cargo run -p vcg-host -- watchdog --dry-run --heartbeat-file /tmp/vcg-game.heartbeat -- /path/to/game
-cargo run -p vcg-host -- help
-```
-
-For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](docs/WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
-
-The browser Gamepad API and Chrome app-mode supervisor are desk spikes, not proof of the Rust/SDL3 input boundary, compositor-level Home/Back, origin containment, or target-Linux behavior. The Rust host now owns direct child lifecycle, heartbeat timeouts, bounded restart, an explicit resource-fault signal boundary, signed installed-package resolution, strict persistent opaque profile intake, idempotent game/profile launch intent, cancellation, contained RetroArch planning, and a signed native-executable adapter with artifact SHA-256 enforcement and per-profile storage. The native adapter is process-only: actual packages, RetroArch/2048 startup, OS sandboxing, environment/device/network filtering, descendant ownership, window readiness, Linux GPU/OOM detectors, compositor containment, a qualified profile writer/lifecycle, and target-hardware behavior remain unqualified.
-
-## Research workspace
-
-- [System research and proposed architecture](docs/RESEARCH.md)
-- [Prioritized investigation backlog](docs/INVESTIGATIONS.md)
-- [Decision log](docs/DECISIONS.md)
-- [Open-question register](docs/OPEN_QUESTIONS.md)
-- [VibeCoded game compatibility snapshot](docs/GAME_COMPATIBILITY.md)
-- [Canonical game manifest v1 contract](docs/GAME_MANIFEST_CONTRACT.md)
-- [Deny-by-default game permission model](docs/GAME_PERMISSION_MODEL.md)
-- [Canonical launcher catalog policy](docs/LAUNCHER_CATALOG_POLICY.md)
-- [Game trust tiers and admission lifecycle](docs/GAME_TRUST_TIERS.md)
-- [Raspberry Pi day-one bring-up guide](docs/PI_DAY_ONE_BRINGUP.md)
-- [Raspberry Pi 5 and AI HAT feasibility brief](docs/RASPBERRY_PI_AI_HAT.md)
-- [Hardware purchase ledger](docs/HARDWARE_PURCHASES.md)
-- [Quote-date reuse, Raspberry Pi, and premium hardware BOMs](docs/QUOTE_DATE_BOMS_2026-07-24.md)
-- [Low-power x86 mini-PC comparator](docs/X86_MINI_PC_COMPARATOR_2026-07-24.md)
-- [Camera purchase derisk and return-window plan](docs/CAMERA_PURCHASE_DERISK_2026-07-26.md)
-- [2026 Steam Machine feasibility brief](docs/STEAM_MACHINE_2026.md)
-- [Latest autonomous research tranche](docs/AUTONOMOUS_RESEARCH_2026-07-19.md)
-- [First implementation record](docs/IMPLEMENTATION_LOG.md)
-- [First living-room prototype success criteria](docs/PROTOTYPE_SUCCESS_CRITERIA.md)
-- [Player personas and evidence matrix](docs/PLAYER_PERSONAS.md)
-- [Household active-play safety checklist](docs/ACTIVE_PLAY_SAFETY.md)
-- [Online and offline service matrix](docs/ONLINE_OFFLINE_SERVICE_MATRIX.md)
-- [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
-- [Browser document policy and hostile-fixture boundary](docs/BROWSER_POLICY_BOUNDARY.md)
-- [Automatic body-profile matching threat model](docs/BODY_PROFILE_MATCHING_THREAT_MODEL.md)
-- [Device-only player-data exclusion verifier](docs/DEVICE_ONLY_DATA_EXCLUSION.md)
-- [Console-bound profile-vault qualification](docs/PROFILE_VAULT_QUALIFICATION.md)
-- [Device-only profile portrait capture](docs/PROFILE_PORTRAIT_CAPTURE.md)
-- [Credential-free local profile management](docs/PROFILE_MANAGEMENT.md)
-- [Player and play-zone calibration rehearsal](docs/CALIBRATION_REHEARSAL.md)
-- [Release compliance and CycloneDX SBOM](docs/RELEASE_COMPLIANCE.md)
-- [Console-managed game save lifecycle](docs/GAME_SAVE_LIFECYCLE.md)
-- [Unassigned Progress console UX](docs/UNASSIGNED_PROGRESS_UX.md)
-- [Console family, admin, and developer operating modes](docs/CONSOLE_OPERATING_MODES.md)
-- [Console accessibility preferences](docs/ACCESSIBILITY_PREFERENCES.md)
-- [Power and recovery state machine](docs/POWER_RECOVERY_STATE_MACHINE.md)
-- [Local diagnostics and consented export](docs/LOCAL_DIAGNOSTICS.md)
-- [Atomic A/B system-update state](docs/SYSTEM_AB_UPDATE_STATE.md)
-- [System-update journal protected-state adapter](docs/SYSTEM_UPDATE_PROTECTED_STATE.md)
-- [Signed system-image manifest](docs/SYSTEM_IMAGE_MANIFEST.md)
-- [Verifiable Pi recovery-image bundle](docs/RECOVERY_IMAGE_BUNDLE.md)
-- [Update trust root and delegated roles](docs/UPDATE_TRUST_ROOT.md)
-- [Crash-recoverable accepted update-root store](docs/UPDATE_ROOT_STORE.md)
-- [Storage layout and capacity boundary](docs/STORAGE_LAYOUT_AND_CAPACITY.md)
-- [Motion service and bridge security review](docs/MOTION_SECURITY_REVIEW.md)
-- [Motion web bridge protocol and boundary](docs/MOTION_WEB_BRIDGE.md)
-- [Motion local-transport benchmark](docs/MOTION_TRANSPORT_BENCHMARK.md)
-- [Motion standardized action semantics](docs/MOTION_ACTIONS_V1.md)
-- [Motion SDK web authoring guide](docs/MOTION_SDK_AUTHORING.md)
-- [Camera-free Motion pose simulator](docs/MOTION_SIMULATOR.md)
-- [Optional Motion capability query](docs/MOTION_OPTIONAL_CAPABILITIES.md)
-- [Player control availability and missing-landmark behavior](docs/PLAYER_CONTROL_AVAILABILITY.md)
-- [Casual local obstacle leaderboard](docs/LOCAL_LEADERBOARD.md)
-- [Tracker health and degraded-control contract](docs/TRACKER_HEALTH.md)
-- [Household motion benchmark protocol](docs/MOTION_BENCHMARK_PROTOCOL.md)
-- [RTMO x86 adapter and CPU spike](docs/RTMO_X86_SPIKE_2026-07-24.md)
-- [Appearance-free identity tracker comparison](docs/IDENTITY_TRACKER_COMPARISON_2026-07-24.md)
-- [Motion smoothing comparison](docs/MOTION_SMOOTHING_COMPARISON_2026-07-24.md)
-- [Motion rule baselines](docs/MOTION_RULE_BASELINES_2026-07-24.md)
-- [Motion laterality evidence](docs/MOTION_LATERALITY_EVIDENCE_2026-07-24.md)
-- [Motion confidence-degradation evidence](docs/MOTION_CONFIDENCE_DEGRADATION_EVIDENCE_2026-07-24.md)
-- [RGB versus depth floor-contact campaign](docs/RGB_DEPTH_FLOOR_CONTACT_CAMPAIGN_2026-07-24.md)
-- [Rule versus temporal-classifier comparison plan](docs/RULE_TEMPORAL_CLASSIFIER_COMPARISON_PLAN_2026-07-24.md)
-- [Skeleton-trace debugging evidence](docs/SKELETON_TRACE_DEBUGGING_EVIDENCE_2026-07-24.md)
-- [Player session and recovery state machine](docs/PLAYER_SESSION_STATE_MACHINE.md)
-- [Player-session household-interference campaign](docs/PLAYER_SESSION_INTERFERENCE_CAMPAIGN_2026-07-24.md)
-- [Controller input prototype contract](docs/CONTROLLER_INPUT.md)
-- [Native child watchdog contract](docs/NATIVE_WATCHDOG.md)
-- [Native launcher-host API contract](docs/NATIVE_HOST_API.md)
-- [Native package launch lifecycle](docs/NATIVE_LAUNCH_LIFECYCLE.md)
-- [Persistent launch-profile registry](docs/PROFILE_REGISTRY.md)
-- [Native package runtime adapter](docs/NATIVE_PACKAGE_RUNTIME.md)
-- [Signed installed-package catalog contract](docs/INSTALLED_PACKAGE_CATALOG.md)
-- [Signed package generation-store contract](docs/PACKAGE_GENERATION_STORE.md)
-- [Package-generation protected-state adapter](docs/PACKAGE_GENERATION_PROTECTED_STATE.md)
-- [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
-- [Contentless RetroArch start-policy observation](docs/RETRO_CONTENTLESS_START_OBSERVATION_2026-07-31.md)
-- [Windows compatibility workstation](docs/WINDOWS_QUALIFICATION.md)
-- [Windows x86-64 qualification result (2026-07-24)](docs/WINDOWS_QUALIFICATION_RESULT_2026-07-24.md)
-- [Deferred owner questions from autonomous work](docs/OWNER_QUESTIONS_AUTONOMOUS_2026-07-19.md)
-- [Deferred owner questions from the RetroArch tranche](docs/OWNER_QUESTIONS_RETROARCH_2026-07-23.md)
-- [Deferred owner questions from the native-host API tranche](docs/OWNER_QUESTIONS_HOST_API_2026-07-23.md)
-- [Deferred owner questions from the release-compliance tranche](docs/OWNER_QUESTIONS_RELEASE_COMPLIANCE_2026-07-24.md)
-- [Deferred owner questions from the prototype-gates tranche](docs/OWNER_QUESTIONS_PROTOTYPE_GATES_2026-07-23.md)
-- [Deferred owner questions from the installed-catalog tranche](docs/OWNER_QUESTIONS_INSTALLED_CATALOG_2026-07-23.md)
-- [Deferred owner questions from the native-launch tranche](docs/OWNER_QUESTIONS_NATIVE_LAUNCH_2026-07-23.md)
-- [Deferred owner questions from the profile-registry tranche](docs/OWNER_QUESTIONS_PROFILE_REGISTRY_2026-07-24.md)
-- [Deferred owner questions from the console-mode tranche](docs/OWNER_QUESTIONS_CONSOLE_MODES_2026-07-24.md)
-- [Deferred owner questions from the accessibility tranche](docs/OWNER_QUESTIONS_ACCESSIBILITY_2026-07-24.md)
-- [Deferred owner questions from the local-diagnostics tranche](docs/OWNER_QUESTIONS_DIAGNOSTICS_2026-07-24.md)
-- [Deferred owner questions from the body-profile matching tranche](docs/OWNER_QUESTIONS_BODY_PROFILE_MATCHING_2026-07-24.md)
-- [Deferred owner questions from the device-only exclusion tranche](docs/OWNER_QUESTIONS_DEVICE_ONLY_DATA_EXCLUSION_2026-07-24.md)
-- [Deferred owner questions from the profile-vault tranche](docs/OWNER_QUESTIONS_PROFILE_VAULT_2026-07-24.md)
-- [Deferred owner questions from the profile-portrait tranche](docs/OWNER_QUESTIONS_PROFILE_PORTRAIT_2026-07-24.md)
-- [Deferred owner questions from the profile-management tranche](docs/OWNER_QUESTIONS_PROFILE_MANAGEMENT_2026-07-24.md)
-- [Deferred owner questions from the calibration tranche](docs/OWNER_QUESTIONS_CALIBRATION_2026-07-24.md)
-- [Deferred owner questions from the motion-smoothing tranche](docs/OWNER_QUESTIONS_MOTION_SMOOTHING_2026-07-24.md)
-- [Deferred owner question from the motion-rule tranche](docs/OWNER_QUESTIONS_MOTION_RULE_BASELINES_2026-07-24.md)
-- [Deferred owner question from the motion-laterality tranche](docs/OWNER_QUESTIONS_MOTION_LATERALITY_2026-07-24.md)
-- [Deferred owner question from the confidence-degradation tranche](docs/OWNER_QUESTIONS_CONFIDENCE_DEGRADATION_2026-07-24.md)
-- [Deferred owner question from the RGB/depth floor-contact tranche](docs/OWNER_QUESTIONS_RGB_DEPTH_FLOOR_CONTACT_2026-07-24.md)
-- [Deferred owner question from the rule/temporal-classifier tranche](docs/OWNER_QUESTIONS_RULE_TEMPORAL_CLASSIFIER_2026-07-24.md)
-- [Deferred owner question from the skeleton-trace debugging tranche](docs/OWNER_QUESTIONS_SKELETON_TRACE_DEBUGGING_2026-07-24.md)
-- [Deferred owner questions from the player-session interference tranche](docs/OWNER_QUESTIONS_PLAYER_SESSION_INTERFERENCE_2026-07-24.md)
-- [Deferred owner questions from the quote-date BOM tranche](docs/OWNER_QUESTIONS_QUOTE_DATE_BOMS_2026-07-24.md)
-- [Deferred owner questions from the power-recovery tranche](docs/OWNER_QUESTIONS_POWER_RECOVERY_2026-07-24.md)
-- [Deferred owner questions from the recovery-image tranche](docs/OWNER_QUESTIONS_RECOVERY_IMAGE_2026-07-24.md)
-- [Deferred owner questions from the Unassigned Progress tranche](docs/OWNER_QUESTIONS_UNASSIGNED_PROGRESS_2026-07-24.md)
-- [Deferred owner questions from the native-runtime tranche](docs/OWNER_QUESTIONS_NATIVE_RUNTIME_2026-07-24.md)
-- [Deferred owner questions from the package-generation protection tranche](docs/OWNER_QUESTIONS_PACKAGE_GENERATION_PROTECTION_2026-07-24.md)
-- [Deferred owner question from the launcher-catalog tranche](docs/OWNER_QUESTIONS_LAUNCHER_CATALOG_2026-07-24.md)
-- [Deferred owner questions from the package-watchdog tranche](docs/OWNER_QUESTIONS_WATCHDOG_2026-07-23.md)
-- [Deferred owner questions from the system-update tranche](docs/OWNER_QUESTIONS_SYSTEM_UPDATE_2026-07-24.md)
-- [Deferred owner questions from system-update journal protection](docs/OWNER_QUESTIONS_SYSTEM_UPDATE_PROTECTION_2026-07-24.md)
-- [Deferred owner questions from the update-trust tranche](docs/OWNER_QUESTIONS_UPDATE_TRUST_2026-07-24.md)
-- [Deferred owner questions from the storage-layout tranche](docs/OWNER_QUESTIONS_STORAGE_LAYOUT_2026-07-24.md)
-- [Source ledger](docs/SOURCES.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
-
-## Experience principles
-
-- Minimal, sleek television UI using a freely redistributable OCR-A typeface.
-- Back and Home actions remain easy to reach through menus, loading states, and games.
-- Supported controllers work automatically, including reconnect and player assignment.
-- Consistent branded loading screens distinguish active progress, slow work, failures, and recovery.
-- Every experience has a controller or remote escape path independent of body tracking.
-
-## Current direction
+## Current architecture
 
 ```text
 wide RGB camera
@@ -198,3 +54,33 @@ VibeCoded games | body games | optional retro frontend
 ```
 
 The first useful milestone is not a finished enclosure. It is a wired living-room prototype that launches a small representative game set and sustains responsive one-player tracking in the real target room. Four-player tracking, appliance packaging, offline bundles, and retro support follow behind measured gates.
+
+## Get started
+
+Setup, dev commands, verification, and the retro build recipes live in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## Documentation
+
+This project runs as an open research trail: every architectural claim traces to a decision, an experiment, or an explicitly open question, and `docs/` holds 380+ of them. Start here:
+
+- [System research and proposed architecture](docs/RESEARCH.md)
+- [Decision log](docs/DECISIONS.md)
+- [Prioritized investigation backlog](docs/INVESTIGATIONS.md)
+- [Open-question register](docs/OPEN_QUESTIONS.md)
+- [Canonical game manifest v1 contract](docs/GAME_MANIFEST_CONTRACT.md)
+- [Deny-by-default game permission model](docs/GAME_PERMISSION_MODEL.md)
+- [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
+- [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
+- [Release compliance and CycloneDX SBOM](docs/RELEASE_COMPLIANCE.md)
+- [Source ledger](docs/SOURCES.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)
+
+Everything else — hardware BOMs, per-feature contracts, benchmark campaigns, and every deferred owner question — is in `docs/`, one Markdown file per topic, named for what it covers.
+
+## Experience principles
+
+- Minimal, sleek television UI using a freely redistributable OCR-A typeface.
+- Back and Home actions remain easy to reach through menus, loading states, and games.
+- Supported controllers work automatically, including reconnect and player assignment.
+- Consistent branded loading screens distinguish active progress, slow work, failures, and recovery.
+- Every experience has a controller or remote escape path independent of body tracking.
