@@ -426,8 +426,16 @@ mod tests {
     fn candidate_health_helper() {
         match env::var("VCG_TEST_CANDIDATE_HEALTH").as_deref() {
             Ok("ready") => {
-                let path = env::var_os("VCG_READY_FILE").expect("ready path is configured");
-                fs::write(path, "ready").expect("ready token writes");
+                let path =
+                    PathBuf::from(env::var_os("VCG_READY_FILE").expect("ready path is configured"));
+                // Stage then rename so a concurrent poller never observes a
+                // partially written file: `ready_token_exists` treats an
+                // empty read as an invalid token, and a non-atomic write can
+                // transiently be empty between file creation and content
+                // landing.
+                let staging = path.with_extension("staging");
+                fs::write(&staging, "ready").expect("ready token stages");
+                fs::rename(&staging, &path).expect("ready token publishes atomically");
             }
             Ok("invalid-ready") => {
                 let path = env::var_os("VCG_READY_FILE").expect("ready path is configured");
