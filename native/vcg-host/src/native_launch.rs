@@ -1431,6 +1431,24 @@ mod tests {
         }
     }
 
+    /// A watchdog policy for tests whose child is a fresh copy of this test
+    /// binary launched with real frontend arguments it cannot parse (see
+    /// `signed_launch_catalog`): it fails fast by exiting on its own, but
+    /// only after the OS spawns it and the Rust runtime starts, which can
+    /// comfortably exceed 100ms on a loaded machine or a first-execution
+    /// code-signature check. `fast_watchdog_policy`'s 100ms budget races that
+    /// startup and can force-kill the child before it reports its own exit
+    /// code, turning `Failed { exit_code: Some(_) }` into `exit_code: None`.
+    fn slow_spawn_watchdog_policy(max_restarts: u32) -> WatchdogPolicy {
+        WatchdogPolicy {
+            startup_timeout: Duration::from_secs(1),
+            heartbeat_timeout: Duration::from_secs(1),
+            poll_interval: Duration::from_millis(1),
+            restart_backoff: Duration::ZERO,
+            max_restarts,
+        }
+    }
+
     fn service_with_cleanup_barrier(
         catalog: Arc<TrustedPackageCatalog>,
         journal_root: &Path,
@@ -2214,7 +2232,7 @@ mod tests {
             Arc::new(catalog),
             vec!["local-player".to_owned(), "profile-guest".to_owned()],
             vec!["retro-2048".to_owned()],
-            fast_watchdog_policy(1),
+            slow_spawn_watchdog_policy(1),
         )
         .expect("watchdog launch service configures");
         let request_id = "44444444444444444444444444444444";
