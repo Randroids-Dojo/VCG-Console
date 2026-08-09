@@ -2,7 +2,7 @@
 
 An open home game console for the games at [VibeCoded.Games](https://vibecoded.games), new body-controlled games, and an optional rights-respecting retro arcade.
 
-Turn it on, stand in front of a wide-angle camera, pick a game with a controller or remote, and play through body movement — no wearables, no controller required once you're in a game. Camera frames are processed on the console and never leave it.
+Turn it on, stand in front of a wide-angle camera, and pick a game with a controller or remote. Games built for the Motion API play through body movement alone — no wearables, no controller required once you're in one; the rest of the catalog plays with a controller like any console game. Camera frames are processed on the console and never leave it.
 
 ## Why it's interesting
 
@@ -49,6 +49,8 @@ versioned VCG Motion API
 gesture and action recognizers
        |
 launcher + web bridge + native/Godot SDK
+       |
+vcg-host (privileged native process: launch, watchdog, package intake)
        |
 VibeCoded games | body games | optional retro frontend
 ```

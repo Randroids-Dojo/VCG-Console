@@ -4,7 +4,7 @@ This is the practical guide to running the desk prototype, verifying a change, a
 
 ## Prerequisites
 
-- Node.js 22 or newer
+- Node.js 22.12.0 or newer (Vite 8's `engines` constraint excludes earlier 22.x releases)
 - pnpm 10.30.3, directly or through Corepack
 - Chrome, for the end-to-end camera test
 - The exact Rust toolchain pinned in `rust-toolchain.toml`, for native-host development
@@ -23,17 +23,22 @@ Open the printed local URL. The boot sequence resolves into the launcher; Motion
 
 The camera is asked for the low-power 640x480 at 30 FPS mode by default, because browser pose inference on the Raspberry Pi 5 candidate runs on the CPU. Append `?capture=balanced` (1280x720 at 30) or `?capture=target` (1920x1080 at 60, the camera contract mode) to request a larger one. Every dimension is requested as `ideal`, and the running status line reports the requested mode alongside the mode the camera actually reported.
 
-To serve a built console instead of the dev server, use `pnpm serve`. It applies the same cross-origin isolation, CSP, and camera permission policy as the dev server; a plain static file server returns the same bytes without them and silently breaks threaded inference and the camera. `pnpm verify:console-headers` checks a running server and fails when the boundary is absent.
+To serve a built console instead of the dev server, use `pnpm serve`. It applies the same cross-origin isolation, CSP, and camera permission policy as the dev server; a plain static file server returns the same bytes without them and silently breaks threaded inference and the camera. `pnpm serve` runs in the foreground like `pnpm dev`, so start it in its own terminal, then check it from another:
+
+```sh
+pnpm serve                    # separate terminal, stays running
+pnpm verify:console-headers   # checks the server started above
+```
 
 ## Verification commands
+
+The rest run one after another and each exit on their own:
 
 ```sh
 pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:e2e
-pnpm serve
-pnpm verify:console-headers
 pnpm validate:benchmarks
 pnpm validate:manifests
 pnpm validate:schemas
