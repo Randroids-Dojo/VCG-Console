@@ -18,6 +18,15 @@ test("the server is loopback-only and uses the production preview", async () => 
   assert.match(unit, /^PartOf=vcg-console\.target$/m);
   assert.match(unit, /^Restart=always$/m);
   assert.match(unit, /^StartLimitIntervalSec=0$/m);
+  // `vite preview` bundles vite.config.ts into node_modules/.vite-temp on
+  // every startup, even for an already-built preview server. Confirmed live
+  // on a Pi 5: ProtectSystem=strict plus ProtectHome=read-only without this
+  // makes that write fail with EROFS, crash-looping the service forever.
+  assert.match(unit, /^ProtectSystem=strict$/m);
+  assert.match(
+    unit,
+    /^ReadWritePaths=@REPO_ROOT@\/apps\/console-lab\/node_modules$/m,
+  );
 });
 
 test("the TV session replaces tty1 with Cage and the native fullscreen launcher", async () => {
