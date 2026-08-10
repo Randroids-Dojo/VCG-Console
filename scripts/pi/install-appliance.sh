@@ -161,6 +161,10 @@ validate_absolute_path() {
       echo "${name} cannot contain whitespace or % because it is embedded in a systemd unit: ${value}" >&2
       exit 1
       ;;
+    *'$'*|*"'"*|*'"'*|*\\*)
+      echo "${name} cannot contain $, quotes, or backslashes because it is embedded in a systemd unit: ${value}" >&2
+      exit 1
+      ;;
   esac
 }
 

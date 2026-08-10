@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -52,4 +53,37 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);
+});
+
+test("the installer rejects systemd metacharacters in rendered paths", async () => {
+  const installer = await read("./install-appliance.sh");
+  assert.match(installer, /\*'\$'\*\|\*"'"\*\|\*'"'\*\|\*\\\\\*\)/);
+
+  // Windows' WSL bridge expands `$browser` before bash receives this direct
+  // argv probe. The Pi CI job is native Linux and exercises the rejection.
+  if (process.platform === "win32") return;
+
+  const result = spawnSync(
+    "bash",
+    [
+      "scripts/pi/install-appliance.sh",
+      "--dry-run",
+      "--user",
+      "vcg",
+      "--group",
+      "vcg",
+      "--home",
+      "/home/vcg",
+      "--browser",
+      "/usr/bin/$browser",
+      "--cage",
+      "/usr/bin/cage",
+      "--host",
+      "/usr/bin/vcg-host",
+    ],
+    { encoding: "utf8" },
+  );
+
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /browser cannot contain \$, quotes, or backslashes/);
 });
