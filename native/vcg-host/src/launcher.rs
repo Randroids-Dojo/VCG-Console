@@ -82,6 +82,12 @@ pub fn plan(request: &LauncherRequest) -> Result<LaunchSpec, LauncherError> {
         "--no-first-run".to_owned(),
         "--disable-background-mode".to_owned(),
         "--disable-session-crashed-bubble".to_owned(),
+        // Without an explicit hint, Chromium's Ozone backend defaults to X11 on
+        // Linux even when only a Wayland session is available (no XWayland
+        // fallback), and fails outright with "Missing X server or $DISPLAY".
+        // `auto` selects Wayland when the environment advertises it and falls
+        // back to X11 otherwise; non-Linux browsers ignore the unrecognized flag.
+        "--ozone-platform-hint=auto".to_owned(),
     ];
     if request.fullscreen {
         arguments.push("--start-fullscreen".to_owned());
@@ -197,6 +203,7 @@ mod tests {
             format!("--user-data-dir={}", profile.display())
         );
         assert!(arguments.contains(&"--start-fullscreen".to_owned()));
+        assert!(arguments.contains(&"--ozone-platform-hint=auto".to_owned()));
     }
 
     #[test]
