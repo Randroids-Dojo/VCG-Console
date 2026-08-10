@@ -1,0 +1,53 @@
+[Unit]
+Description=VCG Console fullscreen TV session
+Requires=vcg-console-server.service
+After=vcg-console-server.service systemd-user-sessions.service dbus.socket systemd-logind.service
+Wants=dbus.socket systemd-logind.service
+PartOf=vcg-console.target
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+ConditionPathExists=/dev/tty1
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=@CONSOLE_USER@
+Group=@CONSOLE_GROUP@
+PAMName=login
+WorkingDirectory=@REPO_ROOT@
+Environment=HOME=@CONSOLE_HOME@
+Environment=XDG_RUNTIME_DIR=/run/vcg-console
+Environment=XDG_CACHE_HOME=/var/lib/vcg-console/cache
+Environment=XDG_CONFIG_HOME=/var/lib/vcg-console/config
+Environment=XDG_DATA_HOME=/var/lib/vcg-console/data
+RuntimeDirectory=vcg-console
+RuntimeDirectoryMode=0700
+StateDirectory=vcg-console
+StateDirectoryMode=0750
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+StandardInput=tty-fail
+StandardOutput=journal
+StandardError=journal
+UtmpIdentifier=tty1
+UtmpMode=user
+ExecStartPre=@REPO_ROOT@/scripts/pi/wait-for-console.sh @REPO_ROOT@
+ExecStart=@CAGE_PATH@ -- @HOST_PATH@ launcher --browser @BROWSER_PATH@ --profile-dir /var/lib/vcg-console/browser-profile --url http://127.0.0.1:4173/
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/var/lib/vcg-console /run/vcg-console
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+
+[Install]
+WantedBy=vcg-console.target

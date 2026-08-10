@@ -51,6 +51,8 @@ Skip `hailo-all` for now. See section 6.
 - Corepack, or pnpm at the exact version pinned by `packageManager` in
   `package.json`.
 - Chromium. The camera path runs in the browser.
+- Cage. It owns the single fullscreen Wayland application without starting a
+  desktop session.
 - For the retro path only: the rustup toolchain declared in
   `rust-toolchain.toml` (1.97.1).
 - Optional but useful: `v4l-utils`, to record the exact camera modes.
@@ -64,9 +66,9 @@ scripts/pi/bootstrap.sh
 ```
 
 The script installs pinned dependencies, prepares the pinned assets, builds the
-app, builds and runs `vcg-host doctor`, then starts the real preview server and
-verifies the browser boundary against it. Add `--full-verify` to also run
-`typecheck` and the test suite; add `--skip-native` to skip the Rust host.
+app, builds and runs the release `vcg-host doctor`, then starts the real preview
+server and verifies the browser boundary against it. Add `--full-verify` to also
+run `typecheck` and the test suite; add `--skip-native` to skip the Rust host.
 
 `prepare:assets` downloads the pinned pose model and typeface by exact SHA-256,
 so run the bootstrap while the Pi still has network access. After that the built
@@ -78,11 +80,17 @@ The day-one motion game is the built-in Obstacle game in the Motion hub, not a
 catalog title. Catalog entries such as `determined` are hosted remote-web games
 and need working network plus their own services.
 
+Install the appliance services, then reboot:
+
 ```sh
-pnpm serve
+sudo scripts/pi/install-appliance.sh --user "$USER"
+sudo systemctl reboot
 ```
 
-Then, **in Chromium on the Pi itself**, open <http://127.0.0.1:4173/>.
+The console then owns tty1 and opens fullscreen by itself. The desktop is not
+entered and there is no manual browser step. See
+[the appliance boot guide](PI_APPLIANCE_BOOT.md) for the exact service shape,
+diagnostics, and recovery commands.
 
 Two things about that URL matter and both fail quietly if ignored:
 
@@ -94,7 +102,7 @@ Two things about that URL matter and both fail quietly if ignored:
   camera permission policy without any visible error. `pnpm serve` applies them;
   `pnpm verify:console-headers` proves it against a running server and exits
   non-zero when it is not true.
-- **Use `127.0.0.1` on the Pi.** `getUserMedia` requires a secure context.
+- **The service uses `127.0.0.1` on the Pi.** `getUserMedia` requires a secure context.
   Serving the app to another machine over plain HTTP on the LAN means the
   browser refuses the camera.
 
