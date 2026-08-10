@@ -1222,12 +1222,20 @@ mod tests {
 
     fn fast_policy(max_restarts: u32) -> WatchdogPolicy {
         WatchdogPolicy {
-            startup_timeout: Duration::from_millis(100),
+            // Subprocess scheduling can exceed 100 ms when the test runner is
+            // busy. Keep only the behavior-specific intervals short.
+            startup_timeout: Duration::from_secs(5),
             heartbeat_timeout: Duration::from_millis(100),
             poll_interval: Duration::from_millis(1),
             restart_backoff: Duration::ZERO,
             max_restarts,
         }
+    }
+
+    fn startup_timeout_policy(max_restarts: u32) -> WatchdogPolicy {
+        let mut policy = fast_policy(max_restarts);
+        policy.startup_timeout = Duration::from_millis(100);
+        policy
     }
 
     #[test]
@@ -1643,7 +1651,7 @@ mod tests {
         let started = Instant::now();
         let mut events = Vec::new();
         let error = ProcessSupervisor
-            .watch(&spec, &fast_policy(1), QuietProbe, |event| {
+            .watch(&spec, &startup_timeout_policy(1), QuietProbe, |event| {
                 events.push(event.clone());
             })
             .expect_err("silent child must exhaust recovery");
