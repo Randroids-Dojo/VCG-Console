@@ -63,27 +63,36 @@ test("the installer rejects systemd metacharacters in rendered paths", async () 
   // argv probe. The Pi CI job is native Linux and exercises the rejection.
   if (process.platform === "win32") return;
 
-  const result = spawnSync(
-    "bash",
-    [
-      "scripts/pi/install-appliance.sh",
-      "--dry-run",
-      "--user",
-      "vcg",
-      "--group",
-      "vcg",
-      "--home",
-      "/home/vcg",
-      "--browser",
-      "/usr/bin/$browser",
-      "--cage",
-      "/usr/bin/cage",
-      "--host",
-      "/usr/bin/vcg-host",
-    ],
-    { encoding: "utf8" },
-  );
+  const unsafeBrowsers = [
+    "/usr/bin/$browser",
+    "/usr/bin/with'quote",
+    '/usr/bin/with"quote',
+    "/usr/bin/with\\backslash",
+  ];
 
-  assert.equal(result.status, 1, result.stderr);
-  assert.match(result.stderr, /browser cannot contain \$, quotes, or backslashes/);
+  for (const browser of unsafeBrowsers) {
+    const result = spawnSync(
+      "bash",
+      [
+        "scripts/pi/install-appliance.sh",
+        "--dry-run",
+        "--user",
+        "vcg",
+        "--group",
+        "vcg",
+        "--home",
+        "/home/vcg",
+        "--browser",
+        browser,
+        "--cage",
+        "/usr/bin/cage",
+        "--host",
+        "/usr/bin/vcg-host",
+      ],
+      { encoding: "utf8" },
+    );
+
+    assert.equal(result.status, 1, `${browser}: ${result.stderr}`);
+    assert.match(result.stderr, /browser cannot contain \$, quotes, or backslashes/);
+  }
 });
