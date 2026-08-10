@@ -1,0 +1,28 @@
+[Unit]
+Description=VCG Console local web server
+After=local-fs.target
+PartOf=vcg-console.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=@CONSOLE_USER@
+Group=@CONSOLE_GROUP@
+WorkingDirectory=@REPO_ROOT@/apps/console-lab
+Environment=HOME=@CONSOLE_HOME@
+Environment=NODE_ENV=production
+ExecStart=@REPO_ROOT@/apps/console-lab/node_modules/.bin/vite preview --host 127.0.0.1 --port 4173 --strictPort
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=vcg-console.target

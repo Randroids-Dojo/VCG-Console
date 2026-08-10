@@ -103,8 +103,8 @@ if [ "${skip_native}" -eq 0 ]; then
   echo
   echo "== native host =="
   if command -v cargo >/dev/null 2>&1; then
-    cargo build -p vcg-host
-    cargo run -q -p vcg-host -- doctor
+    cargo build --release -p vcg-host
+    cargo run -q --release -p vcg-host -- doctor
   else
     echo "warning: cargo is absent; skipping the Rust host. Install the toolchain in rust-toolchain.toml to launch retro titles." >&2
   fi
@@ -180,12 +180,15 @@ else
 fi
 
 echo
-echo "bring-up steps completed. Next:"
-echo "  1. pnpm serve                       # header-correct server on 127.0.0.1:4173"
-echo "  2. open http://127.0.0.1:4173/ in Chromium on the Pi itself"
-echo "  3. Motion > Enable Pose Simulator   # camera-free path first"
-echo "  4. Motion > Start Camera            # low-power capture mode by default"
-echo "  5. append ?capture=balanced or ?capture=target to request a larger mode"
+echo "bring-up steps completed. Install appliance boot ownership next:"
+echo "  sudo scripts/pi/install-appliance.sh --user \"${SUDO_USER:-${USER:-vcg}}\""
+echo "  sudo systemctl reboot"
+echo
+echo "After reboot the console owns tty1 and opens fullscreen without a desktop."
+echo "Use docs/PI_APPLIANCE_BOOT.md for setup, diagnosis, and recovery."
+if [ "${skip_native}" -eq 1 ]; then
+  echo "warning: --skip-native omitted the release host required by the appliance installer." >&2
+fi
 echo
 echo "Nothing above is a qualification result. Record the exact image, kernel,"
 echo "browser, camera, mode, and observed frame rate before claiming any."

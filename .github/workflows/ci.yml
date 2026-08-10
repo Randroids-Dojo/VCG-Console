@@ -254,6 +254,9 @@ jobs:
       - name: Lint the operator scripts
         run: shellcheck --severity=style scripts/pi/*.sh
 
+      - name: Validate appliance boot contract
+        run: node --test scripts/pi/validate-appliance-boot.test.mjs
+
       # Runs the operator-facing script itself rather than reimplementing its
       # steps, so the script cannot rot while its individual commands pass. It
       # installs dependencies, prepares assets, builds, builds and runs the
@@ -265,3 +268,20 @@ jobs:
       # Pi is qualified.
       - name: scripts/pi/bootstrap.sh
         run: scripts/pi/bootstrap.sh
+
+      - name: Render appliance services without changing the runner
+        run: |
+          scripts/pi/install-appliance.sh \
+            --dry-run \
+            --user runner \
+            --group runner \
+            --home /home/runner \
+            --repo-root "$PWD" \
+            --browser /usr/bin/true \
+            --cage /usr/bin/true \
+            --host "$PWD/target/release/vcg-host" \
+            --output-dir "$RUNNER_TEMP/vcg-appliance-units"
+          systemd-analyze verify \
+            "$RUNNER_TEMP/vcg-appliance-units/vcg-console-server.service" \
+            "$RUNNER_TEMP/vcg-appliance-units/vcg-console-session.service" \
+            "$RUNNER_TEMP/vcg-appliance-units/vcg-console.target"
