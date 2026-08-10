@@ -1,0 +1,8 @@
+[Unit]
+Description=VCG Console appliance
+Requires=vcg-console-server.service vcg-console-session.service
+After=vcg-console-server.service
+AllowIsolate=yes
+
+[Install]
+WantedBy=multi-user.target
