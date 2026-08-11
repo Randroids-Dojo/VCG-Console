@@ -479,6 +479,8 @@
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
       });
+    } else if (next === "retro-game") {
+      circuitShiftGame?.focus();
     } else {
       launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
     }

@@ -2315,6 +2315,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await page.getByRole("button", { name: /Circuit Shift.*Built in/ }).click();
   await expect(page.getByRole("heading", { name: "Build the signal." })).toBeVisible();
+  await expect(page.getByLabel("Circuit Shift game")).toBeFocused();
   await expect(page.locator("[data-circuit-score]")).toHaveText("0");
 
   await pressSyntheticGamepadButton(page, "__setCircuitShiftGamepad", 14);

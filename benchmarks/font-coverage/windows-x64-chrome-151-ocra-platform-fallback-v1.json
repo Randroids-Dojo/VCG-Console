@@ -68,7 +68,7 @@
     "requestCounts": {
       "/": 1,
       "/assets/main-B4ZSiu6m.css": 1,
-      "/assets/main-v93HrXkc.js": 1,
+      "/assets/main-Co-r5bAI.js": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-CYOVH8wV.js": 1,
       "/assets/synthetic-D3ZzT8jW.js": 1,
@@ -96,13 +96,13 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "edd4e94e4de2aa4c1e94df42b46423b51a90b82d19f412f307a29ab1ca1459d8",
+    "baseEvidencePathSha256": "8de9c5ab032f214a6f2602e2e478bbd2a2dccb909dd24764af3bdce70d8a6861",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
     "generatorPathSha256": "9ac76f5be4703be2f6b90c483bc122008c575745c2cde8e9f9f985f4bdec7131",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "f3f98ca14051c6ec784d7b9c313ae4df79cd46b84f94f9e370c7a70917a19bf5",
+    "validatorPathSha256": "d069d5549f63f1f518c6fcbc57d643404841f9633c8f1dfce564fd565d6a3255",
     "baseEvidenceBytes": 43268,
-    "baseEvidenceSha256": "edd4e94e4de2aa4c1e94df42b46423b51a90b82d19f412f307a29ab1ca1459d8",
+    "baseEvidenceSha256": "8de9c5ab032f214a6f2602e2e478bbd2a2dccb909dd24764af3bdce70d8a6861",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -120,7 +120,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 151,
-      "sha256": "9ecef26f4d642c5a966a63e52bc81f088dee0cff50f8e9f60e4af797bb1c0e73"
+      "sha256": "4877572c29857976411be50059a0e9dc818627b1851d16b59d991c1bcb2e96ec"
     }
   },
   "disposition": {

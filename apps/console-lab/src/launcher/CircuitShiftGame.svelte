@@ -13,6 +13,7 @@
 
   let game = $state<CircuitShiftState>(createCircuitShiftGame());
   let ready = $state(false);
+  let root: HTMLElement;
 
   onMount(() => {
     game = restoreCircuitShift(localStorage.getItem(CIRCUIT_SHIFT_STORAGE_KEY)) ?? game;
@@ -28,6 +29,10 @@
     } else if (action === "select" && game.status === "game-over") {
       restart();
     }
+  }
+
+  export function focus(): void {
+    root.focus({ preventScroll: true });
   }
 
   function move(direction: CircuitShiftDirection): void {
@@ -75,7 +80,7 @@
   }
 </script>
 
-<article class="circuit-shift" aria-label="Circuit Shift game">
+<article bind:this={root} class="circuit-shift" aria-label="Circuit Shift game" tabindex="-1">
   <header>
     <div>
       <p>CIRCUIT SHIFT / OFFLINE</p>

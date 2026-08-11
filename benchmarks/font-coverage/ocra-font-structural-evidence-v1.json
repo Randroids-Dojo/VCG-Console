@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 105,
-      "totalBytes": 979700,
+      "totalBytes": 979909,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -869,8 +869,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/CircuitShiftGame.svelte",
-          "bytes": 7274,
-          "sha256": "b1816fa03fe6dbb713cb8b03fa5ac33867b9692fec24d3e2c3dc986170bde914"
+          "bytes": 7410,
+          "sha256": "9272a89e8d7accef54289a3dce0d36a9b29f569f8272b7c3f2379b5c83eedf79"
         },
         {
           "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
@@ -879,8 +879,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 56659,
-          "sha256": "243188d2d954b32fd74cb84b9badfcaa080d405b45bfc97159ffe1708e42b3d5"
+          "bytes": 56732,
+          "sha256": "83cc45bd1223624122452970cd63060283f1cf50dff53b7d8506916eca1af715"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -1268,13 +1268,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                798,
-                865,
-                882,
-                895,
-                979,
-                1150,
-                1169
+                800,
+                867,
+                884,
+                897,
+                981,
+                1152,
+                1171
               ]
             },
             {
