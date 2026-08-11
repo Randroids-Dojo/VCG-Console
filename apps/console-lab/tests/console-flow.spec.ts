@@ -335,7 +335,7 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.locator("#universal-search").fill("retro");
   await page.getByRole("button", { name: /RetroArch Retro library/ }).click();
   await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
-  await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
+  await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
   const retroEmptyMark = page.locator(".empty-library .empty-glyph");
   await expect(retroEmptyMark).toHaveText("");
   await expect(retroEmptyMark).toHaveAttribute("aria-hidden", "true");
@@ -1850,7 +1850,7 @@ test("retro launch submits only signed package and profile intent to the host", 
   await page.goto(`/?skipBoot=1#vcg-host-port=43124&vcg-host-token=${token}`);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Candidate/ })).toBeVisible();
-  await expect(page.getByText("No retro packages installed")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Circuit Shift.*Built in/ })).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
   const mismatchedLaunch = page.getByRole("dialog", { name: "2048" });
   await expect(mismatchedLaunch.getByText("NOT AVAILABLE")).toBeVisible();
@@ -2046,7 +2046,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await trigger.click();
   await expect(input).toHaveValue("");
   const allResults = page.locator("#search-results button");
-  await expect(allResults).toHaveCount(21);
+  await expect(allResults).toHaveCount(22);
   const resultList = page.locator("#search-results");
   expect(
     await resultList.evaluate(
@@ -2087,7 +2087,7 @@ test("Search no-result recovery clears locally and opens stable category results
   await page.keyboard.press("Enter");
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect(page.locator("#search-results button")).toHaveCount(21);
+  await expect(page.locator("#search-results button")).toHaveCount(22);
 
   await input.fill("no-such-vcg-destination");
   await page.keyboard.press("ArrowDown");
@@ -2278,7 +2278,7 @@ test("Search destructive progress route defaults to denial and preserves the ent
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
-  await expect(page.getByText("Installed retro catalog unavailable")).toBeVisible();
+  await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
   const launch = page.getByRole("dialog", { name: "2048" });
   await expect(launch).toHaveAttribute("data-launch-adapter", "retro");
@@ -2291,6 +2291,41 @@ test("retro candidate remains visibly uninstalled and guards the host handoff", 
   await page.getByRole("button", { name: /Search games/ }).click();
   await page.locator("#universal-search").fill("2048");
   await expect(page.getByRole("button", { name: /2048 Retro qualification candidate/ })).toBeVisible();
+});
+
+test("built-in Circuit Shift launches offline, accepts controller input, and saves progress", async ({ page }) => {
+  await installSyntheticStandardGamepad(
+    page,
+    "__setCircuitShiftGamepad",
+    "Playwright Circuit Shift controller",
+  );
+  await page.goto("/?skipBoot=1");
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "vcg.console.circuit-shift.v1",
+      JSON.stringify({
+        version: 1,
+        board: [2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        score: 0,
+        best: 0,
+      }),
+    );
+  });
+
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await page.getByRole("button", { name: /Circuit Shift.*Built in/ }).click();
+  await expect(page.getByRole("heading", { name: "Build the signal." })).toBeVisible();
+  await expect(page.locator("[data-circuit-score]")).toHaveText("0");
+
+  await pressSyntheticGamepadButton(page, "__setCircuitShiftGamepad", 14);
+  await expect(page.locator("[data-circuit-score]")).toHaveText("4");
+  await expect.poll(async () => page.evaluate(() => {
+    const stored = localStorage.getItem("vcg.console.circuit-shift.v1");
+    return stored === null ? null : JSON.parse(stored).score;
+  })).toBe(4);
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
 });
 
 test("launcher remains usable on a narrow setup display", async ({ page }) => {

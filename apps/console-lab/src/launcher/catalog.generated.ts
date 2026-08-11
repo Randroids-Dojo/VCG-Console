@@ -90,6 +90,30 @@ export const launcherCatalog = {
       "statusLabel": "Partial"
     },
     {
+      "id": "circuit-shift",
+      "version": "1.0.0",
+      "title": "Circuit Shift",
+      "publisher": "VCG Console",
+      "runtime": "local-web",
+      "entrypoint": "builtin:circuit-shift",
+      "network": "offline",
+      "compatibilityStatus": "partial",
+      "surface": "retro",
+      "displayIndex": "R1",
+      "searchDetail": "Built-in retro game",
+      "searchTerms": [
+        "circuit",
+        "shift",
+        "puzzle",
+        "tiles",
+        "offline",
+        "built",
+        "in"
+      ],
+      "summary": "Original offline puzzle · controller ready",
+      "statusLabel": "Built in"
+    },
+    {
       "id": "retro-2048",
       "version": "qualification-candidate-2026-07-23",
       "title": "2048",

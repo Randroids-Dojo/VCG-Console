@@ -44,7 +44,7 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "b97a32a3cd8f0eaf8ed39421e0285fe762cca58f8cb89cedee9a20d29f0935d8"
+      "sha256": "37ca0b363143aec0159cd22dd9feda17c87ea6066224fa4ad38f3ff88a97369d"
     },
     {
       "role": "boot-resume-launch-boundary",

@@ -460,7 +460,7 @@ for (const resolution of RESOLUTIONS) {
     await page.keyboard.press("Enter");
     await expect(input).toHaveValue("");
     await expect(input).toBeFocused();
-    await expect(page.locator("#search-results button")).toHaveCount(21);
+    await expect(page.locator("#search-results button")).toHaveCount(22);
 
     await input.fill("no-such-vcg-destination");
     await page.keyboard.press("ArrowDown");
@@ -493,13 +493,13 @@ for (const resolution of RESOLUTIONS) {
     const input = page.locator("#universal-search");
     await expect(input).toBeFocused();
     const results = page.locator("#search-results button");
-    await expect(results).toHaveCount(21);
+    await expect(results).toHaveCount(22);
     await expect(
       page.locator(".search-overlay [data-tv-critical-text]:visible"),
-    ).toHaveCount(45);
+    ).toHaveCount(47);
     await expect(
       page.locator(".search-overlay [data-tv-action]:visible"),
-    ).toHaveCount(22);
+    ).toHaveCount(23);
     const scroller = page.locator("#search-results");
     const initialScroll = await scroller.evaluate((element) => ({
       clientHeight: element.clientHeight,
@@ -556,7 +556,7 @@ for (const resolution of RESOLUTIONS) {
       resolution,
       ".search-overlay",
       measuredCriticalText.length,
-      22,
+      23,
       "#search-results",
     );
 

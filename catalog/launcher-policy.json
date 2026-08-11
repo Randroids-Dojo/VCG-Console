@@ -48,6 +48,15 @@
       "statusLabel": "Partial"
     },
     {
+      "id": "circuit-shift",
+      "surface": "retro",
+      "displayIndex": "R1",
+      "searchDetail": "Built-in retro game",
+      "searchTerms": ["circuit", "shift", "puzzle", "tiles", "offline", "built", "in"],
+      "summary": "Original offline puzzle · controller ready",
+      "statusLabel": "Built in"
+    },
+    {
       "id": "retro-2048",
       "surface": "retro",
       "displayIndex": "Q1",
