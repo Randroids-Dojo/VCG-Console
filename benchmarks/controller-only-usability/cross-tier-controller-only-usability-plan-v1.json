@@ -40,17 +40,17 @@
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "9315015d1afd14f13a78c10077464efbc5f21f494b44c28ea6dc140d8eed4b06"
+      "sha256": "5b12e2d4e21486b9a42cb2c7aa748a855ec40a4aff9ca4a8f92ca180078e15a6"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "daa6b1edaaf76730d7cb4ac40d43d09f25fea658dc5dd7a740beb960ae6b7518"
+      "sha256": "efd5cf24ffbcc92959dcadf364c3a2db53beacefa75b24760d6787852ac86473"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "e6817077edeadca9fd297bb1101d273fe3a7fe58c43f7ccc824324986a12f6d1"
+      "sha256": "32cf71564025612ab9b8781306d478af224af7d361bf12d64f6b1f2e93f15fe1"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",

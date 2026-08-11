@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "e5f195238c1c758aaa843d2a4939834e3ef54ce5bad8db9e5cc9871b27c6c2d3"
+      "sha256": "5e056596dd6eec84d34795c640f197ef23acca8d53b1f12ae7ca4e90947554b4"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",

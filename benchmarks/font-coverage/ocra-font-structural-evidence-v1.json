@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 102,
-      "totalBytes": 940884,
+      "totalBytes": 940899,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -814,13 +814,13 @@
         },
         {
           "path": "apps/console-lab/src/controller-player-assignment.test.ts",
-          "bytes": 2614,
-          "sha256": "038d6b756711ea73e9420c6f54170e7d6c82bd212414b2e7832caf33c222b818"
+          "bytes": 2619,
+          "sha256": "1209d9daa364a1aeed0b1232b1877acd641a6306d84c7869f4cbc8406c15f90d"
         },
         {
           "path": "apps/console-lab/src/controller-player-assignment.ts",
-          "bytes": 4001,
-          "sha256": "8726b17442e45123a1ddf4c456eaddc06c93a54de7786a94f1b2fb7878bc5486"
+          "bytes": 4011,
+          "sha256": "39275625121a8a160aa89103b5ef73e506019ee5fae2146b93699fe314ce8d4f"
         },
         {
           "path": "apps/console-lab/src/frame-gate.test.ts",
