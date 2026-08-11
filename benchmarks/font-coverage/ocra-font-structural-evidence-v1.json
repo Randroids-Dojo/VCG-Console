@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 102,
-      "totalBytes": 959547,
+      "fileCount": 105,
+      "totalBytes": 979909,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -868,14 +868,19 @@
           "sha256": "87983e55e399023b3fb1c66bfa8eaf30c36afc07d08a9ade50ea34d6f04c5e64"
         },
         {
+          "path": "apps/console-lab/src/launcher/CircuitShiftGame.svelte",
+          "bytes": 7410,
+          "sha256": "9272a89e8d7accef54289a3dce0d36a9b29f569f8272b7c3f2379b5c83eedf79"
+        },
+        {
           "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
           "bytes": 6290,
           "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 54434,
-          "sha256": "85259d0685520da09f716413e2aa728dc041c800d31e85d35dd3ead56398ba16"
+          "bytes": 56732,
+          "sha256": "83cc45bd1223624122452970cd63060283f1cf50dff53b7d8506916eca1af715"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -944,8 +949,18 @@
         },
         {
           "path": "apps/console-lab/src/launcher/catalog.generated.ts",
-          "bytes": 3258,
-          "sha256": "f7bb55eb2de3658081a639140ed7b96629d4368f798724ee7e30ef2cb0465f62"
+          "bytes": 3882,
+          "sha256": "eb397879e05388d21b8d4e48266d5ced298fa6cfe26ce32630524c137d055422"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/circuit-shift.test.ts",
+          "bytes": 3416,
+          "sha256": "b4d02be5e98059d0fe95060d3df9d2ff1c9c440c14dc215639e08271e358e55b"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/circuit-shift.ts",
+          "bytes": 6597,
+          "sha256": "5abf3bad3591d388fb8cb90b02aabea68ff586ecba6a5904538b79fb0fb9973f"
         },
         {
           "path": "apps/console-lab/src/launcher/hosted-browser-preview.test.ts",
@@ -1039,8 +1054,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1701,
-          "sha256": "74bdcd3eb1704664b2822d8358d4d8c45bd276dd2f52cccd6552a982db63e081"
+          "bytes": 1718,
+          "sha256": "3a9289568e792235748909e18cb9a19060814aa0b86d29b6f71169fdf5f56db0"
         },
         {
           "path": "apps/console-lab/src/launcher/unassigned-progress.test.ts",
@@ -1253,13 +1268,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                744,
-                811,
-                828,
-                841,
-                925,
-                1095,
-                1114
+                800,
+                867,
+                884,
+                897,
+                981,
+                1152,
+                1171
               ]
             },
             {
@@ -1320,7 +1335,8 @@
                 48,
                 68,
                 89,
-                112
+                113,
+                136
               ]
             },
             {

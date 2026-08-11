@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "circuit-shift",
+  "version": "1.0.0",
+  "title": "Circuit Shift",
+  "publisher": "VCG Console",
+  "runtime": "local-web",
+  "entrypoint": "builtin:circuit-shift",
+  "architectures": ["web"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "partial",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "explicit-ready"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "owner-confirmed"
+  },
+  "notes": [
+    "Original VCG Console game implemented without third-party code, art, audio, fonts, or ROM content.",
+    "Browser and synthetic-controller behavior is verified; physical Raspberry Pi, television, and controller qualification remains pending."
+  ]
+}

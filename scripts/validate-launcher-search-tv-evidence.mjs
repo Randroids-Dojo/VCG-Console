@@ -67,7 +67,7 @@ const EXPECTED_STATES = Object.freeze([
     recoveryExpectation: {
       clearActionLabel: "Clear search",
       clearQuery: "",
-      clearResultCount: 21,
+      clearResultCount: 22,
       categoryActionLabel: "Motion",
       categoryQuery: "motion",
       categoryResultCount: 5,
@@ -87,9 +87,9 @@ const EXPECTED_STATES = Object.freeze([
   {
     id: "empty-query-scroll-activation",
     query: "",
-    resultCount: 21,
-    criticalTextCount: 45,
-    actionTargetCount: 22,
+    resultCount: 22,
+    criticalTextCount: 47,
+    actionTargetCount: 23,
     measurementMode: "fully-visible-marked",
     scrollingExpectedResolutionIds: ["720p", "1080p"],
     activation: {
@@ -350,8 +350,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-    bytes: 184717,
-    sha256: "69e4a0964fbc30441e618e5b5156ca96662440a6b907f3f98c4d87c2c7d7e46e",
+    bytes: 183916,
+    sha256: "dc7eb6bd19fb48d8030365b9e7e8b88b00e6b5e0a5c0db04c92273f1ed956afd",
   },
   "offline-package-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
@@ -390,8 +390,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-    bytes: 532148,
-    sha256: "9c7a907a6d69478b03dbdeb1a4777ccb9ec93e0aaa44baf9ba132e65d5aea774",
+    bytes: 547180,
+    sha256: "abb2827ecdfe2aa44f202fa59ac1c83e8564429ae711ef8376dc87770542784e",
   },
   "offline-package-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
@@ -455,10 +455,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 523,
-      scrollHeightCssPx: 1054,
+      scrollHeightCssPx: 1102,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 531,
-      maximumScrollTopCssPx: 531,
+      finalScrollTopCssPx: 579,
+      maximumScrollTopCssPx: 579,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -567,10 +567,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 798,
-      scrollHeightCssPx: 1021,
+      scrollHeightCssPx: 1069,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 223,
-      maximumScrollTopCssPx: 223,
+      finalScrollTopCssPx: 271,
+      maximumScrollTopCssPx: 271,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -673,13 +673,13 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "empty-query-scroll-activation/4k": {
-    measuredCriticalTextCount: 45,
+    measuredCriticalTextCount: 47,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1936.656,
     minimumActionTargetHeightCssPx: 61,
     resultsScroll: {
-      clientHeightCssPx: 1341,
-      scrollHeightCssPx: 1341,
+      clientHeightCssPx: 1402,
+      scrollHeightCssPx: 1402,
       initialScrollTopCssPx: 0,
       finalScrollTopCssPx: 0,
       maximumScrollTopCssPx: 0,

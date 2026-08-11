@@ -6,6 +6,7 @@ export type LauncherView =
   | "session-adversarial"
   | "museum"
   | "retro"
+  | "retro-game"
   | "profiles"
   | "profile-management"
   | "calibration"

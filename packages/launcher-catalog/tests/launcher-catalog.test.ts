@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import circuitShift from "../../../catalog/circuit-shift.vcg-game.json";
 import determined from "../../../catalog/determined.vcg-game.json";
 import policy from "../../../catalog/launcher-policy.json";
 import miCasa from "../../../catalog/mi-casa-es-su-casa.vcg-game.json";
@@ -10,7 +11,7 @@ import {
   serializeLauncherCatalogModule,
 } from "../src/index";
 
-const manifests: readonly unknown[] = [determined, miCasa, retro2048, vibeBots];
+const manifests: readonly unknown[] = [circuitShift, determined, miCasa, retro2048, vibeBots];
 
 describe("canonical launcher catalog", () => {
   it("resolves every policy entry from validated game-manifest authority", () => {
@@ -20,6 +21,7 @@ describe("canonical launcher catalog", () => {
       "vibebots",
       "mi-casa-es-su-casa",
       "determined",
+      "circuit-shift",
       "retro-2048",
     ]);
     expect(catalog.entries[0]).toMatchObject({
@@ -30,6 +32,12 @@ describe("canonical launcher catalog", () => {
       surface: "museum",
     });
     expect(catalog.entries[3]).toMatchObject({
+      title: "Circuit Shift",
+      runtime: "local-web",
+      network: "offline",
+      surface: "retro",
+    });
+    expect(catalog.entries[4]).toMatchObject({
       title: "2048",
       runtime: "libretro",
       network: "offline",
@@ -50,7 +58,7 @@ describe("canonical launcher catalog", () => {
   });
 
   it("rejects missing, unknown, duplicate, and conflicting catalog membership", () => {
-    expect(() => buildLauncherCatalog(manifests.slice(1), policy)).toThrow(
+    expect(() => buildLauncherCatalog(manifests.filter((manifest) => manifest !== determined), policy)).toThrow(
       /unknown policy entries: determined/,
     );
 
@@ -86,7 +94,7 @@ describe("canonical launcher catalog", () => {
     const confusedSurface = structuredClone(policy);
     confusedSurface.entries[0]!.surface = "retro";
     expect(() => buildLauncherCatalog(manifests, confusedSurface)).toThrow(
-      /retro game vibebots must use the libretro runtime/,
+      /retro game vibebots must use the libretro or local-web runtime/,
     );
   });
 

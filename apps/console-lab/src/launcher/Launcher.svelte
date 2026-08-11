@@ -18,12 +18,14 @@
     type AccessibilityPreferenceSnapshot,
   } from "./accessibility-preferences";
   import CalibrationRehearsalView from "./CalibrationRehearsalView.svelte";
+  import CircuitShiftGame from "./CircuitShiftGame.svelte";
   import {
     AcceptedCalibrationResultCollection,
     CalibrationRehearsalController,
     type CalibrationReadyResult,
   } from "./calibration-rehearsal";
   import { launcherCatalog } from "./catalog.generated";
+  import { isCircuitShiftEntry } from "./circuit-shift";
   import {
     HostedBrowserPreviewController,
     type HostedBrowserPreviewPlan,
@@ -69,6 +71,7 @@
   let portraitCapture: PortraitCaptureView;
   let profileManagement: ProfileManagementView;
   let calibrationRehearsal: CalibrationRehearsalView;
+  let circuitShiftGame = $state<CircuitShiftGame | undefined>();
   let sessionAdversarial: SessionAdversarialView;
   let unassigned: UnassignedProgressView;
   let visible = $state(true);
@@ -182,11 +185,7 @@
       terms: [entry.id, entry.runtime, entry.network, entry.compatibilityStatus, ...entry.searchTerms].join(" "),
       action: () => {
         if (entry.surface === "retro") {
-          launchHostedAdapter("retro", entry.title, {
-            gameId: entry.id,
-            version: entry.version,
-            runtime: entry.runtime,
-          });
+          launchCatalogEntry(entry);
           return;
         }
         void showView(entry.surface);
@@ -480,6 +479,8 @@
       launcher.querySelector<HTMLButtonElement>(".unassigned-list button")?.focus({
         preventScroll: true,
       });
+    } else if (next === "retro-game") {
+      circuitShiftGame?.focus();
     } else {
       launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
     }
@@ -515,6 +516,7 @@
       showView("profile-management");
     }
     else if (view === "session-adversarial") showView("motion");
+    else if (view === "retro-game") showView("retro");
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -531,6 +533,10 @@
     }
     if (action === "back") {
       back();
+      return;
+    }
+    if (view === "retro-game") {
+      circuitShiftGame?.handleInput(action);
       return;
     }
 
@@ -608,6 +614,7 @@
   }
 
   function isCatalogEntryInstalled(entry: (typeof launcherCatalog.entries)[number]): boolean {
+    if (isCircuitShiftEntry(entry)) return true;
     return nativePackageInventory?.packages.some(
       (installed) =>
         installed.id === entry.id &&
@@ -619,7 +626,9 @@
   function installedPackageSummary(): string {
     if (nativePackageInventoryState === "checking") return "Checking signed package catalog";
     if (nativePackageInventoryState === "unavailable") return "Local package catalog unavailable";
-    const count = launcherCatalog.entries.filter(isCatalogEntryInstalled).length;
+    const count = launcherCatalog.entries.filter(
+      (entry) => entry.runtime !== "local-web" && isCatalogEntryInstalled(entry),
+    ).length;
     return `${count} signed ${count === 1 ? "package" : "packages"} installed`;
   }
 
@@ -721,6 +730,53 @@
     launchSession = undefined;
     disposeLaunchSupervisor();
     openLab(mode);
+  }
+
+  function launchCatalogEntry(entry: (typeof launcherCatalog.entries)[number]): void {
+    if (isCircuitShiftEntry(entry)) {
+      void launchCircuitShift(entry.title);
+      return;
+    }
+    launchHostedAdapter("retro", entry.title, {
+      gameId: entry.id,
+      version: entry.version,
+      runtime: entry.runtime,
+    });
+  }
+
+  async function launchCircuitShift(title: string): Promise<void> {
+    const { run, attempt, supervisor } = beginSupervisedLaunch({
+      ...baseLaunch("local-web", title, "RETRO HUB / BUILT IN"),
+      progress: 0,
+    }, LOCAL_LAUNCH_BUDGET);
+    launchRetryOperation = (nextAttempt) => void runCircuitShiftAttempt(
+      supervisor,
+      run,
+      nextAttempt,
+    );
+    await runCircuitShiftAttempt(supervisor, run, attempt);
+  }
+
+  async function runCircuitShiftAttempt(
+    supervisor: LaunchSupervisor,
+    run: number,
+    attempt: number,
+  ): Promise<void> {
+    await tick();
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.advance(1, "Built-in game verified", 1 / 3);
+    await nextLaunchFrame();
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.advance(2, "D-pad, Back, and Home reserved", 2 / 3);
+    await nextLaunchFrame();
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    supervisor.heartbeat("Circuit Shift accepted focus");
+    supervisor.ready(attempt > 1 ? "Circuit Shift recovered" : "Circuit Shift ready");
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
+    if (!isCurrentLaunch(supervisor, run, attempt)) return;
+    launchSession = undefined;
+    disposeLaunchSupervisor();
+    await showView("retro-game");
   }
 
   function launchMuseum(): void {
@@ -1026,7 +1082,8 @@
 
   async function positionSignal(): Promise<void> {
     await tick();
-    const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${view}"]`);
+    const navView = view === "retro-game" ? "retro" : view;
+    const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${navView}"]`);
     navSignalOffset = active ? active.offsetTop - 52 : 0;
   }
 
@@ -1060,7 +1117,7 @@
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateY(${navSignalOffset}px)`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
-        <button class:active={view === target || (target === "motion" && view === "session-adversarial")} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "motion" && view === "session-adversarial") || (target === "retro" && view === "retro-game")} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
@@ -1129,7 +1186,7 @@
         {:else if nativePackageInventoryState === "unavailable"}
           <div class="empty-library">
             <span class="empty-glyph" aria-hidden="true"></span>
-            <div><strong>Installed retro catalog unavailable</strong><p>Connect the native console host to verify signed local packages.</p></div>
+            <div><strong>Signed package catalog unavailable</strong><p>Built-in games remain ready. Connect the native host to verify imported packages.</p></div>
             <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
           </div>
         {:else if !hasInstalledRetroPackage()}
@@ -1143,14 +1200,9 @@
           {#each retroCatalogEntries as entry}
             <button
               type="button"
-              onclick={() =>
-                launchHostedAdapter("retro", entry.title, {
-                  gameId: entry.id,
-                  version: entry.version,
-                  runtime: entry.runtime,
-                })}
+              onclick={() => launchCatalogEntry(entry)}
             >
-              <span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
+              <span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{entry.runtime === "local-web" ? entry.statusLabel : isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
             </button>
           {/each}
         </div>
@@ -1158,6 +1210,12 @@
           <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>
           <button type="button" onclick={openSearch}>Search library</button>
         </div>
+      </div>
+
+      <div class="launcher-view retro-game-view" data-launcher-view="retro-game" hidden={view !== "retro-game"}>
+        {#if view === "retro-game"}
+          <CircuitShiftGame bind:this={circuitShiftGame} />
+        {/if}
       </div>
 
       <div class="launcher-view profiles-view" data-launcher-view="profiles" hidden={view !== "profiles"}>

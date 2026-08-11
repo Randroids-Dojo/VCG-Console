@@ -248,8 +248,14 @@ function validateSurface(
       `museum game ${manifest.id} must use the remote-web runtime`,
     );
   }
-  if (surface === "retro" && manifest.runtime !== "libretro") {
-    throw new LauncherCatalogError(`retro game ${manifest.id} must use the libretro runtime`);
+  if (
+    surface === "retro" &&
+    manifest.runtime !== "libretro" &&
+    manifest.runtime !== "local-web"
+  ) {
+    throw new LauncherCatalogError(
+      `retro game ${manifest.id} must use the libretro or local-web runtime`,
+    );
   }
 }
 
