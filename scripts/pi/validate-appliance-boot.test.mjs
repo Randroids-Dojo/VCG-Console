@@ -47,6 +47,13 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   assert.match(unit, /^Restart=always$/m);
   assert.match(unit, /^StartLimitIntervalSec=0$/m);
   assert.match(unit, /^User=@CONSOLE_USER@$/m);
+  // pam_systemd (PAMName=login) sets XDG_RUNTIME_DIR to the real login-session
+  // runtime directory (/run/user/<uid>), overriding the Environment= line
+  // above, so Cage/Chromium create their Wayland socket there. Confirmed live
+  // on a Pi 5: without this being writable too, every launch fails with
+  // "Unable to open Wayland socket: Invalid argument" after exhausting all
+  // wayland-0..31 lock attempts.
+  assert.match(unit, /^ReadWritePaths=.*\/run\/user\/%U/m);
 });
 
 test("the appliance target is a multi-user boot target", async () => {
