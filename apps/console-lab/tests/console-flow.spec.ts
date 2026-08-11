@@ -75,7 +75,7 @@ async function installSyntheticStandardGamepadPair(
       })),
       connected: true,
       hapticActuators: [],
-      id: `Playwright controller ${index + 1}`,
+      id: "Playwright same-model controller",
       index,
       mapping: "standard",
       timestamp: performance.now(),

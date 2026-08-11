@@ -125,6 +125,7 @@ const publicSubjectIds = RUNTIME_PAYLOAD_SCORECARD_SUBJECT_IDS.slice(0, 3);
 const obstacleSourcePaths = Object.freeze([
   "apps/console-lab/src/action-engine.ts",
   "apps/console-lab/src/action-feedback.ts",
+  "apps/console-lab/src/controller-player-assignment.ts",
   "apps/console-lab/src/main.ts",
   "apps/console-lab/src/obstacle-game.ts",
   "apps/console-lab/src/renderer.ts",

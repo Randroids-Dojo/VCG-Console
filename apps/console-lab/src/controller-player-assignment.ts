@@ -1,6 +1,10 @@
 import type { PlayerSlot } from "./player-session";
 
-export type ControllerAssignmentState = "assigned" | "waiting" | "unsupported";
+export type ControllerAssignmentState =
+  | "assigned"
+  | "claim-required"
+  | "waiting"
+  | "unsupported";
 
 export interface ControllerAssignment {
   readonly browserIndex: number;
@@ -10,7 +14,6 @@ export interface ControllerAssignment {
 
 interface ConnectedController {
   readonly browserIndex: number;
-  readonly identity: string;
   readonly supported: boolean;
   slot?: PlayerSlot;
 }
@@ -19,36 +22,35 @@ const PLAYER_SLOTS: readonly PlayerSlot[] = [1, 2];
 
 /**
  * Session-only controller ownership for recovery input and controller games.
- * Browser device identities are retained only in memory to recover an
- * unambiguous reconnect; snapshots and UI events never expose them.
+ * The Web Gamepad API exposes a product label, not a unique device identity.
+ * A disconnected player slot therefore requires an intentional button press
+ * from a waiting controller before authority moves to that browser index.
  */
 export class ControllerPlayerAssignments {
   readonly #connected = new Map<number, ConnectedController>();
-  readonly #rememberedSlots = new Map<string, Set<PlayerSlot>>();
+  readonly #releasedSlots = new Set<PlayerSlot>();
 
-  connect(gamepad: Pick<Gamepad, "id" | "index" | "mapping">): ControllerAssignment {
+  connect(gamepad: Pick<Gamepad, "index" | "mapping">): ControllerAssignment {
     const existing = this.#connected.get(gamepad.index);
-    if (existing?.identity === gamepad.id && existing.supported === (gamepad.mapping === "standard")) {
-      return publicAssignment(existing);
+    if (existing?.supported === (gamepad.mapping === "standard")) {
+      return this.#publicAssignment(existing);
     }
     if (existing) this.#disconnect(existing);
 
     const controller: ConnectedController = {
       browserIndex: gamepad.index,
-      identity: gamepad.id,
       supported: gamepad.mapping === "standard",
     };
     this.#connected.set(controller.browserIndex, controller);
-    this.#assignWaiting();
-    return publicAssignment(controller);
+    this.#assignInitial(controller);
+    return this.#publicAssignment(controller);
   }
 
-  disconnect(gamepad: Pick<Gamepad, "id" | "index">): ControllerAssignment | undefined {
+  disconnect(gamepad: Pick<Gamepad, "index">): ControllerAssignment | undefined {
     const controller = this.#connected.get(gamepad.index);
-    if (!controller || controller.identity !== gamepad.id) return undefined;
-    const assignment = publicAssignment(controller);
+    if (!controller) return undefined;
+    const assignment = this.#publicAssignment(controller);
     this.#disconnect(controller);
-    this.#assignWaiting();
     return assignment;
   }
 
@@ -56,62 +58,65 @@ export class ControllerPlayerAssignments {
     return this.#connected.get(browserIndex)?.slot;
   }
 
+  claimAvailableSlot(
+    browserIndex: number,
+    allowedSlots: readonly PlayerSlot[] = PLAYER_SLOTS,
+  ): PlayerSlot | undefined {
+    const controller = this.#connected.get(browserIndex);
+    if (!controller?.supported || controller.slot !== undefined) return controller?.slot;
+    const slot = PLAYER_SLOTS.find(
+      (candidate) => allowedSlots.includes(candidate) && this.#releasedSlots.has(candidate),
+    );
+    if (slot === undefined) return undefined;
+    controller.slot = slot;
+    this.#releasedSlots.delete(slot);
+    return slot;
+  }
+
   snapshot(): readonly ControllerAssignment[] {
     return [...this.#connected.values()]
       .sort((left, right) => left.browserIndex - right.browserIndex)
-      .map(publicAssignment);
+      .map((controller) => this.#publicAssignment(controller));
   }
 
   reset(): void {
     this.#connected.clear();
-    this.#rememberedSlots.clear();
+    this.#releasedSlots.clear();
   }
 
   #disconnect(controller: ConnectedController): void {
     this.#connected.delete(controller.browserIndex);
     if (controller.slot === undefined) return;
-    const remembered = this.#rememberedSlots.get(controller.identity) ?? new Set<PlayerSlot>();
-    remembered.add(controller.slot);
-    this.#rememberedSlots.set(controller.identity, remembered);
+    this.#releasedSlots.add(controller.slot);
   }
 
-  #assignWaiting(): void {
+  #assignInitial(controller: ConnectedController): void {
+    if (!controller.supported) return;
     const assigned = new Set(
       [...this.#connected.values()].flatMap((controller) =>
         controller.slot === undefined ? [] : [controller.slot],
       ),
     );
-    const waiting = [...this.#connected.values()]
-      .filter((controller) => controller.supported && controller.slot === undefined)
-      .sort((left, right) => left.browserIndex - right.browserIndex);
+    const slot = PLAYER_SLOTS.find(
+      (candidate) => !assigned.has(candidate) && !this.#releasedSlots.has(candidate),
+    );
+    if (slot !== undefined) controller.slot = slot;
+  }
 
-    for (const controller of waiting) {
-      const remembered = this.#rememberedSlots.get(controller.identity);
-      const rememberedSlot = remembered?.size === 1 ? [...remembered][0] : undefined;
-      const slot = rememberedSlot !== undefined && !assigned.has(rememberedSlot)
-        ? rememberedSlot
-        : PLAYER_SLOTS.find((candidate) => !assigned.has(candidate));
-      if (slot === undefined) continue;
-      controller.slot = slot;
-      assigned.add(slot);
-      if (remembered) {
-        remembered.delete(slot);
-        if (remembered.size === 0) this.#rememberedSlots.delete(controller.identity);
-      }
+  #publicAssignment(controller: ConnectedController): ControllerAssignment {
+    if (!controller.supported) {
+      return { browserIndex: controller.browserIndex, state: "unsupported" };
     }
+    if (controller.slot === undefined) {
+      return {
+        browserIndex: controller.browserIndex,
+        state: this.#releasedSlots.size > 0 ? "claim-required" : "waiting",
+      };
+    }
+    return {
+      browserIndex: controller.browserIndex,
+      state: "assigned",
+      slot: controller.slot,
+    };
   }
-}
-
-function publicAssignment(controller: ConnectedController): ControllerAssignment {
-  if (!controller.supported) {
-    return { browserIndex: controller.browserIndex, state: "unsupported" };
-  }
-  if (controller.slot === undefined) {
-    return { browserIndex: controller.browserIndex, state: "waiting" };
-  }
-  return {
-    browserIndex: controller.browserIndex,
-    state: "assigned",
-    slot: controller.slot,
-  };
 }

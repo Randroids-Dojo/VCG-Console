@@ -36,6 +36,7 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   assert.match(unit, /^TTYPath=\/dev\/tty1$/m);
   assert.match(unit, /^PAMName=login$/m);
   assert.match(unit, /^PartOf=vcg-console\.target$/m);
+  assert.match(unit, /^After=bluetooth\.service /m);
   assert.match(unit, /^ExecStartPre=.*wait-for-console\.sh @REPO_ROOT@$/m);
   assert.match(
     unit,

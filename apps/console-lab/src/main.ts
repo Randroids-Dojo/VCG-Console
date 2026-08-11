@@ -530,6 +530,8 @@ const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
     const assignment = controllerAssignments.connect(gamepad);
     statusDetail.textContent = assignment.state === "assigned"
       ? `Controller ready for Player ${assignment.slot}.`
+      : assignment.state === "claim-required"
+        ? "Controller ready. Press a gameplay button to claim the open player slot."
       : assignment.state === "waiting"
         ? "Controller ready. Both player slots are in use."
         : "Controller connected, but its button layout is not supported.";
@@ -711,8 +713,17 @@ function handleAction(action: MotionAction, trackId: string): void {
 }
 
 function recoveryGameplaySlot(gamepad?: Pick<Gamepad, "index">): PlayerSlot | undefined {
-  const assignedSlot = gamepad === undefined ? 1 : controllerAssignments.slotForIndex(gamepad.index);
-  return assignedSlot !== undefined && obstacle.snapshot().joinedSlots.includes(assignedSlot)
+  const joinedSlots = obstacle.snapshot().joinedSlots;
+  let assignedSlot: PlayerSlot | undefined = gamepad === undefined
+    ? 1
+    : controllerAssignments.slotForIndex(gamepad.index);
+  if (gamepad !== undefined && assignedSlot === undefined) {
+    assignedSlot = controllerAssignments.claimAvailableSlot(gamepad.index, joinedSlots);
+    if (assignedSlot !== undefined) {
+      statusDetail.textContent = `Controller ready for Player ${assignedSlot}.`;
+    }
+  }
+  return assignedSlot !== undefined && joinedSlots.includes(assignedSlot)
     ? assignedSlot
     : undefined;
 }
