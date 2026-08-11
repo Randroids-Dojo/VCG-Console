@@ -65,7 +65,10 @@ Both refuse to build on a digest or size mismatch. Read `docs/DECISIONS.md` befo
 
 ## Target hardware
 
-For a first session on delivered Raspberry Pi hardware, follow [the day-one bring-up guide](PI_DAY_ONE_BRINGUP.md) and its `scripts/pi/bootstrap.sh`.
+For a first session on delivered Raspberry Pi hardware, follow
+[the day-one bring-up guide](PI_DAY_ONE_BRINGUP.md) and its one-command
+`scripts/pi/setup-console.sh` path. The lower-level `bootstrap.sh` and
+`install-appliance.sh` remain available for development and recovery.
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 

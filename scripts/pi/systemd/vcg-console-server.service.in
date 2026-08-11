@@ -11,6 +11,7 @@ Group=@CONSOLE_GROUP@
 WorkingDirectory=@REPO_ROOT@/apps/console-lab
 Environment=HOME=@CONSOLE_HOME@
 Environment=NODE_ENV=production
+Environment=PATH=@NODE_BIN_DIR@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart=@REPO_ROOT@/apps/console-lab/node_modules/.bin/vite preview --host 127.0.0.1 --port 4173 --strictPort
 Restart=always
 RestartSec=3

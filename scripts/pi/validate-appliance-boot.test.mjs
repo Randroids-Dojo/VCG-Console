@@ -13,6 +13,7 @@ test("the server is loopback-only and uses the production preview", async () => 
     /apps\/console-lab\/node_modules\/\.bin\/vite preview --host 127\.0\.0\.1 --port 4173 --strictPort/,
   );
   assert.match(unit, /^WorkingDirectory=@REPO_ROOT@\/apps\/console-lab$/m);
+  assert.match(unit, /^Environment=PATH=@NODE_BIN_DIR@:/m);
   assert.doesNotMatch(unit, /--host 0\.0\.0\.0/);
   assert.match(unit, /^User=@CONSOLE_USER@$/m);
   assert.match(unit, /^PartOf=vcg-console\.target$/m);
@@ -68,6 +69,41 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);
+  assert.match(installer, /Node\.js 22 or newer is required/);
+});
+
+test("one setup command installs, builds, verifies, and owns boot", async () => {
+  const setup = await read("./setup-console.sh");
+
+  assert.match(setup, /VERSION_CODENAME:-.*trixie/);
+  assert.match(setup, /node_version="22\.23\.2"/);
+  assert.match(
+    setup,
+    /node_sha256="fff4078c5def658577f92c88db7db3bc0072924bfb93fe52c1e744a54e94abb8"/,
+  );
+  assert.match(
+    setup,
+    /pnpm_sha512="c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"/,
+  );
+  assert.match(setup, /npm_path.*install --global --ignore-scripts --prefix/);
+  for (const packageName of ["bluez", "cage", "chromium", "rustup", "v4l-utils"]) {
+    assert.match(setup, new RegExp(`^  ${packageName}$`, "m"));
+  }
+  assert.match(setup, /bootstrap_args=\(--no-install-instructions\)/);
+  assert.match(setup, /bootstrap_args\+?=?.*--full-verify/);
+  assert.match(setup, /scripts\/pi\/install-appliance\.sh/);
+  assert.match(setup, /The next boot enters the fullscreen console instead of the desktop/);
+
+  if (process.platform === "win32") return;
+  const result = spawnSync(
+    "bash",
+    ["scripts/pi/setup-console.sh", "--dry-run", "--user", "vcg"],
+    { encoding: "utf8" },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /VCG Console Raspberry Pi setup plan/);
+  assert.match(result.stdout, /Rendered VCG Console appliance units successfully/);
+  assert.match(result.stdout, /no operating-system or repository state was changed/);
 });
 
 test("the installer rejects systemd metacharacters in rendered paths", async () => {
