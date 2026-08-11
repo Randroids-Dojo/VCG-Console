@@ -45,17 +45,17 @@
     {
       "role": "steamos-input-plan-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "630f381d48f42d05aae7f4019a2908728f8afefebb8d2fd35acb2e5d5922573b"
+      "sha256": "9d2703f89c5190f8b91c1a989fb06739c7402f94181d247006b9a272b34088bf"
     },
     {
       "role": "steamos-shell-plan-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "6d961e82f30259ea122eb8834bb01757ed29828a75809a404dd694583f5ce311"
+      "sha256": "6029c008dcaf6ffa7ff708f68c51f9c09ac6d412a19699bee6b48b651f088399"
     },
     {
       "role": "boot-resume-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "26225bc567b007bff282e9173dff5b5c19023f5c2c085312e911f29eae63161d"
+      "sha256": "204459312b6ebfb2e53e9aa970e6a00e91c83ec09c41298e8fab8f51f890e694"
     },
     {
       "role": "signed-local-package-boundary",

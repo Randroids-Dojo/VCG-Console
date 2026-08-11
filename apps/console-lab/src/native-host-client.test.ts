@@ -126,6 +126,24 @@ describe("native Bluetooth controller setup", () => {
     });
     expect(fetcher).toHaveBeenCalledOnce();
   });
+
+  it("accepts numeric controller ordering beyond nine devices", async () => {
+    const devices = Array.from({ length: 10 }, (_, index) => ({
+      id: `controller-${index + 1}`,
+      paired: false,
+      connected: false,
+    }));
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ protocolVersion: "0.1.0", devices }), { status: 200 }),
+      );
+
+    await expect(listBluetoothControllers(HOST_URL, fetcher, 100)).resolves.toMatchObject({
+      ok: true,
+      snapshot: { devices },
+    });
+  });
 });
 
 describe("native host status", () => {

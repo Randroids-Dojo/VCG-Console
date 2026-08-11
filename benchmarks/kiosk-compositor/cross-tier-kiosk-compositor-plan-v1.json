@@ -34,32 +34,32 @@
     {
       "role": "reserved-recovery-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "85bf3a3c2f5f0717cb72438ebd54eecf7a138b7932acf143b47ff3d4878a4e5c"
+      "sha256": "8da4c3e65ea9bb4c37013f18a72eb95c2e69824503c049af7074a29b427b65aa"
     },
     {
       "role": "controller-qualification-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "3c992bf10d06986e90fcd1b84b77f6d73a1651173bd50eefd71c8e64e79e87f9"
+      "sha256": "b9744ce2034dba00a18153cfb00f8cf61a769d55274d52407e1bd2b189b51d75"
     },
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "ad765e5b63f1f0855b7d3d8e3c0d428cbe72829b7c231b18e30684608d647213"
+      "sha256": "c151bd6d0fadcabb1af22ec12d773efcf1f71d3287e14a5bd37440e96a61bec4"
     },
     {
       "role": "boot-resume-launch-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "26225bc567b007bff282e9173dff5b5c19023f5c2c085312e911f29eae63161d"
+      "sha256": "204459312b6ebfb2e53e9aa970e6a00e91c83ec09c41298e8fab8f51f890e694"
     },
     {
       "role": "ordinary-x86-target-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "ec167e5b89930069b66352bdb0393c4236d2a0f9664417d4ffe271d93b783f62"
+      "sha256": "b5e1249218e9041194d437d54e39f162c97a49455c306c537527c29d4a794826"
     },
     {
       "role": "pi-target-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "03cee9616194a521f22bc7a2ddf0f0467c70ebb4eaa80a2a3f77f53922936162"
+      "sha256": "6b6a2cc348d0f9a4fb5696b6ccbac1cff9eadb91b2f8450c61f9e71f83cf6440"
     },
     {
       "role": "desk-wrapper-implementation-boundary",

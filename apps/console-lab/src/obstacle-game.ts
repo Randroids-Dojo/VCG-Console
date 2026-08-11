@@ -199,6 +199,6 @@ function roundOptionsFromSearch(search: string): ConstructorParameters<typeof Tw
     roundMs: 3_000,
     spawnIntervalMs: 500,
     obstacleTravelMs: 700,
-    startingLives: 1,
+    startingLives: 10,
   };
 }

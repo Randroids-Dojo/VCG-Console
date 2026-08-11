@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 102,
-      "totalBytes": 957434,
+      "totalBytes": 958460,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1064,8 +1064,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 69277,
-          "sha256": "26ae22478e0452dd443ea680bbe173ab464072fa1f88dd1ced3f80402b1eaab5"
+          "bytes": 69276,
+          "sha256": "2ff014161f62e3d883a69aab4ff661665412508fcc911c34bd5bbfd4d82ceb41"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1109,18 +1109,18 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.test.ts",
-          "bytes": 26234,
-          "sha256": "35321e9aedecb906e0cfcd2c99b481db04c2ed9ddf9aac3d2fcd64b757a2d726"
+          "bytes": 26888,
+          "sha256": "cbf17785f5c79180050210284780519d18bbbc42586f5b8bde746b081ef7f2e2"
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
-          "bytes": 31703,
-          "sha256": "3198aa2c450ec35c223a5d4b3ecc4c3911c8de94508ee4937eb2f69a84bb0282"
+          "bytes": 32075,
+          "sha256": "84911e493159eefff339f6cd7254572b46571f07f20ddbf752b80fa31430908a"
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
-          "bytes": 7450,
-          "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
+          "bytes": 7451,
+          "sha256": "37b5fa5dc6aa00078f1b5e8475fa201da5106309a7e398b401601c29acef5493"
         },
         {
           "path": "apps/console-lab/src/player-session-adversarial.test.ts",

@@ -326,24 +326,32 @@ impl BluetoothPairingService {
 }
 
 fn snapshot_from_state(state: &PairingState, protocol_version: &'static str) -> BluetoothSnapshot {
+    let mut devices: Vec<_> = state
+        .device_states
+        .iter()
+        .map(|(id, device)| BluetoothController {
+            id: id.clone(),
+            paired: device.paired,
+            connected: device.connected,
+        })
+        .collect();
+    devices.sort_by_key(|device| session_id_number(&device.id).unwrap_or(u32::MAX));
     BluetoothSnapshot {
         protocol_version,
-        devices: state
-            .device_states
-            .iter()
-            .map(|(id, device)| BluetoothController {
-                id: id.clone(),
-                paired: device.paired,
-                connected: device.connected,
-            })
-            .collect(),
+        devices,
     }
 }
 
 fn valid_session_id(value: &str) -> bool {
-    value.strip_prefix("controller-").is_some_and(|suffix| {
-        !suffix.is_empty() && suffix.bytes().all(|byte| byte.is_ascii_digit())
-    })
+    session_id_number(value).is_some()
+}
+
+fn session_id_number(value: &str) -> Option<u32> {
+    let suffix = value.strip_prefix("controller-")?;
+    if suffix.starts_with('0') {
+        return None;
+    }
+    suffix.parse().ok()
 }
 
 fn parse_device_addresses(output: &str) -> Vec<String> {
@@ -356,8 +364,9 @@ fn parse_device_addresses(output: &str) -> Vec<String> {
         let Some(address) = fields.next() else {
             continue;
         };
-        if valid_address(address) && !addresses.iter().any(|existing| existing == address) {
-            addresses.push(address.to_ascii_uppercase());
+        let address = address.to_ascii_uppercase();
+        if valid_address(&address) && !addresses.contains(&address) {
+            addresses.push(address);
         }
     }
     addresses
@@ -626,7 +635,35 @@ mod tests {
         assert!(valid_address("AA:bb:01:23:45:67"));
         assert!(!valid_address("AA:BB:CC:DD:EE:FF;reboot"));
         assert!(valid_session_id("controller-12"));
+        assert!(!valid_session_id("controller-0"));
         assert!(!valid_session_id("controller-1/forget"));
+    }
+
+    #[test]
+    fn deduplicates_addresses_case_insensitively_and_sorts_ids_numerically() {
+        assert_eq!(
+            parse_device_addresses(
+                "Device aa:bb:cc:dd:ee:ff Gamepad\nDevice AA:BB:CC:DD:EE:FF Gamepad\n"
+            ),
+            vec!["AA:BB:CC:DD:EE:FF"]
+        );
+
+        let mut state = PairingState::default();
+        for id in ["controller-10", "controller-2", "controller-1"] {
+            state.device_states.insert(
+                id.to_owned(),
+                DeviceState {
+                    paired: false,
+                    connected: false,
+                },
+            );
+        }
+        let ids: Vec<_> = snapshot_from_state(&state, "0.1.0")
+            .devices
+            .into_iter()
+            .map(|device| device.id)
+            .collect();
+        assert_eq!(ids, ["controller-1", "controller-2", "controller-10"]);
     }
 
     #[test]

@@ -18,7 +18,7 @@ const MAX_PACKAGE_VERSION_CHARACTERS = 128;
 const HOST_TARGET_PATTERN = /^[a-z0-9_]+-[a-z0-9_]+$/;
 const HOST_CAPABILITY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VISIBLE_ASCII_PATTERN = /^[\x21-\x7e]+$/;
-const BLUETOOTH_DEVICE_ID_PATTERN = /^controller-[1-9][0-9]{0,8}$/;
+const BLUETOOTH_DEVICE_ID_PATTERN = /^controller-([1-9][0-9]{0,8})$/;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -895,7 +895,7 @@ function isNativeBluetoothSnapshot(value: unknown): value is NativeBluetoothSnap
   ) {
     return false;
   }
-  let previousId: string | undefined;
+  let previousNumber: number | undefined;
   for (const value of candidate.devices) {
     if (typeof value !== "object" || value === null) return false;
     const device = value as Record<string, unknown>;
@@ -905,13 +905,23 @@ function isNativeBluetoothSnapshot(value: unknown): value is NativeBluetoothSnap
       !BLUETOOTH_DEVICE_ID_PATTERN.test(device.id) ||
       typeof device.paired !== "boolean" ||
       typeof device.connected !== "boolean" ||
-      (previousId !== undefined && device.id <= previousId)
+      bluetoothDeviceNumber(device.id) === undefined
     ) {
       return false;
     }
-    previousId = device.id;
+    const number = bluetoothDeviceNumber(device.id);
+    if (number === undefined || (previousNumber !== undefined && number <= previousNumber)) {
+      return false;
+    }
+    previousNumber = number;
   }
   return true;
+}
+
+function bluetoothDeviceNumber(id: string): number | undefined {
+  const match = BLUETOOTH_DEVICE_ID_PATTERN.exec(id);
+  if (match?.[1] === undefined) return undefined;
+  return Number(match[1]);
 }
 
 function isNativeInstalledPackage(value: unknown): value is NativeInstalledPackage {

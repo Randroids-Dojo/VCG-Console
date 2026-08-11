@@ -67,6 +67,7 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /validate_absolute_path "bluetoothctl"/);
   assert.match(installer, /systemctl cat bluetooth\.service/);
   assert.match(installer, /systemctl enable bluetooth\.service/);
+  assert.match(installer, /for group in video render input bluetooth/);
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);

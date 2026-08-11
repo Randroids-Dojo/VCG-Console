@@ -301,7 +301,7 @@ install -m 0644 "${render_dir}/vcg-console.target" /etc/systemd/system/vcg-conso
 
 # The browser and compositor need the device groups on the next login/boot.
 device_groups=""
-for group in video render input; do
+for group in video render input bluetooth; do
   if getent group "${group}" >/dev/null; then
     device_groups="${device_groups}${device_groups:+,}${group}"
   fi

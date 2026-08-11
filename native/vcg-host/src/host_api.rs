@@ -710,10 +710,16 @@ fn write_bluetooth_result(
     result: Result<BluetoothSnapshot, BluetoothError>,
 ) -> io::Result<()> {
     match result {
-        Ok(snapshot) => {
-            let body = serde_json::to_string(&snapshot).expect("Bluetooth snapshot serializes");
-            write_response(stream, 200, "OK", allowed_origin, &body)
-        }
+        Ok(snapshot) => match serde_json::to_string(&snapshot) {
+            Ok(body) => write_response(stream, 200, "OK", allowed_origin, &body),
+            Err(_) => write_json_error(
+                stream,
+                503,
+                "Service Unavailable",
+                allowed_origin,
+                "BLUETOOTH_SERVICE_FAILED",
+            ),
+        },
         Err(error) => {
             let status = if matches!(error, BluetoothError::DeviceUnavailable) {
                 404
@@ -1362,6 +1368,12 @@ mod tests {
                 pair_body.len()
             ),
         );
+        let unknown_forget = request(
+            &server,
+            &format!(
+                "DELETE /v1/bluetooth/devices/controller-999 HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
 
         assert!(status.contains("\"bluetooth-controller-pairing\""));
         assert!(snapshot.starts_with("HTTP/1.1 503 Service Unavailable\r\n"));
@@ -1371,6 +1383,8 @@ mod tests {
         assert!(invalid_scan.contains("BLUETOOTH_REQUEST_INVALID"));
         assert!(unknown_pair.starts_with("HTTP/1.1 404 Not Found\r\n"));
         assert!(unknown_pair.contains("BLUETOOTH_DEVICE_UNAVAILABLE"));
+        assert!(unknown_forget.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(unknown_forget.contains("BLUETOOTH_DEVICE_UNAVAILABLE"));
     }
 
     #[test]
