@@ -205,7 +205,13 @@ if [ "${dry_run}" -eq 0 ]; then
       exit 1
     fi
   done
-  node_major="$("${node_path}" -p 'process.versions.node.split(".")[0]')"
+  node_major="$("${node_path}" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+  case "${node_major}" in
+    ""|*[!0-9]*)
+      echo "Node.js 22 or newer is required; the selected executable returned an invalid version." >&2
+      exit 1
+      ;;
+  esac
   if [ "${node_major}" -lt 22 ]; then
     echo "Node.js 22 or newer is required; found $("${node_path}" --version)." >&2
     exit 1

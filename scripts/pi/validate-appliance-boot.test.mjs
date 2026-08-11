@@ -70,6 +70,7 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);
   assert.match(installer, /Node\.js 22 or newer is required/);
+  assert.match(installer, /""\|\*\[!0-9\]\*/);
 });
 
 test("one setup command installs, builds, verifies, and owns boot", async () => {
@@ -86,6 +87,9 @@ test("one setup command installs, builds, verifies, and owns boot", async () => 
     /pnpm_sha512="c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"/,
   );
   assert.match(setup, /npm_path.*install --global --ignore-scripts --prefix/);
+  assert.match(setup, /getent passwd "\$\{console_user\}"/);
+  assert.match(setup, /node_install_root}\.staging/);
+  assert.match(setup, /sudo mv -T -- "\$\{node_staging\}" "\$\{node_install_root\}"/);
   for (const packageName of ["bluez", "cage", "chromium", "rustup", "v4l-utils"]) {
     assert.match(setup, new RegExp(`^  ${packageName}$`, "m"));
   }

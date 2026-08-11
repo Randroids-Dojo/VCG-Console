@@ -143,11 +143,18 @@ print_plan() {
 
 if [ "${dry_run}" -eq 1 ]; then
   print_plan
+  dry_run_group="${console_user}"
+  dry_run_home="/home/${console_user}"
+  if command -v getent >/dev/null 2>&1 && command -v id >/dev/null 2>&1 && \
+    getent passwd "${console_user}" >/dev/null 2>&1; then
+    dry_run_group="$(id -gn "${console_user}")"
+    dry_run_home="$(getent passwd "${console_user}" | cut -d: -f6)"
+  fi
   installer_args=(
     --dry-run
     --user "${console_user}"
-    --group "${console_user}"
-    --home "/home/${console_user}"
+    --group "${dry_run_group}"
+    --home "${dry_run_home}"
     --repo-root "${repo_root}"
     --node "${node_install_root}/bin/node"
     --browser /usr/bin/chromium
@@ -227,8 +234,18 @@ else
     exit 1
   fi
   sudo install -d -m 0755 /opt/vcg
+  node_staging="${node_install_root}.staging"
+  expected_node_staging="/opt/vcg/node-v${node_version}-linux-arm64.staging"
+  if [ "${node_staging}" != "${expected_node_staging}" ]; then
+    echo "Refusing an unsafe Node.js staging path: ${node_staging}" >&2
+    exit 1
+  fi
+  # A prior interrupted copy is never executable product state. Remove only
+  # this exact VCG-owned sibling before rebuilding it from the verified archive.
+  sudo rm -rf -- "${node_staging}"
   sudo cp -a --no-preserve=ownership \
-    "${scratch}/node-v${node_version}-linux-arm64" "${node_install_root}"
+    "${scratch}/node-v${node_version}-linux-arm64" "${node_staging}"
+  sudo mv -T -- "${node_staging}" "${node_install_root}"
   trap - EXIT
   cleanup
   echo "installed Node.js v${node_version} at ${node_install_root}"
