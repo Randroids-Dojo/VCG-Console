@@ -32,12 +32,12 @@
     {
       "role": "cross-tier-product-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "5d2f92ff9807fa88c07f2d5eaeba79c7ff9d2ce35c26a031b6e5c2e33c404fee"
+      "sha256": "672cb3d26963fe35febec9c789ed9052176c66abb6505ac1f0d7c427c6a2473a"
     },
     {
       "role": "complete-system-economics-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "237ec797dfb0652b1472ec3c7ff32c246f905fc8894c67e80e84f31a48dcce25"
+      "sha256": "54cc71357e7761f0a4edf0d660607494e3d289f2d12e19acb37a8dc52af70b21"
     },
     {
       "role": "shared-camera-qualification-boundary",
@@ -57,22 +57,22 @@
     {
       "role": "cooling-thermal-acoustic-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "f9a343d9788ea64745dc936b3df2e31d55cdedc22b2d2613a348d41648d98161"
+      "sha256": "3d4e8ba658a1542d43b333918789af5e1a0a7ea8a2e417a8ecc0d3e92b135b74"
     },
     {
       "role": "controller-and-recovery-remote-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "c2eb6c8837bbdc473811269d33b50e6b45ebbd1cfc1d18804ef4815beb338c3a"
+      "sha256": "a72d3ad6a562d9c631b56ec25333dd7c335a18f1ebf4d03b1458553c33c74c66"
     },
     {
       "role": "camera-interconnect-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "ef70a17b31e3722803192dc22e9ec0d811d6c97d4544be3a6ad95e7fa6e0ce5d"
+      "sha256": "2bb415e9ccd80e54206181a29cf7265df776959aaaf0439c93024a3251e4c841"
     },
     {
       "role": "display-audio-power-recovery-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "be7cf81b406f37d473a130d7983d8034a227a8ed091751207da49c7cf19f7964"
+      "sha256": "670f66d9e17c5403a84e98cd65246fea3bbf6fe09f55079a9405434084c7ab14"
     }
   ],
   "targetPolicy": {

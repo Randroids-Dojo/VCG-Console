@@ -32,17 +32,17 @@
     {
       "role": "camera-geometry-and-mount-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "9386d34f3dd9dfabdd84ceb5e5e970dbc722b5984e88d04fc9339bf7f78217ac"
+      "sha256": "cea46c964dfcb31c86a0a6facd3fcf9c8bbc84fa8e6ee86a070f463f0ce9c9df"
     },
     {
       "role": "pi-radio-coexistence-boundary",
       "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
-      "sha256": "ca2c9d82e895f8d564426b06fc64e51dc9fa2e1ded90f8d94e7cd39051a624c2"
+      "sha256": "072a1133b13dd5b931cbbda9836ab69eeeb230f5b27cc9b0e1280bc0f139edb0"
     },
     {
       "role": "boot-suspend-recovery-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
+      "sha256": "9fea45d9c514f3817b286dff3b0baffbd53a7e7644908eb8fb3ba86f8df56285"
     }
   ],
   "collectionBoundary": {

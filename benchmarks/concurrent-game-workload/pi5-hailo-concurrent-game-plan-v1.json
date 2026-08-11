@@ -24,7 +24,7 @@
     {
       "role": "obstacle-component-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+      "sha256": "aee96a5ca5cab3d14d2379fdc8e8169b740caa9c992fb72a32cf5f04de547941"
     },
     {
       "role": "action-engine-boundary",

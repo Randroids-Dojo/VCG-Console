@@ -25,32 +25,32 @@
     {
       "role": "controller-lifecycle-and-zero-keyboard-recovery-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "c2eb6c8837bbdc473811269d33b50e6b45ebbd1cfc1d18804ef4815beb338c3a"
+      "sha256": "a72d3ad6a562d9c631b56ec25333dd7c335a18f1ebf4d03b1458553c33c74c66"
     },
     {
       "role": "cold-boot-launch-feedback-and-usable-input-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
+      "sha256": "9fea45d9c514f3817b286dff3b0baffbd53a7e7644908eb8fb3ba86f8df56285"
     },
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "5ea1eaea0b717a68aa66cbfeac08f32d46a08a961d71e3201092e44fe0c6079c"
+      "sha256": "03aa73a7bac30848b36d343ef5dc9b96c429b5588ce420617be8efea7d98d60d"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "be7cf81b406f37d473a130d7983d8034a227a8ed091751207da49c7cf19f7964"
+      "sha256": "670f66d9e17c5403a84e98cd65246fea3bbf6fe09f55079a9405434084c7ab14"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "68d9d4f64b5e345e0965ac96b6309aee6f60117f39a234c52eb141717d9559d0"
+      "sha256": "743c334234abbed663a27fff106bf1bdf8ce51e638872d1546b9854851dc3d13"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "6e14c7d39e3354bfe5f2e4a188c56f9596ee2ebee7c476f0a9aa949985983453"
+      "sha256": "cdaafa66b6c682a5769d228f294979ef40f9b3c30a1c3c56b01e769a3819dd1b"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",

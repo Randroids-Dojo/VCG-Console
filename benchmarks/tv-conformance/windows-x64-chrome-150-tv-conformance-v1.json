@@ -1,14 +1,14 @@
 {
   "format": "vcg-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-02",
+  "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
   "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
-  "retrievedAtUtc": "2026-08-02T23:57:54.332Z",
+  "retrievedAtUtc": "2026-08-11T00:36:47.856Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "devicePixelRatio": 1
   },
   "contract": {
@@ -35,7 +35,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "observations": [
       {
         "id": "720p",
@@ -153,8 +153,8 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.7,
-          "worstDeltaMs": 50,
+          "p95DeltaMs": 16.8,
+          "worstDeltaMs": 49.9,
           "negativeDeltaCount": 0
         },
         "screenshot": {
@@ -203,7 +203,7 @@
     "scriptPath": "examples/tv-conformance/app.js",
     "scriptPathSha256": "2febab45004fb5c37a75186325ac10dfe43c40b9da845a8426b9eb5a57248d20",
     "generatorPath": "scripts/generate-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "fd0dac2276404be453d3df8ecb9fd0f939385d19c6d8496adb14845f19e2d1a9",
+    "generatorPathSha256": "0db4b3bd913c907f795cd8c811a9018d0f188829b2a4c4b2304526a139a259be",
     "validatorPath": "scripts/validate-tv-conformance-evidence.mjs",
     "validatorPathSha256": "fb8d241802e9e660b56dbc1fb7472673458bf98ebc25b274c66db7fab3240062"
   },

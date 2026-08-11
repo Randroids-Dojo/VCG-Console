@@ -1,20 +1,20 @@
 {
   "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-02",
+  "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-02T23:58:01.921Z",
+  "retrievedAtUtc": "2026-08-11T00:39:12.080Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
   "baseContract": {
     "format": "vcg-tv-conformance-evidence/v1",
-    "sha256": "657abc296f9933cfa25eb8c6fa81da8d8b4535d1804f65eb07d6417d6e15136d"
+    "sha256": "cbfa488046ccb8a45e15a12b5d56f16511a7d6fc134230e4b6f6eae094110674"
   },
   "contract": {
     "surface": "launcher-home",
@@ -40,7 +40,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "observations": [
       {
         "id": "720p",
@@ -162,8 +162,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 3,
-      "/assets/main-CH0z2Hrb.css": 3,
-      "/assets/main-qWVNJvLq.js": 3,
+      "/assets/main-C33ld5tk.css": 3,
+      "/assets/main-RbhCiFxd.js": 3,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
       "/assets/src-CYOVH8wV.js": 3,
       "/assets/synthetic-D3ZzT8jW.js": 3,
@@ -205,9 +205,9 @@
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75",
+    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2",
+    "entryPathSha256": "a36e4625322499a57b6f680933a7ee9c1e586c81df7bd9e7b1bde59c25348d91",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -217,11 +217,11 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "baseContractPath": "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
-    "baseContractPathSha256": "657abc296f9933cfa25eb8c6fa81da8d8b4535d1804f65eb07d6417d6e15136d",
+    "baseContractPathSha256": "cbfa488046ccb8a45e15a12b5d56f16511a7d6fc134230e4b6f6eae094110674",
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "generatorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "07878e8c5d83a949bf92b4c22c71ef8e150c5801ea11a6ff28f83c7ae3c9974c",
+    "validatorPathSha256": "55dde91696c108113b7f14645b80f492ace467f731c372bf1cf0dd6f2f45c831",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -238,8 +238,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 144,
-      "sha256": "0e7bd4d7c698b66694b05b7215223ce58a0bec4b43a33fea1169f980128ccc74"
+      "fileCount": 146,
+      "sha256": "3cf1d6cf869d335cbd29a990b0b729773e7a9ed910575b2415a97f4ccdbb5720"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

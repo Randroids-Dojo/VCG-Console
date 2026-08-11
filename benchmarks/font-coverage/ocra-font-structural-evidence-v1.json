@@ -1,6 +1,6 @@
 {
   "format": "vcg-ocra-font-structural-evidence/v1",
-  "evidenceDate": "2026-07-24",
+  "evidenceDate": "2026-08-11",
   "subject": {
     "path": "apps/console-lab/public/fonts/OCRA.ttf",
     "bytes": 24316,
@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 98,
-      "totalBytes": 905968,
+      "fileCount": 100,
+      "totalBytes": 930187,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1054,8 +1054,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 58905,
-          "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
+          "bytes": 67323,
+          "sha256": "a36e4625322499a57b6f680933a7ee9c1e586c81df7bd9e7b1bde59c25348d91"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1109,8 +1109,8 @@
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
-          "bytes": 6112,
-          "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+          "bytes": 6893,
+          "sha256": "aee96a5ca5cab3d14d2379fdc8e8169b740caa9c992fb72a32cf5f04de547941"
         },
         {
           "path": "apps/console-lab/src/player-session-adversarial.test.ts",
@@ -1154,8 +1154,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 107108,
-          "sha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75"
+          "bytes": 108157,
+          "sha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1196,6 +1196,16 @@
           "path": "apps/console-lab/src/tracker.ts",
           "bytes": 13406,
           "sha256": "46e0a312ce554398016d3e5ea7946d8d1f2c4ee49386493957b36ad1fe5d9919"
+        },
+        {
+          "path": "apps/console-lab/src/two-player-obstacle-round.test.ts",
+          "bytes": 3499,
+          "sha256": "3c29566c9f3fd11380fc58348d479c34271b3c123fe03af94413e456ea9feb23"
+        },
+        {
+          "path": "apps/console-lab/src/two-player-obstacle-round.ts",
+          "bytes": 10472,
+          "sha256": "9fa0903002e6bdb6eb2a757d51b7b31e12e7404c6b604713187feabe51fbab55"
         },
         {
           "path": "apps/console-lab/src/visible-text.test.ts",
@@ -1334,12 +1344,12 @@
             {
               "path": "apps/console-lab/src/main.ts",
               "lines": [
-                139,
-                247,
-                248,
-                797,
-                1148,
-                1152
+                164,
+                272,
+                273,
+                887,
+                1267,
+                1271
               ]
             },
             {
@@ -1370,11 +1380,11 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75",
+    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
-    "generatorPathSha256": "3747a813df98cc59f97b8585af7a510d8d47058c99e10745201ed83c6048a44c",
+    "generatorPathSha256": "44a0a6ea8e87e2b7e36ec2a02c0dc0b02a40396364a0934b3c7dae74cbb9367a",
     "validatorPath": "scripts/validate-ocra-font-evidence.mjs",
     "validatorPathSha256": "1d5d3183f3ed3e7620bb805fec8afcd5febdb03276197a77befa4a35a90555bd"
   },

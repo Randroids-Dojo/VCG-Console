@@ -1,18 +1,18 @@
 {
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-02",
+  "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-02T23:58:22.891Z",
+  "retrievedAtUtc": "2026-08-11T00:39:32.154Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "a9d8e3ab5f0a00bca9903cc5276f39cc62e105d710574a113083e665cdbf6d19"
+    "sha256": "3bbeddf01432b345385dd05ef95c488cfb88364264fbad0ab37c2bee289cd5c6"
   },
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
@@ -298,7 +298,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/150.0.7871.187",
+    "browserProduct": "Chrome/151.0.7922.76",
     "observations": [
       {
         "state": "motion-results",
@@ -1977,8 +1977,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-CH0z2Hrb.css": 24,
-      "/assets/main-qWVNJvLq.js": 24,
+      "/assets/main-C33ld5tk.css": 24,
+      "/assets/main-RbhCiFxd.js": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
       "/assets/src-CYOVH8wV.js": 24,
       "/assets/synthetic-D3ZzT8jW.js": 24,
@@ -2041,9 +2041,9 @@
     "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
     "unassignedControllerPathSha256": "92ddc58cacfad89293ba5931cc3040e7a9c1554a94ade975ea6ef60d905e59b7",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75",
+    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2",
+    "entryPathSha256": "a36e4625322499a57b6f680933a7ee9c1e586c81df7bd9e7b1bde59c25348d91",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -2051,7 +2051,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "a9d8e3ab5f0a00bca9903cc5276f39cc62e105d710574a113083e665cdbf6d19",
+    "representativeEvidencePathSha256": "3bbeddf01432b345385dd05ef95c488cfb88364264fbad0ab37c2bee289cd5c6",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
@@ -2074,8 +2074,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 144,
-      "sha256": "0e7bd4d7c698b66694b05b7215223ce58a0bec4b43a33fea1169f980128ccc74"
+      "fileCount": 146,
+      "sha256": "3cf1d6cf869d335cbd29a990b0b729773e7a9ed910575b2415a97f4ccdbb5720"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 20-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 20-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
