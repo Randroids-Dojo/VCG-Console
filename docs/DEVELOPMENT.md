@@ -69,6 +69,11 @@ For a first session on delivered Raspberry Pi hardware, follow
 [the day-one bring-up guide](PI_DAY_ONE_BRINGUP.md) and its one-command
 `scripts/pi/setup-console.sh` path. The lower-level `bootstrap.sh` and
 `install-appliance.sh` remain available for development and recovery.
+The installed fullscreen session passes the exact system `bluetoothctl` path
+to `vcg-host`; after boot, open Settings > Controllers to scan, pair, reconnect,
+or deliberately forget a controller without opening a desktop. First pairing
+currently requires an already-working focus input, and physical controller/Pi
+qualification is still required before treating a model as supported.
 
 For an x86-64 Windows compatibility workstation, follow [the Windows qualification guide](WINDOWS_QUALIFICATION.md). Its bootstrap script verifies prerequisites and runs the same repository checks without treating Windows or WSL as Linux-console qualification.
 

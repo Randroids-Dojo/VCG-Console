@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-11T02:01:26.613Z",
+  "retrievedAtUtc": "2026-08-11T03:15:36.459Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "990715af04a8bef85630e4032551855e4ed7d9445d8ec297a8fcdde2280fc1ee"
+    "sha256": "c1f3d599c6cfc1f050576fb348cdad931ec53a430617ea48d66c0b96a272148a"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -47,7 +47,7 @@
         "recoveryExpectation": {
           "clearActionLabel": "Clear search",
           "clearQuery": "",
-          "clearResultCount": 20,
+          "clearResultCount": 21,
           "categoryActionLabel": "Motion",
           "categoryQuery": "motion",
           "categoryResultCount": 5,
@@ -67,9 +67,9 @@
       {
         "id": "empty-query-scroll-activation",
         "query": "",
-        "resultCount": 20,
-        "criticalTextCount": 43,
-        "actionTargetCount": 21,
+        "resultCount": 21,
+        "criticalTextCount": 45,
+        "actionTargetCount": 22,
         "measurementMode": "fully-visible-marked",
         "scrollingExpectedResolutionIds": [
           "720p",
@@ -399,7 +399,7 @@
           "clearActionLabel": "Clear search",
           "clearActionFocused": true,
           "clearQuery": "",
-          "clearResultCount": 20,
+          "clearResultCount": 21,
           "clearInputFocused": true,
           "categoryActionLabel": "Motion",
           "categoryActionFocused": true,
@@ -429,14 +429,14 @@
           "bottom": 684
         },
         "documentReadyState": "complete",
-        "resultCount": 20,
+        "resultCount": 21,
         "emptyStateVisible": false,
-        "criticalTextCount": 43,
+        "criticalTextCount": 45,
         "measuredCriticalTextCount": 23,
         "criticalTextInsideSafeArea": 23,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 21,
+        "actionTargetCount": 22,
         "minimumActionTargetWidthCssPx": 687.766,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
@@ -445,10 +445,10 @@
         },
         "resultsScroll": {
           "clientHeightCssPx": 523,
-          "scrollHeightCssPx": 1006,
+          "scrollHeightCssPx": 1054,
           "initialScrollTopCssPx": 0,
-          "finalScrollTopCssPx": 483,
-          "maximumScrollTopCssPx": 483,
+          "finalScrollTopCssPx": 531,
+          "maximumScrollTopCssPx": 531,
           "lastResultInsideViewportAfterFocus": true
         },
         "interactionTrace": [
@@ -476,8 +476,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-          "bytes": 129030,
-          "sha256": "71d9ce9d5088279784a4157cd78616853b7d130c19f7d30bdd83d38beee4d1a4"
+          "bytes": 129345,
+          "sha256": "ebca7c6329c39460f96829ba3c6471224592c70a14c9acd4dfc32ef6e23fd427"
         }
       },
       {
@@ -956,7 +956,7 @@
           "clearActionLabel": "Clear search",
           "clearActionFocused": true,
           "clearQuery": "",
-          "clearResultCount": 20,
+          "clearResultCount": 21,
           "clearInputFocused": true,
           "categoryActionLabel": "Motion",
           "categoryActionFocused": true,
@@ -986,14 +986,14 @@
           "bottom": 1026
         },
         "documentReadyState": "complete",
-        "resultCount": 20,
+        "resultCount": 21,
         "emptyStateVisible": false,
-        "criticalTextCount": 43,
+        "criticalTextCount": 45,
         "measuredCriticalTextCount": 35,
         "criticalTextInsideSafeArea": 35,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 21,
+        "actionTargetCount": 22,
         "minimumActionTargetWidthCssPx": 951.328,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
@@ -1002,10 +1002,10 @@
         },
         "resultsScroll": {
           "clientHeightCssPx": 798,
-          "scrollHeightCssPx": 973,
+          "scrollHeightCssPx": 1021,
           "initialScrollTopCssPx": 0,
-          "finalScrollTopCssPx": 175,
-          "maximumScrollTopCssPx": 175,
+          "finalScrollTopCssPx": 223,
+          "maximumScrollTopCssPx": 223,
           "lastResultInsideViewportAfterFocus": true
         },
         "interactionTrace": [
@@ -1033,8 +1033,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-          "bytes": 183208,
-          "sha256": "fe0ab32d7fe3fabbc9d8cfd3217ccd79506c536974d2b1502f98ccdb9b30fe91"
+          "bytes": 184717,
+          "sha256": "69e4a0964fbc30441e618e5b5156ca96662440a6b907f3f98c4d87c2c7d7e46e"
         }
       },
       {
@@ -1513,7 +1513,7 @@
           "clearActionLabel": "Clear search",
           "clearActionFocused": true,
           "clearQuery": "",
-          "clearResultCount": 20,
+          "clearResultCount": 21,
           "clearInputFocused": true,
           "categoryActionLabel": "Motion",
           "categoryActionFocused": true,
@@ -1543,14 +1543,14 @@
           "bottom": 2052
         },
         "documentReadyState": "complete",
-        "resultCount": 20,
+        "resultCount": 21,
         "emptyStateVisible": false,
-        "criticalTextCount": 43,
-        "measuredCriticalTextCount": 43,
-        "criticalTextInsideSafeArea": 43,
+        "criticalTextCount": 45,
+        "measuredCriticalTextCount": 45,
+        "criticalTextInsideSafeArea": 45,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 21,
+        "actionTargetCount": 22,
         "minimumActionTargetWidthCssPx": 1936.656,
         "minimumActionTargetHeightCssPx": 61,
         "overlayOverflowCssPx": {
@@ -1558,8 +1558,8 @@
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 1280,
-          "scrollHeightCssPx": 1280,
+          "clientHeightCssPx": 1341,
+          "scrollHeightCssPx": 1341,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1590,8 +1590,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-          "bytes": 516725,
-          "sha256": "dd2507208de3caa09c9ca08b8379c1bd105b83cbe3aa41bd68a376e302bdf68f"
+          "bytes": 532148,
+          "sha256": "9c7a907a6d69478b03dbdeb1a4777ccb9ec93e0aaa44baf9ba132e65d5aea774"
         }
       },
       {
@@ -1977,8 +1977,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-C33ld5tk.css": 24,
-      "/assets/main-CI6Wrgy1.js": 24,
+      "/assets/main-C5eSVfwx.js": 24,
+      "/assets/main-DySNtpo3.css": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
       "/assets/src-CYOVH8wV.js": 24,
       "/assets/synthetic-D3ZzT8jW.js": 24,
@@ -2033,7 +2033,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c",
+    "launcherPathSha256": "85259d0685520da09f716413e2aa728dc041c800d31e85d35dd3ead56398ba16",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b",
     "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -2041,7 +2041,7 @@
     "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
     "unassignedControllerPathSha256": "92ddc58cacfad89293ba5931cc3040e7a9c1554a94ade975ea6ef60d905e59b7",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
+    "stylePathSha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd",
     "entryPath": "apps/console-lab/src/main.ts",
     "entryPathSha256": "26ae22478e0452dd443ea680bbe173ab464072fa1f88dd1ced3f80402b1eaab5",
     "documentPath": "apps/console-lab/index.html",
@@ -2049,15 +2049,15 @@
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
+    "browserTestPathSha256": "4b40686f6c71fc55b3c715318ed59aeddb39d2c59beeec2c4d99712382bdf733",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "990715af04a8bef85630e4032551855e4ed7d9445d8ec297a8fcdde2280fc1ee",
+    "representativeEvidencePathSha256": "c1f3d599c6cfc1f050576fb348cdad931ec53a430617ea48d66c0b96a272148a",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "5f6e8f0b385b938068014dde586815e05b37a1f1bca2cf78114297ae77ca8865",
+    "generatorPathSha256": "dcdc050c41d4094e801e905867fe84a6429f2cdf8a31609a81668a76533308f3",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "5eb69d76bdf5b882a88d8391df520378e3b75230f7c467964ee0f7517738cc29",
+    "validatorPathSha256": "173bd5c02a4fa8f1c5374084948918cf0ffeec8e86d1032d65dc5509d3499447",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -2075,12 +2075,12 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 148,
-      "sha256": "ccaa923a91b341ced18c537f67b2646b4d3672b4014778d5487d11407e24348e"
+      "sha256": "86f0dff13b46a677b9119ffb136703bba7ac6e02f0a36724aaa9f6085895bd25"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 20-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 20-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 21-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 21-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
-    "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 20-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 20-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
+    "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 21-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 21-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
     "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
     "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
     "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",

@@ -129,6 +129,70 @@ test("boots into a purposeful launcher", async ({ page }) => {
   await page.screenshot({ path: "../../test-results/console-lab/boot-screen.png" });
 });
 
+test("pairs and deliberately forgets a Bluetooth controller from the TV settings", async ({
+  page,
+}) => {
+  const token = "a".repeat(64);
+  const status = {
+    protocolVersion: "0.1.0",
+    hostVersion: "0.1.0",
+    target: "aarch64-linux",
+    capabilities: ["launcher-shell", "bluetooth-controller-pairing"],
+  };
+  const snapshots = {
+    empty: { protocolVersion: "0.1.0", devices: [] },
+    nearby: {
+      protocolVersion: "0.1.0",
+      devices: [{ id: "controller-1", paired: false, connected: false }],
+    },
+    connected: {
+      protocolVersion: "0.1.0",
+      devices: [{ id: "controller-1", paired: true, connected: true }],
+    },
+  };
+  await page.route("http://127.0.0.1:43123/**", async (route) => {
+    const request = route.request();
+    const headers = {
+      "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+      "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Content-Type": "application/json",
+    };
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    expect(request.headers().authorization).toBe(`Bearer ${token}`);
+    const path = new URL(request.url()).pathname;
+    if (path === "/v1/status") {
+      await route.fulfill({ status: 200, headers, json: status });
+    } else if (path === "/v1/bluetooth/scan") {
+      await route.fulfill({ status: 200, headers, json: snapshots.nearby });
+    } else if (path.endsWith("/pair")) {
+      await route.fulfill({ status: 200, headers, json: snapshots.connected });
+    } else {
+      await route.fulfill({ status: 200, headers, json: snapshots.empty });
+    }
+  });
+  await page.goto(
+    `/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${token}`,
+  );
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Controllers", exact: true }).click();
+  await expect(page.getByText("No gaming controllers found")).toBeVisible();
+  await page.getByRole("button", { name: "Scan for controllers" }).click();
+  await expect(page.getByText("Nearby · ready to pair")).toBeVisible();
+  await page.getByRole("button", { name: "Pair", exact: true }).click();
+  await expect(page.getByText(/Bluetooth connected · press a button/)).toBeVisible();
+  await page.getByRole("button", { name: "Forget", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Confirm forget" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirm forget" }).click();
+  await expect(page.getByText("No gaming controllers found")).toBeVisible();
+  await expect(page.locator('[data-settings-panel="controllers"]')).not.toContainText(
+    /(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|Secret Name/,
+  );
+});
+
 test("rehearses display and audio settings without claiming hardware authority", async ({
   page,
 }) => {
@@ -1962,7 +2026,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await trigger.click();
   await expect(input).toHaveValue("");
   const allResults = page.locator("#search-results button");
-  await expect(allResults).toHaveCount(20);
+  await expect(allResults).toHaveCount(21);
   const resultList = page.locator("#search-results");
   expect(
     await resultList.evaluate(
@@ -2003,7 +2067,7 @@ test("Search no-result recovery clears locally and opens stable category results
   await page.keyboard.press("Enter");
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect(page.locator("#search-results button")).toHaveCount(20);
+  await expect(page.locator("#search-results button")).toHaveCount(21);
 
   await input.fill("no-such-vcg-destination");
   await page.keyboard.press("ArrowDown");

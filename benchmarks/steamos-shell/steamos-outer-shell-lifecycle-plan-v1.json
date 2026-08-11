@@ -45,7 +45,7 @@
     {
       "role": "controller-and-reserved-action-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
     },
     {
       "role": "steam-input-semantic-action-contract",
@@ -55,7 +55,7 @@
     {
       "role": "steam-input-campaign-plan",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "04239b762dfdd20a9d9e28297d35b3580ff8ce68696df34f1915819b5cd203fe"
+      "sha256": "630f381d48f42d05aae7f4019a2908728f8afefebb8d2fd35acb2e5d5922573b"
     },
     {
       "role": "steamos-update-safe-content-campaign",
@@ -65,7 +65,7 @@
     {
       "role": "steamos-update-safe-content-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "17811706b137aeb0064aab96ef364210b1770633b2f1b851c3aad391b1bd98b0"
+      "sha256": "9a5eaa764e5a30e3f7e33ddad73b7d3450fa579327ee42c3bc22aa6f50cf6429"
     },
     {
       "role": "hosted-browser-wrapper-boundary",

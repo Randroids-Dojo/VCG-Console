@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 102,
-      "totalBytes": 940899,
+      "totalBytes": 957434,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -874,8 +874,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 54256,
-          "sha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c"
+          "bytes": 54434,
+          "sha256": "85259d0685520da09f716413e2aa728dc041c800d31e85d35dd3ead56398ba16"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -904,8 +904,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SettingsView.svelte",
-          "bytes": 26495,
-          "sha256": "f3014aa405bf6009c6602fecbbddace60269e734e32c0992fe1885fe7170d4af"
+          "bytes": 32409,
+          "sha256": "ea45b7f75c2010b104284e1c779cac85a23b9e659e4abde992cb6cab40868e93"
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -1039,8 +1039,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1683,
-          "sha256": "30caf0ba823bbdf1e04a3b4b27f4fbdc7389638423a7d910c6ac6506c4c44155"
+          "bytes": 1701,
+          "sha256": "74bdcd3eb1704664b2822d8358d4d8c45bd276dd2f52cccd6552a982db63e081"
         },
         {
           "path": "apps/console-lab/src/launcher/unassigned-progress.test.ts",
@@ -1109,13 +1109,13 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.test.ts",
-          "bytes": 23037,
-          "sha256": "c10630fdbb1d3545e45ac9825c659624564f35f66c5133029357784aa8301ad8"
+          "bytes": 26234,
+          "sha256": "35321e9aedecb906e0cfcd2c99b481db04c2ed9ddf9aac3d2fcd64b757a2d726"
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
-          "bytes": 26224,
-          "sha256": "a547cd5480da55a80617a74a8af9ff713f5d4b48954de5db11852033e6902b3a"
+          "bytes": 31703,
+          "sha256": "3198aa2c450ec35c223a5d4b3ecc4c3911c8de94508ee4937eb2f69a84bb0282"
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
@@ -1164,8 +1164,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 108157,
-          "sha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913"
+          "bytes": 109906,
+          "sha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1253,13 +1253,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                743,
-                810,
-                827,
-                840,
-                924,
-                1094,
-                1113
+                744,
+                811,
+                828,
+                841,
+                925,
+                1095,
+                1114
               ]
             },
             {
@@ -1289,17 +1289,21 @@
             {
               "path": "apps/console-lab/src/launcher/SettingsView.svelte",
               "lines": [
-                298,
-                300,
-                301,
-                330,
-                338,
-                347,
-                405,
+                378,
+                380,
+                381,
                 410,
-                459,
-                480,
-                481
+                418,
+                427,
+                512,
+                514,
+                516,
+                517,
+                546,
+                551,
+                600,
+                621,
+                622
               ]
             },
             {
@@ -1365,9 +1369,9 @@
             {
               "path": "apps/console-lab/src/native-host-client.ts",
               "lines": [
-                242,
-                328,
-                430
+                260,
+                346,
+                448
               ]
             }
           ]
@@ -1390,7 +1394,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
+    "stylePathSha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

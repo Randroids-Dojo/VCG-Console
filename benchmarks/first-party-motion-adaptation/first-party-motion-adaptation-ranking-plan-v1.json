@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "5e056596dd6eec84d34795c640f197ef23acca8d53b1f12ae7ca4e90947554b4"
+      "sha256": "f7025df74825ccf179a661b7263caf3831c7989a333289580ebf51143dd1de5f"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -55,7 +55,7 @@
     {
       "role": "canonical-controller-and-reserved-action-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
     },
     {
       "role": "offline-and-hosted-service-separation-boundary",

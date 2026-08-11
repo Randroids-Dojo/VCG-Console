@@ -1,6 +1,14 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
   import {
+    forgetBluetoothController,
+    listBluetoothControllers,
+    pairBluetoothController,
+    scanBluetoothControllers,
+    type NativeBluetoothController,
+    type NativeBluetoothResult,
+  } from "../native-host-client";
+  import {
     ConsoleOperatingModeController,
     type ConsoleOperatingModeSnapshot,
   } from "./operating-mode";
@@ -62,6 +70,10 @@
       title: "Audio.",
       detail: "Test a local cue without claiming an output or channel layout.",
     },
+    controllers: {
+      title: "Controllers.",
+      detail: "Pair and reconnect gamepads without leaving the television.",
+    },
     network: {
       title: "Wi-Fi.",
       detail: "Online play is optional. Local play stays available.",
@@ -78,6 +90,11 @@
   let scanning = $state(false);
   let scanComplete = $state(false);
   let diagnostics = $state(false);
+  let bluetoothDevices = $state<NativeBluetoothController[]>([]);
+  let bluetoothBusy = $state<string | undefined>();
+  let bluetoothError = $state<string | undefined>();
+  let bluetoothLoaded = $state(false);
+  let pendingForgetId = $state<string | undefined>();
   const avSettings = new AvSettingsRehearsalController();
   let avSettingsSnapshot = $state<AvSettingsRehearsalSnapshot>(avSettings.snapshot());
   const operatingMode = new ConsoleOperatingModeController();
@@ -107,7 +124,70 @@
   });
 
   export function show(target: SettingsPanel): void {
+    selectPanel(target);
+  }
+
+  function selectPanel(target: SettingsPanel): void {
     panel = target;
+    if (target !== "controllers") pendingForgetId = undefined;
+    if (target === "controllers" && !bluetoothLoaded && bluetoothBusy === undefined) {
+      void refreshBluetoothControllers();
+    }
+  }
+
+  async function refreshBluetoothControllers(): Promise<void> {
+    await runBluetoothOperation("refresh", listBluetoothControllers());
+  }
+
+  async function scanControllers(): Promise<void> {
+    pendingForgetId = undefined;
+    await runBluetoothOperation("scan", scanBluetoothControllers());
+  }
+
+  async function pairController(id: string): Promise<void> {
+    pendingForgetId = undefined;
+    const result = await runBluetoothOperation(id, pairBluetoothController(id));
+    if (!result?.ok) return;
+    const controller = result.snapshot.devices.find((device) => device.id === id);
+    if (controller?.connected) {
+      ontoast("Bluetooth connected. Press a controller button to verify input.");
+    } else if (controller?.paired) {
+      ontoast("Controller is paired but not connected yet.");
+    } else {
+      ontoast("Pairing did not complete. Put the controller in pairing mode and try again.");
+    }
+  }
+
+  async function forgetController(id: string): Promise<void> {
+    if (pendingForgetId !== id) {
+      pendingForgetId = id;
+      return;
+    }
+    const result = await runBluetoothOperation(id, forgetBluetoothController(id));
+    if (result?.ok) {
+      pendingForgetId = undefined;
+      ontoast("Controller bond removed from this console.");
+    }
+  }
+
+  async function runBluetoothOperation(
+    operation: string,
+    request: Promise<NativeBluetoothResult>,
+  ): Promise<NativeBluetoothResult | undefined> {
+    bluetoothBusy = operation;
+    bluetoothError = undefined;
+    try {
+      const result = await request;
+      bluetoothLoaded = true;
+      if (result.ok) {
+        bluetoothDevices = result.snapshot.devices;
+      } else {
+        bluetoothError = result.detail;
+      }
+      return result;
+    } finally {
+      bluetoothBusy = undefined;
+    }
   }
 
   export function cancelPendingModeConfirmation(): boolean {
@@ -266,14 +346,14 @@
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">
-    {#each ["system", "accessibility", "display", "audio", "network", "storage", "developer"] as target}
+    {#each ["system", "accessibility", "display", "audio", "controllers", "network", "storage", "developer"] as target}
       <button
         class:active={panel === target}
         type="button"
         data-tv-action
         data-tv-critical-text
         data-settings-target={target}
-        onclick={() => (panel = target as SettingsPanel)}
+        onclick={() => selectPanel(target as SettingsPanel)}
       >{target === "network" ? "Wi-Fi" : target === "accessibility" ? "Access" : target === "developer" ? "Developer" : target[0]?.toUpperCase() + target.slice(1)}</button>
     {/each}
   </nav>
@@ -400,6 +480,67 @@
         </div>
       </div>
       <p class="av-settings-boundary">No microphone request, speech service, network request, output selection, hardware volume change, or speaker/channel qualification occurs.</p>
+    </section>
+    <section data-settings-panel="controllers" hidden={panel !== "controllers"}>
+      <div class="controller-setup-summary" aria-live="polite">
+        <span>LOCAL BLUETOOTH SETUP</span>
+        <strong>Put your controller in pairing mode</strong>
+        <p>Use a connected controller or keyboard to scan. Device names and Bluetooth addresses never appear in the console UI.</p>
+        <button
+          type="button"
+          data-tv-action
+          data-tv-critical-text
+          disabled={bluetoothBusy !== undefined}
+          onclick={scanControllers}
+        >{bluetoothBusy === "scan" ? "Scanning for controllers..." : "Scan for controllers"}</button>
+      </div>
+      {#if bluetoothError !== undefined}
+        <p class="controller-setup-error" role="alert">{bluetoothError}</p>
+      {:else if bluetoothBusy === "refresh"}
+        <p class="controller-setup-empty" aria-live="polite">Checking saved controllers...</p>
+      {:else if bluetoothLoaded && bluetoothDevices.length === 0}
+        <p class="controller-setup-empty">No gaming controllers found. Hold the controller's pairing button, then scan again.</p>
+      {/if}
+      {#if bluetoothDevices.length > 0}
+        <ul class="controller-list" aria-label="Bluetooth controllers">
+          {#each bluetoothDevices as controller}
+            <li>
+              <div>
+                <strong>{controller.id.replace("controller-", "Controller ")}</strong>
+                <small>
+                  {controller.connected && controller.paired
+                    ? "Bluetooth connected · press a button to verify game input"
+                    : controller.connected
+                      ? "Connected for this session · pair to save it for reboot"
+                    : controller.paired
+                      ? "Paired · ready to reconnect"
+                      : "Nearby · ready to pair"}
+                </small>
+              </div>
+              <div>
+                {#if !controller.paired || !controller.connected}
+                  <button
+                    type="button"
+                    data-tv-action
+                    disabled={bluetoothBusy !== undefined}
+                    onclick={() => pairController(controller.id)}
+                  >{bluetoothBusy === controller.id ? "Working..." : controller.paired ? "Reconnect" : "Pair"}</button>
+                {/if}
+                {#if controller.paired}
+                  <button
+                    type="button"
+                    data-tv-action
+                    class:confirm-remove={pendingForgetId === controller.id}
+                    disabled={bluetoothBusy !== undefined}
+                    onclick={() => forgetController(controller.id)}
+                  >{pendingForgetId === controller.id ? "Confirm forget" : "Forget"}</button>
+                {/if}
+              </div>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      <p class="controller-setup-boundary">Bluetooth connection is not a gameplay claim. The controller becomes usable only after Chromium reports fresh mapped input; Raspberry Pi, controller-model, range, wake, and two-player behavior still require physical qualification.</p>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
       <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>

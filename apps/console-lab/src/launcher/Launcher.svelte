@@ -200,6 +200,7 @@
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
     { title: "Display", detail: "Television layout preview", group: "Settings", terms: "tv hdmi resolution refresh hdr overscan safe area", action: () => showSettings("display") },
     { title: "Audio", detail: "Local output cue rehearsal", group: "Settings", terms: "sound hdmi speakers receiver volume test cue", action: () => showSettings("audio") },
+    { title: "Controllers", detail: "Bluetooth setup", group: "Settings", terms: "gamepad bluetooth pair connect forget controller", action: () => showSettings("controllers") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
     { title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") },

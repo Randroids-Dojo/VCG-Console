@@ -32,7 +32,7 @@
     {
       "role": "native-input-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "37e19c0b47db6cdec383d656199b6496e2204f87b8d8b398be83d1911d47e566"
+      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
     },
     {
       "role": "steam-input-action-contract",
@@ -57,17 +57,17 @@
     {
       "role": "controller-only-catalog-boundary",
       "path": "benchmarks/catalog-controller-only/catalog-controller-only-qualification-plan-v1.json",
-      "sha256": "20a18a9567d2cea2dd0f0953086f6895a578404f8553c408ffc232effbfb7efc"
+      "sha256": "500f69a3d290fdec891635927eda11e717a37f5668e880d0ee6e00f56aa09cc2"
     },
     {
       "role": "steamos-package-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "17811706b137aeb0064aab96ef364210b1770633b2f1b851c3aad391b1bd98b0"
+      "sha256": "9a5eaa764e5a30e3f7e33ddad73b7d3450fa579327ee42c3bc22aa6f50cf6429"
     },
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "a5fd8b210aae82146e7118c53ae75c467ad7d44ca2ebbb8243ad6e5524bfd2aa"
+      "sha256": "04220ca539a0a6f04c4c8c44aab6c279e762edbdb2787adb4a077522d8ddee79"
     },
     {
       "role": "accountless-offline-boundary",

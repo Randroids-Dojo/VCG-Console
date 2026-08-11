@@ -52,7 +52,7 @@
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "83b07493630072a4d53ab3316d0f228066b5cfbb31be09649646d9e99f43e91a"
+      "sha256": "266c558463614a5c0b8ddbfcf76e96271958e96c74ddf18d2be4d1c14066b46e"
     },
     {
       "role": "controller-boundary",
@@ -62,7 +62,7 @@
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "e8bba7e9ac094fb94b2e360cc6a1c79c083bcc01e413686adc0184298ce1b563"
+      "sha256": "6d961e82f30259ea122eb8834bb01757ed29828a75809a404dd694583f5ce311"
     }
   ],
   "candidates": [

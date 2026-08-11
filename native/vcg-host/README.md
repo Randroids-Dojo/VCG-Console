@@ -52,6 +52,12 @@ in the app URL fragment. The launcher checks the protocol and host capabilities
 before attempting a native or RetroArch handoff. See the
 [native launcher-host API contract](../../docs/NATIVE_HOST_API.md).
 
+Add `--bluetoothctl /usr/bin/bluetoothctl` to expose the bounded
+`bluetooth-controller-pairing` capability used by Settings > Controllers. The
+host accepts only fixed scan/pair/reconnect/forget intents, keeps Bluetooth
+addresses and names internal, and returns session-local controller labels.
+Connection state is not a mapped-input or target-hardware qualification claim.
+
 Add the all-or-nothing `--catalog`, `--catalog-signature`, `--install-root`,
 `--update-root-store`, `--update-root-anchors`,
 `--update-root-protected-state`, `--update-channel`,

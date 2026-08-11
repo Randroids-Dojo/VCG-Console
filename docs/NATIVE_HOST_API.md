@@ -1,12 +1,12 @@
 # Native launcher-host API
 
-Last updated: 2026-07-24
+Last updated: 2026-08-10
 
 This document defines the first reversible transport between the local Svelte launcher and the privileged Rust host. It is a desk-prototype boundary, not a general local RPC service and not proof of target-Linux containment.
 
 ## Scope
 
-The implemented `0.1.0` surface answers status and installed-package queries and accepts one narrow privileged operation: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog.
+The implemented `0.1.0` surface answers status, installed-package, and privacy-safe Bluetooth-controller queries. It accepts two narrow privileged operation families: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog; and scan, pair/reconnect, or deliberately forget a gaming controller through host-configured `bluetoothctl`.
 
 It never accepts a browser-provided manifest, executable, path, hash, command, environment, or writable root. It does not return logs, change settings, grant a game access to the host API, or prove a visible game window. Host-selected installed games may use the existing heartbeat watchdog, but process/runtime health is only observable; compositor readiness remains deliberately unproven.
 
@@ -90,6 +90,32 @@ A lifecycle response contains protocol version, request ID, game ID, profile ID,
 
 Process start is not window readiness. Svelte polls while the launch screen remains in progress and cancels the child when its absolute local-launch deadline expires, the operator exits, or the lifecycle becomes invalid. No response currently produces the launcher `READY` state.
 
+When the launcher is configured with one fixed absolute `--bluetoothctl` path,
+status adds `bluetooth-controller-pairing`. The controller endpoints are:
+
+- `GET /v1/bluetooth`: refresh the current gaming-controller roster;
+- `POST /v1/bluetooth/scan`: power on the adapter and run one bounded scan;
+- `POST /v1/bluetooth/devices/<session-id>/pair`: pair a nearby controller or
+  reconnect an already-paired controller; and
+- `DELETE /v1/bluetooth/devices/<session-id>`: deliberately remove its bond.
+
+The two POST operations accept only `{"protocolVersion":"0.1.0"}`. The host
+invokes its fixed executable directly with fixed operations and a Bluetooth
+address that it parsed and validated itself; browser text never becomes a
+command or address. Responses contain only sorted session-local identifiers
+such as `controller-1` plus `paired` and `connected` booleans. Advertised
+names, Bluetooth addresses, keys, descriptors, command output, and executable
+paths never cross the API. The Svelte client independently enforces that exact
+schema and a 16-controller maximum.
+
+Pairing uses the `NoInputNoOutput` agent capability and is therefore intended
+for gaming controllers that support a compatible non-interactive pairing
+flow. A successful bond or Bluetooth connection is not a gameplay-readiness
+claim: Chromium must still report fresh standard-mapped input. Raspberry Pi
+radio behavior, controller-model compatibility, range, sleep/wake, reconnect,
+simultaneous devices, and controller-only first-pair recovery remain physical
+qualification gates.
+
 ## Security invariants
 
 - Keep the listener loopback-only, per launcher process, and closed when that process ends.
@@ -111,14 +137,18 @@ discovery and path-free inventory, strict persistent profile-registry intake,
 package protected-state ordering and rollback/substitution refusal,
 development-source mutual exclusion, fixed-intent launch, durable at-most-once
 replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement,
-journal corruption and contention, bounded lifecycle, direct process
+journal corruption and contention, bounded lifecycle, privacy-safe Bluetooth
+parsing and session identifiers, fixed pairing/reconnect/forget commands,
+Bluetooth route preflight and stable path-free failures, direct process
 start/observation, and idempotent cancellation. TypeScript tests cover strict
 bridge parsing, bounded bodies, canonical bounded package inventory, fixed
 package/profile/request IDs, lifecycle identity and sequence validation,
 bounded recovery failures, failure records, polling, and cancellation.
 Playwright proves the Svelte flow derives installed labeling from signed
 inventory, sends only versioned package/profile intent, and reports process
-failure without inventing readiness.
+failure without inventing readiness. A focused browser flow also exercises
+scan, pair, two-step forget, and the identity-exclusion boundary without real
+Bluetooth hardware.
 
 Still required are hostile-navigation and process-inspection tests,
 qualified service-manager descendant cleanup adapter, boot-scoped replay
