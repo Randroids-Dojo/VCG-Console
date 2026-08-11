@@ -23,6 +23,11 @@ ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# `vite preview` bundles vite.config.ts into a temporary file under
+# node_modules/.vite-temp on every startup, even for an already-built preview
+# server. ProtectSystem=strict plus ProtectHome=read-only otherwise makes that
+# write fail with EROFS on every launch, crash-looping the service.
+ReadWritePaths=@REPO_ROOT@/apps/console-lab/node_modules
 
 [Install]
 WantedBy=vcg-console.target
