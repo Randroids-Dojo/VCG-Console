@@ -20,7 +20,7 @@
     {
       "role": "per-game-runtime-scorecard-and-zero-selection-boundary",
       "path": "compliance/runtime-scorecard/runtime-payload-scorecard-desk-baseline-v2.json",
-      "sha256": "3cb74e2340f7ce32fd807160b5f6103450d79ef084b3d73ec0fb0ddc73b4d859"
+      "sha256": "2ae31d020ecf0e37fba5454881dcfdd8ea2f7896b6e620fd88cce75cbbc609fb"
     },
     {
       "role": "first-real-room-one-player-prerequisite-boundary",
@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "0ec12f8a2d32d491df5573fc5c0d8f7702ca329a6a4df1c3c48d1ec86ba1ca52"
+      "sha256": "b220cdc5a0f13df2e563e2729ac9836c8510322a7006b0c33682e1c7764f9ba9"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -75,7 +75,12 @@
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+      "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
+    },
+    {
+      "role": "two-player-obstacle-round-state-and-resolution-boundary",
+      "path": "apps/console-lab/src/two-player-obstacle-round.ts",
+      "sha256": "fdc8a7f545cf1e3dd3e698d11e9a852354aceb85e1a74e6a2ec0b5bc6114ad7f"
     },
     {
       "role": "motion-api-actions-players-clocks-and-trace-contract-boundary",

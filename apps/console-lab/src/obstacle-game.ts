@@ -1,164 +1,106 @@
 import type { MotionAction } from "@vcg/motion-contract";
-
-type Stance = "standing" | "jumping" | "ducking";
-type ObstacleKind = "lane" | "jump" | "duck";
-
-interface Obstacle {
-  id: number;
-  kind: ObstacleKind;
-  lane: number;
-  y: number;
-  resolved: boolean;
-}
+import type { PlayerSlot } from "./player-session";
+import {
+  TwoPlayerObstacleRound,
+  type ObstacleRoundSnapshot,
+  type PlayerObstacle,
+} from "./two-player-obstacle-round";
 
 export class ObstacleGame {
   readonly #context: CanvasRenderingContext2D;
-  readonly #obstacles: Obstacle[] = [];
-  #lane = 1;
-  #stance: Stance = "standing";
-  #stanceUntil = 0;
+  readonly #round: TwoPlayerObstacleRound;
   #lastAt = 0;
-  #lastSpawnAt = 0;
-  #spawnSequence = 0;
-  #paused = false;
-  #score = 0;
-  #lives = 3;
+  #lastPausedDrawKey: string | undefined;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    private readonly onState: (score: number, lives: number, status: string) => void,
+    private readonly onState: (snapshot: ObstacleRoundSnapshot) => void,
   ) {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D is unavailable");
     this.#context = context;
+    this.#round = new TwoPlayerObstacleRound(roundOptionsFromSearch(window.location.search));
   }
 
   start(): void {
     this.#lastAt = performance.now();
+    this.onState(this.#round.snapshot());
     requestAnimationFrame((now) => this.#loop(now));
   }
 
-  setPaused(paused: boolean): void {
-    this.#paused = paused;
-    this.#lastAt = performance.now();
+  snapshot(): ObstacleRoundSnapshot {
+    return this.#round.snapshot();
   }
 
-  handleAction(action: MotionAction["name"]): void {
-    const now = performance.now();
-    if (action === "dodge_left") this.#lane = Math.max(0, this.#lane - 1);
-    if (action === "dodge_right") this.#lane = Math.min(2, this.#lane + 1);
-    if (action === "jump") {
-      this.#stance = "jumping";
-      this.#stanceUntil = now + 650;
-    }
-    if (action === "duck") {
-      this.#stance = "ducking";
-      this.#stanceUntil = now + 800;
-    }
-    this.onState(this.#score, this.#lives, action.replaceAll("_", " ").toUpperCase());
+  setRoster(slots: readonly PlayerSlot[]): void {
+    this.#round.setRoster(slots);
+    this.onState(this.#round.snapshot());
+  }
+
+  setPaused(paused: boolean): void {
+    this.#round.setPaused(paused);
+    this.#lastAt = performance.now();
+    this.onState(this.#round.snapshot());
+  }
+
+  handleAction(action: MotionAction["name"], slot: PlayerSlot): void {
+    this.#round.handleAction(action, slot);
+    this.onState(this.#round.snapshot());
   }
 
   reset(): void {
-    this.#obstacles.length = 0;
-    this.#lane = 1;
-    this.#stance = "standing";
-    this.#stanceUntil = 0;
-    this.#paused = false;
+    this.#round.reset();
     this.#lastAt = performance.now();
-    this.#score = 0;
-    this.#lives = 3;
-    this.#spawnSequence = 0;
-    this.#lastSpawnAt = 0;
-    this.onState(this.#score, this.#lives, "READY");
+    this.onState(this.#round.snapshot());
   }
 
   #loop(now: number): void {
-    const delta = Math.min(40, now - this.#lastAt);
+    const delta = Math.min(100, Math.max(0, now - this.#lastAt));
     this.#lastAt = now;
-    if (!this.#paused) this.#update(now, delta);
-    this.#draw();
+    this.#round.update(delta);
+    const snapshot = this.#round.snapshot();
+    this.onState(snapshot);
+    const pausedDrawKey = snapshot.phase === "paused"
+      ? `${this.canvas.clientWidth}x${this.canvas.clientHeight}@${devicePixelRatio}:${JSON.stringify(snapshot)}`
+      : undefined;
+    if (pausedDrawKey === undefined || pausedDrawKey !== this.#lastPausedDrawKey) {
+      this.#draw(snapshot);
+    }
+    this.#lastPausedDrawKey = pausedDrawKey;
     requestAnimationFrame((next) => this.#loop(next));
   }
 
-  #update(now: number, deltaMs: number): void {
-    if (this.#stance !== "standing" && now >= this.#stanceUntil) this.#stance = "standing";
-    if (now - this.#lastSpawnAt > 1_550) {
-      this.#lastSpawnAt = now;
-      const kinds: ObstacleKind[] = ["lane", "jump", "duck"];
-      const kind = kinds[this.#spawnSequence % kinds.length] ?? "lane";
-      this.#obstacles.push({
-        id: this.#spawnSequence,
-        kind,
-        lane: kind === "lane" ? this.#spawnSequence % 3 : 1,
-        y: -0.08,
-        resolved: false,
-      });
-      this.#spawnSequence += 1;
-    }
-
-    for (const obstacle of this.#obstacles) {
-      obstacle.y += deltaMs * 0.00034;
-      if (!obstacle.resolved && obstacle.y >= 0.8) {
-        obstacle.resolved = true;
-        const avoided =
-          (obstacle.kind === "lane" && this.#lane !== obstacle.lane) ||
-          (obstacle.kind === "jump" && this.#stance === "jumping") ||
-          (obstacle.kind === "duck" && this.#stance === "ducking");
-        if (avoided) {
-          this.#score += 100;
-          this.onState(this.#score, this.#lives, "CLEAR");
-        } else {
-          this.#lives = Math.max(0, this.#lives - 1);
-          this.onState(this.#score, this.#lives, this.#lives ? "HIT" : "RUN ENDED");
-          if (this.#lives === 0) this.#paused = true;
-        }
-      }
-    }
-    while (this.#obstacles[0]?.y && this.#obstacles[0].y > 1.12) this.#obstacles.shift();
-  }
-
-  #draw(): void {
+  #draw(snapshot: ObstacleRoundSnapshot): void {
     this.#resize();
     const { width, height } = this.canvas;
     const context = this.#context;
     context.clearRect(0, 0, width, height);
     context.fillStyle = "#101315";
     context.fillRect(0, 0, width, height);
-    const laneWidth = width / 3;
 
-    context.strokeStyle = "rgba(239,238,230,0.12)";
-    context.lineWidth = 1;
-    context.setLineDash([8, 12]);
-    for (let lane = 1; lane < 3; lane += 1) {
-      context.beginPath();
-      context.moveTo(lane * laneWidth, 0);
-      context.lineTo(lane * laneWidth, height);
-      context.stroke();
+    const arenaGap = width * 0.025;
+    const arenaWidth = (width - arenaGap) / 2;
+    for (const slot of [1, 2] as const) {
+      const arenaX = slot === 1 ? 0 : arenaWidth + arenaGap;
+      this.#drawArena(snapshot, slot, arenaX, arenaWidth, height);
     }
-    context.setLineDash([]);
 
-    for (const obstacle of this.#obstacles) {
-      const x = obstacle.lane * laneWidth + laneWidth * 0.18;
-      const y = obstacle.y * height;
-      const obstacleWidth = laneWidth * 0.64;
-      context.strokeStyle = obstacle.resolved ? "rgba(119,128,132,0.3)" : "#ff765f";
-      context.lineWidth = Math.max(2, width * 0.002);
-      context.strokeRect(x, y, obstacleWidth, height * 0.08);
-      context.fillStyle = obstacle.resolved ? "rgba(119,128,132,0.3)" : "#ff765f";
-      context.font = `${Math.max(12, width * 0.014)}px OCRA, monospace`;
+    if (snapshot.phase === "waiting-for-players" || snapshot.phase === "countdown") {
+      context.fillStyle = "rgba(9,11,12,0.72)";
+      context.fillRect(0, 0, width, height);
+      context.fillStyle = "#efeee6";
+      context.font = `${Math.max(22, width * 0.035)}px OCRA, monospace`;
       context.textAlign = "center";
-      context.fillText(obstacle.kind.toUpperCase(), x + obstacleWidth / 2, y + height * 0.052);
-    }
-
-    const playerX = this.#lane * laneWidth + laneWidth / 2;
-    const playerY = height * 0.84 - (this.#stance === "jumping" ? height * 0.12 : 0);
-    const playerHeight = this.#stance === "ducking" ? height * 0.07 : height * 0.13;
-    context.fillStyle = "#53dac3";
-    context.fillRect(playerX - laneWidth * 0.08, playerY - playerHeight, laneWidth * 0.16, playerHeight);
-    context.strokeStyle = "rgba(83,218,195,0.35)";
-    context.strokeRect(playerX - laneWidth * 0.12, height * 0.68, laneWidth * 0.24, height * 0.18);
-
-    if (this.#paused) {
+      context.fillText(
+        snapshot.phase === "waiting-for-players"
+          ? snapshot.joinedSlots.length === 0
+            ? "JOIN PLAYER 1"
+            : "JOIN PLAYER 2"
+          : String(Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))),
+        width / 2,
+        height / 2,
+      );
+    } else if (snapshot.phase === "paused") {
       context.fillStyle = "rgba(9,11,12,0.74)";
       context.fillRect(0, 0, width, height);
       context.fillStyle = "#efeee6";
@@ -166,6 +108,73 @@ export class ObstacleGame {
       context.textAlign = "center";
       context.fillText("PAUSED", width / 2, height / 2);
     }
+  }
+
+  #drawArena(
+    snapshot: ObstacleRoundSnapshot,
+    slot: PlayerSlot,
+    x: number,
+    width: number,
+    height: number,
+  ): void {
+    const context = this.#context;
+    const laneWidth = width / 3;
+    context.fillStyle = slot === 1 ? "rgba(83,218,195,0.025)" : "rgba(255,191,71,0.025)";
+    context.fillRect(x, 0, width, height);
+    context.strokeStyle = slot === 1 ? "rgba(83,218,195,0.3)" : "rgba(255,191,71,0.3)";
+    context.lineWidth = Math.max(1, width * 0.002);
+    context.strokeRect(x + 1, 1, width - 2, height - 2);
+    context.setLineDash([8, 12]);
+    context.strokeStyle = "rgba(239,238,230,0.12)";
+    for (let lane = 1; lane < 3; lane += 1) {
+      context.beginPath();
+      context.moveTo(x + lane * laneWidth, 0);
+      context.lineTo(x + lane * laneWidth, height);
+      context.stroke();
+    }
+    context.setLineDash([]);
+
+    context.fillStyle = slot === 1 ? "#53dac3" : "#ffbf47";
+    context.font = `${Math.max(12, width * 0.028)}px OCRA, monospace`;
+    context.textAlign = "left";
+    context.fillText(`P${slot}`, x + width * 0.035, height * 0.09);
+
+    for (const obstacle of snapshot.obstacles.filter((candidate) => candidate.slot === slot)) {
+      this.#drawObstacle(obstacle, x, laneWidth, width, height);
+    }
+
+    const player = snapshot.players.find((candidate) => candidate.slot === slot);
+    if (!player) return;
+    const playerX = x + player.lane * laneWidth + laneWidth / 2;
+    const playerY = height * 0.86 - (player.stance === "jumping" ? height * 0.12 : 0);
+    const playerHeight = player.stance === "ducking" ? height * 0.07 : height * 0.13;
+    context.fillStyle = player.lives === 0
+      ? "rgba(119,128,132,0.45)"
+      : slot === 1 ? "#53dac3" : "#ffbf47";
+    context.fillRect(playerX - laneWidth * 0.08, playerY - playerHeight, laneWidth * 0.16, playerHeight);
+    context.strokeStyle = slot === 1 ? "rgba(83,218,195,0.35)" : "rgba(255,191,71,0.35)";
+    context.lineWidth = Math.max(1, width * 0.002);
+    context.strokeRect(playerX - laneWidth * 0.12, height * 0.7, laneWidth * 0.24, height * 0.18);
+  }
+
+  #drawObstacle(
+    obstacle: PlayerObstacle,
+    arenaX: number,
+    laneWidth: number,
+    arenaWidth: number,
+    height: number,
+  ): void {
+    const context = this.#context;
+    const x = arenaX + obstacle.lane * laneWidth + laneWidth * 0.18;
+    const y = (-0.08 + obstacle.progress * 0.88) * height;
+    const obstacleWidth = laneWidth * 0.64;
+    context.strokeStyle = obstacle.resolved ? "rgba(119,128,132,0.3)" : "#ff765f";
+    context.lineWidth = Math.max(2, arenaWidth * 0.004);
+    context.strokeRect(x, y, obstacleWidth, height * 0.08);
+    context.fillStyle = obstacle.resolved ? "rgba(119,128,132,0.3)" : "#ff765f";
+    context.font = `${Math.max(10, arenaWidth * 0.024)}px OCRA, monospace`;
+    context.textAlign = "center";
+    context.fillText(obstacle.kind.toUpperCase(), x + obstacleWidth / 2, y + height * 0.052);
   }
 
   #resize(): void {
@@ -177,4 +186,19 @@ export class ObstacleGame {
       this.canvas.height = height;
     }
   }
+}
+
+export function fastObstacleTestEnabled(search: string): boolean {
+  return new URLSearchParams(search).get("obstacleTest") === "fast";
+}
+
+function roundOptionsFromSearch(search: string): ConstructorParameters<typeof TwoPlayerObstacleRound>[0] {
+  if (!fastObstacleTestEnabled(search)) return {};
+  return {
+    countdownMs: 300,
+    roundMs: 3_000,
+    spawnIntervalMs: 500,
+    obstacleTravelMs: 700,
+    startingLives: 1,
+  };
 }

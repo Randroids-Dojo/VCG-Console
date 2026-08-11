@@ -21,7 +21,7 @@ import {
 
 export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
-export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-07-29";
+export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-08-11";
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
   "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
@@ -40,9 +40,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/font-coverage");
 const artifactRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json";
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json";
 const screenshotRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png";
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png";
 const artifactPath = resolve(root, artifactRelativePath);
 const screenshotPath = resolve(root, screenshotRelativePath);
 const baseEvidenceRelativePath =

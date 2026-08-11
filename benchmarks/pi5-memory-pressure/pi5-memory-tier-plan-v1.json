@@ -9,12 +9,12 @@
     {
       "role": "cpu-only-workload-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "27353c8838ca71f1273aca6afe3292f8aa118362ddb77e4e2fa970dfa936f691"
+      "sha256": "03cee9616194a521f22bc7a2ddf0f0467c70ebb4eaa80a2a3f77f53922936162"
     },
     {
       "role": "accelerated-concurrent-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "3fbccefa945c7be64222d3f2c74b305c5bfde31cc132288a7e913d4e43304221"
+      "sha256": "8c5e6ea33188b17bd5b2233a40a78f9147a145ebdabf3a43af92bc5e0bb849ce"
     },
     {
       "role": "storage-boundary",

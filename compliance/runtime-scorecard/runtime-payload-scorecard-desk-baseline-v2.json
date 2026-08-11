@@ -668,8 +668,8 @@
         "repository": "VCG-Console",
         "revision": null,
         "fileCount": 5,
-        "totalBytes": 90038,
-        "sha256": "42f5087ae5039f8357fecde2c0c3d9de7bc2ededac34dbd0f0db5a70fea3dfab",
+        "totalBytes": 100799,
+        "sha256": "1ff94e229dd089d96c04f6fa31c2ff24a3f0014818189e136c286934a9c18656",
         "runtimeDependencyCount": null,
         "apiRouteCount": 0,
         "assetLikeFileCount": 0,
@@ -686,13 +686,13 @@
           },
           {
             "path": "apps/console-lab/src/main.ts",
-            "bytes": 58905,
-            "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
+            "bytes": 68328,
+            "sha256": "b8ec06a03cb0f4db59675eca9968aea03b9629d22a4582171fe52285375bdaf4"
           },
           {
             "path": "apps/console-lab/src/obstacle-game.ts",
-            "bytes": 6112,
-            "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+            "bytes": 7450,
+            "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
           },
           {
             "path": "apps/console-lab/src/renderer.ts",
@@ -1086,7 +1086,7 @@
       }
     }
   ],
-  "observationSha256": "aa25d048630e90b8812f52376e902bf27a87d4410333c9fd8fbc15db074ca278",
+  "observationSha256": "eab611cc3c5b757998f58ec4d2b4fc0c53ac80232aa25c34f0bea27604c7972d",
   "summary": {
     "subjectCount": 5,
     "publicSourceSubjectCount": 3,

@@ -32,16 +32,16 @@ font and one rendered glyph per probe, the exact resource requests, errors,
 source-tree commitment, structural-evidence digest, and pixel-bound screenshot.
 
 The strict artifact is
-`benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json`.
+`benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json`.
 The reviewed capture is
-`benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png`.
+`benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png`.
 
 ## Exact observation
 
 Environment:
 
 - Windows x64 development host;
-- installed headless Chrome `150.0.7871.182`;
+- installed headless Chrome `151.0.7922.76`;
 - Node `v24.18.0`;
 - production build and production CSS font stack;
 - 1920x1080 viewport at device-pixel ratio 1; and

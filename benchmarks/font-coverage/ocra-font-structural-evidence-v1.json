@@ -1,6 +1,6 @@
 {
   "format": "vcg-ocra-font-structural-evidence/v1",
-  "evidenceDate": "2026-07-24",
+  "evidenceDate": "2026-08-11",
   "subject": {
     "path": "apps/console-lab/public/fonts/OCRA.ttf",
     "bytes": 24316,
@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 98,
-      "totalBytes": 905968,
+      "fileCount": 100,
+      "totalBytes": 933320,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1044,18 +1044,18 @@
         },
         {
           "path": "apps/console-lab/src/local-leaderboard.test.ts",
-          "bytes": 4603,
-          "sha256": "127fa69aea14ca33027bbb9c4acecc0e959201eb32f15400ee9d79246dfdd52e"
+          "bytes": 4724,
+          "sha256": "9b33ac3df5c2ac045d04466a8b89ba514e68f7bed19ca5345e3a5aa94e399d2c"
         },
         {
           "path": "apps/console-lab/src/local-leaderboard.ts",
-          "bytes": 7267,
-          "sha256": "21c4898083f8adb4579311595ed2820ba2a1b02d2e2fc7bd6381c2e317d01870"
+          "bytes": 7570,
+          "sha256": "bdd48560d239d8c5a1f0477c6bca836a5ff7e468389b7aadecfb84fbf8345d61"
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 58905,
-          "sha256": "9891d19695d9ad8fc56d78adbc4355ba6893f3e762c86893631a0a851ba8eda2"
+          "bytes": 68328,
+          "sha256": "b8ec06a03cb0f4db59675eca9968aea03b9629d22a4582171fe52285375bdaf4"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1109,8 +1109,8 @@
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
-          "bytes": 6112,
-          "sha256": "fa3617e7c69e094e9218c244e003e14dc6831fd500b374b218b8d1c8d06ec9ec"
+          "bytes": 7450,
+          "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
         },
         {
           "path": "apps/console-lab/src/player-session-adversarial.test.ts",
@@ -1154,8 +1154,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 107108,
-          "sha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75"
+          "bytes": 108157,
+          "sha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1196,6 +1196,16 @@
           "path": "apps/console-lab/src/tracker.ts",
           "bytes": 13406,
           "sha256": "46e0a312ce554398016d3e5ea7946d8d1f2c4ee49386493957b36ad1fe5d9919"
+        },
+        {
+          "path": "apps/console-lab/src/two-player-obstacle-round.test.ts",
+          "bytes": 4596,
+          "sha256": "bf64cb75375043ed716aa978862eea99bc62234a71af2b13feacf8834e455dfd"
+        },
+        {
+          "path": "apps/console-lab/src/two-player-obstacle-round.ts",
+          "bytes": 10522,
+          "sha256": "fdc8a7f545cf1e3dd3e698d11e9a852354aceb85e1a74e6a2ec0b5bc6114ad7f"
         },
         {
           "path": "apps/console-lab/src/visible-text.test.ts",
@@ -1334,12 +1344,12 @@
             {
               "path": "apps/console-lab/src/main.ts",
               "lines": [
-                139,
-                247,
-                248,
-                797,
-                1148,
-                1152
+                164,
+                272,
+                273,
+                915,
+                1295,
+                1299
               ]
             },
             {
@@ -1370,11 +1380,11 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "b05667a1ca14e0384575ef85244c65667d0fa1feb5bba824c5face356ca8dd75",
+    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
-    "generatorPathSha256": "3747a813df98cc59f97b8585af7a510d8d47058c99e10745201ed83c6048a44c",
+    "generatorPathSha256": "44a0a6ea8e87e2b7e36ec2a02c0dc0b02a40396364a0934b3c7dae74cbb9367a",
     "validatorPath": "scripts/validate-ocra-font-evidence.mjs",
     "validatorPathSha256": "1d5d3183f3ed3e7620bb805fec8afcd5febdb03276197a77befa4a35a90555bd"
   },

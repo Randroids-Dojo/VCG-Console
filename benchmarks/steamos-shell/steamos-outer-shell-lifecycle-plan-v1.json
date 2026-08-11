@@ -30,7 +30,7 @@
     {
       "role": "boot-resume-launch-plan",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec9c367294b35badf9079744ab0e103711fe11028708176d55cb423eda6dd6fb"
+      "sha256": "26225bc567b007bff282e9173dff5b5c19023f5c2c085312e911f29eae63161d"
     },
     {
       "role": "privileged-power-lifecycle-boundary",
@@ -55,7 +55,7 @@
     {
       "role": "steam-input-campaign-plan",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "391e3cb75630690cff356bf27e7b236e48061dd0aef55d4861ce49819cf73614"
+      "sha256": "04239b762dfdd20a9d9e28297d35b3580ff8ce68696df34f1915819b5cd203fe"
     },
     {
       "role": "steamos-update-safe-content-campaign",

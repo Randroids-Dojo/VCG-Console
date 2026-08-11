@@ -1,7 +1,7 @@
 export const OBSTACLE_GAME_ID = "vcg-obstacle-survival";
-export const OBSTACLE_GAME_VERSION = "0.1.0";
-export const OBSTACLE_RULES_VERSION = "1";
-export const OBSTACLE_LEADERBOARD_STORAGE_KEY = "vcg.console.obstacle-leaderboard.v1";
+export const OBSTACLE_GAME_VERSION = "0.2.0";
+export const OBSTACLE_RULES_VERSION = "2";
+export const OBSTACLE_LEADERBOARD_STORAGE_KEY = "vcg.console.obstacle-leaderboard.v2";
 
 const DOCUMENT_VERSION = 1;
 const MAX_ENTRIES = 20;
@@ -18,7 +18,8 @@ export interface ObstacleLeaderboardEntry {
   readonly gameId: typeof OBSTACLE_GAME_ID;
   readonly gameVersion: typeof OBSTACLE_GAME_VERSION;
   readonly rulesVersion: typeof OBSTACLE_RULES_VERSION;
-  readonly playerSlot: 1;
+  readonly scoreScope: "two-player-team";
+  readonly playerSlots: readonly [1, 2];
   readonly player: LeaderboardPlayer;
   readonly inputMode: LeaderboardInputMode;
   readonly calibrationMode: "not-qualified";
@@ -72,7 +73,8 @@ export class LocalObstacleLeaderboard {
       gameId: OBSTACLE_GAME_ID,
       gameVersion: OBSTACLE_GAME_VERSION,
       rulesVersion: OBSTACLE_RULES_VERSION,
-      playerSlot: 1,
+      scoreScope: "two-player-team",
+      playerSlots: [1, 2],
       player: validatePlayer(result.player ?? { kind: "unassigned" }),
       inputMode: validateInputMode(result.inputMode),
       calibrationMode: "not-qualified",
@@ -153,6 +155,7 @@ function sortAndBound(entries: readonly ObstacleLeaderboardEntry[]): ObstacleLea
 function cloneEntry(entry: ObstacleLeaderboardEntry): ObstacleLeaderboardEntry {
   return {
     ...entry,
+    playerSlots: [...entry.playerSlots],
     player: entry.player.kind === "unassigned" ? { kind: "unassigned" } : { ...entry.player },
   };
 }
@@ -204,7 +207,11 @@ function isStoredEntry(value: unknown): value is ObstacleLeaderboardEntry {
     value.gameId === OBSTACLE_GAME_ID &&
     value.gameVersion === OBSTACLE_GAME_VERSION &&
     value.rulesVersion === OBSTACLE_RULES_VERSION &&
-    value.playerSlot === 1 &&
+    value.scoreScope === "two-player-team" &&
+    Array.isArray(value.playerSlots) &&
+    value.playerSlots.length === 2 &&
+    value.playerSlots[0] === 1 &&
+    value.playerSlots[1] === 2 &&
     value.calibrationMode === "not-qualified"
   );
 }

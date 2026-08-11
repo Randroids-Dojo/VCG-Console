@@ -9,7 +9,7 @@ import {
 } from "./validate-ocra-platform-fallback-evidence.mjs";
 
 const artifactPath = resolve(
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
 );
 let baseline;
 let temporaryRoot;
