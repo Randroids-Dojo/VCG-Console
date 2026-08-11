@@ -198,6 +198,15 @@ a {
   font: inherit;
 }
 
+/* Controller- and body-camera-driven TV console, not a mouse-driven desktop
+   app. Hidden by default (see cursor-visibility.ts) and shown only while a
+   real pointer is actively moving, so it never appears on the appliance
+   boot path (no mouse) but still works normally at a desk. */
+body.vcg-cursor-hidden,
+body.vcg-cursor-hidden * {
+  cursor: none !important;
+}
+
 button:focus-visible,
 a:focus-visible {
   outline: var(--vcg-focus-width) solid var(--accent);

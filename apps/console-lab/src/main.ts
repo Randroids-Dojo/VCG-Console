@@ -30,6 +30,7 @@ import {
 } from "./camera-state";
 import { captureProfileFromSearch } from "./capture-profile";
 import { ControllerPlayerAssignments } from "./controller-player-assignment";
+import { installAutoHidingCursor } from "./cursor-visibility";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
@@ -1523,6 +1524,7 @@ window.addEventListener("beforeunload", () => {
   gamepads.stop();
   void tracker.close();
 });
+installAutoHidingCursor(document.body);
 required<HTMLButtonElement>("#new-run-button").addEventListener("click", resetObstacleRun);
 required<HTMLButtonElement>("#play-again-button").addEventListener("click", resetObstacleRun);
 required<HTMLButtonElement>("#return-console-button").addEventListener("click", showLauncher);
