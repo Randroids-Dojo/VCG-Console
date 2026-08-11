@@ -10,6 +10,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 const MAX_DEVICES: usize = 16;
+const MAX_SESSION_ID: u32 = 999_999_999;
 const MAX_OUTPUT_BYTES: usize = 64 * 1024;
 const COMMAND_POLL_INTERVAL: Duration = Duration::from_millis(20);
 const QUICK_COMMAND_TIMEOUT: Duration = Duration::from_secs(1);
@@ -351,7 +352,10 @@ fn session_id_number(value: &str) -> Option<u32> {
     if suffix.starts_with('0') {
         return None;
     }
-    suffix.parse().ok()
+    suffix
+        .parse()
+        .ok()
+        .filter(|number| *number <= MAX_SESSION_ID)
 }
 
 fn parse_device_addresses(output: &str) -> Vec<String> {
@@ -635,7 +639,9 @@ mod tests {
         assert!(valid_address("AA:bb:01:23:45:67"));
         assert!(!valid_address("AA:BB:CC:DD:EE:FF;reboot"));
         assert!(valid_session_id("controller-12"));
+        assert!(valid_session_id("controller-999999999"));
         assert!(!valid_session_id("controller-0"));
+        assert!(!valid_session_id("controller-1000000000"));
         assert!(!valid_session_id("controller-1/forget"));
     }
 

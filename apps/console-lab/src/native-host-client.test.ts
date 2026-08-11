@@ -144,6 +144,32 @@ describe("native Bluetooth controller setup", () => {
       snapshot: { devices },
     });
   });
+
+  it("accepts the maximum controller ID and rejects the first ID above it", async () => {
+    const snapshot = (id: string) => ({
+      protocolVersion: "0.1.0",
+      devices: [{ id, paired: false, connected: false }],
+    });
+    const accepted = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(snapshot("controller-999999999")), { status: 200 }),
+      );
+    const rejected = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(snapshot("controller-1000000000")), { status: 200 }),
+      );
+
+    await expect(listBluetoothControllers(HOST_URL, accepted, 100)).resolves.toMatchObject({
+      ok: true,
+      snapshot: snapshot("controller-999999999"),
+    });
+    await expect(listBluetoothControllers(HOST_URL, rejected, 100)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
+  });
 });
 
 describe("native host status", () => {

@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 102,
-      "totalBytes": 958460,
+      "totalBytes": 959547,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1109,8 +1109,8 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.test.ts",
-          "bytes": 26888,
-          "sha256": "cbf17785f5c79180050210284780519d18bbbc42586f5b8bde746b081ef7f2e2"
+          "bytes": 27975,
+          "sha256": "b0680bf9e41f609b0b65ec4fc53cc8ab1fce6f19bcb39777af688334cbe11463"
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
