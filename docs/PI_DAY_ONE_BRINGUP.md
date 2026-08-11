@@ -47,28 +47,32 @@ Skip `hailo-all` for now. See section 6.
 
 ## 2. Prerequisites on the Pi
 
-- Node.js 22 or newer.
-- Corepack, or pnpm at the exact version pinned by `packageManager` in
-  `package.json`.
-- Chromium. The camera path runs in the browser.
-- Cage. It owns the single fullscreen Wayland application without starting a
-  desktop session.
-- For the retro path only: the rustup toolchain declared in
-  `rust-toolchain.toml` (1.97.1).
-- Optional but useful: `v4l-utils`, to record the exact camera modes.
+- The pinned 64-bit Raspberry Pi OS Trixie image.
+- Network access during initial setup for APT, frozen JavaScript/Rust
+  dependencies, and hash-pinned runtime assets.
+- A non-root account with `sudo` access. That account owns the TV session and
+  all repository build outputs.
+
+The unified setup command installs Node.js 22, the repository-pinned pnpm,
+Chromium, Cage, BlueZ, the Rust toolchain, build tools, and `v4l-utils`. It does
+not install Hailo software because the current Motion path still runs pose
+inference in the browser.
 
 ## 3. Bootstrap
 
 ```sh
 git clone <repository> vcg-console
 cd vcg-console
-scripts/pi/bootstrap.sh
+scripts/pi/setup-console.sh
 ```
 
-The script installs pinned dependencies, prepares the pinned assets, builds the
-app, builds and runs the release `vcg-host doctor`, then starts the real preview
-server and verifies the browser boundary against it. Add `--full-verify` to also
-run `typecheck` and the test suite; add `--skip-native` to skip the Rust host.
+The script installs the operating-system prerequisites and pinned toolchains,
+installs frozen dependencies, prepares pinned assets, builds the app and native
+host, runs the full verification suite and `vcg-host doctor`, verifies the real
+server boundary, and installs the boot-owned fullscreen services. It does not
+reboot without permission; pass `--reboot` when an immediate reboot is wanted.
+Use `--quick` to skip the full typecheck/test gate or `--dry-run` to inspect the
+plan without changing the operating system.
 
 `prepare:assets` downloads the pinned pose model and typeface by exact SHA-256,
 so run the bootstrap while the Pi still has network access. After that the built
@@ -80,10 +84,9 @@ The day-one motion game is the built-in Obstacle game in the Motion hub, not a
 catalog title. Catalog entries such as `determined` are hosted remote-web games
 and need working network plus their own services.
 
-Install the appliance services, then reboot:
+After setup, reboot:
 
 ```sh
-sudo scripts/pi/install-appliance.sh --user "$USER"
 sudo systemctl reboot
 ```
 

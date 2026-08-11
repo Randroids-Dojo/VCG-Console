@@ -10,12 +10,13 @@
 # Hailo accelerator: the Motion contract has no honest Hailo frame source yet,
 # so pose inference runs on the CPU in the browser.
 #
-# usage: scripts/pi/bootstrap.sh [--full-verify] [--skip-native]
+# usage: scripts/pi/bootstrap.sh [--full-verify] [--skip-native] [--no-install-instructions]
 
 set -euo pipefail
 
 full_verify=0
 skip_native=0
+install_instructions=1
 # The port is fixed at 4173 on purpose: the bridge and hostile-fixture content
 # security policies name that exact origin, so a console served anywhere else is
 # not the console this script is meant to verify.
@@ -25,6 +26,7 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --full-verify) full_verify=1 ;;
     --skip-native) skip_native=1 ;;
+    --no-install-instructions) install_instructions=0 ;;
     *)
       echo "unknown option: $1" >&2
       exit 2
@@ -63,16 +65,14 @@ if [ "${node_major}" -lt 22 ]; then
 fi
 
 expected_pnpm="$(node -p 'require("./package.json").packageManager.replace(/^pnpm@/, "")')"
-if command -v corepack >/dev/null 2>&1; then
+if command -v pnpm >/dev/null 2>&1 && [ "$(pnpm --version)" = "${expected_pnpm}" ]; then
+  pnpm_run() { pnpm "$@"; }
+elif command -v corepack >/dev/null 2>&1; then
   pnpm_run() { corepack pnpm "$@"; }
 elif command -v pnpm >/dev/null 2>&1; then
   installed_pnpm="$(pnpm --version)"
-  if [ "${installed_pnpm}" = "${expected_pnpm}" ]; then
-    pnpm_run() { pnpm "$@"; }
-  else
-    echo "warning: pnpm ${installed_pnpm} differs from the pinned pnpm ${expected_pnpm}; using pnpm dlx." >&2
-    pnpm_run() { pnpm dlx "pnpm@${expected_pnpm}" "$@"; }
-  fi
+  echo "warning: pnpm ${installed_pnpm} differs from the pinned pnpm ${expected_pnpm}; using pnpm dlx." >&2
+  pnpm_run() { pnpm dlx "pnpm@${expected_pnpm}" "$@"; }
 else
   echo "Missing prerequisite: pnpm. Enable Corepack or install pnpm@${expected_pnpm}, then rerun." >&2
   exit 1
@@ -179,13 +179,15 @@ else
   echo "no chromium binary was found; install one before the camera session." >&2
 fi
 
-echo
-echo "bring-up steps completed. Install appliance boot ownership next:"
-echo "  sudo scripts/pi/install-appliance.sh --user \"${SUDO_USER:-${USER:-vcg}}\""
-echo "  sudo systemctl reboot"
-echo
-echo "After reboot the console owns tty1 and opens fullscreen without a desktop."
-echo "Use docs/PI_APPLIANCE_BOOT.md for setup, diagnosis, and recovery."
+if [ "${install_instructions}" -eq 1 ]; then
+  echo
+  echo "bring-up steps completed. Install appliance boot ownership next:"
+  echo "  sudo scripts/pi/install-appliance.sh --user \"${SUDO_USER:-${USER:-vcg}}\""
+  echo "  sudo systemctl reboot"
+  echo
+  echo "After reboot the console owns tty1 and opens fullscreen without a desktop."
+  echo "Use docs/PI_APPLIANCE_BOOT.md for setup, diagnosis, and recovery."
+fi
 if [ "${skip_native}" -eq 1 ]; then
   echo "warning: --skip-native omitted the release host required by the appliance installer." >&2
 fi

@@ -12,28 +12,37 @@ thermal, and exact Raspberry Pi OS package testing on the physical target.
 
 ## Prepare the Pi
 
-Use the currently pinned Raspberry Pi OS image in
-[the day-one guide](PI_DAY_ONE_BRINGUP.md). Install Cage and Chromium from that
-image's configured package repositories, then build the exact checkout:
+Use the currently pinned 64-bit Raspberry Pi OS Trixie image in
+[the day-one guide](PI_DAY_ONE_BRINGUP.md). From the exact checkout, run one
+setup command as the non-root account that will own the console:
 
 ```sh
-sudo apt install cage chromium
-scripts/pi/bootstrap.sh --full-verify
+scripts/pi/setup-console.sh
 ```
 
-The bootstrap builds `vcg-host` in release mode and verifies the local server's
-browser-security boundary. The installer defaults to that release host and
-refuses a missing executable, an unbuilt web app, a missing compositor, or a
-root-owned browser session.
+The setup command installs Cage, Chromium, BlueZ, camera utilities, build tools,
+and Debian's rustup package. Because Trixie's OS package is Node.js 20 while the
+repository requires Node.js 22 or newer, it installs the SHA-256-pinned official
+Node.js 22 ARM64 archive and exact repository-pinned pnpm under `/opt/vcg`
+without replacing the OS Node. It then installs the repository-pinned Rust
+toolchain, installs frozen JavaScript dependencies, prepares hash-pinned local
+assets, builds the web app and native host, runs the full verification suite,
+verifies the local browser-security boundary, and installs the boot services.
+Pass `--quick` only when intentionally skipping the full typecheck/test gate.
+`--dry-run` prints and validates the plan without changing the OS.
 
 ## Install boot ownership
 
-From the repository root:
+The unified setup command enables boot ownership but deliberately does not
+reboot without permission. Reboot when ready:
 
 ```sh
-sudo scripts/pi/install-appliance.sh --user "$USER"
 sudo systemctl reboot
 ```
+
+Pass `--reboot` to the setup command only when an immediate reboot is intended.
+The lower-level `bootstrap.sh` and `install-appliance.sh` commands remain
+available for development and recovery.
 
 The installer renders path-specific systemd units, verifies them, adds the
 console user to the available `video`, `render`, and `input` device groups, sets

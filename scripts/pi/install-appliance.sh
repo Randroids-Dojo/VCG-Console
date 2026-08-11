@@ -13,6 +13,7 @@ console_home=""
 browser_path=""
 cage_path=""
 host_path=""
+node_path=""
 
 usage() {
   cat <<'EOF'
@@ -26,6 +27,7 @@ Options:
   --browser PATH       Chromium executable (auto-detected)
   --cage PATH          Cage executable (auto-detected)
   --host PATH          release vcg-host executable (auto-detected)
+  --node PATH          Node.js 22+ executable (auto-detected)
   --no-enable          install units without changing the default boot target
   --dry-run            render units without changing the operating system
   --output-dir PATH    keep rendered dry-run units in PATH
@@ -41,7 +43,7 @@ require_value() {
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --user|--group|--home|--repo-root|--browser|--cage|--host|--output-dir)
+    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--output-dir)
       require_value "$@"
       option="$1"
       value="$2"
@@ -54,6 +56,7 @@ while [ "$#" -gt 0 ]; do
         --browser) browser_path="${value}" ;;
         --cage) cage_path="${value}" ;;
         --host) host_path="${value}" ;;
+        --node) node_path="${value}" ;;
         --output-dir) output_dir="${value}" ;;
       esac
       ;;
@@ -140,6 +143,9 @@ fi
 if [ -z "${cage_path}" ]; then
   cage_path="$(find_command_path cage || true)"
 fi
+if [ -z "${node_path}" ]; then
+  node_path="$(find_command_path node || true)"
+fi
 if [ -z "${browser_path}" ]; then
   echo "Chromium was not found. Install the Raspberry Pi OS chromium package or pass --browser." >&2
   exit 1
@@ -148,6 +154,11 @@ if [ -z "${cage_path}" ]; then
   echo "Cage was not found. Install the Raspberry Pi OS cage package or pass --cage." >&2
   exit 1
 fi
+if [ -z "${node_path}" ]; then
+  echo "Node.js was not found. Run scripts/pi/setup-console.sh or pass --node." >&2
+  exit 1
+fi
+node_bin_dir="$(dirname "${node_path}")"
 
 validate_absolute_path() {
   name="$1"
@@ -173,6 +184,8 @@ validate_absolute_path "console home" "${console_home}"
 validate_absolute_path "browser" "${browser_path}"
 validate_absolute_path "cage" "${cage_path}"
 validate_absolute_path "native host" "${host_path}"
+validate_absolute_path "Node.js" "${node_path}"
+validate_absolute_path "Node.js directory" "${node_bin_dir}"
 
 if [ "${dry_run}" -eq 0 ]; then
   if ! command -v bluetoothctl >/dev/null 2>&1; then
@@ -183,7 +196,7 @@ if [ "${dry_run}" -eq 0 ]; then
     echo "The bluetooth.service systemd unit is missing. Install the Raspberry Pi OS bluez package first." >&2
     exit 1
   fi
-  for executable in "${browser_path}" "${cage_path}" "${host_path}" \
+  for executable in "${browser_path}" "${cage_path}" "${host_path}" "${node_path}" \
     "${repo_root}/apps/console-lab/node_modules/.bin/vite" \
     "${repo_root}/node_modules/.bin/tsx" \
     "${repo_root}/scripts/pi/wait-for-console.sh"; do
@@ -192,6 +205,17 @@ if [ "${dry_run}" -eq 0 ]; then
       exit 1
     fi
   done
+  node_major="$("${node_path}" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+  case "${node_major}" in
+    ""|*[!0-9]*)
+      echo "Node.js 22 or newer is required; the selected executable returned an invalid version." >&2
+      exit 1
+      ;;
+  esac
+  if [ "${node_major}" -lt 22 ]; then
+    echo "Node.js 22 or newer is required; found $("${node_path}" --version)." >&2
+    exit 1
+  fi
   if [ ! -f "${repo_root}/apps/console-lab/dist/index.html" ]; then
     echo "The console is not built. Run scripts/pi/bootstrap.sh first." >&2
     exit 1
@@ -234,6 +258,7 @@ render_unit() {
   content="${content//@BROWSER_PATH@/${browser_path}}"
   content="${content//@CAGE_PATH@/${cage_path}}"
   content="${content//@HOST_PATH@/${host_path}}"
+  content="${content//@NODE_BIN_DIR@/${node_bin_dir}}"
   printf '%s\n' "${content}" >"${destination}"
 }
 
