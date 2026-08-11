@@ -29,6 +29,7 @@ import {
   type CameraSoftwareState,
 } from "./camera-state";
 import { captureProfileFromSearch } from "./capture-profile";
+import { ControllerPlayerAssignments } from "./controller-player-assignment";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
@@ -509,6 +510,7 @@ function formatRoundClock(remainingMs: number): string {
 // `?capture=balanced|target` opts one session into a larger camera mode. The
 // default stays the low-power mode so a constrained tier is the normal case.
 const captureProfile = captureProfileFromSearch(window.location.search);
+const controllerAssignments = new ControllerPlayerAssignments();
 
 const tracker = new MediaPipeTracker({
   onFrame(frame) {
@@ -524,10 +526,19 @@ const tracker = new MediaPipeTracker({
 });
 
 const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
-  const mapping = gamepad.mapping === "standard" ? "standard mapping" : "unverified mapping";
-  statusDetail.textContent = connected
-    ? `Controller connected: ${gamepad.id} (${mapping}). Browser input is a prototype adapter; native SDL3 qualification remains pending.`
-    : `Controller disconnected: ${gamepad.id}. Motion and keyboard recovery remain available.`;
+  if (connected) {
+    const assignment = controllerAssignments.connect(gamepad);
+    statusDetail.textContent = assignment.state === "assigned"
+      ? `Controller ready for Player ${assignment.slot}.`
+      : assignment.state === "waiting"
+        ? "Controller ready. Both player slots are in use."
+        : "Controller connected, but its button layout is not supported.";
+  } else {
+    const assignment = controllerAssignments.disconnect(gamepad);
+    statusDetail.textContent = assignment?.slot === undefined
+      ? "Controller disconnected."
+      : `Player ${assignment.slot} controller disconnected. Motion and keyboard remain available.`;
+  }
 }, undefined, handleSimulatorGamepadState, (fault) => {
   statusDetail.textContent =
     `Controller input paused (${fault}). Motion and keyboard recovery remain available while the next bounded observation is checked.`;
@@ -700,8 +711,10 @@ function handleAction(action: MotionAction, trackId: string): void {
 }
 
 function recoveryGameplaySlot(gamepad?: Pick<Gamepad, "index">): PlayerSlot | undefined {
-  const preferredSlot: PlayerSlot = gamepad === undefined || gamepad.index % 2 === 0 ? 1 : 2;
-  return obstacle.snapshot().joinedSlots.includes(preferredSlot) ? preferredSlot : undefined;
+  const assignedSlot = gamepad === undefined ? 1 : controllerAssignments.slotForIndex(gamepad.index);
+  return assignedSlot !== undefined && obstacle.snapshot().joinedSlots.includes(assignedSlot)
+    ? assignedSlot
+    : undefined;
 }
 
 function handleRecoveryGameplayAction(

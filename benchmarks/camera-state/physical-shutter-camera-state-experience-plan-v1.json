@@ -38,7 +38,7 @@
     {
       "role": "motion-lab-camera-state-surface",
       "path": "apps/console-lab/src/main.ts",
-      "sha256": "b8ec06a03cb0f4db59675eca9968aea03b9629d22a4582171fe52285375bdaf4"
+      "sha256": "999e5f4723e6cfe10c0fe371b4e536effbc1b30617f2c1777dcc6595756612a3"
     },
     {
       "role": "motion-lab-camera-state-style",
@@ -48,7 +48,7 @@
     {
       "role": "camera-state-browser-proof",
       "path": "apps/console-lab/tests/console-flow.spec.ts",
-      "sha256": "ee29f4cb779608803f3dd57627ab785389fa76c9182311c1ce39357cc2d4101a"
+      "sha256": "ae40df4f6831071a1025ce1a988b415ab154dfefb9ebf8aab854bcd983037a7e"
     },
     {
       "role": "shared-camera-physical-check-boundary",
@@ -58,17 +58,17 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "55c6f54e9daabe8c13842b96b523842fc2d6d4b29dcec0d8bc427f309f3ee94e"
+      "sha256": "f1923d176a5af54c77c621413bc7afe0d7935084787520f4ae0705ec8b0b979e"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "24d7c6cdcef25b5f03b8f65fff1b2e2eb70c21d0a6ad37d75b2bab6c5bf735fc"
+      "sha256": "70abca0eff4a03d239d98c556b98731a477b3506b91d02e8233b43f6ca6b70c5"
     },
     {
       "role": "idle-suspend-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "b81571041a8b6d7dfe0f0ac39f9c87012f6b38e91cb345faddfada746e01b4c8"
+      "sha256": "b32c71e5a75c14a2d049436aacad23019a7bcd252b8269e3038bb5fdce57fef7"
     },
     {
       "role": "active-play-safety-boundary",
