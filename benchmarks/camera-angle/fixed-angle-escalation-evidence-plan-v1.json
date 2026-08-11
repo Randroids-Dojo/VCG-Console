@@ -37,7 +37,7 @@
     {
       "role": "camera-geometry-baseline-plan",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "8070ee693c37ec7af8e14506320d86524be79cfab9ec38e50f1b84636c0aef9b"
+      "sha256": "4ff2c7dbea0e3614a6a545077363441e90d7db190d0de5322e07bf7381319228"
     },
     {
       "role": "shared-camera-qualification-boundary",
@@ -47,7 +47,7 @@
     {
       "role": "physical-camera-state-boundary",
       "path": "benchmarks/camera-state/physical-shutter-camera-state-experience-plan-v1.json",
-      "sha256": "42d470e6635542f383fc0a5c38739692a0d969c25838dae574c2bf666266c7bd"
+      "sha256": "1b8dce1dc32ae66f8632a37cc99283c96cbce41a86d66c373e73ae9ca3b15117"
     },
     {
       "role": "active-play-safety-boundary",
@@ -67,12 +67,12 @@
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "0306a2dbcd2d6ef06641e674214ba0f2ec093b61c47c694c40907d2063a2bcb6"
+      "sha256": "e322ea07937a9317ea8caa913dc4f2dc06c6ad63e743f8a9a4618ec5cbdd3a4a"
     },
     {
       "role": "idle-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "a394347c84a5710b86f9dbdff82019a74c9a2d63b6e34097f8d14ec0d286fc0f"
+      "sha256": "f1d4bfaa47d2c79fd77b3be941b2372f549792314d582c1afeddbdd5dc58df99"
     }
   ],
   "baselineContract": {

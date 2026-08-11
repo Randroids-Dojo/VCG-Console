@@ -46,7 +46,14 @@ ProtectHome=read-only
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
-ReadWritePaths=/var/lib/vcg-console /run/vcg-console
+# PAMName=login's pam_systemd sets XDG_RUNTIME_DIR to the real login-session
+# runtime directory (/run/user/<uid>) for the session it opens, taking
+# precedence over the Environment= line above. Cage/Chromium end up creating
+# their Wayland socket and lockfiles there, not under /run/vcg-console, so it
+# must be writable too or every launch fails with "Unable to open Wayland
+# socket: Invalid argument" after exhausting all wayland-0..31 lock attempts.
+# Confirmed live on the Pi 5.
+ReadWritePaths=/var/lib/vcg-console /run/vcg-console /run/user/%U
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 
 [Install]

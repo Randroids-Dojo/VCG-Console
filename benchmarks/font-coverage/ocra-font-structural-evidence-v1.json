@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 105,
-      "totalBytes": 979909,
+      "fileCount": 107,
+      "totalBytes": 985226,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -821,6 +821,16 @@
           "path": "apps/console-lab/src/controller-player-assignment.ts",
           "bytes": 4011,
           "sha256": "39275625121a8a160aa89103b5ef73e506019ee5fae2146b93699fe314ce8d4f"
+        },
+        {
+          "path": "apps/console-lab/src/cursor-visibility.test.ts",
+          "bytes": 2720,
+          "sha256": "416944fe6245b5d594ab869d02659612ece61f5e04890c6bd0fb3de09c8e29ad"
+        },
+        {
+          "path": "apps/console-lab/src/cursor-visibility.ts",
+          "bytes": 2124,
+          "sha256": "ac7a9a76de1f7b2584544f7e47296cb479d21b9c31b693a791063f92329993d6"
         },
         {
           "path": "apps/console-lab/src/frame-gate.test.ts",
@@ -1079,8 +1089,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 69276,
-          "sha256": "2ff014161f62e3d883a69aab4ff661665412508fcc911c34bd5bbfd4d82ceb41"
+          "bytes": 69379,
+          "sha256": "10a834f46cdf41b6918285839af167ed1719da2ada93916849bde3a2064197e9"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1179,8 +1189,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 109906,
-          "sha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd"
+          "bytes": 110276,
+          "sha256": "18c7008a7a96395523cc8eca741be2c1308a2db210894dea5f4275af3ca8e5be"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1374,12 +1384,12 @@
             {
               "path": "apps/console-lab/src/main.ts",
               "lines": [
-                165,
-                273,
+                166,
                 274,
-                939,
-                1319,
-                1323
+                275,
+                940,
+                1320,
+                1324
               ]
             },
             {
@@ -1410,7 +1420,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "03dc3d47b7e0036f43c24b5092a0164a3a597c4f420f8e04b3dce4c0c45d8e33",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd",
+    "stylePathSha256": "18c7008a7a96395523cc8eca741be2c1308a2db210894dea5f4275af3ca8e5be",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
