@@ -44,13 +44,18 @@ import {
 } from "./local-leaderboard";
 import { Metrics } from "./metrics";
 import { ObstacleGame } from "./obstacle-game";
-import { PlayerSessionController, type PlayerSessionEvent } from "./player-session";
+import {
+  PlayerSessionController,
+  type PlayerSessionEvent,
+  type PlayerSlot,
+} from "./player-session";
 import { SkeletonRenderer } from "./renderer";
 import "./styles.css";
 import { syntheticFrame } from "./synthetic";
 import { TraceBuffer } from "./trace-buffer";
 import { MediaPipeTracker, type TrackerStatus } from "./tracker";
 import { trackerHealthFixture, trackerHealthPresentation } from "./tracker-health";
+import type { ObstacleRoundSnapshot } from "./two-player-obstacle-round";
 import { applyVisualTokens } from "./visual-tokens";
 
 type AppMode = "tracker" | "obstacle" | "shell";
@@ -67,9 +72,16 @@ interface MotionSimulatorTestApi {
   }>;
 }
 
+interface ObstacleJourneyTestApi {
+  joinTwoPlayers(): void;
+  action(slot: PlayerSlot, name: "dodge_left" | "dodge_right" | "jump" | "duck"): void;
+  snapshot(): ObstacleRoundSnapshot;
+}
+
 declare global {
   interface Window {
     __vcgMotionSimulator?: MotionSimulatorTestApi;
+    __vcgObstacleJourney?: ObstacleJourneyTestApi;
   }
 }
 
@@ -119,8 +131,21 @@ app.innerHTML = `
           <div class="obstacle-stage">
             <canvas id="obstacle-canvas" aria-label="Dodge, duck, and jump obstacle game"></canvas>
             <div class="stage-corners" aria-hidden="true"></div>
-            <div class="game-score"><span>SCORE <strong id="game-score">000000</strong></span><span>LIVES <strong id="game-lives">3</strong></span></div>
+            <div class="game-score" aria-label="Round score">
+              <span class="player-one-score">P1 <strong id="game-score-p1">000000</strong> / <strong id="game-lives-p1">3</strong> LIVES</span>
+              <span id="game-clock">00:45</span>
+              <span class="player-two-score">P2 <strong id="game-score-p2">000000</strong> / <strong id="game-lives-p2">3</strong> LIVES</span>
+            </div>
             <div class="source-badge" id="game-status">READY</div>
+            <section class="round-result" id="round-result" hidden aria-labelledby="round-result-title">
+              <p>ROUND COMPLETE</p>
+              <h2 id="round-result-title">DRAW</h2>
+              <p id="round-result-score">P1 000000 / P2 000000</p>
+              <div class="round-result-actions">
+                <button id="play-again-button" type="button" data-result-action="again">PLAY AGAIN</button>
+                <button id="return-console-button" type="button" data-result-action="console">BACK TO CONSOLE</button>
+              </div>
+            </section>
             <section class="leaderboard-card" aria-labelledby="leaderboard-title">
               <div class="leaderboard-heading">
                 <div>
@@ -290,7 +315,7 @@ app.innerHTML = `
         <p id="overlay-copy">Player 1 opened the console menu.</p>
         <div class="overlay-options">
           <button type="button" data-overlay-action="resume">RESUME</button>
-          <button type="button" data-overlay-action="exit">EXIT TO TRACKER</button>
+          <button type="button" data-overlay-action="exit">EXIT TO CONSOLE</button>
         </div>
         <p class="overlay-help">SWIPE TO CHOOSE / HANDS TOGETHER TO SELECT</p>
       </div>
@@ -366,6 +391,7 @@ let replayRunning = true;
 let replaySequence = 0;
 let bodyVisibilityFixture: BodyVisibilityFixture = "full";
 let simulatorEnabled = false;
+let twoPlayerTestFixtureEnabled = false;
 let simulatorLatchedPose: MotionSimulatorPose = "neutral";
 let simulatorControllerPose: MotionSimulatorPose | undefined;
 const simulatorKeyboardPoses = new Map<string, MotionSimulatorPose>();
@@ -381,6 +407,8 @@ let obstacleRunPauseCount = 0;
 let obstacleRunTrackingDropoutCount = 0;
 let obstacleRunRecorded = false;
 let leaderboardResetArmed = false;
+let obstacleRoundPhase: ObstacleRoundSnapshot["phase"] = "waiting-for-players";
+let roundResultFocus: "again" | "console" = "console";
 
 const launcher = new LauncherController({
   accessibilityPreferences,
@@ -393,20 +421,22 @@ const launcher = new LauncherController({
 });
 
 function showLauncher(): void {
-  if (overlayKind) chooseOverlayAction("exit");
+  if (overlayKind) {
+    if (overlayKind === "recovery") resetPlayerSession();
+    else closeOwnedPause("launcher");
+    closeOverlay(false);
+  }
   motionLab.hidden = true;
   obstacle.setPaused(true);
   launcher.show();
 }
 
-const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"), (score, lives, status) => {
-  required<HTMLElement>("#game-score").textContent = String(score).padStart(6, "0");
-  required<HTMLElement>("#game-lives").textContent = String(lives);
-  required<HTMLElement>("#game-status").textContent = status;
-  if (status === "RUN ENDED" && !obstacleRunRecorded) {
+const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"), (snapshot) => {
+  paintObstacleRound(snapshot);
+  if (snapshot.phase === "finished" && !obstacleRunRecorded) {
     obstacleRunRecorded = true;
     obstacleLeaderboard.record({
-      score,
+      score: snapshot.totalScore,
       inputMode: currentLeaderboardInputMode(),
       pauseCount: obstacleRunPauseCount,
       trackingDropoutCount: obstacleRunTrackingDropoutCount,
@@ -417,6 +447,51 @@ const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"
 obstacle.start();
 obstacle.setPaused(true);
 paintLeaderboard();
+
+function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
+  const previousPhase = obstacleRoundPhase;
+  obstacleRoundPhase = snapshot.phase;
+  for (const slot of [1, 2] as const) {
+    const player = snapshot.players.find((candidate) => candidate.slot === slot);
+    required<HTMLElement>(`#game-score-p${slot}`).textContent = String(player?.score ?? 0).padStart(6, "0");
+    required<HTMLElement>(`#game-lives-p${slot}`).textContent = String(player?.lives ?? 0);
+  }
+  required<HTMLElement>("#game-clock").textContent = formatRoundClock(snapshot.roundRemainingMs);
+  required<HTMLElement>("#game-status").textContent = obstacleRoundStatus(snapshot);
+
+  const result = required<HTMLElement>("#round-result");
+  result.hidden = snapshot.phase !== "finished";
+  required<HTMLElement>(".leaderboard-card").hidden =
+    snapshot.phase === "countdown" || snapshot.phase === "playing" || snapshot.phase === "paused";
+  if (snapshot.phase === "finished") {
+    const player1 = snapshot.players.find((player) => player.slot === 1);
+    const player2 = snapshot.players.find((player) => player.slot === 2);
+    required<HTMLElement>("#round-result-title").textContent = snapshot.winnerSlot
+      ? `PLAYER ${snapshot.winnerSlot} WINS`
+      : "DRAW";
+    required<HTMLElement>("#round-result-score").textContent =
+      `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
+    if (previousPhase !== "finished") {
+      roundResultFocus = "console";
+      paintRoundResultFocus();
+    }
+  }
+}
+
+function obstacleRoundStatus(snapshot: ObstacleRoundSnapshot): string {
+  if (snapshot.phase === "waiting-for-players") {
+    return snapshot.joinedSlots.length === 0 ? "JOIN 2 PLAYERS" : "JOIN PLAYER 2";
+  }
+  if (snapshot.phase === "countdown") return `STARTING IN ${Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))}`;
+  if (snapshot.phase === "playing") return "PLAY";
+  if (snapshot.phase === "paused") return "PAUSED";
+  return "ROUND ENDED";
+}
+
+function formatRoundClock(remainingMs: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1_000));
+  return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(totalSeconds % 60).padStart(2, "0")}`;
+}
 
 // `?capture=balanced|target` opts one session into a larger camera mode. The
 // default stays the low-power mode so a constrained tier is the normal case.
@@ -463,9 +538,14 @@ function acceptFrame(rawFrame: MotionFrame): void {
             actions: governedHealth === "ready" ? player.actions : [],
           })),
   };
+  const obstaclePhase = obstacle.snapshot().phase;
   let frame = actionEngine.enrich(
     governedFrame,
-    overlayKind ? "overlay" : currentMode === "obstacle" ? "game" : "shell",
+    overlayKind
+      ? "overlay"
+      : currentMode === "obstacle" && obstaclePhase !== "finished" && obstaclePhase !== "waiting-for-players"
+        ? "game"
+        : "shell",
   );
   const chronologyFault = actionEngine.chronologyFault;
   if (chronologyFault) {
@@ -569,15 +649,19 @@ function handleAction(action: MotionAction, trackId: string): void {
     return;
   }
   if (action.name === "pause") return;
+  if (currentMode === "obstacle" && obstacle.snapshot().phase === "finished") {
+    if (playerSession.authorizeGameplayAction(trackId) === undefined) return;
+    const resultInput = launcherInputForMotionAction(action);
+    if (resultInput === "left" || resultInput === "right") moveRoundResultFocus();
+    else if (resultInput === "select") chooseRoundResultAction(roundResultFocus);
+    else if (resultInput === "back") showLauncher();
+    return;
+  }
   if (
     ["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)
   ) {
-    if (
-      currentMode === "obstacle"
-      && playerSession.authorizeGameplayAction(trackId) !== undefined
-    ) {
-      obstacle.handleAction(action.name);
-    }
+    const slot = playerSession.authorizeGameplayAction(trackId);
+    if (currentMode === "obstacle" && slot !== undefined) obstacle.handleAction(action.name, slot);
     return;
   }
   const shellInput = launcherInputForMotionAction(action);
@@ -615,6 +699,11 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     goBack();
     return;
   }
+  if (currentMode === "obstacle" && obstacle.snapshot().phase === "finished") {
+    if (action === "left" || action === "right") moveRoundResultFocus();
+    else if (action === "select") chooseRoundResultAction(roundResultFocus);
+    return;
+  }
   if (simulatorEnabled) return;
   if (
     (action === "up" || action === "down")
@@ -630,12 +719,12 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     return;
   }
   if (action === "left" || action === "right") {
-    if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction(action === "left" ? "dodge_left" : "dodge_right");
+    if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction(action === "left" ? "dodge_left" : "dodge_right", 1);
     else moveFocus(action === "left" ? -1 : 1);
     return;
   }
   if (action === "down" && currentMode === "obstacle" && !overlayKind) {
-    obstacle.handleAction("duck");
+    obstacle.handleAction("duck", 1);
     return;
   }
   if (action === "select") {
@@ -646,7 +735,7 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     ) {
       (document.activeElement as HTMLButtonElement).click();
     }
-    else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump");
+    else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump", 1);
     else selectFocused();
   }
 }
@@ -721,6 +810,7 @@ function updatePlayerAssignmentControls(): void {
   joinPlayer2Button.textContent = joinedSlots.has(2) ? "LEAVE PLAYER 2" : "JOIN PLAYER 2";
   joinButton.disabled = false;
   joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
+  obstacle.setRoster([...joinedSlots].sort((left, right) => left - right) as PlayerSlot[]);
 }
 
 function paintMetrics(frame: MotionFrame): void {
@@ -965,6 +1055,7 @@ function setMode(mode: AppMode): void {
   required<HTMLElement>("#stage-eyebrow").textContent = copy.eyebrow;
   required<HTMLElement>("#lab-title").textContent = copy.title;
   required<HTMLElement>("#stage-note").innerHTML = copy.note;
+  if (mode === "obstacle") synchronizeObstacleRoster();
   obstacle.setPaused(mode !== "obstacle" || Boolean(overlayKind));
   if (mode !== "obstacle") disarmLeaderboardReset();
 }
@@ -997,7 +1088,7 @@ function showOverlay(
   overlayKind = kind;
   overlay.hidden = false;
   obstacle.setPaused(true);
-  overlayFocus = kind === "manual" ? "exit" : "resume";
+  overlayFocus = "resume";
   required<HTMLElement>("#overlay-eyebrow").textContent =
     kind === "manual"
       ? ownerSlot === undefined
@@ -1008,8 +1099,8 @@ function showOverlay(
   required<HTMLElement>("#overlay-copy").textContent =
     kind === "manual"
       ? ownerSlot === undefined
-        ? "The recovery controller opened the console menu. Exit is focused by default."
-        : `Player ${ownerSlot} opened the console menu. Exit is focused by default.`
+        ? "The controller paused the round. Resume is ready."
+        : `Player ${ownerSlot} paused the round. Resume is ready.`
       : "Tracking did not recover in two seconds. Resume is focused by default.";
   paintOverlayFocus();
 }
@@ -1031,7 +1122,7 @@ function chooseOverlayAction(
     if (kind === "recovery") resetPlayerSession();
     else closeOwnedPause("launcher");
     closeOverlay(false);
-    setMode("tracker");
+    showLauncher();
     return;
   }
   if (kind === "recovery") {
@@ -1095,6 +1186,7 @@ function closeOverlay(resume: boolean): void {
 
 function goBack(): void {
   if (overlayKind) chooseOverlayAction("exit");
+  else if (currentMode === "obstacle") showLauncher();
   else if (currentMode !== "tracker") setMode("tracker");
   else if (!replayRunning) startReplay();
   else showLauncher();
@@ -1124,8 +1216,35 @@ function resetObstacleRun(): void {
   obstacleRunTrackingDropoutCount = 0;
   obstacleRunRecorded = false;
   obstacle.reset();
+  synchronizeObstacleRoster();
   obstacle.setPaused(currentMode !== "obstacle" || Boolean(overlayKind));
-  statusDetail.textContent = "A new unverified local run is ready.";
+  statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 2
+    ? "Both players are ready. The round countdown has started."
+    : "Join both players to start the round.";
+}
+
+function synchronizeObstacleRoster(): void {
+  obstacle.setRoster(
+    playerSession.snapshot().players.map((player) => player.slot),
+  );
+}
+
+function moveRoundResultFocus(): void {
+  roundResultFocus = roundResultFocus === "again" ? "console" : "again";
+  paintRoundResultFocus();
+}
+
+function paintRoundResultFocus(): void {
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-result-action]")) {
+    const focused = button.dataset.resultAction === roundResultFocus;
+    button.classList.toggle("focused", focused);
+    if (focused && obstacleRoundPhase === "finished") button.focus();
+  }
+}
+
+function chooseRoundResultAction(action: "again" | "console"): void {
+  if (action === "again") resetObstacleRun();
+  else showLauncher();
 }
 
 function paintLeaderboard(): void {
@@ -1171,12 +1290,51 @@ function disarmLeaderboardReset(): void {
 function replayLoop(now: number): void {
   if (replayRunning) {
     acceptFrame(
-      simulatorEnabled
+      twoPlayerTestFixtureEnabled
+        ? twoPlayerSyntheticFrame(replaySequence++, now)
+        : simulatorEnabled
         ? poseSimulator.frame(replaySequence++, now)
         : syntheticFrame(replaySequence++, now),
     );
   }
   requestAnimationFrame(replayLoop);
+}
+
+function twoPlayerSyntheticFrame(sequence: number, nowMs: number): MotionFrame {
+  const frame = syntheticFrame(sequence, nowMs);
+  const sourcePlayer = frame.players[0];
+  if (!sourcePlayer) return frame;
+  const player1 = {
+    ...sourcePlayer,
+    id: "test-player-1",
+    coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
+      ...landmark,
+      position: { ...landmark.position, x: Math.max(0, landmark.position.x - 0.2) },
+    })),
+    bounds: {
+      ...sourcePlayer.bounds,
+      left: Math.max(0, sourcePlayer.bounds.left - 0.2),
+      right: sourcePlayer.bounds.right - 0.2,
+    },
+  };
+  const player2 = {
+    ...sourcePlayer,
+    id: "test-player-2",
+    coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
+      ...landmark,
+      position: { ...landmark.position, x: Math.min(1, landmark.position.x + 0.2) },
+    })),
+    bounds: {
+      ...sourcePlayer.bounds,
+      left: sourcePlayer.bounds.left + 0.2,
+      right: Math.min(1, sourcePlayer.bounds.right + 0.2),
+    },
+  };
+  return {
+    ...frame,
+    capabilities: { ...frame.capabilities, maxPlayers: 2 },
+    players: [player1, player2],
+  };
 }
 
 cameraButton.addEventListener("click", async () => {
@@ -1312,6 +1470,8 @@ window.addEventListener("beforeunload", () => {
   void tracker.close();
 });
 required<HTMLButtonElement>("#new-run-button").addEventListener("click", resetObstacleRun);
+required<HTMLButtonElement>("#play-again-button").addEventListener("click", resetObstacleRun);
+required<HTMLButtonElement>("#return-console-button").addEventListener("click", showLauncher);
 required<HTMLButtonElement>("#reset-board-button").addEventListener("click", () => {
   if (!leaderboardResetArmed) {
     leaderboardResetArmed = true;
@@ -1340,18 +1500,41 @@ document.addEventListener("keydown", (event) => {
   if (!launcher.visible && overlayKind && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)) {
     event.preventDefault();
     moveFocus(event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1);
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowLeft") {
-    obstacle.handleAction("dodge_left");
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowRight") {
-    obstacle.handleAction("dodge_right");
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowDown") {
-    obstacle.handleAction("duck");
-  }
-  if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === " ") {
+  } else if (
+    !launcher.visible
+    && currentMode === "obstacle"
+    && !overlayKind
+    && obstacle.snapshot().phase === "finished"
+    && ["ArrowLeft", "ArrowRight"].includes(event.key)
+  ) {
     event.preventDefault();
-    obstacle.handleAction("jump");
+    moveRoundResultFocus();
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowLeft") {
+    obstacle.handleAction("dodge_left", 1);
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowRight") {
+    obstacle.handleAction("dodge_right", 1);
+  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowDown") {
+    obstacle.handleAction("duck", 1);
+  }
+  if (
+    !launcher.visible
+    && currentMode === "obstacle"
+    && !overlayKind
+    && obstacle.snapshot().phase !== "finished"
+    && event.key === " "
+  ) {
+    event.preventDefault();
+    obstacle.handleAction("jump", 1);
   }
   if (event.key === "Enter" && overlayKind) chooseOverlayAction(overlayFocus);
+  else if (
+    event.key === "Enter"
+    && !launcher.visible
+    && currentMode === "obstacle"
+    && obstacle.snapshot().phase === "finished"
+  ) {
+    chooseRoundResultAction(roundResultFocus);
+  }
 });
 
 if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "1") {
@@ -1372,6 +1555,38 @@ if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "
     },
     snapshot() {
       return { enabled: simulatorEnabled, ...poseSimulator.snapshot };
+    },
+  });
+}
+
+if (new URLSearchParams(window.location.search).get("obstacleTest") === "fast") {
+  window.__vcgObstacleJourney = Object.freeze({
+    joinTwoPlayers() {
+      twoPlayerTestFixtureEnabled = true;
+      simulatorEnabled = false;
+      replayRunning = true;
+      const frame = twoPlayerSyntheticFrame(replaySequence++, performance.now());
+      acceptFrame(frame);
+      if (playerSession.snapshot().players.length === 0) {
+        joinPlayer("test-player-1", 1);
+        joinPlayer("test-player-2", 2);
+      }
+    },
+    action(
+      slot: PlayerSlot,
+      name: "dodge_left" | "dodge_right" | "jump" | "duck",
+    ) {
+      const player = playerSession.snapshot().players.find((candidate) => candidate.slot === slot);
+      if (!player) throw new Error(`Player ${slot} is not joined`);
+      handleAction({
+        name,
+        phase: "triggered",
+        confidence: 1,
+        occurredAtMs: performance.now(),
+      }, player.trackId);
+    },
+    snapshot() {
+      return obstacle.snapshot();
     },
   });
 }

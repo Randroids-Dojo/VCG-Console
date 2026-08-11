@@ -3527,12 +3527,75 @@ h1 {
   color: var(--muted);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
+  z-index: 2;
 }
 
 .game-score strong {
   margin-left: 8px;
   color: var(--paper);
   font-weight: 400;
+}
+
+.game-score .player-one-score,
+.game-score .player-two-score {
+  flex: 1 1 0;
+}
+
+.game-score .player-one-score {
+  color: var(--accent);
+}
+
+.game-score .player-two-score {
+  color: #ffbf47;
+  text-align: right;
+}
+
+#game-clock {
+  color: var(--paper);
+  font-size: 0.8rem;
+}
+
+.round-result {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 3;
+  width: min(360px, calc(100% - 48px));
+  padding: 20px;
+  border: 1px solid var(--accent);
+  background: rgba(9, 11, 12, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.round-result > p,
+.round-result h2 {
+  margin: 0;
+}
+
+.round-result > p {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.round-result h2 {
+  margin: 8px 0;
+  color: var(--paper);
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.round-result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.round-result-actions button.focused {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .leaderboard-card {

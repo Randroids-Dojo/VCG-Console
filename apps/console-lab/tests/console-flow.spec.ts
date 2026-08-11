@@ -2171,7 +2171,7 @@ test("launch screen remains purposeful on a narrow display", async ({ page }) =>
   await page.screenshot({ path: "../../test-results/console-lab/launch-state-mobile.png", fullPage: true });
 });
 
-test("console lab preserves navigation and overlay focus contracts", async ({ page }) => {
+test("console lab preserves navigation and safe overlay focus contracts", async ({ page }) => {
   await openMotionLab(page);
   await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
   await expect(page.getByText("RAW VIDEO", { exact: false })).toBeVisible();
@@ -2189,11 +2189,13 @@ test("console lab preserves navigation and overlay focus contracts", async ({ pa
   await expect(page.getByRole("heading", { name: "EVERY PATH LEADS BACK." })).toBeVisible();
   await page.getByRole("button", { name: "TEST MANUAL PAUSE" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByRole("button", { name: "EXIT TO TRACKER" })).toHaveClass(/focused/);
-  await expect(page.getByRole("button", { name: "EXIT TO TRACKER" })).toBeFocused();
-  await page.getByRole("button", { name: "EXIT TO TRACKER" }).click();
-  await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "RESUME" })).toHaveClass(/focused/);
+  await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
+  await page.getByRole("button", { name: "EXIT TO CONSOLE" }).click();
+  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
 
+  await page.getByRole("button", { name: "Motion", exact: true }).click();
+  await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
   await page.getByRole("button", { name: /03 SHELL LAB/ }).click();
   await page.getByRole("button", { name: "TEST TRACKING LOSS" }).click();
   await expect(page.getByRole("dialog")).toBeVisible({ timeout: 2_500 });
@@ -2201,11 +2203,11 @@ test("console lab preserves navigation and overlay focus contracts", async ({ pa
   await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
 });
 
-test("Escape always walks back toward the tracker", async ({ page }) => {
+test("Escape returns an active game to the console", async ({ page }) => {
   await openMotionLab(page);
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
 });
 
 test("captures the reviewed tracker surface", async ({ page }) => {
@@ -2285,8 +2287,48 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
   await expect(page.locator("#player-unavailable-controls")).toHaveText("UNAVAILABLE NONE");
 });
 
+test("completes the two-player body-game journey and returns to the console", async ({ page }) => {
+  await installSyntheticStandardGamepad(
+    page,
+    "__setObstacleJourneyGamepad",
+    "Playwright obstacle recovery controller",
+  );
+  await page.goto("/?skipBoot=1&obstacleTest=fast");
+  await page.getByRole("button", { name: "Motion", exact: true }).click();
+  await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
+
+  await page.evaluate(() => window.__vcgObstacleJourney?.joinTwoPlayers());
+  await expect(page.getByRole("button", { name: "LEAVE PLAYER 1" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "LEAVE PLAYER 2" })).toBeVisible();
+  await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
+  await expect(page.locator("#game-status")).toHaveText("PLAY", { timeout: 2_000 });
+
+  await page.evaluate(() => window.__vcgObstacleJourney?.action(1, "dodge_right"));
+  await expect.poll(() => page.evaluate(() => window.__vcgObstacleJourney?.snapshot().players)).toEqual([
+    expect.objectContaining({ slot: 1, lane: 2 }),
+    expect.objectContaining({ slot: 2, lane: 1 }),
+  ]);
+
+  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 9);
+  await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
+  const pausedClock = await page.locator("#game-clock").textContent();
+  await page.waitForTimeout(350);
+  await expect(page.locator("#game-clock")).toHaveText(pausedClock ?? "");
+  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
+  await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeHidden();
+
+  await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 5_000 });
+  await expect(page.getByRole("heading", { name: /PLAYER [12] WINS|DRAW/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "BACK TO CONSOLE" })).toBeFocused();
+  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
+  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
+});
+
 test("keeps obstacle scores local, unverified, persistent, and deliberately resettable", async ({ page }) => {
-  await openMotionLab(page);
+  await page.goto("/?skipBoot=1&obstacleTest=fast");
+  await page.getByRole("button", { name: "Motion", exact: true }).click();
+  await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
 
   const board = page.getByRole("region", { name: "UNVERIFIED RUNS" });
@@ -2295,8 +2337,8 @@ test("keeps obstacle scores local, unverified, persistent, and deliberately rese
   await expect(board.getByText("NO COMPLETED RUNS")).toBeVisible();
   await expect(board.getByText(/SCORES CAN BE MODIFIED/)).toBeVisible();
 
-  await board.getByRole("button", { name: "NEW RUN" }).click();
-  await expect(page.locator("#game-status")).toHaveText("RUN ENDED", { timeout: 12_000 });
+  await page.evaluate(() => window.__vcgObstacleJourney?.joinTwoPlayers());
+  await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 6_000 });
   await expect(board.getByText(/\d{6} · UNASSIGNED/)).toBeVisible();
   await expect(board.getByText(/REPLAY · P0 · DROP 0/)).toBeVisible();
   await expect(board.getByText("1 OF 20 LOCAL RUNS RETAINED.")).toBeVisible();
