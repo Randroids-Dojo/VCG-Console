@@ -36,6 +36,7 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   assert.match(unit, /^TTYPath=\/dev\/tty1$/m);
   assert.match(unit, /^PAMName=login$/m);
   assert.match(unit, /^PartOf=vcg-console\.target$/m);
+  assert.match(unit, /^After=bluetooth\.service /m);
   assert.match(unit, /^ExecStartPre=.*wait-for-console\.sh @REPO_ROOT@$/m);
   assert.match(
     unit,
@@ -57,8 +58,13 @@ test("the appliance target is a multi-user boot target", async () => {
     target,
     /^Requires=vcg-console-server\.service vcg-console-session\.service$/m,
   );
+  assert.match(target, /^Wants=bluetooth\.service$/m);
+  assert.match(target, /^After=bluetooth\.service vcg-console-server\.service$/m);
   assert.match(target, /^WantedBy=multi-user\.target$/m);
   assert.match(installer, /systemctl set-default multi-user\.target/);
+  assert.match(installer, /command -v bluetoothctl/);
+  assert.match(installer, /systemctl cat bluetooth\.service/);
+  assert.match(installer, /systemctl enable bluetooth\.service/);
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);

@@ -175,6 +175,14 @@ validate_absolute_path "cage" "${cage_path}"
 validate_absolute_path "native host" "${host_path}"
 
 if [ "${dry_run}" -eq 0 ]; then
+  if ! command -v bluetoothctl >/dev/null 2>&1; then
+    echo "Bluetooth support is missing. Install the Raspberry Pi OS bluez package first." >&2
+    exit 1
+  fi
+  if ! systemctl cat bluetooth.service >/dev/null 2>&1; then
+    echo "The bluetooth.service systemd unit is missing. Install the Raspberry Pi OS bluez package first." >&2
+    exit 1
+  fi
   for executable in "${browser_path}" "${cage_path}" "${host_path}" \
     "${repo_root}/apps/console-lab/node_modules/.bin/vite" \
     "${repo_root}/node_modules/.bin/tsx" \
@@ -270,8 +278,9 @@ systemctl daemon-reload
 
 if [ "${enable_boot}" -eq 1 ]; then
   systemctl set-default multi-user.target
+  systemctl enable bluetooth.service
   systemctl enable vcg-console.target
-  echo "VCG Console will own tty1 at the next boot; the desktop target will not be entered."
+  echo "VCG Console and Bluetooth will start at the next boot; the desktop target will not be entered."
   echo "Reboot when ready: sudo systemctl reboot"
 else
   echo "Units installed but not enabled. Enable with: sudo systemctl enable vcg-console.target"

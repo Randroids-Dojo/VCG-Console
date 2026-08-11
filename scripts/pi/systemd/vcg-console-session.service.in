@@ -1,7 +1,7 @@
 [Unit]
 Description=VCG Console fullscreen TV session
 Requires=vcg-console-server.service
-After=vcg-console-server.service systemd-user-sessions.service dbus.socket systemd-logind.service
+After=bluetooth.service vcg-console-server.service systemd-user-sessions.service dbus.socket systemd-logind.service
 Wants=dbus.socket systemd-logind.service
 PartOf=vcg-console.target
 Conflicts=getty@tty1.service

@@ -61,6 +61,67 @@ async function installSyntheticStandardGamepad(
   );
 }
 
+async function installSyntheticStandardGamepadPair(
+  page: Page,
+  setterName: string,
+): Promise<void> {
+  await page.addInitScript((name) => {
+    const makeGamepad = (index: number, buttons: number[]): Gamepad => ({
+      axes: [0, 0],
+      buttons: Array.from({ length: 17 }, (_, buttonIndex) => ({
+        pressed: buttons.includes(buttonIndex),
+        touched: buttons.includes(buttonIndex),
+        value: buttons.includes(buttonIndex) ? 1 : 0,
+      })),
+      connected: true,
+      hapticActuators: [],
+      id: "Playwright same-model controller",
+      index,
+      mapping: "standard",
+      timestamp: performance.now(),
+      vibrationActuator: null,
+    }) as unknown as Gamepad;
+    const gamepads = [makeGamepad(0, []), makeGamepad(1, [])];
+    Object.defineProperty(navigator, "getGamepads", {
+      configurable: true,
+      value: () => gamepads,
+    });
+    (
+      window as unknown as Record<string, (index: number, buttons: number[]) => void>
+    )[name] = (index, buttons) => {
+      gamepads[index] = makeGamepad(index, buttons);
+    };
+  }, setterName);
+}
+
+async function pressSyntheticPlayerGamepadButton(
+  page: Page,
+  setterName: string,
+  playerIndex: number,
+  button: number,
+): Promise<void> {
+  await page.evaluate(
+    ({ name, index, pressed }) => {
+      (window as unknown as Record<string, (index: number, buttons: number[]) => void>)[name]?.(
+        index,
+        [pressed],
+      );
+    },
+    { name: setterName, index: playerIndex, pressed: button },
+  );
+  await page.waitForTimeout(50);
+  await page.evaluate(
+    ({ name, index }) => {
+      (window as unknown as Record<string, (index: number, buttons: number[]) => void>)[name]?.(
+        index,
+        [],
+      );
+    },
+    { name: setterName, index: playerIndex },
+  );
+  await page.waitForTimeout(50);
+}
+
 test("boots into a purposeful launcher", async ({ page }) => {
   await page.goto("/?holdBoot=1");
   await expect(page.locator("#boot-screen")).toBeVisible();
@@ -2288,11 +2349,7 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
 });
 
 test("completes the two-player body-game journey and returns to the console", async ({ page }) => {
-  await installSyntheticStandardGamepad(
-    page,
-    "__setObstacleJourneyGamepad",
-    "Playwright obstacle recovery controller",
-  );
+  await installSyntheticStandardGamepadPair(page, "__setObstacleJourneyGamepad");
   await page.goto("/?skipBoot=1&obstacleTest=fast");
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
@@ -2309,7 +2366,13 @@ test("completes the two-player body-game journey and returns to the console", as
     expect.objectContaining({ slot: 2, lane: 1 }),
   ]);
 
-  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 9);
+  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 1, 15);
+  await expect.poll(() => page.evaluate(() => window.__vcgObstacleJourney?.snapshot().players)).toEqual([
+    expect.objectContaining({ slot: 1, lane: 2 }),
+    expect.objectContaining({ slot: 2, lane: 2 }),
+  ]);
+
+  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 9);
   await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeVisible();
   await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
   const pausedRemainingMs = await page.evaluate(
@@ -2319,13 +2382,13 @@ test("completes the two-player body-game journey and returns to the console", as
   await page.waitForTimeout(350);
   expect(await page.evaluate(() => window.__vcgObstacleJourney?.snapshot().roundRemainingMs))
     .toBe(pausedRemainingMs);
-  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
+  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
   await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeHidden();
 
   await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 8_000 });
   await expect(page.getByRole("heading", { name: /PLAYER [12] WINS|DRAW/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "BACK TO CONSOLE" })).toBeFocused();
-  await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
+  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
   await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
 });
 
