@@ -3,7 +3,7 @@
   "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-11T00:54:17.410Z",
+  "retrievedAtUtc": "2026-08-11T01:09:50.641Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",

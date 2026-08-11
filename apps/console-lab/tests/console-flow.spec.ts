@@ -2315,6 +2315,7 @@ test("completes the two-player body-game journey and returns to the console", as
   const pausedRemainingMs = await page.evaluate(
     () => window.__vcgObstacleJourney?.snapshot().roundRemainingMs,
   );
+  expect(pausedRemainingMs).toBeDefined();
   await page.waitForTimeout(350);
   expect(await page.evaluate(() => window.__vcgObstacleJourney?.snapshot().roundRemainingMs))
     .toBe(pausedRemainingMs);

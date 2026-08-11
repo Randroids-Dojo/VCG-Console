@@ -42,7 +42,7 @@
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "0f5f44038a0786efc12ce6d72aba191e842f2253f22f74067de20d41ade8dca5"
+      "sha256": "128b95d8a751aef86e2ee96775c6bc4ba7638c05a695d5d208e0e26ec9c476aa"
     }
   ],
   "executionBoundary": {

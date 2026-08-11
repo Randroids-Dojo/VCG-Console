@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-08-11T00:54:21.477Z",
+  "retrievedAtUtc": "2026-08-11T01:09:54.553Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "ce83d7d4984671c935a8fec64e59f1ddd4eec68d7d20b3fedd16d9011c929390"
+    "sha256": "fce27d7ce9c259446e6df4659dd0e706e99e063a5b1c3db435c05749c60dd473"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -448,7 +448,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "ce83d7d4984671c935a8fec64e59f1ddd4eec68d7d20b3fedd16d9011c929390",
+    "homeEvidencePathSha256": "fce27d7ce9c259446e6df4659dd0e706e99e063a5b1c3db435c05749c60dd473",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",

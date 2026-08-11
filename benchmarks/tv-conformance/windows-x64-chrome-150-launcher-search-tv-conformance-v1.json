@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-11T00:54:37.514Z",
+  "retrievedAtUtc": "2026-08-11T01:10:10.766Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "0f5f44038a0786efc12ce6d72aba191e842f2253f22f74067de20d41ade8dca5"
+    "sha256": "128b95d8a751aef86e2ee96775c6bc4ba7638c05a695d5d208e0e26ec9c476aa"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -2051,7 +2051,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "0f5f44038a0786efc12ce6d72aba191e842f2253f22f74067de20d41ade8dca5",
+    "representativeEvidencePathSha256": "128b95d8a751aef86e2ee96775c6bc4ba7638c05a695d5d208e0e26ec9c476aa",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",

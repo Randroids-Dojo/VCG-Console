@@ -41,7 +41,7 @@ The reviewed capture is
 Environment:
 
 - Windows x64 development host;
-- installed headless Chrome `150.0.7871.182`;
+- installed headless Chrome `151.0.7922.76`;
 - Node `v24.18.0`;
 - production build and production CSS font stack;
 - 1920x1080 viewport at device-pixel ratio 1; and
