@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 100,
-      "totalBytes": 930187,
+      "totalBytes": 933320,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1044,18 +1044,18 @@
         },
         {
           "path": "apps/console-lab/src/local-leaderboard.test.ts",
-          "bytes": 4603,
-          "sha256": "127fa69aea14ca33027bbb9c4acecc0e959201eb32f15400ee9d79246dfdd52e"
+          "bytes": 4724,
+          "sha256": "9b33ac3df5c2ac045d04466a8b89ba514e68f7bed19ca5345e3a5aa94e399d2c"
         },
         {
           "path": "apps/console-lab/src/local-leaderboard.ts",
-          "bytes": 7267,
-          "sha256": "21c4898083f8adb4579311595ed2820ba2a1b02d2e2fc7bd6381c2e317d01870"
+          "bytes": 7570,
+          "sha256": "bdd48560d239d8c5a1f0477c6bca836a5ff7e468389b7aadecfb84fbf8345d61"
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 67323,
-          "sha256": "a36e4625322499a57b6f680933a7ee9c1e586c81df7bd9e7b1bde59c25348d91"
+          "bytes": 68328,
+          "sha256": "b8ec06a03cb0f4db59675eca9968aea03b9629d22a4582171fe52285375bdaf4"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1109,8 +1109,8 @@
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
-          "bytes": 6893,
-          "sha256": "aee96a5ca5cab3d14d2379fdc8e8169b740caa9c992fb72a32cf5f04de547941"
+          "bytes": 7450,
+          "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
         },
         {
           "path": "apps/console-lab/src/player-session-adversarial.test.ts",
@@ -1199,13 +1199,13 @@
         },
         {
           "path": "apps/console-lab/src/two-player-obstacle-round.test.ts",
-          "bytes": 3499,
-          "sha256": "3c29566c9f3fd11380fc58348d479c34271b3c123fe03af94413e456ea9feb23"
+          "bytes": 4596,
+          "sha256": "bf64cb75375043ed716aa978862eea99bc62234a71af2b13feacf8834e455dfd"
         },
         {
           "path": "apps/console-lab/src/two-player-obstacle-round.ts",
-          "bytes": 10472,
-          "sha256": "9fa0903002e6bdb6eb2a757d51b7b31e12e7404c6b604713187feabe51fbab55"
+          "bytes": 10522,
+          "sha256": "fdc8a7f545cf1e3dd3e698d11e9a852354aceb85e1a74e6a2ec0b5bc6114ad7f"
         },
         {
           "path": "apps/console-lab/src/visible-text.test.ts",
@@ -1347,9 +1347,9 @@
                 164,
                 272,
                 273,
-                887,
-                1267,
-                1271
+                915,
+                1295,
+                1299
               ]
             },
             {

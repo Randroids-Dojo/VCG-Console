@@ -43,7 +43,7 @@ const EXPECTED_SCREENSHOT = Object.freeze({
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-RbhCiFxd.js": 1,
+  "/assets/main-F5skB0iW.js": 1,
   "/assets/main-C33ld5tk.css": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
   "/assets/src-CYOVH8wV.js": 1,

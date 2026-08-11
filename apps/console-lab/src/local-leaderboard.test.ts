@@ -49,7 +49,14 @@ describe("LocalObstacleLeaderboard", () => {
       persistenceAvailable: true,
       recoveredMalformedData: false,
       entries: [
-        { score: 500, endedAtMs: 4_000, inputMode: "replay", calibrationMode: "not-qualified" },
+        {
+          score: 500,
+          endedAtMs: 4_000,
+          inputMode: "replay",
+          calibrationMode: "not-qualified",
+          scoreScope: "two-player-team",
+          playerSlots: [1, 2],
+        },
         { score: 500, endedAtMs: 2_000, inputMode: "camera" },
         { score: 100, endedAtMs: 3_000, inputMode: "simulator" },
       ],

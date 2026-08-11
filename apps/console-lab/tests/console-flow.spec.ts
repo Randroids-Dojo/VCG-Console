@@ -2312,13 +2312,16 @@ test("completes the two-player body-game journey and returns to the console", as
   await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 9);
   await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeVisible();
   await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
-  const pausedClock = await page.locator("#game-clock").textContent();
+  const pausedRemainingMs = await page.evaluate(
+    () => window.__vcgObstacleJourney?.snapshot().roundRemainingMs,
+  );
   await page.waitForTimeout(350);
-  await expect(page.locator("#game-clock")).toHaveText(pausedClock ?? "");
+  expect(await page.evaluate(() => window.__vcgObstacleJourney?.snapshot().roundRemainingMs))
+    .toBe(pausedRemainingMs);
   await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
   await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeHidden();
 
-  await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 5_000 });
+  await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 8_000 });
   await expect(page.getByRole("heading", { name: /PLAYER [12] WINS|DRAW/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "BACK TO CONSOLE" })).toBeFocused();
   await pressSyntheticGamepadButton(page, "__setObstacleJourneyGamepad", 0);
@@ -2345,7 +2348,7 @@ test("keeps obstacle scores local, unverified, persistent, and deliberately rese
   await page.screenshot({ path: "../../test-results/console-lab/local-leaderboard.png", fullPage: true });
   await expect
     .poll(() =>
-      page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v1")),
+      page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v2")),
     )
     .not.toBeNull();
 
@@ -2359,7 +2362,7 @@ test("keeps obstacle scores local, unverified, persistent, and deliberately rese
   await expect(board.getByText(/\d{6} · UNASSIGNED/)).toBeVisible();
   await board.getByRole("button", { name: "CONFIRM RESET" }).click();
   await expect(board.getByText("NO COMPLETED RUNS")).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v1"))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("vcg.console.obstacle-leaderboard.v2"))).toBeNull();
 });
 
 test("drives the camera-free pose simulator through UI, keyboard, controller, and test hooks", async ({ page }) => {

@@ -43,7 +43,7 @@ import {
   type LeaderboardInputMode,
 } from "./local-leaderboard";
 import { Metrics } from "./metrics";
-import { ObstacleGame } from "./obstacle-game";
+import { fastObstacleTestEnabled, ObstacleGame } from "./obstacle-game";
 import {
   PlayerSessionController,
   type PlayerSessionEvent,
@@ -383,6 +383,20 @@ const overlay = required<HTMLElement>("#console-overlay");
 const modeButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
 const shellCards = [...document.querySelectorAll<HTMLButtonElement>("[data-shell-target]")];
 const overlayButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-overlay-action]")];
+const gameScoreBySlot = {
+  1: required<HTMLElement>("#game-score-p1"),
+  2: required<HTMLElement>("#game-score-p2"),
+} as const;
+const gameLivesBySlot = {
+  1: required<HTMLElement>("#game-lives-p1"),
+  2: required<HTMLElement>("#game-lives-p2"),
+} as const;
+const gameClock = required<HTMLElement>("#game-clock");
+const gameStatus = required<HTMLElement>("#game-status");
+const leaderboardCard = required<HTMLElement>(".leaderboard-card");
+const roundResult = required<HTMLElement>("#round-result");
+const roundResultTitle = required<HTMLElement>("#round-result-title");
+const roundResultScore = required<HTMLElement>("#round-result-score");
 const poseSimulator = new MotionPoseSimulator();
 const obstacleLeaderboard = new LocalObstacleLeaderboard(localStorage);
 
@@ -453,23 +467,22 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
   obstacleRoundPhase = snapshot.phase;
   for (const slot of [1, 2] as const) {
     const player = snapshot.players.find((candidate) => candidate.slot === slot);
-    required<HTMLElement>(`#game-score-p${slot}`).textContent = String(player?.score ?? 0).padStart(6, "0");
-    required<HTMLElement>(`#game-lives-p${slot}`).textContent = String(player?.lives ?? 0);
+    gameScoreBySlot[slot].textContent = String(player?.score ?? 0).padStart(6, "0");
+    gameLivesBySlot[slot].textContent = String(player?.lives ?? 0);
   }
-  required<HTMLElement>("#game-clock").textContent = formatRoundClock(snapshot.roundRemainingMs);
-  required<HTMLElement>("#game-status").textContent = obstacleRoundStatus(snapshot);
+  gameClock.textContent = formatRoundClock(snapshot.roundRemainingMs);
+  gameStatus.textContent = obstacleRoundStatus(snapshot);
 
-  const result = required<HTMLElement>("#round-result");
-  result.hidden = snapshot.phase !== "finished";
-  required<HTMLElement>(".leaderboard-card").hidden =
+  roundResult.hidden = snapshot.phase !== "finished";
+  leaderboardCard.hidden =
     snapshot.phase === "countdown" || snapshot.phase === "playing" || snapshot.phase === "paused";
   if (snapshot.phase === "finished") {
     const player1 = snapshot.players.find((player) => player.slot === 1);
     const player2 = snapshot.players.find((player) => player.slot === 2);
-    required<HTMLElement>("#round-result-title").textContent = snapshot.winnerSlot
+    roundResultTitle.textContent = snapshot.winnerSlot
       ? `PLAYER ${snapshot.winnerSlot} WINS`
       : "DRAW";
-    required<HTMLElement>("#round-result-score").textContent =
+    roundResultScore.textContent =
       `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
     if (previousPhase !== "finished") {
       roundResultFocus = "console";
@@ -686,7 +699,20 @@ function handleAction(action: MotionAction, trackId: string): void {
   }
 }
 
-function handleConsoleInput(action: ConsoleInputAction): void {
+function recoveryGameplaySlot(gamepad?: Pick<Gamepad, "index">): PlayerSlot | undefined {
+  const preferredSlot: PlayerSlot = gamepad === undefined || gamepad.index % 2 === 0 ? 1 : 2;
+  return obstacle.snapshot().joinedSlots.includes(preferredSlot) ? preferredSlot : undefined;
+}
+
+function handleRecoveryGameplayAction(
+  action: "dodge_left" | "dodge_right" | "jump" | "duck",
+  gamepad?: Pick<Gamepad, "index">,
+): void {
+  const slot = recoveryGameplaySlot(gamepad);
+  if (slot !== undefined && obstacle.snapshot().phase !== "finished") obstacle.handleAction(action, slot);
+}
+
+function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void {
   if (launcher.visible) {
     launcher.handleInput(action);
     return;
@@ -719,12 +745,14 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     return;
   }
   if (action === "left" || action === "right") {
-    if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction(action === "left" ? "dodge_left" : "dodge_right", 1);
+    if (currentMode === "obstacle" && !overlayKind) {
+      handleRecoveryGameplayAction(action === "left" ? "dodge_left" : "dodge_right", gamepad);
+    }
     else moveFocus(action === "left" ? -1 : 1);
     return;
   }
   if (action === "down" && currentMode === "obstacle" && !overlayKind) {
-    obstacle.handleAction("duck", 1);
+    handleRecoveryGameplayAction("duck", gamepad);
     return;
   }
   if (action === "select") {
@@ -735,7 +763,7 @@ function handleConsoleInput(action: ConsoleInputAction): void {
     ) {
       (document.activeElement as HTMLButtonElement).click();
     }
-    else if (currentMode === "obstacle" && !overlayKind) obstacle.handleAction("jump", 1);
+    else if (currentMode === "obstacle" && !overlayKind) handleRecoveryGameplayAction("jump", gamepad);
     else selectFocused();
   }
 }
@@ -810,7 +838,7 @@ function updatePlayerAssignmentControls(): void {
   joinPlayer2Button.textContent = joinedSlots.has(2) ? "LEAVE PLAYER 2" : "JOIN PLAYER 2";
   joinButton.disabled = false;
   joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
-  obstacle.setRoster([...joinedSlots].sort((left, right) => left - right) as PlayerSlot[]);
+  synchronizeObstacleRoster();
 }
 
 function paintMetrics(frame: MotionFrame): void {
@@ -1509,12 +1537,17 @@ document.addEventListener("keydown", (event) => {
   ) {
     event.preventDefault();
     moveRoundResultFocus();
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowLeft") {
-    obstacle.handleAction("dodge_left", 1);
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowRight") {
-    obstacle.handleAction("dodge_right", 1);
-  } else if (!launcher.visible && currentMode === "obstacle" && !overlayKind && event.key === "ArrowDown") {
-    obstacle.handleAction("duck", 1);
+  } else if (
+    !launcher.visible
+    && currentMode === "obstacle"
+    && !overlayKind
+    && obstacle.snapshot().phase !== "finished"
+    && ["ArrowLeft", "ArrowRight", "ArrowDown"].includes(event.key)
+  ) {
+    event.preventDefault();
+    handleRecoveryGameplayAction(
+      event.key === "ArrowLeft" ? "dodge_left" : event.key === "ArrowRight" ? "dodge_right" : "duck",
+    );
   }
   if (
     !launcher.visible
@@ -1524,7 +1557,7 @@ document.addEventListener("keydown", (event) => {
     && event.key === " "
   ) {
     event.preventDefault();
-    obstacle.handleAction("jump", 1);
+    handleRecoveryGameplayAction("jump");
   }
   if (event.key === "Enter" && overlayKind) chooseOverlayAction(overlayFocus);
   else if (
@@ -1559,7 +1592,7 @@ if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "
   });
 }
 
-if (new URLSearchParams(window.location.search).get("obstacleTest") === "fast") {
+if (fastObstacleTestEnabled(window.location.search)) {
   window.__vcgObstacleJourney = Object.freeze({
     joinTwoPlayers() {
       twoPlayerTestFixtureEnabled = true;
@@ -1567,10 +1600,9 @@ if (new URLSearchParams(window.location.search).get("obstacleTest") === "fast") 
       replayRunning = true;
       const frame = twoPlayerSyntheticFrame(replaySequence++, performance.now());
       acceptFrame(frame);
-      if (playerSession.snapshot().players.length === 0) {
-        joinPlayer("test-player-1", 1);
-        joinPlayer("test-player-2", 2);
-      }
+      const joinedSlots = new Set(playerSession.snapshot().players.map((player) => player.slot));
+      if (!joinedSlots.has(1)) joinPlayer("test-player-1", 1);
+      if (!joinedSlots.has(2)) joinPlayer("test-player-2", 2);
     },
     action(
       slot: PlayerSlot,

@@ -29,7 +29,7 @@
     {
       "role": "obstacle-workload-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "aee96a5ca5cab3d14d2379fdc8e8169b740caa9c992fb72a32cf5f04de547941"
+      "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
     },
     {
       "role": "hosted-supervisor-boundary",

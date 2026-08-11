@@ -10,6 +10,7 @@ export class ObstacleGame {
   readonly #context: CanvasRenderingContext2D;
   readonly #round: TwoPlayerObstacleRound;
   #lastAt = 0;
+  #lastPausedDrawKey: string | undefined;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -59,7 +60,13 @@ export class ObstacleGame {
     this.#round.update(delta);
     const snapshot = this.#round.snapshot();
     this.onState(snapshot);
-    this.#draw(snapshot);
+    const pausedDrawKey = snapshot.phase === "paused"
+      ? `${this.canvas.clientWidth}x${this.canvas.clientHeight}@${devicePixelRatio}:${JSON.stringify(snapshot)}`
+      : undefined;
+    if (pausedDrawKey === undefined || pausedDrawKey !== this.#lastPausedDrawKey) {
+      this.#draw(snapshot);
+    }
+    this.#lastPausedDrawKey = pausedDrawKey;
     requestAnimationFrame((next) => this.#loop(next));
   }
 
@@ -115,6 +122,7 @@ export class ObstacleGame {
     context.fillStyle = slot === 1 ? "rgba(83,218,195,0.025)" : "rgba(255,191,71,0.025)";
     context.fillRect(x, 0, width, height);
     context.strokeStyle = slot === 1 ? "rgba(83,218,195,0.3)" : "rgba(255,191,71,0.3)";
+    context.lineWidth = Math.max(1, width * 0.002);
     context.strokeRect(x + 1, 1, width - 2, height - 2);
     context.setLineDash([8, 12]);
     context.strokeStyle = "rgba(239,238,230,0.12)";
@@ -145,6 +153,7 @@ export class ObstacleGame {
       : slot === 1 ? "#53dac3" : "#ffbf47";
     context.fillRect(playerX - laneWidth * 0.08, playerY - playerHeight, laneWidth * 0.16, playerHeight);
     context.strokeStyle = slot === 1 ? "rgba(83,218,195,0.35)" : "rgba(255,191,71,0.35)";
+    context.lineWidth = Math.max(1, width * 0.002);
     context.strokeRect(playerX - laneWidth * 0.12, height * 0.7, laneWidth * 0.24, height * 0.18);
   }
 
@@ -179,9 +188,12 @@ export class ObstacleGame {
   }
 }
 
+export function fastObstacleTestEnabled(search: string): boolean {
+  return new URLSearchParams(search).get("obstacleTest") === "fast";
+}
+
 function roundOptionsFromSearch(search: string): ConstructorParameters<typeof TwoPlayerObstacleRound>[0] {
-  const params = new URLSearchParams(search);
-  if (params.get("obstacleTest") !== "fast") return {};
+  if (!fastObstacleTestEnabled(search)) return {};
   return {
     countdownMs: 300,
     roundMs: 3_000,

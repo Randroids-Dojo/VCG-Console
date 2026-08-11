@@ -248,11 +248,12 @@ export class TwoPlayerObstacleRound {
       const player = this.#players.get(slot);
       if (!player || player.lives === 0) continue;
       const kind = kinds[(this.#spawnSequence + slot - 1) % kinds.length] ?? "lane";
+      const lane = (Math.floor(this.#spawnSequence / kinds.length) + slot - 1) % 3;
       this.#obstacles.push({
         id: this.#spawnSequence * REQUIRED_PLAYERS + slot,
         slot,
         kind,
-        lane: kind === "lane" ? ((this.#spawnSequence + slot - 1) % 3) as 0 | 1 | 2 : 1,
+        lane: kind === "lane" ? lane as 0 | 1 | 2 : 1,
         remainingMs: this.#obstacleTravelMs,
         resolved: false,
       });

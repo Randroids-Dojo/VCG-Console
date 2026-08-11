@@ -41,6 +41,32 @@ describe("TwoPlayerObstacleRound", () => {
     ]);
   });
 
+  it("preserves an active round when the same roster is synchronized again", () => {
+    const round = playingRound({ obstacleTravelMs: 100, spawnIntervalMs: 5_000 });
+    round.update(100);
+    const beforeSynchronization = round.snapshot();
+    expect(beforeSynchronization.phase).toBe("playing");
+    expect(beforeSynchronization.players.find((player) => player.slot === 1)?.score).toBe(100);
+
+    round.setRoster([2, 1, 1]);
+
+    expect(round.snapshot()).toEqual(beforeSynchronization);
+  });
+
+  it("varies lane obstacles independently from the obstacle kind sequence", () => {
+    const round = playingRound({
+      obstacleTravelMs: 10_000,
+      roundMs: 10_000,
+      spawnIntervalMs: 100,
+      startingLives: 10,
+    });
+    round.update(500);
+
+    const laneObstacles = round.snapshot().obstacles.filter((obstacle) => obstacle.kind === "lane");
+    expect(laneObstacles.filter((obstacle) => obstacle.slot === 1).map((obstacle) => obstacle.lane)).toEqual([0, 1]);
+    expect(laneObstacles.filter((obstacle) => obstacle.slot === 2).map((obstacle) => obstacle.lane)).toEqual([1, 2]);
+  });
+
   it("freezes countdown, clock, obstacles, and actions while paused", () => {
     const round = playingRound({ obstacleTravelMs: 1_000, roundMs: 5_000 });
     round.update(250);
@@ -57,7 +83,7 @@ describe("TwoPlayerObstacleRound", () => {
     expect(round.snapshot().roundRemainingMs).toBe(beforePause.roundRemainingMs - 250);
   });
 
-  it("finishes with a winner when both players are out", () => {
+  it("finishes with a draw when both players are out", () => {
     const round = playingRound({
       obstacleTravelMs: 100,
       spawnIntervalMs: 100,

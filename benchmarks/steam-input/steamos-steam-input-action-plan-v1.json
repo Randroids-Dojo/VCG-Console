@@ -47,17 +47,17 @@
     {
       "role": "controller-lifecycle-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "a72d3ad6a562d9c631b56ec25333dd7c335a18f1ebf4d03b1458553c33c74c66"
+      "sha256": "3c992bf10d06986e90fcd1b84b77f6d73a1651173bd50eefd71c8e64e79e87f9"
     },
     {
       "role": "bluetooth-controller-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "43a4be394aa102f427913376944f707208095ea84d7d7ecddf05d0d9a2d80cd2"
+      "sha256": "2c1a1ff20b3f39f1714b9106715549992f488a17c955b9d0db7e58a841fc534a"
     },
     {
       "role": "controller-only-catalog-boundary",
       "path": "benchmarks/catalog-controller-only/catalog-controller-only-qualification-plan-v1.json",
-      "sha256": "dffc4c81c6dd8224604458e0fd7e4050094e518d421656d7245d56f5577723a7"
+      "sha256": "20a18a9567d2cea2dd0f0953086f6895a578404f8553c408ffc232effbfb7efc"
     },
     {
       "role": "steamos-package-boundary",
@@ -67,7 +67,7 @@
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "effcb2b7d109af1de1237bd18b2f4650caa51ecf4ccdf02c549482de672e7b61"
+      "sha256": "a5fd8b210aae82146e7118c53ae75c467ad7d44ca2ebbb8243ad6e5524bfd2aa"
     },
     {
       "role": "accountless-offline-boundary",
