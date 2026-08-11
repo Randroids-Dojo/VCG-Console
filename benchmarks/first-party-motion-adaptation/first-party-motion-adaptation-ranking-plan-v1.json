@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "363d07234f9d2a48760da7d591ae65bcd647e10542a9df41e700697a80e39a3c"
+      "sha256": "7b4d2e300054a0db0c7d14bb40fd9bedf9d8ab3fb0e3ae8368023874bee01477"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -76,6 +76,11 @@
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
       "sha256": "ef3f9f012c39a6b8dffbf9082f352c2dcaa8565256eedf64071c44264e321174"
+    },
+    {
+      "role": "two-player-obstacle-round-state-and-resolution-boundary",
+      "path": "apps/console-lab/src/two-player-obstacle-round.ts",
+      "sha256": "fdc8a7f545cf1e3dd3e698d11e9a852354aceb85e1a74e6a2ec0b5bc6114ad7f"
     },
     {
       "role": "motion-api-actions-players-clocks-and-trace-contract-boundary",

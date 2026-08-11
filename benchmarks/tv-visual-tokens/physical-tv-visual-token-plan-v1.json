@@ -36,8 +36,8 @@
     },
     {
       "role": "bounded-ocra-font-evidence",
-      "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
-      "sha256": "1f1024aa318dd8cb86df211ef9f7fe9375d2b1fe597addf4add1cb6656d36407"
+      "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
+      "sha256": "a3966e4386189515cc05f95944dbb945be543ff209f1e576f101e28605ef1ee6"
     },
     {
       "role": "representative-headless-tv-regression-evidence",

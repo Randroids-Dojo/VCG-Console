@@ -77,7 +77,7 @@
     }
   },
   "screenshot": {
-    "path": "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
+    "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png",
     "bytes": 37017,
     "sha256": "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458"
   },
@@ -98,9 +98,9 @@
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
     "baseEvidencePathSha256": "84d3a83dd12d0be1e1b37f0a10ad7cb0b1232ee5b0dbbf821a0801895aed392d",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "5df9ab0618a06d07b55c818ec16ec3ff70ef4beb4d65c8a05f99336c7f67fe0f",
+    "generatorPathSha256": "9ac76f5be4703be2f6b90c483bc122008c575745c2cde8e9f9f985f4bdec7131",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "128729b4d96188933297e323b5caf7a37f5386515f6d436e4f756fd7503d4f29",
+    "validatorPathSha256": "4451f915b6ffbe983f89d5ee201eee5231b31389aeabd918845dd8a098918654",
     "baseEvidenceBytes": 42129,
     "baseEvidenceSha256": "84d3a83dd12d0be1e1b37f0a10ad7cb0b1232ee5b0dbbf821a0801895aed392d",
     "productionSourceTree": {

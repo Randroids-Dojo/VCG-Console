@@ -83,7 +83,7 @@ const sourceDefinitions = [
   ["shell-style-implementation", "apps/console-lab/src/styles.css"],
   [
     "bounded-ocra-font-evidence",
-    "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
+    "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
   ],
   [
     "representative-headless-tv-regression-evidence",

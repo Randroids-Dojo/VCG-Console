@@ -50,7 +50,7 @@
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "14830c279808f27922d0f6cc1d572c716616e1608990f3b3d00139f7de2fbaba"
+      "sha256": "4c671cf46d6b916d67489210c12d626721995dc0312e568955d4981acc292f03"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",

@@ -25,7 +25,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
   root,
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json",
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
 );
 const baseEvidencePath = resolve(
   root,
@@ -37,7 +37,7 @@ const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 const EXPECTED_SCREENSHOT = Object.freeze({
-  path: "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png",
+  path: "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png",
   bytes: 37_017,
   sha256: "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458",
 });

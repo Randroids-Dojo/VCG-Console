@@ -16,7 +16,7 @@ const ZERO_SHA256 = "0".repeat(64);
 export const FIRST_PARTY_MOTION_ADAPTATION_FORMAT =
   "vcg-first-party-motion-adaptation-ranking-plan/v1";
 export const FIRST_PARTY_MOTION_ADAPTATION_CONTRACT_SHA256 =
-  "9c16eeaaadf128b42186545957ef78d747071105f8208974c8d2ec5576dd0c8a";
+  "10b77ae37e059939696845ee85c87d05f3fee0520c5eb020cd64232e51dbd671";
 
 const topKeys = [
   "format", "status", "campaignId", "observedAt", "qualificationScope",
@@ -42,6 +42,7 @@ const sourceDefinitions = [
   ["game-trust-containment-readiness-and-recovery-boundary", "docs/GAME_TRUST_TIERS.md"],
   ["runtime-neutral-signed-local-package-boundary", "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json"],
   ["obstacle-sample-mechanic-and-current-implementation-boundary", "apps/console-lab/src/obstacle-game.ts"],
+  ["two-player-obstacle-round-state-and-resolution-boundary", "apps/console-lab/src/two-player-obstacle-round.ts"],
   ["motion-api-actions-players-clocks-and-trace-contract-boundary", "packages/motion-contract/src/schema.ts"],
   ["play-support-policy-implementation-boundary", "packages/motion-contract/src/play-support-matrix.ts"],
 ];

@@ -40,9 +40,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/font-coverage");
 const artifactRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-v1.json";
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json";
 const screenshotRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-150-ocra-platform-fallback-1080p.png";
+  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png";
 const artifactPath = resolve(root, artifactRelativePath);
 const screenshotPath = resolve(root, screenshotRelativePath);
 const baseEvidenceRelativePath =
