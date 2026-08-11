@@ -41,7 +41,7 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   assert.match(unit, /^ExecStartPre=.*wait-for-console\.sh @REPO_ROOT@$/m);
   assert.match(
     unit,
-    /^ExecStart=@CAGE_PATH@ -- @HOST_PATH@ launcher --browser @BROWSER_PATH@ --profile-dir \/var\/lib\/vcg-console\/browser-profile --url http:\/\/127\.0\.0\.1:4173\/$/m,
+    /^ExecStart=@CAGE_PATH@ -- @HOST_PATH@ launcher --browser @BROWSER_PATH@ --bluetoothctl @BLUETOOTHCTL_PATH@ --profile-dir \/var\/lib\/vcg-console\/browser-profile --url http:\/\/127\.0\.0\.1:4173\/$/m,
   );
   assert.doesNotMatch(unit, /--windowed/);
   assert.match(unit, /^Restart=always$/m);
@@ -63,9 +63,11 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(target, /^After=bluetooth\.service vcg-console-server\.service$/m);
   assert.match(target, /^WantedBy=multi-user\.target$/m);
   assert.match(installer, /systemctl set-default multi-user\.target/);
-  assert.match(installer, /command -v bluetoothctl/);
+  assert.match(installer, /find_command_path bluetoothctl/);
+  assert.match(installer, /validate_absolute_path "bluetoothctl"/);
   assert.match(installer, /systemctl cat bluetooth\.service/);
   assert.match(installer, /systemctl enable bluetooth\.service/);
+  assert.match(installer, /for group in video render input bluetooth/);
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);

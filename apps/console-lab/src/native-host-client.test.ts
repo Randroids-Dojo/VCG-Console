@@ -5,8 +5,11 @@ import {
   checkNativePackage,
   createNativeLaunchRequestId,
   getNativeLaunch,
+  listBluetoothControllers,
   listNativePackages,
+  pairBluetoothController,
   parseNativeHostBridge,
+  scanBluetoothControllers,
   startNativeLaunch,
 } from "./native-host-client";
 
@@ -45,6 +48,127 @@ describe("native host bridge configuration", () => {
     ]) {
       expect(parseNativeHostBridge(`http://127.0.0.1:5173/${fragment}`)).toEqual({ kind: "invalid" });
     }
+  });
+});
+
+describe("native Bluetooth controller setup", () => {
+  const bluetoothStatus = {
+    ...STATUS,
+    capabilities: [...STATUS.capabilities, "bluetooth-controller-pairing"],
+  };
+  const nearby = {
+    protocolVersion: "0.1.0",
+    devices: [{ id: "controller-1", paired: false, connected: false }],
+  };
+
+  it("uses only authenticated fixed-intent operations and opaque controller ids", async () => {
+    const requests: Array<{ url: string; method: string | undefined; body: BodyInit | null | undefined }> = [];
+    const fetcher = vi.fn<typeof fetch>(async (input, init) => {
+      requests.push({ url: String(input), method: init?.method, body: init?.body });
+      return String(input).endsWith("/v1/status")
+        ? new Response(JSON.stringify(bluetoothStatus), { status: 200 })
+        : new Response(JSON.stringify(nearby), { status: 200 });
+    });
+
+    await expect(scanBluetoothControllers(HOST_URL, fetcher, 100)).resolves.toEqual({
+      ok: true,
+      status: bluetoothStatus,
+      snapshot: nearby,
+    });
+    await expect(
+      pairBluetoothController("controller-1", HOST_URL, fetcher, 100),
+    ).resolves.toEqual({ ok: true, status: bluetoothStatus, snapshot: nearby });
+    expect(requests.map(({ url, method }) => ({ url, method }))).toEqual([
+      { url: "http://127.0.0.1:43123/v1/status", method: "GET" },
+      { url: "http://127.0.0.1:43123/v1/bluetooth/scan", method: "POST" },
+      { url: "http://127.0.0.1:43123/v1/status", method: "GET" },
+      {
+        url: "http://127.0.0.1:43123/v1/bluetooth/devices/controller-1/pair",
+        method: "POST",
+      },
+    ]);
+    expect(requests[1]?.body).toBe(JSON.stringify({ protocolVersion: "0.1.0" }));
+    expect(JSON.stringify(requests)).not.toMatch(/AA:BB|name|address/i);
+  });
+
+  it("rejects identifiers before network access and fails closed on identity fields", async () => {
+    const unused = vi.fn<typeof fetch>();
+    await expect(
+      pairBluetoothController("controller-1/../../power", HOST_URL, unused, 100),
+    ).resolves.toMatchObject({ ok: false, code: "BLUETOOTH_OPERATION_FAILED" });
+    expect(unused).not.toHaveBeenCalled();
+
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ...nearby,
+            devices: [{ ...nearby.devices[0], address: "AA:BB:CC:DD:EE:FF" }],
+          }),
+          { status: 200 },
+        ),
+      );
+    await expect(listBluetoothControllers(HOST_URL, fetcher, 100)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
+  });
+
+  it("does not imply Bluetooth support when the appliance capability is absent", async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(JSON.stringify(STATUS), { status: 200 }));
+
+    await expect(listBluetoothControllers(HOST_URL, fetcher, 100)).resolves.toMatchObject({
+      ok: false,
+      code: "BLUETOOTH_SERVICE_UNAVAILABLE",
+    });
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("accepts numeric controller ordering beyond nine devices", async () => {
+    const devices = Array.from({ length: 10 }, (_, index) => ({
+      id: `controller-${index + 1}`,
+      paired: false,
+      connected: false,
+    }));
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ protocolVersion: "0.1.0", devices }), { status: 200 }),
+      );
+
+    await expect(listBluetoothControllers(HOST_URL, fetcher, 100)).resolves.toMatchObject({
+      ok: true,
+      snapshot: { devices },
+    });
+  });
+
+  it("accepts the maximum controller ID and rejects the first ID above it", async () => {
+    const snapshot = (id: string) => ({
+      protocolVersion: "0.1.0",
+      devices: [{ id, paired: false, connected: false }],
+    });
+    const accepted = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(snapshot("controller-999999999")), { status: 200 }),
+      );
+    const rejected = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(bluetoothStatus), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(snapshot("controller-1000000000")), { status: 200 }),
+      );
+
+    await expect(listBluetoothControllers(HOST_URL, accepted, 100)).resolves.toMatchObject({
+      ok: true,
+      snapshot: snapshot("controller-999999999"),
+    });
+    await expect(listBluetoothControllers(HOST_URL, rejected, 100)).resolves.toMatchObject({
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+    });
   });
 });
 

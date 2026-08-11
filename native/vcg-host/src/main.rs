@@ -8,6 +8,7 @@ use std::process::ExitCode;
 use std::str::FromStr;
 use std::time::Duration;
 
+use vcg_host::bluetooth::BluetoothPairingService;
 use vcg_host::host_api::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
 use vcg_host::installed_catalog::{CatalogRoots, TrustedPackageCatalog};
 use vcg_host::launcher::{LauncherRequest, loopback_origin, plan as plan_launcher};
@@ -85,6 +86,7 @@ struct LauncherOptions {
     dry_run: bool,
     windowed: bool,
     browser: Option<PathBuf>,
+    bluetoothctl: Option<PathBuf>,
     profile_dir: Option<PathBuf>,
     url: Option<String>,
     catalog: Option<PathBuf>,
@@ -153,7 +155,7 @@ struct LauncherCatalogConfiguration {
 }
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
-    let (dry_run, request, catalog_options) = launcher_request(arguments)?;
+    let (dry_run, request, catalog_options, bluetoothctl) = launcher_request(arguments)?;
     // Validate the browser request before a real launcher startup is allowed
     // to recover or otherwise mutate package-store state.
     let initial_spec = plan_launcher(&request).map_err(|error| error.to_string())?;
@@ -162,6 +164,10 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
         .map(|options| options.load(!dry_run))
         .transpose()?;
     if dry_run {
+        if let Some(executable) = bluetoothctl {
+            BluetoothPairingService::new(executable).map_err(|error| error.to_string())?;
+            println!("launcher:bluetooth-controller-pairing configured");
+        }
         println!("launcher:plan mode=dry-run");
         if let Some(configuration) = &catalog_configuration {
             println!(
@@ -202,7 +208,11 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    let host_api = start_launcher_host_api(origin, catalog_configuration)?;
+    let bluetooth_service = bluetoothctl
+        .map(BluetoothPairingService::new)
+        .transpose()
+        .map_err(|error| error.to_string())?;
+    let host_api = start_launcher_host_api(origin, catalog_configuration, bluetooth_service)?;
     let launcher_url = host_api
         .launcher_url(request.url())
         .map_err(|error| error.to_string())?;
@@ -240,35 +250,69 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
 fn start_launcher_host_api(
     origin: String,
     configuration: Option<LauncherCatalogConfiguration>,
+    bluetooth_service: Option<BluetoothPairingService>,
 ) -> Result<HostStatusServer, String> {
     let Some(configuration) = configuration else {
-        return HostStatusServer::start(origin).map_err(|error| error.to_string());
+        return match bluetooth_service {
+            Some(service) => HostStatusServer::start_with_bluetooth(origin, service),
+            None => HostStatusServer::start(origin),
+        }
+        .map_err(|error| error.to_string());
     };
     report_root_recovery(configuration.root_recovery);
     report_package_recovery(configuration.recovery);
     if configuration.profile_ids.is_empty() {
-        return HostStatusServer::start_with_catalog(origin, configuration.catalog)
-            .map_err(|error| error.to_string());
+        return match bluetooth_service {
+            Some(service) => HostStatusServer::start_with_catalog_and_bluetooth(
+                origin,
+                configuration.catalog,
+                service,
+            ),
+            None => HostStatusServer::start_with_catalog(origin, configuration.catalog),
+        }
+        .map_err(|error| error.to_string());
     }
     let launch_replay_root = configuration
         .launch_replay_root
         .expect("launch profiles require replay root");
-    let server = if configuration.watchdog_game_ids.is_empty() {
-        HostStatusServer::start_with_persistent_launch_service(
+    let server = match (
+        configuration.watchdog_game_ids.is_empty(),
+        bluetooth_service,
+    ) {
+        (true, Some(service)) => {
+            HostStatusServer::start_with_persistent_launch_service_and_bluetooth(
+                origin,
+                configuration.catalog,
+                configuration.profile_ids,
+                &launch_replay_root,
+                service,
+            )
+        }
+        (true, None) => HostStatusServer::start_with_persistent_launch_service(
             origin,
             configuration.catalog,
             configuration.profile_ids,
             &launch_replay_root,
-        )
-    } else {
-        HostStatusServer::start_with_persistent_watchdog_launch_service(
+        ),
+        (false, Some(service)) => {
+            HostStatusServer::start_with_persistent_watchdog_launch_service_and_bluetooth(
+                origin,
+                configuration.catalog,
+                configuration.profile_ids,
+                configuration.watchdog_game_ids,
+                WatchdogPolicy::local_game_defaults(),
+                &launch_replay_root,
+                service,
+            )
+        }
+        (false, None) => HostStatusServer::start_with_persistent_watchdog_launch_service(
             origin,
             configuration.catalog,
             configuration.profile_ids,
             configuration.watchdog_game_ids,
             WatchdogPolicy::local_game_defaults(),
             &launch_replay_root,
-        )
+        ),
     };
     server.map_err(|error| error.to_string())
 }
@@ -588,7 +632,15 @@ fn parse_update_root_option(
 
 fn launcher_request(
     arguments: &[OsString],
-) -> Result<(bool, LauncherRequest, Option<LauncherCatalogOptions>), String> {
+) -> Result<
+    (
+        bool,
+        LauncherRequest,
+        Option<LauncherCatalogOptions>,
+        Option<PathBuf>,
+    ),
+    String,
+> {
     let mut options = LauncherOptions::default();
     let mut cursor = 0;
     while let Some(argument) = arguments.get(cursor) {
@@ -617,8 +669,9 @@ fn launcher_request(
         request = request.windowed();
     }
     let dry_run = options.dry_run;
+    let bluetoothctl = options.bluetoothctl.take();
     let catalog = launcher_catalog_options(options)?;
-    Ok((dry_run, request, catalog))
+    Ok((dry_run, request, catalog, bluetoothctl))
 }
 
 fn launcher_catalog_options(
@@ -758,6 +811,11 @@ fn parse_launcher_option(
         }
         "--browser" => set_path_option(
             &mut output.browser,
+            required_next_path(arguments, cursor, option)?,
+            option,
+        ),
+        "--bluetoothctl" => set_path_option(
+            &mut output.bluetoothctl,
             required_next_path(arguments, cursor, option)?,
             option,
         ),
@@ -1367,7 +1425,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>] [--contentless-start core|menu]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> [--bluetoothctl <absolute-path>] --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>] [--contentless-start core|menu]"
         .to_owned()
 }
 
@@ -1594,21 +1652,27 @@ mod tests {
         let profile = std::env::current_dir()
             .expect("current directory is available")
             .join("profile");
+        let bluetoothctl_path = std::env::current_dir()
+            .expect("current directory is available")
+            .join("bluetoothctl");
         let arguments = vec![
             OsString::from("--dry-run"),
             OsString::from("--windowed"),
             OsString::from("--browser"),
             browser.into_os_string(),
+            OsString::from("--bluetoothctl"),
+            bluetoothctl_path.clone().into_os_string(),
             OsString::from("--profile-dir"),
             profile.into_os_string(),
             OsString::from("--url"),
             OsString::from("http://127.0.0.1:5173/"),
         ];
-        let (dry_run, request, catalog) =
+        let (dry_run, request, catalog, bluetoothctl) =
             launcher_request(&arguments).expect("launcher request parses");
 
         assert!(dry_run);
         assert!(catalog.is_none());
+        assert_eq!(bluetoothctl, Some(bluetoothctl_path));
         let spec = plan_launcher(&request).expect("launcher request plans");
         assert!(
             !spec
@@ -1662,7 +1726,7 @@ mod tests {
             "retro-2048",
         ]);
         extend_update_trust(&mut complete);
-        let (_, _, catalog) =
+        let (_, _, catalog, _) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
         let catalog = catalog.expect("catalog options exist");
         assert!(matches!(
@@ -1772,7 +1836,7 @@ mod tests {
         ];
         let mut configured = base.to_vec();
         extend_update_trust(&mut configured);
-        let (_, _, catalog) =
+        let (_, _, catalog, _) =
             launcher_request(&args(&configured)).expect("profile registry parses");
         assert!(matches!(
             catalog.expect("catalog options").profiles,
@@ -1965,7 +2029,7 @@ mod tests {
             "profile-randy",
         ]);
         extend_update_trust(&mut complete);
-        let (_, _, catalog) =
+        let (_, _, catalog, _) =
             launcher_request(&args(&complete)).expect("generation store configuration parses");
         let catalog = catalog.expect("catalog options exist");
         let LauncherCatalogSourceOptions::GenerationStore {

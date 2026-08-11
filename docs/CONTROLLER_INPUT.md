@@ -1,6 +1,6 @@
 # Controller input prototype contract
 
-Last updated: 2026-07-24
+Last updated: 2026-08-10
 
 The console lab's Browser Gamepad adapter is a reversible desk prototype for canonical shell actions and connection lifecycle. It is not the native input authority and cannot prove that Home or Back remains available when a page, native game, compositor, or operating system owns focus.
 
@@ -62,6 +62,29 @@ Polling is authoritative because browser connection events are not sufficient by
   the hardware disconnected.
 
 The prototype identity is the browser session's index plus ID and mapping. It is not a durable controller identity and must not be used to associate a person, profile, save, or trusted workstation.
+
+## Bluetooth setup surface
+
+On the Raspberry Pi appliance, `vcg-host` now owns a bounded `BlueZ`
+`bluetoothctl` adapter behind the authenticated loopback API. The television
+Settings > Controllers surface can scan, pair, reconnect, and confirm a forget
+operation using the same focusable actions as the rest of the launcher. The
+host filters discovery to devices whose `BlueZ` information identifies a
+gaming input or HID service, validates addresses internally, and invokes no
+shell.
+
+The browser sees only session-local `controller-N` labels and paired/connected
+state. It never receives advertised names, Bluetooth addresses, keys,
+descriptors, or raw command output. A Bluetooth connection is presented as a
+transport state, not proof of mapped input. The existing browser Gamepad
+adapter remains responsible for observing fresh standard-mapped input and the
+controller ownership layer remains responsible for deterministic player-slot
+claims.
+
+First-ever pairing still needs an already-working focus input such as a wired
+controller or keyboard. A physical appliance button, HDMI-CEC remote path, or
+other qualified fallback has not been implemented, and the target hardware
+matrix remains unexecuted.
 
 Fifteen deterministic unit tests cover the standard mapping, dead zone,
 ambiguous mapping denial, invalid axes/buttons, held-state publication,

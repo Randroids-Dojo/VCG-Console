@@ -122,11 +122,95 @@ async function pressSyntheticPlayerGamepadButton(
   await page.waitForTimeout(50);
 }
 
+async function pulseSyntheticPlayerGamepadButton(
+  page: Page,
+  setterName: string,
+  playerIndex: number,
+  button: number,
+): Promise<void> {
+  await page.evaluate(
+    async ({ name, index, pressed }) => {
+      const setButtons = (
+        window as unknown as Record<string, (index: number, buttons: number[]) => void>
+      )[name];
+      setButtons?.(index, [pressed]);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      setButtons?.(index, []);
+    },
+    { name: setterName, index: playerIndex, pressed: button },
+  );
+}
+
 test("boots into a purposeful launcher", async ({ page }) => {
   await page.goto("/?holdBoot=1");
   await expect(page.locator("#boot-screen")).toBeVisible();
   await expect(page.locator("#boot-status")).toHaveText("SYSTEM READY", { timeout: 2_000 });
   await page.screenshot({ path: "../../test-results/console-lab/boot-screen.png" });
+});
+
+test("pairs and deliberately forgets a Bluetooth controller from the TV settings", async ({
+  page,
+}) => {
+  const token = "a".repeat(64);
+  const status = {
+    protocolVersion: "0.1.0",
+    hostVersion: "0.1.0",
+    target: "aarch64-linux",
+    capabilities: ["launcher-shell", "bluetooth-controller-pairing"],
+  };
+  const snapshots = {
+    empty: { protocolVersion: "0.1.0", devices: [] },
+    nearby: {
+      protocolVersion: "0.1.0",
+      devices: [{ id: "controller-1", paired: false, connected: false }],
+    },
+    connected: {
+      protocolVersion: "0.1.0",
+      devices: [{ id: "controller-1", paired: true, connected: true }],
+    },
+  };
+  await page.route("http://127.0.0.1:43123/**", async (route) => {
+    const request = route.request();
+    const headers = {
+      "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+      "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Content-Type": "application/json",
+    };
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    expect(request.headers().authorization).toBe(`Bearer ${token}`);
+    const path = new URL(request.url()).pathname;
+    if (path === "/v1/status") {
+      await route.fulfill({ status: 200, headers, json: status });
+    } else if (path === "/v1/bluetooth/scan") {
+      await route.fulfill({ status: 200, headers, json: snapshots.nearby });
+    } else if (path.endsWith("/pair")) {
+      await route.fulfill({ status: 200, headers, json: snapshots.connected });
+    } else {
+      await route.fulfill({ status: 200, headers, json: snapshots.empty });
+    }
+  });
+  await page.goto(
+    `/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${token}`,
+  );
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Controllers", exact: true }).click();
+  await expect(page.getByText("No gaming controllers found")).toBeVisible();
+  await page.getByRole("button", { name: "Scan for controllers" }).click();
+  await expect(page.getByText("Nearby · ready to pair")).toBeVisible();
+  await page.getByRole("button", { name: "Pair", exact: true }).click();
+  await expect(page.getByText(/Bluetooth connected · press a button/)).toBeVisible();
+  await page.getByRole("button", { name: "Forget", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Confirm forget" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirm forget" }).click();
+  await expect(page.getByText("No gaming controllers found")).toBeVisible();
+  await expect(page.locator('[data-settings-panel="controllers"]')).not.toContainText(
+    /(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|Secret Name/,
+  );
 });
 
 test("rehearses display and audio settings without claiming hardware authority", async ({
@@ -1962,7 +2046,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await trigger.click();
   await expect(input).toHaveValue("");
   const allResults = page.locator("#search-results button");
-  await expect(allResults).toHaveCount(20);
+  await expect(allResults).toHaveCount(21);
   const resultList = page.locator("#search-results");
   expect(
     await resultList.evaluate(
@@ -2003,7 +2087,7 @@ test("Search no-result recovery clears locally and opens stable category results
   await page.keyboard.press("Enter");
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect(page.locator("#search-results button")).toHaveCount(20);
+  await expect(page.locator("#search-results button")).toHaveCount(21);
 
   await input.fill("no-such-vcg-destination");
   await page.keyboard.press("ArrowDown");
@@ -2360,8 +2444,11 @@ test("completes the two-player body-game journey and returns to the console", as
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
   await expect(page.locator("#game-status")).toHaveText("PLAY", { timeout: 2_000 });
 
-  await page.evaluate(() => window.__vcgObstacleJourney?.action(1, "dodge_right"));
-  await expect.poll(() => page.evaluate(() => window.__vcgObstacleJourney?.snapshot().players)).toEqual([
+  await expect.poll(() => page.evaluate(() => {
+    const journey = window.__vcgObstacleJourney;
+    if (journey?.snapshot().phase === "playing") journey.action(1, "dodge_right");
+    return journey?.snapshot().players;
+  })).toEqual([
     expect.objectContaining({ slot: 1, lane: 2 }),
     expect.objectContaining({ slot: 2, lane: 1 }),
   ]);
@@ -2372,8 +2459,9 @@ test("completes the two-player body-game journey and returns to the console", as
     expect.objectContaining({ slot: 2, lane: 2 }),
   ]);
 
-  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 9);
-  await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeVisible();
+  const pauseDialog = page.getByRole("dialog", { name: "GAME PAUSED" });
+  await pulseSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 9);
+  await expect(pauseDialog).toBeVisible();
   await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
   const pausedRemainingMs = await page.evaluate(
     () => window.__vcgObstacleJourney?.snapshot().roundRemainingMs,
@@ -2382,13 +2470,13 @@ test("completes the two-player body-game journey and returns to the console", as
   await page.waitForTimeout(350);
   expect(await page.evaluate(() => window.__vcgObstacleJourney?.snapshot().roundRemainingMs))
     .toBe(pausedRemainingMs);
-  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
-  await expect(page.getByRole("dialog", { name: "GAME PAUSED" })).toBeHidden();
+  await pulseSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
+  await expect(pauseDialog).toBeHidden();
 
   await expect(page.locator("#game-status")).toHaveText("ROUND ENDED", { timeout: 8_000 });
   await expect(page.getByRole("heading", { name: /PLAYER [12] WINS|DRAW/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "BACK TO CONSOLE" })).toBeFocused();
-  await pressSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
+  await pulseSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
   await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
 });
 

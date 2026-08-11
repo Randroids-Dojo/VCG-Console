@@ -10,6 +10,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
+use crate::bluetooth::{BluetoothError, BluetoothPairingService, BluetoothSnapshot};
 use crate::installed_catalog::{CatalogError, TrustedPackageCatalog};
 use crate::native_launch::{
     NativeLaunchError, NativeLaunchService, NativeLaunchSnapshot, NativeLaunchState,
@@ -30,6 +31,7 @@ pub struct HostStatusServer {
     token: String,
     stop: Arc<AtomicBool>,
     _launch_service: Option<Arc<NativeLaunchService>>,
+    _bluetooth_service: Option<Arc<BluetoothPairingService>>,
     worker: Option<JoinHandle<()>>,
 }
 
@@ -41,7 +43,7 @@ impl HostStatusServer {
     /// Returns an error when the listener, operating-system random source, or
     /// worker thread cannot be created.
     pub fn start(allowed_origin: impl Into<String>) -> Result<Self, HostApiError> {
-        Self::start_internal(allowed_origin.into(), None, None)
+        Self::start_internal(allowed_origin.into(), None, None, None)
     }
 
     /// Starts the status API with a signature-verified installed catalog.
@@ -54,7 +56,44 @@ impl HostStatusServer {
         allowed_origin: impl Into<String>,
         catalog: TrustedPackageCatalog,
     ) -> Result<Self, HostApiError> {
-        Self::start_internal(allowed_origin.into(), Some(Arc::new(catalog)), None)
+        Self::start_internal(allowed_origin.into(), Some(Arc::new(catalog)), None, None)
+    }
+
+    /// Starts the API with privacy-preserving Bluetooth controller pairing.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the listener, operating-system random source, or
+    /// worker thread cannot be created.
+    pub fn start_with_bluetooth(
+        allowed_origin: impl Into<String>,
+        bluetooth_service: BluetoothPairingService,
+    ) -> Result<Self, HostApiError> {
+        Self::start_internal(
+            allowed_origin.into(),
+            None,
+            None,
+            Some(Arc::new(bluetooth_service)),
+        )
+    }
+
+    /// Starts the catalog API with privacy-preserving Bluetooth pairing.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the listener, operating-system random source, or
+    /// worker thread cannot be created.
+    pub fn start_with_catalog_and_bluetooth(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        bluetooth_service: BluetoothPairingService,
+    ) -> Result<Self, HostApiError> {
+        Self::start_internal(
+            allowed_origin.into(),
+            Some(Arc::new(catalog)),
+            None,
+            Some(Arc::new(bluetooth_service)),
+        )
     }
 
     /// Starts the API with signature-verified package discovery and process
@@ -121,6 +160,7 @@ impl HostStatusServer {
             watchdog_game_ids,
             watchdog_policy,
             None,
+            None,
         )
     }
 
@@ -145,6 +185,57 @@ impl HostStatusServer {
             watchdog_game_ids,
             watchdog_policy,
             Some(journal_root),
+            None,
+        )
+    }
+
+    /// Starts a persistent launch API with Bluetooth controller pairing.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch configuration, replay state, or server
+    /// startup fails.
+    pub fn start_with_persistent_launch_service_and_bluetooth(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        journal_root: &Path,
+        bluetooth_service: BluetoothPairingService,
+    ) -> Result<Self, HostApiError> {
+        Self::start_with_optional_replay(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            Vec::new(),
+            WatchdogPolicy::local_game_defaults(),
+            Some(journal_root),
+            Some(bluetooth_service),
+        )
+    }
+
+    /// Starts a persistent watchdog launch API with Bluetooth pairing.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch/watchdog configuration, replay state, or
+    /// server startup fails.
+    pub fn start_with_persistent_watchdog_launch_service_and_bluetooth(
+        allowed_origin: impl Into<String>,
+        catalog: TrustedPackageCatalog,
+        profile_ids: impl IntoIterator<Item = String>,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+        journal_root: &Path,
+        bluetooth_service: BluetoothPairingService,
+    ) -> Result<Self, HostApiError> {
+        Self::start_with_optional_replay(
+            allowed_origin,
+            catalog,
+            profile_ids,
+            watchdog_game_ids,
+            watchdog_policy,
+            Some(journal_root),
+            Some(bluetooth_service),
         )
     }
 
@@ -155,6 +246,7 @@ impl HostStatusServer {
         watchdog_game_ids: impl IntoIterator<Item = String>,
         watchdog_policy: WatchdogPolicy,
         journal_root: Option<&Path>,
+        bluetooth_service: Option<BluetoothPairingService>,
     ) -> Result<Self, HostApiError> {
         let catalog = Arc::new(catalog);
         let launch_service = Arc::new(
@@ -175,13 +267,19 @@ impl HostStatusServer {
             }
             .map_err(HostApiError::LaunchConfiguration)?,
         );
-        Self::start_internal(allowed_origin.into(), Some(catalog), Some(launch_service))
+        Self::start_internal(
+            allowed_origin.into(),
+            Some(catalog),
+            Some(launch_service),
+            bluetooth_service.map(Arc::new),
+        )
     }
 
     fn start_internal(
         allowed_origin: String,
         catalog: Option<Arc<TrustedPackageCatalog>>,
         launch_service: Option<Arc<NativeLaunchService>>,
+        bluetooth_service: Option<Arc<BluetoothPairingService>>,
     ) -> Result<Self, HostApiError> {
         let valid_origin = crate::launcher::loopback_origin(&allowed_origin)
             .is_ok_and(|origin| origin == allowed_origin);
@@ -197,6 +295,7 @@ impl HostStatusServer {
         let worker_origin = allowed_origin.clone();
         let worker_token = token.clone();
         let worker_launch_service = launch_service.clone();
+        let worker_bluetooth_service = bluetooth_service.clone();
         let worker = thread::Builder::new()
             .name("vcg-host-status".to_owned())
             .spawn(move || {
@@ -206,6 +305,7 @@ impl HostStatusServer {
                     &worker_token,
                     catalog.as_deref(),
                     worker_launch_service.as_deref(),
+                    worker_bluetooth_service.as_deref(),
                     &worker_stop,
                 );
             })
@@ -217,6 +317,7 @@ impl HostStatusServer {
             token,
             stop,
             _launch_service: launch_service,
+            _bluetooth_service: bluetooth_service,
             worker: Some(worker),
         })
     }
@@ -278,13 +379,20 @@ fn serve(
     token: &str,
     catalog: Option<&TrustedPackageCatalog>,
     launch_service: Option<&NativeLaunchService>,
+    bluetooth_service: Option<&BluetoothPairingService>,
     stop: &AtomicBool,
 ) {
     while !stop.load(Ordering::Acquire) {
         match listener.accept() {
             Ok((mut stream, _)) => {
-                let _ =
-                    handle_connection(&mut stream, allowed_origin, token, catalog, launch_service);
+                let _ = handle_connection(
+                    &mut stream,
+                    allowed_origin,
+                    token,
+                    catalog,
+                    launch_service,
+                    bluetooth_service,
+                );
             }
             Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
                 thread::sleep(ACCEPT_POLL_INTERVAL);
@@ -300,6 +408,7 @@ fn handle_connection(
     token: &str,
     catalog: Option<&TrustedPackageCatalog>,
     launch_service: Option<&NativeLaunchService>,
+    bluetooth_service: Option<&BluetoothPairingService>,
 ) -> io::Result<()> {
     stream.set_read_timeout(Some(READ_TIMEOUT))?;
     stream.set_write_timeout(Some(READ_TIMEOUT))?;
@@ -329,12 +438,7 @@ fn handle_connection(
             write_response(stream, 204, "No Content", allowed_origin, "")
         }
         "GET" => {
-            let supplied = request
-                .authorization
-                .as_deref()
-                .and_then(|value| value.strip_prefix("Bearer "));
-            if supplied.is_none_or(|value| !constant_time_equal(value.as_bytes(), token.as_bytes()))
-            {
+            if !authorized(&request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
             if request.path == "/v1/status" {
@@ -343,7 +447,14 @@ fn handle_connection(
                     200,
                     "OK",
                     allowed_origin,
-                    &status_body(catalog, launch_service),
+                    &status_body(catalog, launch_service, bluetooth_service),
+                );
+            }
+            if request.path == "/v1/bluetooth" {
+                return write_bluetooth_snapshot_response(
+                    stream,
+                    allowed_origin,
+                    bluetooth_service,
                 );
             }
             if request.path == "/v1/packages" {
@@ -363,32 +474,47 @@ fn handle_connection(
             write_response(stream, 404, "Not Found", allowed_origin, "")
         }
         "POST" if request.path == "/v1/launches" => {
-            let supplied = request
-                .authorization
-                .as_deref()
-                .and_then(|value| value.strip_prefix("Bearer "));
-            if supplied.is_none_or(|value| !constant_time_equal(value.as_bytes(), token.as_bytes()))
-            {
+            if !authorized(&request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
             write_launch_response(stream, allowed_origin, launch_service, &request)
         }
-        "DELETE" => {
-            let supplied = request
-                .authorization
-                .as_deref()
-                .and_then(|value| value.strip_prefix("Bearer "));
-            if supplied.is_none_or(|value| !constant_time_equal(value.as_bytes(), token.as_bytes()))
-            {
+        "POST"
+            if request.path == "/v1/bluetooth/scan"
+                || bluetooth_device_path(&request.path, "/pair").is_some() =>
+        {
+            if !authorized(&request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
-            let Some(request_id) = request.path.strip_prefix("/v1/launches/") else {
-                return write_response(stream, 404, "Not Found", allowed_origin, "");
-            };
-            write_cancel_response(stream, allowed_origin, launch_service, request_id)
+            write_bluetooth_post_response(stream, allowed_origin, bluetooth_service, &request)
+        }
+        "DELETE" => {
+            if !authorized(&request, token) {
+                return write_response(stream, 401, "Unauthorized", allowed_origin, "");
+            }
+            if let Some(request_id) = request.path.strip_prefix("/v1/launches/") {
+                return write_cancel_response(stream, allowed_origin, launch_service, request_id);
+            }
+            if let Some(id) = bluetooth_device_path(&request.path, "") {
+                return write_bluetooth_forget_response(
+                    stream,
+                    allowed_origin,
+                    bluetooth_service,
+                    id,
+                );
+            }
+            write_response(stream, 404, "Not Found", allowed_origin, "")
         }
         _ => write_response(stream, 405, "Method Not Allowed", allowed_origin, ""),
     }
+}
+
+fn authorized(request: &Request, token: &str) -> bool {
+    request
+        .authorization
+        .as_deref()
+        .and_then(|value| value.strip_prefix("Bearer "))
+        .is_some_and(|value| constant_time_equal(value.as_bytes(), token.as_bytes()))
 }
 
 fn valid_preflight(request: &Request) -> bool {
@@ -401,9 +527,17 @@ fn valid_preflight(request: &Request) -> bool {
                 || request.path == "/v1/packages"
                 || request.path.starts_with("/v1/packages/")
                 || request.path.starts_with("/v1/launches/")
+                || request.path == "/v1/bluetooth"
         }
-        "POST" => request.path == "/v1/launches",
-        "DELETE" => request.path.starts_with("/v1/launches/"),
+        "POST" => {
+            request.path == "/v1/launches"
+                || request.path == "/v1/bluetooth/scan"
+                || bluetooth_device_path(&request.path, "/pair").is_some()
+        }
+        "DELETE" => {
+            request.path.starts_with("/v1/launches/")
+                || bluetooth_device_path(&request.path, "").is_some()
+        }
         _ => false,
     };
     if !valid_target {
@@ -431,6 +565,7 @@ fn valid_preflight(request: &Request) -> bool {
 fn status_body(
     catalog: Option<&TrustedPackageCatalog>,
     launch_service: Option<&NativeLaunchService>,
+    bluetooth_service: Option<&BluetoothPairingService>,
 ) -> String {
     let mut capabilities = vec![
         "launcher-shell",
@@ -444,6 +579,9 @@ fn status_body(
     if launch_service.is_some() {
         capabilities.push("trusted-package-launch");
     }
+    if bluetooth_service.is_some() {
+        capabilities.push("bluetooth-controller-pairing");
+    }
     serde_json::json!({
         "protocolVersion": HOST_API_PROTOCOL_VERSION,
         "hostVersion": env!("CARGO_PKG_VERSION"),
@@ -451,6 +589,156 @@ fn status_body(
         "capabilities": capabilities,
     })
     .to_string()
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct BluetoothRequestDocument {
+    protocol_version: String,
+}
+
+fn bluetooth_device_path<'a>(path: &'a str, suffix: &str) -> Option<&'a str> {
+    let value = path.strip_prefix("/v1/bluetooth/devices/")?;
+    let id = value.strip_suffix(suffix)?;
+    if id.is_empty() || id.contains('/') {
+        return None;
+    }
+    Some(id)
+}
+
+fn write_bluetooth_snapshot_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    bluetooth_service: Option<&BluetoothPairingService>,
+) -> io::Result<()> {
+    let Some(service) = bluetooth_service else {
+        return write_json_error(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            "BLUETOOTH_SERVICE_UNAVAILABLE",
+        );
+    };
+    write_bluetooth_result(
+        stream,
+        allowed_origin,
+        service.snapshot(HOST_API_PROTOCOL_VERSION),
+    )
+}
+
+fn write_bluetooth_post_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    bluetooth_service: Option<&BluetoothPairingService>,
+    request: &Request,
+) -> io::Result<()> {
+    let Some(service) = bluetooth_service else {
+        return write_json_error(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            "BLUETOOTH_SERVICE_UNAVAILABLE",
+        );
+    };
+    if request.content_type.as_deref() != Some("application/json") {
+        return write_json_error(
+            stream,
+            415,
+            "Unsupported Media Type",
+            allowed_origin,
+            "CONTENT_TYPE_INVALID",
+        );
+    }
+    let document: BluetoothRequestDocument = match serde_json::from_slice(&request.body) {
+        Ok(document) => document,
+        Err(_) => {
+            return write_json_error(
+                stream,
+                400,
+                "Bad Request",
+                allowed_origin,
+                "BLUETOOTH_REQUEST_INVALID",
+            );
+        }
+    };
+    if document.protocol_version != HOST_API_PROTOCOL_VERSION {
+        return write_json_error(
+            stream,
+            409,
+            "Conflict",
+            allowed_origin,
+            "HOST_PROTOCOL_MISMATCH",
+        );
+    }
+    let result = if request.path == "/v1/bluetooth/scan" {
+        service.scan(HOST_API_PROTOCOL_VERSION)
+    } else if let Some(id) = bluetooth_device_path(&request.path, "/pair") {
+        service.pair(id, HOST_API_PROTOCOL_VERSION)
+    } else {
+        return write_response(stream, 404, "Not Found", allowed_origin, "");
+    };
+    write_bluetooth_result(stream, allowed_origin, result)
+}
+
+fn write_bluetooth_forget_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    bluetooth_service: Option<&BluetoothPairingService>,
+    id: &str,
+) -> io::Result<()> {
+    let Some(service) = bluetooth_service else {
+        return write_json_error(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            "BLUETOOTH_SERVICE_UNAVAILABLE",
+        );
+    };
+    write_bluetooth_result(
+        stream,
+        allowed_origin,
+        service.forget(id, HOST_API_PROTOCOL_VERSION),
+    )
+}
+
+fn write_bluetooth_result(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    result: Result<BluetoothSnapshot, BluetoothError>,
+) -> io::Result<()> {
+    match result {
+        Ok(snapshot) => match serde_json::to_string(&snapshot) {
+            Ok(body) => write_response(stream, 200, "OK", allowed_origin, &body),
+            Err(_) => write_json_error(
+                stream,
+                503,
+                "Service Unavailable",
+                allowed_origin,
+                "BLUETOOTH_SERVICE_FAILED",
+            ),
+        },
+        Err(error) => {
+            let status = if matches!(error, BluetoothError::DeviceUnavailable) {
+                404
+            } else {
+                503
+            };
+            write_json_error(
+                stream,
+                status,
+                if status == 404 {
+                    "Not Found"
+                } else {
+                    "Service Unavailable"
+                },
+                allowed_origin,
+                error.code(),
+            )
+        }
+    }
 }
 
 fn write_package_response(
@@ -971,6 +1259,7 @@ impl std::error::Error for HostApiError {
 #[cfg(test)]
 mod tests {
     use super::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
+    use crate::bluetooth::BluetoothPairingService;
     use crate::installed_catalog::tests::signed_catalog;
     use std::io::{Read, Write};
     use std::net::TcpStream;
@@ -1040,6 +1329,96 @@ mod tests {
 
         assert!(response.starts_with("HTTP/1.1 204 No Content\r\n"));
         assert!(response.contains("Access-Control-Allow-Headers: Authorization, Content-Type\r\n"));
+    }
+
+    #[test]
+    fn advertises_only_configured_bluetooth_pairing_and_returns_stable_failures() {
+        let missing = std::env::current_dir()
+            .expect("current directory exists")
+            .join("missing-bluetoothctl");
+        let service = BluetoothPairingService::new(&missing).expect("absolute path is accepted");
+        let server =
+            HostStatusServer::start_with_bluetooth(ORIGIN, service).expect("Bluetooth host starts");
+        let token = token_from(&server);
+        let status = request(
+            &server,
+            &format!(
+                "GET /v1/status HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        let snapshot = request(
+            &server,
+            &format!(
+                "GET /v1/bluetooth HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        let invalid_body = r"{}";
+        let invalid_scan = request(
+            &server,
+            &format!(
+                "POST /v1/bluetooth/scan HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{invalid_body}",
+                invalid_body.len()
+            ),
+        );
+        let pair_body = format!(r#"{{"protocolVersion":"{HOST_API_PROTOCOL_VERSION}"}}"#);
+        let unknown_pair = request(
+            &server,
+            &format!(
+                "POST /v1/bluetooth/devices/controller-999/pair HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{pair_body}",
+                pair_body.len()
+            ),
+        );
+        let unknown_forget = request(
+            &server,
+            &format!(
+                "DELETE /v1/bluetooth/devices/controller-999 HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+
+        assert!(status.contains("\"bluetooth-controller-pairing\""));
+        assert!(snapshot.starts_with("HTTP/1.1 503 Service Unavailable\r\n"));
+        assert!(snapshot.contains("BLUETOOTH_SERVICE_UNAVAILABLE"));
+        assert!(!snapshot.contains(&missing.to_string_lossy().to_string()));
+        assert!(invalid_scan.starts_with("HTTP/1.1 400 Bad Request\r\n"));
+        assert!(invalid_scan.contains("BLUETOOTH_REQUEST_INVALID"));
+        assert!(unknown_pair.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(unknown_pair.contains("BLUETOOTH_DEVICE_UNAVAILABLE"));
+        assert!(unknown_forget.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(unknown_forget.contains("BLUETOOTH_DEVICE_UNAVAILABLE"));
+    }
+
+    #[test]
+    fn bluetooth_preflight_allows_only_fixed_intent_routes() {
+        let server = HostStatusServer::start(ORIGIN).expect("server starts");
+        for (method, path) in [
+            ("GET", "/v1/bluetooth"),
+            ("POST", "/v1/bluetooth/scan"),
+            ("POST", "/v1/bluetooth/devices/controller-1/pair"),
+            ("DELETE", "/v1/bluetooth/devices/controller-1"),
+        ] {
+            let content_type = if method == "POST" {
+                ", content-type"
+            } else {
+                ""
+            };
+            let response = request(
+                &server,
+                &format!(
+                    "OPTIONS {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAccess-Control-Request-Method: {method}\r\nAccess-Control-Request-Headers: authorization{content_type}\r\n\r\n"
+                ),
+            );
+            assert!(
+                response.starts_with("HTTP/1.1 204 No Content\r\n"),
+                "{method} {path}"
+            );
+        }
+        let rejected = request(
+            &server,
+            &format!(
+                "OPTIONS /v1/bluetooth/devices/controller-1/pair/extra HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: authorization, content-type\r\n\r\n"
+            ),
+        );
+        assert!(rejected.starts_with("HTTP/1.1 403 Forbidden\r\n"));
     }
 
     #[test]

@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-11",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-08-11T02:01:09.998Z",
+  "retrievedAtUtc": "2026-08-11T04:03:30.082Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "f2b6227aca1d84a1a2d055ea67ee66a80c442d55077090e79bc71a892684f29e"
+    "sha256": "fae8f4a43088d10bd87681d4aa649e83f578b3cc5d2f3b0f03bfeae91c9dc7c9"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -29,8 +29,8 @@
       },
       {
         "id": "wifi-offline",
-        "criticalTextCount": 23,
-        "actionTargetCount": 17,
+        "criticalTextCount": 24,
+        "actionTargetCount": 18,
         "focusTrace": [
           "scan-wifi",
           "launcher-home"
@@ -118,11 +118,11 @@
           "bottom": 684
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 23,
-        "criticalTextInsideSafeArea": 23,
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 17,
+        "actionTargetCount": 18,
         "minimumActionTargetWidthCssPx": 125.813,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -136,8 +136,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-          "bytes": 158409,
-          "sha256": "16429aa0317e4e52eb55ee75846489938efe5c7d5b6a9d166868d15fede49ce9"
+          "bytes": 161139,
+          "sha256": "517ba479e2aee4b2b6f7cbb55e4c400afdb019178f58e36c26d4040cce335b6d"
         }
       },
       {
@@ -222,11 +222,11 @@
           "bottom": 1026
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 23,
-        "criticalTextInsideSafeArea": 23,
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 17,
+        "actionTargetCount": 18,
         "minimumActionTargetWidthCssPx": 125.813,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -240,8 +240,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-          "bytes": 238357,
-          "sha256": "cf042f3445dc05c62b421c17542e291ebdded407d57989cd944df7e818c702fe"
+          "bytes": 240586,
+          "sha256": "2f321e392ef38156afb0e6af24ee9391899f75aa2d3546f169f4b23d9cefea02"
         }
       },
       {
@@ -326,11 +326,11 @@
           "bottom": 2052
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 23,
-        "criticalTextInsideSafeArea": 23,
+        "criticalTextCount": 24,
+        "criticalTextInsideSafeArea": 24,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 17,
+        "actionTargetCount": 18,
         "minimumActionTargetWidthCssPx": 190,
         "minimumActionTargetHeightCssPx": 60,
         "sectionOverlapCount": 0,
@@ -344,8 +344,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-          "bytes": 635436,
-          "sha256": "95282a1e1769a255d6543be1b8c97d0cff4bc6d1dd15909fa2e739df14209d81"
+          "bytes": 640438,
+          "sha256": "69adfaeb6020902b5103549ce7505ec534b5b7725406d601665be559c8ccb45b"
         }
       },
       {
@@ -390,8 +390,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-C33ld5tk.css": 9,
-      "/assets/main-CI6Wrgy1.js": 9,
+      "/assets/main-CwsXx-9x.js": 9,
+      "/assets/main-DySNtpo3.css": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
       "/assets/src-CYOVH8wV.js": 9,
       "/assets/synthetic-D3ZzT8jW.js": 9,
@@ -430,15 +430,15 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "dcab6f51ce3cfe72b2acc048ef5c73321c048b6d349d709458dd8bd54251c28c",
+    "launcherPathSha256": "85259d0685520da09f716413e2aa728dc041c800d31e85d35dd3ead56398ba16",
     "settingsPath": "apps/console-lab/src/launcher/SettingsView.svelte",
-    "settingsPathSha256": "f3014aa405bf6009c6602fecbbddace60269e734e32c0992fe1885fe7170d4af",
+    "settingsPathSha256": "ea45b7f75c2010b104284e1c779cac85a23b9e659e4abde992cb6cab40868e93",
     "launchScreenPath": "apps/console-lab/src/launcher/LaunchScreen.svelte",
     "launchScreenPathSha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "dc6c5b13a20eea93c8bbc0ba897255d5bfaaa8d7e535b5137443bf6024db2913",
+    "stylePathSha256": "00448388dc368f6859489dbac04dec9b179a010822133add5d577ee6676c6ebd",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "26ae22478e0452dd443ea680bbe173ab464072fa1f88dd1ced3f80402b1eaab5",
+    "entryPathSha256": "2ff014161f62e3d883a69aab4ff661665412508fcc911c34bd5bbfd4d82ceb41",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -446,15 +446,15 @@
     "catalogPath": "apps/console-lab/src/launcher/catalog.generated.ts",
     "catalogPathSha256": "f7bb55eb2de3658081a639140ed7b96629d4368f798724ee7e30ef2cb0465f62",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "b12ea34fbde11b7a1218c9fce028b582871ecb2a6bc8267c89f5d65eb9bb1753",
+    "browserTestPathSha256": "4b40686f6c71fc55b3c715318ed59aeddb39d2c59beeec2c4d99712382bdf733",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "f2b6227aca1d84a1a2d055ea67ee66a80c442d55077090e79bc71a892684f29e",
+    "homeEvidencePathSha256": "fae8f4a43088d10bd87681d4aa649e83f578b3cc5d2f3b0f03bfeae91c9dc7c9",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
-    "generatorPathSha256": "ac5ebc88fb44aca3a9e3c86858b2754c74454abf09fca2d078b246deed268acb",
+    "generatorPathSha256": "7105c965bfe351a62302b33a2d32537434251320b06a5f4454d19a790ba5a0fb",
     "validatorPath": "scripts/validate-launcher-tv-surface-evidence.mjs",
-    "validatorPathSha256": "65fc8bff9db9d58f871271d791f2bbb37e3959f8b8790f44eeafffb4593f6394",
+    "validatorPathSha256": "7224e84819bdd2bd0112dec3d9198308750ff4c4994e6f8d528ea51855b8e1f1",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -472,7 +472,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 148,
-      "sha256": "ccaa923a91b341ced18c537f67b2646b4d3672b4014778d5487d11407e24348e"
+      "sha256": "a167441563cfd646967d58bf46aeb5d7be2fd8e6f98f30245bb69ab48c7af5e2"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

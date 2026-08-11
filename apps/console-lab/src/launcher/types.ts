@@ -18,6 +18,7 @@ export type SettingsPanel =
   | "accessibility"
   | "display"
   | "audio"
+  | "controllers"
   | "network"
   | "storage"
   | "developer";

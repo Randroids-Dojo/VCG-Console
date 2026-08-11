@@ -5,6 +5,7 @@ const HOST_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
 const HOST_PORT_PATTERN = /^[1-9][0-9]{0,4}$/;
 const HOST_REQUEST_TIMEOUT_MS = 1_500;
 const HOST_LAUNCH_TIMEOUT_MS = 15_000;
+const HOST_BLUETOOTH_TIMEOUT_MS = 35_000;
 const MAX_HOST_STATUS_BYTES = 16_384;
 const MAX_HOST_PACKAGE_INVENTORY_BYTES = 1_048_576;
 const MAX_HOST_PACKAGE_COUNT = 1_024;
@@ -17,6 +18,7 @@ const MAX_PACKAGE_VERSION_CHARACTERS = 128;
 const HOST_TARGET_PATTERN = /^[a-z0-9_]+-[a-z0-9_]+$/;
 const HOST_CAPABILITY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VISIBLE_ASCII_PATTERN = /^[\x21-\x7e]+$/;
+const BLUETOOTH_DEVICE_ID_PATTERN = /^controller-([1-9][0-9]{0,8})$/;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -61,6 +63,17 @@ export interface NativeLaunchSnapshot {
   exitCode?: number | null;
 }
 
+export interface NativeBluetoothController {
+  id: string;
+  paired: boolean;
+  connected: boolean;
+}
+
+export interface NativeBluetoothSnapshot {
+  protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
+  devices: NativeBluetoothController[];
+}
+
 type NativeHostFailure = {
   ok: false;
   code:
@@ -74,7 +87,9 @@ type NativeHostFailure = {
     | "PACKAGE_LAUNCH_FAILED"
     | "LAUNCH_REPLAY_UNAVAILABLE"
     | "LAUNCH_RESTART_CLEANUP_REQUIRED"
-    | "LAUNCH_NOT_FOUND";
+    | "LAUNCH_NOT_FOUND"
+    | "BLUETOOTH_SERVICE_UNAVAILABLE"
+    | "BLUETOOTH_OPERATION_FAILED";
   detail: string;
 };
 
@@ -90,6 +105,9 @@ export type NativeLaunchStartResult =
   | NativeHostFailure;
 export type NativeLaunchSnapshotResult =
   | { ok: true; launch: NativeLaunchSnapshot }
+  | NativeHostFailure;
+export type NativeBluetoothResult =
+  | { ok: true; status: NativeHostStatus; snapshot: NativeBluetoothSnapshot }
   | NativeHostFailure;
 
 interface HostBridge {
@@ -489,6 +507,135 @@ export async function cancelNativeLaunch(
   return mutateOrReadNativeLaunch("DELETE", requestId, href, fetcher, timeoutMs);
 }
 
+export async function listBluetoothControllers(
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_BLUETOOTH_TIMEOUT_MS,
+): Promise<NativeBluetoothResult> {
+  return bluetoothRequest("GET", "/v1/bluetooth", undefined, href, fetcher, timeoutMs);
+}
+
+export async function scanBluetoothControllers(
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_BLUETOOTH_TIMEOUT_MS,
+): Promise<NativeBluetoothResult> {
+  return bluetoothRequest("POST", "/v1/bluetooth/scan", undefined, href, fetcher, timeoutMs);
+}
+
+export async function pairBluetoothController(
+  id: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_BLUETOOTH_TIMEOUT_MS,
+): Promise<NativeBluetoothResult> {
+  if (!BLUETOOTH_DEVICE_ID_PATTERN.test(id)) return invalidBluetoothDevice();
+  return bluetoothRequest(
+    "POST",
+    `/v1/bluetooth/devices/${id}/pair`,
+    id,
+    href,
+    fetcher,
+    timeoutMs,
+  );
+}
+
+export async function forgetBluetoothController(
+  id: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_BLUETOOTH_TIMEOUT_MS,
+): Promise<NativeBluetoothResult> {
+  if (!BLUETOOTH_DEVICE_ID_PATTERN.test(id)) return invalidBluetoothDevice();
+  return bluetoothRequest(
+    "DELETE",
+    `/v1/bluetooth/devices/${id}`,
+    id,
+    href,
+    fetcher,
+    timeoutMs,
+  );
+}
+
+async function bluetoothRequest(
+  method: "GET" | "POST" | "DELETE",
+  path: string,
+  expectedId: string | undefined,
+  href: string,
+  fetcher: typeof fetch,
+  timeoutMs: number,
+): Promise<NativeBluetoothResult> {
+  const host = await checkNativeHost(href, fetcher, timeoutMs);
+  if (!host.ok) return host;
+  if (!host.status.capabilities.includes("bluetooth-controller-pairing")) {
+    return {
+      ok: false,
+      code: "BLUETOOTH_SERVICE_UNAVAILABLE",
+      detail: "Bluetooth controller setup is not configured on this console",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: "HOST_CONFIG_INVALID",
+      detail: "Rust console host launch capability is invalid",
+    };
+  }
+  const response = await fetchNative(
+    `${parsed.bridge.endpoint}${path}`,
+    parsed.bridge.token,
+    method === "POST"
+      ? {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ protocolVersion: HOST_API_PROTOCOL_VERSION }),
+        }
+      : { method },
+    fetcher,
+    timeoutMs,
+  );
+  if (!response.ok) return response.failure;
+  if (!response.value.responseOk) {
+    return bluetoothHttpFailure(response.value.status);
+  }
+  if (!isNativeBluetoothSnapshot(response.value.body)) {
+    return {
+      ok: false,
+      code: "HOST_PROTOCOL_INVALID",
+      detail: "Rust console host returned an invalid Bluetooth controller document",
+    };
+  }
+  if (
+    expectedId !== undefined &&
+    method !== "DELETE" &&
+    !response.value.body.devices.some((device) => device.id === expectedId)
+  ) {
+    return invalidBluetoothDevice();
+  }
+  return { ok: true, status: host.status, snapshot: response.value.body };
+}
+
+function bluetoothHttpFailure(status: number): NativeHostFailure {
+  if (status === 404) return invalidBluetoothDevice();
+  return {
+    ok: false,
+    code: status === 503 ? "BLUETOOTH_SERVICE_UNAVAILABLE" : "BLUETOOTH_OPERATION_FAILED",
+    detail:
+      status === 503
+        ? "The local Bluetooth service did not complete the controller operation"
+        : `The console rejected the Bluetooth controller operation (status ${status})`,
+  };
+}
+
+function invalidBluetoothDevice(): NativeHostFailure {
+  return {
+    ok: false,
+    code: "BLUETOOTH_OPERATION_FAILED",
+    detail: "That controller is no longer available; scan again",
+  };
+}
+
 async function mutateOrReadNativeLaunch(
   method: "GET" | "DELETE",
   requestId: string,
@@ -735,6 +882,46 @@ function isNativeHostStatus(
         HOST_CAPABILITY_PATTERN.test(capability),
     ) && new Set(capabilities).size === capabilities.length
   );
+}
+
+function isNativeBluetoothSnapshot(value: unknown): value is NativeBluetoothSnapshot {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  if (
+    !hasExactKeys(candidate, ["protocolVersion", "devices"]) ||
+    candidate.protocolVersion !== HOST_API_PROTOCOL_VERSION ||
+    !Array.isArray(candidate.devices) ||
+    candidate.devices.length > 16
+  ) {
+    return false;
+  }
+  let previousNumber: number | undefined;
+  for (const value of candidate.devices) {
+    if (typeof value !== "object" || value === null) return false;
+    const device = value as Record<string, unknown>;
+    if (
+      !hasExactKeys(device, ["id", "paired", "connected"]) ||
+      typeof device.id !== "string" ||
+      !BLUETOOTH_DEVICE_ID_PATTERN.test(device.id) ||
+      typeof device.paired !== "boolean" ||
+      typeof device.connected !== "boolean" ||
+      bluetoothDeviceNumber(device.id) === undefined
+    ) {
+      return false;
+    }
+    const number = bluetoothDeviceNumber(device.id);
+    if (number === undefined || (previousNumber !== undefined && number <= previousNumber)) {
+      return false;
+    }
+    previousNumber = number;
+  }
+  return true;
+}
+
+function bluetoothDeviceNumber(id: string): number | undefined {
+  const match = BLUETOOTH_DEVICE_ID_PATTERN.exec(id);
+  if (match?.[1] === undefined) return undefined;
+  return Number(match[1]);
 }
 
 function isNativeInstalledPackage(value: unknown): value is NativeInstalledPackage {

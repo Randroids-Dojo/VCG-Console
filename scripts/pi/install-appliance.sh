@@ -14,6 +14,7 @@ browser_path=""
 cage_path=""
 host_path=""
 node_path=""
+bluetoothctl_path=""
 
 usage() {
   cat <<'EOF'
@@ -28,6 +29,7 @@ Options:
   --cage PATH          Cage executable (auto-detected)
   --host PATH          release vcg-host executable (auto-detected)
   --node PATH          Node.js 22+ executable (auto-detected)
+  --bluetoothctl PATH  BlueZ control executable (auto-detected)
   --no-enable          install units without changing the default boot target
   --dry-run            render units without changing the operating system
   --output-dir PATH    keep rendered dry-run units in PATH
@@ -43,7 +45,7 @@ require_value() {
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--output-dir)
+    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--bluetoothctl|--output-dir)
       require_value "$@"
       option="$1"
       value="$2"
@@ -57,6 +59,7 @@ while [ "$#" -gt 0 ]; do
         --cage) cage_path="${value}" ;;
         --host) host_path="${value}" ;;
         --node) node_path="${value}" ;;
+        --bluetoothctl) bluetoothctl_path="${value}" ;;
         --output-dir) output_dir="${value}" ;;
       esac
       ;;
@@ -146,6 +149,12 @@ fi
 if [ -z "${node_path}" ]; then
   node_path="$(find_command_path node || true)"
 fi
+if [ -z "${bluetoothctl_path}" ]; then
+  bluetoothctl_path="$(find_command_path bluetoothctl || true)"
+  if [ -z "${bluetoothctl_path}" ] && [ "${dry_run}" -eq 1 ]; then
+    bluetoothctl_path="/usr/bin/bluetoothctl"
+  fi
+fi
 if [ -z "${browser_path}" ]; then
   echo "Chromium was not found. Install the Raspberry Pi OS chromium package or pass --browser." >&2
   exit 1
@@ -156,6 +165,10 @@ if [ -z "${cage_path}" ]; then
 fi
 if [ -z "${node_path}" ]; then
   echo "Node.js was not found. Run scripts/pi/setup-console.sh or pass --node." >&2
+  exit 1
+fi
+if [ -z "${bluetoothctl_path}" ]; then
+  echo "Bluetooth support is missing. Install the Raspberry Pi OS bluez package or pass --bluetoothctl." >&2
   exit 1
 fi
 node_bin_dir="$(dirname "${node_path}")"
@@ -186,17 +199,14 @@ validate_absolute_path "cage" "${cage_path}"
 validate_absolute_path "native host" "${host_path}"
 validate_absolute_path "Node.js" "${node_path}"
 validate_absolute_path "Node.js directory" "${node_bin_dir}"
+validate_absolute_path "bluetoothctl" "${bluetoothctl_path}"
 
 if [ "${dry_run}" -eq 0 ]; then
-  if ! command -v bluetoothctl >/dev/null 2>&1; then
-    echo "Bluetooth support is missing. Install the Raspberry Pi OS bluez package first." >&2
-    exit 1
-  fi
   if ! systemctl cat bluetooth.service >/dev/null 2>&1; then
     echo "The bluetooth.service systemd unit is missing. Install the Raspberry Pi OS bluez package first." >&2
     exit 1
   fi
-  for executable in "${browser_path}" "${cage_path}" "${host_path}" "${node_path}" \
+  for executable in "${browser_path}" "${cage_path}" "${host_path}" "${node_path}" "${bluetoothctl_path}" \
     "${repo_root}/apps/console-lab/node_modules/.bin/vite" \
     "${repo_root}/node_modules/.bin/tsx" \
     "${repo_root}/scripts/pi/wait-for-console.sh"; do
@@ -259,6 +269,7 @@ render_unit() {
   content="${content//@CAGE_PATH@/${cage_path}}"
   content="${content//@HOST_PATH@/${host_path}}"
   content="${content//@NODE_BIN_DIR@/${node_bin_dir}}"
+  content="${content//@BLUETOOTHCTL_PATH@/${bluetoothctl_path}}"
   printf '%s\n' "${content}" >"${destination}"
 }
 
@@ -290,7 +301,7 @@ install -m 0644 "${render_dir}/vcg-console.target" /etc/systemd/system/vcg-conso
 
 # The browser and compositor need the device groups on the next login/boot.
 device_groups=""
-for group in video render input; do
+for group in video render input bluetooth; do
   if getent group "${group}" >/dev/null; then
     device_groups="${device_groups}${device_groups:+,}${group}"
   fi

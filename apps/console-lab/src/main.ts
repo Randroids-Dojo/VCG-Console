@@ -1359,6 +1359,7 @@ function twoPlayerSyntheticFrame(sequence: number, nowMs: number): MotionFrame {
   const player1 = {
     ...sourcePlayer,
     id: "test-player-1",
+    actions: [],
     coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
       ...landmark,
       position: { ...landmark.position, x: Math.max(0, landmark.position.x - 0.2) },
@@ -1372,6 +1373,7 @@ function twoPlayerSyntheticFrame(sequence: number, nowMs: number): MotionFrame {
   const player2 = {
     ...sourcePlayer,
     id: "test-player-2",
+    actions: [],
     coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
       ...landmark,
       position: { ...landmark.position, x: Math.min(1, landmark.position.x + 0.2) },
@@ -1621,12 +1623,15 @@ if (fastObstacleTestEnabled(window.location.search)) {
     joinTwoPlayers() {
       twoPlayerTestFixtureEnabled = true;
       simulatorEnabled = false;
-      replayRunning = true;
+      replayRunning = false;
       const frame = twoPlayerSyntheticFrame(replaySequence++, performance.now());
       acceptFrame(frame);
       const joinedSlots = new Set(playerSession.snapshot().players.map((player) => player.slot));
       if (!joinedSlots.has(1)) joinPlayer("test-player-1", 1);
       if (!joinedSlots.has(2)) joinPlayer("test-player-2", 2);
+      requestAnimationFrame(() => {
+        replayRunning = true;
+      });
     },
     action(
       slot: PlayerSlot,
@@ -1634,12 +1639,7 @@ if (fastObstacleTestEnabled(window.location.search)) {
     ) {
       const player = playerSession.snapshot().players.find((candidate) => candidate.slot === slot);
       if (!player) throw new Error(`Player ${slot} is not joined`);
-      handleAction({
-        name,
-        phase: "triggered",
-        confidence: 1,
-        occurredAtMs: performance.now(),
-      }, player.trackId);
+      obstacle.handleAction(name, slot);
     },
     snapshot() {
       return obstacle.snapshot();

@@ -28,17 +28,17 @@
     {
       "role": "ordinary-x86-comparison-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "ec167e5b89930069b66352bdb0393c4236d2a0f9664417d4ffe271d93b783f62"
+      "sha256": "b5e1249218e9041194d437d54e39f162c97a49455c306c537527c29d4a794826"
     },
     {
       "role": "pi-cpu-comparison-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "03cee9616194a521f22bc7a2ddf0f0467c70ebb4eaa80a2a3f77f53922936162"
+      "sha256": "6b6a2cc348d0f9a4fb5696b6ccbac1cff9eadb91b2f8450c61f9e71f83cf6440"
     },
     {
       "role": "representative-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "8c5e6ea33188b17bd5b2233a40a78f9147a145ebdabf3a43af92bc5e0bb849ce"
+      "sha256": "ab4a1b05a5179ed7ce4570038b2da6350dd74e28faa55bae62795fc1ad5f242d"
     },
     {
       "role": "core17-provider-comparison-boundary",
