@@ -53,7 +53,7 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   // on a Pi 5: without this being writable too, every launch fails with
   // "Unable to open Wayland socket: Invalid argument" after exhausting all
   // wayland-0..31 lock attempts.
-  assert.match(unit, /^ReadWritePaths=.*\/run\/user\/%U/m);
+  assert.match(unit, /^ReadWritePaths=(?:\S* )*\/run\/user\/%U(?: \S*)*$/m);
 });
 
 test("the appliance target is a multi-user boot target", async () => {

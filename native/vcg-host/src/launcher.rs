@@ -93,8 +93,15 @@ pub fn plan(request: &LauncherRequest) -> Result<LaunchSpec, LauncherError> {
         // fullscreen session behind a "Choose password for new keyring" modal
         // on a fresh appliance profile, since no keyring is configured for
         // this non-desktop session. `basic` skips OS keyring integration
-        // entirely, appropriate for a kiosk with no persistent user login.
+        // entirely, appropriate for a kiosk with no persistent user login --
+        // but it stores anything Chromium's password manager saves as
+        // effectively plaintext in the persistent profile. Disable the
+        // password manager outright rather than rely on this surface never
+        // being reached: unknown --disable-features entries are silently
+        // ignored, so this is safe even if the exact name ever changes
+        // upstream.
         "--password-store=basic".to_owned(),
+        "--disable-features=PasswordManager".to_owned(),
     ];
     if request.fullscreen {
         arguments.push("--start-fullscreen".to_owned());
@@ -212,6 +219,7 @@ mod tests {
         assert!(arguments.contains(&"--start-fullscreen".to_owned()));
         assert!(arguments.contains(&"--ozone-platform-hint=auto".to_owned()));
         assert!(arguments.contains(&"--password-store=basic".to_owned()));
+        assert!(arguments.contains(&"--disable-features=PasswordManager".to_owned()));
     }
 
     #[test]
