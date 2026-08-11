@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 105,
-      "totalBytes": 977506,
+      "totalBytes": 979700,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -879,8 +879,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 56778,
-          "sha256": "c4a074ee10a57b35bdc84b25d3b3d5a4362f189c1b981e21916b5efde749f8f5"
+          "bytes": 56659,
+          "sha256": "243188d2d954b32fd74cb84b9badfcaa080d405b45bfc97159ffe1708e42b3d5"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -954,13 +954,13 @@
         },
         {
           "path": "apps/console-lab/src/launcher/circuit-shift.test.ts",
-          "bytes": 2084,
-          "sha256": "dbe0a799c1dbc5d71479a47f8b01023a3d47848f2ab157864f2b5591476d68f9"
+          "bytes": 3416,
+          "sha256": "b4d02be5e98059d0fe95060d3df9d2ff1c9c440c14dc215639e08271e358e55b"
         },
         {
           "path": "apps/console-lab/src/launcher/circuit-shift.ts",
-          "bytes": 5616,
-          "sha256": "5ad0c43bc94ed7f1afab198f46469364ea72804574db6364c2a4542f1b7f076a"
+          "bytes": 6597,
+          "sha256": "5abf3bad3591d388fb8cb90b02aabea68ff586ecba6a5904538b79fb0fb9973f"
         },
         {
           "path": "apps/console-lab/src/launcher/hosted-browser-preview.test.ts",
@@ -1268,13 +1268,13 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                805,
-                872,
-                889,
-                902,
-                986,
-                1156,
-                1175
+                798,
+                865,
+                882,
+                895,
+                979,
+                1150,
+                1169
               ]
             },
             {

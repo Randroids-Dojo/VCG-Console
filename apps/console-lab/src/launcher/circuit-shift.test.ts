@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createCircuitShiftGame,
   hasAvailableMove,
+  isCircuitShiftEntry,
   moveCircuitShift,
   restoreCircuitShift,
   serializeCircuitShift,
@@ -52,6 +53,39 @@ describe("Circuit Shift", () => {
     const game = createCircuitShiftGame(fixedRandom(0, 0, 0.5, 0));
     expect(restoreCircuitShift(serializeCircuitShift(game))).toEqual(game);
     expect(restoreCircuitShift('{"version":1,"board":[3],"score":0,"best":0}')).toBeUndefined();
+    expect(restoreCircuitShift(JSON.stringify({
+      version: 1,
+      board: Array.from({ length: 16 }, () => 0),
+      score: 0,
+      best: 0,
+    }))).toBeUndefined();
     expect(restoreCircuitShift("not json")).toBeUndefined();
+  });
+
+  it("keeps maximum charges and scores inside the persisted domain", () => {
+    const state: CircuitShiftState = {
+      board: [1_048_576, 1_048_576, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      score: 999_999_998,
+      best: 999_999_998,
+      status: "playing",
+    };
+    const moved = moveCircuitShift(state, "right", fixedRandom(0, 0));
+    expect(moved.board.filter((charge) => charge === 1_048_576)).toHaveLength(2);
+    expect(moved.score).toBe(999_999_998);
+    expect(restoreCircuitShift(serializeCircuitShift(moved))).toEqual(moved);
+
+    expect(() => serializeCircuitShift({ ...state, board: Array.from({ length: 16 }, () => 0) })).toThrow(RangeError);
+    expect(() => serializeCircuitShift({ ...state, score: 1_000_000_000 })).toThrow(RangeError);
+  });
+
+  it("only recognizes the embedded Circuit Shift release", () => {
+    const embedded = {
+      id: "circuit-shift",
+      version: "1.0.0",
+      runtime: "local-web",
+      entrypoint: "builtin:circuit-shift",
+    };
+    expect(isCircuitShiftEntry(embedded)).toBe(true);
+    expect(isCircuitShiftEntry({ ...embedded, version: "2.0.0" })).toBe(false);
   });
 });

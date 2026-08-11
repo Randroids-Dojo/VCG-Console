@@ -1,5 +1,9 @@
 export const CIRCUIT_SHIFT_SIZE = 4;
 export const CIRCUIT_SHIFT_STORAGE_KEY = "vcg.console.circuit-shift.v1";
+export const CIRCUIT_SHIFT_VERSION = "1.0.0";
+
+const MAX_CHARGE = 1_048_576;
+const MAX_COUNTER = 999_999_999;
 
 export type CircuitShiftDirection = "left" | "up" | "right" | "down";
 export type CircuitShiftStatus = "playing" | "game-over";
@@ -16,6 +20,20 @@ interface StoredCircuitShiftState {
   readonly board: readonly number[];
   readonly score: number;
   readonly best: number;
+}
+
+interface CircuitShiftCatalogEntry {
+  readonly id: string;
+  readonly version: string;
+  readonly runtime: string;
+  readonly entrypoint: string;
+}
+
+export function isCircuitShiftEntry(entry: CircuitShiftCatalogEntry): boolean {
+  return entry.id === "circuit-shift"
+    && entry.version === CIRCUIT_SHIFT_VERSION
+    && entry.runtime === "local-web"
+    && entry.entrypoint === "builtin:circuit-shift";
 }
 
 export function createCircuitShiftGame(
@@ -48,7 +66,7 @@ export function moveCircuitShift(
 
   if (boardsEqual(state.board, nextBoard)) return state;
   const board = spawnCharge(nextBoard, random);
-  const score = state.score + gained;
+  const score = Math.min(MAX_COUNTER, state.score + gained);
   return {
     board,
     score,
@@ -58,6 +76,9 @@ export function moveCircuitShift(
 }
 
 export function serializeCircuitShift(state: CircuitShiftState): string {
+  if (!validBoard(state.board) || !validCounter(state.score) || !validCounter(state.best)) {
+    throw new RangeError("Circuit Shift state is outside the persisted game domain");
+  }
   const stored: StoredCircuitShiftState = {
     version: 1,
     board: state.board,
@@ -74,8 +95,7 @@ export function restoreCircuitShift(value: string | null): CircuitShiftState | u
     if (
       parsed.version !== 1 ||
       !Array.isArray(parsed.board) ||
-      parsed.board.length !== CIRCUIT_SHIFT_SIZE ** 2 ||
-      !parsed.board.every(validCharge) ||
+      !validBoard(parsed.board) ||
       !validCounter(parsed.score) ||
       !validCounter(parsed.best)
     ) {
@@ -97,9 +117,9 @@ export function hasAvailableMove(board: readonly number[]): boolean {
   if (board.some((value) => value === 0)) return true;
   for (let row = 0; row < CIRCUIT_SHIFT_SIZE; row += 1) {
     for (let column = 0; column < CIRCUIT_SHIFT_SIZE; column += 1) {
-      const current = board[row * CIRCUIT_SHIFT_SIZE + column];
-      if (column + 1 < CIRCUIT_SHIFT_SIZE && current === board[row * CIRCUIT_SHIFT_SIZE + column + 1]) return true;
-      if (row + 1 < CIRCUIT_SHIFT_SIZE && current === board[(row + 1) * CIRCUIT_SHIFT_SIZE + column]) return true;
+      const current = board[row * CIRCUIT_SHIFT_SIZE + column]!;
+      if (column + 1 < CIRCUIT_SHIFT_SIZE && current === board[row * CIRCUIT_SHIFT_SIZE + column + 1] && current < MAX_CHARGE) return true;
+      if (row + 1 < CIRCUIT_SHIFT_SIZE && current === board[(row + 1) * CIRCUIT_SHIFT_SIZE + column] && current < MAX_CHARGE) return true;
     }
   }
   return false;
@@ -124,7 +144,7 @@ function collapseLine(values: readonly number[]): { values: number[]; gained: nu
   let gained = 0;
   for (let index = 0; index < charged.length; index += 1) {
     const current = charged[index]!;
-    if (current === charged[index + 1]) {
+    if (current === charged[index + 1] && current < MAX_CHARGE) {
       const combined = current * 2;
       merged.push(combined);
       gained += combined;
@@ -150,11 +170,22 @@ function linePositions(direction: CircuitShiftDirection, index: number): number[
 }
 
 function validCharge(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 1_048_576 && (value === 0 || (value & (value - 1)) === 0);
+  return typeof value === "number"
+    && Number.isSafeInteger(value)
+    && value >= 0
+    && value <= MAX_CHARGE
+    && (value === 0 || Number.isInteger(Math.log2(value)));
 }
 
 function validCounter(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 999_999_999;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= MAX_COUNTER;
+}
+
+function validBoard(value: unknown): value is readonly number[] {
+  return Array.isArray(value)
+    && value.length === CIRCUIT_SHIFT_SIZE ** 2
+    && value.every(validCharge)
+    && value.some((charge) => charge !== 0);
 }
 
 function clampRandom(value: number): number {

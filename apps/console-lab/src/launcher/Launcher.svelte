@@ -25,6 +25,7 @@
     type CalibrationReadyResult,
   } from "./calibration-rehearsal";
   import { launcherCatalog } from "./catalog.generated";
+  import { isCircuitShiftEntry } from "./circuit-shift";
   import {
     HostedBrowserPreviewController,
     type HostedBrowserPreviewPlan,
@@ -741,14 +742,6 @@
     });
   }
 
-  function isCircuitShiftEntry(
-    entry: (typeof launcherCatalog.entries)[number],
-  ): boolean {
-    return entry.id === "circuit-shift"
-      && entry.runtime === "local-web"
-      && entry.entrypoint === "builtin:circuit-shift";
-  }
-
   async function launchCircuitShift(title: string): Promise<void> {
     const { run, attempt, supervisor } = beginSupervisedLaunch({
       ...baseLaunch("local-web", title, "RETRO HUB / BUILT IN"),
@@ -1087,7 +1080,8 @@
 
   async function positionSignal(): Promise<void> {
     await tick();
-    const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${view}"]`);
+    const navView = view === "retro-game" ? "retro" : view;
+    const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${navView}"]`);
     navSignalOffset = active ? active.offsetTop - 52 : 0;
   }
 
