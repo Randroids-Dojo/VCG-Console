@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -176,27 +176,35 @@ test("the rendered session unit carries the getent-resolved numeric UID, not a p
   // The other tests here all use a fictitious "vcg" user that doesn't exist on
   // the CI runner, so console_uid resolution always falls through to the
   // dry-run default (1000) rather than exercising the getent lookup itself.
-  // Use the real invoking user instead, so @CONSOLE_UID@ is substituted with
-  // whatever `id -u` actually reports for it -- proving the getent -> render
-  // pipeline works end-to-end, not just that the placeholder token is gone.
+  // A stub `getent` on PATH forces the real lookup branch deterministically
+  // and returns a UID that can't collide with that fallback, so this proves
+  // the getent -> console_uid -> render pipeline actually works end-to-end
+  // instead of just checking the placeholder token is gone.
   if (process.platform === "win32") return;
 
-  const whoami = spawnSync("id", ["-un"], { encoding: "utf8" });
-  assert.equal(whoami.status, 0, whoami.stderr);
-  const realUser = whoami.stdout.trim();
-  const whatUid = spawnSync("id", ["-u", realUser], { encoding: "utf8" });
-  assert.equal(whatUid.status, 0, whatUid.stderr);
-  const realUid = whatUid.stdout.trim();
-
+  const fakeUser = "vcg-uid-fixture";
+  const fakeUid = "4242";
+  const fixtureDir = await mkdtemp(join(tmpdir(), "vcg-appliance-getent-"));
   const outputDir = await mkdtemp(join(tmpdir(), "vcg-appliance-uid-"));
   try {
+    await writeFile(
+      join(fixtureDir, "getent"),
+      `#!/usr/bin/env bash\n` +
+        `if [ "$1" = "passwd" ] && [ "$2" = "${fakeUser}" ]; then\n` +
+        `  echo "${fakeUser}:x:${fakeUid}:${fakeUid}::/home/${fakeUser}:/bin/bash"\n` +
+        `  exit 0\n` +
+        `fi\n` +
+        `exit 1\n`,
+      { mode: 0o755 },
+    );
+
     const result = spawnSync(
       "bash",
       [
         "scripts/pi/install-appliance.sh",
         "--dry-run",
         "--user",
-        realUser,
+        fakeUser,
         "--browser",
         "/usr/bin/chromium",
         "--cage",
@@ -206,7 +214,10 @@ test("the rendered session unit carries the getent-resolved numeric UID, not a p
         "--output-dir",
         outputDir,
       ],
-      { encoding: "utf8" },
+      {
+        encoding: "utf8",
+        env: { ...process.env, PATH: `${fixtureDir}:${process.env.PATH}` },
+      },
     );
     assert.equal(result.status, 0, result.stderr);
 
@@ -218,11 +229,12 @@ test("the rendered session unit carries the getent-resolved numeric UID, not a p
     assert.match(
       unit,
       new RegExp(
-        `^ReadWritePaths=(?:\\S* )*/run/user/${realUid}(?: \\S*)*$`,
+        `^ReadWritePaths=(?:\\S* )*/run/user/${fakeUid}(?: \\S*)*$`,
         "m",
       ),
     );
   } finally {
+    await rm(fixtureDir, { recursive: true, force: true });
     await rm(outputDir, { recursive: true, force: true });
   }
 });
