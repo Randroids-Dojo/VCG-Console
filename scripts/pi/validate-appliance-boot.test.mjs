@@ -53,7 +53,16 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   // on a Pi 5: without this being writable too, every launch fails with
   // "Unable to open Wayland socket: Invalid argument" after exhausting all
   // wayland-0..31 lock attempts.
-  assert.match(unit, /^ReadWritePaths=(?:\S* )*\/run\/user\/%U(?: \S*)*$/m);
+  //
+  // systemd's %U specifier is documented to expand to the unit's User=, but
+  // was observed live resolving to 0 (root) for this unit's mount-namespace
+  // setup, failing with "/run/user/0: No such file or directory" -- the
+  // installer resolves the numeric UID itself and templates it directly
+  // instead.
+  assert.match(
+    unit,
+    /^ReadWritePaths=(?:\S* )*\/run\/user\/@CONSOLE_UID@(?: \S*)*$/m,
+  );
 });
 
 test("the appliance target is a multi-user boot target", async () => {

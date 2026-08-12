@@ -123,9 +123,31 @@ if [ -z "${console_home}" ]; then
     exit 1
   fi
 fi
+# systemd's %U specifier is documented to expand to the unit's configured
+# User=, but was observed live on the Pi 5 resolving to 0 (root) for
+# PAMName=login's mount-namespace setup phase in this systemd version,
+# failing ReadWritePaths=.../run/user/%U with "No such file or directory".
+# Resolve the numeric UID here instead and template it directly, sidestepping
+# the specifier entirely.
+if [ -z "${console_uid:-}" ]; then
+  if command -v id >/dev/null 2>&1 && id "${console_user}" >/dev/null 2>&1; then
+    console_uid="$(id -u "${console_user}")"
+  elif [ "${dry_run}" -eq 1 ]; then
+    console_uid="1000"
+  else
+    echo "Could not determine the numeric UID for ${console_user}." >&2
+    exit 1
+  fi
+fi
 case "${console_group}" in
   *[!a-zA-Z0-9_.-]*)
     echo "Console group contains characters that are unsafe in a systemd unit: ${console_group}" >&2
+    exit 1
+    ;;
+esac
+case "${console_uid}" in
+  *[!0-9]*)
+    echo "Console UID must be numeric: ${console_uid}" >&2
     exit 1
     ;;
 esac
@@ -264,6 +286,7 @@ render_unit() {
   content="${content//@CONSOLE_USER@/${console_user}}"
   content="${content//@CONSOLE_GROUP@/${console_group}}"
   content="${content//@CONSOLE_HOME@/${console_home}}"
+  content="${content//@CONSOLE_UID@/${console_uid}}"
   content="${content//@REPO_ROOT@/${repo_root}}"
   content="${content//@BROWSER_PATH@/${browser_path}}"
   content="${content//@CAGE_PATH@/${cage_path}}"
