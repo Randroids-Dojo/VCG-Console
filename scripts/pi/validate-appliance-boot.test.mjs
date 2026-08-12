@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
@@ -167,5 +169,60 @@ test("the installer rejects systemd metacharacters in rendered paths", async () 
 
     assert.equal(result.status, 1, `${browser}: ${result.stderr}`);
     assert.match(result.stderr, /browser cannot contain \$, quotes, or backslashes/);
+  }
+});
+
+test("the rendered session unit carries the getent-resolved numeric UID, not a placeholder", async () => {
+  // The other tests here all use a fictitious "vcg" user that doesn't exist on
+  // the CI runner, so console_uid resolution always falls through to the
+  // dry-run default (1000) rather than exercising the getent lookup itself.
+  // Use the real invoking user instead, so @CONSOLE_UID@ is substituted with
+  // whatever `id -u` actually reports for it -- proving the getent -> render
+  // pipeline works end-to-end, not just that the placeholder token is gone.
+  if (process.platform === "win32") return;
+
+  const whoami = spawnSync("id", ["-un"], { encoding: "utf8" });
+  assert.equal(whoami.status, 0, whoami.stderr);
+  const realUser = whoami.stdout.trim();
+  const whatUid = spawnSync("id", ["-u", realUser], { encoding: "utf8" });
+  assert.equal(whatUid.status, 0, whatUid.stderr);
+  const realUid = whatUid.stdout.trim();
+
+  const outputDir = await mkdtemp(join(tmpdir(), "vcg-appliance-uid-"));
+  try {
+    const result = spawnSync(
+      "bash",
+      [
+        "scripts/pi/install-appliance.sh",
+        "--dry-run",
+        "--user",
+        realUser,
+        "--browser",
+        "/usr/bin/chromium",
+        "--cage",
+        "/usr/bin/cage",
+        "--host",
+        "/usr/bin/vcg-host",
+        "--output-dir",
+        outputDir,
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(result.status, 0, result.stderr);
+
+    const unit = await readFile(
+      join(outputDir, "vcg-console-session.service"),
+      "utf8",
+    );
+    assert.doesNotMatch(unit, /%U/);
+    assert.match(
+      unit,
+      new RegExp(
+        `^ReadWritePaths=(?:\\S* )*/run/user/${realUid}(?: \\S*)*$`,
+        "m",
+      ),
+    );
+  } finally {
+    await rm(outputDir, { recursive: true, force: true });
   }
 });
