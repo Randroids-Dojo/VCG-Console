@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
@@ -53,7 +55,16 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   // on a Pi 5: without this being writable too, every launch fails with
   // "Unable to open Wayland socket: Invalid argument" after exhausting all
   // wayland-0..31 lock attempts.
-  assert.match(unit, /^ReadWritePaths=(?:\S* )*\/run\/user\/%U(?: \S*)*$/m);
+  //
+  // systemd's %U specifier is documented to expand to the unit's User=, but
+  // was observed live resolving to 0 (root) for this unit's mount-namespace
+  // setup, failing with "/run/user/0: No such file or directory" -- the
+  // installer resolves the numeric UID itself and templates it directly
+  // instead.
+  assert.match(
+    unit,
+    /^ReadWritePaths=(?:\S* )*\/run\/user\/@CONSOLE_UID@(?: \S*)*$/m,
+  );
 });
 
 test("the appliance target is a multi-user boot target", async () => {
@@ -158,5 +169,74 @@ test("the installer rejects systemd metacharacters in rendered paths", async () 
 
     assert.equal(result.status, 1, `${browser}: ${result.stderr}`);
     assert.match(result.stderr, /browser cannot contain \$, quotes, or backslashes/);
+  }
+});
+
+test("the rendered session unit carries the getent-resolved numeric UID, not a placeholder", async () => {
+  // The other tests here all use a fictitious "vcg" user that doesn't exist on
+  // the CI runner, so console_uid resolution always falls through to the
+  // dry-run default (1000) rather than exercising the getent lookup itself.
+  // A stub `getent` on PATH forces the real lookup branch deterministically
+  // and returns a UID that can't collide with that fallback, so this proves
+  // the getent -> console_uid -> render pipeline actually works end-to-end
+  // instead of just checking the placeholder token is gone. getent itself is
+  // Linux-only (the installer's actual target), so skip everywhere else
+  // rather than just win32.
+  if (process.platform !== "linux") return;
+
+  const fakeUser = "vcg-uid-fixture";
+  const fakeUid = "4242";
+  const fixtureDir = await mkdtemp(join(tmpdir(), "vcg-appliance-getent-"));
+  const outputDir = await mkdtemp(join(tmpdir(), "vcg-appliance-uid-"));
+  try {
+    await writeFile(
+      join(fixtureDir, "getent"),
+      `#!/usr/bin/env bash\n` +
+        `if [ "$1" = "passwd" ] && [ "$2" = "${fakeUser}" ]; then\n` +
+        `  echo "${fakeUser}:x:${fakeUid}:${fakeUid}::/home/${fakeUser}:/bin/bash"\n` +
+        `  exit 0\n` +
+        `fi\n` +
+        `exit 1\n`,
+      { mode: 0o755 },
+    );
+
+    const result = spawnSync(
+      "bash",
+      [
+        "scripts/pi/install-appliance.sh",
+        "--dry-run",
+        "--user",
+        fakeUser,
+        "--browser",
+        "/usr/bin/chromium",
+        "--cage",
+        "/usr/bin/cage",
+        "--host",
+        "/usr/bin/vcg-host",
+        "--output-dir",
+        outputDir,
+      ],
+      {
+        encoding: "utf8",
+        env: { ...process.env, PATH: `${fixtureDir}:${process.env.PATH}` },
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+
+    const unit = await readFile(
+      join(outputDir, "vcg-console-session.service"),
+      "utf8",
+    );
+    assert.doesNotMatch(unit, /%U/);
+    assert.match(
+      unit,
+      new RegExp(
+        `^ReadWritePaths=(?:\\S* )*/run/user/${fakeUid}(?: \\S*)*$`,
+        "m",
+      ),
+    );
+  } finally {
+    await rm(fixtureDir, { recursive: true, force: true });
+    await rm(outputDir, { recursive: true, force: true });
   }
 });

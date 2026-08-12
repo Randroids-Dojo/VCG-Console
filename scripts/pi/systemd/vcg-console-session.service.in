@@ -53,7 +53,7 @@ ProtectControlGroups=true
 # must be writable too or every launch fails with "Unable to open Wayland
 # socket: Invalid argument" after exhausting all wayland-0..31 lock attempts.
 # Confirmed live on the Pi 5.
-ReadWritePaths=/var/lib/vcg-console /run/vcg-console /run/user/%U
+ReadWritePaths=/var/lib/vcg-console /run/vcg-console /run/user/@CONSOLE_UID@
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 
 [Install]
