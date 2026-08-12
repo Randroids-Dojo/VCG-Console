@@ -179,8 +179,10 @@ test("the rendered session unit carries the getent-resolved numeric UID, not a p
   // A stub `getent` on PATH forces the real lookup branch deterministically
   // and returns a UID that can't collide with that fallback, so this proves
   // the getent -> console_uid -> render pipeline actually works end-to-end
-  // instead of just checking the placeholder token is gone.
-  if (process.platform === "win32") return;
+  // instead of just checking the placeholder token is gone. getent itself is
+  // Linux-only (the installer's actual target), so skip everywhere else
+  // rather than just win32.
+  if (process.platform !== "linux") return;
 
   const fakeUser = "vcg-uid-fixture";
   const fakeUid = "4242";
