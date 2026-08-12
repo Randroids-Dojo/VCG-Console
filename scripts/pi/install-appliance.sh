@@ -113,41 +113,32 @@ if [ -z "${console_group}" ]; then
     exit 1
   fi
 fi
-if [ -z "${console_home}" ]; then
-  if command -v getent >/dev/null 2>&1 && getent passwd "${console_user}" >/dev/null; then
-    console_home="$(getent passwd "${console_user}" | cut -d: -f6)"
+# console_home and console_uid both come from the same passwd record, so
+# resolve them from one `getent passwd` call rather than two separate lookups
+# (console_uid used to run its own `id -u`). Home may already be set via
+# --home; UID has no such flag, so it's always empty here.
+#
+# The UID matters beyond templating: systemd's %U specifier is documented to
+# expand to the unit's configured User=, but was observed live on the Pi 5
+# resolving to 0 (root) for PAMName=login's mount-namespace setup phase in
+# this systemd version, failing ReadWritePaths=.../run/user/%U with "No such
+# file or directory". Resolving the numeric UID here and templating it
+# directly sidesteps the specifier entirely.
+if [ -z "${console_home}" ] || [ -z "${console_uid:-}" ]; then
+  if command -v getent >/dev/null 2>&1 && passwd_record="$(getent passwd "${console_user}")"; then
+    [ -n "${console_home}" ] || console_home="$(printf '%s' "${passwd_record}" | cut -d: -f6)"
+    [ -n "${console_uid:-}" ] || console_uid="$(printf '%s' "${passwd_record}" | cut -d: -f3)"
   elif [ "${dry_run}" -eq 1 ]; then
-    console_home="/home/${console_user}"
+    [ -n "${console_home}" ] || console_home="/home/${console_user}"
+    [ -n "${console_uid:-}" ] || console_uid="1000"
   else
-    echo "Could not determine the home directory; pass --home." >&2
-    exit 1
-  fi
-fi
-# systemd's %U specifier is documented to expand to the unit's configured
-# User=, but was observed live on the Pi 5 resolving to 0 (root) for
-# PAMName=login's mount-namespace setup phase in this systemd version,
-# failing ReadWritePaths=.../run/user/%U with "No such file or directory".
-# Resolve the numeric UID here instead and template it directly, sidestepping
-# the specifier entirely.
-if [ -z "${console_uid:-}" ]; then
-  if command -v id >/dev/null 2>&1 && id "${console_user}" >/dev/null 2>&1; then
-    console_uid="$(id -u "${console_user}")"
-  elif [ "${dry_run}" -eq 1 ]; then
-    console_uid="1000"
-  else
-    echo "Could not determine the numeric UID for ${console_user}." >&2
+    echo "Could not determine the home directory or numeric UID; pass --home." >&2
     exit 1
   fi
 fi
 case "${console_group}" in
   *[!a-zA-Z0-9_.-]*)
     echo "Console group contains characters that are unsafe in a systemd unit: ${console_group}" >&2
-    exit 1
-    ;;
-esac
-case "${console_uid}" in
-  *[!0-9]*)
-    echo "Console UID must be numeric: ${console_uid}" >&2
     exit 1
     ;;
 esac
