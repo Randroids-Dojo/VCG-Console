@@ -367,6 +367,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "vcg-cursor-nudge"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "vcg-host"
 version = "0.1.0"
 dependencies = [

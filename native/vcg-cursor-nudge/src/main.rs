@@ -108,7 +108,13 @@ mod linux {
 
     impl InputEvent {
         const fn new(kind: u16, code: u16, value: i32) -> Self {
-            Self { tv_sec: 0, tv_usec: 0, kind, code, value }
+            Self {
+                tv_sec: 0,
+                tv_usec: 0,
+                kind,
+                code,
+                value,
+            }
         }
 
         fn as_bytes(&self) -> &[u8] {
@@ -131,7 +137,11 @@ mod linux {
         // documented above and verified against this target's own kernel
         // headers.
         let result = unsafe { libc::ioctl(file.as_raw_fd(), request, arg) };
-        if result < 0 { Err(io::Error::last_os_error()) } else { Ok(()) }
+        if result < 0 {
+            Err(io::Error::last_os_error())
+        } else {
+            Ok(())
+        }
     }
 
     /// Creates a throwaway virtual relative-pointer device at
@@ -144,7 +154,12 @@ mod linux {
         checked_ioctl(&file, UI_SET_RELBIT, libc::c_ulong::from(REL_X))?;
 
         let mut setup = UinputSetup {
-            id: InputId { bustype: BUS_VIRTUAL, vendor: 0, product: 0, version: 1 },
+            id: InputId {
+                bustype: BUS_VIRTUAL,
+                vendor: 0,
+                product: 0,
+                version: 1,
+            },
             name: [0; UINPUT_MAX_NAME_SIZE],
             ff_effects_max: 0,
         };
