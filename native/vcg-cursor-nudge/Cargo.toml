@@ -1,0 +1,23 @@
+[package]
+name = "vcg-cursor-nudge"
+description = "One-shot synthetic pointer nudge so cage can hide its default Wayland cursor with no physical pointing device attached"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Already resolved transitively elsewhere in the workspace at this exact
+# version.
+libc = { version = "=0.2.189", default-features = false }
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
+
+[lints.rust]
+# This crate exists specifically to isolate the one place in the workspace
+# that needs raw ioctl/FFI access to /dev/uinput, kept out of vcg-host's own
+# unsafe_code = "forbid" trust boundary (native/vcg-host/Cargo.toml) by
+# living in its own minimal, single-purpose, easily-auditable binary that
+# vcg-host invokes as a subprocess rather than linking against directly.
+unsafe_code = "allow"

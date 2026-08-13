@@ -1,0 +1,7 @@
+# Grants the "input" group (the console user is a member of, see
+# install-appliance.sh) write access to /dev/uinput. vcg-host uses this,
+# once at launcher startup, to synthesize a single throwaway pointer motion
+# event -- the nudge cage needs to hide its default Wayland cursor when no
+# physical pointing device is ever attached. See
+# native/vcg-host/src/cursor_nudge.rs for the full story.
+KERNEL=="uinput", GROUP="input", MODE="0660"

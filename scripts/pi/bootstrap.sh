@@ -103,7 +103,7 @@ if [ "${skip_native}" -eq 0 ]; then
   echo
   echo "== native host =="
   if command -v cargo >/dev/null 2>&1; then
-    cargo build --release -p vcg-host
+    cargo build --release -p vcg-host -p vcg-cursor-nudge
     cargo run -q --release -p vcg-host -- doctor
   else
     echo "warning: cargo is absent; skipping the Rust host. Install the toolchain in rust-toolchain.toml to launch retro titles." >&2

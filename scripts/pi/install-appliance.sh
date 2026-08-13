@@ -16,6 +16,7 @@ cage_path=""
 host_path=""
 node_path=""
 bluetoothctl_path=""
+cursor_nudge_path=""
 
 usage() {
   cat <<'EOF'
@@ -31,6 +32,7 @@ Options:
   --host PATH          release vcg-host executable (auto-detected)
   --node PATH          Node.js 22+ executable (auto-detected)
   --bluetoothctl PATH  BlueZ control executable (auto-detected)
+  --cursor-nudge PATH  release vcg-cursor-nudge executable (auto-detected)
   --no-enable          install units without changing the default boot target
   --dry-run            render units without changing the operating system
   --output-dir PATH    keep rendered dry-run units in PATH
@@ -46,7 +48,7 @@ require_value() {
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--bluetoothctl|--output-dir)
+    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--bluetoothctl|--cursor-nudge|--output-dir)
       require_value "$@"
       option="$1"
       value="$2"
@@ -61,6 +63,7 @@ while [ "$#" -gt 0 ]; do
         --host) host_path="${value}" ;;
         --node) node_path="${value}" ;;
         --bluetoothctl) bluetoothctl_path="${value}" ;;
+        --cursor-nudge) cursor_nudge_path="${value}" ;;
         --output-dir) output_dir="${value}" ;;
       esac
       ;;
@@ -77,6 +80,7 @@ if [ ! -f "${repo_root}/package.json" ] || [ ! -d "${repo_root}/scripts/pi/syste
 fi
 repo_root="$(cd "${repo_root}" && pwd -P)"
 host_path="${host_path:-${repo_root}/target/release/vcg-host}"
+cursor_nudge_path="${cursor_nudge_path:-${repo_root}/target/release/vcg-cursor-nudge}"
 
 if [ -z "${console_user}" ]; then
   echo "No console user was detected; pass --user." >&2
@@ -214,6 +218,7 @@ validate_absolute_path "native host" "${host_path}"
 validate_absolute_path "Node.js" "${node_path}"
 validate_absolute_path "Node.js directory" "${node_bin_dir}"
 validate_absolute_path "bluetoothctl" "${bluetoothctl_path}"
+validate_absolute_path "cursor-nudge" "${cursor_nudge_path}"
 
 if [ "${dry_run}" -eq 0 ]; then
   if ! systemctl cat bluetooth.service >/dev/null 2>&1; then
@@ -221,6 +226,7 @@ if [ "${dry_run}" -eq 0 ]; then
     exit 1
   fi
   for executable in "${browser_path}" "${cage_path}" "${host_path}" "${node_path}" "${bluetoothctl_path}" \
+    "${cursor_nudge_path}" \
     "${repo_root}/apps/console-lab/node_modules/.bin/vite" \
     "${repo_root}/node_modules/.bin/tsx" \
     "${repo_root}/scripts/pi/wait-for-console.sh"; do
@@ -285,6 +291,7 @@ render_unit() {
   content="${content//@HOST_PATH@/${host_path}}"
   content="${content//@NODE_BIN_DIR@/${node_bin_dir}}"
   content="${content//@BLUETOOTHCTL_PATH@/${bluetoothctl_path}}"
+  content="${content//@CURSOR_NUDGE_PATH@/${cursor_nudge_path}}"
   printf '%s\n' "${content}" >"${destination}"
 }
 
@@ -324,6 +331,16 @@ done
 if [ -n "${device_groups}" ]; then
   usermod -a -G "${device_groups}" "${console_user}"
 fi
+
+# vcg-host's one-shot synthetic pointer nudge (native/vcg-host/src/cursor_nudge.rs)
+# needs write access to /dev/uinput and the uinput module loaded. Reload
+# udev's rules before loading the module so the module's own "add" uevent
+# is judged against the new rule, not a stale cached one.
+install -m 0644 "${repo_root}/scripts/pi/udev/99-vcg-console-uinput.rules" /etc/udev/rules.d/99-vcg-console-uinput.rules
+install -m 0644 "${repo_root}/scripts/pi/modules-load.d/vcg-console-uinput.conf" /etc/modules-load.d/vcg-console-uinput.conf
+udevadm control --reload-rules
+modprobe uinput
+udevadm trigger --name-match=uinput || true
 
 systemctl daemon-reload
 

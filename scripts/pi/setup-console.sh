@@ -160,6 +160,7 @@ if [ "${dry_run}" -eq 1 ]; then
     --browser /usr/bin/chromium
     --cage /usr/bin/cage
     --host "${repo_root}/target/release/vcg-host"
+    --cursor-nudge "${repo_root}/target/release/vcg-cursor-nudge"
   )
   bash "${repo_root}/scripts/pi/install-appliance.sh" "${installer_args[@]}"
   echo "Dry run complete; no operating-system or repository state was changed."
@@ -311,6 +312,7 @@ installer_args=(
   --browser "${browser_path}"
   --cage "${cage_path}"
   --host "${repo_root}/target/release/vcg-host"
+  --cursor-nudge "${repo_root}/target/release/vcg-cursor-nudge"
 )
 if [ "${enable_boot}" -ne 1 ]; then
   installer_args+=(--no-enable)

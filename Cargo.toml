@@ -1,5 +1,5 @@
 [workspace]
-members = ["native/vcg-host"]
+members = ["native/vcg-cursor-nudge", "native/vcg-host"]
 resolver = "3"
 
 [workspace.package]

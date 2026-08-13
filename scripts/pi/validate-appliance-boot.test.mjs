@@ -43,7 +43,7 @@ test("the TV session replaces tty1 with Cage and the native fullscreen launcher"
   assert.match(unit, /^ExecStartPre=.*wait-for-console\.sh @REPO_ROOT@$/m);
   assert.match(
     unit,
-    /^ExecStart=@CAGE_PATH@ -- @HOST_PATH@ launcher --browser @BROWSER_PATH@ --bluetoothctl @BLUETOOTHCTL_PATH@ --profile-dir \/var\/lib\/vcg-console\/browser-profile --url http:\/\/127\.0\.0\.1:4173\/$/m,
+    /^ExecStart=@CAGE_PATH@ -- @HOST_PATH@ launcher --browser @BROWSER_PATH@ --bluetoothctl @BLUETOOTHCTL_PATH@ --cursor-nudge @CURSOR_NUDGE_PATH@ --profile-dir \/var\/lib\/vcg-console\/browser-profile --url http:\/\/127\.0\.0\.1:4173\/$/m,
   );
   assert.doesNotMatch(unit, /--windowed/);
   assert.match(unit, /^Restart=always$/m);
@@ -91,6 +91,46 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /The fullscreen browser must not run as root/);
   assert.match(installer, /Node\.js 22 or newer is required/);
   assert.match(installer, /""\|\*\[!0-9\]\*/);
+});
+
+test("the installer grants uinput access for the cursor nudge", async () => {
+  const [installer, udevRule, modulesLoad] = await Promise.all([
+    read("./install-appliance.sh"),
+    read("./udev/99-vcg-console-uinput.rules"),
+    read("./modules-load.d/vcg-console-uinput.conf"),
+  ]);
+
+  // cage has no default-cursor flag, and Chromium only tells cage to hide
+  // its default cursor in response to a real pointer event -- which never
+  // happens with no physical pointing device attached. The vcg-cursor-nudge
+  // binary supplies that one event synthetically, but needs /dev/uinput
+  // writable and the module loaded first.
+  assert.match(udevRule, /^KERNEL=="uinput", GROUP="input", MODE="0660"$/m);
+  assert.match(modulesLoad, /^uinput$/m);
+  assert.match(
+    installer,
+    /install -m 0644 "\$\{repo_root\}\/scripts\/pi\/udev\/99-vcg-console-uinput\.rules" \/etc\/udev\/rules\.d\/99-vcg-console-uinput\.rules/,
+  );
+  assert.match(
+    installer,
+    /install -m 0644 "\$\{repo_root\}\/scripts\/pi\/modules-load\.d\/vcg-console-uinput\.conf" \/etc\/modules-load\.d\/vcg-console-uinput\.conf/,
+  );
+  assert.match(installer, /udevadm control --reload-rules/);
+  assert.match(installer, /modprobe uinput/);
+
+  // vcg-cursor-nudge itself: resolved like the other release binaries,
+  // validated as an absolute path, required to exist before a real
+  // install, and substituted into the rendered session unit.
+  assert.match(
+    installer,
+    /cursor_nudge_path="\$\{cursor_nudge_path:-\$\{repo_root\}\/target\/release\/vcg-cursor-nudge\}"/,
+  );
+  assert.match(installer, /validate_absolute_path "cursor-nudge" "\$\{cursor_nudge_path\}"/);
+  assert.match(installer, /"\$\{cursor_nudge_path\}"/);
+  assert.match(
+    installer,
+    /content="\$\{content\/\/@CURSOR_NUDGE_PATH@\/\$\{cursor_nudge_path\}\}"/,
+  );
 });
 
 test("one setup command installs, builds, verifies, and owns boot", async () => {
