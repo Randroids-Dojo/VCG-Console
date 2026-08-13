@@ -332,10 +332,11 @@ if [ -n "${device_groups}" ]; then
   usermod -a -G "${device_groups}" "${console_user}"
 fi
 
-# vcg-host's one-shot synthetic pointer nudge (native/vcg-host/src/cursor_nudge.rs)
-# needs write access to /dev/uinput and the uinput module loaded. Reload
-# udev's rules before loading the module so the module's own "add" uevent
-# is judged against the new rule, not a stale cached one.
+# vcg-cursor-nudge's one-shot synthetic pointer nudge
+# (native/vcg-cursor-nudge/src/main.rs) needs write access to /dev/uinput and
+# the uinput module loaded. Reload udev's rules before loading the module so
+# the module's own "add" uevent is judged against the new rule, not a stale
+# cached one.
 install -m 0644 "${repo_root}/scripts/pi/udev/99-vcg-console-uinput.rules" /etc/udev/rules.d/99-vcg-console-uinput.rules
 install -m 0644 "${repo_root}/scripts/pi/modules-load.d/vcg-console-uinput.conf" /etc/modules-load.d/vcg-console-uinput.conf
 udevadm control --reload-rules
