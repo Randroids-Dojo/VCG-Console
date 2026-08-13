@@ -326,7 +326,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, "#launcher", 22, 13);
+    await assertTvGeometry(page, resolution, "#launcher", 18, 13);
 
     const firstEntry = page
       .locator('[data-launcher-view="motion"] .library-list button')

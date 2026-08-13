@@ -40,7 +40,7 @@ const PNG_SIGNATURE = Buffer.from([
 const EXPECTED_SURFACES = Object.freeze([
   {
     id: "motion-catalog",
-    criticalTextCount: 22,
+    criticalTextCount: 18,
     actionTargetCount: 13,
     focusTrace: ["motion-first-entry", "launcher-home"],
   },
@@ -66,64 +66,64 @@ const EXPECTED_SURFACES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-catalog/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
-    bytes: 310130,
-    sha256: "8bdc2a71555afc8a8a517a356c9d0d12005f029d8a03e9ab997eba2d90664e38",
+    bytes: 306761,
+    sha256: "2afeeac75f771f46885490650887b79d94d5debb92b5d8db1eab1b0830e511d8",
   },
   "wifi-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 281257,
-    sha256: "e73c964c3b10317a20fbbe8c010078c7765fb8aed91f505bd02849f1b6ab4ea3",
+    bytes: 280144,
+    sha256: "9ddab7fb66977bc8dc2abc6553c9eac21fe2172453123d5eb7d4a6bff8b0dd4f",
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-    bytes: 307565,
-    sha256: "c435689c46fd665b3b53b8e7ca439489c21c36d323da26e0c81562d55bf18b2d",
+    bytes: 306282,
+    sha256: "948d67a50f3dca8132ecb93c438a6bf470deb14b6e82912a537440d9f95542b3",
   },
   "motion-catalog/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
-    bytes: 533362,
-    sha256: "149dd7b30dd1abf5fbb58d3f080df419ca3ba1babfa50e1e631523595d981019",
+    bytes: 530688,
+    sha256: "f5e83d3ce5109ceac398ef59e41f9cb46d9edf87985b8bf974a7ff4c48bb739a",
   },
   "wifi-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 466303,
-    sha256: "81f51ee79b2a2f417022ec7979bed3a65410e3957412f94e731feff2905d4032",
+    bytes: 465119,
+    sha256: "d5fbd814b7885613d9b3fb5865ad55ad9bd1c5dbc5a5e29f86237086e9c5d9f1",
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-    bytes: 535704,
-    sha256: "f47bdb9a21b5c23ec9b4ec4700e96517a3a8c657a820347e572d6d1931627bed",
+    bytes: 534678,
+    sha256: "9ad2365339c5ecdadff5e17bd4cb55499805149c7e240f9176a0b15ea43b334f",
   },
   "motion-catalog/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
-    bytes: 1501302,
-    sha256: "f00d59bb05c29501a1628abc880c4caa1166484826d0eb0b133369c26d91c2b4",
+    bytes: 1492855,
+    sha256: "f845c57d26fb4f9e7faf88ad9733aa16e4fdcb96fbb952f31995488b7dd76320",
   },
   "wifi-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 1317763,
-    sha256: "401e533ad805567fcb0a4b27909320d3cc144445e64a72fad79d2d978af2e532",
+    bytes: 1314345,
+    sha256: "3eb9dcbe04859d892e2fc7764900012f3bbc646586680653d16bb4a212c79aa1",
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-    bytes: 1512193,
-    sha256: "e2fb6d6306760ce297d22c1b2020330b3ab0216e804fdbbb290b040b449cb572",
+    bytes: 1511326,
+    sha256: "d056ab5e0162f636bf974989220363a8f981a8808e17e5ea5d7b8d3b8fb7faf3",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-catalog/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 48,
+    minimumActionTargetWidthCssPx: 51.688,
     minimumActionTargetHeightCssPx: 48,
   },
   "wifi-offline/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 48,
+    minimumActionTargetWidthCssPx: 51.688,
     minimumActionTargetHeightCssPx: 48,
   },
   "launch-offline/720p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 131.609,
+    minimumActionTargetWidthCssPx: 69.125,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-catalog/1080p": {
@@ -138,7 +138,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   },
   "launch-offline/1080p": {
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 147.625,
+    minimumActionTargetWidthCssPx: 75.531,
     minimumActionTargetHeightCssPx: 48,
   },
   "motion-catalog/4k": {
@@ -153,7 +153,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   },
   "launch-offline/4k": {
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 191.219,
+    minimumActionTargetWidthCssPx: 115.359,
     minimumActionTargetHeightCssPx: 62,
   },
 });

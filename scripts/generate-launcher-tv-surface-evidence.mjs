@@ -72,7 +72,7 @@ const SURFACES = Object.freeze([
   {
     id: "motion-catalog",
     rootSelector: "#launcher",
-    criticalTextCount: 22,
+    criticalTextCount: 18,
     actionTargetCount: 13,
     sections: [".view-header", ".library-list"],
     focusTrace: ["motion-first-entry", "launcher-home"],

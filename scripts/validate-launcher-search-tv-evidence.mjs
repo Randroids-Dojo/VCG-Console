@@ -300,130 +300,130 @@ const EXPECTED_STATES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-    bytes: 127795,
-    sha256: "5c7d777ece1f38a9c14d780e99c9389f7e85ace5014da9f4d28dba89cf6d8d26",
+    bytes: 127008,
+    sha256: "293111a3926febe7c2f89521cc57e4e52db9ef48c82a0a6a989eced1cc5f0aca",
   },
   "no-results/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-    bytes: 128293,
-    sha256: "3ca1e3b78e21ced9f4a2b5c85242a431cf859f99e8f975158694e59195da438c",
+    bytes: 127347,
+    sha256: "6c343e5555f5ff2f3d80b15eba7ea8a4f52ec92431ada1ec8604adba5f8295aa",
   },
   "empty-query-scroll-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-    bytes: 137479,
-    sha256: "b3357c28b96bf8a900f8a0cd8ac0cde54ea1295132b189952f83e3f688587c13",
+    bytes: 136686,
+    sha256: "3106648e096693c360333aaa432845c9bd1ea17ff48d5beaf4d2062df2b8c789",
   },
   "offline-package-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
-    bytes: 130037,
-    sha256: "a12c58318de88de56270620d801cfea3a1cca8a995942fd0b57b577fa3e3f5d4",
+    bytes: 129099,
+    sha256: "42456b0aee4e42ef1ae328b6bd7565135f72df6a6f9e2364a293b10a16c4ae00",
   },
   "remote-web-ready-denial/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
-    bytes: 134425,
-    sha256: "088aa6ffaef5ee5047a53fc86b42a10f65d98257077b330f13fe8d71f8477bda",
+    bytes: 133408,
+    sha256: "c4270a84fe241ac52173fb3aea248cf73a357d7ea95686710c30ce7bb96ab37c",
   },
   "remote-web-offline-failure/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
-    bytes: 134425,
-    sha256: "088aa6ffaef5ee5047a53fc86b42a10f65d98257077b330f13fe8d71f8477bda",
+    bytes: 133408,
+    sha256: "c4270a84fe241ac52173fb3aea248cf73a357d7ea95686710c30ce7bb96ab37c",
   },
   "unavailable-package-denial/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
-    bytes: 129598,
-    sha256: "9d44eb9d4cf146b9c284026ec44e4c8d5a5f058a9223abaed2586494282ea54d",
+    bytes: 128851,
+    sha256: "c4a7e74efa8932fea99d0251052fdedc410bb0b0dee54a56ecf996e6b3906bc7",
   },
   "destructive-settings-denial/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
-    bytes: 136042,
-    sha256: "0d1bfbb1b5edef9bd9cbc20a18bf8c07aa478d1e692f79c2fee1928154a7cbcc",
+    bytes: 135126,
+    sha256: "a19898da976e836bdd036f1c24ef66954c74a2d32998de1cf1fcc7b56c5c7ef6",
   },
   "motion-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-    bytes: 245269,
-    sha256: "35646fcd983a0c85167e537ac019c8e41d615de774730285fd2f8bab014471c9",
+    bytes: 245009,
+    sha256: "8ced0d848fab010fa55a8c3d54239e0ede1879bdedfa826da57a6eb703602d90",
   },
   "no-results/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-    bytes: 232279,
-    sha256: "65a20f3c81ac90e8c1ca3972b478052f616b2520cc9c05cd1a13a1479be11246",
+    bytes: 231961,
+    sha256: "675f7cd6c3665e7f69b91266c7be5623008414d53f6f92962a514c6edc9285c3",
   },
   "empty-query-scroll-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-    bytes: 283152,
-    sha256: "1807d5780edf8fdd897eb5946e2dc9ed7f5322860d1fafa48a8105d15fc683a2",
+    bytes: 282361,
+    sha256: "deda18fca4b42db3c142ec7b3d3c7bff123ca920e172d97ecfcc6ea3a3e8820a",
   },
   "offline-package-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
-    bytes: 221564,
-    sha256: "415febf6adfd96c1a98258d1c39395ae1212ebfd17d749b39ea35df1e7ea747a",
+    bytes: 221284,
+    sha256: "299f9d096507519717f84a0a3664d7cf6878ce75bb4b600df973f1a536083ec0",
   },
   "remote-web-ready-denial/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
-    bytes: 226745,
-    sha256: "d027cd844c37db427c052029ce22052bbc3f1b7decca8d0418ca9e8236895143",
+    bytes: 226199,
+    sha256: "bca4a1180f55fa569904dcf0840c4acd26d663fe35cc88cdb5768a3d7eb6cc68",
   },
   "remote-web-offline-failure/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
-    bytes: 226745,
-    sha256: "d027cd844c37db427c052029ce22052bbc3f1b7decca8d0418ca9e8236895143",
+    bytes: 226199,
+    sha256: "bca4a1180f55fa569904dcf0840c4acd26d663fe35cc88cdb5768a3d7eb6cc68",
   },
   "unavailable-package-denial/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
-    bytes: 221497,
-    sha256: "b42d10cac9fcba80d480793e2a3c41f77eb6873f22e25c9d29a94ed61b04372b",
+    bytes: 221255,
+    sha256: "a162c00c6ec267d5b74fe78485c078479fc7e0a1ffaec93045863374dd3b1c14",
   },
   "destructive-settings-denial/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
-    bytes: 229393,
-    sha256: "3d5899c9aee5b2b6299a720aeba41a8ecf55e6983c84be2bce57e4ec19c5c2a2",
+    bytes: 229045,
+    sha256: "93ce2510400c6df93f7d3c049b5bb20b5c4297533d0d7e4f47846aad4abcc5f4",
   },
   "motion-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-    bytes: 622980,
-    sha256: "e34b56199be2a114c2dfeac34d88576360b54ef942ab87ef898010e561fa6255",
+    bytes: 621635,
+    sha256: "ef305888c8f8f994a8408c63a3bd908ef75ef31a73734601dce25c0f73257162",
   },
   "no-results/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-    bytes: 594867,
-    sha256: "7dc455b34ecdab5d179fba43b4d8a6f9119b06983da53a17b9610478113262f2",
+    bytes: 593389,
+    sha256: "aa9772c9ec288f333ba03032af83e8fbce69b68bafb943742f8ec77f454418e2",
   },
   "empty-query-scroll-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-    bytes: 774833,
-    sha256: "83c80ad4c94cd476cfa1c0335a597a7890399e87dd959ae73bb9de1c19eae52a",
+    bytes: 773452,
+    sha256: "44a2d5304217fd280d1b100deea53d5d6e8e53d8ebf5e9a955d8cb74f44b629b",
   },
   "offline-package-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
-    bytes: 560689,
-    sha256: "d96264078e11a3e6b846b4cd624e6fed792f75696f4d5cdca79f41058cd7c452",
+    bytes: 559128,
+    sha256: "6667244a4afc0f104d4becda2d414385652fb4e70f657d4e5953d930dd2d2fe6",
   },
   "remote-web-ready-denial/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
-    bytes: 570438,
-    sha256: "4d9240e8cfff37d1653dc92d9a74ba1677fb6f5be2b3b68d5312229a48a00da1",
+    bytes: 568880,
+    sha256: "5764412bc88d59997df26b82122fc05d38f3d49d80b05c32f70a4290855ffa1e",
   },
   "remote-web-offline-failure/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
-    bytes: 570438,
-    sha256: "4d9240e8cfff37d1653dc92d9a74ba1677fb6f5be2b3b68d5312229a48a00da1",
+    bytes: 568880,
+    sha256: "5764412bc88d59997df26b82122fc05d38f3d49d80b05c32f70a4290855ffa1e",
   },
   "unavailable-package-denial/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
-    bytes: 561652,
-    sha256: "f991cbc94c0a0a3e0e7cceec0f2c57948f9f3f78b7d75ed89e10245a9eaa858d",
+    bytes: 560221,
+    sha256: "4fb307644d6c20e08bba7504abfed885107e2b64d0be7ad7c5970096f834de07",
   },
   "destructive-settings-denial/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
-    bytes: 576230,
-    sha256: "f7ae0144e365477149d74ea38d9f6f982d0589759791268ec280bcef6f230a15",
+    bytes: 574880,
+    sha256: "deddd8b7c0d1620070d69d8b0cb59240a86143bedf9711f496021f62128a0e35",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-results/720p": {
     measuredCriticalTextCount: 8,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 272,
@@ -451,7 +451,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "empty-query-scroll-activation/720p": {
     measuredCriticalTextCount: 10,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 420,
@@ -465,7 +465,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "offline-package-activation/720p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -479,7 +479,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-ready-denial/720p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -493,7 +493,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-offline-failure/720p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -507,7 +507,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "unavailable-package-denial/720p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -521,7 +521,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "destructive-settings-denial/720p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 700.609,
+    minimumActionTargetWidthCssPx: 693.141,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -535,7 +535,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-results/1080p": {
     measuredCriticalTextCount: 8,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 276,
@@ -563,7 +563,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "empty-query-scroll-activation/1080p": {
     measuredCriticalTextCount: 16,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 726,
@@ -577,7 +577,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "offline-package-activation/1080p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -591,7 +591,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-ready-denial/1080p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -605,7 +605,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-offline-failure/1080p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -619,7 +619,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "unavailable-package-denial/1080p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 48,
@@ -633,7 +633,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "destructive-settings-denial/1080p": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 685.391,
+    minimumActionTargetWidthCssPx: 677.922,
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 50,
@@ -647,7 +647,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "motion-results/4k": {
     measuredCriticalTextCount: 8,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 374,
@@ -675,7 +675,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "empty-query-scroll-activation/4k": {
     measuredCriticalTextCount: 25,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 1564,
@@ -689,7 +689,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "offline-package-activation/4k": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 62,
@@ -703,7 +703,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-ready-denial/4k": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 62,
@@ -717,7 +717,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "remote-web-offline-failure/4k": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 62,
@@ -731,7 +731,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "unavailable-package-denial/4k": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 62,
@@ -745,7 +745,7 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
   "destructive-settings-denial/4k": {
     measuredCriticalTextCount: 4,
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 1561.625,
+    minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
       clientHeightCssPx: 62,

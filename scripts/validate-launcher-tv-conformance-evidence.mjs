@@ -69,23 +69,23 @@ const frozenScreenshots = Object.freeze({
   "720p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
-    bytes: 506629,
+    bytes: 505680,
     sha256:
-      "1ac56f37a6954173309ccaede4699d6833cfd0b14d05746007ef50a2fbaa7d7a",
+      "5860686e753f7fb470c6fa2478d3c1ed133e29a1ea675b839d310d8da89dabbe",
   }),
   "1080p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
-    bytes: 913120,
+    bytes: 911921,
     sha256:
-      "781bfc5a93683bbee0c8da582a71ea8654c2bc381f8359c7e6311402797326ee",
+      "8daa553f8844546e846a82328aef92d244c5f7e4d47e32858c91be11fde4360a",
   }),
   "4k": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
-    bytes: 3017903,
+    bytes: 3015131,
     sha256:
-      "4d37af19127a6c7882417342000776df7145e9e04f216d328e4571ca36e5b3e6",
+      "ecbc72c4478a90486f2c54f5ee641d7d902adb290dcd79229a6ec561366cbdb5",
   }),
 });
 const observationExpectations = Object.freeze({
@@ -97,7 +97,7 @@ const observationExpectations = Object.freeze({
       bottom: 684,
     }),
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 48,
+    minimumActionTargetWidthCssPx: 51.688,
     minimumActionTargetHeightCssPx: 48,
   }),
   "1080p": Object.freeze({
@@ -125,8 +125,8 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-BvtDBCXc.css": 3,
-  "/assets/main-FTRW3SpZ.js": 3,
+  "/assets/main-B-DnzG3z.css": 3,
+  "/assets/main-DYcCVx4T.js": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
   "/assets/src-CYOVH8wV.js": 3,
   "/assets/synthetic-D3ZzT8jW.js": 3,

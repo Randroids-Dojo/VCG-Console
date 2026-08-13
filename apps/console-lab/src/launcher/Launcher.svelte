@@ -1114,7 +1114,7 @@
   <header class="launcher-topbar">
     <button class="launcher-brand" type="button" data-launcher-home data-tv-action data-tv-critical-text aria-label="VCG Console home" onclick={() => showView("home")}>VCG<span>/</span>CONSOLE</button>
     <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" aria-label="Search games, hubs, and settings" onclick={openSearch}>
-      <span>Search</span><kbd>/</kbd>
+      <span>Search</span>
     </button>
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateX(${navSignalOffset}px)`} style:width={`${navSignalWidth}px`}></span></div>
@@ -1163,10 +1163,10 @@
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
         <header class="view-header"><div><h1 data-tv-critical-text>Motion games</h1></div></header>
         <div class="library-list">
-          <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span class="row-art" aria-hidden="true"><KeyArt name="obstacle" /></span><span data-tv-critical-text>01</span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="tracker" /></span><span data-tv-critical-text>02</span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="shell" /></span><span data-tv-critical-text>03</span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span class="row-art" aria-hidden="true"><KeyArt name="session" /></span><span data-tv-critical-text>04</span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
+          <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span class="row-art" aria-hidden="true"><KeyArt name="obstacle" /></span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="tracker" /></span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="shell" /></span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span class="row-art" aria-hidden="true"><KeyArt name="session" /></span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
         </div>
       </div>
 
@@ -1184,7 +1184,7 @@
         <p class="boundary-note">Internet required · Unsupervised preview · Opens {museumHost}</p>
         <div class="museum-catalog" aria-label="Canonical museum catalog">
           {#each museumCatalogEntries as entry}
-            <span><span class="museum-thumb" aria-hidden="true"><KeyArt name={entry.id} /></span><b>{entry.displayIndex}</b><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
+            <span><span class="museum-thumb" aria-hidden="true"><KeyArt name={entry.id} /></span><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
           {/each}
         </div>
       </div>
@@ -1215,7 +1215,7 @@
               type="button"
               onclick={() => launchCatalogEntry(entry)}
             >
-              <span class="row-art" aria-hidden="true"><KeyArt name={entry.id} /></span><span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{entry.runtime === "local-web" ? entry.statusLabel : isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
+              <span class="row-art" aria-hidden="true"><KeyArt name={entry.id} /></span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{entry.runtime === "local-web" ? entry.statusLabel : isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
             </button>
           {/each}
         </div>
@@ -1325,7 +1325,6 @@
   <footer class="launcher-legend" aria-hidden="true">
     <span class="legend-hint"><span class="glyph">A</span>Select</span>
     <span class="legend-hint"><span class="glyph">B</span>Back</span>
-    <span class="legend-hint"><span class="glyph">/</span>Search</span>
     <span class="legend-hint"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.2 4.4 11h1.9v8h4.2v-5h3v5h4.2v-8h1.9Z" fill="currentColor" /></svg></span>Home</span>
   </footer>
 

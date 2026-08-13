@@ -89,8 +89,8 @@ declare global {
 
 const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string }> = {
   tracker: { eyebrow: "DIAGNOSTICS", title: "MOTION TRACKER", note: "RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED" },
-  obstacle: { eyebrow: "MOTION GAME", title: "OBSTACLE", note: "DODGE LEFT + RIGHT<br />DUCK / JUMP<br />ESC ALWAYS RETURNS" },
-  shell: { eyebrow: "NAVIGATION TEST", title: "GESTURE NAVIGATION", note: "ESC ALWAYS RETURNS" },
+  obstacle: { eyebrow: "MOTION GAME", title: "OBSTACLE", note: "DODGE LEFT + RIGHT<br />DUCK / JUMP<br />BACK ALWAYS RETURNS" },
+  shell: { eyebrow: "NAVIGATION TEST", title: "GESTURE NAVIGATION", note: "BACK ALWAYS RETURNS" },
 };
 
 const app = document.querySelector<HTMLDivElement>("#app");
@@ -308,7 +308,7 @@ app.innerHTML = `
       <button class="command" type="button" data-mode="obstacle"><span>02</span>OBSTACLE</button>
       <button class="command" type="button" data-mode="shell"><span>03</span>SHELL LAB</button>
       <button class="command" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
-      <div class="escape-hint"><kbd>ESC</kbd><span>BACK</span></div>
+      <div class="escape-hint"><span>BACK</span></div>
     </nav>
 
     <div class="console-overlay" id="console-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-title">

@@ -53,15 +53,15 @@
     onpreviewaudiocue: (level?: AudioCueLevel) => void;
   } = $props();
   let panel = $state<SettingsPanel>("system");
-  const panelPresentation: Record<SettingsPanel, { title: string }> = {
-    system: { title: "System." },
-    accessibility: { title: "Access." },
-    display: { title: "Display." },
-    audio: { title: "Audio." },
-    controllers: { title: "Controllers." },
-    network: { title: "Wi-Fi." },
-    storage: { title: "Storage." },
-    developer: { title: "Developer." },
+  const panelTitles: Record<SettingsPanel, string> = {
+    system: "System.",
+    accessibility: "Access.",
+    display: "Display.",
+    audio: "Audio.",
+    controllers: "Controllers.",
+    network: "Wi-Fi.",
+    storage: "Storage.",
+    developer: "Developer.",
   };
   let scanning = $state(false);
   let scanComplete = $state(false);
@@ -317,7 +317,7 @@
 </script>
 
 <header class="view-header">
-  <div><h1 data-tv-critical-text>{panelPresentation[panel].title}</h1></div>
+  <div><h1 data-tv-critical-text>{panelTitles[panel]}</h1></div>
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">

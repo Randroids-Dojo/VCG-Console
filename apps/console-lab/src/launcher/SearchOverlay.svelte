@@ -214,7 +214,7 @@
         data-tv-action
         data-tv-critical-text
       />
-      <kbd data-tv-critical-text>ESC</kbd>
+      <kbd data-tv-critical-text>Back</kbd>
     </div>
     {#if keysOpen}
       <div class="search-keys" aria-label="On-screen keyboard">
