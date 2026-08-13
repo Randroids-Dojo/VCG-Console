@@ -164,7 +164,13 @@ mod linux {
             ff_effects_max: 0,
         };
         for (slot, byte) in setup.name.iter_mut().zip(DEVICE_NAME) {
-            *slot = *byte as libc::c_char;
+            // `libc::c_char` is signed on x86_64 but unsigned on aarch64, so
+            // this cast's wrap-around is architecture-dependent -- but
+            // DEVICE_NAME is a hardcoded ASCII literal (always < 0x80), so
+            // it never actually wraps on either target.
+            #[allow(clippy::cast_possible_wrap)]
+            let signed_or_unsigned = *byte as libc::c_char;
+            *slot = signed_or_unsigned;
         }
         // SAFETY: `setup` is `#[repr(C)]` and matches `struct
         // uinput_setup`'s layout on this target exactly (verified in
