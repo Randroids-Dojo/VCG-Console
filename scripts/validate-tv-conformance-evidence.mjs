@@ -30,21 +30,21 @@ const PNG_SIGNATURE = Buffer.from([
 const frozenScreenshots = Object.freeze({
   "720p": Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-720p.png",
-    bytes: 147137,
+    bytes: 141664,
     sha256:
-      "b7ace5a55df45fb33b94f09eda5c51eb580cbbc0f65c27b99e7b89417f38eb79",
+      "0d623470a2de6c89a923da16a935359820d87d64393143207771d8f046214c06",
   }),
   "1080p": Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-1080p.png",
-    bytes: 245554,
+    bytes: 233307,
     sha256:
-      "5596fe634fccbf8aaecbdbef09aebfe90168e85fb13d44f90a85da9d9e8f6199",
+      "c98e2fe6c5a5b65e5afa01302852b5e8d3e72857d7fe81ba9e049d58c6264df6",
   }),
   "4k": Object.freeze({
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-4k.png",
-    bytes: 576578,
+    bytes: 578384,
     sha256:
-      "2510881cd855acb7db63f88c4f489b123ebd5b8e485e9a1662be6d8396edfe87",
+      "219668213d47c48a7ba8d8d7d784939b1a3167b2dc395d2fb992a478cc43c25e",
   }),
 });
 const provenancePaths = Object.freeze({

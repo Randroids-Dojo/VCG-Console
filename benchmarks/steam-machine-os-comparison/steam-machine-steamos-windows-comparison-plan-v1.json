@@ -60,12 +60,12 @@
     {
       "role": "complete-system-economics-and-maintenance-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "0e04657c9a4c40915110086427e4ec2fda64559a5b1bc0636d2f5ea0f064d89f"
+      "sha256": "ac124e579ba9e39c7dd5970097264207308e1b929f706d9b63e480860428e1e7"
     },
     {
       "role": "controller-only-cold-start-and-recovery-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "00fae0725c042531522ef83dd0a8062df6e4b76c8663488bc02d8f2ab4d9379f"
+      "sha256": "14aadc66c774651a0f4abca68d554f988f3f14977b2f539fe2941f21b44644fc"
     },
     {
       "role": "fixed-product-success-and-latency-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "required-pi-and-ordinary-linux-tier-boundary",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "dc4aeaa93cbb9e2e89bcd3e03a7b4c2c2fcf9553e8e476b026fd5a958c271687"
+      "sha256": "3a8f0b6741937bb7ead828987dbe564c67fa92fe06a0096f43db482d82152437"
     }
   ],
   "prerequisiteGate": {

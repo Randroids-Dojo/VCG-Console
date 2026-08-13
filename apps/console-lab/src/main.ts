@@ -88,9 +88,9 @@ declare global {
 }
 
 const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string }> = {
-  tracker: { eyebrow: "MOTION LAB / 001", title: "YOUR BODY IS THE SIGNAL.", note: "RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED" },
-  obstacle: { eyebrow: "ACTION LAB / 002", title: "MOVE BEFORE IT HITS.", note: "DODGE LEFT + RIGHT<br />DUCK / JUMP<br />ESC ALWAYS RETURNS" },
-  shell: { eyebrow: "SHELL LAB / 003", title: "EVERY PATH LEADS BACK.", note: "MOTION + CONTROLLER<br />SHARE ONE FOCUS<br />HOME STAYS OUTSIDE" },
+  tracker: { eyebrow: "DIAGNOSTICS", title: "MOTION TRACKER", note: "RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED" },
+  obstacle: { eyebrow: "MOTION GAME", title: "OBSTACLE", note: "DODGE LEFT + RIGHT<br />DUCK / JUMP<br />ESC ALWAYS RETURNS" },
+  shell: { eyebrow: "NAVIGATION TEST", title: "GESTURE NAVIGATION", note: "ESC ALWAYS RETURNS" },
 };
 
 const app = document.querySelector<HTMLDivElement>("#app");
@@ -115,8 +115,8 @@ app.innerHTML = `
       <div class="stage-panel">
         <div class="stage-heading">
           <div>
-            <p class="eyebrow" id="stage-eyebrow">MOTION LAB / 001</p>
-            <h1 id="lab-title">YOUR BODY IS THE SIGNAL.</h1>
+            <p class="eyebrow" id="stage-eyebrow">DIAGNOSTICS</p>
+            <h1 id="lab-title">MOTION TRACKER</h1>
           </div>
           <p class="privacy-copy" id="stage-note">RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED</p>
         </div>
@@ -184,7 +184,7 @@ app.innerHTML = `
         </div>
       </div>
 
-      <aside class="telemetry-panel" aria-label="Tracker telemetry">
+      <aside class="telemetry-panel" id="telemetry-panel" aria-label="Tracker telemetry">
         <div class="telemetry-heading">
           <p class="eyebrow">LIVE DIAGNOSTICS</p>
           <span id="health-badge" class="health-badge">READY</span>
@@ -307,6 +307,7 @@ app.innerHTML = `
       <button class="command active" type="button" data-mode="tracker"><span>01</span>TRACKER</button>
       <button class="command" type="button" data-mode="obstacle"><span>02</span>OBSTACLE</button>
       <button class="command" type="button" data-mode="shell"><span>03</span>SHELL LAB</button>
+      <button class="command" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
       <div class="escape-hint"><kbd>ESC</kbd><span>BACK</span></div>
     </nav>
 
@@ -333,6 +334,11 @@ function required<T extends Element>(selector: string): T {
 
 const renderer = new SkeletonRenderer(required<HTMLCanvasElement>("#skeleton"));
 const motionLab = required<HTMLElement>("#motion-lab");
+const consoleShellRoot = motionLab;
+const telemetryPanel = required<HTMLElement>("#telemetry-panel");
+const diagnosticsToggle = required<HTMLButtonElement>("#diagnostics-toggle");
+let diagnosticsOpen = true;
+diagnosticsToggle.addEventListener("click", () => setDiagnostics(!diagnosticsOpen));
 const trace = new TraceBuffer();
 const metrics = new Metrics();
 const actionEngine = new MultiPlayerActionEngine();
@@ -1108,9 +1114,26 @@ function setMode(mode: AppMode): void {
   required<HTMLElement>("#stage-eyebrow").textContent = copy.eyebrow;
   required<HTMLElement>("#lab-title").textContent = copy.title;
   required<HTMLElement>("#stage-note").innerHTML = copy.note;
+  // Diagnostics belong to the tracker surface; games run full-bleed. The
+  // dock toggle can still open the drawer in any mode.
+  setDiagnostics(mode === "tracker");
   if (mode === "obstacle") synchronizeObstacleRoster();
   obstacle.setPaused(mode !== "obstacle" || Boolean(overlayKind));
   if (mode !== "obstacle") disarmLeaderboardReset();
+}
+
+function setDiagnostics(open: boolean): void {
+  diagnosticsOpen = open;
+  telemetryPanel.hidden = !open;
+  consoleShellRoot.dataset.diagnostics = open ? "open" : "closed";
+  diagnosticsToggle.setAttribute("aria-pressed", String(open));
+  diagnosticsToggle.classList.toggle("active", open);
+}
+
+function labControls(): HTMLElement[] {
+  return [
+    ...motionLab.querySelectorAll<HTMLElement>("button:not([disabled])"),
+  ].filter((element) => element.offsetParent !== null);
 }
 
 function moveFocus(direction: -1 | 1): void {
@@ -1119,14 +1142,39 @@ function moveFocus(direction: -1 | 1): void {
     paintOverlayFocus();
     return;
   }
-  focusedModeIndex = (focusedModeIndex + direction + modeButtons.length) % modeButtons.length;
-  modeButtons[focusedModeIndex]?.focus();
-  for (const card of shellCards) card.classList.toggle("focused", card.dataset.shellTarget === modeButtons[focusedModeIndex]?.dataset.mode);
+  // One linear ring over every visible lab control, so a controller or a
+  // body swipe can reach the dock, the stage, and the diagnostics drawer.
+  const controls = labControls();
+  if (controls.length === 0) return;
+  const current = controls.indexOf(document.activeElement as HTMLElement);
+  const next = controls[
+    current === -1
+      ? direction === 1 ? 0 : controls.length - 1
+      : (current + direction + controls.length) % controls.length
+  ];
+  next?.focus();
+  const nextModeIndex = modeButtons.findIndex((button) => button === next);
+  if (nextModeIndex !== -1) focusedModeIndex = nextModeIndex;
+  for (const card of shellCards) {
+    card.classList.toggle(
+      "focused",
+      card === next || card.dataset.shellTarget === next?.dataset.mode,
+    );
+  }
 }
 
 function selectFocused(trackId?: string): void {
   if (overlayKind) {
     chooseOverlayAction(overlayFocus, trackId);
+    return;
+  }
+  const active = document.activeElement;
+  if (
+    active instanceof HTMLElement
+    && active !== document.body
+    && motionLab.contains(active)
+  ) {
+    active.click();
     return;
   }
   modeButtons[focusedModeIndex]?.click();
@@ -1238,9 +1286,19 @@ function closeOverlay(resume: boolean): void {
 }
 
 function goBack(): void {
-  if (overlayKind) chooseOverlayAction("exit");
-  else if (currentMode === "obstacle") showLauncher();
-  else if (currentMode !== "tracker") setMode("tracker");
+  if (overlayKind) {
+    chooseOverlayAction("exit");
+    return;
+  }
+  if (currentMode === "obstacle") {
+    const phase = obstacle.snapshot().phase;
+    // Back never dumps a live round: it pauses first, so leaving is always
+    // one deliberate overlay choice away.
+    if (phase === "countdown" || phase === "playing") showOverlay("manual");
+    else showLauncher();
+    return;
+  }
+  if (currentMode !== "tracker") setMode("tracker");
   else if (!replayRunning) startReplay();
   else showLauncher();
 }

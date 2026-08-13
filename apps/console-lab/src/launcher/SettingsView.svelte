@@ -53,39 +53,15 @@
     onpreviewaudiocue: (level?: AudioCueLevel) => void;
   } = $props();
   let panel = $state<SettingsPanel>("system");
-  const panelPresentation: Record<SettingsPanel, { title: string; detail: string }> = {
-    system: {
-      title: "System.",
-      detail: "Only controls that belong on the television.",
-    },
-    accessibility: {
-      title: "Access.",
-      detail: "Readable, calm, and recoverable before a game begins.",
-    },
-    display: {
-      title: "Display.",
-      detail: "Preview television layout without inventing signal authority.",
-    },
-    audio: {
-      title: "Audio.",
-      detail: "Test a local cue without claiming an output or channel layout.",
-    },
-    controllers: {
-      title: "Controllers.",
-      detail: "Pair and reconnect gamepads without leaving the television.",
-    },
-    network: {
-      title: "Wi-Fi.",
-      detail: "Online play is optional. Local play stays available.",
-    },
-    storage: {
-      title: "Storage.",
-      detail: "Capacity stays separate from recovery headroom.",
-    },
-    developer: {
-      title: "Developer.",
-      detail: "Privileged tools stay explicit and visibly separate.",
-    },
+  const panelPresentation: Record<SettingsPanel, { title: string }> = {
+    system: { title: "System." },
+    accessibility: { title: "Access." },
+    display: { title: "Display." },
+    audio: { title: "Audio." },
+    controllers: { title: "Controllers." },
+    network: { title: "Wi-Fi." },
+    storage: { title: "Storage." },
+    developer: { title: "Developer." },
   };
   let scanning = $state(false);
   let scanComplete = $state(false);
@@ -341,8 +317,7 @@
 </script>
 
 <header class="view-header">
-  <div><p class="view-kicker" data-tv-critical-text>CONSOLE SETTINGS</p><h1 data-tv-critical-text>{panelPresentation[panel].title}</h1></div>
-  <p data-tv-critical-text>{panelPresentation[panel].detail}</p>
+  <div><h1 data-tv-critical-text>{panelPresentation[panel].title}</h1></div>
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" aria-label="Settings sections">

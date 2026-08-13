@@ -38,17 +38,18 @@ const PNG_SIGNATURE = Buffer.from([
 ]);
 const EXPECTED_SCREENSHOT = Object.freeze({
   path: "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png",
-  bytes: 37_017,
+  bytes: 37017,
   sha256: "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458",
 });
 const EXPECTED_REQUEST_COUNTS = Object.freeze({
   "/": 1,
-  "/assets/main-AVH62C9R.css": 1,
-  "/assets/main-7Qefc84k.js": 1,
+  "/assets/main-BvtDBCXc.css": 1,
+  "/assets/main-FTRW3SpZ.js": 1,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
   "/assets/src-CYOVH8wV.js": 1,
   "/assets/synthetic-D3ZzT8jW.js": 1,
   "/assets/tracker-health-bketT6qu.js": 1,
+  "/fonts/InterVariable.woff2": 1,
   "/fonts/OCRA.ttf": 1,
 });
 const expectedFontByProbe = Object.freeze({

@@ -30,6 +30,7 @@
     HostedBrowserPreviewController,
     type HostedBrowserPreviewPlan,
   } from "./hosted-browser-preview";
+  import KeyArt from "./KeyArt.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
   import { LaunchSupervisor, type LaunchSupervisorOptions } from "./launch-supervisor";
   import {
@@ -109,6 +110,8 @@
   let toastVisible = $state(false);
   let launchSession = $state<LaunchSession | undefined>();
   let navSignalOffset = $state(0);
+  let navSignalWidth = $state(0);
+  let focusedDestination = $state<"obstacle" | "museum" | "retro">("obstacle");
   let clockTimer: number | undefined;
   let toastTimer: number | undefined;
   let launchRun = 0;
@@ -531,6 +534,7 @@
       showView("home");
       return;
     }
+    if (search.isOpen() && search.handleInput(action)) return;
     if (action === "back") {
       back();
       return;
@@ -1082,9 +1086,14 @@
 
   async function positionSignal(): Promise<void> {
     await tick();
-    const navView = view === "retro-game" ? "retro" : view;
+    const navView =
+      view === "retro-game" ? "retro"
+      : view === "session-adversarial" ? "motion"
+      : ["profile-management", "calibration", "portrait", "unassigned"].includes(view) ? "profiles"
+      : view;
     const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${navView}"]`);
-    navSignalOffset = active ? active.offsetTop - 52 : 0;
+    navSignalOffset = active ? active.offsetLeft : 0;
+    navSignalWidth = active ? active.offsetWidth : 0;
   }
 
   function toast(message: string): void {
@@ -1104,18 +1113,11 @@
 <main bind:this={launcher} class="launcher" id="launcher" hidden={!visible}>
   <header class="launcher-topbar">
     <button class="launcher-brand" type="button" data-launcher-home data-tv-action data-tv-critical-text aria-label="VCG Console home" onclick={() => showView("home")}>VCG<span>/</span>CONSOLE</button>
-    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" onclick={openSearch}>
-      <span>Search games, hubs, and settings</span><kbd>/</kbd>
+    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" aria-label="Search games, hubs, and settings" onclick={openSearch}>
+      <span>Search</span><kbd>/</kbd>
     </button>
-    <div class="launcher-presence">
-      <button type="button" data-tv-action data-tv-critical-text onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
-      <time id="launcher-clock" aria-label="Local time">{clock}</time>
-    </div>
-  </header>
-
-  <div class="launcher-frame">
     <nav class="launcher-nav" aria-label="Launcher">
-      <div class="nav-signal" aria-hidden="true"><span style:transform={`translateY(${navSignalOffset}px)`}></span></div>
+      <div class="nav-signal" aria-hidden="true"><span style:transform={`translateX(${navSignalOffset}px)`} style:width={`${navSignalWidth}px`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
         <button class:active={view === target || (target === "motion" && view === "session-adversarial") || (target === "retro" && view === "retro-game")} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
@@ -1124,35 +1126,47 @@
         <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
+    <div class="launcher-presence">
+      <button type="button" data-tv-action data-tv-critical-text onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
+      <time id="launcher-clock" aria-label="Local time">{clock}</time>
+    </div>
+  </header>
 
+  <div class="launcher-frame">
     <section class="launcher-content">
-      <div class="launcher-view home-view" data-launcher-view="home" hidden={view !== "home"}>
+      <div class="launcher-view home-view" data-launcher-view="home" data-stage={focusedDestination} hidden={view !== "home"}>
+        <div class="home-stage" aria-hidden="true">
+          <span class="stage-layer" data-stage-for="obstacle"></span>
+          <span class="stage-layer" data-stage-for="museum"></span>
+          <span class="stage-layer" data-stage-for="retro"></span>
+        </div>
         <div class="home-heading">
-          <p class="view-kicker" data-tv-critical-text>READY / LOCAL</p>
           <h1 data-tv-critical-text>Good evening,<br /><span id="home-profile-name">{activeProfile}.</span></h1>
-          <p data-tv-critical-text>Choose where to play.</p>
         </div>
         <div class="home-destinations" aria-label="Game destinations">
-          <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")}>
-            <span class="destination-index" data-tv-critical-text>MOTION / 01</span><strong data-tv-critical-text>Obstacle</strong><small>Body-controlled survival lab</small><span class="destination-action" data-tv-critical-text>Continue <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
+          <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")} onfocus={() => (focusedDestination = "obstacle")} onmouseenter={() => (focusedDestination = "obstacle")}>
+            <span class="destination-art" aria-hidden="true"><KeyArt name="obstacle" /></span>
+            <span class="destination-index">MOTION</span><strong data-tv-critical-text>Obstacle</strong><small>Motion survival game</small><span class="destination-action">Play <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
-          <button class="destination" type="button" data-tv-action onclick={() => showView("museum")}>
-            <span class="destination-index" data-tv-critical-text>ONLINE / 02</span><strong data-tv-critical-text>{museum.title}</strong><small>Explore the complete collection</small><span class="destination-action" data-tv-critical-text>Enter <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
+          <button class="destination" type="button" data-tv-action onclick={() => showView("museum")} onfocus={() => (focusedDestination = "museum")} onmouseenter={() => (focusedDestination = "museum")}>
+            <span class="destination-art" aria-hidden="true"><KeyArt name="museum" /></span>
+            <span class="destination-index">ONLINE</span><strong data-tv-critical-text>{museum.title}</strong><small>Online game collection</small><span class="destination-action">Enter <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
-          <button class="destination" type="button" data-tv-action onclick={() => showView("retro")}>
-            <span class="destination-index" data-tv-critical-text>LOCAL / 03</span><strong data-tv-critical-text>RetroArch</strong><small>Your installed retro library</small><span class="destination-action" data-tv-critical-text>Open <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
+          <button class="destination" type="button" data-tv-action onclick={() => showView("retro")} onfocus={() => (focusedDestination = "retro")} onmouseenter={() => (focusedDestination = "retro")}>
+            <span class="destination-art" aria-hidden="true"><KeyArt name="retro" /></span>
+            <span class="destination-index">LOCAL</span><strong data-tv-critical-text>RetroArch</strong><small>Installed retro games</small><span class="destination-action">Open <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
         </div>
         <footer class="home-status"><span data-tv-critical-text><i></i> Console ready</span><span data-tv-critical-text>{installedPackageSummary()}</span><span data-tv-critical-text>Network setup required</span></footer>
       </div>
 
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
-        <header class="view-header"><div><p class="view-kicker" data-tv-critical-text>MOTION HUB</p><h1 data-tv-critical-text>Move to play.</h1></div><p data-tv-critical-text>Camera stays local. Every experience keeps a controller exit.</p></header>
+        <header class="view-header"><div><h1 data-tv-critical-text>Motion games</h1></div></header>
         <div class="library-list">
-          <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span data-tv-critical-text>01</span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span data-tv-critical-text>02</span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span data-tv-critical-text>03</span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
-          <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span data-tv-critical-text>04</span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
+          <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span class="row-art" aria-hidden="true"><KeyArt name="obstacle" /></span><span data-tv-critical-text>01</span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="tracker" /></span><span data-tv-critical-text>02</span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="shell" /></span><span data-tv-critical-text>03</span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
+          <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span class="row-art" aria-hidden="true"><KeyArt name="session" /></span><span data-tv-critical-text>04</span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
         </div>
       </div>
 
@@ -1164,20 +1178,19 @@
       </div>
 
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>
-        <p class="view-kicker">{museumHost.toUpperCase()}</p>
-        <div class="museum-title"><h1>The museum is<br />a world of its own.</h1><span>LIVE / WEB</span></div>
-        <p class="museum-copy">Walk through the full VibeCoded collection. This browser prototype can open only the cataloged origin in a separate tab, but does not supervise or contain it.</p>
+        <span class="museum-art" aria-hidden="true"><KeyArt name="museum" /></span>
+        <div class="museum-title"><h1>{museum.title}</h1></div>
         <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span class="ui-icon ui-icon-arrow-up-right" aria-hidden="true"></span></button>
         <p class="boundary-note">Internet required · Unsupervised preview · Opens {museumHost}</p>
         <div class="museum-catalog" aria-label="Canonical museum catalog">
           {#each museumCatalogEntries as entry}
-            <span><b>{entry.displayIndex}</b><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
+            <span><span class="museum-thumb" aria-hidden="true"><KeyArt name={entry.id} /></span><b>{entry.displayIndex}</b><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
           {/each}
         </div>
       </div>
 
       <div class="launcher-view retro-view" data-launcher-view="retro" hidden={view !== "retro"}>
-        <header class="view-header"><div><p class="view-kicker">RETRO HUB</p><h1>One library.<br />No clutter.</h1></div><p>RetroArch runs beneath the VCG shell so Home, loading, and recovery stay consistent.</p></header>
+        <header class="view-header"><div><h1>Retro library</h1></div></header>
         {#if nativePackageInventoryState === "checking"}
           <div class="empty-library" aria-live="polite">
             <span class="empty-glyph" aria-hidden="true"></span>
@@ -1202,7 +1215,7 @@
               type="button"
               onclick={() => launchCatalogEntry(entry)}
             >
-              <span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{entry.runtime === "local-web" ? entry.statusLabel : isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
+              <span class="row-art" aria-hidden="true"><KeyArt name={entry.id} /></span><span>{entry.displayIndex}</span><strong>{entry.title}</strong><small>{entry.summary}</small><b>{entry.runtime === "local-web" ? entry.statusLabel : isCatalogEntryInstalled(entry) ? "Installed" : entry.statusLabel}</b>
             </button>
           {/each}
         </div>
@@ -1308,6 +1321,13 @@
       </div>
     </section>
   </div>
+
+  <footer class="launcher-legend" aria-hidden="true">
+    <span class="legend-hint"><span class="glyph">A</span>Select</span>
+    <span class="legend-hint"><span class="glyph">B</span>Back</span>
+    <span class="legend-hint"><span class="glyph">/</span>Search</span>
+    <span class="legend-hint"><span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.2 4.4 11h1.9v8h4.2v-5h3v5h4.2v-8h1.9Z" fill="currentColor" /></svg></span>Home</span>
+  </footer>
 
   <div class="launcher-toast" id="launcher-toast" hidden={!toastVisible} role="status">{toastMessage}</div>
   <SearchOverlay bind:this={search} items={searchItems} />

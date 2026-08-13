@@ -29,7 +29,7 @@ const baseContractPath = resolve(
   "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 96 * 1024;
-const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
+const MAX_SCREENSHOT_BYTES = 4 * 1024 * 1024;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
 const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
@@ -69,23 +69,23 @@ const frozenScreenshots = Object.freeze({
   "720p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
-    bytes: 206241,
+    bytes: 506629,
     sha256:
-      "bb5f400dba380fa1c6b05b3898979333db0b321456579aee02efae74432bedc9",
+      "1ac56f37a6954173309ccaede4699d6833cfd0b14d05746007ef50a2fbaa7d7a",
   }),
   "1080p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
-    bytes: 296543,
+    bytes: 913120,
     sha256:
-      "741afc45bbe42e1c1067c409f746def0e0e0c691eea37384b44e36b3c986c19d",
+      "781bfc5a93683bbee0c8da582a71ea8654c2bc381f8359c7e6311402797326ee",
   }),
   "4k": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
-    bytes: 753082,
+    bytes: 3017903,
     sha256:
-      "c1866951e2118d77df07b2a8fcd0d29323553847c868a6f2c19000f9a0b260d2",
+      "4d37af19127a6c7882417342000776df7145e9e04f216d328e4571ca36e5b3e6",
   }),
 });
 const observationExpectations = Object.freeze({
@@ -97,7 +97,7 @@ const observationExpectations = Object.freeze({
       bottom: 684,
     }),
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 125.813,
+    minimumActionTargetWidthCssPx: 48,
     minimumActionTargetHeightCssPx: 48,
   }),
   "1080p": Object.freeze({
@@ -108,7 +108,7 @@ const observationExpectations = Object.freeze({
       bottom: 1026,
     }),
     minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 125.813,
+    minimumActionTargetWidthCssPx: 102.672,
     minimumActionTargetHeightCssPx: 48,
   }),
   "4k": Object.freeze({
@@ -119,18 +119,19 @@ const observationExpectations = Object.freeze({
       bottom: 2052,
     }),
     minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 211.609,
+    minimumActionTargetWidthCssPx: 161.906,
     minimumActionTargetHeightCssPx: 60,
   }),
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-AVH62C9R.css": 3,
-  "/assets/main-7Qefc84k.js": 3,
+  "/assets/main-BvtDBCXc.css": 3,
+  "/assets/main-FTRW3SpZ.js": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
   "/assets/src-CYOVH8wV.js": 3,
   "/assets/synthetic-D3ZzT8jW.js": 3,
   "/assets/tracker-health-bketT6qu.js": 3,
+  "/fonts/InterVariable.woff2": 3,
   "/fonts/OCRA.ttf": 3,
 });
 
@@ -286,7 +287,7 @@ function validateObservation(
   const expected = observationExpectations[resolution.id];
   assert.deepEqual(observation.safeArea, expected.safeArea);
   assert.equal(observation.documentReadyState, "complete");
-  assert.equal(observation.criticalTextCount, 24);
+  assert.equal(observation.criticalTextCount, 16);
   assert.equal(
     observation.criticalTextInsideSafeArea,
     observation.criticalTextCount,
@@ -530,7 +531,7 @@ export function validateLauncherTvConformanceEvidence(
     resolutionCount: 3,
     screenshotCount: 3,
     launcherViewCount: 1,
-    markedCriticalTextCountPerResolution: 24,
+    markedCriticalTextCountPerResolution: 16,
     markedActionTargetCountPerResolution: 12,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,

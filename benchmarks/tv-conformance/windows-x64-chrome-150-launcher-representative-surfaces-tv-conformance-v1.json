@@ -1,18 +1,18 @@
 {
   "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-11",
+  "evidenceDate": "2026-08-13",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-08-11T23:27:54.831Z",
+  "retrievedAtUtc": "2026-08-13T14:14:16.336Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "a5baef9726f669807ac366c9ea27e41ac80c28e77e4c718205cf2924795f0cde"
+    "sha256": "546743103bdcc1c02ca1c27bf979ed13654994608e28c8f0fb7ff7977d27a5d7"
   },
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.137",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
@@ -20,7 +20,7 @@
     "surfaces": [
       {
         "id": "motion-catalog",
-        "criticalTextCount": 24,
+        "criticalTextCount": 22,
         "actionTargetCount": 13,
         "focusTrace": [
           "motion-first-entry",
@@ -29,7 +29,7 @@
       },
       {
         "id": "wifi-offline",
-        "criticalTextCount": 24,
+        "criticalTextCount": 22,
         "actionTargetCount": 18,
         "focusTrace": [
           "scan-wifi",
@@ -70,7 +70,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.137",
     "observations": [
       {
         "surface": "motion-catalog",
@@ -84,12 +84,12 @@
           "bottom": 684
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 13,
-        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetWidthCssPx": 48,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -102,8 +102,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
-          "bytes": 159596,
-          "sha256": "3e59a409c553ca3d5b2c786cbd776d344e39bb06016abe00876fa14d20dc54c9"
+          "bytes": 310130,
+          "sha256": "8bdc2a71555afc8a8a517a356c9d0d12005f029d8a03e9ab997eba2d90664e38"
         }
       },
       {
@@ -118,12 +118,12 @@
           "bottom": 684
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 18,
-        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetWidthCssPx": 48,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -136,8 +136,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-          "bytes": 161139,
-          "sha256": "517ba479e2aee4b2b6f7cbb55e4c400afdb019178f58e36c26d4040cce335b6d"
+          "bytes": 281257,
+          "sha256": "e73c964c3b10317a20fbbe8c010078c7765fb8aed91f505bd02849f1b6ab4ea3"
         }
       },
       {
@@ -157,7 +157,7 @@
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 3,
-        "minimumActionTargetWidthCssPx": 156.594,
+        "minimumActionTargetWidthCssPx": 131.609,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -172,8 +172,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-          "bytes": 162417,
-          "sha256": "9174b43b6422919a56154fcf1c43fc6b4a75c8fb59ad169faec41ab97321dcf8"
+          "bytes": 307565,
+          "sha256": "c435689c46fd665b3b53b8e7ca439489c21c36d323da26e0c81562d55bf18b2d"
         }
       },
       {
@@ -188,12 +188,12 @@
           "bottom": 1026
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 13,
-        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetWidthCssPx": 102.672,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -206,8 +206,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
-          "bytes": 244646,
-          "sha256": "d1dd7fdc603a476fae056c577928c5ed88cc6e1b7c08999cd7a52229e5e35645"
+          "bytes": 533362,
+          "sha256": "149dd7b30dd1abf5fbb58d3f080df419ca3ba1babfa50e1e631523595d981019"
         }
       },
       {
@@ -222,12 +222,12 @@
           "bottom": 1026
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 18,
-        "minimumActionTargetWidthCssPx": 125.813,
+        "minimumActionTargetWidthCssPx": 102.672,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -240,8 +240,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-          "bytes": 240586,
-          "sha256": "2f321e392ef38156afb0e6af24ee9391899f75aa2d3546f169f4b23d9cefea02"
+          "bytes": 466303,
+          "sha256": "81f51ee79b2a2f417022ec7979bed3a65410e3957412f94e731feff2905d4032"
         }
       },
       {
@@ -261,7 +261,7 @@
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 3,
-        "minimumActionTargetWidthCssPx": 172.609,
+        "minimumActionTargetWidthCssPx": 147.625,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -276,8 +276,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-          "bytes": 256872,
-          "sha256": "63e34169786d3f8b1fd8277f42e8ae9f7df36e32ceb2d2df9c4c86df5bac77cc"
+          "bytes": 535704,
+          "sha256": "f47bdb9a21b5c23ec9b4ec4700e96517a3a8c657a820347e572d6d1931627bed"
         }
       },
       {
@@ -292,12 +292,12 @@
           "bottom": 2052
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 13,
-        "minimumActionTargetWidthCssPx": 211.609,
+        "minimumActionTargetWidthCssPx": 161.906,
         "minimumActionTargetHeightCssPx": 60,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -310,8 +310,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
-          "bytes": 617270,
-          "sha256": "e16f9ec60d3d3f65b9eb32ddb23504a9b07b4322ddda2350c54ec032552e5db6"
+          "bytes": 1501302,
+          "sha256": "f00d59bb05c29501a1628abc880c4caa1166484826d0eb0b133369c26d91c2b4"
         }
       },
       {
@@ -326,12 +326,12 @@
           "bottom": 2052
         },
         "documentReadyState": "complete",
-        "criticalTextCount": 24,
-        "criticalTextInsideSafeArea": 24,
+        "criticalTextCount": 22,
+        "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 18,
-        "minimumActionTargetWidthCssPx": 190,
+        "minimumActionTargetWidthCssPx": 161.906,
         "minimumActionTargetHeightCssPx": 60,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -344,8 +344,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-          "bytes": 640438,
-          "sha256": "69adfaeb6020902b5103549ce7505ec534b5b7725406d601665be559c8ccb45b"
+          "bytes": 1317763,
+          "sha256": "401e533ad805567fcb0a4b27909320d3cc144445e64a72fad79d2d978af2e532"
         }
       },
       {
@@ -365,7 +365,7 @@
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 3,
-        "minimumActionTargetWidthCssPx": 243.281,
+        "minimumActionTargetWidthCssPx": 191.219,
         "minimumActionTargetHeightCssPx": 62,
         "sectionOverlapCount": 0,
         "rootOverflowCssPx": {
@@ -380,8 +380,8 @@
         ],
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-          "bytes": 661929,
-          "sha256": "573db8e872d86dcdcd594aa7d1a7fd6ecd2e6f175752e6ba881c2f50ea0066ce"
+          "bytes": 1512193,
+          "sha256": "e2fb6d6306760ce297d22c1b2020330b3ab0216e804fdbbb290b040b449cb572"
         }
       }
     ],
@@ -390,12 +390,13 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-7Qefc84k.js": 9,
-      "/assets/main-AVH62C9R.css": 9,
+      "/assets/main-BvtDBCXc.css": 9,
+      "/assets/main-FTRW3SpZ.js": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
       "/assets/src-CYOVH8wV.js": 9,
       "/assets/synthetic-D3ZzT8jW.js": 9,
       "/assets/tracker-health-bketT6qu.js": 9,
+      "/fonts/InterVariable.woff2": 9,
       "/fonts/OCRA.ttf": 9
     }
   },
@@ -430,15 +431,15 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "83cc45bd1223624122452970cd63060283f1cf50dff53b7d8506916eca1af715",
+    "launcherPathSha256": "892764ca5165a4c8a652b7b2f95fd3f8d70937b2372d67096bf3f2860ad957ef",
     "settingsPath": "apps/console-lab/src/launcher/SettingsView.svelte",
-    "settingsPathSha256": "ea45b7f75c2010b104284e1c779cac85a23b9e659e4abde992cb6cab40868e93",
+    "settingsPathSha256": "3d64f8be3826893d5f111a349f948d7a602cae617cd82eeca1348bbea58e0d98",
     "launchScreenPath": "apps/console-lab/src/launcher/LaunchScreen.svelte",
     "launchScreenPathSha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "18c7008a7a96395523cc8eca741be2c1308a2db210894dea5f4275af3ca8e5be",
+    "stylePathSha256": "77284ccd1dd3482fa1ce821e31de59fd436a5595a2ad070dafe6b3f9f0b762a2",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "10a834f46cdf41b6918285839af167ed1719da2ada93916849bde3a2064197e9",
+    "entryPathSha256": "efc22e08fca747b27ab6554ea9ae85d774fc53999dfeed86e894a71024a2e815",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -446,15 +447,15 @@
     "catalogPath": "apps/console-lab/src/launcher/catalog.generated.ts",
     "catalogPathSha256": "eb397879e05388d21b8d4e48266d5ced298fa6cfe26ce32630524c137d055422",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "16f78f7f243e1e609104c561a6680233aac6a2035d9033c55131eac2855d8a07",
+    "browserTestPathSha256": "39c3ec35916e3c770e45b9f86966be06fe30c641e991f27f58826bbc73650170",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "a5baef9726f669807ac366c9ea27e41ac80c28e77e4c718205cf2924795f0cde",
+    "homeEvidencePathSha256": "546743103bdcc1c02ca1c27bf979ed13654994608e28c8f0fb7ff7977d27a5d7",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
+    "commonGeneratorPathSha256": "a56a37c929cd65f4ae6f6b381306248bd56af999ba29bab930ff82863124e2e9",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
-    "generatorPathSha256": "7105c965bfe351a62302b33a2d32537434251320b06a5f4454d19a790ba5a0fb",
+    "generatorPathSha256": "ccdee184420f94fd141de2dd45e3d91c8e3f98f8dac7580b63f79aa023256fd9",
     "validatorPath": "scripts/validate-launcher-tv-surface-evidence.mjs",
-    "validatorPathSha256": "7224e84819bdd2bd0112dec3d9198308750ff4c4994e6f8d528ea51855b8e1f1",
+    "validatorPathSha256": "cd73bb936a392565efb884ce1fa172a588e59a3199ded98e11663b39c3f290a4",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -471,8 +472,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 153,
-      "sha256": "ff1305edcc7705e379662799150e3a55ef95a8ed861d44092ae721dcb4335024"
+      "fileCount": 154,
+      "sha256": "73c1feb34587f1f32d08acd14186ad5a2ef375ebb55bebd110c286183413d3a8"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

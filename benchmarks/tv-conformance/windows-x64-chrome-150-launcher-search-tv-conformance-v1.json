@@ -1,18 +1,18 @@
 {
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-11",
+  "evidenceDate": "2026-08-13",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-11T23:28:52.972Z",
+  "retrievedAtUtc": "2026-08-13T14:15:33.524Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "d456f06a248d0941ec28631f671a939de1a5b989e8efe88a677d66c0eeb355c4"
+    "sha256": "4ff924df9efe11ec198f00eda3fe4215ef944abd886fa80644e95a9a8fd07628"
   },
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.137",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
@@ -22,7 +22,7 @@
         "id": "motion-results",
         "query": "motion",
         "resultCount": 5,
-        "criticalTextCount": 13,
+        "criticalTextCount": 8,
         "actionTargetCount": 6,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -68,7 +68,7 @@
         "id": "empty-query-scroll-activation",
         "query": "",
         "resultCount": 22,
-        "criticalTextCount": 47,
+        "criticalTextCount": 25,
         "actionTargetCount": 23,
         "measurementMode": "fully-visible-marked",
         "scrollingExpectedResolutionIds": [
@@ -99,7 +99,7 @@
         "id": "offline-package-activation",
         "query": "obstacle",
         "resultCount": 1,
-        "criticalTextCount": 5,
+        "criticalTextCount": 4,
         "actionTargetCount": 2,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -126,7 +126,7 @@
         "id": "remote-web-ready-denial",
         "query": "vibecoded.games",
         "resultCount": 1,
-        "criticalTextCount": 5,
+        "criticalTextCount": 4,
         "actionTargetCount": 2,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -166,7 +166,7 @@
         "id": "remote-web-offline-failure",
         "query": "vibecoded.games",
         "resultCount": 1,
-        "criticalTextCount": 5,
+        "criticalTextCount": 4,
         "actionTargetCount": 2,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -201,7 +201,7 @@
         "id": "unavailable-package-denial",
         "query": "2048",
         "resultCount": 1,
-        "criticalTextCount": 5,
+        "criticalTextCount": 4,
         "actionTargetCount": 2,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -235,7 +235,7 @@
         "id": "destructive-settings-denial",
         "query": "delete local progress",
         "resultCount": 1,
-        "criticalTextCount": 5,
+        "criticalTextCount": 4,
         "actionTargetCount": 2,
         "measurementMode": "all-marked",
         "scrollingExpectedResolutionIds": [],
@@ -298,7 +298,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.137",
     "observations": [
       {
         "state": "motion-results",
@@ -315,21 +315,21 @@
         "documentReadyState": "complete",
         "resultCount": 5,
         "emptyStateVisible": false,
-        "criticalTextCount": 13,
-        "measuredCriticalTextCount": 13,
-        "criticalTextInsideSafeArea": 13,
+        "criticalTextCount": 8,
+        "measuredCriticalTextCount": 8,
+        "criticalTextInsideSafeArea": 8,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 6,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 256,
-          "scrollHeightCssPx": 256,
+          "clientHeightCssPx": 272,
+          "scrollHeightCssPx": 272,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -346,8 +346,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-          "bytes": 87358,
-          "sha256": "dcd3e99e549cccb22a064aaba8ff5ac815e4db48ddbd0ec3902eb03b69642acb"
+          "bytes": 127795,
+          "sha256": "5c7d777ece1f38a9c14d780e99c9389f7e85ace5014da9f4d28dba89cf6d8d26"
         }
       },
       {
@@ -371,7 +371,7 @@
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 5,
-        "minimumActionTargetWidthCssPx": 197.297,
+        "minimumActionTargetWidthCssPx": 198.703,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -412,8 +412,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-          "bytes": 74440,
-          "sha256": "8a956f382b0aab2576b2f02c06b48e33ecaef2169caffa81e80074eb6f12bc73"
+          "bytes": 128293,
+          "sha256": "3ca1e3b78e21ced9f4a2b5c85242a431cf859f99e8f975158694e59195da438c"
         }
       },
       {
@@ -431,24 +431,24 @@
         "documentReadyState": "complete",
         "resultCount": 22,
         "emptyStateVisible": false,
-        "criticalTextCount": 47,
-        "measuredCriticalTextCount": 23,
-        "criticalTextInsideSafeArea": 23,
+        "criticalTextCount": 25,
+        "measuredCriticalTextCount": 10,
+        "criticalTextInsideSafeArea": 10,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 23,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 523,
-          "scrollHeightCssPx": 1102,
+          "clientHeightCssPx": 420,
+          "scrollHeightCssPx": 1224,
           "initialScrollTopCssPx": 0,
-          "finalScrollTopCssPx": 579,
-          "maximumScrollTopCssPx": 579,
+          "finalScrollTopCssPx": 804,
+          "maximumScrollTopCssPx": 804,
           "lastResultInsideViewportAfterFocus": true
         },
         "interactionTrace": [
@@ -476,8 +476,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-          "bytes": 129345,
-          "sha256": "ebca7c6329c39460f96829ba3c6471224592c70a14c9acd4dfc32ef6e23fd427"
+          "bytes": 137479,
+          "sha256": "b3357c28b96bf8a900f8a0cd8ac0cde54ea1295132b189952f83e3f688587c13"
         }
       },
       {
@@ -495,13 +495,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -539,8 +539,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
-          "bytes": 55260,
-          "sha256": "c9650c2e02702576cc44222c3d68384b20499b6b22fdd3767ed1e8309f03650c"
+          "bytes": 130037,
+          "sha256": "a12c58318de88de56270620d801cfea3a1cca8a995942fd0b57b577fa3e3f5d4"
         }
       },
       {
@@ -558,13 +558,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -618,8 +618,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
-          "bytes": 58990,
-          "sha256": "b313e431b53bb4d09a616f8843f7fc56cac83aef378945a1dfde2bffda0b3741"
+          "bytes": 134425,
+          "sha256": "088aa6ffaef5ee5047a53fc86b42a10f65d98257077b330f13fe8d71f8477bda"
         }
       },
       {
@@ -637,13 +637,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -696,8 +696,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
-          "bytes": 58990,
-          "sha256": "b313e431b53bb4d09a616f8843f7fc56cac83aef378945a1dfde2bffda0b3741"
+          "bytes": 134425,
+          "sha256": "088aa6ffaef5ee5047a53fc86b42a10f65d98257077b330f13fe8d71f8477bda"
         }
       },
       {
@@ -715,13 +715,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -769,8 +769,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
-          "bytes": 52802,
-          "sha256": "4f8816c9f3d5634549824872016a734a3b0ef5f9c2c4cfa8756f98a46425f9a2"
+          "bytes": 129598,
+          "sha256": "9d44eb9d4cf146b9c284026ec44e4c8d5a5f058a9223abaed2586494282ea54d"
         }
       },
       {
@@ -788,21 +788,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 687.766,
+        "minimumActionTargetWidthCssPx": 700.609,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -853,8 +853,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
-          "bytes": 62039,
-          "sha256": "26fb9320f72a859958f3c3fc84ac7fb4acd9f9e0929cec12efda3227b12f4ddc"
+          "bytes": 136042,
+          "sha256": "0d1bfbb1b5edef9bd9cbc20a18bf8c07aa478d1e692f79c2fee1928154a7cbcc"
         }
       },
       {
@@ -872,21 +872,21 @@
         "documentReadyState": "complete",
         "resultCount": 5,
         "emptyStateVisible": false,
-        "criticalTextCount": 13,
-        "measuredCriticalTextCount": 13,
-        "criticalTextInsideSafeArea": 13,
+        "criticalTextCount": 8,
+        "measuredCriticalTextCount": 8,
+        "criticalTextInsideSafeArea": 8,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 6,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 253,
-          "scrollHeightCssPx": 253,
+          "clientHeightCssPx": 276,
+          "scrollHeightCssPx": 276,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -903,8 +903,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-          "bytes": 105340,
-          "sha256": "2a00b1f2ff70ddf0d577201d04013cd9c7513c03a3c72b6fda0114f137f11cab"
+          "bytes": 245269,
+          "sha256": "35646fcd983a0c85167e537ac019c8e41d615de774730285fd2f8bab014471c9"
         }
       },
       {
@@ -928,7 +928,7 @@
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 5,
-        "minimumActionTargetWidthCssPx": 265.203,
+        "minimumActionTargetWidthCssPx": 194.891,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -969,8 +969,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-          "bytes": 92201,
-          "sha256": "16a6b4e5022890bf82894d206c41eb893cbb8adcc0640d0815421bd9c4cfe327"
+          "bytes": 232279,
+          "sha256": "65a20f3c81ac90e8c1ca3972b478052f616b2520cc9c05cd1a13a1479be11246"
         }
       },
       {
@@ -988,24 +988,24 @@
         "documentReadyState": "complete",
         "resultCount": 22,
         "emptyStateVisible": false,
-        "criticalTextCount": 47,
-        "measuredCriticalTextCount": 35,
-        "criticalTextInsideSafeArea": 35,
+        "criticalTextCount": 25,
+        "measuredCriticalTextCount": 16,
+        "criticalTextInsideSafeArea": 16,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 23,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 798,
-          "scrollHeightCssPx": 1069,
+          "clientHeightCssPx": 726,
+          "scrollHeightCssPx": 1234,
           "initialScrollTopCssPx": 0,
-          "finalScrollTopCssPx": 271,
-          "maximumScrollTopCssPx": 271,
+          "finalScrollTopCssPx": 508,
+          "maximumScrollTopCssPx": 508,
           "lastResultInsideViewportAfterFocus": true
         },
         "interactionTrace": [
@@ -1033,8 +1033,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-          "bytes": 183916,
-          "sha256": "dc7eb6bd19fb48d8030365b9e7e8b88b00e6b5e0a5c0db04c92273f1ed956afd"
+          "bytes": 283152,
+          "sha256": "1807d5780edf8fdd897eb5946e2dc9ed7f5322860d1fafa48a8105d15fc683a2"
         }
       },
       {
@@ -1052,13 +1052,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -1096,8 +1096,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
-          "bytes": 71234,
-          "sha256": "590ebeca3914f67e0405b06ebadd79cec47f110d4032191bd317df690f5ed88f"
+          "bytes": 221564,
+          "sha256": "415febf6adfd96c1a98258d1c39395ae1212ebfd17d749b39ea35df1e7ea747a"
         }
       },
       {
@@ -1115,13 +1115,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -1175,8 +1175,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
-          "bytes": 74828,
-          "sha256": "1bcf1924ae07b7368fd7274bf934e12527964864f16880ddbc953bc60e211fd6"
+          "bytes": 226745,
+          "sha256": "d027cd844c37db427c052029ce22052bbc3f1b7decca8d0418ca9e8236895143"
         }
       },
       {
@@ -1194,13 +1194,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -1253,8 +1253,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
-          "bytes": 74828,
-          "sha256": "1bcf1924ae07b7368fd7274bf934e12527964864f16880ddbc953bc60e211fd6"
+          "bytes": 226745,
+          "sha256": "d027cd844c37db427c052029ce22052bbc3f1b7decca8d0418ca9e8236895143"
         }
       },
       {
@@ -1272,13 +1272,13 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -1326,8 +1326,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
-          "bytes": 68559,
-          "sha256": "94b7862ea0efa34d810a291d14114f266ded68ed47488f99bb80b6d0bb5c8207"
+          "bytes": 221497,
+          "sha256": "b42d10cac9fcba80d480793e2a3c41f77eb6873f22e25c9d29a94ed61b04372b"
         }
       },
       {
@@ -1345,21 +1345,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 951.328,
+        "minimumActionTargetWidthCssPx": 685.391,
         "minimumActionTargetHeightCssPx": 48,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 48,
-          "scrollHeightCssPx": 48,
+          "clientHeightCssPx": 50,
+          "scrollHeightCssPx": 50,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1410,8 +1410,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
-          "bytes": 77625,
-          "sha256": "7d0a3b15784d9ef09609cdc92413ce2945512531313c6ca0ecb8252b538baef1"
+          "bytes": 229393,
+          "sha256": "3d5899c9aee5b2b6299a720aeba41a8ecf55e6983c84be2bce57e4ec19c5c2a2"
         }
       },
       {
@@ -1429,21 +1429,21 @@
         "documentReadyState": "complete",
         "resultCount": 5,
         "emptyStateVisible": false,
-        "criticalTextCount": 13,
-        "measuredCriticalTextCount": 13,
-        "criticalTextInsideSafeArea": 13,
+        "criticalTextCount": 8,
+        "measuredCriticalTextCount": 8,
+        "criticalTextInsideSafeArea": 8,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 6,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 365,
-          "scrollHeightCssPx": 365,
+          "clientHeightCssPx": 374,
+          "scrollHeightCssPx": 374,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1460,8 +1460,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-          "bytes": 256783,
-          "sha256": "67f84b414bd18fd92f83a0db1cb63b6082701568cd80358ce48c1cfa1306d1f0"
+          "bytes": 622980,
+          "sha256": "e34b56199be2a114c2dfeac34d88576360b54ef942ab87ef898010e561fa6255"
         }
       },
       {
@@ -1485,7 +1485,7 @@
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 5,
-        "minimumActionTargetWidthCssPx": 530.391,
+        "minimumActionTargetWidthCssPx": 425.297,
         "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
@@ -1526,8 +1526,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-          "bytes": 220712,
-          "sha256": "7fef9befe03310ffa398c525bf7adf73cfbb5d296ad47d236d4b1f5cb6a2fe6d"
+          "bytes": 594867,
+          "sha256": "7dc455b34ecdab5d179fba43b4d8a6f9119b06983da53a17b9610478113262f2"
         }
       },
       {
@@ -1545,21 +1545,21 @@
         "documentReadyState": "complete",
         "resultCount": 22,
         "emptyStateVisible": false,
-        "criticalTextCount": 47,
-        "measuredCriticalTextCount": 47,
-        "criticalTextInsideSafeArea": 47,
+        "criticalTextCount": 25,
+        "measuredCriticalTextCount": 25,
+        "criticalTextInsideSafeArea": 25,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 23,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 1402,
-          "scrollHeightCssPx": 1402,
+          "clientHeightCssPx": 1564,
+          "scrollHeightCssPx": 1564,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1590,8 +1590,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-          "bytes": 547180,
-          "sha256": "abb2827ecdfe2aa44f202fa59ac1c83e8564429ae711ef8376dc87770542784e"
+          "bytes": 774833,
+          "sha256": "83c80ad4c94cd476cfa1c0335a597a7890399e87dd959ae73bb9de1c19eae52a"
         }
       },
       {
@@ -1609,21 +1609,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1653,8 +1653,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
-          "bytes": 177149,
-          "sha256": "b42e6a33d496eb7f7219c703ce6866e3b9355f4d0d8895d474c034f30cdb2563"
+          "bytes": 560689,
+          "sha256": "d96264078e11a3e6b846b4cd624e6fed792f75696f4d5cdca79f41058cd7c452"
         }
       },
       {
@@ -1672,21 +1672,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1732,8 +1732,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
-          "bytes": 184630,
-          "sha256": "d3ac584897524f39ba136da5ce097d2d410c80920d44b1f918975e4c990b4c55"
+          "bytes": 570438,
+          "sha256": "4d9240e8cfff37d1653dc92d9a74ba1677fb6f5be2b3b68d5312229a48a00da1"
         }
       },
       {
@@ -1751,21 +1751,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1810,8 +1810,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
-          "bytes": 184630,
-          "sha256": "d3ac584897524f39ba136da5ce097d2d410c80920d44b1f918975e4c990b4c55"
+          "bytes": 570438,
+          "sha256": "4d9240e8cfff37d1653dc92d9a74ba1677fb6f5be2b3b68d5312229a48a00da1"
         }
       },
       {
@@ -1829,21 +1829,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1883,8 +1883,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
-          "bytes": 173556,
-          "sha256": "371d310dcfd9ddeae1d8b537d549eef8acde1d2a259ae3294d82bfaffce8a48c"
+          "bytes": 561652,
+          "sha256": "f991cbc94c0a0a3e0e7cceec0f2c57948f9f3f78b7d75ed89e10245a9eaa858d"
         }
       },
       {
@@ -1902,21 +1902,21 @@
         "documentReadyState": "complete",
         "resultCount": 1,
         "emptyStateVisible": false,
-        "criticalTextCount": 5,
-        "measuredCriticalTextCount": 5,
-        "criticalTextInsideSafeArea": 5,
+        "criticalTextCount": 4,
+        "measuredCriticalTextCount": 4,
+        "criticalTextInsideSafeArea": 4,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
         "actionTargetCount": 2,
-        "minimumActionTargetWidthCssPx": 1936.656,
-        "minimumActionTargetHeightCssPx": 61,
+        "minimumActionTargetWidthCssPx": 1561.625,
+        "minimumActionTargetHeightCssPx": 62,
         "overlayOverflowCssPx": {
           "horizontal": 0,
           "vertical": 0
         },
         "resultsScroll": {
-          "clientHeightCssPx": 61,
-          "scrollHeightCssPx": 61,
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
           "initialScrollTopCssPx": 0,
           "finalScrollTopCssPx": 0,
           "maximumScrollTopCssPx": 0,
@@ -1967,8 +1967,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
-          "bytes": 192505,
-          "sha256": "18b6aa0b2566bec53791682767832e00634f44fbce8c06bae3cc023400a115da"
+          "bytes": 576230,
+          "sha256": "f7ae0144e365477149d74ea38d9f6f982d0589759791268ec280bcef6f230a15"
         }
       }
     ],
@@ -1977,12 +1977,13 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-7Qefc84k.js": 24,
-      "/assets/main-AVH62C9R.css": 24,
+      "/assets/main-BvtDBCXc.css": 24,
+      "/assets/main-FTRW3SpZ.js": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
       "/assets/src-CYOVH8wV.js": 24,
       "/assets/synthetic-D3ZzT8jW.js": 24,
       "/assets/tracker-health-bketT6qu.js": 24,
+      "/fonts/InterVariable.woff2": 24,
       "/fonts/OCRA.ttf": 24
     }
   },
@@ -2033,31 +2034,31 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "83cc45bd1223624122452970cd63060283f1cf50dff53b7d8506916eca1af715",
+    "launcherPathSha256": "892764ca5165a4c8a652b7b2f95fd3f8d70937b2372d67096bf3f2860ad957ef",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
-    "searchPathSha256": "aa17a7a0a6562d7b2eef601134a45cc07c0bf34d440750ce49127bc80ce8869b",
+    "searchPathSha256": "33ed9e179bbf426eee5bb0c4ab940b5fd4ce97000b1e32d8c36e7be5116f7a10",
     "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
     "unassignedViewPathSha256": "0ef5a820c62c6995762bb5ec16b5868d89d51c361aad98b752a8774b432fca9d",
     "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
     "unassignedControllerPathSha256": "92ddc58cacfad89293ba5931cc3040e7a9c1554a94ade975ea6ef60d905e59b7",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "18c7008a7a96395523cc8eca741be2c1308a2db210894dea5f4275af3ca8e5be",
+    "stylePathSha256": "77284ccd1dd3482fa1ce821e31de59fd436a5595a2ad070dafe6b3f9f0b762a2",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "10a834f46cdf41b6918285839af167ed1719da2ada93916849bde3a2064197e9",
+    "entryPathSha256": "efc22e08fca747b27ab6554ea9ae85d774fc53999dfeed86e894a71024a2e815",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "16f78f7f243e1e609104c561a6680233aac6a2035d9033c55131eac2855d8a07",
+    "browserTestPathSha256": "39c3ec35916e3c770e45b9f86966be06fe30c641e991f27f58826bbc73650170",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "d456f06a248d0941ec28631f671a939de1a5b989e8efe88a677d66c0eeb355c4",
+    "representativeEvidencePathSha256": "4ff924df9efe11ec198f00eda3fe4215ef944abd886fa80644e95a9a8fd07628",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "72edc29284311e908df7c4b9fb356a477c33187a90f31c236272b73f51f23f78",
+    "commonGeneratorPathSha256": "a56a37c929cd65f4ae6f6b381306248bd56af999ba29bab930ff82863124e2e9",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "de37402997a063bb24b054c287b83d4f57e5c8b1f4f4ab571b69a9ee520c5886",
+    "generatorPathSha256": "28043df7a29607a6da197d58d869b7e6568ba4d89af9c7250f2e753f90198746",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "848c4368a2f03919983e0d061645efced267818d35ec97f6989907b9aca061c3",
+    "validatorPathSha256": "94a0382436f82da1a3d9952ad24ea539944a85995e456e42b57df5cf62bc1ff7",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -2074,8 +2075,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 153,
-      "sha256": "ff1305edcc7705e379662799150e3a55ef95a8ed861d44092ae721dcb4335024"
+      "fileCount": 154,
+      "sha256": "73c1feb34587f1f32d08acd14186ad5a2ef375ebb55bebd110c286183413d3a8"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 22-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 22-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

@@ -16,6 +16,7 @@ import {
   GODOT_EXPORT_NODE_VERSION,
 } from "./generate-godot-export-evidence.mjs";
 import {
+  deterministicScreenshot,
   TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
@@ -301,7 +302,13 @@ async function exercise(chromePath) {
   const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
-    args: ["--disable-gpu"],
+    args: [
+      "--disable-gpu",
+      "--disable-lcd-text",
+      "--disable-partial-raster",
+      "--disable-skia-runtime-opts",
+      "--force-color-profile=srgb",
+    ],
   });
   const observations = [];
   const requestCounts = new Map();
@@ -346,7 +353,9 @@ async function exercise(chromePath) {
       assert.equal(response?.status(), 200);
       await page.getByRole("heading", { name: /Good evening/ }).waitFor();
       await page.evaluate(() => document.fonts.ready);
-      await page.waitForTimeout(250);
+      // Longer than the slowest shell transition (the 520ms ambient-stage
+      // crossfade), so the capture always records the settled state.
+      await page.waitForTimeout(1000);
 
       const safeArea = {
         left: resolution.width * 0.05,
@@ -362,7 +371,7 @@ async function exercise(chromePath) {
         page,
         "[data-tv-action]:visible",
       );
-      assert.equal(criticalText.length, 24);
+      assert.equal(criticalText.length, 16);
       assert.equal(actions.length, 12);
       assert.ok(
         criticalText.every(
@@ -440,15 +449,18 @@ async function exercise(chromePath) {
       assert.equal(searchVisibleAfterSelect, true);
       assert.equal(searchHiddenAfterBack, true);
 
+      // The focus round trip ends by restoring focus to the search trigger;
+      // let its focus transition finish so the capture is settled.
+      await page.waitForTimeout(400);
       const screenshotPath = resolve(
         outputRoot,
         `windows-x64-chrome-150-launcher-home-${resolution.id}.png`,
       );
       await mkdir(dirname(screenshotPath), { recursive: true });
-      const screenshot = await page.screenshot({
-        path: screenshotPath,
-        fullPage: false,
-      });
+      const screenshot = await deterministicScreenshot(
+        page,
+        screenshotPath,
+      );
       observations.push({
         ...resolution,
         safeArea,
@@ -567,7 +579,7 @@ export async function generateLauncherTvConformanceEvidence() {
       resolutionCount: 3,
       screenshotCount: 3,
       launcherViewCount: 1,
-      markedCriticalTextCountPerResolution: 24,
+      markedCriticalTextCountPerResolution: 16,
       markedActionTargetCountPerResolution: 12,
       physicalTelevisionCount: 0,
       physicalControllerCount: 0,

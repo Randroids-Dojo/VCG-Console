@@ -330,11 +330,11 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.keyboard.press("/");
   await page.locator("#universal-search").fill("VibeBots");
   await page.getByRole("button", { name: /VibeBots Museum catalog/ }).click();
-  await expect(page.getByRole("heading", { name: /museum is/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /VibeCoded Museum/ })).toBeVisible();
   await page.keyboard.press("/");
   await page.locator("#universal-search").fill("retro");
   await page.getByRole("button", { name: /RetroArch Retro library/ }).click();
-  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
   await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
   const retroEmptyMark = page.locator(".empty-library .empty-glyph");
   await expect(retroEmptyMark).toHaveText("");
@@ -603,7 +603,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
   await page.locator("#capture-profile-portrait").click();
   const portraitView = page.locator('[data-launcher-view="portrait"]');
   await expect(
-    portraitView.getByRole("heading", { name: "Choose the image deliberately." }),
+    portraitView.getByRole("heading", { name: "Profile portrait" }),
   ).toBeVisible();
   await expect(
     portraitView.getByText("Camera off · synthetic fixture only"),
@@ -698,7 +698,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
   await page.setViewportSize({ width: 520, height: 900 });
   await page.locator("#capture-profile-portrait").click();
   await expect(
-    portraitView.getByRole("heading", { name: "Choose the image deliberately." }),
+    portraitView.getByRole("heading", { name: "Profile portrait" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -1063,7 +1063,7 @@ test("session authority rehearsal contains synthetic household interference", as
     '[data-launcher-view="session-adversarial"]',
   );
   await expect(
-    view.getByRole("heading", { name: "Detection is not control." }),
+    view.getByRole("heading", { name: "Session authority test" }),
   ).toBeVisible();
   await expect(view.getByText("Five interference classes.")).toBeVisible();
   const interferenceMark = view.locator(".session-adversarial-notice > span");
@@ -1139,7 +1139,7 @@ test("session authority rehearsal contains synthetic household interference", as
     1,
   );
   await expect(
-    page.getByRole("heading", { name: "Move to play." }),
+    page.getByRole("heading", { name: "Motion games" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -1221,7 +1221,7 @@ test("synthetic calibration guides failed dimensions and invalidates changed roo
   const calibration = page.locator('[data-launcher-view="calibration"]');
   await expect(
     calibration.getByRole("heading", {
-      name: "Show what the console understood.",
+      name: "Calibration results",
     }),
   ).toBeVisible();
   await expect(
@@ -2041,7 +2041,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await expect(result).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(trigger).toBeFocused();
-  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
 
   await trigger.click();
   await expect(input).toHaveValue("");
@@ -2314,7 +2314,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
 
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await page.getByRole("button", { name: /Circuit Shift.*Built in/ }).click();
-  await expect(page.getByRole("heading", { name: "Build the signal." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Circuit Shift" })).toBeVisible();
   await expect(page.getByLabel("Circuit Shift game")).toBeFocused();
   await expect(page.locator("[data-circuit-score]")).toHaveText("0");
 
@@ -2326,7 +2326,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
   })).toBe(4);
 
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
 });
 
 test("launcher remains usable on a narrow setup display", async ({ page }) => {
@@ -2334,7 +2334,7 @@ test("launcher remains usable on a narrow setup display", async ({ page }) => {
   await page.goto("/?skipBoot=1");
   await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
   await page.getByRole("button", { name: "Retro", exact: true }).click();
-  await expect(page.getByRole("heading", { name: /One library/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
   await page.keyboard.press("/");
   await expect(page.locator("#universal-search")).toBeFocused();
   await page.screenshot({ path: "../../test-results/console-lab/launcher-mobile-search.png" });
@@ -2354,7 +2354,7 @@ test("launch screen remains purposeful on a narrow display", async ({ page }) =>
 
 test("console lab preserves navigation and safe overlay focus contracts", async ({ page }) => {
   await openMotionLab(page);
-  await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "MOTION TRACKER" })).toBeVisible();
   await expect(page.getByText("RAW VIDEO", { exact: false })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Gesture hold progress" })).toHaveAttribute(
     "aria-valuenow",
@@ -2363,11 +2363,11 @@ test("console lab preserves navigation and safe overlay focus contracts", async 
   await expect(page.getByText("Hold progress, acceptance, cancellation, and release appear here.")).toBeVisible();
 
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
-  await expect(page.getByRole("heading", { name: "MOVE BEFORE IT HITS." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "OBSTACLE" })).toBeVisible();
   await expect(page.locator("#obstacle-canvas")).toBeVisible();
 
   await page.getByRole("button", { name: /03 SHELL LAB/ }).click();
-  await expect(page.getByRole("heading", { name: "EVERY PATH LEADS BACK." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "GESTURE NAVIGATION" })).toBeVisible();
   await page.getByRole("button", { name: "TEST MANUAL PAUSE" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByRole("button", { name: "RESUME" })).toHaveClass(/focused/);
@@ -2393,7 +2393,7 @@ test("Escape returns an active game to the console", async ({ page }) => {
 
 test("captures the reviewed tracker surface", async ({ page }) => {
   await openMotionLab(page);
-  await expect(page.getByRole("heading", { name: "YOUR BODY IS THE SIGNAL." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "MOTION TRACKER" })).toBeVisible();
   await expect(page.locator("#metric-source-timing-label")).toHaveText(
     "REPLAY TO FRAME P95",
   );

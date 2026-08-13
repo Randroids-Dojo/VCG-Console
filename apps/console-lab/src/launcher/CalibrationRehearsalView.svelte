@@ -294,7 +294,7 @@
   <div>
     <button class="text-back" type="button" onclick={cancelAndReturn}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profile management</button>
     <p class="view-kicker">PLAYER + PLAY-ZONE CALIBRATION / DESK REHEARSAL</p>
-    <h1>Show what the console understood.</h1>
+    <h1>Calibration results</h1>
   </div>
   <p>Automatic first. Guided only where confidence or safety facts fail. This build uses no camera or body measurements.</p>
 </header>
