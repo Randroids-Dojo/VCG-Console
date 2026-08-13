@@ -117,6 +117,13 @@ test("the installer grants uinput access for the cursor nudge", async () => {
   );
   assert.match(installer, /udevadm control --reload-rules/);
   assert.match(installer, /modprobe uinput/);
+  assert.match(installer, /udevadm trigger --name-match=uinput \|\| true/);
+  // Re-running the installer must still pick up a freshly loaded module on
+  // an already-existing /dev/uinput node -- the fallback trigger has to run
+  // after modprobe, not before it.
+  const modprobeIndex = installer.search(/modprobe uinput/);
+  const triggerIndex = installer.search(/udevadm trigger --name-match=uinput \|\| true/);
+  assert.ok(modprobeIndex >= 0 && triggerIndex > modprobeIndex);
 
   // vcg-cursor-nudge itself: resolved like the other release binaries,
   // validated as an absolute path, required to exist before a real
@@ -126,11 +133,19 @@ test("the installer grants uinput access for the cursor nudge", async () => {
     /cursor_nudge_path="\$\{cursor_nudge_path:-\$\{repo_root\}\/target\/release\/vcg-cursor-nudge\}"/,
   );
   assert.match(installer, /validate_absolute_path "cursor-nudge" "\$\{cursor_nudge_path\}"/);
-  assert.match(installer, /"\$\{cursor_nudge_path\}"/);
   assert.match(
     installer,
     /content="\$\{content\/\/@CURSOR_NUDGE_PATH@\/\$\{cursor_nudge_path\}\}"/,
   );
+  // A missing cursor-nudge binary must fail the install before any unit is
+  // rendered, exactly like the other release binaries it's listed beside.
+  const executableCheckIndex = installer.search(
+    /"\$\{bluetoothctl_path\}"\s*\\\n\s*"\$\{cursor_nudge_path\}"/,
+  );
+  const renderIndex = installer.search(
+    /content="\$\{content\/\/@CURSOR_NUDGE_PATH@\/\$\{cursor_nudge_path\}\}"/,
+  );
+  assert.ok(executableCheckIndex >= 0 && renderIndex > executableCheckIndex);
 });
 
 test("one setup command installs, builds, verifies, and owns boot", async () => {
