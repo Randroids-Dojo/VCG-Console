@@ -87,6 +87,7 @@ struct LauncherOptions {
     windowed: bool,
     browser: Option<PathBuf>,
     bluetoothctl: Option<PathBuf>,
+    cursor_nudge: Option<PathBuf>,
     profile_dir: Option<PathBuf>,
     url: Option<String>,
     catalog: Option<PathBuf>,
@@ -155,7 +156,8 @@ struct LauncherCatalogConfiguration {
 }
 
 fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
-    let (dry_run, request, catalog_options, bluetoothctl) = launcher_request(arguments)?;
+    let (dry_run, request, catalog_options, bluetoothctl, cursor_nudge) =
+        launcher_request(arguments)?;
     // Validate the browser request before a real launcher startup is allowed
     // to recover or otherwise mutate package-store state.
     let initial_spec = plan_launcher(&request).map_err(|error| error.to_string())?;
@@ -233,6 +235,7 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
         child.id(),
         host_api.allowed_origin()
     );
+    spawn_cursor_nudge(cursor_nudge);
     let status = child.wait().map_err(|error| error.to_string())?;
     println!(
         "launcher:completed exit_code={}",
@@ -245,6 +248,34 @@ fn launcher(arguments: &[OsString]) -> Result<ExitCode, String> {
     } else {
         ExitCode::FAILURE
     })
+}
+
+/// Best-effort, one-shot synthetic pointer nudge so cage can hide its
+/// default Wayland cursor even when no physical pointing device is ever
+/// attached -- runs `vcg-cursor-nudge` (a separate binary; see that
+/// crate's doc comment for why raw uinput ioctls live outside this
+/// unsafe-forbidden crate) as a subprocess on a detached background
+/// thread. A slow, missing, or failed nudge is purely cosmetic and must
+/// never delay or fail the actual console launch.
+fn spawn_cursor_nudge(cursor_nudge: Option<PathBuf>) {
+    let Some(cursor_nudge) = cursor_nudge else {
+        return;
+    };
+    std::thread::spawn(move || {
+        // Give cage and Chromium time to map the window first -- the nudge
+        // only matters once Chromium actually has pointer focus on a
+        // mapped Wayland surface.
+        std::thread::sleep(Duration::from_secs(2));
+        match std::process::Command::new(&cursor_nudge).status() {
+            Ok(status) if status.success() => println!("launcher:cursor-nudge ok"),
+            Ok(status) => {
+                eprintln!("launcher:cursor-nudge failed (cosmetic only): exit {status}");
+            }
+            Err(error) => {
+                eprintln!("launcher:cursor-nudge failed to start (cosmetic only): {error}");
+            }
+        }
+    });
 }
 
 fn start_launcher_host_api(
@@ -630,17 +661,16 @@ fn parse_update_root_option(
     set_path_option(slot, required_next_path(arguments, cursor, option)?, option)
 }
 
-fn launcher_request(
-    arguments: &[OsString],
-) -> Result<
-    (
-        bool,
-        LauncherRequest,
-        Option<LauncherCatalogOptions>,
-        Option<PathBuf>,
-    ),
-    String,
-> {
+/// `(dry_run, request, catalog_options, bluetoothctl, cursor_nudge)`.
+type LauncherRequestParts = (
+    bool,
+    LauncherRequest,
+    Option<LauncherCatalogOptions>,
+    Option<PathBuf>,
+    Option<PathBuf>,
+);
+
+fn launcher_request(arguments: &[OsString]) -> Result<LauncherRequestParts, String> {
     let mut options = LauncherOptions::default();
     let mut cursor = 0;
     while let Some(argument) = arguments.get(cursor) {
@@ -670,8 +700,9 @@ fn launcher_request(
     }
     let dry_run = options.dry_run;
     let bluetoothctl = options.bluetoothctl.take();
+    let cursor_nudge = options.cursor_nudge.take();
     let catalog = launcher_catalog_options(options)?;
-    Ok((dry_run, request, catalog, bluetoothctl))
+    Ok((dry_run, request, catalog, bluetoothctl, cursor_nudge))
 }
 
 fn launcher_catalog_options(
@@ -816,6 +847,11 @@ fn parse_launcher_option(
         ),
         "--bluetoothctl" => set_path_option(
             &mut output.bluetoothctl,
+            required_next_path(arguments, cursor, option)?,
+            option,
+        ),
+        "--cursor-nudge" => set_path_option(
+            &mut output.cursor_nudge,
             required_next_path(arguments, cursor, option)?,
             option,
         ),
@@ -1425,7 +1461,7 @@ fn supervise_plan(arguments: &[OsString]) -> Result<(bool, LaunchSpec), String> 
 }
 
 fn usage() -> String {
-    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> [--bluetoothctl <absolute-path>] --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>] [--contentless-start core|menu]"
+    "usage:\n  vcg-host doctor\n  vcg-host launcher [--dry-run] [--windowed] --browser <path> [--bluetoothctl <absolute-path>] [--cursor-nudge <absolute-path>] --profile-dir <path> --url <loopback-http-url> [--catalog <path> --catalog-signature <path> --install-root <path> | --package-store-root <path> --package-protected-state <path>] --update-root-store <path> --update-root-anchors <path> --update-root-protected-state <path> --update-channel <channel> --trusted-unix-seconds <seconds> --runtime-root <path> --data-root <path> [--content-root <path>] [--profile-registry <path> | --profile-id <development-id>...] [--launch-replay-root <path>] [--watchdog-game-id <id>]...\n  vcg-host update-root bootstrap|rotate --store-root <path> --root <path> --root-signatures <path> --root-anchors <path> --protected-state <path> --trusted-unix-seconds <seconds>\n  vcg-host update-root recover --store-root <path>\n  vcg-host supervise [--dry-run] -- <program> [arguments...]\n  vcg-host watchdog [options] --heartbeat-file <path> [--fault-file <path>] -- <program> [arguments...]\n  vcg-host retroarch [--dry-run] --install-root <path> --runtime-root <path> --data-root <path> --frontend <path> --frontend-sha256 <hex> --core <path> --core-sha256 <hex> --base-config <path> --base-config-sha256 <hex> --profile <id> --game <id> [--content-root <path> --content <path> --content-sha256 <hex>] [--contentless-start core|menu]"
         .to_owned()
 }
 
@@ -1655,6 +1691,9 @@ mod tests {
         let bluetoothctl_path = std::env::current_dir()
             .expect("current directory is available")
             .join("bluetoothctl");
+        let cursor_nudge_path = std::env::current_dir()
+            .expect("current directory is available")
+            .join("cursor-nudge");
         let arguments = vec![
             OsString::from("--dry-run"),
             OsString::from("--windowed"),
@@ -1662,17 +1701,20 @@ mod tests {
             browser.into_os_string(),
             OsString::from("--bluetoothctl"),
             bluetoothctl_path.clone().into_os_string(),
+            OsString::from("--cursor-nudge"),
+            cursor_nudge_path.clone().into_os_string(),
             OsString::from("--profile-dir"),
             profile.into_os_string(),
             OsString::from("--url"),
             OsString::from("http://127.0.0.1:5173/"),
         ];
-        let (dry_run, request, catalog, bluetoothctl) =
+        let (dry_run, request, catalog, bluetoothctl, cursor_nudge) =
             launcher_request(&arguments).expect("launcher request parses");
 
         assert!(dry_run);
         assert!(catalog.is_none());
         assert_eq!(bluetoothctl, Some(bluetoothctl_path));
+        assert_eq!(cursor_nudge, Some(cursor_nudge_path));
         let spec = plan_launcher(&request).expect("launcher request plans");
         assert!(
             !spec
@@ -1726,7 +1768,7 @@ mod tests {
             "retro-2048",
         ]);
         extend_update_trust(&mut complete);
-        let (_, _, catalog, _) =
+        let (_, _, catalog, _, _) =
             launcher_request(&args(&complete)).expect("complete catalog configuration parses");
         let catalog = catalog.expect("catalog options exist");
         assert!(matches!(
@@ -1836,7 +1878,7 @@ mod tests {
         ];
         let mut configured = base.to_vec();
         extend_update_trust(&mut configured);
-        let (_, _, catalog, _) =
+        let (_, _, catalog, _, _) =
             launcher_request(&args(&configured)).expect("profile registry parses");
         assert!(matches!(
             catalog.expect("catalog options").profiles,
@@ -2029,7 +2071,7 @@ mod tests {
             "profile-randy",
         ]);
         extend_update_trust(&mut complete);
-        let (_, _, catalog, _) =
+        let (_, _, catalog, _, _) =
             launcher_request(&args(&complete)).expect("generation store configuration parses");
         let catalog = catalog.expect("catalog options exist");
         let LauncherCatalogSourceOptions::GenerationStore {

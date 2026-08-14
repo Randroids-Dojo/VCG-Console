@@ -3,7 +3,7 @@
   "evidenceDate": "2026-08-11",
   "environment": {
     "platform": "windows-x64",
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.138",
     "node": "v24.18.0",
     "headless": true,
     "devicePixelRatio": 1,
@@ -67,12 +67,13 @@
     "consoleErrors": [],
     "requestCounts": {
       "/": 1,
-      "/assets/main-7Qefc84k.js": 1,
-      "/assets/main-AVH62C9R.css": 1,
+      "/assets/main-B-DnzG3z.css": 1,
+      "/assets/main-Bi3EEhVw.js": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-CYOVH8wV.js": 1,
       "/assets/synthetic-D3ZzT8jW.js": 1,
       "/assets/tracker-health-bketT6qu.js": 1,
+      "/fonts/InterVariable.woff2": 1,
       "/fonts/OCRA.ttf": 1
     }
   },
@@ -94,15 +95,15 @@
   },
   "provenance": {
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "18c7008a7a96395523cc8eca741be2c1308a2db210894dea5f4275af3ca8e5be",
+    "stylePathSha256": "0c6f3e8f8ee79ae5ed0bc3a9e06d5e7c3543d0a22ded8eaef0e5671d87d36dbf",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "e5af7fe66cd54580a0448a4cec43ff20adcbcf41a53848674833e328c86648d7",
+    "baseEvidencePathSha256": "e3b2a733f8004f89f891ee5b68022475132252c9a2b82c0952b4f405d5387b6d",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "9ac76f5be4703be2f6b90c483bc122008c575745c2cde8e9f9f985f4bdec7131",
+    "generatorPathSha256": "c824b8975b0a91c13c92adaf5e8836baa00a9806cd8e7c82489e437f1c5a3c83",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "84e93d3637021cbb962254930b4710da0b750f498f3a6bbbbeed3555ba11684e",
-    "baseEvidenceBytes": 43665,
-    "baseEvidenceSha256": "e5af7fe66cd54580a0448a4cec43ff20adcbcf41a53848674833e328c86648d7",
+    "validatorPathSha256": "af3fef12b6f7f00b6293a20d9ec2969f35ebc0c43c94770ba8025d1e9db3270d",
+    "baseEvidenceBytes": 43865,
+    "baseEvidenceSha256": "e3b2a733f8004f89f891ee5b68022475132252c9a2b82c0952b4f405d5387b6d",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -119,8 +120,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 153,
-      "sha256": "ff1305edcc7705e379662799150e3a55ef95a8ed861d44092ae721dcb4335024"
+      "fileCount": 154,
+      "sha256": "79c0bbcdb53afa94102415375610bd312c832219638df96f75e6e45e575fb6b3"
     }
   },
   "disposition": {

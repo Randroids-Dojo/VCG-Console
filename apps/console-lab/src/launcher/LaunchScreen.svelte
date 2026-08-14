@@ -147,7 +147,7 @@
       {#if session.diagnostics}
         <button type="button" data-tv-action data-tv-critical-text aria-expanded={detailsVisible} onclick={() => (detailsVisible = !detailsVisible)}>{detailsVisible ? "Hide details" : "Details"}<span>+</span></button>
       {/if}
-      <button bind:this={exitButton} type="button" data-tv-action data-tv-critical-text onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}<kbd>ESC</kbd></button>
+      <button bind:this={exitButton} type="button" data-tv-action data-tv-critical-text onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}</button>
     </div>
   </footer>
 </div>

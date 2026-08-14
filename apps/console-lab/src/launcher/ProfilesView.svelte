@@ -28,8 +28,7 @@
 </script>
 
 <header class="view-header">
-  <div><p class="view-kicker">LOCAL PROFILES</p><h1>Who is playing?</h1></div>
-  <p>Profiles and portraits stay on this console.</p>
+  <div><h1>Who is playing?</h1></div>
 </header>
 <div class="profile-layout">
   <div class="profile-collection">

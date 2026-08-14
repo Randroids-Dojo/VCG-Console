@@ -214,14 +214,18 @@ jobs:
         run: cargo clippy --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
 
       # Linking is the part `cargo check` cannot prove, and a missing or
-      # incompatible target library shows up only here.
+      # incompatible target library shows up only here. vcg-cursor-nudge
+      # links against libc's raw ioctl/FFI symbols, so it needs this check
+      # just as much as vcg-host does.
       - name: Link for aarch64
-        run: cargo build --target aarch64-unknown-linux-gnu -p vcg-host
+        run: cargo build --target aarch64-unknown-linux-gnu -p vcg-host -p vcg-cursor-nudge
 
       - name: Artifact really is aarch64
         run: |
           file target/aarch64-unknown-linux-gnu/debug/vcg-host
           file target/aarch64-unknown-linux-gnu/debug/vcg-host | grep -q 'ARM aarch64'
+          file target/aarch64-unknown-linux-gnu/debug/vcg-cursor-nudge
+          file target/aarch64-unknown-linux-gnu/debug/vcg-cursor-nudge | grep -q 'ARM aarch64'
 
       # Deliberately no `cargo test` here. Under qemu-user the suite fails 17 of
       # 393 tests, all of them in child-process supervision and journal file

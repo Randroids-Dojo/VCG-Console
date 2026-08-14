@@ -74,6 +74,20 @@ await mkdir(wasmDestination, { recursive: true });
 await cp(wasmSource, wasmDestination, { recursive: true });
 console.log("copied pinned MediaPipe WASM runtime");
 
+// Inter Variable is the launcher's UI text face. It ships from the
+// lockfile-pinned @fontsource-variable/inter package rather than a URL so its
+// bytes are governed the same way as the MediaPipe WASM runtime.
+const interSource = resolve(
+  root,
+  "apps/console-lab/node_modules/@fontsource-variable/inter",
+);
+await cp(
+  resolve(interSource, "files/inter-latin-standard-normal.woff2"),
+  resolve(publicDir, "fonts/InterVariable.woff2"),
+);
+await cp(resolve(interSource, "LICENSE"), resolve(publicDir, "fonts/InterVariable.LICENSE.txt"));
+console.log("copied pinned Inter Variable font");
+
 await writeFile(
   resolve(publicDir, "ASSET_PROVENANCE.json"),
   `${JSON.stringify(

@@ -6,6 +6,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { deflateSync } from "node:zlib";
 
 import {
   GODOT_EXPORT_NODE_VERSION,
@@ -13,8 +14,8 @@ import {
 
 export const TV_CONFORMANCE_EVIDENCE_FORMAT =
   "vcg-tv-conformance-evidence/v1";
-export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-11";
-export const TV_CONFORMANCE_BROWSER_PRODUCT = "Chrome/151.0.7922.76";
+export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-14";
+export const TV_CONFORMANCE_BROWSER_PRODUCT = "Chrome/151.0.7922.138";
 export const TV_CONFORMANCE_RESOLUTIONS = Object.freeze([
   Object.freeze({ id: "720p", width: 1280, height: 720 }),
   Object.freeze({ id: "1080p", width: 1920, height: 1080 }),
@@ -29,6 +30,106 @@ export const TV_CONFORMANCE_LIMITATIONS = Object.freeze([
   "requestAnimationFrame deltas prove only monotonic elapsed-time sampling in this page; they are not a refresh-rate, GPU, animation smoothness, frame-pacing, or performance qualification.",
   "The screenshots and geometry cover the standalone conformance surface only, not the launcher, Godot sample, hosted catalog, native games, RetroArch, accessibility variants, localization, or real seating-distance comprehension.",
 ]);
+
+// Chrome's own PNG encoder is not byte-deterministic across runs (threaded
+// compression), while the rendered pixels are. Evidence screenshots are
+// therefore decoded in the page and re-encoded here with single-threaded
+// zlib so regeneration converges to identical bytes.
+let pngCrcTable;
+
+function pngCrc(bytes) {
+  if (!pngCrcTable) {
+    pngCrcTable = new Uint32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let value = n;
+      for (let k = 0; k < 8; k += 1) {
+        value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+      }
+      pngCrcTable[n] = value;
+    }
+  }
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc = pngCrcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type, data) {
+  const chunk = Buffer.alloc(data.length + 12);
+  chunk.writeUInt32BE(data.length, 0);
+  chunk.write(type, 4, "ascii");
+  data.copy(chunk, 8);
+  chunk.writeUInt32BE(
+    pngCrc(chunk.subarray(4, data.length + 8)),
+    data.length + 8,
+  );
+  return chunk;
+}
+
+function encodeDeterministicPng(width, height, rgba) {
+  const stride = width * 4;
+  const filtered = Buffer.alloc((stride + 1) * height);
+  for (let y = 0; y < height; y += 1) {
+    const rowStart = y * (stride + 1);
+    filtered[rowStart] = 2;
+    for (let x = 0; x < stride; x += 1) {
+      const above = y === 0 ? 0 : rgba[(y - 1) * stride + x];
+      filtered[rowStart + 1 + x] = (rgba[y * stride + x] - above) & 0xff;
+    }
+  }
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header[8] = 8;
+  header[9] = 6;
+  header[10] = 0;
+  header[11] = 0;
+  header[12] = 0;
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk("IHDR", header),
+    pngChunk("IDAT", deflateSync(filtered, { level: 9 })),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+export async function deterministicScreenshot(page, path) {
+  const encoded = await page.screenshot({ fullPage: false });
+  const raw = await page.evaluate(async (base64) => {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const bitmap = await createImageBitmap(
+      new Blob([bytes], { type: "image/png" }),
+    );
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(bitmap, 0, 0);
+    const image = context.getImageData(0, 0, bitmap.width, bitmap.height);
+    let out = "";
+    const step = 0x8000;
+    for (let index = 0; index < image.data.length; index += step) {
+      out += String.fromCharCode.apply(
+        null,
+        image.data.subarray(
+          index,
+          Math.min(index + step, image.data.length),
+        ),
+      );
+    }
+    return { width: image.width, height: image.height, base64: btoa(out) };
+  }, encoded.toString("base64"));
+  const png = encodeDeterministicPng(
+    raw.width,
+    raw.height,
+    Buffer.from(raw.base64, "base64"),
+  );
+  await writeFile(path, png);
+  return png;
+}
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const exampleRoot = resolve(root, "examples/tv-conformance");
@@ -246,7 +347,13 @@ async function exercise(chromePath) {
   const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
-    args: ["--disable-gpu"],
+    args: [
+      "--disable-gpu",
+      "--disable-lcd-text",
+      "--disable-partial-raster",
+      "--disable-skia-runtime-opts",
+      "--force-color-profile=srgb",
+    ],
   });
   const observations = [];
   let consoleErrorCount = 0;
@@ -295,10 +402,7 @@ async function exercise(chromePath) {
         `windows-x64-chrome-150-${resolution.id}.png`,
       );
       await mkdir(dirname(screenshotPath), { recursive: true });
-      const screenshot = await page.screenshot({
-        path: screenshotPath,
-        fullPage: false,
-      });
+      const screenshot = await deterministicScreenshot(page, screenshotPath);
       observations.push({
         ...resolution,
         documentReadyState: await page.evaluate(() => document.readyState),

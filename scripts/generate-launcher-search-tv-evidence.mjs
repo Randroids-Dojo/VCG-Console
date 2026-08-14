@@ -22,6 +22,7 @@ import {
   startProductionPreview,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
+  deterministicScreenshot,
   TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
@@ -74,7 +75,7 @@ const SEARCH_STATES = Object.freeze([
     id: "motion-results",
     query: "motion",
     resultCount: 5,
-    criticalTextCount: 13,
+    criticalTextCount: 8,
     actionTargetCount: 6,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -120,7 +121,7 @@ const SEARCH_STATES = Object.freeze([
     id: "empty-query-scroll-activation",
     query: "",
     resultCount: 22,
-    criticalTextCount: 47,
+    criticalTextCount: 25,
     actionTargetCount: 23,
     measurementMode: "fully-visible-marked",
     scrollingExpectedResolutionIds: ["720p", "1080p"],
@@ -148,7 +149,7 @@ const SEARCH_STATES = Object.freeze([
     id: "offline-package-activation",
     query: "obstacle",
     resultCount: 1,
-    criticalTextCount: 5,
+    criticalTextCount: 4,
     actionTargetCount: 2,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -175,7 +176,7 @@ const SEARCH_STATES = Object.freeze([
     id: "remote-web-ready-denial",
     query: "vibecoded.games",
     resultCount: 1,
-    criticalTextCount: 5,
+    criticalTextCount: 4,
     actionTargetCount: 2,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -216,7 +217,7 @@ const SEARCH_STATES = Object.freeze([
     id: "remote-web-offline-failure",
     query: "vibecoded.games",
     resultCount: 1,
-    criticalTextCount: 5,
+    criticalTextCount: 4,
     actionTargetCount: 2,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -251,7 +252,7 @@ const SEARCH_STATES = Object.freeze([
     id: "unavailable-package-denial",
     query: "2048",
     resultCount: 1,
-    criticalTextCount: 5,
+    criticalTextCount: 4,
     actionTargetCount: 2,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -286,7 +287,7 @@ const SEARCH_STATES = Object.freeze([
     id: "destructive-settings-denial",
     query: "delete local progress",
     resultCount: 1,
-    criticalTextCount: 5,
+    criticalTextCount: 4,
     actionTargetCount: 2,
     measurementMode: "all-marked",
     scrollingExpectedResolutionIds: [],
@@ -1074,7 +1075,13 @@ async function exercise(chromePath) {
   const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
-    args: ["--disable-gpu"],
+    args: [
+      "--disable-gpu",
+      "--disable-lcd-text",
+      "--disable-partial-raster",
+      "--disable-skia-runtime-opts",
+      "--force-color-profile=srgb",
+    ],
   });
   const observations = [];
   const requestCounts = new Map();
@@ -1170,15 +1177,28 @@ async function exercise(chromePath) {
         );
         assert.ok(overflow.horizontal <= 1 && overflow.vertical <= 1);
 
+        // Programmatic focus leaves :focus-visible to a modality heuristic
+        // that races input event delivery; re-focus after an explicit
+        // keyboard event so the focused row renders one canonical state.
+        if (state.id === "empty-query-scroll-activation") {
+          await page.keyboard.press("Shift");
+          await results.last().evaluate((element) => {
+            element.blur();
+            element.focus();
+          });
+        }
+        // Focus moves during scroll preparation start 120ms style
+        // transitions; wait them out so captures are settled and repeatable.
+        await page.waitForTimeout(400);
         const screenshotPath = resolve(
           outputRoot,
           `windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
-        const screenshot = await page.screenshot({
-          path: screenshotPath,
-          fullPage: false,
-        });
+        const screenshot = await deterministicScreenshot(
+          page,
+          screenshotPath,
+        );
         const interaction = await exerciseInteraction(page, state);
         assert.deepEqual(
           interaction.interactionTrace,

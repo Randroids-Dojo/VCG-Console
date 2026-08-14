@@ -178,7 +178,7 @@ for (const resolution of RESOLUTIONS) {
     );
     const actions = await measurements(page, "[data-tv-action]:visible");
 
-    expect(criticalText.length).toBe(24);
+    expect(criticalText.length).toBe(16);
     expect(actions.length).toBe(12);
     const destinationIcons = page.locator(
       ".home-destinations .ui-icon-arrow-right",
@@ -322,11 +322,11 @@ for (const resolution of RESOLUTIONS) {
     await page.goto("/?skipBoot=1");
     await page.locator('[data-view-target="motion"]').click();
     await expect(
-      page.getByRole("heading", { name: "Move to play." }),
+      page.getByRole("heading", { name: "Motion games" }),
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, "#launcher", 24, 13);
+    await assertTvGeometry(page, resolution, "#launcher", 18, 13);
 
     const firstEntry = page
       .locator('[data-launcher-view="motion"] .library-list button')
@@ -352,7 +352,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, "#launcher", 24, 18);
+    await assertTvGeometry(page, resolution, "#launcher", 22, 18);
 
     await page.locator("#scan-wifi").focus();
     await expect(page.locator("#scan-wifi")).toBeFocused();
@@ -422,7 +422,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(resultIcons).toHaveText(["", "", "", "", ""]);
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, ".search-overlay", 13, 6);
+    await assertTvGeometry(page, resolution, ".search-overlay", 8, 6);
 
     await page.keyboard.press("ArrowDown");
     await expect(results.first()).toBeFocused();
@@ -496,7 +496,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(results).toHaveCount(22);
     await expect(
       page.locator(".search-overlay [data-tv-critical-text]:visible"),
-    ).toHaveCount(47);
+    ).toHaveCount(25);
     await expect(
       page.locator(".search-overlay [data-tv-action]:visible"),
     ).toHaveCount(23);
@@ -597,7 +597,7 @@ for (const resolution of RESOLUTIONS) {
     });
     await expect(result).toBeVisible();
     await expect(page.locator("#search-results button")).toHaveCount(1);
-    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 2);
 
     await result.focus();
     await expect(result).toBeFocused();
@@ -633,7 +633,7 @@ for (const resolution of RESOLUTIONS) {
     });
     await expect(result).toBeVisible();
     await expect(page.locator("#search-results button")).toHaveCount(1);
-    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 2);
 
     await result.focus();
     await page.keyboard.press("Enter");
@@ -673,7 +673,7 @@ for (const resolution of RESOLUTIONS) {
     });
     await expect(result).toBeVisible();
     await expect(page.locator("#search-results button")).toHaveCount(1);
-    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 2);
     await context.setOffline(true);
 
     await result.focus();
@@ -707,7 +707,7 @@ for (const resolution of RESOLUTIONS) {
     });
     await expect(result).toBeVisible();
     await expect(page.locator("#search-results button")).toHaveCount(1);
-    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 2);
 
     await result.focus();
     await page.keyboard.press("Enter");
@@ -743,7 +743,7 @@ for (const resolution of RESOLUTIONS) {
     });
     await expect(result).toBeVisible();
     await expect(page.locator("#search-results button")).toHaveCount(1);
-    await assertTvGeometry(page, resolution, ".search-overlay", 5, 2);
+    await assertTvGeometry(page, resolution, ".search-overlay", 4, 2);
 
     await result.focus();
     await page.keyboard.press("Enter");

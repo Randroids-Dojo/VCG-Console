@@ -22,6 +22,7 @@ import {
   startProductionPreview,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
+  deterministicScreenshot,
   TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
@@ -71,7 +72,7 @@ const SURFACES = Object.freeze([
   {
     id: "motion-catalog",
     rootSelector: "#launcher",
-    criticalTextCount: 24,
+    criticalTextCount: 18,
     actionTargetCount: 13,
     sections: [".view-header", ".library-list"],
     focusTrace: ["motion-first-entry", "launcher-home"],
@@ -79,7 +80,7 @@ const SURFACES = Object.freeze([
   {
     id: "wifi-offline",
     rootSelector: "#launcher",
-    criticalTextCount: 24,
+    criticalTextCount: 22,
     actionTargetCount: 18,
     sections: [".view-header", ".settings-layout"],
     focusTrace: ["scan-wifi", "launcher-home"],
@@ -144,7 +145,7 @@ function sectionOverlapCount(sections) {
 async function openSurface(page, surfaceId) {
   if (surfaceId === "motion-catalog") {
     await page.locator('[data-view-target="motion"]').click();
-    await page.getByRole("heading", { name: "Move to play." }).waitFor();
+    await page.getByRole("heading", { name: "Motion games" }).waitFor();
     return;
   }
   await page.locator('[data-view-target="settings"]').click();
@@ -216,7 +217,13 @@ async function exercise(chromePath) {
   const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
-    args: ["--disable-gpu"],
+    args: [
+      "--disable-gpu",
+      "--disable-lcd-text",
+      "--disable-partial-raster",
+      "--disable-skia-runtime-opts",
+      "--force-color-profile=srgb",
+    ],
   });
   const observations = [];
   const requestCounts = new Map();
@@ -316,10 +323,10 @@ async function exercise(chromePath) {
           `windows-x64-chrome-150-launcher-${surface.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
-        const screenshot = await page.screenshot({
-          path: screenshotPath,
-          fullPage: false,
-        });
+        const screenshot = await deterministicScreenshot(
+          page,
+          screenshotPath,
+        );
         const focusTrace = await exerciseFocus(page, surface.id);
         assert.deepEqual(focusTrace, surface.focusTrace);
 

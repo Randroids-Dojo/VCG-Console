@@ -40,17 +40,17 @@
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "02eb08ea66dc7e9694734c17f1c2abddbb866d9ca8df2897571192d23af215c5"
+      "sha256": "03e900b715d2c6bd799aacb321bd1a587fe218d30893c2eb8cdbfdc918e83d06"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "d4e323961c4a1da546895a3c7fe5facb7ffa26aed5de706f3f1684970be10bf4"
+      "sha256": "6a0a83199f90a565a1f5e18cb5960a58420952d165262f30b8d047f2fb2ac92a"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "06b61ab04067bffa899a3e56fcd0f02140b12dc68cb36fa5b1de27ab4ad5c73f"
+      "sha256": "4ff63ffe4700528aa812a583a6f5d40cee70e19dd5ec10fb12f50803f4230c8a"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
@@ -65,7 +65,7 @@
     {
       "role": "shared-branded-loading-retry-details-and-exit-surface",
       "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-      "sha256": "0932cd435207f7ddb729fcaf487a66f61ed4d7380f4594f2eeb19fa7fa4984af"
+      "sha256": "545115d64340b520af9b54462f3a5eaf589846b2f77526254b8b96605a87bc68"
     },
     {
       "role": "deterministic-loading-fault-retry-and-recovery-state-machine",
@@ -75,7 +75,7 @@
     {
       "role": "current-launcher-navigation-runtime-adapter-and-power-surface",
       "path": "apps/console-lab/src/launcher/Launcher.svelte",
-      "sha256": "83cc45bd1223624122452970cd63060283f1cf50dff53b7d8506916eca1af715"
+      "sha256": "e548cd9619346032145f33fb4b4d871fa29412160b51eea2a5dd55eea794d24b"
     },
     {
       "role": "shutdown-restart-power-loss-and-safe-return-boundary",

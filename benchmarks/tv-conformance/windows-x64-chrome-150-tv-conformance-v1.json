@@ -1,14 +1,14 @@
 {
   "format": "vcg-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-11",
+  "evidenceDate": "2026-08-14",
   "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
   "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
-  "retrievedAtUtc": "2026-08-11T00:36:47.856Z",
+  "retrievedAtUtc": "2026-08-14T14:25:01.514Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.138",
     "devicePixelRatio": 1
   },
   "contract": {
@@ -35,7 +35,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/151.0.7922.76",
+    "browserProduct": "Chrome/151.0.7922.138",
     "observations": [
       {
         "id": "720p",
@@ -75,8 +75,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-720p.png",
-          "bytes": 147137,
-          "sha256": "b7ace5a55df45fb33b94f09eda5c51eb580cbbc0f65c27b99e7b89417f38eb79"
+          "bytes": 141664,
+          "sha256": "0d623470a2de6c89a923da16a935359820d87d64393143207771d8f046214c06"
         }
       },
       {
@@ -111,14 +111,14 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.8,
+          "p95DeltaMs": 16.7,
           "worstDeltaMs": 16.8,
           "negativeDeltaCount": 0
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-1080p.png",
-          "bytes": 245554,
-          "sha256": "5596fe634fccbf8aaecbdbef09aebfe90168e85fb13d44f90a85da9d9e8f6199"
+          "bytes": 233307,
+          "sha256": "c98e2fe6c5a5b65e5afa01302852b5e8d3e72857d7fe81ba9e049d58c6264df6"
         }
       },
       {
@@ -154,13 +154,13 @@
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
           "p95DeltaMs": 16.8,
-          "worstDeltaMs": 49.9,
+          "worstDeltaMs": 133.4,
           "negativeDeltaCount": 0
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-4k.png",
-          "bytes": 576578,
-          "sha256": "2510881cd855acb7db63f88c4f489b123ebd5b8e485e9a1662be6d8396edfe87"
+          "bytes": 578384,
+          "sha256": "219668213d47c48a7ba8d8d7d784939b1a3167b2dc395d2fb992a478cc43c25e"
         }
       }
     ],
@@ -203,9 +203,9 @@
     "scriptPath": "examples/tv-conformance/app.js",
     "scriptPathSha256": "2febab45004fb5c37a75186325ac10dfe43c40b9da845a8426b9eb5a57248d20",
     "generatorPath": "scripts/generate-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "0db4b3bd913c907f795cd8c811a9018d0f188829b2a4c4b2304526a139a259be",
+    "generatorPathSha256": "5159b8f35409c64a6d43357c7a45618e6e1b8183bc1f0c0011912e3157b2fdd6",
     "validatorPath": "scripts/validate-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "fb8d241802e9e660b56dbc1fb7472673458bf98ebc25b274c66db7fab3240062"
+    "validatorPathSha256": "5fa20a9a7b2ed2ac1c6ff2ddc25e718316a1068e10bbfcf6bd6c7e49ebde2e88"
   },
   "claimBoundary": "One Windows x64 headless Chrome desk run proves that the standalone candidate authoring surface kept all declared critical regions inside a five-percent CSS-pixel safe inset, retained at least 24 CSS-pixel critical text and 48 CSS-pixel action targets, preserved deterministic keyboard focus/select/Back behavior, and sampled requestAnimationFrame with nonnegative elapsed deltas at 1280x720, 1920x1080, and 3840x2160. It does not prove a physical television, GPU frame pacing, overscan behavior, seating-distance legibility, controller input, audio, target Linux, compositor scaling, or compatibility of any catalog game.",
   "limitations": [

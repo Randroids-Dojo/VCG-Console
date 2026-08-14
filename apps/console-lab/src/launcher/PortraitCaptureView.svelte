@@ -178,7 +178,7 @@
   <div>
     <button class="text-back" type="button" onclick={cancelAndReturn}><span class="ui-icon ui-icon-arrow-left" aria-hidden="true"></span>Profiles</button>
     <p class="view-kicker">DEVICE-ONLY PORTRAIT / DESK REHEARSAL</p>
-    <h1>Choose the image deliberately.</h1>
+    <h1>Profile portrait</h1>
   </div>
   <p>One visible still can identify a household member. Nothing is kept until the preview is explicitly accepted.</p>
 </header>

@@ -43,7 +43,7 @@
   <header class="session-adversarial-header">
     <div>
       <p class="view-kicker">AUTHORITY LAB / SYNTHETIC</p>
-      <h1 id="session-adversarial-title">Detection is not control.</h1>
+      <h1 id="session-adversarial-title">Session authority test</h1>
       <p>
         Rehearse candidate, join, action, recovery, and takeover boundaries
         with camera-free opaque tracks.

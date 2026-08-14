@@ -32,8 +32,7 @@
 <div class:running class:ready class:held class="boot-screen" id="boot-screen" {hidden} aria-live="polite">
   <div class="boot-mark" aria-label="VCG Console">VCG<span>/</span></div>
   <div class="boot-readout">
-    <p id="boot-status">{ready ? "SYSTEM READY" : "LOCAL SYSTEM / STARTING"}</p>
+    <p id="boot-status">{ready ? "SYSTEM READY" : "STARTING"}</p>
     <div class="signal-line" aria-hidden="true"><span></span></div>
-    <small>PRIVATE BY DEFAULT</small>
   </div>
 </div>

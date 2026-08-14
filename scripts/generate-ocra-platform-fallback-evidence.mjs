@@ -379,7 +379,7 @@ export async function generateOcraPlatformFallbackEvidence() {
       productionCssStackUsed: true,
       diagnosticGridOnly: true,
       deterministicCrossPlatformFallbackVerified: false,
-      fallbackSelected: false,
+      fallbackSelected: fallbackObservations.length > 0,
       glyphShapesVerified: false,
       tvLegibilityVerified: false,
       localizationQualified: false,

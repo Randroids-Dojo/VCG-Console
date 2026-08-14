@@ -84,7 +84,7 @@
   <header>
     <div>
       <p>CIRCUIT SHIFT / OFFLINE</p>
-      <h1>Build the signal.</h1>
+      <h1>Circuit Shift</h1>
     </div>
     <dl>
       <div><dt>Score</dt><dd data-circuit-score>{game.score}</dd></div>
