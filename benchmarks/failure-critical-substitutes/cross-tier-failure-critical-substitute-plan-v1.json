@@ -32,12 +32,12 @@
     {
       "role": "cross-tier-product-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "e6f68181f2b7ac16a29dc5c31993f21c628fbc9242b9add9d599fd88d014b735"
+      "sha256": "4f48c7e30b40954240f66f9087792ab3d53c09f2f3d1b89d995490f047076661"
     },
     {
       "role": "complete-system-economics-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "3eb7ff2d852bbc9cf3ddf27177815353271b490ac0b1071c0cc508ea94f39e30"
+      "sha256": "2c4b874884f376c8dfa0a62239bbf21f66333d61f88cf1491b6a7840e29a1998"
     },
     {
       "role": "shared-camera-qualification-boundary",
@@ -67,12 +67,12 @@
     {
       "role": "camera-interconnect-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "c07c6dd664ef7330404af71223cd3a44770f3d80be84d54d18f9e806301485d8"
+      "sha256": "3ce1fb4e8b65460e4c542732ffbfe8cc70d96060ad12f972a006b042909e85b1"
     },
     {
       "role": "display-audio-power-recovery-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "1d9c545f3dc3a7a8a593ea46a266cafb66155af6c1872292a43f0e66ebbba98d"
+      "sha256": "03e900b715d2c6bd799aacb321bd1a587fe218d30893c2eb8cdbfdc918e83d06"
     }
   ],
   "targetPolicy": {

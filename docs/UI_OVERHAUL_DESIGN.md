@@ -33,6 +33,29 @@ platform guidelines (tvOS HIG, Android TV, BBC GEL): 5% safe area, ≥24 CSS px
 critical text at 1080p, ≥48 px targets, non-color-only focus, spatial
 directional navigation, reduced-motion parity.
 
+### Value provenance
+
+Hard contract floors (enforced by `docs/TV_COMPATIBILITY_CONTRACT.md` and the
+evidence validators): the 5% safe inset, ≥24 CSS px marked critical text,
+≥48 px action targets, non-color-only focus, and reduced-motion parity.
+
+Design heuristics (tuned by eye against these external references, not
+contract terms):
+
+- Focus gain ~120 ms / relax ~320 ms — tvOS focus-engine timing measured in
+  [Brightec's tvOS Focus Engine notes](https://www.brightec.co.uk/blog/tvos-focus-engine)
+  and [devsign's custom tvOS focus effects](https://devsign.co/notes/custom-focus-effects-in-tvos).
+- Focused scale ~1.08 with a ≥3 px ring — Compose-for-TV defaults (scale
+  1.1, 3 dp border) per the
+  [androidx.tv Surface documentation](https://composables.com/docs/androidx.tv/tv-material/components/Surface).
+- Root safe padding ≈54 px / 96 px at 1080p — Android TV layout margins
+  (27/48 dp at 2x) per
+  [Android TV design guidance](https://developer.android.com/design/ui/tv/guides/foundations/design-for-tv).
+- Body text 28+ px preferred at 1080p — Amazon Fire TV's 28 px body floor in
+  its [design guidelines](https://developer.amazon.com/docs/fire-tv/design-and-user-experience-guidelines.html).
+- Ambient crossfades 400–600 ms, opacity-only — observed PS5/Steam Deck
+  home-art crossfade behavior; kept compositor-only for the Pi.
+
 ## Decision
 
 **Switch skeleton, PS5 skin** — a single Switch-style content rail over a

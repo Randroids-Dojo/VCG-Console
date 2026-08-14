@@ -287,7 +287,7 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.screenshot({ path: "../../test-results/console-lab/launcher-home.png" });
 
   await page.getByRole("button", { name: "Museum", exact: true }).click();
-  const canonicalMuseumCatalog = page.getByLabel("Canonical museum catalog");
+  const canonicalMuseumCatalog = page.getByLabel("Museum catalog");
   await expect(canonicalMuseumCatalog.getByText("VibeBots")).toBeVisible();
   await expect(canonicalMuseumCatalog.getByText("Mi Casa Es Su Casa")).toBeVisible();
   await expect(canonicalMuseumCatalog.getByText("Determined")).toBeVisible();

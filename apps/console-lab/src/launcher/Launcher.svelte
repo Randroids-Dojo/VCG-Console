@@ -1182,7 +1182,7 @@
         <div class="museum-title"><h1>{museum.title}</h1></div>
         <button class="primary-action" type="button" onclick={launchMuseum}>Enter the museum <span class="ui-icon ui-icon-arrow-up-right" aria-hidden="true"></span></button>
         <p class="boundary-note">Internet required · Unsupervised preview · Opens {museumHost}</p>
-        <div class="museum-catalog" aria-label="Canonical museum catalog">
+        <div class="museum-catalog" aria-label="Museum catalog">
           {#each museumCatalogEntries as entry}
             <span><span class="museum-thumb" aria-hidden="true"><KeyArt name={entry.id} /></span><strong>{entry.title}</strong><small>{entry.statusLabel}</small></span>
           {/each}

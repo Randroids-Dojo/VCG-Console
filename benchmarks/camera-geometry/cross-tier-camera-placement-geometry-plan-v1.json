@@ -29,7 +29,7 @@
     {
       "role": "room-and-play-zone-plan",
       "path": "benchmarks/room-survey/living-room-play-zone-plan-v1.json",
-      "sha256": "883331be4c70f41fde8fdc4dd4f91474e74aa08802872cd529a65c7e26f97323"
+      "sha256": "549f9deb43fad8ac7be2d7a4844c3f12ce261e0c737e9b22ef6223e8c8f5cde8"
     },
     {
       "role": "shared-camera-plan",

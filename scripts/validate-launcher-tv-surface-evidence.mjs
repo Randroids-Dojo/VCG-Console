@@ -66,48 +66,48 @@ const EXPECTED_SURFACES = Object.freeze([
 const EXPECTED_SCREENSHOTS = Object.freeze({
   "motion-catalog/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
-    bytes: 306761,
-    sha256: "2afeeac75f771f46885490650887b79d94d5debb92b5d8db1eab1b0830e511d8",
+    bytes: 311446,
+    sha256: "8dd36296f87838f937bf354694fc9d32fb27a771e65e761e12ca081cec0d52ba",
   },
   "wifi-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 280144,
-    sha256: "9ddab7fb66977bc8dc2abc6553c9eac21fe2172453123d5eb7d4a6bff8b0dd4f",
+    bytes: 286020,
+    sha256: "ed62463ecfd17ea1ad91d0c7f21ec1a82ad57d404ae38abe8fd6e85e400b9b1e",
   },
   "launch-offline/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-    bytes: 306282,
-    sha256: "948d67a50f3dca8132ecb93c438a6bf470deb14b6e82912a537440d9f95542b3",
+    bytes: 298786,
+    sha256: "87fc760d87f906e55ab1d0fb799a1a56e098b08088f76b524b3f0fc37ed7819b",
   },
   "motion-catalog/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
-    bytes: 530688,
-    sha256: "f5e83d3ce5109ceac398ef59e41f9cb46d9edf87985b8bf974a7ff4c48bb739a",
+    bytes: 521922,
+    sha256: "41083a812d2dc9ada0cb5c4188444c8d51231db33daecc6fd91c29a72a51b950",
   },
   "wifi-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 465119,
-    sha256: "d5fbd814b7885613d9b3fb5865ad55ad9bd1c5dbc5a5e29f86237086e9c5d9f1",
+    bytes: 459988,
+    sha256: "b5d76df461613c8ab97f50df311a058e3b0972283e77cb9fd8d2c54fae3856ab",
   },
   "launch-offline/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-    bytes: 534678,
-    sha256: "9ad2365339c5ecdadff5e17bd4cb55499805149c7e240f9176a0b15ea43b334f",
+    bytes: 521327,
+    sha256: "63a1848979c55966ab983c2c43b91a26384086359e04d4a004b01bc0d2f93845",
   },
   "motion-catalog/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
-    bytes: 1492855,
-    sha256: "f845c57d26fb4f9e7faf88ad9733aa16e4fdcb96fbb952f31995488b7dd76320",
+    bytes: 1559426,
+    sha256: "914b9546662b403c4dccf4a0a87965fd6e6fa4cf05fa29a2481d16a4a9f6fedb",
   },
   "wifi-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 1314345,
-    sha256: "3eb9dcbe04859d892e2fc7764900012f3bbc646586680653d16bb4a212c79aa1",
+    bytes: 1388008,
+    sha256: "aad01fb4845d68bb0b3a99e182abcb53f69396782d2b99c37a74274740a33b87",
   },
   "launch-offline/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-    bytes: 1511326,
-    sha256: "d056ab5e0162f636bf974989220363a8f981a8808e17e5ea5d7b8d3b8fb7faf3",
+    bytes: 1750910,
+    sha256: "6fce4b7d71df996cdf7c1c20cb2b38ff4dac406b071d4bf4f0ec5703e9170e7f",
   },
 });
 const EXPECTED_MEASUREMENTS = Object.freeze({

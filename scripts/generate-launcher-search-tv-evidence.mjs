@@ -1195,10 +1195,10 @@ async function exercise(chromePath) {
           `windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
-        const screenshot = await page.screenshot({
-          path: screenshotPath,
-          fullPage: false,
-        });
+        const screenshot = await deterministicScreenshot(
+          page,
+          screenshotPath,
+        );
         const interaction = await exerciseInteraction(page, state);
         assert.deepEqual(
           interaction.interactionTrace,
