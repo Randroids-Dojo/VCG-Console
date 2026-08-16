@@ -332,6 +332,18 @@ if [ -n "${device_groups}" ]; then
   usermod -a -G "${device_groups}" "${console_user}"
 fi
 
+# The Cage session has no pointer, so Chromium's camera permission prompt can
+# never be answered and getUserMedia stays pending forever ("Waiting for
+# camera permission"). This managed policy pre-grants video capture to the
+# exact launcher origin and keeps audio capture disabled at the browser
+# boundary (D-046). Both Debian policy directories are covered because the
+# browser may be packaged as chromium or chromium-browser; a policy directory
+# for an absent package is inert.
+for policy_dir in /etc/chromium/policies/managed /etc/chromium-browser/policies/managed; do
+  install -D -m 0644 "${repo_root}/scripts/pi/chromium-policies/vcg-console.json" \
+    "${policy_dir}/vcg-console.json"
+done
+
 # vcg-cursor-nudge's one-shot synthetic pointer nudge
 # (native/vcg-cursor-nudge/src/main.rs) needs write access to /dev/uinput and
 # the uinput module loaded. Reload udev's rules before loading the module so
