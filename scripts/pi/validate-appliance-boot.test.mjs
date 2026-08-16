@@ -148,6 +148,43 @@ test("the installer grants uinput access for the cursor nudge", async () => {
   assert.ok(executableCheckIndex >= 0 && renderIndex > executableCheckIndex);
 });
 
+test("the installer pre-grants camera capture to the launcher origin only", async () => {
+  const [installer, unit, policyText] = await Promise.all([
+    read("./install-appliance.sh"),
+    read("./systemd/vcg-console-session.service.in"),
+    read("./chromium-policies/vcg-console.json"),
+  ]);
+
+  // The Cage session has no pointer, so Chromium's camera permission prompt
+  // can never be answered and getUserMedia stays pending forever. The managed
+  // policy must pre-grant video capture -- and only to the exact origin the
+  // session unit actually opens, so the grant cannot drift from the URL.
+  const policy = JSON.parse(policyText);
+  const launcherUrl = unit.match(/--url (\S+)$/m)?.[1];
+  assert.ok(launcherUrl, "the session unit must declare the launcher --url");
+  assert.deepEqual(policy.VideoCaptureAllowedUrls, [new URL(launcherUrl).origin]);
+  // D-046: audio capture stays disabled at every boundary by default.
+  assert.equal(policy.AudioCaptureAllowed, false);
+  assert.deepEqual(
+    Object.keys(policy).sort(),
+    ["AudioCaptureAllowed", "VideoCaptureAllowedUrls"],
+    "the policy must not silently grant anything beyond the camera decision",
+  );
+
+  // Raspberry Pi OS has shipped the browser as both chromium and
+  // chromium-browser, and each package name reads its own policy directory.
+  assert.match(
+    installer,
+    /for policy_dir in \/etc\/chromium\/policies\/managed \/etc\/chromium-browser\/policies\/managed/,
+  );
+  // -D because neither policies/managed directory exists until a policy is
+  // installed into it.
+  assert.match(
+    installer,
+    /install -D -m 0644 "\$\{repo_root\}\/scripts\/pi\/chromium-policies\/vcg-console\.json"/,
+  );
+});
+
 test("one setup command installs, builds, verifies, and owns boot", async () => {
   const setup = await read("./setup-console.sh");
 

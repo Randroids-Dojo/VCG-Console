@@ -49,6 +49,11 @@ console user to the available `video`, `render`, and `input` device groups, sets
 `multi-user.target` as the default, and enables `vcg-console.target`. It does
 not uninstall the desktop or reboot without permission.
 
+The installer also installs a Chromium managed policy that grants camera
+capture to the exact launcher origin without a prompt and keeps audio capture
+disabled (D-046). The fullscreen session has no pointer, so an unanswered
+permission prompt would otherwise leave the camera waiting forever.
+
 At the next boot:
 
 1. `vcg-console-server.service` serves only `127.0.0.1:4173`.
