@@ -54,6 +54,16 @@ capture to the exact launcher origin without a prompt and keeps audio capture
 disabled (D-046). The fullscreen session has no pointer, so an unanswered
 permission prompt would otherwise leave the camera waiting forever.
 
+Granting permission is not sufficient on its own. The session unit runs in its
+own mount namespace, and the XDG desktop portal identifies a caller by opening
+`/proc/<pid>/root`, which it cannot do across that namespace. Chromium's
+portal-based camera path therefore fails, and it does not fall back: device
+enumeration never returns and the console waits for a camera that is present
+and permitted. The launcher disables that path so Chromium reads V4L2
+directly. A session that reports "Waiting for camera permission" indefinitely,
+while `navigator.permissions.query` reports `granted`, is this failure
+returning.
+
 At the next boot:
 
 1. `vcg-console-server.service` serves only `127.0.0.1:4173`.
