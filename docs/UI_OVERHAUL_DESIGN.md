@@ -101,7 +101,7 @@ vertical / 96 px horizontal at 1080p. Specifically:
   (`data-view-target`, `data-launcher-view`, `data-settings-*`,
   `data-tv-critical-text`, `data-tv-action`, `data-tv-focus`), accessible
   names, and the class names tests select (`.home-heading`,
-  `.home-destinations`, `.home-status`, `.library-list`, `.launcher-nav`,
+  `.home-destinations`, `.library-list`, `.launcher-nav`,
   `.search-overlay`, `.empty-library`, …).
 - TV conformance evidence (launcher home, representative surfaces, search),
   OCR-A evidence, and the runtime payload scorecard are regenerated as part

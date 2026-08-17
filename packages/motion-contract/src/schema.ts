@@ -47,6 +47,8 @@ export const MOTION_ACTION_NAMES = [
   "dodge_right",
   "menu_swipe_left",
   "menu_swipe_right",
+  "menu_swipe_up",
+  "menu_swipe_down",
   "menu_select",
   "menu_back",
   "pause",
@@ -60,6 +62,8 @@ export const MOTION_DISCRETE_ACTION_NAMES = [
   "dodge_right",
   "menu_swipe_left",
   "menu_swipe_right",
+  "menu_swipe_up",
+  "menu_swipe_down",
 ] as const;
 
 export const MotionActionNameSchema = z.enum(MOTION_ACTION_NAMES);

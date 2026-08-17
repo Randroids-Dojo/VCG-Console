@@ -140,7 +140,7 @@ test("rejects critical, section, or launcher overflow", async () => {
 
 test("rejects weak or missing action targets", async () => {
   await rejects((artifact) => {
-    artifact.browser.observations[0].actionTargetCount = 11;
+    artifact.browser.observations[0].actionTargetCount = 10;
   });
   await rejects((artifact) => {
     artifact.browser.observations[1].minimumActionTargetWidthCssPx = 47;

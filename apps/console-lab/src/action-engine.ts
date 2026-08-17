@@ -75,6 +75,7 @@ export class ActionEngine {
   #baseline: Baseline | undefined;
   #previousLeftWrist: Point | undefined;
   #previousRightWrist: Point | undefined;
+  #previousRaised = false;
   #previousAtMs = 0;
   #lastFrameSequence: number | undefined;
   #lastPublishedAtMs: number | undefined;
@@ -259,6 +260,7 @@ export class ActionEngine {
   #resetSpatialContinuity(): void {
     this.#previousLeftWrist = undefined;
     this.#previousRightWrist = undefined;
+    this.#previousRaised = false;
     this.#previousAtMs = 0;
     this.#latchedActions.clear();
   }
@@ -455,25 +457,62 @@ export class ActionEngine {
       const rightVelocity = this.#previousRightWrist ? (this.#previousRightWrist.x - rightWrist.x) / elapsed : 0;
       const raised = leftWrist.y < current.shoulderY || rightWrist.y < current.shoulderY;
       const mirroredVelocity = Math.abs(leftVelocity) > Math.abs(rightVelocity) ? leftVelocity : rightVelocity;
+      // Image y grows downward, so a hand travelling up yields a positive
+      // value here, matching the mirrored horizontal convention above.
+      const leftRise = this.#previousLeftWrist ? (this.#previousLeftWrist.y - leftWrist.y) / elapsed : 0;
+      const rightRise = this.#previousRightWrist ? (this.#previousRightWrist.y - rightWrist.y) / elapsed : 0;
+      const riseVelocity = Math.abs(leftRise) > Math.abs(rightRise) ? leftRise : rightRise;
+      // A vertical menu sweep is performed with the hand already up, so it
+      // counts only while the hand is raised at both ends of the movement.
+      // Raising the hand to begin is therefore not itself a sweep, and
+      // jumping or ducking never qualifies: those move the whole body while
+      // the wrists stay below the shoulders.
+      const verticalRaised = raised && this.#previousRaised;
+      // One press per movement: a movement resolves to a single axis rather
+      // than firing both a horizontal and a vertical action. Raising a hand to
+      // sweep sideways carries real upward motion with it, so a sweep only
+      // counts as vertical when it is clearly more vertical than horizontal.
+      const verticalDominant = Math.abs(riseVelocity) > Math.abs(mirroredVelocity) * 1.5;
+      const horizontalDominant = !verticalDominant;
       const rightThreshold = this.#latchedActions.has("menu_swipe_right") ? 0.0005 : 0.0012;
       const leftThreshold = this.#latchedActions.has("menu_swipe_left") ? -0.0005 : -0.0012;
+      const upThreshold = this.#latchedActions.has("menu_swipe_up") ? 0.0005 : 0.0012;
+      const downThreshold = this.#latchedActions.has("menu_swipe_down") ? -0.0005 : -0.0012;
       this.#updateDiscrete(
         "menu_swipe_right",
-        raised && mirroredVelocity > rightThreshold,
+        raised && horizontalDominant && mirroredVelocity > rightThreshold,
         now,
         Math.min(1, Math.max(0, mirroredVelocity * 500)),
         actions,
       );
       this.#updateDiscrete(
         "menu_swipe_left",
-        raised && mirroredVelocity < leftThreshold,
+        raised && horizontalDominant && mirroredVelocity < leftThreshold,
         now,
         Math.min(1, Math.max(0, -mirroredVelocity * 500)),
         actions,
       );
+      this.#updateDiscrete(
+        "menu_swipe_up",
+        verticalRaised && verticalDominant && riseVelocity > upThreshold,
+        now,
+        Math.min(1, Math.max(0, riseVelocity * 500)),
+        actions,
+      );
+      this.#updateDiscrete(
+        "menu_swipe_down",
+        verticalRaised && verticalDominant && riseVelocity < downThreshold,
+        now,
+        Math.min(1, Math.max(0, -riseVelocity * 500)),
+        actions,
+      );
+      this.#previousRaised = raised;
     } else {
       this.#updateDiscrete("menu_swipe_right", false, now, 0, actions);
       this.#updateDiscrete("menu_swipe_left", false, now, 0, actions);
+      this.#updateDiscrete("menu_swipe_up", false, now, 0, actions);
+      this.#updateDiscrete("menu_swipe_down", false, now, 0, actions);
+      this.#previousRaised = false;
     }
     return sortMotionActions(actions);
   }

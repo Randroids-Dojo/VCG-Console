@@ -69,23 +69,23 @@ const frozenScreenshots = Object.freeze({
   "720p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
-    bytes: 505680,
+    bytes: 488422,
     sha256:
-      "5860686e753f7fb470c6fa2478d3c1ed133e29a1ea675b839d310d8da89dabbe",
+      "e78447b91324304e04480d7194eae73df6c046e4589fd61bcde7e90c6092621c",
   }),
   "1080p": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
-    bytes: 911921,
+    bytes: 895460,
     sha256:
-      "8daa553f8844546e846a82328aef92d244c5f7e4d47e32858c91be11fde4360a",
+      "ca48b95d2ea403341fa6d5895c19ee0e87883e83a0ba9da5d0e790d299edd79a",
   }),
   "4k": Object.freeze({
     path:
       "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
-    bytes: 3015131,
+    bytes: 2991866,
     sha256:
-      "ecbc72c4478a90486f2c54f5ee641d7d902adb290dcd79229a6ec561366cbdb5",
+      "53d95aea67bbce7360fad479dc5012a577fcff25029bbdf38384ac66848d70d9",
   }),
 });
 const observationExpectations = Object.freeze({
@@ -125,12 +125,12 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-B-DnzG3z.css": 3,
-  "/assets/main-Bi3EEhVw.js": 3,
+  "/assets/main-DH8vohyu.css": 3,
+  "/assets/main-BqagsynI.js": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
-  "/assets/src-CYOVH8wV.js": 3,
-  "/assets/synthetic-D3ZzT8jW.js": 3,
-  "/assets/tracker-health-bketT6qu.js": 3,
+  "/assets/src-CTq-EUpt.js": 3,
+  "/assets/synthetic-DSdk9cHR.js": 3,
+  "/assets/tracker-health-Bgrn09-y.js": 3,
   "/fonts/InterVariable.woff2": 3,
   "/fonts/OCRA.ttf": 3,
 });
@@ -287,7 +287,7 @@ function validateObservation(
   const expected = observationExpectations[resolution.id];
   assert.deepEqual(observation.safeArea, expected.safeArea);
   assert.equal(observation.documentReadyState, "complete");
-  assert.equal(observation.criticalTextCount, 16);
+  assert.equal(observation.criticalTextCount, 13);
   assert.equal(
     observation.criticalTextInsideSafeArea,
     observation.criticalTextCount,
@@ -298,7 +298,7 @@ function validateObservation(
   );
   assert.ok(observation.minimumCriticalTextCssPx >= 24);
   assert.equal(observation.criticalTextOverlapCount, 0);
-  assert.equal(observation.actionTargetCount, 12);
+  assert.equal(observation.actionTargetCount, 11);
   assert.equal(
     observation.minimumActionTargetWidthCssPx,
     expected.minimumActionTargetWidthCssPx,
@@ -326,7 +326,7 @@ function validateObservation(
     "unavailable-no-host-bridge-configured",
   );
   assert.deepEqual(observation.focusTrace, [
-    "launcher-home",
+    "settings",
     "search-trigger",
     "universal-search",
     "search-trigger",
@@ -531,8 +531,8 @@ export function validateLauncherTvConformanceEvidence(
     resolutionCount: 3,
     screenshotCount: 3,
     launcherViewCount: 1,
-    markedCriticalTextCountPerResolution: 16,
-    markedActionTargetCountPerResolution: 12,
+    markedCriticalTextCountPerResolution: 13,
+    markedActionTargetCountPerResolution: 11,
     physicalTelevisionCount: 0,
     physicalControllerCount: 0,
     participantCount: 0,

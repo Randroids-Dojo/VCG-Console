@@ -41,13 +41,13 @@ const EXPECTED_SURFACES = Object.freeze([
   {
     id: "motion-catalog",
     criticalTextCount: 18,
-    actionTargetCount: 13,
+    actionTargetCount: 12,
     focusTrace: ["motion-first-entry", "launcher-home"],
   },
   {
     id: "wifi-offline",
     criticalTextCount: 22,
-    actionTargetCount: 18,
+    actionTargetCount: 17,
     focusTrace: ["scan-wifi", "launcher-home"],
   },
   {

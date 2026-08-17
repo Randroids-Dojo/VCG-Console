@@ -16,6 +16,8 @@ export const MOTION_SIMULATOR_POSES = [
   "crossed-arms",
   "swipe-left",
   "swipe-right",
+  "swipe-up",
+  "swipe-down",
 ] as const;
 
 export type MotionSimulatorPose = (typeof MOTION_SIMULATOR_POSES)[number];
@@ -218,6 +220,17 @@ function posePoints(pose: MotionSimulatorPose): Record<CoreLandmarkName, Point> 
   if (pose === "swipe-right") {
     points.right_elbow = [0.48, 0.27];
     points.right_wrist = [0.32, 0.22];
+  }
+  // The vertical pair is performed with the hand already up, so both poses
+  // keep the wrist above the shoulder (0.3) and differ only in height. Held
+  // in sequence they read as one hand sweeping up or down.
+  if (pose === "swipe-up") {
+    points.right_elbow = [0.6, 0.3];
+    points.right_wrist = [0.62, 0.1];
+  }
+  if (pose === "swipe-down") {
+    points.right_elbow = [0.6, 0.34];
+    points.right_wrist = [0.62, 0.28];
   }
   return points;
 }

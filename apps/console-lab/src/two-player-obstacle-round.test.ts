@@ -10,22 +10,44 @@ function playingRound(options: ConstructorParameters<typeof TwoPlayerObstacleRou
 }
 
 describe("TwoPlayerObstacleRound", () => {
-  it("waits for exactly two joined player slots before counting down", () => {
+  it("counts down for a single joined player and waits only for an empty roster", () => {
     const round = new TwoPlayerObstacleRound({ countdownMs: 3_000 });
 
-    round.setRoster([1]);
     expect(round.snapshot()).toMatchObject({
       phase: "waiting-for-players",
-      joinedSlots: [1],
+      joinedSlots: [],
       countdownRemainingMs: 0,
     });
 
-    round.setRoster([1, 2]);
+    round.setRoster([1]);
     expect(round.snapshot()).toMatchObject({
       phase: "countdown",
-      joinedSlots: [1, 2],
+      joinedSlots: [1],
       countdownRemainingMs: 3_000,
     });
+  });
+
+  it("seats a late joiner without discarding the run in progress", () => {
+    const round = new TwoPlayerObstacleRound({
+      countdownMs: 1_000,
+      spawnIntervalMs: 5_000,
+      obstacleTravelMs: 1_000,
+    });
+    round.setRoster([1]);
+    round.update(1_000);
+    round.handleAction("dodge_right", 1);
+    round.update(1_000);
+    const soloScore = round.snapshot().players[0]?.score ?? 0;
+    expect(soloScore).toBeGreaterThan(0);
+
+    round.setRoster([1, 2]);
+    const snapshot = round.snapshot();
+
+    expect(snapshot.phase).toBe("playing");
+    expect(snapshot.players).toEqual([
+      expect.objectContaining({ slot: 1, score: soloScore }),
+      expect.objectContaining({ slot: 2, score: 0, lastResult: "ready" }),
+    ]);
   });
 
   it("applies an action only to its authorized player slot", () => {
@@ -118,7 +140,8 @@ describe("TwoPlayerObstacleRound", () => {
   it("starts a clean countdown when a player leaves and rejoins", () => {
     const round = playingRound();
     round.setRoster([1]);
-    expect(round.snapshot()).toMatchObject({ phase: "waiting-for-players", joinedSlots: [1] });
+    // The remaining player keeps playing, now solo, from a fresh round.
+    expect(round.snapshot()).toMatchObject({ phase: "countdown", joinedSlots: [1] });
 
     round.setRoster([1, 2]);
     expect(round.snapshot()).toMatchObject({

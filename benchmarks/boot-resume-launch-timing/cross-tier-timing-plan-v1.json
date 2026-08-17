@@ -39,7 +39,7 @@
     {
       "role": "ordinary-x86-target-plan-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "b5e1249218e9041194d437d54e39f162c97a49455c306c537527c29d4a794826"
+      "sha256": "060aa0cf9f82ec633d9eab40608825cce236bf4e8b72c60dd8e43a9ece48894f"
     },
     {
       "role": "pi-target-plan-boundary",

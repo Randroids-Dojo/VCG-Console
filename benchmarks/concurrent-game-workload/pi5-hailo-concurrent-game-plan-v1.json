@@ -24,12 +24,12 @@
     {
       "role": "obstacle-component-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "37b5fa5dc6aa00078f1b5e8475fa201da5106309a7e398b401601c29acef5493"
+      "sha256": "11c02d7d93f49f0ba97c60988aedd9b1fe6c74f77cb94b738ec99a67adac84c3"
     },
     {
       "role": "action-engine-boundary",
       "path": "apps/console-lab/src/action-engine.ts",
-      "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
+      "sha256": "25718ccf100747ee2342c3b186780a115f47d53307ad11910473c7bbf5ab121d"
     },
     {
       "role": "hosted-supervisor-boundary",
@@ -44,7 +44,7 @@
     {
       "role": "hailo-accelerator-boundary",
       "path": "benchmarks/hailo-accelerator/ai-hat-13-26-comparison-plan-v1.json",
-      "sha256": "afa7bbc6c7cc407448cc22042ade257ad83d1c1ed6a07f5c9a641d9329331276"
+      "sha256": "5a94c89a2ffc3c1525ecd1d6652214403843bc6a6635dfcdd6053692eaf03c3a"
     }
   ],
   "targetBoundary": {

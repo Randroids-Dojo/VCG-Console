@@ -14,7 +14,7 @@ import {
 
 export const TV_CONFORMANCE_EVIDENCE_FORMAT =
   "vcg-tv-conformance-evidence/v1";
-export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-14";
+export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-16";
 export const TV_CONFORMANCE_BROWSER_PRODUCT = "Chrome/151.0.7922.138";
 export const TV_CONFORMANCE_RESOLUTIONS = Object.freeze([
   Object.freeze({ id: "720p", width: 1280, height: 720 }),

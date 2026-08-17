@@ -1,12 +1,12 @@
 {
   "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-14",
+  "evidenceDate": "2026-08-16",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-08-14T14:26:34.365Z",
+  "retrievedAtUtc": "2026-08-16T23:57:07.149Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "67a37647ef08827b36d4d84a2a1489544c7578ac7000555df4592c8fecfcdf08"
+    "sha256": "c406f7e74407db46a4e151f7930e6a7340edfcd255e39be6b3144e722f71de25"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -21,7 +21,7 @@
       {
         "id": "motion-catalog",
         "criticalTextCount": 18,
-        "actionTargetCount": 13,
+        "actionTargetCount": 12,
         "focusTrace": [
           "motion-first-entry",
           "launcher-home"
@@ -30,7 +30,7 @@
       {
         "id": "wifi-offline",
         "criticalTextCount": 22,
-        "actionTargetCount": 18,
+        "actionTargetCount": 17,
         "focusTrace": [
           "scan-wifi",
           "launcher-home"
@@ -88,7 +88,7 @@
         "criticalTextInsideSafeArea": 18,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 13,
+        "actionTargetCount": 12,
         "minimumActionTargetWidthCssPx": 51.688,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -122,7 +122,7 @@
         "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 18,
+        "actionTargetCount": 17,
         "minimumActionTargetWidthCssPx": 51.688,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -192,7 +192,7 @@
         "criticalTextInsideSafeArea": 18,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 13,
+        "actionTargetCount": 12,
         "minimumActionTargetWidthCssPx": 102.672,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -226,7 +226,7 @@
         "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 24,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 18,
+        "actionTargetCount": 17,
         "minimumActionTargetWidthCssPx": 102.672,
         "minimumActionTargetHeightCssPx": 48,
         "sectionOverlapCount": 0,
@@ -296,7 +296,7 @@
         "criticalTextInsideSafeArea": 18,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 13,
+        "actionTargetCount": 12,
         "minimumActionTargetWidthCssPx": 161.906,
         "minimumActionTargetHeightCssPx": 60,
         "sectionOverlapCount": 0,
@@ -330,7 +330,7 @@
         "criticalTextInsideSafeArea": 22,
         "minimumCriticalTextCssPx": 48,
         "criticalTextOverlapCount": 0,
-        "actionTargetCount": 18,
+        "actionTargetCount": 17,
         "minimumActionTargetWidthCssPx": 161.906,
         "minimumActionTargetHeightCssPx": 60,
         "sectionOverlapCount": 0,
@@ -390,12 +390,12 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-B-DnzG3z.css": 9,
-      "/assets/main-Bi3EEhVw.js": 9,
+      "/assets/main-BqagsynI.js": 9,
+      "/assets/main-DH8vohyu.css": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
-      "/assets/src-CYOVH8wV.js": 9,
-      "/assets/synthetic-D3ZzT8jW.js": 9,
-      "/assets/tracker-health-bketT6qu.js": 9,
+      "/assets/src-CTq-EUpt.js": 9,
+      "/assets/synthetic-DSdk9cHR.js": 9,
+      "/assets/tracker-health-Bgrn09-y.js": 9,
       "/fonts/InterVariable.woff2": 9,
       "/fonts/OCRA.ttf": 9
     }
@@ -431,15 +431,15 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "e548cd9619346032145f33fb4b4d871fa29412160b51eea2a5dd55eea794d24b",
+    "launcherPathSha256": "f4b0f4da816a46c967c1642d9644abcbf40b8d14851f2c5d22d1c7dfa4dfbcd0",
     "settingsPath": "apps/console-lab/src/launcher/SettingsView.svelte",
-    "settingsPathSha256": "1b61d01c046397fb6bdf88f97b37fc713acbed256e8290dea15d8900a4721a40",
+    "settingsPathSha256": "ee4723574710b068447679299e6050d63cae511eb3053689f0779473e68a904d",
     "launchScreenPath": "apps/console-lab/src/launcher/LaunchScreen.svelte",
     "launchScreenPathSha256": "545115d64340b520af9b54462f3a5eaf589846b2f77526254b8b96605a87bc68",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "0c6f3e8f8ee79ae5ed0bc3a9e06d5e7c3543d0a22ded8eaef0e5671d87d36dbf",
+    "stylePathSha256": "fead5eeca5fa56a68b5d0156abdceb23e6160957b566f3736103acc6dddd1f7d",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "9ec5ccc2491244648352118c8c13a708649019e767f72d43306f231d2547f3a4",
+    "entryPathSha256": "5024a0b38b523b2ab7ecd719f9c40a3fa144c8299edea75255d6cec7654f1b06",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -447,15 +447,15 @@
     "catalogPath": "apps/console-lab/src/launcher/catalog.generated.ts",
     "catalogPathSha256": "eb397879e05388d21b8d4e48266d5ced298fa6cfe26ce32630524c137d055422",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "1e2479fb5b299609e0f98d3b297cd1d249731db124afcc704c42ce2be32b711c",
+    "browserTestPathSha256": "82148f73551c13097f179887db76c2aaec35a39a2f9be9ce8dbde39f73ad1acd",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "67a37647ef08827b36d4d84a2a1489544c7578ac7000555df4592c8fecfcdf08",
+    "homeEvidencePathSha256": "c406f7e74407db46a4e151f7930e6a7340edfcd255e39be6b3144e722f71de25",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "a56a37c929cd65f4ae6f6b381306248bd56af999ba29bab930ff82863124e2e9",
+    "commonGeneratorPathSha256": "9a41726a162fd496fb08602c4ff89789cdf98a5ffecffba0416917208068fbc9",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
-    "generatorPathSha256": "c909f71a1e1c838682a3f7f6c5be06e94f0f55acb1d416380e9f7dd089a66120",
+    "generatorPathSha256": "a03446c9232ce2766fd7e635f335d1c1270c3f668b0d530769fab868a4765e47",
     "validatorPath": "scripts/validate-launcher-tv-surface-evidence.mjs",
-    "validatorPathSha256": "18d9d7365e0667961a769720a83030d0222f2f9811cfb58e2bf7cadf638b18a2",
+    "validatorPathSha256": "885b35712272e50a636d1f53fa0eda49eb88e21043f05d865b0630568b071e0d",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -472,8 +472,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 154,
-      "sha256": "79c0bbcdb53afa94102415375610bd312c832219638df96f75e6e45e575fb6b3"
+      "fileCount": 155,
+      "sha256": "5c5251862069088cb56b969cb1254d0aab2b1304910a82c197b460d4578f2e08"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

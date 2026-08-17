@@ -768,6 +768,8 @@
                           "dodge_right",
                           "menu_swipe_left",
                           "menu_swipe_right",
+                          "menu_swipe_up",
+                          "menu_swipe_down",
                           "menu_select",
                           "menu_back",
                           "pause"

@@ -74,6 +74,51 @@ describe("camera-free pose simulator integration", () => {
     expect(engine.enrich(simulator.frame(27, 660)).players[0]?.id).toBe("simulator-player-1");
   });
 
+  it("drives vertical menu sweeps with a raised hand", () => {
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    engine.enrich(simulator.frame(24, 600));
+
+    // Raising the hand is how the sweep begins, so it is not itself a sweep.
+    simulator.setPose("swipe-down");
+    const raising = engine.enrich(simulator.frame(25, 620));
+    expect(raising.players[0]?.actions).not.toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_up" }),
+    );
+
+    simulator.setPose("swipe-up");
+    const up = engine.enrich(simulator.frame(26, 640));
+    expect(up.players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_up", phase: "triggered" }),
+    );
+    expect(up.players[0]?.actions).not.toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_left" }),
+    );
+
+    // Sweeping back down from the raised position is the opposite gesture.
+    simulator.setPose("swipe-down");
+    const down = engine.enrich(simulator.frame(27, 660));
+    expect(down.players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_down", phase: "triggered" }),
+    );
+  });
+
+  it("keeps jumping in the shell from reading as a vertical menu sweep", () => {
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    engine.enrich(simulator.frame(24, 600));
+
+    // A jump moves the whole body, wrists included, but leaves them below the
+    // shoulders, which is what separates it from a raised-hand sweep.
+    simulator.setPose("jump");
+    const jumped = engine.enrich(simulator.frame(25, 620));
+    for (const name of ["menu_swipe_up", "menu_swipe_down"]) {
+      expect(jumped.players[0]?.actions).not.toContainEqual(
+        expect.objectContaining({ name }),
+      );
+    }
+  });
+
   it("denies reordered candidates and strips non-local upstream action claims", () => {
     const { engine, simulator } = calibratedEngine("game");
     const session = new PlayerSessionController();

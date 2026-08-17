@@ -28,22 +28,22 @@
     {
       "role": "ordinary-x86-comparison-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "b5e1249218e9041194d437d54e39f162c97a49455c306c537527c29d4a794826"
+      "sha256": "060aa0cf9f82ec633d9eab40608825cce236bf4e8b72c60dd8e43a9ece48894f"
     },
     {
       "role": "pi-cpu-comparison-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "6b6a2cc348d0f9a4fb5696b6ccbac1cff9eadb91b2f8450c61f9e71f83cf6440"
+      "sha256": "b3cb98ea1c6280b2d03d6963dab9b15296205fcf1bf0e21832119f1cb9bb6c21"
     },
     {
       "role": "representative-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "ab4a1b05a5179ed7ce4570038b2da6350dd74e28faa55bae62795fc1ad5f242d"
+      "sha256": "f1f71b29b16c1f9334f5333afc6bb5a6f184a23c76092d476cb96281695ca8c1"
     },
     {
       "role": "core17-provider-comparison-boundary",
       "path": "benchmarks/pose-backends/hailo-mediapipe-core-comparison-plan-v1.json",
-      "sha256": "7387358a2e291af62461eec5e42bd16d8f0344c7a48d0e824f39dde7aa323ec2"
+      "sha256": "88fd13626bb99e56f049a9fb46cb2a33cd655c9a842e9a20a3c3d445c3b4ae9d"
     },
     {
       "role": "exposure-to-action-proof-boundary",

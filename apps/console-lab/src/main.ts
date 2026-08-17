@@ -32,6 +32,12 @@ import { captureProfileFromSearch } from "./capture-profile";
 import { ControllerPlayerAssignments } from "./controller-player-assignment";
 import { installAutoHidingCursor } from "./cursor-visibility";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
+import {
+  focusControl,
+  nearestControl,
+  scrollBeyondFocus,
+  type FocusDirection,
+} from "./spatial-focus";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
 import {
@@ -84,6 +90,7 @@ declare global {
   interface Window {
     __vcgMotionSimulator?: MotionSimulatorTestApi;
     __vcgObstacleJourney?: ObstacleJourneyTestApi;
+    __vcgSpatialFocus?: Readonly<{ nearestControl: typeof nearestControl }>;
   }
 }
 
@@ -106,7 +113,7 @@ app.innerHTML = `
   ${launcherMarkup}
   <main class="console-shell" id="motion-lab" hidden>
     <header class="topbar">
-      <button class="wordmark" id="home-button" type="button" aria-label="VCG Console home">VCG<span>/</span>CONSOLE</button>
+      <span class="wordmark">VCG<span>/</span>CONSOLE</span>
       <div class="system-state"><span class="state-dot" aria-hidden="true"></span><span id="system-state">REPLAY READY</span></div>
       <time id="clock" aria-label="Local time"></time>
     </header>
@@ -143,7 +150,7 @@ app.innerHTML = `
               <p>ROUND COMPLETE</p>
               <h2 id="round-result-title">DRAW</h2>
               <p id="round-result-score">P1 000000 / P2 000000</p>
-              <div class="round-result-actions">
+              <div class="round-result-actions" data-focus-group>
                 <button id="play-again-button" type="button" data-result-action="again">PLAY AGAIN</button>
                 <button id="return-console-button" type="button" data-result-action="console">BACK TO CONSOLE</button>
               </div>
@@ -159,7 +166,7 @@ app.innerHTML = `
               <p class="leaderboard-disclosure">Casual scores on this device only. They are not anti-cheat protected or comparable across households.</p>
               <ol id="leaderboard-list" class="leaderboard-list"></ol>
               <p id="leaderboard-storage-status" class="leaderboard-storage-status"></p>
-              <div class="leaderboard-actions">
+              <div class="leaderboard-actions" data-focus-group>
                 <button id="new-run-button" type="button">NEW RUN</button>
                 <button id="reset-board-button" type="button">RESET LOCAL BOARD</button>
               </div>
@@ -171,12 +178,12 @@ app.innerHTML = `
         <div class="stage-view" id="shell-view" hidden>
           <div class="shell-lab-stage">
             <p class="shell-instruction">SWIPE TO MOVE FOCUS. BRING BOTH HANDS TOGETHER TO SELECT. HOLD CROSSED ARMS TO GO BACK OR PAUSE.</p>
-            <div class="shell-cards" aria-label="Motion navigation targets">
+            <div class="shell-cards" data-focus-group aria-label="Motion navigation targets">
               <button type="button" data-shell-target="tracker"><span>01</span><strong>TRACKER</strong><small>Inspect the body signal</small></button>
               <button type="button" data-shell-target="obstacle"><span>02</span><strong>OBSTACLE</strong><small>Test action recognition</small></button>
               <button type="button" data-shell-target="shell"><span>03</span><strong>SHELL LAB</strong><small>Test console gestures</small></button>
             </div>
-            <div class="shell-test-controls">
+            <div class="shell-test-controls" data-focus-group>
               <button id="manual-pause-button" type="button">TEST MANUAL PAUSE</button>
               <button id="tracking-loss-button" type="button">TEST TRACKING LOSS</button>
             </div>
@@ -222,7 +229,7 @@ app.innerHTML = `
           </div>
           <h2 id="tracker-health-title">Tracker is ready</h2>
           <p id="tracker-health-detail">Landmarks and standardized actions are available from the active local source.</p>
-          <div class="health-fixtures" aria-label="Tracker health message fixtures">
+          <div class="health-fixtures" data-focus-group aria-label="Tracker health message fixtures">
             <button type="button" data-health-fixture="healthy">READY</button>
             <button type="button" data-health-fixture="low-confidence">LOW CONF</button>
             <button type="button" data-health-fixture="overload">OVERLOAD</button>
@@ -246,14 +253,14 @@ app.innerHTML = `
           </div>
           <p id="player-control-detail">All six control groups have their required observed landmarks.</p>
           <p id="player-unavailable-controls"><strong>UNAVAILABLE</strong> NONE</p>
-          <div class="body-fixtures" aria-label="Missing landmark replay fixtures">
+          <div class="body-fixtures" data-focus-group aria-label="Missing landmark replay fixtures">
             <button type="button" data-body-fixture="full">FULL</button>
             <button type="button" data-body-fixture="left-arm">LEFT ARM</button>
             <button type="button" data-body-fixture="legs">LEGS</button>
             <button type="button" data-body-fixture="half-body">HALF BODY</button>
           </div>
         </section>
-        <section class="simulator-card" id="simulator-card" data-enabled="false">
+        <section class="simulator-card" id="simulator-card" data-focus-group data-enabled="false">
           <div class="simulator-heading">
             <span>CAMERA-FREE SDK INPUT</span>
             <strong id="simulator-state">OFF</strong>
@@ -269,10 +276,11 @@ app.innerHTML = `
             <button type="button" data-simulator-pose="crossed-arms">CROSS</button>
             <button type="button" data-simulator-pose="swipe-left">SWIPE L</button>
             <button type="button" data-simulator-pose="swipe-right">SWIPE R</button>
+            <button type="button" data-simulator-pose="swipe-up">SWIPE U</button>
+            <button type="button" data-simulator-pose="swipe-down">SWIPE D</button>
             <button id="simulator-player-toggle" type="button" aria-pressed="false">HIDE PLAYER</button>
           </div>
-          <p><strong>KEYS</strong> W/A/S/D move · J hands · K cross · Q/E swipe · H hide</p>
-          <p><strong>PAD</strong> Stick/D-pad move · A hands · Start cross. Home and Back remain reserved.</p>
+          <p><strong>KEYS</strong> W/A/S/D move · J hands · K cross · Q/E swipe · R/F swipe up/down · H hide</p>
         </section>
         <section class="gesture-feedback" id="gesture-feedback" data-state="idle" aria-live="polite">
           <div class="gesture-feedback-heading">
@@ -292,7 +300,7 @@ app.innerHTML = `
           <p id="gesture-detail">Hold progress, acceptance, cancellation, and release appear here.</p>
         </section>
         <p class="measurement-note" id="measurement-note">No source timing samples are available. This diagnostic never substitutes for exposure-to-action qualification.</p>
-        <div class="controls">
+        <div class="controls" data-focus-group>
           <button id="join-button" class="primary-control" type="button">JOIN PLAYER 1</button>
           <button id="join-player-2-button" class="primary-control" type="button" disabled>JOIN PLAYER 2</button>
           <button id="camera-button" type="button">START CAMERA</button>
@@ -303,11 +311,11 @@ app.innerHTML = `
       </aside>
     </section>
 
-    <nav class="command-rail" aria-label="Console sections">
+    <nav class="command-rail" data-focus-group="menu" aria-label="Console sections">
       <button class="command active" type="button" data-mode="tracker"><span>01</span>TRACKER</button>
       <button class="command" type="button" data-mode="obstacle"><span>02</span>OBSTACLE</button>
       <button class="command" type="button" data-mode="shell"><span>03</span>SHELL LAB</button>
-      <button class="command" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
+      <button class="command command-toggle" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
       <div class="escape-hint"><span>BACK</span></div>
     </nav>
 
@@ -318,7 +326,7 @@ app.innerHTML = `
         <p id="overlay-copy">Player 1 opened the console menu.</p>
         <div class="overlay-options">
           <button type="button" data-overlay-action="resume">RESUME</button>
-          <button type="button" data-overlay-action="exit">EXIT TO CONSOLE</button>
+          <button type="button" data-overlay-action="exit">END RUN</button>
         </div>
         <p class="overlay-help">SWIPE TO CHOOSE / HANDS TOGETHER TO SELECT</p>
       </div>
@@ -477,6 +485,8 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
     const player = snapshot.players.find((candidate) => candidate.slot === slot);
     gameScoreBySlot[slot].textContent = String(player?.score ?? 0).padStart(6, "0");
     gameLivesBySlot[slot].textContent = String(player?.lives ?? 0);
+    // An empty slot has no score to read, so its readout is not shown at all.
+    gameScoreBySlot[slot].closest("span")?.toggleAttribute("hidden", player === undefined);
   }
   gameClock.textContent = formatRoundClock(snapshot.roundRemainingMs);
   gameStatus.textContent = obstacleRoundStatus(snapshot);
@@ -487,11 +497,16 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
   if (snapshot.phase === "finished") {
     const player1 = snapshot.players.find((player) => player.slot === 1);
     const player2 = snapshot.players.find((player) => player.slot === 2);
-    roundResultTitle.textContent = snapshot.winnerSlot
-      ? `PLAYER ${snapshot.winnerSlot} WINS`
-      : "DRAW";
-    roundResultScore.textContent =
-      `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
+    // A solo round has nothing to win or draw, so it reports the run instead.
+    const solo = snapshot.joinedSlots.length < 2;
+    roundResultTitle.textContent = solo
+      ? "ROUND COMPLETE"
+      : snapshot.winnerSlot
+        ? `PLAYER ${snapshot.winnerSlot} WINS`
+        : "DRAW";
+    roundResultScore.textContent = solo
+      ? `P${snapshot.joinedSlots[0] ?? 1} ${String(player1?.score ?? player2?.score ?? 0).padStart(6, "0")}`
+      : `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
     if (previousPhase !== "finished") {
       roundResultFocus = "console";
       paintRoundResultFocus();
@@ -500,9 +515,7 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
 }
 
 function obstacleRoundStatus(snapshot: ObstacleRoundSnapshot): string {
-  if (snapshot.phase === "waiting-for-players") {
-    return snapshot.joinedSlots.length === 0 ? "JOIN 2 PLAYERS" : "JOIN PLAYER 2";
-  }
+  if (snapshot.phase === "waiting-for-players") return "JOIN PLAYER 1";
   if (snapshot.phase === "countdown") return `STARTING IN ${Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))}`;
   if (snapshot.phase === "playing") return "PLAY";
   if (snapshot.phase === "paused") return "PAUSED";
@@ -711,9 +724,9 @@ function handleAction(action: MotionAction, trackId: string): void {
     else if (currentMode !== "tracker") setMode("tracker");
     else showLauncher();
   } else if (shellInput === "left") {
-    moveFocus(-1);
+    moveFocus("left");
   } else if (shellInput === "right") {
-    moveFocus(1);
+    moveFocus("right");
   } else if (shellInput === "select") {
     selectFocused(trackId);
   }
@@ -761,29 +774,27 @@ function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void
     else if (action === "select") chooseRoundResultAction(roundResultFocus);
     return;
   }
-  if (simulatorEnabled) return;
-  if (
-    (action === "up" || action === "down")
-    && currentMode === "tracker"
-    && !overlayKind
-  ) {
-    if (action === "down") joinButton.focus();
-    else modeButtons[focusedModeIndex]?.focus();
-    return;
-  }
   if (action === "pause" && currentMode === "obstacle") {
     showOverlay("manual");
     return;
   }
+  // Directions steer the run only while a run is actually under way. Waiting
+  // for players is a shell phase, not gameplay, so the dock stays reachable.
+  const playing = obstacleIsUnderWay() && !overlayKind;
   if (action === "left" || action === "right") {
-    if (currentMode === "obstacle" && !overlayKind) {
+    if (playing) {
       handleRecoveryGameplayAction(action === "left" ? "dodge_left" : "dodge_right", gamepad);
     }
-    else moveFocus(action === "left" ? -1 : 1);
+    else moveFocus(action);
     return;
   }
-  if (action === "down" && currentMode === "obstacle" && !overlayKind) {
-    handleRecoveryGameplayAction("duck", gamepad);
+  if (action === "down") {
+    if (playing) handleRecoveryGameplayAction("duck", gamepad);
+    else moveFocus("down");
+    return;
+  }
+  if (action === "up") {
+    if (!playing) moveFocus("up");
     return;
   }
   if (action === "select") {
@@ -794,9 +805,20 @@ function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void
     ) {
       (document.activeElement as HTMLButtonElement).click();
     }
-    else if (currentMode === "obstacle" && !overlayKind) handleRecoveryGameplayAction("jump", gamepad);
+    else if (playing) handleRecoveryGameplayAction("jump", gamepad);
     else selectFocused();
   }
+}
+
+/**
+ * Whether an Obstacle run is actually in progress. This is the same phase
+ * boundary the action engine uses to tell a game frame from a shell frame:
+ * a finished round and a round waiting for players are both shell states.
+ */
+function obstacleIsUnderWay(): boolean {
+  if (currentMode !== "obstacle") return false;
+  const phase = obstacle.snapshot().phase;
+  return phase !== "finished" && phase !== "waiting-for-players";
 }
 
 function joinPlayer(trackId?: string, requestedSlot?: 1 | 2): void {
@@ -1025,22 +1047,12 @@ function applyTrackerHealth(event: TrackerHealthEvent): void {
   }
 }
 
-function simulatorPoseFromGamepad(actions: ReadonlySet<ConsoleInputAction>): MotionSimulatorPose | undefined {
-  if (actions.has("pause")) return "crossed-arms";
-  if (actions.has("select")) return "hands-together";
-  if (actions.has("down")) return "duck";
-  if (actions.has("up")) return "jump";
-  if (actions.has("left")) return "dodge-left";
-  if (actions.has("right")) return "dodge-right";
-  return undefined;
-}
-
 function handleSimulatorGamepadState(actions: ReadonlySet<ConsoleInputAction>): void {
-  if (!simulatorEnabled) return;
-  const next = simulatorPoseFromGamepad(actions);
-  if (next === simulatorControllerPose) return;
-  simulatorControllerPose = next;
-  applyEffectiveSimulatorPose();
+  // Deliberately inert. The pad drives focus, not poses: while it latched a
+  // pose per direction the player could never move focus to the toggle and
+  // switch the simulator back off. Poses are chosen by activating a pose
+  // button; the keyboard keys below still drive them live.
+  void actions;
 }
 
 function effectiveSimulatorPose(): MotionSimulatorPose {
@@ -1136,23 +1148,25 @@ function labControls(): HTMLElement[] {
   ].filter((element) => element.offsetParent !== null);
 }
 
-function moveFocus(direction: -1 | 1): void {
+function moveFocus(direction: FocusDirection): void {
   if (overlayKind) {
     overlayFocus = overlayFocus === "resume" ? "exit" : "resume";
     paintOverlayFocus();
     return;
   }
-  // One linear ring over every visible lab control, so a controller or a
-  // body swipe can reach the dock, the stage, and the diagnostics drawer.
+  // Directional movement across the dock, the stage, and the diagnostics
+  // sections, resolved by where controls sit rather than by authored order.
   const controls = labControls();
   if (controls.length === 0) return;
-  const current = controls.indexOf(document.activeElement as HTMLElement);
-  const next = controls[
-    current === -1
-      ? direction === 1 ? 0 : controls.length - 1
-      : (current + direction + controls.length) % controls.length
-  ];
-  next?.focus();
+  const active = controls[controls.indexOf(document.activeElement as HTMLElement)];
+  const next = active ? nearestControl(controls, active, direction) : controls[0];
+  if (!next) {
+    // The diagnostics drawer holds readable content past its last control, so
+    // pressing on at the edge reveals it rather than doing nothing.
+    if (active) scrollBeyondFocus(active, direction);
+    return;
+  }
+  focusControl(next);
   const nextModeIndex = modeButtons.findIndex((button) => button === next);
   if (nextModeIndex !== -1) focusedModeIndex = nextModeIndex;
   for (const card of shellCards) {
@@ -1223,7 +1237,9 @@ function chooseOverlayAction(
     if (kind === "recovery") resetPlayerSession();
     else closeOwnedPause("launcher");
     closeOverlay(false);
-    showLauncher();
+    // Leaving a run hands focus to the section tabs rather than the launcher,
+    // so the rest of the screen stays reachable. Home still leaves entirely.
+    modeButtons[focusedModeIndex]?.focus();
     return;
   }
   if (kind === "recovery") {
@@ -1329,9 +1345,9 @@ function resetObstacleRun(): void {
   obstacle.reset();
   synchronizeObstacleRoster();
   obstacle.setPaused(currentMode !== "obstacle" || Boolean(overlayKind));
-  statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 2
-    ? "Both players are ready. The round countdown has started."
-    : "Join both players to start the round.";
+  statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 0
+    ? "Join Player 1 to start the round."
+    : "The round countdown has started. A second player can join at any time.";
 }
 
 function synchronizeObstacleRoster(): void {
@@ -1488,7 +1504,6 @@ for (const button of simulatorPoseButtons) {
     if (simulatorEnabled) setSimulatorLatchedPose(button.dataset.simulatorPose as MotionSimulatorPose);
   });
 }
-required<HTMLButtonElement>("#home-button").addEventListener("click", showLauncher);
 for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode));
 for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode));
 for (const button of overlayButtons) button.addEventListener("click", () => chooseOverlayAction(button.dataset.overlayAction as "resume" | "exit"));
@@ -1537,6 +1552,8 @@ const SIMULATOR_KEY_POSES = new Map<string, MotionSimulatorPose>([
   ["KeyK", "crossed-arms"],
   ["KeyQ", "swipe-left"],
   ["KeyE", "swipe-right"],
+  ["KeyR", "swipe-up"],
+  ["KeyF", "swipe-down"],
 ]);
 
 function handleSimulatorKeyDown(event: KeyboardEvent): boolean {
@@ -1613,7 +1630,7 @@ document.addEventListener("keydown", (event) => {
   }
   if (!launcher.visible && overlayKind && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)) {
     event.preventDefault();
-    moveFocus(event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1);
+    moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
   } else if (
     !launcher.visible
     && currentMode === "obstacle"
@@ -1627,19 +1644,27 @@ document.addEventListener("keydown", (event) => {
     !launcher.visible
     && currentMode === "obstacle"
     && !overlayKind
-    && obstacle.snapshot().phase !== "finished"
+    && obstacleIsUnderWay()
     && ["ArrowLeft", "ArrowRight", "ArrowDown"].includes(event.key)
   ) {
     event.preventDefault();
     handleRecoveryGameplayAction(
       event.key === "ArrowLeft" ? "dodge_left" : event.key === "ArrowRight" ? "dodge_right" : "duck",
     );
+  } else if (
+    !launcher.visible
+    && !overlayKind
+    && !obstacleIsUnderWay()
+    && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)
+  ) {
+    event.preventDefault();
+    moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
   }
   if (
     !launcher.visible
     && currentMode === "obstacle"
     && !overlayKind
-    && obstacle.snapshot().phase !== "finished"
+    && obstacleIsUnderWay()
     && event.key === " "
   ) {
     event.preventDefault();
@@ -1655,6 +1680,13 @@ document.addEventListener("keydown", (event) => {
     chooseRoundResultAction(roundResultFocus);
   }
 });
+
+// Directional focus is resolved from live layout, so it can only be checked
+// against a rendered page. This exposes the resolver for that, gated like the
+// other rehearsal hooks so an ordinary session never carries it.
+if (new URLSearchParams(window.location.search).get("spatialFocusTest") === "1") {
+  window.__vcgSpatialFocus = Object.freeze({ nearestControl });
+}
 
 if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "1") {
   window.__vcgMotionSimulator = Object.freeze({

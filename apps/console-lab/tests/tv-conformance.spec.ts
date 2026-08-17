@@ -178,8 +178,8 @@ for (const resolution of RESOLUTIONS) {
     );
     const actions = await measurements(page, "[data-tv-action]:visible");
 
-    expect(criticalText.length).toBe(16);
-    expect(actions.length).toBe(12);
+    expect(criticalText.length).toBe(13);
+    expect(actions.length).toBe(11);
     const destinationIcons = page.locator(
       ".home-destinations .ui-icon-arrow-right",
     );
@@ -273,7 +273,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeLessThanOrEqual(1);
 
     const homeSections = await page
-      .locator(".home-heading, .home-destinations, .home-status")
+      .locator(".home-heading, .home-destinations")
       .evaluateAll((elements) =>
         elements.map((element) => {
           const bounds = element.getBoundingClientRect();
@@ -284,22 +284,21 @@ for (const resolution of RESOLUTIONS) {
           };
         }),
       );
-    expect(homeSections).toHaveLength(3);
+    expect(homeSections).toHaveLength(2);
     expect(
       homeSections[0]!.bottom,
       `${resolution.id} heading must not overlap destinations`,
     ).toBeLessThanOrEqual(homeSections[1]!.top + 0.5);
-    expect(
-      homeSections[1]!.bottom,
-      `${resolution.id} destinations must not overlap status`,
-    ).toBeLessThanOrEqual(homeSections[2]!.top + 0.5);
 
     await page.screenshot({
       path:
         `../../test-results/console-lab/launcher-tv-${resolution.id}.png`,
     });
-    await page.locator("[data-launcher-home]").focus();
-    await expect(page.locator("[data-launcher-home]")).toBeFocused();
+    // The wordmark is a label, not a control, so focus never lands on it.
+    await expect(page.locator("button.launcher-brand")).toHaveCount(0);
+    // Focus order follows the drawn left-to-right order of the top bar, so
+    // the last tab strip entry hands off to the search pill beside it.
+    await page.locator('[data-view-target="settings"]').focus();
     await page.keyboard.press("Tab");
     await expect(page.locator("#search-trigger")).toBeFocused();
     await page.keyboard.press("Enter");
@@ -326,7 +325,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, "#launcher", 18, 13);
+    await assertTvGeometry(page, resolution, "#launcher", 18, 12);
 
     const firstEntry = page
       .locator('[data-launcher-view="motion"] .library-list button')
@@ -352,7 +351,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
-    await assertTvGeometry(page, resolution, "#launcher", 22, 18);
+    await assertTvGeometry(page, resolution, "#launcher", 22, 17);
 
     await page.locator("#scan-wifi").focus();
     await expect(page.locator("#scan-wifi")).toBeFocused();

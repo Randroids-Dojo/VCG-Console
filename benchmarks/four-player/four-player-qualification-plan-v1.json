@@ -46,7 +46,7 @@
     {
       "role": "motion-api-shape-boundary",
       "path": "packages/motion-contract/src/schema.ts",
-      "sha256": "2d9c2f1ba862714f51dd97fe110a131b73a129b00deb00877675acaf0c8531d5"
+      "sha256": "954dbdf2d1bd171d9c9c918133fca7974f483f037bd74ac07ed04d43e994a6a2"
     },
     {
       "role": "synthetic-identity-evidence-boundary",
@@ -66,7 +66,7 @@
     {
       "role": "one-player-lab-configuration-boundary",
       "path": "apps/console-lab/src/main.ts",
-      "sha256": "9ec5ccc2491244648352118c8c13a708649019e767f72d43306f231d2547f3a4"
+      "sha256": "5024a0b38b523b2ab7ecd719f9c40a3fa144c8299edea75255d6cec7654f1b06"
     }
   ],
   "prerequisiteGate": {

@@ -93,9 +93,7 @@ export class ObstacleGame {
       context.textAlign = "center";
       context.fillText(
         snapshot.phase === "waiting-for-players"
-          ? snapshot.joinedSlots.length === 0
-            ? "JOIN PLAYER 1"
-            : "JOIN PLAYER 2"
+          ? "JOIN PLAYER 1"
           : String(Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))),
         width / 2,
         height / 2,

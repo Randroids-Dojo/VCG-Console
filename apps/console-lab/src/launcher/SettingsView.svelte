@@ -116,6 +116,8 @@
   }
 
   async function scanControllers(): Promise<void> {
+    // Focusable while busy for the same reason as the Wi-Fi scan above.
+    if (bluetoothBusy !== undefined) return;
     pendingForgetId = undefined;
     await runBluetoothOperation("scan", scanBluetoothControllers());
   }
@@ -173,6 +175,9 @@
   }
 
   function scanWifi(): void {
+    // The button stays focusable while scanning so a controller does not lose
+    // its place; a press during the scan is simply ignored.
+    if (scanning) return;
     scanning = true;
     scanComplete = false;
     scanTimer = window.setTimeout(() => {
@@ -320,7 +325,7 @@
   <div><h1 data-tv-critical-text>{panelTitles[panel]}</h1></div>
 </header>
 <div class="settings-layout">
-  <nav class="settings-nav" aria-label="Settings sections">
+  <nav class="settings-nav" data-focus-group="menu" aria-label="Settings sections">
     {#each ["system", "accessibility", "display", "audio", "controllers", "network", "storage", "developer"] as target}
       <button
         class:active={panel === target}
@@ -332,7 +337,7 @@
       >{target === "network" ? "Wi-Fi" : target === "accessibility" ? "Access" : target === "developer" ? "Developer" : target[0]?.toUpperCase() + target.slice(1)}</button>
     {/each}
   </nav>
-  <div class="settings-panels">
+  <div class="settings-panels" data-focus-group>
     <section data-settings-panel="system" hidden={panel !== "system"}>
       <dl><div><dt>VCG Console</dt><dd>Prototype 0.0.1</dd></div><div><dt>Motion API</dt><dd>0.2.0</dd></div><div><dt>Update channel</dt><dd>Development</dd></div></dl>
       <button type="button" onclick={() => ontoast("No console update service is connected in this prototype.")}>Check for updates</button>
@@ -465,7 +470,7 @@
           type="button"
           data-tv-action
           data-tv-critical-text
-          disabled={bluetoothBusy !== undefined}
+          aria-disabled={bluetoothBusy !== undefined}
           onclick={scanControllers}
         >{bluetoothBusy === "scan" ? "Scanning for controllers..." : "Scan for controllers"}</button>
       </div>
@@ -518,7 +523,7 @@
       <p class="controller-setup-boundary">Bluetooth connection is not a gameplay claim. The controller becomes usable only after Chromium reports fresh mapped input; Raspberry Pi, controller-model, range, wake, and two-player behavior still require physical qualification.</p>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
-      <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
+      <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text aria-disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
     </section>
     <section data-settings-panel="storage" hidden={panel !== "storage"}>
       <div class="storage-meter"><div><span style="width:15%"></span></div><p><strong>38 GB used</strong><span>218 GB available / 256 GB total</span></p></div>

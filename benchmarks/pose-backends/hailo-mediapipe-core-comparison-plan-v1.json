@@ -39,7 +39,7 @@
     {
       "role": "motion-schema",
       "path": "packages/motion-contract/src/schema.ts",
-      "sha256": "2d9c2f1ba862714f51dd97fe110a131b73a129b00deb00877675acaf0c8531d5"
+      "sha256": "954dbdf2d1bd171d9c9c918133fca7974f483f037bd74ac07ed04d43e994a6a2"
     },
     {
       "role": "game-manifest-motion-vocabulary",

@@ -1,0 +1,17 @@
+# Lets the console account restart the two VCG units without a password, so a
+# rebuilt console can be put on screen from a remote shell during development.
+# Restricted to exactly these two systemctl verbs on exactly these two units:
+# it grants no other service, no unit file edits, and no general root shell.
+#
+# Install with:
+#   sudo install -m 0440 -o root -g root \
+#     scripts/pi/sudoers.d/vcg-console-restart /etc/sudoers.d/vcg-console-restart
+#
+# Remove with:
+#   sudo rm /etc/sudoers.d/vcg-console-restart
+%vcg-console-operators ALL=(root) NOPASSWD: \
+  /usr/bin/systemctl restart vcg-console-session.service, \
+  /usr/bin/systemctl restart vcg-console-server.service, \
+  /usr/bin/systemctl restart vcg-console-server.service vcg-console-session.service, \
+  /usr/bin/systemctl status vcg-console-session.service, \
+  /usr/bin/systemctl status vcg-console-server.service
