@@ -390,7 +390,8 @@ a:focus-visible {
   padding: var(--safe-y) var(--safe-x) 0;
 }
 
-/* Controller focus follows DOM order, so the top bar is authored in the same
+/* Controller focus is resolved from layout (see spatial-focus.ts), but tab
+   order still follows the document, so the top bar is authored in the same
    left-to-right order it is drawn: brand label, tab strip, search, presence. */
 .launcher-topbar > .launcher-brand {
   grid-row: 1;

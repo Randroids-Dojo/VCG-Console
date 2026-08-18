@@ -32,17 +32,17 @@
     {
       "role": "shell-style-implementation",
       "path": "apps/console-lab/src/styles.css",
-      "sha256": "dde91f80a57721f83d6070b9ea5980666ca9e0f95938c057372f996c5961b0e2"
+      "sha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e"
     },
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "0ef522e553e331757799d2745fd8a48d25d2403bc2bdd20cce9c8a52c37473bb"
+      "sha256": "4abc364f48e8184c2ad29d8f3c82be8696c7169a0b2fa16bc3cee1c939c1f088"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "6b802e6b8ed37c230cd7a62aa38a5715803f4fe4644c4d9891ea4ff38889c667"
+      "sha256": "9f915e8d4cd5b8b8ca9273e8415c1c343b9e5a58d86042319b11cc61d3fec701"
     }
   ],
   "executionBoundary": {

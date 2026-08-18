@@ -839,10 +839,11 @@ function handleAction(action: MotionAction, trackId: string): void {
     if (overlayKind) chooseOverlayAction("exit", trackId);
     else if (currentMode !== "tracker") setMode("tracker");
     else showLauncher();
-  } else if (shellInput === "left") {
-    moveFocus("left");
-  } else if (shellInput === "right") {
-    moveFocus("right");
+  } else if (
+    shellInput === "left" || shellInput === "right"
+    || shellInput === "up" || shellInput === "down"
+  ) {
+    moveFocus(shellInput);
   } else if (shellInput === "select") {
     selectFocused(trackId);
   }

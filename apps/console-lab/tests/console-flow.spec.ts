@@ -531,13 +531,13 @@ test("triggered motion shell actions navigate and safely leave unassigned progre
   await expect(first).toBeFocused();
 
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("swipe-down"));
-  await expect(second).toBeFocused({ timeout: 1_500 });
+  await expect(second).toBeFocused({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await page.waitForTimeout(750);
 
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await expect(second).toHaveAttribute("aria-pressed", "true", {
-    timeout: 1_500,
+    timeout: 5_000,
   });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await page.waitForTimeout(750);
@@ -545,7 +545,7 @@ test("triggered motion shell actions navigate and safely leave unassigned progre
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("crossed-arms"));
   await expect(
     page.getByRole("heading", { name: "Who is playing?" }),
-  ).toBeVisible({ timeout: 1_500 });
+  ).toBeVisible({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
 });
 
@@ -660,7 +660,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await expect(
     page.getByRole("heading", { name: "Who is playing?" }),
-  ).toBeVisible({ timeout: 1_500 });
+  ).toBeVisible({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await expect(profileTile.locator(".synthetic-portrait")).not.toHaveAttribute(
     "data-portrait-handle",

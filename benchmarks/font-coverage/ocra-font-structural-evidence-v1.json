@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 113,
-      "totalBytes": 1075500,
+      "totalBytes": 1075601,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1104,8 +1104,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 83823,
-          "sha256": "307bfcfbab9fbe909399952b1db6a667c17a69ba86243b50cc5cc747cc737f7a"
+          "bytes": 83850,
+          "sha256": "248f291a75c3992a3ac3ad5a970284e6f8d9c7476a488d083f36c2fcb29bab2a"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1219,8 +1219,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 131066,
-          "sha256": "dde91f80a57721f83d6070b9ea5980666ca9e0f95938c057372f996c5961b0e2"
+          "bytes": 131140,
+          "sha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1416,9 +1416,9 @@
               "lines": [
                 176,
                 286,
-                1106,
-                1606,
-                1610
+                1107,
+                1607,
+                1611
               ]
             },
             {
@@ -1449,7 +1449,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "efe09aa5586d41eae4b3be0451122fe0767c46e67fe0d4f67f6b510f0bb402fb",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "dde91f80a57721f83d6070b9ea5980666ca9e0f95938c057372f996c5961b0e2",
+    "stylePathSha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",
