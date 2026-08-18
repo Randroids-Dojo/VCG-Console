@@ -668,21 +668,21 @@
         "repository": "VCG-Console",
         "revision": null,
         "fileCount": 6,
-        "totalBytes": 107824,
-        "sha256": "ba79526d30904f5e99acfbf001635edabfd167090da80d71eaecc3894289e1a6",
+        "totalBytes": 128498,
+        "sha256": "5ad504c652e740da55726be627383974194450b5de9d696db28a86a6bf6b30e7",
         "runtimeDependencyCount": null,
         "apiRouteCount": 0,
         "assetLikeFileCount": 0,
         "files": [
           {
             "path": "apps/console-lab/src/action-engine.ts",
-            "bytes": 18306,
-            "sha256": "e6aae59fac6dc52a5af6f1316a96e7caaadf8ede2f0ad5fd4e5bba56598dd2f2"
+            "bytes": 25533,
+            "sha256": "0eedabe8caa0661a5c87d2354dcd0d56fa0a399b9450fff32a5a441e42e6935a"
           },
           {
             "path": "apps/console-lab/src/action-feedback.ts",
-            "bytes": 2304,
-            "sha256": "e83a49ffafc5cdd9de5d2d5e89168fdf9cb39ea4e4a2967ca82808af734e9e23"
+            "bytes": 2376,
+            "sha256": "68fe455bf415ebaee23c046cce24a9fbfac5adf6fcc55cae686be37963c3ab95"
           },
           {
             "path": "apps/console-lab/src/controller-player-assignment.ts",
@@ -691,13 +691,13 @@
           },
           {
             "path": "apps/console-lab/src/main.ts",
-            "bytes": 71341,
-            "sha256": "9ec5ccc2491244648352118c8c13a708649019e767f72d43306f231d2547f3a4"
+            "bytes": 84794,
+            "sha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a"
           },
           {
             "path": "apps/console-lab/src/obstacle-game.ts",
-            "bytes": 7451,
-            "sha256": "37b5fa5dc6aa00078f1b5e8475fa201da5106309a7e398b401601c29acef5493"
+            "bytes": 7373,
+            "sha256": "11c02d7d93f49f0ba97c60988aedd9b1fe6c74f77cb94b738ec99a67adac84c3"
           },
           {
             "path": "apps/console-lab/src/renderer.ts",
@@ -1091,7 +1091,7 @@
       }
     }
   ],
-  "observationSha256": "9886712907ea6271e04a138c5683fe48af051e4d24e7a9178c3c8bedb486efad",
+  "observationSha256": "95834c87fc6a966e55329d5bddbd8a9b21298de292db04b14fcd01bae3000eb4",
   "summary": {
     "subjectCount": 5,
     "publicSourceSubjectCount": 3,

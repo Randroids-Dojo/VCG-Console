@@ -1121,7 +1121,7 @@ async function exercise(chromePath) {
             (requestCounts.get(url.pathname) ?? 0) + 1,
           );
         });
-        const response = await page.goto(`${server.origin}/?skipBoot=1`, {
+        const response = await page.goto(`${server.origin}/?skipBoot=1&input=controller`, {
           waitUntil: "load",
           timeout: 30_000,
         });
@@ -1190,6 +1190,10 @@ async function exercise(chromePath) {
         // Focus moves during scroll preparation start 120ms style
         // transitions; wait them out so captures are settled and repeatable.
         await page.waitForTimeout(400);
+        // The capture is of the measured query surface, taken before the
+        // interaction below drives that state's outcome. Two states that ask
+        // the same question therefore hold byte-identical images; what
+        // separates them is the recorded interaction trace, not the pixels.
         const screenshotPath = resolve(
           outputRoot,
           `windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick, untrack } from "svelte";
   import type { ConsoleInputAction } from "../gamepad-router";
+  import { focusControl, nearestControl, scrollBeyondFocus } from "../spatial-focus";
   import {
     cancelNativeLaunch,
     checkNativeHost,
@@ -553,10 +554,15 @@
     const controls = [...controlRoot.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input")].filter(
       (element) => element.offsetParent !== null,
     );
-    const current = Math.max(0, controls.indexOf(document.activeElement as HTMLElement));
-    if (["left", "up", "right", "down"].includes(action)) {
-      const direction = action === "left" || action === "up" ? -1 : 1;
-      controls[(current + direction + controls.length) % controls.length]?.focus();
+    const pressed = (["left", "up", "right", "down"] as const).find((value) => value === action);
+    if (pressed) {
+      const active = controls[controls.indexOf(document.activeElement as HTMLElement)];
+      // Focus holds still when nothing lies the pressed way, rather than
+      // wrapping: on a screen edge a wrap reads as the shell moving sideways
+      // on its own.
+      const target = active ? nearestControl(controls, active, pressed) : controls[0];
+      if (target) focusControl(target);
+      else if (active) scrollBeyondFocus(active, pressed);
     } else if (action === "select") {
       (document.activeElement as HTMLElement | null)?.click();
     }
@@ -625,15 +631,6 @@
         installed.version === entry.version &&
         installed.runtime === entry.runtime,
     ) ?? false;
-  }
-
-  function installedPackageSummary(): string {
-    if (nativePackageInventoryState === "checking") return "Checking signed package catalog";
-    if (nativePackageInventoryState === "unavailable") return "Local package catalog unavailable";
-    const count = launcherCatalog.entries.filter(
-      (entry) => entry.runtime !== "local-web" && isCatalogEntryInstalled(entry),
-    ).length;
-    return `${count} signed ${count === 1 ? "package" : "packages"} installed`;
   }
 
   function hasInstalledRetroPackage(): boolean {
@@ -1111,11 +1108,8 @@
 <BootScreen />
 
 <main bind:this={launcher} class="launcher" id="launcher" hidden={!visible}>
-  <header class="launcher-topbar">
-    <button class="launcher-brand" type="button" data-launcher-home data-tv-action data-tv-critical-text aria-label="VCG Console home" onclick={() => showView("home")}>VCG<span>/</span>CONSOLE</button>
-    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" aria-label="Search games, hubs, and settings" onclick={openSearch}>
-      <span>Search</span>
-    </button>
+  <header class="launcher-topbar" data-focus-group="menu">
+    <span class="launcher-brand" data-tv-critical-text>VCG<span>/</span>CONSOLE</span>
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateX(${navSignalOffset}px)`} style:width={`${navSignalWidth}px`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
@@ -1126,6 +1120,9 @@
         <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
     </nav>
+    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" aria-label="Search games, hubs, and settings" onclick={openSearch}>
+      <span>Search</span>
+    </button>
     <div class="launcher-presence">
       <button type="button" data-tv-action data-tv-critical-text onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
       <time id="launcher-clock" aria-label="Local time">{clock}</time>
@@ -1143,7 +1140,7 @@
         <div class="home-heading">
           <h1 data-tv-critical-text>Good evening,<br /><span id="home-profile-name">{activeProfile}.</span></h1>
         </div>
-        <div class="home-destinations" aria-label="Game destinations">
+        <div class="home-destinations" data-focus-group aria-label="Game destinations">
           <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")} onfocus={() => (focusedDestination = "obstacle")} onmouseenter={() => (focusedDestination = "obstacle")}>
             <span class="destination-art" aria-hidden="true"><KeyArt name="obstacle" /></span>
             <span class="destination-index">MOTION</span><strong data-tv-critical-text>Obstacle</strong><small>Motion survival game</small><span class="destination-action">Play <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
@@ -1157,12 +1154,11 @@
             <span class="destination-index">LOCAL</span><strong data-tv-critical-text>RetroArch</strong><small>Installed retro games</small><span class="destination-action">Open <b class="ui-icon ui-icon-arrow-right" aria-hidden="true"></b></span>
           </button>
         </div>
-        <footer class="home-status"><span data-tv-critical-text><i></i> Console ready</span><span data-tv-critical-text>{installedPackageSummary()}</span><span data-tv-critical-text>Network setup required</span></footer>
       </div>
 
       <div class="launcher-view list-view" data-launcher-view="motion" hidden={view !== "motion"}>
         <header class="view-header"><div><h1 data-tv-critical-text>Motion games</h1></div></header>
-        <div class="library-list">
+        <div class="library-list" data-focus-group>
           <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span class="row-art" aria-hidden="true"><KeyArt name="obstacle" /></span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
           <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="tracker" /></span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
           <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="shell" /></span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
@@ -1209,7 +1205,7 @@
             <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
           </div>
         {/if}
-        <div class="library-list">
+        <div class="library-list" data-focus-group>
           {#each retroCatalogEntries as entry}
             <button
               type="button"

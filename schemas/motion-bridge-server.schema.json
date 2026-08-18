@@ -879,6 +879,8 @@
                             "dodge_right",
                             "menu_swipe_left",
                             "menu_swipe_right",
+                            "menu_swipe_up",
+                            "menu_swipe_down",
                             "menu_select",
                             "menu_back",
                             "pause"
@@ -925,7 +927,9 @@
                                   "dodge_left",
                                   "dodge_right",
                                   "menu_swipe_left",
-                                  "menu_swipe_right"
+                                  "menu_swipe_right",
+                                  "menu_swipe_up",
+                                  "menu_swipe_down"
                                 ]
                               }
                             },
@@ -1118,6 +1122,8 @@
                                     "player_join",
                                     "menu_swipe_left",
                                     "menu_swipe_right",
+                                    "menu_swipe_up",
+                                    "menu_swipe_down",
                                     "menu_select",
                                     "menu_back",
                                     "pause"

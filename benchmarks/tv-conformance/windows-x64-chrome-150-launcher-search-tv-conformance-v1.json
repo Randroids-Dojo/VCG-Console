@@ -1,12 +1,12 @@
 {
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-14",
+  "evidenceDate": "2026-08-18",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-14T14:28:33.973Z",
+  "retrievedAtUtc": "2026-08-18T03:02:21.910Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "0451607ca313e68b9d78905a9c0b5c0ca3f26f3e7cc3e2acaea15c5d9afc3e61"
+    "sha256": "9b8d2ee61300b4a20c0abd69f2ded3633b7585eeb8a9647de9295c6a74e29fbc"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -346,8 +346,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-          "bytes": 134853,
-          "sha256": "1567a77dd3e89dbadec687ade6ad42d9b1696cb0bfea75783bd2c21806e5bbb4"
+          "bytes": 127750,
+          "sha256": "9c891195ea6dd560a1f75c9a640e0bcfb19fbc41790f8c4fdc46525eaf5f2f69"
         }
       },
       {
@@ -412,8 +412,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-          "bytes": 133309,
-          "sha256": "d9c0c9c4e9d08fc9ea298ffee15288871176ff91873c5c5eca03806130d2f8b7"
+          "bytes": 124115,
+          "sha256": "683522332ad52b8392efdaeec4a0f1acea33ccf0ae52580c904fb52d765f904f"
         }
       },
       {
@@ -476,8 +476,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-          "bytes": 144276,
-          "sha256": "b2ffa77014560235fbcf26a40d9c7cea85b1d7171e457bb8d6c7fa66f6aafcc9"
+          "bytes": 142085,
+          "sha256": "4b3a8b67d2073211c4ee7a439b072bf3b46714415d84d85edaa7dc84932f80af"
         }
       },
       {
@@ -539,8 +539,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
-          "bytes": 137189,
-          "sha256": "119bfb98bd47090caa267f20e234c8248c14d49bbfd2824c24479aed2b9c2c80"
+          "bytes": 125607,
+          "sha256": "a53432a6be8a4caed7081912d521c59c45d9d57a126ebb88dda728888a79f0f1"
         }
       },
       {
@@ -618,8 +618,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
-          "bytes": 141303,
-          "sha256": "ea589f9f5a899a5b36d10e1610ea56b93858e14fa1d56a48e2bc0796644a99f7"
+          "bytes": 129530,
+          "sha256": "8032d2de8b6883b12bbc5357f5b22ffe1d34ac1e695af3c3c4aa01e79fede547"
         }
       },
       {
@@ -696,8 +696,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
-          "bytes": 141303,
-          "sha256": "ea589f9f5a899a5b36d10e1610ea56b93858e14fa1d56a48e2bc0796644a99f7"
+          "bytes": 129530,
+          "sha256": "8032d2de8b6883b12bbc5357f5b22ffe1d34ac1e695af3c3c4aa01e79fede547"
         }
       },
       {
@@ -769,8 +769,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
-          "bytes": 136732,
-          "sha256": "2548ff3e12f1433ff0cd2df62d5268274cf5f0bca79e1e701631666a8bc99667"
+          "bytes": 125181,
+          "sha256": "6285d84bb5cc5a8d32ea4a4f995c8f4be2a8d7870f0706e2bc269d9526457a8c"
         }
       },
       {
@@ -853,8 +853,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
-          "bytes": 142974,
-          "sha256": "f4a06488b7bbed892fe5489a01f7e9dac4b5e171d335cb3a078abcb6f00dea60"
+          "bytes": 131224,
+          "sha256": "31307c84d6cf3c52aede09a3eb0834c40f42e84c8e23de7f513d81e4adbb32aa"
         }
       },
       {
@@ -903,8 +903,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-          "bytes": 252849,
-          "sha256": "1f4883df15b08c9207fcf1763b8cbd7442e62e1b50135afb334ae55e3b1833e5"
+          "bytes": 241537,
+          "sha256": "030b54cd6055a5f0c42d4f7d7c170e8c809cdfa183f2cde909fa09171c6ccc69"
         }
       },
       {
@@ -969,8 +969,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-          "bytes": 238891,
-          "sha256": "06950ce316dc9ffb1e68cdb75c3583055c07677e3696752a76b19d4eb140cea4"
+          "bytes": 227254,
+          "sha256": "a9e7d1056f6d972651df1250cd7dde78d5de077cbfe3bc91523c33dbae54be62"
         }
       },
       {
@@ -1033,8 +1033,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-          "bytes": 292651,
-          "sha256": "4b6dfd848488942a2219fc34592ed2ac080b31cd20a750a7ff7400487bb90e8c"
+          "bytes": 286513,
+          "sha256": "15dac1dd4ffe39c7855ab4cb09a3fa9e91a37b27e6ed4fe939643254d8a1d37c"
         }
       },
       {
@@ -1096,8 +1096,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
-          "bytes": 228579,
-          "sha256": "4866a2026be34900eeb1ff0e82fb0f81e61e50afa5612327826feba593844f0f"
+          "bytes": 215342,
+          "sha256": "1a6b01a7318f2205cdbf87d48bb458355a32cfa64ee3334a22d3cd5fc065133f"
         }
       },
       {
@@ -1175,8 +1175,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
-          "bytes": 233198,
-          "sha256": "7346c9fd5d45dca050b10770712a2919c952c365657ed7068e12a19b1d68d6b3"
+          "bytes": 220067,
+          "sha256": "a92c2a12646cab469614117497e39fd255dda59314a4d2bc503bd78d62da6321"
         }
       },
       {
@@ -1253,8 +1253,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
-          "bytes": 233198,
-          "sha256": "7346c9fd5d45dca050b10770712a2919c952c365657ed7068e12a19b1d68d6b3"
+          "bytes": 220067,
+          "sha256": "a92c2a12646cab469614117497e39fd255dda59314a4d2bc503bd78d62da6321"
         }
       },
       {
@@ -1326,8 +1326,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
-          "bytes": 228500,
-          "sha256": "33d872e565b50018138cec45b9ee6005e59e2a3779138e378e4584af9541b9eb"
+          "bytes": 215285,
+          "sha256": "61ef792b73aa5bb0a99cc76ac1af4535f5a5e9f016e2a6184e864bba8d9ff007"
         }
       },
       {
@@ -1410,8 +1410,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
-          "bytes": 236293,
-          "sha256": "e1765e5e0b7558cab0d30c5e6149e507b7e5430ad350fe1b26e44ae227576507"
+          "bytes": 222992,
+          "sha256": "c23a1fda47b41cf21af142acb745a51b507a9ec70f3dfe1948e09fb8bbb7ea66"
         }
       },
       {
@@ -1460,8 +1460,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-          "bytes": 664115,
-          "sha256": "f7ccc04069a78b7aa2411e59ac1a37177c58b521014294e18b004c24959228a5"
+          "bytes": 635912,
+          "sha256": "433495974052bcfeb8dd1d58f27dc578934785d70a962fdb3ff4c54d4ef09156"
         }
       },
       {
@@ -1526,8 +1526,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-          "bytes": 633663,
-          "sha256": "3e89a97724e4b34d77584630158fb7008a4c630afb7a65ae8cdc8b0ea7a546a8"
+          "bytes": 605336,
+          "sha256": "bcbca5db577e1e4a9164d05a99dc47e433f49677177e09dd7c4388707e448631"
         }
       },
       {
@@ -1590,8 +1590,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-          "bytes": 807019,
-          "sha256": "d772adf7522d05061704f53f48f257a41ffd8463f9cc14300441c23ea14fd4d2"
+          "bytes": 791891,
+          "sha256": "72f83a3e333d7149aaa955f18a4489bab1da3d361631b62a9b05eddb05aaa4c6"
         }
       },
       {
@@ -1653,8 +1653,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
-          "bytes": 608717,
-          "sha256": "6e8f35437dbd69600b6aaf30a7777e6a855bc1c2eb67c3a960cce05b8ecc0456"
+          "bytes": 580286,
+          "sha256": "54ad3e12145d703bbd0280589097ffe1c297dcc4c50662ed3838dd346c21d60e"
         }
       },
       {
@@ -1732,8 +1732,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
-          "bytes": 618422,
-          "sha256": "e2b0ca12cc313a9fe1e1e5235445f5e200c073b2bc387daa51d74769d31ca6e8"
+          "bytes": 590183,
+          "sha256": "b5a079f446e464f0ec7dca3d31d4979c29e303d2d115a973e391dfdab4b37143"
         }
       },
       {
@@ -1810,8 +1810,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
-          "bytes": 618422,
-          "sha256": "e2b0ca12cc313a9fe1e1e5235445f5e200c073b2bc387daa51d74769d31ca6e8"
+          "bytes": 590183,
+          "sha256": "b5a079f446e464f0ec7dca3d31d4979c29e303d2d115a973e391dfdab4b37143"
         }
       },
       {
@@ -1883,8 +1883,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
-          "bytes": 609443,
-          "sha256": "3cf90cbddebf991957470e7703ceeaa37617b64a7441d9b46925897780a7ac44"
+          "bytes": 581052,
+          "sha256": "160922738a7b6e6648cfac87d46b8455537a03df9bba9588d878637e31bb2d74"
         }
       },
       {
@@ -1967,8 +1967,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
-          "bytes": 622831,
-          "sha256": "7a6815fd05d19ee1d8b020341e3bd287b5f85e21805eb4543c1cfe93850e2a3f"
+          "bytes": 595289,
+          "sha256": "723f8794f3e9e21a69418a4292d6cf10aa27ded55622a9d92ccbb5d05f98b0d1"
         }
       }
     ],
@@ -1977,12 +1977,12 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-B-DnzG3z.css": 24,
-      "/assets/main-Bi3EEhVw.js": 24,
+      "/assets/main-DkW_2HAg.js": 24,
+      "/assets/main-yNlNXqLs.css": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
-      "/assets/src-CYOVH8wV.js": 24,
-      "/assets/synthetic-D3ZzT8jW.js": 24,
-      "/assets/tracker-health-bketT6qu.js": 24,
+      "/assets/src-DJk9Nbrx.js": 24,
+      "/assets/synthetic-BxnOr_Mh.js": 24,
+      "/assets/tracker-health-Di71DaQ3.js": 24,
       "/fonts/InterVariable.woff2": 24,
       "/fonts/OCRA.ttf": 24
     }
@@ -2034,7 +2034,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "e548cd9619346032145f33fb4b4d871fa29412160b51eea2a5dd55eea794d24b",
+    "launcherPathSha256": "f4b0f4da816a46c967c1642d9644abcbf40b8d14851f2c5d22d1c7dfa4dfbcd0",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "26f8e2ac15de466cf184186095a3a2ad6f98da22877be29d6928e39f37dccc8b",
     "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -2042,23 +2042,23 @@
     "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
     "unassignedControllerPathSha256": "92ddc58cacfad89293ba5931cc3040e7a9c1554a94ade975ea6ef60d905e59b7",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "0c6f3e8f8ee79ae5ed0bc3a9e06d5e7c3543d0a22ded8eaef0e5671d87d36dbf",
+    "stylePathSha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "9ec5ccc2491244648352118c8c13a708649019e767f72d43306f231d2547f3a4",
+    "entryPathSha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
     "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "1e2479fb5b299609e0f98d3b297cd1d249731db124afcc704c42ce2be32b711c",
+    "browserTestPathSha256": "9076579920215a9f8bec73ee9d4c290489782ce5d5dd294d14837d65df837a4c",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "0451607ca313e68b9d78905a9c0b5c0ca3f26f3e7cc3e2acaea15c5d9afc3e61",
+    "representativeEvidencePathSha256": "9b8d2ee61300b4a20c0abd69f2ded3633b7585eeb8a9647de9295c6a74e29fbc",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "a56a37c929cd65f4ae6f6b381306248bd56af999ba29bab930ff82863124e2e9",
+    "commonGeneratorPathSha256": "44f61020f066b1af6815dd811779e2f5707e590430e6a9088fee3ba800c048ca",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "850d11de3aaae929b4c5e48991e3fdfab21e43a57d10019f310228c9caae7bf3",
+    "generatorPathSha256": "d0ae5f5a6b6075365d0795fb1624f06da20c9146e99753e303e8dc9926f11164",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "72d4a6225d2b1e6381cfa024f8f68457d23f4a4f7927aef4956dbe15e877403e",
+    "validatorPathSha256": "d4695310e21a2a953ddf59b2d46998d06f277067c81fb430156270965eb2ad6a",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -2075,8 +2075,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 154,
-      "sha256": "79c0bbcdb53afa94102415375610bd312c832219638df96f75e6e45e575fb6b3"
+      "fileCount": 161,
+      "sha256": "78f2be146f1b3d718ca0db99c0d09804d698d0b164aed99f6e1b1a62e3678640"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 22-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 22-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

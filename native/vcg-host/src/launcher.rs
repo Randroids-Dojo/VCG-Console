@@ -101,7 +101,18 @@ pub fn plan(request: &LauncherRequest) -> Result<LaunchSpec, LauncherError> {
         // ignored, so this is safe even if the exact name ever changes
         // upstream.
         "--password-store=basic".to_owned(),
-        "--disable-features=PasswordManager".to_owned(),
+        // WebRtcPipeWireCamera routes camera access through the XDG desktop
+        // portal. The portal identifies a caller by opening /proc/<pid>/root,
+        // which it cannot do for a service in its own mount namespace -- and
+        // the session unit has one, from PrivateTmp and ProtectSystem. The
+        // portal then answers "Portal operation not allowed", and Chromium
+        // does not fall back: camera enumeration never returns, so the console
+        // waits for a camera that is present and permitted. Disabling the
+        // feature keeps Chromium on the direct V4L2 path, which is what an
+        // appliance that owns its own hardware wants regardless. Confirmed on
+        // the Pi 5 against Chromium 149: enumeration hangs with it, and
+        // returns the camera without it.
+        "--disable-features=PasswordManager,WebRtcPipeWireCamera".to_owned(),
     ];
     if request.fullscreen {
         arguments.push("--start-fullscreen".to_owned());
@@ -219,7 +230,13 @@ mod tests {
         assert!(arguments.contains(&"--start-fullscreen".to_owned()));
         assert!(arguments.contains(&"--ozone-platform-hint=auto".to_owned()));
         assert!(arguments.contains(&"--password-store=basic".to_owned()));
-        assert!(arguments.contains(&"--disable-features=PasswordManager".to_owned()));
+        // The camera portal cannot identify a caller inside the session unit's
+        // mount namespace, and Chromium hangs rather than falling back, so the
+        // direct V4L2 path is not optional for this appliance.
+        assert!(
+            arguments
+                .contains(&"--disable-features=PasswordManager,WebRtcPipeWireCamera".to_owned())
+        );
     }
 
     #[test]

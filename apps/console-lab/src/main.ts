@@ -32,6 +32,14 @@ import { captureProfileFromSearch } from "./capture-profile";
 import { ControllerPlayerAssignments } from "./controller-player-assignment";
 import { installAutoHidingCursor } from "./cursor-visibility";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
+import type { HandZone } from "./action-engine";
+import {
+  focusControl,
+  nearestControl,
+  scrollBeyondFocus,
+  type FocusDirection,
+} from "./spatial-focus";
+import { InputDefaultController } from "./launcher/input-default";
 import { launcherInputForMotionAction } from "./launcher/motion-input";
 import { LauncherController, launcherMarkup } from "./launcher";
 import {
@@ -51,7 +59,9 @@ import {
   type PlayerSessionEvent,
   type PlayerSlot,
 } from "./player-session";
+import { preferenceStorage } from "./preference-storage";
 import { SkeletonRenderer } from "./renderer";
+import { cornerSkeletonVisible } from "./skeleton-mini";
 import "./styles.css";
 import { syntheticFrame } from "./synthetic";
 import { TraceBuffer } from "./trace-buffer";
@@ -84,6 +94,7 @@ declare global {
   interface Window {
     __vcgMotionSimulator?: MotionSimulatorTestApi;
     __vcgObstacleJourney?: ObstacleJourneyTestApi;
+    __vcgSpatialFocus?: Readonly<{ nearestControl: typeof nearestControl }>;
   }
 }
 
@@ -96,7 +107,7 @@ const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Application root is missing");
 applyVisualTokens(document.documentElement);
-const accessibilityPreferences = new AccessibilityPreferenceController(localStorage);
+const accessibilityPreferences = new AccessibilityPreferenceController(preferenceStorage());
 applyAccessibilityPreferences(
   document.documentElement,
   accessibilityPreferences.snapshot(),
@@ -106,7 +117,7 @@ app.innerHTML = `
   ${launcherMarkup}
   <main class="console-shell" id="motion-lab" hidden>
     <header class="topbar">
-      <button class="wordmark" id="home-button" type="button" aria-label="VCG Console home">VCG<span>/</span>CONSOLE</button>
+      <span class="wordmark">VCG<span>/</span>CONSOLE</span>
       <div class="system-state"><span class="state-dot" aria-hidden="true"></span><span id="system-state">REPLAY READY</span></div>
       <time id="clock" aria-label="Local time"></time>
     </header>
@@ -143,7 +154,7 @@ app.innerHTML = `
               <p>ROUND COMPLETE</p>
               <h2 id="round-result-title">DRAW</h2>
               <p id="round-result-score">P1 000000 / P2 000000</p>
-              <div class="round-result-actions">
+              <div class="round-result-actions" data-focus-group>
                 <button id="play-again-button" type="button" data-result-action="again">PLAY AGAIN</button>
                 <button id="return-console-button" type="button" data-result-action="console">BACK TO CONSOLE</button>
               </div>
@@ -159,7 +170,7 @@ app.innerHTML = `
               <p class="leaderboard-disclosure">Casual scores on this device only. They are not anti-cheat protected or comparable across households.</p>
               <ol id="leaderboard-list" class="leaderboard-list"></ol>
               <p id="leaderboard-storage-status" class="leaderboard-storage-status"></p>
-              <div class="leaderboard-actions">
+              <div class="leaderboard-actions" data-focus-group>
                 <button id="new-run-button" type="button">NEW RUN</button>
                 <button id="reset-board-button" type="button">RESET LOCAL BOARD</button>
               </div>
@@ -171,12 +182,12 @@ app.innerHTML = `
         <div class="stage-view" id="shell-view" hidden>
           <div class="shell-lab-stage">
             <p class="shell-instruction">SWIPE TO MOVE FOCUS. BRING BOTH HANDS TOGETHER TO SELECT. HOLD CROSSED ARMS TO GO BACK OR PAUSE.</p>
-            <div class="shell-cards" aria-label="Motion navigation targets">
+            <div class="shell-cards" data-focus-group aria-label="Motion navigation targets">
               <button type="button" data-shell-target="tracker"><span>01</span><strong>TRACKER</strong><small>Inspect the body signal</small></button>
               <button type="button" data-shell-target="obstacle"><span>02</span><strong>OBSTACLE</strong><small>Test action recognition</small></button>
               <button type="button" data-shell-target="shell"><span>03</span><strong>SHELL LAB</strong><small>Test console gestures</small></button>
             </div>
-            <div class="shell-test-controls">
+            <div class="shell-test-controls" data-focus-group>
               <button id="manual-pause-button" type="button">TEST MANUAL PAUSE</button>
               <button id="tracking-loss-button" type="button">TEST TRACKING LOSS</button>
             </div>
@@ -222,7 +233,7 @@ app.innerHTML = `
           </div>
           <h2 id="tracker-health-title">Tracker is ready</h2>
           <p id="tracker-health-detail">Landmarks and standardized actions are available from the active local source.</p>
-          <div class="health-fixtures" aria-label="Tracker health message fixtures">
+          <div class="health-fixtures" data-focus-group aria-label="Tracker health message fixtures">
             <button type="button" data-health-fixture="healthy">READY</button>
             <button type="button" data-health-fixture="low-confidence">LOW CONF</button>
             <button type="button" data-health-fixture="overload">OVERLOAD</button>
@@ -246,14 +257,14 @@ app.innerHTML = `
           </div>
           <p id="player-control-detail">All six control groups have their required observed landmarks.</p>
           <p id="player-unavailable-controls"><strong>UNAVAILABLE</strong> NONE</p>
-          <div class="body-fixtures" aria-label="Missing landmark replay fixtures">
+          <div class="body-fixtures" data-focus-group aria-label="Missing landmark replay fixtures">
             <button type="button" data-body-fixture="full">FULL</button>
             <button type="button" data-body-fixture="left-arm">LEFT ARM</button>
             <button type="button" data-body-fixture="legs">LEGS</button>
             <button type="button" data-body-fixture="half-body">HALF BODY</button>
           </div>
         </section>
-        <section class="simulator-card" id="simulator-card" data-enabled="false">
+        <section class="simulator-card" id="simulator-card" data-focus-group data-enabled="false">
           <div class="simulator-heading">
             <span>CAMERA-FREE SDK INPUT</span>
             <strong id="simulator-state">OFF</strong>
@@ -269,10 +280,11 @@ app.innerHTML = `
             <button type="button" data-simulator-pose="crossed-arms">CROSS</button>
             <button type="button" data-simulator-pose="swipe-left">SWIPE L</button>
             <button type="button" data-simulator-pose="swipe-right">SWIPE R</button>
+            <button type="button" data-simulator-pose="swipe-up">SWIPE U</button>
+            <button type="button" data-simulator-pose="swipe-down">SWIPE D</button>
             <button id="simulator-player-toggle" type="button" aria-pressed="false">HIDE PLAYER</button>
           </div>
-          <p><strong>KEYS</strong> W/A/S/D move · J hands · K cross · Q/E swipe · H hide</p>
-          <p><strong>PAD</strong> Stick/D-pad move · A hands · Start cross. Home and Back remain reserved.</p>
+          <p><strong>KEYS</strong> W/A/S/D move · J hands · K cross · Q/E right arm · R/F left arm · H hide</p>
         </section>
         <section class="gesture-feedback" id="gesture-feedback" data-state="idle" aria-live="polite">
           <div class="gesture-feedback-heading">
@@ -290,9 +302,14 @@ app.innerHTML = `
             aria-valuetext="Waiting for a gesture"
           ><span id="gesture-progress-fill"></span></div>
           <p id="gesture-detail">Hold progress, acceptance, cancellation, and release appear here.</p>
+          <div class="sweep-readout" id="sweep-readout" data-raised="false">
+            <div class="sweep-readout-heading"><span>GESTURE INPUT</span><strong id="sweep-hand">HANDS DOWN</strong></div>
+            <div class="sweep-meter" role="progressbar" aria-label="How far a hand has travelled out of the home position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sweep-meter"><span id="sweep-meter-fill"></span></div>
+            <p id="sweep-detail">Hold a hand out away from your body, or touch your head.</p>
+          </div>
         </section>
         <p class="measurement-note" id="measurement-note">No source timing samples are available. This diagnostic never substitutes for exposure-to-action qualification.</p>
-        <div class="controls">
+        <div class="controls" data-focus-group>
           <button id="join-button" class="primary-control" type="button">JOIN PLAYER 1</button>
           <button id="join-player-2-button" class="primary-control" type="button" disabled>JOIN PLAYER 2</button>
           <button id="camera-button" type="button">START CAMERA</button>
@@ -303,27 +320,44 @@ app.innerHTML = `
       </aside>
     </section>
 
-    <nav class="command-rail" aria-label="Console sections">
+    <nav class="command-rail" data-focus-group="menu" aria-label="Console sections">
       <button class="command active" type="button" data-mode="tracker"><span>01</span>TRACKER</button>
       <button class="command" type="button" data-mode="obstacle"><span>02</span>OBSTACLE</button>
       <button class="command" type="button" data-mode="shell"><span>03</span>SHELL LAB</button>
-      <button class="command" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
+      <button class="command command-toggle" id="diagnostics-toggle" type="button" aria-pressed="false" aria-controls="telemetry-panel">DIAGNOSTICS</button>
       <div class="escape-hint"><span>BACK</span></div>
     </nav>
 
-    <div class="console-overlay" id="console-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-title">
-      <div class="overlay-card">
-        <p class="eyebrow" id="overlay-eyebrow">SYSTEM PAUSE</p>
-        <h2 id="overlay-title">GAME PAUSED</h2>
-        <p id="overlay-copy">Player 1 opened the console menu.</p>
-        <div class="overlay-options">
-          <button type="button" data-overlay-action="resume">RESUME</button>
-          <button type="button" data-overlay-action="exit">EXIT TO CONSOLE</button>
-        </div>
-        <p class="overlay-help">SWIPE TO CHOOSE / HANDS TOGETHER TO SELECT</p>
-      </div>
-    </div>
   </main>
+
+  <div class="console-overlay" id="console-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+    <div class="overlay-card">
+      <p class="eyebrow" id="overlay-eyebrow">SYSTEM PAUSE</p>
+      <h2 id="overlay-title">GAME PAUSED</h2>
+      <p id="overlay-copy">Player 1 opened the console menu.</p>
+      <div class="overlay-options">
+      <button type="button" data-overlay-action="resume">RESUME</button>
+      <button type="button" data-overlay-action="drop" hidden>CONTINUE WITHOUT</button>
+      <button type="button" data-overlay-action="exit">END RUN</button>
+      </div>
+      <p class="overlay-help">SWIPE TO CHOOSE / HANDS TOGETHER TO SELECT</p>
+    </div>
+    </div>
+
+  <aside class="skeleton-mini" id="skeleton-mini" hidden aria-hidden="true">
+    <canvas id="skeleton-mini-canvas"></canvas>
+  </aside>
+
+  <aside class="motion-legend" id="motion-legend" hidden aria-label="Motion controls">
+    <dl>
+      <div class="motion-legend-shell"><dt data-tv-critical-text>Hold your right hand out, away from your body</dt><dd data-tv-critical-text>Move focus right</dd></div>
+      <div class="motion-legend-shell"><dt data-tv-critical-text>Touch your head with your right hand</dt><dd data-tv-critical-text>Move focus left</dd></div>
+      <div class="motion-legend-shell"><dt data-tv-critical-text>Hold your left hand out, away from your body</dt><dd data-tv-critical-text>Move focus up</dd></div>
+      <div class="motion-legend-shell"><dt data-tv-critical-text>Touch your head with your left hand</dt><dd data-tv-critical-text>Move focus down</dd></div>
+      <div class="motion-legend-shell"><dt data-tv-critical-text>Bring both hands together and hold</dt><dd data-tv-critical-text>Select</dd></div>
+      <div><dt data-tv-critical-text>Fold your arms across your chest and hold</dt><dd data-tv-critical-text id="motion-legend-back">Back</dd></div>
+    </dl>
+  </aside>
 `;
 
 function required<T extends Element>(selector: string): T {
@@ -333,9 +367,21 @@ function required<T extends Element>(selector: string): T {
 }
 
 const renderer = new SkeletonRenderer(required<HTMLCanvasElement>("#skeleton"));
+// The same view, kept in a corner so a player can see what the camera makes of
+// them from any screen, not only the diagnostics one.
+const miniRenderer = new SkeletonRenderer(
+  required<HTMLCanvasElement>("#skeleton-mini-canvas"),
+);
+const skeletonMini = required<HTMLElement>("#skeleton-mini");
 const motionLab = required<HTMLElement>("#motion-lab");
 const consoleShellRoot = motionLab;
 const telemetryPanel = required<HTMLElement>("#telemetry-panel");
+const motionLegend = required<HTMLElement>("#motion-legend");
+const motionLegendBack = required<HTMLElement>("#motion-legend-back");
+/** Long enough to read the guide once, short enough not to live on screen. */
+const MOTION_LEGEND_VISIBLE_MS = 10_000;
+let motionLegendTimer: number | undefined;
+let motionLegendZone: HandZone = "home";
 const diagnosticsToggle = required<HTMLButtonElement>("#diagnostics-toggle");
 let diagnosticsOpen = true;
 diagnosticsToggle.addEventListener("click", () => setDiagnostics(!diagnosticsOpen));
@@ -357,6 +403,11 @@ const gesturePhase = required<HTMLElement>("#gesture-phase");
 const gestureProgress = required<HTMLElement>("#gesture-progress");
 const gestureProgressFill = required<HTMLElement>("#gesture-progress-fill");
 const gestureDetail = required<HTMLElement>("#gesture-detail");
+const sweepReadout = required<HTMLElement>("#sweep-readout");
+const sweepHand = required<HTMLElement>("#sweep-hand");
+const sweepMeter = required<HTMLElement>("#sweep-meter");
+const sweepMeterFill = required<HTMLElement>("#sweep-meter-fill");
+const sweepDetail = required<HTMLElement>("#sweep-detail");
 const systemState = required<HTMLElement>("#system-state");
 const cameraStateCard = required<HTMLElement>("#camera-state-card");
 const cameraStateBadge = required<HTMLElement>("#camera-state-badge");
@@ -406,7 +457,17 @@ const roundResult = required<HTMLElement>("#round-result");
 const roundResultTitle = required<HTMLElement>("#round-result-title");
 const roundResultScore = required<HTMLElement>("#round-result-score");
 const poseSimulator = new MotionPoseSimulator();
-const obstacleLeaderboard = new LocalObstacleLeaderboard(localStorage);
+// `?input=controller` starts the console without opening the camera. Tests and
+// evidence runs use it so an automated page never reaches for a camera, and it
+// is the same choice the Controllers settings panel writes.
+const inputDefault = new InputDefaultController(preferenceStorage());
+const requestedInput = new URLSearchParams(window.location.search).get("input");
+// Deliberately not stored: the parameter overrides this run only, so an
+// automated page never leaves a preference behind on the device it ran on.
+const startsCameraAtLaunch = requestedInput === "controller"
+  ? false
+  : requestedInput === "motion" || inputDefault.startsCamera;
+const obstacleLeaderboard = new LocalObstacleLeaderboard(preferenceStorage());
 
 let latestFrame: MotionFrame | undefined;
 let replayRunning = true;
@@ -421,7 +482,12 @@ let lastMetricsPaint = 0;
 let currentMode: AppMode = "tracker";
 let focusedModeIndex = 0;
 let overlayKind: OverlayKind | undefined;
-let overlayFocus: "resume" | "exit" = "resume";
+type OverlayAction = "resume" | "drop" | "exit";
+let overlayFocus: OverlayAction = "resume";
+/** The options the open overlay is actually offering, in reading order. */
+let overlayChoices: OverlayAction[] = ["resume", "exit"];
+/** The slots a "continue without" would keep. */
+let overlayKeepSlots: PlayerSlot[] = [];
 let healthSequence = 1;
 let activeHealth = trackerHealthFixture("healthy", 0, 0);
 trace.pushHealth(activeHealth);
@@ -470,6 +536,49 @@ obstacle.start();
 obstacle.setPaused(true);
 paintLeaderboard();
 
+/**
+ * Shows the body gestures while anyone is playing by motion.
+ *
+ * Crossed arms mean different things either side of a running game, so the
+ * legend follows the same boundary the action engine uses rather than naming
+ * one and hoping. During a run the focus gestures are inert, so they are not
+ * offered.
+ */
+function paintMotionLegend(): void {
+  const motionPlayers = playerSession.snapshot().players.length;
+  const wasHidden = motionLegend.hidden;
+  motionLegend.hidden = motionPlayers === 0;
+  if (motionLegend.hidden) return;
+  const playing = obstacleIsUnderWay() && !overlayKind;
+  motionLegend.dataset.context = playing ? "game" : "shell";
+  motionLegendBack.textContent = playing ? "Pause" : "Back";
+  // Someone who has just joined has not read it yet.
+  if (wasHidden) revealMotionLegend();
+}
+
+/**
+ * Shows the gesture guide, then lets it fade.
+ *
+ * It is a reminder rather than part of the picture, so it leaves once it has
+ * been read. Holding both hands out brings it back, which is the one gesture
+ * that does not need the guide to discover: it is what a person does when they
+ * do not know what to do.
+ */
+function revealMotionLegend(): void {
+  motionLegend.dataset.visible = "true";
+  if (motionLegendTimer !== undefined) window.clearTimeout(motionLegendTimer);
+  motionLegendTimer = window.setTimeout(() => {
+    motionLegend.dataset.visible = "false";
+    motionLegendTimer = undefined;
+  }, MOTION_LEGEND_VISIBLE_MS);
+}
+
+function watchMotionLegendGesture(): void {
+  const zone = actionEngine.sweep.zone;
+  if (zone === "both" && motionLegendZone !== "both") revealMotionLegend();
+  motionLegendZone = zone;
+}
+
 function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
   const previousPhase = obstacleRoundPhase;
   obstacleRoundPhase = snapshot.phase;
@@ -477,7 +586,10 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
     const player = snapshot.players.find((candidate) => candidate.slot === slot);
     gameScoreBySlot[slot].textContent = String(player?.score ?? 0).padStart(6, "0");
     gameLivesBySlot[slot].textContent = String(player?.lives ?? 0);
+    // An empty slot has no score to read, so its readout is not shown at all.
+    gameScoreBySlot[slot].closest("span")?.toggleAttribute("hidden", player === undefined);
   }
+  paintMotionLegend();
   gameClock.textContent = formatRoundClock(snapshot.roundRemainingMs);
   gameStatus.textContent = obstacleRoundStatus(snapshot);
 
@@ -487,11 +599,16 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
   if (snapshot.phase === "finished") {
     const player1 = snapshot.players.find((player) => player.slot === 1);
     const player2 = snapshot.players.find((player) => player.slot === 2);
-    roundResultTitle.textContent = snapshot.winnerSlot
-      ? `PLAYER ${snapshot.winnerSlot} WINS`
-      : "DRAW";
-    roundResultScore.textContent =
-      `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
+    // A solo round has nothing to win or draw, so it reports the run instead.
+    const solo = snapshot.joinedSlots.length < 2;
+    roundResultTitle.textContent = solo
+      ? "ROUND COMPLETE"
+      : snapshot.winnerSlot
+        ? `PLAYER ${snapshot.winnerSlot} WINS`
+        : "DRAW";
+    roundResultScore.textContent = solo
+      ? `P${snapshot.joinedSlots[0] ?? 1} ${String(player1?.score ?? player2?.score ?? 0).padStart(6, "0")}`
+      : `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
     if (previousPhase !== "finished") {
       roundResultFocus = "console";
       paintRoundResultFocus();
@@ -500,9 +617,7 @@ function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
 }
 
 function obstacleRoundStatus(snapshot: ObstacleRoundSnapshot): string {
-  if (snapshot.phase === "waiting-for-players") {
-    return snapshot.joinedSlots.length === 0 ? "JOIN 2 PLAYERS" : "JOIN PLAYER 2";
-  }
+  if (snapshot.phase === "waiting-for-players") return "JOIN PLAYER 1";
   if (snapshot.phase === "countdown") return `STARTING IN ${Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))}`;
   if (snapshot.phase === "playing") return "PLAY";
   if (snapshot.phase === "paused") return "PAUSED";
@@ -604,6 +719,13 @@ function acceptFrame(rawFrame: MotionFrame): void {
   if (!chronologyFault && trace.push(frame)) exportButton.disabled = false;
   metrics.push(frame);
   renderer.render(frame);
+  skeletonMini.hidden = !cornerSkeletonVisible({
+    source: frame.source,
+    playerCount: frame.players.length,
+    // Redundant while the full-size stage is on screen.
+    stageShowsSkeleton: !launcher.visible && currentMode === "tracker",
+  });
+  if (!skeletonMini.hidden) miniRenderer.render(frame);
   for (const event of playerSession.observe(
     frame.publishedAtMs,
     frame.players.map((player) => player.id),
@@ -640,6 +762,11 @@ function acceptFrame(rawFrame: MotionFrame): void {
     handleAction(action, trackId);
   }
 
+  // Faster than the metrics tick: a sweep lasts a few frames, and a reading
+  // that lags it is no use for judging one.
+  paintSweepReadout();
+  watchMotionLegendGesture();
+
   if (performance.now() - lastMetricsPaint > 250) {
     lastMetricsPaint = performance.now();
     paintMetrics(frame);
@@ -660,7 +787,7 @@ function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
     if (!overlayKind && currentMode === "obstacle") obstacle.setPaused(false);
     statusDetail.textContent = `Player ${event.recoveredSlots.join(" and ")} reacquired inside the two-second recovery window.`;
   } else if (event.type === "show-recovery") {
-    showOverlay("recovery");
+    showOverlay("recovery", undefined, event.lostSlots);
   }
 }
 
@@ -673,7 +800,10 @@ function handleAction(action: MotionAction, trackId: string): void {
     joinPlayer(trackId);
     return;
   }
-  if (launcher.visible) {
+  // An overlay covers the launcher, so it answers motion first. Otherwise a
+  // player who lost tracking on the home screen would be moving launcher focus
+  // behind a dialog they could not answer.
+  if (launcher.visible && !overlayKind) {
     if (playerSession.authorizeLauncherAction(trackId) === undefined) {
       return;
     }
@@ -710,10 +840,11 @@ function handleAction(action: MotionAction, trackId: string): void {
     if (overlayKind) chooseOverlayAction("exit", trackId);
     else if (currentMode !== "tracker") setMode("tracker");
     else showLauncher();
-  } else if (shellInput === "left") {
-    moveFocus(-1);
-  } else if (shellInput === "right") {
-    moveFocus(1);
+  } else if (
+    shellInput === "left" || shellInput === "right"
+    || shellInput === "up" || shellInput === "down"
+  ) {
+    moveFocus(shellInput);
   } else if (shellInput === "select") {
     selectFocused(trackId);
   }
@@ -744,6 +875,19 @@ function handleRecoveryGameplayAction(
 }
 
 function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void {
+  // The overlay covers whatever is on screen, so it takes input first. It used
+  // to sit behind the launcher check, which left a player who lost tracking on
+  // the home screen looking at an overlay nothing could answer.
+  if (overlayKind && action !== "home") {
+    if (action === "left" || action === "right" || action === "up" || action === "down") {
+      moveFocus(action);
+    } else if (action === "select") {
+      chooseOverlayAction(overlayFocus);
+    } else if (action === "back") {
+      chooseOverlayAction("exit");
+    }
+    return;
+  }
   if (launcher.visible) {
     launcher.handleInput(action);
     return;
@@ -761,42 +905,59 @@ function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void
     else if (action === "select") chooseRoundResultAction(roundResultFocus);
     return;
   }
-  if (simulatorEnabled) return;
-  if (
-    (action === "up" || action === "down")
-    && currentMode === "tracker"
-    && !overlayKind
-  ) {
-    if (action === "down") joinButton.focus();
-    else modeButtons[focusedModeIndex]?.focus();
-    return;
-  }
   if (action === "pause" && currentMode === "obstacle") {
     showOverlay("manual");
     return;
   }
+  // Directions steer the run only while a run is actually under way. Waiting
+  // for players is a shell phase, not gameplay, so the dock stays reachable.
+  const playing = obstacleIsUnderWay() && !overlayKind;
   if (action === "left" || action === "right") {
-    if (currentMode === "obstacle" && !overlayKind) {
+    if (playing) {
       handleRecoveryGameplayAction(action === "left" ? "dodge_left" : "dodge_right", gamepad);
     }
-    else moveFocus(action === "left" ? -1 : 1);
+    else moveFocus(action);
     return;
   }
-  if (action === "down" && currentMode === "obstacle" && !overlayKind) {
-    handleRecoveryGameplayAction("duck", gamepad);
+  if (action === "down") {
+    if (playing) handleRecoveryGameplayAction("duck", gamepad);
+    else moveFocus("down");
+    return;
+  }
+  if (action === "up") {
+    if (!playing) moveFocus("up");
     return;
   }
   if (action === "select") {
-    if (playerSession.snapshot().players.length === 0) joinPlayer();
-    else if (
-      currentMode === "tracker"
-      && joinButtons.includes(document.activeElement as HTMLButtonElement)
-    ) {
-      (document.activeElement as HTMLButtonElement).click();
+    if (playing) {
+      handleRecoveryGameplayAction("jump", gamepad);
+      return;
     }
-    else if (currentMode === "obstacle" && !overlayKind) handleRecoveryGameplayAction("jump", gamepad);
-    else selectFocused();
+    const focused = document.activeElement;
+    // Whatever is focused wins. Joining by pressing Select used to come first
+    // and swallowed the press whenever nobody had joined yet, so the first
+    // press on any control did nothing visible and it took two to work.
+    if (!overlayKind && focused instanceof HTMLElement && focused !== document.body && motionLab.contains(focused)) {
+      focused.click();
+      return;
+    }
+    if (playerSession.snapshot().players.length === 0) {
+      joinPlayer();
+      return;
+    }
+    selectFocused();
   }
+}
+
+/**
+ * Whether an Obstacle run is actually in progress. This is the same phase
+ * boundary the action engine uses to tell a game frame from a shell frame:
+ * a finished round and a round waiting for players are both shell states.
+ */
+function obstacleIsUnderWay(): boolean {
+  if (currentMode !== "obstacle") return false;
+  const phase = obstacle.snapshot().phase;
+  return phase !== "finished" && phase !== "waiting-for-players";
 }
 
 function joinPlayer(trackId?: string, requestedSlot?: 1 | 2): void {
@@ -870,6 +1031,7 @@ function updatePlayerAssignmentControls(): void {
   joinButton.disabled = false;
   joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
   synchronizeObstacleRoster();
+  paintMotionLegend();
 }
 
 function paintMetrics(frame: MotionFrame): void {
@@ -1025,22 +1187,12 @@ function applyTrackerHealth(event: TrackerHealthEvent): void {
   }
 }
 
-function simulatorPoseFromGamepad(actions: ReadonlySet<ConsoleInputAction>): MotionSimulatorPose | undefined {
-  if (actions.has("pause")) return "crossed-arms";
-  if (actions.has("select")) return "hands-together";
-  if (actions.has("down")) return "duck";
-  if (actions.has("up")) return "jump";
-  if (actions.has("left")) return "dodge-left";
-  if (actions.has("right")) return "dodge-right";
-  return undefined;
-}
-
 function handleSimulatorGamepadState(actions: ReadonlySet<ConsoleInputAction>): void {
-  if (!simulatorEnabled) return;
-  const next = simulatorPoseFromGamepad(actions);
-  if (next === simulatorControllerPose) return;
-  simulatorControllerPose = next;
-  applyEffectiveSimulatorPose();
+  // Deliberately inert. The pad drives focus, not poses: while it latched a
+  // pose per direction the player could never move focus to the toggle and
+  // switch the simulator back off. Poses are chosen by activating a pose
+  // button; the keyboard keys below still drive them live.
+  void actions;
 }
 
 function effectiveSimulatorPose(): MotionSimulatorPose {
@@ -1136,23 +1288,29 @@ function labControls(): HTMLElement[] {
   ].filter((element) => element.offsetParent !== null);
 }
 
-function moveFocus(direction: -1 | 1): void {
+function moveFocus(direction: FocusDirection): void {
   if (overlayKind) {
-    overlayFocus = overlayFocus === "resume" ? "exit" : "resume";
+    const step = direction === "left" || direction === "up" ? -1 : 1;
+    const index = overlayChoices.indexOf(overlayFocus);
+    overlayFocus = overlayChoices[
+      (index + step + overlayChoices.length) % overlayChoices.length
+    ] ?? "resume";
     paintOverlayFocus();
     return;
   }
-  // One linear ring over every visible lab control, so a controller or a
-  // body swipe can reach the dock, the stage, and the diagnostics drawer.
+  // Directional movement across the dock, the stage, and the diagnostics
+  // sections, resolved by where controls sit rather than by authored order.
   const controls = labControls();
   if (controls.length === 0) return;
-  const current = controls.indexOf(document.activeElement as HTMLElement);
-  const next = controls[
-    current === -1
-      ? direction === 1 ? 0 : controls.length - 1
-      : (current + direction + controls.length) % controls.length
-  ];
-  next?.focus();
+  const active = controls[controls.indexOf(document.activeElement as HTMLElement)];
+  const next = active ? nearestControl(controls, active, direction) : controls[0];
+  if (!next) {
+    // The diagnostics drawer holds readable content past its last control, so
+    // pressing on at the edge reveals it rather than doing nothing.
+    if (active) scrollBeyondFocus(active, direction);
+    return;
+  }
+  focusControl(next);
   const nextModeIndex = modeButtons.findIndex((button) => button === next);
   if (nextModeIndex !== -1) focusedModeIndex = nextModeIndex;
   for (const card of shellCards) {
@@ -1180,14 +1338,36 @@ function selectFocused(trackId?: string): void {
   modeButtons[focusedModeIndex]?.click();
 }
 
+/** "Player 1", or "Players 1 and 2", so the overlay says who it is waiting for. */
+function describeSlots(slots: readonly PlayerSlot[]): string {
+  if (slots.length === 1) return `Player ${slots[0]}`;
+  return `Players ${slots.join(" and ")}`;
+}
+
 function showOverlay(
   kind: OverlayKind,
   ownerSlot?: 1 | 2,
+  lostSlots: readonly PlayerSlot[] = [],
 ): void {
   if (overlayKind) return;
   if (kind === "manual" && currentMode === "obstacle") obstacleRunPauseCount += 1;
   overlayKind = kind;
   overlay.hidden = false;
+  // With two players and only one missing, the round does not have to end: the
+  // player still in the room can carry on alone. Without this the only way out
+  // of a permanent loss was ending the run.
+  const roster = playerSession.snapshot().players;
+  overlayKeepSlots = kind === "recovery" && roster.length === 2 && lostSlots.length === 1
+    ? roster.map((player) => player.slot).filter((slot) => !lostSlots.includes(slot))
+    : [];
+  overlayChoices = overlayKeepSlots.length > 0
+    ? ["resume", "drop", "exit"]
+    : ["resume", "exit"];
+  const dropButton = overlayButtons.find((button) => button.dataset.overlayAction === "drop");
+  if (dropButton) {
+    dropButton.hidden = overlayKeepSlots.length === 0;
+    dropButton.textContent = `CONTINUE WITHOUT ${describeSlots(lostSlots).toUpperCase()}`;
+  }
   obstacle.setPaused(true);
   overlayFocus = "resume";
   required<HTMLElement>("#overlay-eyebrow").textContent =
@@ -1202,8 +1382,11 @@ function showOverlay(
       ? ownerSlot === undefined
         ? "The controller paused the round. Resume is ready."
         : `Player ${ownerSlot} paused the round. Resume is ready.`
-      : "Tracking did not recover in two seconds. Resume is focused by default.";
+      : lostSlots.length === 0
+        ? "Tracking did not recover in two seconds. Step back into view, then choose Resume."
+        : `Tracking was lost for ${describeSlots(lostSlots)}. Step back into view, then choose Resume.`;
   paintOverlayFocus();
+  paintMotionLegend();
 }
 
 function paintOverlayFocus(): void {
@@ -1214,30 +1397,67 @@ function paintOverlayFocus(): void {
   }
 }
 
+/**
+ * Which track answers for the console when the press named no player, as a
+ * controller or the keyboard does.
+ *
+ * A single player recovers by taking their slot back, so whoever is in view
+ * can answer for it. More than one has to be answered by a player the console
+ * is keeping and can currently see, because that is what resuming a
+ * multiplayer roster demands; picking the first body in the frame could hand
+ * the console to the player who was just lost, or to a passer-by.
+ */
+function retainedRecoveryTrack(keepSlots: readonly PlayerSlot[]): string | undefined {
+  const visible = latestFrame?.players ?? [];
+  const roster = playerSession.snapshot().players;
+  if (roster.length <= 1) return visible[0]?.id;
+  const visibleIds = new Set(visible.map((player) => player.id));
+  return roster.find(
+    (player) => keepSlots.includes(player.slot) && visibleIds.has(player.trackId),
+  )?.trackId;
+}
+
 function chooseOverlayAction(
-  action: "resume" | "exit",
+  action: OverlayAction,
   recoveryTrackId?: string,
 ): void {
   const kind = overlayKind;
+  if (action === "drop") {
+    // Carry on with whoever is still in the room, rather than ending the run
+    // because someone left it.
+    const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+    if (candidate === undefined) {
+      statusDetail.textContent = "Continuing needs the remaining player in view.";
+      return;
+    }
+    try {
+      playerSession.resumeRecovery(candidate, overlayKeepSlots);
+      synchronizeActionEngineAssignment();
+    } catch (error) {
+      statusDetail.textContent = error instanceof Error ? error.message : String(error);
+      return;
+    }
+    closeOverlay(true);
+    synchronizeObstacleRoster();
+    return;
+  }
   if (action === "exit") {
     if (kind === "recovery") resetPlayerSession();
     else closeOwnedPause("launcher");
     closeOverlay(false);
-    showLauncher();
+    // Leaving a run hands focus to the section tabs rather than the launcher,
+    // so the rest of the screen stays reachable. Home still leaves entirely.
+    modeButtons[focusedModeIndex]?.focus();
     return;
   }
   if (kind === "recovery") {
-    const candidate = recoveryTrackId === undefined
-      ? latestFrame?.players[0]
-      : latestFrame?.players.find(
-          (player) => player.id === recoveryTrackId,
-        );
-    if (!candidate) {
+    const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+    if (candidate === undefined) {
       statusDetail.textContent = "Resume requires a visible player candidate.";
       return;
     }
     try {
-      playerSession.resumeRecovery(candidate.id);
+      playerSession.resumeRecovery(candidate);
       synchronizeActionEngineAssignment();
     } catch (error) {
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
@@ -1257,6 +1477,33 @@ function closeOwnedPause(destination: "game" | "launcher"): void {
   ) {
     playerSession.closePause(snapshot.overlayOwner, destination);
   }
+}
+
+/**
+ * Shows where the recognizer thinks the hands are, because a gesture is a
+ * posture and so has no progress of its own.
+ *
+ * Reading the zone and how far a hand has travelled out of the home position
+ * is what tells a developer whether a hand that felt held out fell short of
+ * the distance a gesture needs, or was read as another zone entirely.
+ */
+function paintSweepReadout(): void {
+  const sweep = actionEngine.sweep;
+  const percent = Math.min(100, Math.round(sweep.offset * 100));
+  sweepReadout.dataset.raised = String(sweep.handRaised);
+  sweepReadout.dataset.zone = sweep.zone;
+  sweepHand.textContent = sweep.zone === "rest"
+    ? "NO READING"
+    : sweep.zone === "home"
+      ? "READY"
+      : sweep.zone.toUpperCase();
+  sweepMeter.setAttribute("aria-valuenow", String(percent));
+  sweepMeterFill.style.width = `${percent}%`;
+  sweepDetail.textContent = sweep.zone === "rest"
+    ? "Join a player to read gestures."
+    : sweep.zone === "home"
+      ? "Ready. Hold a hand out away from your body, or touch your head."
+      : "Let your arms hang again before the next move.";
 }
 
 function paintActionFeedback(action: MotionAction): void {
@@ -1283,6 +1530,7 @@ function closeOverlay(resume: boolean): void {
   obstacle.setPaused(!resume || currentMode !== "obstacle");
   statusDetail.textContent = resume ? "Game resumed deliberately." : "Console overlay closed.";
   modeButtons[focusedModeIndex]?.focus();
+  paintMotionLegend();
 }
 
 function goBack(): void {
@@ -1329,9 +1577,9 @@ function resetObstacleRun(): void {
   obstacle.reset();
   synchronizeObstacleRoster();
   obstacle.setPaused(currentMode !== "obstacle" || Boolean(overlayKind));
-  statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 2
-    ? "Both players are ready. The round countdown has started."
-    : "Join both players to start the round.";
+  statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 0
+    ? "Join Player 1 to start the round."
+    : "The round countdown has started. A second player can join at any time.";
 }
 
 function synchronizeObstacleRoster(): void {
@@ -1450,11 +1698,7 @@ function twoPlayerSyntheticFrame(sequence: number, nowMs: number): MotionFrame {
   };
 }
 
-cameraButton.addEventListener("click", async () => {
-  if (cameraButton.textContent === "STOP CAMERA") {
-    startReplay();
-    return;
-  }
+async function startCameraTracking(): Promise<void> {
   setSimulatorEnabled(false, false);
   setBodyVisibilityFixture("full");
   replayRunning = false;
@@ -1474,6 +1718,14 @@ cameraButton.addEventListener("click", async () => {
     );
     paintCameraState(cameraState);
   }
+}
+
+cameraButton.addEventListener("click", () => {
+  if (cameraButton.textContent === "STOP CAMERA") {
+    startReplay();
+    return;
+  }
+  void startCameraTracking();
 });
 
 joinButton.addEventListener("click", () => togglePlayerAssignment(1));
@@ -1488,7 +1740,6 @@ for (const button of simulatorPoseButtons) {
     if (simulatorEnabled) setSimulatorLatchedPose(button.dataset.simulatorPose as MotionSimulatorPose);
   });
 }
-required<HTMLButtonElement>("#home-button").addEventListener("click", showLauncher);
 for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode));
 for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode));
 for (const button of overlayButtons) button.addEventListener("click", () => chooseOverlayAction(button.dataset.overlayAction as "resume" | "exit"));
@@ -1537,6 +1788,8 @@ const SIMULATOR_KEY_POSES = new Map<string, MotionSimulatorPose>([
   ["KeyK", "crossed-arms"],
   ["KeyQ", "swipe-left"],
   ["KeyE", "swipe-right"],
+  ["KeyR", "swipe-up"],
+  ["KeyF", "swipe-down"],
 ]);
 
 function handleSimulatorKeyDown(event: KeyboardEvent): boolean {
@@ -1613,7 +1866,7 @@ document.addEventListener("keydown", (event) => {
   }
   if (!launcher.visible && overlayKind && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)) {
     event.preventDefault();
-    moveFocus(event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1);
+    moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
   } else if (
     !launcher.visible
     && currentMode === "obstacle"
@@ -1627,19 +1880,27 @@ document.addEventListener("keydown", (event) => {
     !launcher.visible
     && currentMode === "obstacle"
     && !overlayKind
-    && obstacle.snapshot().phase !== "finished"
+    && obstacleIsUnderWay()
     && ["ArrowLeft", "ArrowRight", "ArrowDown"].includes(event.key)
   ) {
     event.preventDefault();
     handleRecoveryGameplayAction(
       event.key === "ArrowLeft" ? "dodge_left" : event.key === "ArrowRight" ? "dodge_right" : "duck",
     );
+  } else if (
+    !launcher.visible
+    && !overlayKind
+    && !obstacleIsUnderWay()
+    && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)
+  ) {
+    event.preventDefault();
+    moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
   }
   if (
     !launcher.visible
     && currentMode === "obstacle"
     && !overlayKind
-    && obstacle.snapshot().phase !== "finished"
+    && obstacleIsUnderWay()
     && event.key === " "
   ) {
     event.preventDefault();
@@ -1655,6 +1916,13 @@ document.addEventListener("keydown", (event) => {
     chooseRoundResultAction(roundResultFocus);
   }
 });
+
+// Directional focus is resolved from live layout, so it can only be checked
+// against a rendered page. This exposes the resolver for that, gated like the
+// other rehearsal hooks so an ordinary session never carries it.
+if (new URLSearchParams(window.location.search).get("spatialFocusTest") === "1") {
+  window.__vcgSpatialFocus = Object.freeze({ nearestControl });
+}
 
 if (new URLSearchParams(window.location.search).get("motionSimulatorTest") === "1") {
   window.__vcgMotionSimulator = Object.freeze({
@@ -1712,3 +1980,9 @@ paintSimulator();
 paintClock();
 setInterval(paintClock, 15_000);
 requestAnimationFrame(replayLoop);
+
+// A household with no controller has to be able to join from the home screen,
+// so the camera opens with the console unless it has been set to controller.
+// Failure is already handled: the tracker falls back to synthetic replay and
+// the camera card says why.
+if (startsCameraAtLaunch) void startCameraTracking();

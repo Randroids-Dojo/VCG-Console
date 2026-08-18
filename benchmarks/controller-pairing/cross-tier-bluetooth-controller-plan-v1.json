@@ -12,12 +12,12 @@
     {
       "role": "cross-tier-controller-campaign-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "b9744ce2034dba00a18153cfb00f8cf61a769d55274d52407e1bd2b189b51d75"
+      "sha256": "db307a6a6e2c7647061d4f6426662b0d8e315a0aced55b5565819d63f69bb646"
     },
     {
       "role": "pi-radio-coexistence-boundary",
       "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
-      "sha256": "5a870ebf9a4f267f245519db5c6b52ba90a2a23eecd0e68345f32ccd20761c1a"
+      "sha256": "32d6deca97f499bf712aa74d10dde85925165f2af59a7d90a9d7deef40c4ad15"
     },
     {
       "role": "controller-protocol-boundary",
@@ -27,7 +27,7 @@
     {
       "role": "cross-tier-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "204459312b6ebfb2e53e9aa970e6a00e91c83ec09c41298e8fab8f51f890e694"
+      "sha256": "ec44bfec2cb36e03271ec5b7e01f29599c091f755d9f1e18c39b0fdeb2fdd5c0"
     },
     {
       "role": "power-recovery-policy-boundary",

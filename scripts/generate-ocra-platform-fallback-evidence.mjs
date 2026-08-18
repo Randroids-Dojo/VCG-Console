@@ -268,7 +268,11 @@ export async function generateOcraPlatformFallbackEvidence() {
   let observations;
   let overflow;
   try {
-    const response = await page.goto(server.origin, { waitUntil: "networkidle" });
+    // A font probe has no use for the camera, and the console opens it at
+    // startup unless the session asks for controller input.
+    const response = await page.goto(`${server.origin}/?input=controller`, {
+      waitUntil: "networkidle",
+    });
     assert.equal(response?.status(), 200);
     await installProbeGrid(page);
     observations = await observePlatformFonts(page);

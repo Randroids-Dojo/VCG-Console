@@ -87,6 +87,14 @@ vertical / 96 px horizontal at 1080p. Specifically:
   card language: art thumbnail, title, status chip, chevron.
 - **Settings** keeps its two-pane layout, restyled: left category rail with
   filled active pill, right content on an elevated sheet.
+- **Motion aids** sit above every surface, not inside one view. The gesture
+  legend appears while at least one player is on motion input, fades after
+  10 s, and returns when a player holds both hands out. The corner skeleton
+  (lower right, inside the safe area, above the legend) mirrors the
+  diagnostics stage so a player can see what the camera makes of them from
+  any screen; it draws camera frames only, because a synthetic or replayed
+  body would read as a working camera. Tracking recovery is also a root
+  overlay, so a lost player is reported wherever the console happens to be.
 - **Motion Lab** becomes stage-first: the game canvas is the hero, the
   telemetry column is restyled as a compact "System monitor" drawer that
   remains open by default (test and lab parity) but visually subordinate,
@@ -101,7 +109,7 @@ vertical / 96 px horizontal at 1080p. Specifically:
   (`data-view-target`, `data-launcher-view`, `data-settings-*`,
   `data-tv-critical-text`, `data-tv-action`, `data-tv-focus`), accessible
   names, and the class names tests select (`.home-heading`,
-  `.home-destinations`, `.home-status`, `.library-list`, `.launcher-nav`,
+  `.home-destinations`, `.library-list`, `.launcher-nav`,
   `.search-overlay`, `.empty-library`, …).
 - TV conformance evidence (launcher home, representative surfaces, search),
   OCR-A evidence, and the runtime payload scorecard are regenerated as part

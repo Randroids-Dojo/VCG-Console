@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
 async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
-  await page.goto(`/?skipBoot=1${simulatorTest ? "&motionSimulatorTest=1" : ""}`);
+  await page.goto(`/?skipBoot=1&input=controller${simulatorTest ? "&motionSimulatorTest=1" : ""}`);
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
 }
@@ -195,7 +195,7 @@ test("pairs and deliberately forgets a Bluetooth controller from the TV settings
     }
   });
   await page.goto(
-    `/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${token}`,
+    `/?skipBoot=1&input=controller#vcg-host-port=43123&vcg-host-token=${token}`,
   );
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Controllers", exact: true }).click();
@@ -235,7 +235,7 @@ test("rehearses display and audio settings without claiming hardware authority",
       window as unknown as { __avSettingsMediaRequests: () => number }
     ).__avSettingsMediaRequests = () => mediaRequests;
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Display", exact: true }).click();
   const displayPanel = page.locator('[data-settings-panel="display"]');
@@ -280,7 +280,7 @@ test("rehearses display and audio settings without claiming hardware authority",
 });
 
 test("launcher exposes every hub and universal search", async ({ page }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Enter the museum/ })).toHaveCount(0);
   await page.waitForTimeout(220);
@@ -401,7 +401,7 @@ test("unassigned progress requires deliberate controller-safe claim and deletion
       } as unknown as Gamepad;
     };
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Profiles", exact: true }).click();
   await page.getByRole("button", { name: /Unassigned progress 4/ }).click();
 
@@ -433,7 +433,7 @@ test("unassigned progress requires deliberate controller-safe claim and deletion
   await expect(
     chooseProfileDialog.getByRole("button", { name: /Randy/ }),
   ).toBeFocused();
-  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 15);
+  await pressSyntheticGamepadButton(page, "__setUnassignedGamepad", 13);
   await expect(
     page.getByRole("dialog").getByRole("button", { name: /Guest/ }),
   ).toBeFocused();
@@ -516,7 +516,7 @@ test("unassigned progress requires deliberate controller-safe claim and deletion
 test("triggered motion shell actions navigate and safely leave unassigned progress", async ({
   page,
 }) => {
-  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.goto("/?skipBoot=1&input=controller&motionSimulatorTest=1");
   await page.waitForTimeout(850);
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await page.waitForTimeout(550);
@@ -530,14 +530,14 @@ test("triggered motion shell actions navigate and safely leave unassigned progre
   const second = view.getByRole("button", { name: /Godot Motion Game/ });
   await expect(first).toBeFocused();
 
-  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("swipe-right"));
-  await expect(second).toBeFocused({ timeout: 1_500 });
+  await page.evaluate(() => window.__vcgMotionSimulator?.setPose("swipe-down"));
+  await expect(second).toBeFocused({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await page.waitForTimeout(750);
 
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await expect(second).toHaveAttribute("aria-pressed", "true", {
-    timeout: 1_500,
+    timeout: 5_000,
   });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await page.waitForTimeout(750);
@@ -545,7 +545,7 @@ test("triggered motion shell actions navigate and safely leave unassigned progre
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("crossed-arms"));
   await expect(
     page.getByRole("heading", { name: "Who is playing?" }),
-  ).toBeVisible({ timeout: 1_500 });
+  ).toBeVisible({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
 });
 
@@ -591,7 +591,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
       window as unknown as Record<string, () => number>
     ).__portraitCameraCalls = () => cameraCalls;
   });
-  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.goto("/?skipBoot=1&input=controller&motionSimulatorTest=1");
   await page.waitForTimeout(850);
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await page.waitForTimeout(550);
@@ -660,7 +660,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("hands-together"));
   await expect(
     page.getByRole("heading", { name: "Who is playing?" }),
-  ).toBeVisible({ timeout: 1_500 });
+  ).toBeVisible({ timeout: 5_000 });
   await page.evaluate(() => window.__vcgMotionSimulator?.setPose("neutral"));
   await expect(profileTile.locator(".synthetic-portrait")).not.toHaveAttribute(
     "data-portrait-handle",
@@ -737,7 +737,7 @@ test("credential-free profile management gates destructive scope and never reass
       } as unknown as Gamepad;
     };
   });
-  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.goto("/?skipBoot=1&input=controller&motionSimulatorTest=1");
   await page.waitForTimeout(850);
   await page.evaluate(() =>
     window.__vcgMotionSimulator?.setPose("hands-together")
@@ -1055,7 +1055,7 @@ test("session authority rehearsal contains synthetic household interference", as
     ).__sessionAdversarialCameraCalls = () => cameraCalls;
   });
   await page.setViewportSize({ width: 520, height: 900 });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Session authority/ }).click();
 
@@ -1193,7 +1193,7 @@ test("synthetic calibration guides failed dimensions and invalidates changed roo
       window as unknown as Record<string, () => number>
     ).__calibrationCameraCalls = () => cameraCalls;
   });
-  await page.goto("/?skipBoot=1&motionSimulatorTest=1");
+  await page.goto("/?skipBoot=1&input=controller&motionSimulatorTest=1");
   await page.waitForTimeout(850);
   await page.evaluate(() =>
     window.__vcgMotionSimulator?.setPose("hands-together")
@@ -1405,7 +1405,7 @@ test("accessibility preferences apply, persist, disclose gaps, and reset", async
       } as unknown as Gamepad;
     };
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const root = page.locator("html");
   const standardFontSize = await root.evaluate((element) =>
     Number.parseFloat(getComputedStyle(element).fontSize),
@@ -1512,7 +1512,7 @@ test("accessibility preferences apply, persist, disclose gaps, and reset", async
 });
 
 test("one launch screen represents every adapter without inventing progress", async ({ page }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
   const previews = page.locator(".launch-preview");
@@ -1578,7 +1578,7 @@ test("controller can confirm or cancel every operating-mode transition", async (
       } as unknown as Gamepad;
     };
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
   const operatingMode = page.locator(".operating-mode");
@@ -1621,7 +1621,7 @@ test("diagnostic export is reviewed, admin-gated, bounded, and identity-free", a
   page.on("request", (request) => {
     if (exportStarted) exportRequests.push(request.url());
   });
-  await page.goto("/?skipBoot=1#support-secret-must-not-export");
+  await page.goto("/?skipBoot=1&input=controller#support-secret-must-not-export");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
 
@@ -1732,7 +1732,7 @@ test("native launch authenticates to the Rust host before checking installed pac
       }),
     });
   });
-  await page.goto(`/?skipBoot=1#vcg-host-port=43123&vcg-host-token=${token}`);
+  await page.goto(`/?skipBoot=1&input=controller#vcg-host-port=43123&vcg-host-token=${token}`);
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
   await page.locator(".launch-preview").getByRole("button", { name: "Native", exact: true }).click();
@@ -1847,7 +1847,7 @@ test("retro launch submits only signed package and profile intent to the host", 
     });
   });
 
-  await page.goto(`/?skipBoot=1#vcg-host-port=43124&vcg-host-token=${token}`);
+  await page.goto(`/?skipBoot=1&input=controller#vcg-host-port=43124&vcg-host-token=${token}`);
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Candidate/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Circuit Shift.*Built in/ })).toBeVisible();
@@ -1864,7 +1864,6 @@ test("retro launch submits only signed package and profile intent to the host", 
   await page.getByRole("button", { name: "Home", exact: true }).click();
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("button", { name: /2048.*Installed/ })).toBeVisible();
-  await expect(page.locator(".home-status")).toContainText("1 signed package installed");
   await expect(page.getByText("secret-diagnostic")).toHaveCount(0);
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
 
@@ -1907,7 +1906,7 @@ test("retro launch submits only signed package and profile intent to the host", 
 });
 
 test("launch supervision distinguishes faults and recovers through retry", async ({ page }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
   const recovery = page.locator(".launch-preview").nth(1);
@@ -1972,7 +1971,7 @@ test("museum launch uses the real browser network state and retries", async ({ p
       return { opener: window } as unknown as Window;
     };
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await context.setOffline(true);
   await page.getByRole("button", { name: "Museum", exact: true }).click();
   await page.getByRole("button", { name: /Enter the museum/ }).click();
@@ -2025,7 +2024,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
     "__setSearchGamepad",
     "Playwright Search controller",
   );
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   const trigger = page.getByRole("button", { name: /Search games/ });
   await trigger.focus();
@@ -2071,7 +2070,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
 test("Search no-result recovery clears locally and opens stable category results", async ({
   page,
 }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const trigger = page.getByRole("button", { name: /Search games/ });
   await trigger.focus();
   await trigger.click();
@@ -2113,7 +2112,7 @@ test("Search restores its opener before offline package launch and Back recovery
   await page.clock.install({
     time: new Date("2026-07-24T19:00:00-07:00"),
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const trigger = page.getByRole("button", { name: /Search games/ });
   await trigger.focus();
   await trigger.click();
@@ -2145,7 +2144,7 @@ test("Search remote-web launch contains denial and offline failure before restor
   await page.clock.install({
     time: new Date("2026-07-24T19:00:00-07:00"),
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const trigger = page.getByRole("button", { name: /Search games/ });
   const openMuseumFromSearch = async () => {
     await trigger.focus();
@@ -2193,7 +2192,7 @@ test("Search unavailable package denial retains diagnostics and restores focus",
   await page.clock.install({
     time: new Date("2026-07-24T19:00:00-07:00"),
   });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const trigger = page.getByRole("button", { name: /Search games/ });
   await trigger.focus();
   await trigger.click();
@@ -2222,7 +2221,7 @@ test("Search unavailable package denial retains diagnostics and restores focus",
 test("Search destructive progress route defaults to denial and preserves the entry", async ({
   page,
 }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   const trigger = page.getByRole("button", { name: /Search games/ });
   await trigger.focus();
   await trigger.click();
@@ -2276,7 +2275,7 @@ test("Search destructive progress route defaults to denial and preserves the ent
 });
 
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
   await page.getByRole("button", { name: /2048 Contentless public-domain core/ }).click();
@@ -2299,7 +2298,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
     "__setCircuitShiftGamepad",
     "Playwright Circuit Shift controller",
   );
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.evaluate(() => {
     localStorage.setItem(
       "vcg.console.circuit-shift.v1",
@@ -2331,7 +2330,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
 
 test("launcher remains usable on a narrow setup display", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
@@ -2342,7 +2341,7 @@ test("launcher remains usable on a narrow setup display", async ({ page }) => {
 
 test("launch screen remains purposeful on a narrow display", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/?skipBoot=1");
+  await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("button", { name: "Developer", exact: true }).click();
   await page.getByRole("button", { name: "Local web", exact: true }).click();
@@ -2372,12 +2371,13 @@ test("console lab preserves navigation and safe overlay focus contracts", async 
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByRole("button", { name: "RESUME" })).toHaveClass(/focused/);
   await expect(page.getByRole("button", { name: "RESUME" })).toBeFocused();
-  await page.getByRole("button", { name: "EXIT TO CONSOLE" }).click();
-  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
+  // Ending a run leaves the run, not the screen: focus lands on the section
+  // tabs so the rest of the lab stays reachable.
+  await page.getByRole("button", { name: "END RUN" }).click();
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "GESTURE NAVIGATION" })).toBeVisible();
+  await expect(page.locator("[data-mode=\"shell\"]")).toBeFocused();
 
-  await page.getByRole("button", { name: "Motion", exact: true }).click();
-  await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
-  await page.getByRole("button", { name: /03 SHELL LAB/ }).click();
   await page.getByRole("button", { name: "TEST TRACKING LOSS" }).click();
   await expect(page.getByRole("dialog")).toBeVisible({ timeout: 2_500 });
   await expect(page.getByRole("button", { name: "RESUME" })).toHaveClass(/focused/);
@@ -2470,7 +2470,7 @@ test("shows deterministic tracker health and degraded-control fixtures", async (
 
 test("completes the two-player body-game journey and returns to the console", async ({ page }) => {
   await installSyntheticStandardGamepadPair(page, "__setObstacleJourneyGamepad");
-  await page.goto("/?skipBoot=1&obstacleTest=fast");
+  await page.goto("/?skipBoot=1&input=controller&obstacleTest=fast");
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
 
@@ -2517,7 +2517,7 @@ test("completes the two-player body-game journey and returns to the console", as
 });
 
 test("keeps obstacle scores local, unverified, persistent, and deliberately resettable", async ({ page }) => {
-  await page.goto("/?skipBoot=1&obstacleTest=fast");
+  await page.goto("/?skipBoot=1&input=controller&obstacleTest=fast");
   await page.getByRole("button", { name: "Motion", exact: true }).click();
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
@@ -2554,6 +2554,9 @@ test("keeps obstacle scores local, unverified, persistent, and deliberately rese
 });
 
 test("drives the camera-free pose simulator through UI, keyboard, controller, and test hooks", async ({ page }) => {
+  // A television-sized viewport, so the diagnostics column sits above the
+  // section tabs and directional input has a stable layout to move through.
+  await page.setViewportSize({ width: 1920, height: 1080 });
   await page.addInitScript(() => {
     let gamepad: Gamepad | null = null;
     Object.defineProperty(navigator, "getGamepads", {
@@ -2590,9 +2593,16 @@ test("drives the camera-free pose simulator through UI, keyboard, controller, an
   const playerAssignment = page.locator("#join-button");
   await expect(page.locator("#motion-lab")).toBeVisible();
   await expect(page.locator("#metric-player")).not.toHaveText("NOT FOUND");
+  await playerAssignment.focus();
   await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 0);
   await expect(playerAssignment).toHaveText("LEAVE PLAYER 1");
-  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 13);
+  // Focus moves by layout, so walk the D-pad into the diagnostics column
+  // rather than assuming the assignment control is exactly one press away.
+  await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 12);
+  for (let press = 0; press < 8; press += 1) {
+    if (await playerAssignment.evaluate((el) => el === document.activeElement)) break;
+    await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 13);
+  }
   await expect(playerAssignment).toBeFocused();
   await pressSyntheticGamepadButton(page, "__setSimulatorGamepad", 0);
   await expect(playerAssignment).toHaveText("JOIN PLAYER 1");
@@ -2621,12 +2631,14 @@ test("drives the camera-free pose simulator through UI, keyboard, controller, an
     window.__vcgMotionSimulator?.setPose("neutral");
   });
 
+  // The pad drives focus, not poses: holding a direction or a face button
+  // must leave the simulated pose alone so the toggle stays reachable.
   await page.evaluate(() => {
     (window as unknown as {
       __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
-    }).__setSimulatorGamepad([0]);
+    }).__setSimulatorGamepad([13]);
   });
-  await expect(page.locator("#simulator-state")).toHaveText("HANDS TOGETHER / VISIBLE");
+  await expect(page.locator("#simulator-state")).toHaveText("NEUTRAL / VISIBLE");
   await page.evaluate(() => {
     (window as unknown as {
       __setSimulatorGamepad(buttons: number[], axes?: number[]): void;

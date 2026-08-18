@@ -1,5 +1,10 @@
 import type { MotionFrame, PlayerMotion } from "@vcg/motion-contract";
-import { ActionEngine, type ActionChronologyFault, type ActionContext } from "./action-engine";
+import {
+  ActionEngine,
+  type ActionChronologyFault,
+  type ActionContext,
+  type SweepObservation,
+} from "./action-engine";
 
 const CANDIDATE_SLOT_OFFSET = 3;
 const STALE_CANDIDATE_FRAMES = 120;
@@ -14,6 +19,13 @@ interface PlayerEngine {
  * track ID. A detected body remains a non-authoritative candidate until the
  * session controller explicitly assigns that track to player slot 1 or 2.
  */
+const IDLE_SWEEP: Readonly<SweepObservation> = Object.freeze({
+  handRaised: false,
+  zone: "rest",
+  offset: 0,
+  armed: false,
+});
+
 export class MultiPlayerActionEngine {
   readonly #engines = new Map<string, PlayerEngine>();
   readonly #joinedSlots = new Map<string, 1 | 2>();
@@ -86,6 +98,25 @@ export class MultiPlayerActionEngine {
       if (this.#joinedSlots.has(trackId) && engine.chronologyFault) return engine.chronologyFault;
     }
     return undefined;
+  }
+
+  /**
+   * What a joined player's sweep recognizer is seeing, for diagnostics.
+   *
+   * The liveliest joined reading wins, so a second player standing still never
+   * masks the one who is actually trying to sweep.
+   */
+  get sweep(): Readonly<SweepObservation> {
+    let best: Readonly<SweepObservation> = IDLE_SWEEP;
+    for (const [trackId, { engine }] of this.#engines) {
+      if (!this.#joinedSlots.has(trackId)) continue;
+      const candidate = engine.sweep;
+      const better = candidate.handRaised !== best.handRaised
+        ? candidate.handRaised
+        : candidate.offset > best.offset;
+      if (better) best = candidate;
+    }
+    return best;
   }
 
   #enrichPlayer(frame: MotionFrame, player: PlayerMotion, context: ActionContext): PlayerMotion {

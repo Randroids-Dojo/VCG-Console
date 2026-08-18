@@ -347,7 +347,7 @@ async function exercise(chromePath) {
         );
       });
       const response = await page.goto(
-        `${server.origin}/?skipBoot=1`,
+        `${server.origin}/?skipBoot=1&input=controller`,
         { waitUntil: "load", timeout: 30_000 },
       );
       assert.equal(response?.status(), 200);
@@ -371,8 +371,8 @@ async function exercise(chromePath) {
         page,
         "[data-tv-action]:visible",
       );
-      assert.equal(criticalText.length, 16);
-      assert.equal(actions.length, 12);
+      assert.equal(criticalText.length, 13);
+      assert.equal(actions.length, 11);
       assert.ok(
         criticalText.every(
           (item) =>
@@ -387,7 +387,7 @@ async function exercise(chromePath) {
       );
 
       const sections = await page
-        .locator(".home-heading, .home-destinations, .home-status")
+        .locator(".home-heading, .home-destinations")
         .evaluateAll((elements) =>
           elements.map((element) => {
             const bounds = element.getBoundingClientRect();
@@ -398,10 +398,9 @@ async function exercise(chromePath) {
             };
           }),
         );
-      assert.equal(sections.length, 3);
+      assert.equal(sections.length, 2);
       const sectionOverlapCount =
-        Number(sections[0].bottom > sections[1].top + 0.5)
-        + Number(sections[1].bottom > sections[2].top + 0.5);
+        Number(sections[0].bottom > sections[1].top + 0.5);
       assert.equal(sectionOverlapCount, 0);
 
       const overflow = await page.locator("#launcher").evaluate(
@@ -413,16 +412,15 @@ async function exercise(chromePath) {
       assert.ok(
         overflow.horizontal <= 1 && overflow.vertical <= 1,
       );
-      const packageState = (
-        await page.locator(".home-status span").nth(1).textContent()
-      )?.trim();
-      assert.equal(packageState, "Local package catalog unavailable");
-
-      await page.locator("[data-launcher-home]").focus();
+      // The wordmark is a label, not a control, so focus never lands on it.
+      assert.equal(await page.locator("button.launcher-brand").count(), 0);
+      // Focus order follows the drawn left-to-right order of the top bar, so
+      // the last tab strip entry hands off to the search pill beside it.
+      await page.locator('[data-view-target="settings"]').focus();
       const focusTrace = [
         await page.evaluate(() => document.activeElement?.getAttribute(
-          "data-launcher-home",
-        ) === "" ? "launcher-home" : null),
+          "data-view-target",
+        ) ?? null),
       ];
       await page.keyboard.press("Tab");
       focusTrace.push(
@@ -441,7 +439,7 @@ async function exercise(chromePath) {
       const searchHiddenAfterBack =
         await page.locator("#search-overlay").isHidden();
       assert.deepEqual(focusTrace, [
-        "launcher-home",
+        "settings",
         "search-trigger",
         "universal-search",
         "search-trigger",
@@ -579,8 +577,8 @@ export async function generateLauncherTvConformanceEvidence() {
       resolutionCount: 3,
       screenshotCount: 3,
       launcherViewCount: 1,
-      markedCriticalTextCountPerResolution: 16,
-      markedActionTargetCountPerResolution: 12,
+      markedCriticalTextCountPerResolution: 13,
+      markedActionTargetCountPerResolution: 11,
       physicalTelevisionCount: 0,
       physicalControllerCount: 0,
       participantCount: 0,

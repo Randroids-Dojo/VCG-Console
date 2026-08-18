@@ -91,7 +91,7 @@ test("rejects critical, section, or root overflow", async () => {
 
 test("rejects weak or missing action targets", async () => {
   await validateMutation((artifact) => {
-    artifact.browser.observations[0].actionTargetCount = 12;
+    artifact.browser.observations[0].actionTargetCount = 11;
   });
   await validateMutation((artifact) => {
     artifact.browser.observations[1].minimumActionTargetWidthCssPx = 47.999;

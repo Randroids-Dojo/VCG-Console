@@ -390,8 +390,9 @@ a:focus-visible {
   padding: var(--safe-y) var(--safe-x) 0;
 }
 
-/* Keyboard order is brand -> search -> tabs -> presence; the grid keeps the
-   tab strip visually between the brand and the search pill. */
+/* Controller focus is resolved from layout (see spatial-focus.ts), but tab
+   order still follows the document, so the top bar is authored in the same
+   left-to-right order it is drawn: brand label, tab strip, search, presence. */
 .launcher-topbar > .launcher-brand {
   grid-row: 1;
   grid-column: 1;
@@ -418,7 +419,6 @@ a:focus-visible {
   border: 0;
   background: transparent;
   color: var(--paper);
-  cursor: pointer;
   font-family: var(--font-brand);
   font-size: clamp(15px, 0.95vw, 38px);
   letter-spacing: 0.08em;
@@ -618,6 +618,177 @@ a:focus-visible {
   font-size: var(--text-detail);
   font-weight: 500;
   pointer-events: none;
+}
+
+/* What the camera makes of the room, kept in a corner so a player can check
+   their own tracking from any screen. Landmarks only: no camera image is
+   drawn here or anywhere else. */
+.skeleton-mini {
+  position: fixed;
+  z-index: 5;
+  right: var(--safe-x);
+  bottom: calc(var(--safe-y) + clamp(44px, 5vh, 74px));
+  width: clamp(150px, 15vw, 340px);
+  aspect-ratio: 4 / 3;
+  padding: 6px;
+  border: 1px solid var(--stroke-1);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--rail) 82%, transparent);
+  box-shadow: var(--shadow-tile);
+  pointer-events: none;
+}
+
+.skeleton-mini[hidden] {
+  display: none;
+}
+
+.skeleton-mini canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Live view of the zone the gesture recognizer is reading, so a hand that
+   felt held out can be told from one the recognizer placed elsewhere. */
+.sweep-readout {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--stroke-1);
+}
+
+.sweep-readout-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: var(--text-detail);
+  letter-spacing: 0.06em;
+}
+
+.sweep-readout-heading strong {
+  color: var(--muted);
+  font-weight: 640;
+}
+
+.sweep-readout[data-raised="true"] .sweep-readout-heading strong {
+  color: var(--accent);
+}
+
+.sweep-meter {
+  height: 8px;
+  margin: 8px 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.sweep-meter span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 90ms linear;
+}
+
+.sweep-readout p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-detail);
+}
+
+/* The gesture guide stays on screen while anyone is playing by motion,
+   opposite the controller legend so the two never collide. */
+.motion-legend {
+  position: fixed;
+  z-index: 5;
+  left: var(--safe-x);
+  bottom: var(--safe-y);
+  padding: clamp(10px, 1vh, 18px) clamp(14px, 1.2vw, 26px);
+  border: 1px solid var(--stroke-1);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--rail) 88%, transparent);
+  box-shadow: var(--shadow-tile);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.motion-legend[hidden] {
+  display: none;
+}
+
+/* The guide fades once it has been read, and comes back when both hands go
+   out. Reduced motion still gets the change, just without the crossfade. */
+.motion-legend[data-visible="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.motion-legend[data-visible] {
+  transition:
+    opacity var(--vcg-motion-ambient, 520ms) ease,
+    visibility 0s linear var(--vcg-motion-ambient, 520ms);
+}
+
+.motion-legend[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--vcg-motion-feedback, 160ms) ease,
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-legend,
+  .motion-legend[data-visible="true"] {
+    transition: none;
+  }
+}
+
+.motion-legend dl {
+  display: grid;
+  gap: clamp(4px, 0.6vh, 10px);
+  margin: 0;
+}
+
+.motion-legend div {
+  display: grid;
+  gap: 2px;
+  max-width: min(46ch, 34vw);
+}
+
+.motion-legend dt {
+  font-size: var(--text-detail);
+  font-weight: 500;
+}
+
+.motion-legend dd {
+  margin: 0;
+  color: var(--paper);
+  font-size: var(--text-detail);
+  font-weight: 620;
+}
+
+/* A running game consumes the focus gestures, so only the one that still
+   works during play is offered. */
+.motion-legend[data-context="game"] .motion-legend-shell {
+  display: none;
+}
+
+/* The Motion Lab carries a full-width section rail along the bottom, so the
+   legend sits above it rather than under it. */
+#motion-lab:not([hidden]) ~ .motion-legend {
+  bottom: calc(var(--safe-y) + clamp(88px, 9vh, 130px));
+}
+
+@media (min-width: 1000px) and (min-height: 600px) {
+  /* Same contract floor the launcher applies to its own marked text: this
+     legend lives outside .launcher, so it states the floor itself. */
+  .motion-legend [data-tv-critical-text] {
+    font-size: clamp(24px, 1.1vw, 44px);
+    line-height: 1.25;
+  }
 }
 
 .legend-hint {
@@ -842,41 +1013,6 @@ a:focus-visible {
   margin-left: 2px;
   color: var(--accent);
   font-weight: 400;
-}
-
-.home-status {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--muted);
-  font-size: var(--text-body);
-  font-weight: 480;
-}
-
-.home-status span {
-  display: inline-flex;
-  align-items: center;
-  min-height: clamp(44px, 4vh, 84px);
-  padding: 4px clamp(20px, 1.2vw, 40px);
-  border: 1px solid var(--stroke-1);
-  border-radius: 999px;
-  background: var(--surface-1);
-}
-
-.home-status span:first-child {
-  color: var(--paper);
-}
-
-.home-status i {
-  width: 9px;
-  height: 9px;
-  display: inline-block;
-  margin-right: 12px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .view-header {
@@ -5117,6 +5253,21 @@ h1 {
   color: color-mix(in srgb, var(--muted), transparent 50%);
 }
 
+/* The diagnostics drawer toggle sits in the same rail as the section tabs but
+   does not change section, so it is drawn as an outlined switch rather than a
+   tab: without this it reads as a fourth section. */
+.command-toggle {
+  min-width: 0;
+  margin-left: 18px;
+  border: 1px dashed var(--stroke-2);
+  border-radius: 12px;
+}
+
+.command-toggle.active {
+  border-style: solid;
+  box-shadow: inset 0 0 0 1px var(--stroke-2);
+}
+
 .escape-hint {
   margin-left: auto;
   display: flex;
@@ -5642,11 +5793,7 @@ kbd {
     min-height: var(--vcg-control-min);
   }
 
-  .home-status {
-    gap: clamp(10px, 0.9vw, 24px);
-  }
-
-  /* The Motion Lab locks to the viewport: the stage is the hero and the
+    /* The Motion Lab locks to the viewport: the stage is the hero and the
      diagnostics column scrolls inside its own drawer. */
   .console-shell {
     height: 100vh;
@@ -6133,12 +6280,7 @@ kbd {
     font-size: clamp(2.35rem, 13vw, 4rem);
   }
 
-  .home-status {
-    display: grid;
-    gap: 9px;
-  }
-
-  .museum-catalog {
+    .museum-catalog {
     grid-template-columns: 1fr;
   }
 

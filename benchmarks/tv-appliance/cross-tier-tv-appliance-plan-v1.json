@@ -12,17 +12,17 @@
     {
       "role": "pi-hdmi-audio-cec-boundary",
       "path": "benchmarks/pi5-hdmi-cec/pi5-hdmi-audio-cec-plan-v1.json",
-      "sha256": "e727f5fd54f9ccd25d669b6d05f065d4d2afc0b780ed274d36779fb811f6150c"
+      "sha256": "675d1e73f58d4118acd0a7e915ae9f6919c5506cc8f08c2547ddb69ff283a04e"
     },
     {
       "role": "ordinary-x86-target-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "b5e1249218e9041194d437d54e39f162c97a49455c306c537527c29d4a794826"
+      "sha256": "060aa0cf9f82ec633d9eab40608825cce236bf4e8b72c60dd8e43a9ece48894f"
     },
     {
       "role": "cross-tier-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "204459312b6ebfb2e53e9aa970e6a00e91c83ec09c41298e8fab8f51f890e694"
+      "sha256": "ec44bfec2cb36e03271ec5b7e01f29599c091f755d9f1e18c39b0fdeb2fdd5c0"
     },
     {
       "role": "display-audio-settings-boundary",

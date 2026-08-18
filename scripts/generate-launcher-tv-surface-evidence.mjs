@@ -73,7 +73,7 @@ const SURFACES = Object.freeze([
     id: "motion-catalog",
     rootSelector: "#launcher",
     criticalTextCount: 18,
-    actionTargetCount: 13,
+    actionTargetCount: 12,
     sections: [".view-header", ".library-list"],
     focusTrace: ["motion-first-entry", "launcher-home"],
   },
@@ -81,7 +81,7 @@ const SURFACES = Object.freeze([
     id: "wifi-offline",
     rootSelector: "#launcher",
     criticalTextCount: 22,
-    actionTargetCount: 18,
+    actionTargetCount: 17,
     sections: [".view-header", ".settings-layout"],
     focusTrace: ["scan-wifi", "launcher-home"],
   },
@@ -258,7 +258,7 @@ async function exercise(chromePath) {
             (requestCounts.get(url.pathname) ?? 0) + 1,
           );
         });
-        const response = await page.goto(`${server.origin}/?skipBoot=1`, {
+        const response = await page.goto(`${server.origin}/?skipBoot=1&input=controller`, {
           waitUntil: "load",
           timeout: 30_000,
         });

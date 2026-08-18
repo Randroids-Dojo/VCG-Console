@@ -67,7 +67,8 @@ interface MutableObstacle {
   resolved: boolean;
 }
 
-const REQUIRED_PLAYERS = 2;
+/** Slots the arena can seat. A round needs one; it can hold two. */
+const MAX_PLAYERS = 2;
 const DEFAULT_COUNTDOWN_MS = 3_000;
 const DEFAULT_ROUND_MS = 45_000;
 const DEFAULT_SPAWN_INTERVAL_MS = 1_550;
@@ -135,11 +136,21 @@ export class TwoPlayerObstacleRound {
 
   setRoster(slots: readonly PlayerSlot[]): void {
     const next = [...new Set(slots)].sort((left, right) => left - right);
-    if (next.some((slot) => slot !== 1 && slot !== 2) || next.length > REQUIRED_PLAYERS) {
+    if (next.some((slot) => slot !== 1 && slot !== 2) || next.length > MAX_PLAYERS) {
       throw new Error("roster supports only player slots 1 and 2");
     }
     if (sameSlots(next, this.#joinedSlots)) return;
+    const joining = next.filter((slot) => !this.#joinedSlots.includes(slot));
+    const leaving = this.#joinedSlots.filter((slot) => !next.includes(slot));
+    const underWay = this.#phase === "countdown" || this.#phase === "playing";
     this.#joinedSlots = next;
+    // Someone stepping in front of the camera mid-run is seated where they
+    // stand rather than restarting the round, so a late join never discards
+    // the run already in progress. Anything else starts a fresh round.
+    if (underWay && joining.length > 0 && leaving.length === 0) {
+      for (const slot of joining) this.#players.set(slot, this.#freshPlayer(slot));
+      return;
+    }
     this.#startFreshRound();
   }
 
@@ -186,25 +197,30 @@ export class TwoPlayerObstacleRound {
     this.#advancePlaying(Math.min(remainingDelta, this.#roundRemainingMs));
   }
 
+  #freshPlayer(slot: PlayerSlot): MutablePlayer {
+    return {
+      slot,
+      lane: 1,
+      stance: "standing",
+      stanceRemainingMs: 0,
+      score: 0,
+      lives: this.#startingLives,
+      lastResult: "ready",
+    };
+  }
+
   #startFreshRound(): void {
     this.#players.clear();
     for (const slot of this.#joinedSlots) {
-      this.#players.set(slot, {
-        slot,
-        lane: 1,
-        stance: "standing",
-        stanceRemainingMs: 0,
-        score: 0,
-        lives: this.#startingLives,
-        lastResult: "ready",
-      });
+      this.#players.set(slot, this.#freshPlayer(slot));
     }
     this.#obstacles.length = 0;
     this.#spawnSequence = 0;
     this.#winnerSlot = undefined;
     this.#roundRemainingMs = this.#roundMs;
     this.#spawnRemainingMs = 0;
-    if (this.#joinedSlots.length === REQUIRED_PLAYERS) {
+    // One player is a complete round. A second is welcome, not required.
+    if (this.#joinedSlots.length > 0) {
       this.#phase = "countdown";
       this.#countdownRemainingMs = this.#countdownMs;
     } else {
@@ -250,7 +266,7 @@ export class TwoPlayerObstacleRound {
       const kind = kinds[(this.#spawnSequence + slot - 1) % kinds.length] ?? "lane";
       const lane = (Math.floor(this.#spawnSequence / kinds.length) + slot - 1) % 3;
       this.#obstacles.push({
-        id: this.#spawnSequence * REQUIRED_PLAYERS + slot,
+        id: this.#spawnSequence * MAX_PLAYERS + slot,
         slot,
         kind,
         lane: kind === "lane" ? lane as 0 | 1 | 2 : 1,

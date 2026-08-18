@@ -27,6 +27,8 @@ const ACTION_LABELS: Readonly<Record<MotionAction["name"], string>> = {
   dodge_right: "Dodge right",
   menu_swipe_left: "Move focus left",
   menu_swipe_right: "Move focus right",
+  menu_swipe_up: "Move focus up",
+  menu_swipe_down: "Move focus down",
   menu_select: "Select",
   menu_back: "Back",
   pause: "Pause",
