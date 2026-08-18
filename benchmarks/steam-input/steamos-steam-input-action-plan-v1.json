@@ -52,7 +52,7 @@
     {
       "role": "bluetooth-controller-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "c5a94a08fa7dd2976e599ee4287d618157b079559619b1f1b5190e1302c07283"
+      "sha256": "4f3bde1bce6556ed255e3dc850559fe767844d1666291e8ea638662f637cc822"
     },
     {
       "role": "controller-only-catalog-boundary",
@@ -67,7 +67,7 @@
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "c34ff19f729a482703a3a21b0d7932dd64c12c4f88f186dec7672ffb61868710"
+      "sha256": "19a1ce4698e008808ee68d432a9bcd64890a441e5da26be6c620c9339d75a837"
     },
     {
       "role": "accountless-offline-boundary",

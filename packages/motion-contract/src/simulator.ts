@@ -14,6 +14,7 @@ export const MOTION_SIMULATOR_POSES = [
   "jump",
   "hands-together",
   "crossed-arms",
+  "both-hands-out",
   "swipe-left",
   "swipe-right",
   "swipe-up",
@@ -213,24 +214,36 @@ function posePoints(pose: MotionSimulatorPose): Record<CoreLandmarkName, Point> 
     points.left_wrist = [0.61, 0.43];
     points.right_wrist = [0.39, 0.43];
   }
-  if (pose === "swipe-left") {
-    points.left_elbow = [0.52, 0.27];
-    points.left_wrist = [0.68, 0.22];
+  // Menu poses are where a hand is held, read against the shoulders, hips and
+  // head. Arms hanging at rest is the home position; each pose is one step out
+  // of it, with the hand either held out past the shoulder or brought up to
+  // the head. Which arm carries it picks the axis.
+  if (pose === "both-hands-out") {
+    // Both hands out at once, which asks for the gesture guide.
+    points.right_elbow = [0.72, 0.4];
+    points.right_wrist = [0.87, 0.36];
+    points.left_elbow = [0.28, 0.4];
+    points.left_wrist = [0.13, 0.36];
   }
   if (pose === "swipe-right") {
-    points.right_elbow = [0.48, 0.27];
-    points.right_wrist = [0.32, 0.22];
+    // Right hand held out away from the body.
+    points.right_elbow = [0.72, 0.4];
+    points.right_wrist = [0.87, 0.36];
   }
-  // The vertical pair is performed with the hand already up, so both poses
-  // keep the wrist above the shoulder (0.3) and differ only in height. Held
-  // in sequence they read as one hand sweeping up or down.
+  if (pose === "swipe-left") {
+    // Right hand up touching the head.
+    points.right_elbow = [0.64, 0.36];
+    points.right_wrist = [0.56, 0.2];
+  }
   if (pose === "swipe-up") {
-    points.right_elbow = [0.6, 0.3];
-    points.right_wrist = [0.62, 0.1];
+    // Left hand held out away from the body.
+    points.left_elbow = [0.28, 0.4];
+    points.left_wrist = [0.13, 0.36];
   }
   if (pose === "swipe-down") {
-    points.right_elbow = [0.6, 0.34];
-    points.right_wrist = [0.62, 0.28];
+    // Left hand up touching the head.
+    points.left_elbow = [0.36, 0.36];
+    points.left_wrist = [0.44, 0.2];
   }
   return points;
 }

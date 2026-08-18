@@ -347,7 +347,7 @@ async function exercise(chromePath) {
         );
       });
       const response = await page.goto(
-        `${server.origin}/?skipBoot=1`,
+        `${server.origin}/?skipBoot=1&input=controller`,
         { waitUntil: "load", timeout: 30_000 },
       );
       assert.equal(response?.status(), 200);

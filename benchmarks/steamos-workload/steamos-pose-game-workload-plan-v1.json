@@ -42,7 +42,7 @@
     {
       "role": "standard-concurrent-workload-plan",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "f1f71b29b16c1f9334f5333afc6bb5a6f184a23c76092d476cb96281695ca8c1"
+      "sha256": "1c0b4cf264008c96bd746eb89d98f53a7a2d7ab45f5c5a1fafeb16b24def0401"
     },
     {
       "role": "camera-action-latency-campaign",
@@ -72,7 +72,7 @@
     {
       "role": "pi-cpu-comparison-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "b3cb98ea1c6280b2d03d6963dab9b15296205fcf1bf0e21832119f1cb9bb6c21"
+      "sha256": "79dc052146041600b76478d9ce4bc182353baa00f436edb8c0c09ed77f34a948"
     },
     {
       "role": "prototype-gate-boundary",

@@ -233,9 +233,10 @@ mod tests {
         // The camera portal cannot identify a caller inside the session unit's
         // mount namespace, and Chromium hangs rather than falling back, so the
         // direct V4L2 path is not optional for this appliance.
-        assert!(arguments.contains(
-            &"--disable-features=PasswordManager,WebRtcPipeWireCamera".to_owned()
-        ));
+        assert!(
+            arguments
+                .contains(&"--disable-features=PasswordManager,WebRtcPipeWireCamera".to_owned())
+        );
     }
 
     #[test]

@@ -42,7 +42,7 @@
     {
       "role": "steam-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "0430da0f43abd795b479ea99b3b7b9bab6783e2320a5f8e0c3dd345e983bc5ab"
+      "sha256": "435f3f4caf4913ffe3f07fbc78789079ea95005bd1cd7b1691ff4ea1d3fc14ca"
     },
     {
       "role": "signed-native-boundary",
@@ -52,7 +52,7 @@
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "e0d29943e487a1eaaa9ef1ea980a34e232ee64885b3da6d3ee197cfff64ca8db"
+      "sha256": "7eafa6a4bd3926513028e115afe56fe76a57008a647502144dcbc3055cdca25c"
     },
     {
       "role": "hosted-supervisor-implementation-boundary",

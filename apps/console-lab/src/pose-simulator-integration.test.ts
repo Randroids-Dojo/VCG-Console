@@ -1,4 +1,4 @@
-import { MotionPoseSimulator } from "@vcg/motion-contract";
+import { MotionPoseSimulator, type MotionFrame } from "@vcg/motion-contract";
 import { describe, expect, it } from "vitest";
 import { ActionEngine } from "./action-engine";
 import { PlayerSessionController } from "./player-session";
@@ -58,49 +58,222 @@ describe("camera-free pose simulator integration", () => {
     );
   });
 
-  it("drives temporal swipe hooks and explicit tracking loss", () => {
+  it("drives menu gestures from where a raised hand sits", () => {
     const { engine, simulator } = calibratedEngine();
     engine.join();
-    engine.enrich(simulator.frame(24, 600));
+
+    // A hand at your side is not playing, and arriving straight into a zone
+    // does not count: a gesture is the step out of the home position.
     simulator.setPose("swipe-left");
-    const swiped = engine.enrich(simulator.frame(25, 620));
-    expect(swiped.players[0]?.actions).toContainEqual(
+    const arrived = engine.enrich(simulator.frame(24, 600));
+    expect(arrived.players[0]?.actions).toEqual([]);
+
+    simulator.setPose("neutral");
+    engine.enrich(simulator.frame(25, 620));
+    simulator.setPose("swipe-left");
+    const left = engine.enrich(simulator.frame(26, 640));
+    expect(left.players[0]?.actions).toContainEqual(
       expect.objectContaining({ name: "menu_swipe_left", phase: "triggered" }),
     );
 
-    simulator.setPlayerVisible(false);
-    expect(engine.enrich(simulator.frame(26, 640)).players).toEqual([]);
-    simulator.setPlayerVisible(true);
-    expect(engine.enrich(simulator.frame(27, 660)).players[0]?.id).toBe("simulator-player-1");
-  });
-
-  it("drives vertical menu sweeps with a raised hand", () => {
-    const { engine, simulator } = calibratedEngine();
-    engine.join();
-    engine.enrich(simulator.frame(24, 600));
-
-    // Raising the hand is how the sweep begins, so it is not itself a sweep.
-    simulator.setPose("swipe-down");
-    const raising = engine.enrich(simulator.frame(25, 620));
-    expect(raising.players[0]?.actions).not.toContainEqual(
-      expect.objectContaining({ name: "menu_swipe_up" }),
+    // Coming back to straight up is a return, never the opposite gesture.
+    simulator.setPose("neutral");
+    const back = engine.enrich(simulator.frame(27, 660));
+    expect(back.players[0]?.actions).not.toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_right" }),
     );
 
+    // Away from the body with the same arm is the other direction.
+    simulator.setPose("swipe-right");
+    const right = engine.enrich(simulator.frame(28, 680));
+    expect(right.players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_right", phase: "triggered" }),
+    );
+  });
+
+  it("moves focus up and down from the other arm", () => {
+    // Both axes are the same comfortable movement; the arm carrying it picks
+    // the axis, so nothing has to be held above a shoulder.
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    simulator.setPose("neutral");
+    engine.enrich(simulator.frame(24, 600));
+
     simulator.setPose("swipe-up");
-    const up = engine.enrich(simulator.frame(26, 640));
+    const up = engine.enrich(simulator.frame(25, 620));
     expect(up.players[0]?.actions).toContainEqual(
       expect.objectContaining({ name: "menu_swipe_up", phase: "triggered" }),
     );
-    expect(up.players[0]?.actions).not.toContainEqual(
-      expect.objectContaining({ name: "menu_swipe_left" }),
+
+    simulator.setPose("neutral");
+    const back = engine.enrich(simulator.frame(26, 640));
+    expect(back.players[0]?.actions).not.toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_down" }),
     );
 
-    // Sweeping back down from the raised position is the opposite gesture.
     simulator.setPose("swipe-down");
     const down = engine.enrich(simulator.frame(27, 660));
     expect(down.players[0]?.actions).toContainEqual(
       expect.objectContaining({ name: "menu_swipe_down", phase: "triggered" }),
     );
+  });
+
+  it.each([
+    ["swipe-left", "menu_swipe_left"],
+    ["swipe-right", "menu_swipe_right"],
+    ["swipe-up", "menu_swipe_up"],
+    ["swipe-down", "menu_swipe_down"],
+  ] as const)(
+    "maps %s to %s",
+    (moved, action) => {
+      // The right arm carries left and right, the left arm carries up and
+      // down, and each is one step out of arms hanging at rest.
+      const { engine, simulator } = calibratedEngine();
+      engine.join();
+      engine.enrich(simulator.frame(24, 600));
+
+      simulator.setPose(moved);
+      const frame = engine.enrich(simulator.frame(25, 620));
+
+      expect(frame.players[0]?.actions).toContainEqual(
+        expect.objectContaining({ name: action, phase: "triggered" }),
+      );
+    },
+  );
+
+  it("keeps holding both hands together from reading as a direction", () => {
+    // Select brings both hands together in front of the body. A direction is a
+    // hand out to the side or up at the head, so the two can never overlap --
+    // but only because Select is checked first.
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    engine.enrich(simulator.frame(24, 600));
+
+    simulator.setPose("hands-together");
+    let now = 620;
+    for (let sequence = 25; sequence < 45; sequence += 1) {
+      const frame = engine.enrich(simulator.frame(sequence, now));
+      for (const action of frame.players[0]?.actions ?? []) {
+        expect(action.name).not.toMatch(/^menu_swipe_/u);
+      }
+      now += 40;
+    }
+  });
+
+  it("treats both hands out as its own posture, not a direction", () => {
+    // Holding both arms wide is how a player asks what the gestures are. If it
+    // resolved to a direction, asking for help would move the focus instead.
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    engine.enrich(simulator.frame(24, 600));
+
+    simulator.setPose("both-hands-out");
+    const frame = engine.enrich(simulator.frame(25, 620));
+
+    expect(engine.sweep.zone).toBe("both");
+    for (const name of ["menu_swipe_left", "menu_swipe_right", "menu_swipe_up", "menu_swipe_down"]) {
+      expect(frame.players[0]?.actions).not.toContainEqual(
+        expect.objectContaining({ name }),
+      );
+    }
+  });
+
+  it("holds a gesture until the hand comes home, however long it is held", () => {
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    simulator.setPose("neutral");
+    engine.enrich(simulator.frame(24, 600));
+    simulator.setPose("swipe-left");
+    engine.enrich(simulator.frame(25, 620));
+
+    // Resting out there is not a stream of gestures. It is one gesture, held.
+    let now = 640;
+    for (let sequence = 26; sequence < 70; sequence += 1) {
+      const frame = engine.enrich(simulator.frame(sequence, now));
+      expect(frame.players[0]?.actions).toEqual([]);
+      now += 40;
+    }
+  });
+
+  it("asks for the same movement from a body the camera sees as smaller", () => {
+    // Zones are measured in shoulder widths, so a player standing further from
+    // the camera makes the same movement rather than a proportionally larger
+    // one.
+    const shrink = (frame: MotionFrame, scale: number): MotionFrame => ({
+      ...frame,
+      players: frame.players.map((player) => ({
+        ...player,
+        coreLandmarks: player.coreLandmarks.map((landmark) => ({
+          ...landmark,
+          position: {
+            x: 0.5 + (landmark.position.x - 0.5) * scale,
+            y: 0.5 + (landmark.position.y - 0.5) * scale,
+          },
+        })),
+      })),
+    });
+
+    const engine = new ActionEngine();
+    const simulator = new MotionPoseSimulator();
+    for (let sequence = 0; sequence < 24; sequence += 1) {
+      engine.enrich(shrink(simulator.frame(sequence, sequence * 20), 0.5));
+    }
+    engine.join();
+    simulator.setPose("neutral");
+    engine.enrich(shrink(simulator.frame(24, 600), 0.5));
+    simulator.setPose("swipe-left");
+    const swept = engine.enrich(shrink(simulator.frame(25, 620), 0.5));
+
+    expect(swept.players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_left", phase: "triggered" }),
+    );
+  });
+
+  it("reads arms at rest the same way in a mirrored frame", () => {
+    // A real camera frame may carry the body either way round, so the same
+    // resting pose must mean the same thing mirrored. Reading image sides as
+    // fixed made hanging arms satisfy the crossing test forever, firing Back
+    // continuously on the device while every simulator test passed.
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    const mirror = (frame: MotionFrame): MotionFrame => ({
+      ...frame,
+      players: frame.players.map((player) => ({
+        ...player,
+        coreLandmarks: player.coreLandmarks.map((landmark) => ({
+          ...landmark,
+          position: { x: 1 - landmark.position.x, y: landmark.position.y },
+        })),
+      })),
+    });
+
+    let now = 600;
+    for (let sequence = 24; sequence < 70; sequence += 1) {
+      const frame = engine.enrich(mirror(simulator.frame(sequence, now)));
+      for (const action of frame.players[0]?.actions ?? []) {
+        expect(action.name).not.toBe("menu_back");
+      }
+      now += 40;
+    }
+  });
+
+  it("does not read a one-armed sweep as folded arms", () => {
+    // Sweeping carries one hand across the body above a shoulder. Holding it
+    // there used to satisfy the crossing test and fire Back, which made the
+    // shell unusable while navigating by motion.
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    engine.enrich(simulator.frame(24, 600));
+
+    simulator.setPose("swipe-left");
+    let now = 620;
+    for (let sequence = 25; sequence < 60; sequence += 1) {
+      const frame = engine.enrich(simulator.frame(sequence, now));
+      for (const action of frame.players[0]?.actions ?? []) {
+        expect(action.name).not.toBe("menu_back");
+      }
+      now += 40;
+    }
   });
 
   it("keeps jumping in the shell from reading as a vertical menu sweep", () => {

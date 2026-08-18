@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
+  import { InputDefaultController, type ConsoleInputDefault } from "./input-default";
   import {
     forgetBluetoothController,
     listBluetoothControllers,
@@ -73,6 +74,20 @@
   let pendingForgetId = $state<string | undefined>();
   const avSettings = new AvSettingsRehearsalController();
   let avSettingsSnapshot = $state<AvSettingsRehearsalSnapshot>(avSettings.snapshot());
+  const inputDefaultController = new InputDefaultController(
+    typeof localStorage === "undefined" ? undefined : localStorage,
+  );
+  let inputDefaultValue = $state<ConsoleInputDefault>(inputDefaultController.value);
+
+  // Takes effect at the next start: the camera is opened once, as the console
+  // comes up, so changing this mid-session would not match what it says.
+  function selectInputDefault(next: ConsoleInputDefault): void {
+    inputDefaultValue = inputDefaultController.set(next);
+    ontoast(next === "motion"
+      ? "Motion starts with the console from the next restart."
+      : "The camera stays closed until you start it from the next restart.");
+  }
+
   const operatingMode = new ConsoleOperatingModeController();
   let operatingModeSnapshot = $state<ConsoleOperatingModeSnapshot>(operatingMode.snapshot());
   let diagnosticReview = $state.raw<PreparedLocalDiagnosticExport | undefined>();
@@ -462,6 +477,14 @@
       <p class="av-settings-boundary">No microphone request, speech service, network request, output selection, hardware volume change, or speaker/channel qualification occurs.</p>
     </section>
     <section data-settings-panel="controllers" hidden={panel !== "controllers"}>
+      <div class="accessibility-setting">
+        <div><strong>Input at startup</strong><small>Motion opens the camera with the console so anyone can join from the home screen</small></div>
+        <div role="group" aria-label="Input at startup">
+          <button type="button" data-input-default="motion" aria-pressed={inputDefaultValue === "motion"} onclick={() => selectInputDefault("motion")}>Motion</button>
+          <button type="button" data-input-default="controller" aria-pressed={inputDefaultValue === "controller"} onclick={() => selectInputDefault("controller")}>Controller</button>
+        </div>
+      </div>
+
       <div class="controller-setup-summary" aria-live="polite">
         <span>LOCAL BLUETOOTH SETUP</span>
         <strong>Put your controller in pairing mode</strong>

@@ -125,12 +125,12 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-DH8vohyu.css": 3,
-  "/assets/main-BqagsynI.js": 3,
+  "/assets/main-B2ZrdDQ3.css": 3,
+  "/assets/main-9CRiaKVd.js": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
-  "/assets/src-CTq-EUpt.js": 3,
-  "/assets/synthetic-DSdk9cHR.js": 3,
-  "/assets/tracker-health-Bgrn09-y.js": 3,
+  "/assets/src-DJk9Nbrx.js": 3,
+  "/assets/synthetic-BxnOr_Mh.js": 3,
+  "/assets/tracker-health-Di71DaQ3.js": 3,
   "/fonts/InterVariable.woff2": 3,
   "/fonts/OCRA.ttf": 3,
 });

@@ -55,6 +55,47 @@ const ACTION_COOLDOWN_MS = 650;
 
 export type ActionContext = "shell" | "game" | "overlay";
 
+/** Where the hands are sitting, relative to hanging at rest. */
+export type HandZone = "rest" | "home" | "left" | "right" | "up" | "down" | "both";
+
+/**
+ * What the gesture recognizer is seeing right now, for the diagnostics drawer.
+ *
+ * A menu gesture is a position, so this reports the position rather than any
+ * progress: which zone the hand is in, and how far it has travelled out of the
+ * home position as a fraction of the distance a gesture needs.
+ */
+export interface SweepObservation {
+  /** Whether a hand is up at all. A hand at your side is not playing. */
+  handRaised: boolean;
+  zone: HandZone;
+  /** Travel out of home, where 1 is the edge of a gesture zone. */
+  offset: number;
+  /** True when the hand is home, so the next move out is a gesture. */
+  armed: boolean;
+}
+
+/**
+ * Where a raised hand sits across the body, in shoulder widths from the middle
+ * of the chest, so the movement is the same near the camera and across the
+ * room. A hand held out past the shoulder is out; a hand brought in over the
+ * chest is in; the span between them is where a hand naturally rests.
+ */
+const HAND_REACH_OUT = 1.2;
+/**
+ * How near the head a hand counts as touching it, in shoulder widths. Well
+ * clear of both hands together, which is Select, and of a hand held out.
+ */
+const HEAD_TOUCH_SPAN = 0.9;
+/** Coming back needs less than leaving, so a boundary cannot flicker. */
+const HAND_ZONE_SLACK = 0.2;
+/**
+ * How close the two hands are when they count as brought together, matching
+ * the Select gesture so the two can never be read at the same time.
+ */
+const HANDS_TOGETHER_SPAN = 0.7;
+
+
 function point(player: PlayerMotion, name: CoreLandmarkName): Point | undefined {
   const landmark = player.coreLandmarks.find((candidate) => candidate.name === name);
   return landmark?.observed ? landmark.position : undefined;
@@ -62,6 +103,10 @@ function point(player: PlayerMotion, name: CoreLandmarkName): Point | undefined 
 
 function distance(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function midpointOrUndefined(a: Point | undefined, b: Point | undefined): Point | undefined {
+  return a && b ? midpoint(a, b) : (a ?? b);
 }
 
 function midpoint(a: Point, b: Point): Point {
@@ -76,6 +121,14 @@ export class ActionEngine {
   #previousLeftWrist: Point | undefined;
   #previousRightWrist: Point | undefined;
   #previousRaised = false;
+  #sweep: SweepObservation = {
+    handRaised: false,
+    zone: "rest",
+    offset: 0,
+    armed: false,
+  };
+  #handZone: HandZone = "rest";
+  #sweepPeakAtMs = 0;
   #previousAtMs = 0;
   #lastFrameSequence: number | undefined;
   #lastPublishedAtMs: number | undefined;
@@ -161,6 +214,11 @@ export class ActionEngine {
 
   get chronologyFault(): ActionChronologyFault | undefined {
     return this.#chronologyFault;
+  }
+
+  /** What the sweep recognizer saw on the most recent frame. */
+  get sweep(): Readonly<SweepObservation> {
+    return this.#sweep;
   }
 
   reset(): void {
@@ -261,6 +319,7 @@ export class ActionEngine {
     this.#previousLeftWrist = undefined;
     this.#previousRightWrist = undefined;
     this.#previousRaised = false;
+    this.#handZone = "rest";
     this.#previousAtMs = 0;
     this.#latchedActions.clear();
   }
@@ -371,14 +430,36 @@ export class ActionEngine {
       actions.push(...update.actions);
     }
 
+    const leftShoulder = point(player, "left_shoulder");
+    const rightShoulder = point(player, "right_shoulder");
     if (
       leftWrist &&
       rightWrist &&
-      leftElbow &&
-      rightElbow &&
-      current.shoulderWidth !== undefined
+      leftShoulder &&
+      rightShoulder &&
+      current.shoulderWidth !== undefined &&
+      current.shoulderY !== undefined
     ) {
-      const crossed = leftWrist.x > rightElbow.x && rightWrist.x < leftElbow.x && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
+      // Folding the arms means each wrist has travelled past the middle of the
+      // body, to the side its own shoulder is not on.
+      //
+      // Which image side a shoulder appears on depends on whether the frame is
+      // mirrored, so the test reads the body's own orientation rather than
+      // assuming one. Assuming it meant that in an unmirrored frame both
+      // conditions were satisfied by arms hanging at rest, and Back fired
+      // continuously.
+      const midX = (leftShoulder.x + rightShoulder.x) / 2;
+      const margin = current.shoulderWidth * 0.15;
+      const past = (wrist: Point, shoulder: Point): boolean =>
+        Math.sign(wrist.x - midX) === -Math.sign(shoulder.x - midX)
+        && Math.abs(wrist.x - midX) > margin;
+      // Chest-level, so a sweep above a shoulder is never read as a fold.
+      const bothBelowShoulders =
+        leftWrist.y > current.shoulderY && rightWrist.y > current.shoulderY;
+      const crossed = bothBelowShoulders
+        && past(leftWrist, leftShoulder)
+        && past(rightWrist, rightShoulder)
+        && Math.abs(leftWrist.y - rightWrist.y) < current.shoulderWidth;
       const name = context === "game" ? "pause" : "menu_back";
       const thresholdMs = ACTION_HOLD_THRESHOLDS_MS[name];
       const update = this.#advanceHold(this.#armsHold, crossed, name, thresholdMs, crossed ? 0.9 : 0, now, true);
@@ -452,69 +533,124 @@ export class ActionEngine {
       current.shoulderY !== undefined &&
       this.#previousAtMs > 0
     ) {
-      const elapsed = Math.max(1, now - this.#previousAtMs);
-      const leftVelocity = this.#previousLeftWrist ? (this.#previousLeftWrist.x - leftWrist.x) / elapsed : 0;
-      const rightVelocity = this.#previousRightWrist ? (this.#previousRightWrist.x - rightWrist.x) / elapsed : 0;
-      const raised = leftWrist.y < current.shoulderY || rightWrist.y < current.shoulderY;
-      const mirroredVelocity = Math.abs(leftVelocity) > Math.abs(rightVelocity) ? leftVelocity : rightVelocity;
-      // Image y grows downward, so a hand travelling up yields a positive
-      // value here, matching the mirrored horizontal convention above.
-      const leftRise = this.#previousLeftWrist ? (this.#previousLeftWrist.y - leftWrist.y) / elapsed : 0;
-      const rightRise = this.#previousRightWrist ? (this.#previousRightWrist.y - rightWrist.y) / elapsed : 0;
-      const riseVelocity = Math.abs(leftRise) > Math.abs(rightRise) ? leftRise : rightRise;
-      // A vertical menu sweep is performed with the hand already up, so it
-      // counts only while the hand is raised at both ends of the movement.
-      // Raising the hand to begin is therefore not itself a sweep, and
-      // jumping or ducking never qualifies: those move the whole body while
-      // the wrists stay below the shoulders.
-      const verticalRaised = raised && this.#previousRaised;
-      // One press per movement: a movement resolves to a single axis rather
-      // than firing both a horizontal and a vertical action. Raising a hand to
-      // sweep sideways carries real upward motion with it, so a sweep only
-      // counts as vertical when it is clearly more vertical than horizontal.
-      const verticalDominant = Math.abs(riseVelocity) > Math.abs(mirroredVelocity) * 1.5;
-      const horizontalDominant = !verticalDominant;
-      const rightThreshold = this.#latchedActions.has("menu_swipe_right") ? 0.0005 : 0.0012;
-      const leftThreshold = this.#latchedActions.has("menu_swipe_left") ? -0.0005 : -0.0012;
-      const upThreshold = this.#latchedActions.has("menu_swipe_up") ? 0.0005 : 0.0012;
-      const downThreshold = this.#latchedActions.has("menu_swipe_down") ? -0.0005 : -0.0012;
-      this.#updateDiscrete(
-        "menu_swipe_right",
-        raised && horizontalDominant && mirroredVelocity > rightThreshold,
-        now,
-        Math.min(1, Math.max(0, mirroredVelocity * 500)),
-        actions,
-      );
-      this.#updateDiscrete(
-        "menu_swipe_left",
-        raised && horizontalDominant && mirroredVelocity < leftThreshold,
-        now,
-        Math.min(1, Math.max(0, -mirroredVelocity * 500)),
-        actions,
-      );
-      this.#updateDiscrete(
-        "menu_swipe_up",
-        verticalRaised && verticalDominant && riseVelocity > upThreshold,
-        now,
-        Math.min(1, Math.max(0, riseVelocity * 500)),
-        actions,
-      );
-      this.#updateDiscrete(
-        "menu_swipe_down",
-        verticalRaised && verticalDominant && riseVelocity < downThreshold,
-        now,
-        Math.min(1, Math.max(0, -riseVelocity * 500)),
-        actions,
-      );
-      this.#previousRaised = raised;
+      // Where the hand is, not how fast it moved.
+      //
+      // A sweep and the return that follows it are the same movement at the
+      // same speed in opposite directions, so no speed threshold can tell them
+      // apart. Reading position does: a raised hand rests above its own
+      // shoulder, and carrying it away from there is the gesture. Coming back
+      // is just coming back.
+      const hand = this.#activeHand(player, current);
+      const zone = hand?.zone ?? "rest";
+      const previousZone = this.#handZone;
+      // A gesture is the step out of the home position, so a hand arriving
+      // from anywhere else -- including from another zone, or from below the
+      // shoulder -- has to pass through home before it counts again.
+      const leftHome = previousZone === "home" && zone !== "home";
+      this.#handZone = zone;
+      this.#updateDiscrete("menu_swipe_left", leftHome && zone === "left", now, 0.9, actions);
+      this.#updateDiscrete("menu_swipe_right", leftHome && zone === "right", now, 0.9, actions);
+      this.#updateDiscrete("menu_swipe_up", leftHome && zone === "up", now, 0.9, actions);
+      this.#updateDiscrete("menu_swipe_down", leftHome && zone === "down", now, 0.9, actions);
+      this.#sweep = {
+        handRaised: zone !== "rest",
+        zone,
+        offset: hand?.offset ?? 0,
+        armed: zone === "home",
+      };
     } else {
       this.#updateDiscrete("menu_swipe_right", false, now, 0, actions);
       this.#updateDiscrete("menu_swipe_left", false, now, 0, actions);
       this.#updateDiscrete("menu_swipe_up", false, now, 0, actions);
       this.#updateDiscrete("menu_swipe_down", false, now, 0, actions);
-      this.#previousRaised = false;
+      this.#handZone = "rest";
+      this.#sweep = { handRaised: false, zone: "rest", offset: 0, armed: false };
     }
     return sortMotionActions(actions);
+  }
+
+  /**
+   * Reads an arm's posture as one of the gesture zones.
+   *
+   * Each arm has two easy positions either side of hanging at rest: the hand
+   * held out away from the body, and the hand brought up to touch the head.
+   * Nothing has to be held at a precise height, and the elbow can be bent or
+   * straight. Which arm carries the movement picks the axis: the right arm
+   * moves focus left and right, the left arm moves it up and down.
+   *
+   * Direction is taken from the body rather than the image, so it does not
+   * matter which way round the camera presents the player.
+   */
+  #activeHand(
+    player: PlayerMotion,
+    current: Measurements,
+  ): { zone: HandZone; offset: number } | undefined {
+    const leftShoulder = point(player, "left_shoulder");
+    const rightShoulder = point(player, "right_shoulder");
+    const shoulderWidth = current.shoulderWidth ?? this.#baseline?.shoulderWidth;
+    const hipY = current.hipY ?? this.#baseline?.hipY;
+    if (!leftShoulder || !rightShoulder || !shoulderWidth || hipY === undefined) {
+      return undefined;
+    }
+    const midX = (leftShoulder.x + rightShoulder.x) / 2;
+    const held = this.#handZone !== "home" && this.#handZone !== "rest";
+    const head = point(player, "nose")
+      ?? midpointOrUndefined(point(player, "left_ear"), point(player, "right_ear"));
+
+    // Holding both hands together is Select. It wins outright, so a gesture
+    // and a selection can never be read from the same posture.
+    const leftWrist = point(player, "left_wrist");
+    const rightWrist = point(player, "right_wrist");
+    if (
+      leftWrist && rightWrist
+      && distance(leftWrist, rightWrist) < shoulderWidth * HANDS_TOGETHER_SPAN
+    ) {
+      return { zone: "home", offset: 0 };
+    }
+
+    const arms = (
+      [
+        ["left", leftShoulder, leftWrist],
+        ["right", rightShoulder, rightWrist],
+      ] as const
+    ).flatMap(([side, shoulder, wrist]) => {
+      // An arm hanging at rest has its hand at hip height.
+      if (!wrist || wrist.y >= hipY) return [];
+      const outward = Math.sign(shoulder.x - midX) || (side === "left" ? -1 : 1);
+      return [{
+        side,
+        reach: ((wrist.x - midX) / shoulderWidth) * outward,
+        onHead: head !== undefined
+          && distance(wrist, head) < shoulderWidth * HEAD_TOUCH_SPAN,
+      }];
+    });
+    // Both arms hanging is the home position, not an absence of input: it is
+    // where every gesture starts and the place each one returns to.
+    if (arms.length === 0) return { zone: "home", offset: 0 };
+
+    const out = held ? HAND_REACH_OUT - HAND_ZONE_SLACK : HAND_REACH_OUT;
+
+    // Both hands out at once is its own posture, and deliberately not a
+    // direction: holding both arms wide would otherwise read as whichever
+    // hand happened to reach further.
+    if (arms.length === 2 && arms.every((arm) => arm.reach >= out)) {
+      return { zone: "both", offset: 1 };
+    }
+
+    const touching = arms.filter((arm) => arm.onHead);
+    // One hand on the head is a direction. Two is nothing in particular, so it
+    // is left alone rather than guessed at.
+    if (touching.length === 1) {
+      return { zone: touching[0]!.side === "right" ? "left" : "down", offset: 1 };
+    }
+    if (touching.length === 0) {
+      const reaching = arms.reduce((best, arm) => (arm.reach > best.reach ? arm : best));
+      if (reaching.reach >= out) {
+        return { zone: reaching.side === "right" ? "right" : "up", offset: 1 };
+      }
+      return { zone: "home", offset: Math.max(0, reaching.reach / HAND_REACH_OUT) };
+    }
+    return { zone: "home", offset: 0 };
   }
 
   #advanceHold(

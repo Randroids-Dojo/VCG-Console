@@ -17,7 +17,7 @@
     {
       "role": "pi-radio-coexistence-boundary",
       "path": "benchmarks/pi5-radio-coexistence/pi5-wifi-bluetooth-coexistence-plan-v1.json",
-      "sha256": "8a94418576c8dc34bd80968a86d88c6136c87dff5459c268fdf68d74cfa6a8d3"
+      "sha256": "3fccf0f106a8155e5948e195b6ee20c70a07cf22959d6129c7e6da786b2854b9"
     },
     {
       "role": "controller-protocol-boundary",

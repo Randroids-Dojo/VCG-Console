@@ -160,7 +160,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     await expect(
       page.getByRole("heading", { name: /Good evening/ }),
     ).toBeVisible();
@@ -318,7 +318,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     await page.locator('[data-view-target="motion"]').click();
     await expect(
       page.getByRole("heading", { name: "Motion games" }),
@@ -343,7 +343,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     await page.locator('[data-view-target="settings"]').click();
     await page.locator('[data-settings-target="network"]').click();
     await expect(
@@ -366,7 +366,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     await page.locator('[data-view-target="settings"]').click();
     await page.locator('[data-settings-target="developer"]').click();
     await page
@@ -399,7 +399,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -438,7 +438,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -485,7 +485,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -585,7 +585,7 @@ for (const resolution of RESOLUTIONS) {
     await page.clock.install({
       time: new Date("2026-07-24T19:00:00-07:00"),
     });
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -621,7 +621,7 @@ for (const resolution of RESOLUTIONS) {
     await page.clock.install({
       time: new Date("2026-07-24T19:00:00-07:00"),
     });
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -661,7 +661,7 @@ for (const resolution of RESOLUTIONS) {
     await page.clock.install({
       time: new Date("2026-07-24T19:00:00-07:00"),
     });
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -695,7 +695,7 @@ for (const resolution of RESOLUTIONS) {
     await page.clock.install({
       time: new Date("2026-07-24T19:00:00-07:00"),
     });
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
@@ -731,7 +731,7 @@ for (const resolution of RESOLUTIONS) {
     page,
   }) => {
     await page.setViewportSize(resolution);
-    await page.goto("/?skipBoot=1");
+    await page.goto("/?skipBoot=1&input=controller");
     const trigger = page.locator("#search-trigger");
     await trigger.focus();
     await trigger.click();
