@@ -37,7 +37,7 @@
     {
       "role": "jetson-plan-boundary",
       "path": "benchmarks/jetson/jetson-orin-nano-super-tensorrt-plan-v1.json",
-      "sha256": "283d8d2b8a482885c2d0083c02e1404d7dff05a7afdc10332c08715896e8ab4c"
+      "sha256": "4731a02eb553e5959b627d2deda9be9868366b5d4906e87c6ca7969306874ed3"
     },
     {
       "role": "ordinary-x86-boundary",
@@ -47,12 +47,12 @@
     {
       "role": "common-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "1c0b4cf264008c96bd746eb89d98f53a7a2d7ab45f5c5a1fafeb16b24def0401"
+      "sha256": "c8d317d935b807a8595824c4f6de483dbbe924a49d87afaa6558b78c7f5a83f8"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "2de3146e12258e97fb07de84a0110bb77a6327d5c382bc94c683e74eaba83859"
+      "sha256": "640d90284578ab2a3043ec0174a186e3ad13f4e945cc58f9b2577223f282c2a5"
     },
     {
       "role": "controller-boundary",
@@ -62,7 +62,7 @@
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "7eafa6a4bd3926513028e115afe56fe76a57008a647502144dcbc3055cdca25c"
+      "sha256": "b327536ed29cba25272634ca8640fb47cb326202e6016705b0b4b993c3f96d02"
     }
   ],
   "candidates": [

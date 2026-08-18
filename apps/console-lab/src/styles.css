@@ -648,10 +648,8 @@ a:focus-visible {
   display: block;
 }
 
-/* Body gestures stay on screen while anyone is playing by motion, opposite
-   the controller legend so the two never collide. */
-/* Live view of what the sweep recognizer sees, so a sweep that fell short can
-   be told apart from one that was never considered. */
+/* Live view of the zone the gesture recognizer is reading, so a hand that
+   felt held out can be told from one the recognizer placed elsewhere. */
 .sweep-readout {
   margin-top: 12px;
   padding-top: 12px;
@@ -700,6 +698,8 @@ a:focus-visible {
   font-size: var(--text-detail);
 }
 
+/* The gesture guide stays on screen while anyone is playing by motion,
+   opposite the controller legend so the two never collide. */
 .motion-legend {
   position: fixed;
   z-index: 5;
@@ -725,7 +725,7 @@ a:focus-visible {
   visibility: hidden;
 }
 
-.motion-legend {
+.motion-legend[data-visible] {
   transition:
     opacity var(--vcg-motion-ambient, 520ms) ease,
     visibility 0s linear var(--vcg-motion-ambient, 520ms);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MotionSourceSchema } from "@vcg/motion-contract";
 import { cornerSkeletonVisible } from "./skeleton-mini";
 
 describe("cornerSkeletonVisible", () => {
@@ -25,6 +26,23 @@ describe("cornerSkeletonVisible", () => {
           stageShowsSkeleton: false,
         }),
       ).toBe(false);
+    }
+  });
+
+  it("classifies every source the contract defines", () => {
+    // A new tracker backend has to be classified on purpose. Left alone, one
+    // would fall to the empty corner silently, which is the wrong answer for
+    // anything that is actually a camera.
+    const cameras = ["mediapipe-web", "rtmo-native"];
+
+    for (const source of MotionSourceSchema.options) {
+      expect(
+        cornerSkeletonVisible({
+          source,
+          playerCount: 1,
+          stageShowsSkeleton: false,
+        }),
+      ).toBe(cameras.includes(source));
     }
   });
 

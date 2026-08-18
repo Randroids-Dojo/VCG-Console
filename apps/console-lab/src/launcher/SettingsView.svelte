@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
   import { InputDefaultController, type ConsoleInputDefault } from "./input-default";
+  import { preferenceStorage } from "../preference-storage";
   import {
     forgetBluetoothController,
     listBluetoothControllers,
@@ -74,9 +75,7 @@
   let pendingForgetId = $state<string | undefined>();
   const avSettings = new AvSettingsRehearsalController();
   let avSettingsSnapshot = $state<AvSettingsRehearsalSnapshot>(avSettings.snapshot());
-  const inputDefaultController = new InputDefaultController(
-    typeof localStorage === "undefined" ? undefined : localStorage,
-  );
+  const inputDefaultController = new InputDefaultController(preferenceStorage());
   let inputDefaultValue = $state<ConsoleInputDefault>(inputDefaultController.value);
 
   // Takes effect at the next start: the camera is opened once, as the console

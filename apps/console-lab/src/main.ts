@@ -59,6 +59,7 @@ import {
   type PlayerSessionEvent,
   type PlayerSlot,
 } from "./player-session";
+import { preferenceStorage } from "./preference-storage";
 import { SkeletonRenderer } from "./renderer";
 import { cornerSkeletonVisible } from "./skeleton-mini";
 import "./styles.css";
@@ -106,7 +107,7 @@ const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Application root is missing");
 applyVisualTokens(document.documentElement);
-const accessibilityPreferences = new AccessibilityPreferenceController(localStorage);
+const accessibilityPreferences = new AccessibilityPreferenceController(preferenceStorage());
 applyAccessibilityPreferences(
   document.documentElement,
   accessibilityPreferences.snapshot(),
@@ -302,9 +303,9 @@ app.innerHTML = `
           ><span id="gesture-progress-fill"></span></div>
           <p id="gesture-detail">Hold progress, acceptance, cancellation, and release appear here.</p>
           <div class="sweep-readout" id="sweep-readout" data-raised="false">
-            <div class="sweep-readout-heading"><span>SWEEP INPUT</span><strong id="sweep-hand">HAND DOWN</strong></div>
-            <div class="sweep-meter" role="progressbar" aria-label="Sweep speed against the speed a sweep needs" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sweep-meter"><span id="sweep-meter-fill"></span></div>
-            <p id="sweep-detail">Raise a hand above your shoulder to arm a sweep.</p>
+            <div class="sweep-readout-heading"><span>GESTURE INPUT</span><strong id="sweep-hand">HANDS DOWN</strong></div>
+            <div class="sweep-meter" role="progressbar" aria-label="How far a hand has travelled out of the home position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sweep-meter"><span id="sweep-meter-fill"></span></div>
+            <p id="sweep-detail">Hold a hand out away from your body, or touch your head.</p>
           </div>
         </section>
         <p class="measurement-note" id="measurement-note">No source timing samples are available. This diagnostic never substitutes for exposure-to-action qualification.</p>
@@ -459,14 +460,14 @@ const poseSimulator = new MotionPoseSimulator();
 // `?input=controller` starts the console without opening the camera. Tests and
 // evidence runs use it so an automated page never reaches for a camera, and it
 // is the same choice the Controllers settings panel writes.
-const inputDefault = new InputDefaultController(localStorage);
+const inputDefault = new InputDefaultController(preferenceStorage());
 const requestedInput = new URLSearchParams(window.location.search).get("input");
 // Deliberately not stored: the parameter overrides this run only, so an
 // automated page never leaves a preference behind on the device it ran on.
 const startsCameraAtLaunch = requestedInput === "controller"
   ? false
   : requestedInput === "motion" || inputDefault.startsCamera;
-const obstacleLeaderboard = new LocalObstacleLeaderboard(localStorage);
+const obstacleLeaderboard = new LocalObstacleLeaderboard(preferenceStorage());
 
 let latestFrame: MotionFrame | undefined;
 let replayRunning = true;
@@ -1396,6 +1397,26 @@ function paintOverlayFocus(): void {
   }
 }
 
+/**
+ * Which track answers for the console when the press named no player, as a
+ * controller or the keyboard does.
+ *
+ * A single player recovers by taking their slot back, so whoever is in view
+ * can answer for it. More than one has to be answered by a player the console
+ * is keeping and can currently see, because that is what resuming a
+ * multiplayer roster demands; picking the first body in the frame could hand
+ * the console to the player who was just lost, or to a passer-by.
+ */
+function retainedRecoveryTrack(keepSlots: readonly PlayerSlot[]): string | undefined {
+  const visible = latestFrame?.players ?? [];
+  const roster = playerSession.snapshot().players;
+  if (roster.length <= 1) return visible[0]?.id;
+  const visibleIds = new Set(visible.map((player) => player.id));
+  return roster.find(
+    (player) => keepSlots.includes(player.slot) && visibleIds.has(player.trackId),
+  )?.trackId;
+}
+
 function chooseOverlayAction(
   action: OverlayAction,
   recoveryTrackId?: string,
@@ -1404,15 +1425,13 @@ function chooseOverlayAction(
   if (action === "drop") {
     // Carry on with whoever is still in the room, rather than ending the run
     // because someone left it.
-    const candidate = recoveryTrackId === undefined
-      ? latestFrame?.players[0]
-      : latestFrame?.players.find((player) => player.id === recoveryTrackId);
-    if (!candidate) {
+    const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+    if (candidate === undefined) {
       statusDetail.textContent = "Continuing needs the remaining player in view.";
       return;
     }
     try {
-      playerSession.resumeRecovery(candidate.id, overlayKeepSlots);
+      playerSession.resumeRecovery(candidate, overlayKeepSlots);
       synchronizeActionEngineAssignment();
     } catch (error) {
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
@@ -1432,17 +1451,13 @@ function chooseOverlayAction(
     return;
   }
   if (kind === "recovery") {
-    const candidate = recoveryTrackId === undefined
-      ? latestFrame?.players[0]
-      : latestFrame?.players.find(
-          (player) => player.id === recoveryTrackId,
-        );
-    if (!candidate) {
+    const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+    if (candidate === undefined) {
       statusDetail.textContent = "Resume requires a visible player candidate.";
       return;
     }
     try {
-      playerSession.resumeRecovery(candidate.id);
+      playerSession.resumeRecovery(candidate);
       synchronizeActionEngineAssignment();
     } catch (error) {
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
@@ -1465,26 +1480,30 @@ function closeOwnedPause(destination: "game" | "launcher"): void {
 }
 
 /**
- * Shows the two things a sweep needs, because it has no progress of its own.
+ * Shows where the recognizer thinks the hands are, because a gesture is a
+ * posture and so has no progress of its own.
  *
- * A sweep is a threshold, not a hold: it either was fast enough or it was not.
- * Reading the raised hand and the speed against that threshold is what tells a
- * player whether the console saw a sweep that fell short, or never considered
- * one because the hand was too low.
+ * Reading the zone and how far a hand has travelled out of the home position
+ * is what tells a developer whether a hand that felt held out fell short of
+ * the distance a gesture needs, or was read as another zone entirely.
  */
 function paintSweepReadout(): void {
   const sweep = actionEngine.sweep;
   const percent = Math.min(100, Math.round(sweep.offset * 100));
   sweepReadout.dataset.raised = String(sweep.handRaised);
   sweepReadout.dataset.zone = sweep.zone;
-  sweepHand.textContent = sweep.zone === "home" || sweep.zone === "rest"
-    ? "READY"
-    : sweep.zone.toUpperCase();
+  sweepHand.textContent = sweep.zone === "rest"
+    ? "NO READING"
+    : sweep.zone === "home"
+      ? "READY"
+      : sweep.zone.toUpperCase();
   sweepMeter.setAttribute("aria-valuenow", String(percent));
   sweepMeterFill.style.width = `${percent}%`;
-  sweepDetail.textContent = sweep.zone === "home"
-    ? "Ready. Hold a hand out away from your body, or touch your head."
-    : "Let your arms hang again before the next move.";
+  sweepDetail.textContent = sweep.zone === "rest"
+    ? "Join a player to read gestures."
+    : sweep.zone === "home"
+      ? "Ready. Hold a hand out away from your body, or touch your head."
+      : "Let your arms hang again before the next move.";
 }
 
 function paintActionFeedback(action: MotionAction): void {

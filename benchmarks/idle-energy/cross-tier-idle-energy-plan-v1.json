@@ -22,17 +22,17 @@
     {
       "role": "physical-tv-wake-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "8ffa9e9f5672bfd9d0672c62414551b41ac6c014c15b0e1a86eed11d2d482e31"
+      "sha256": "93abf2e19329473d85016fa5cb191edc7782b405fd87bf2e67934d58ce360f88"
     },
     {
       "role": "physical-controller-wake-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "4f3bde1bce6556ed255e3dc850559fe767844d1666291e8ea638662f637cc822"
+      "sha256": "260499d0a8577c1b5cf7b16b8667e52d163bf544f91e5f3832d0128d8c87b4e2"
     },
     {
       "role": "pi-thermal-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "bfaadb6883259ccbd3111c1134dce393167cb2ea3edd3df2322a510707a9d0d3"
+      "sha256": "2ee57cd2fbb72d092ea0f3504f432837a443d17f575fbb9293e85da73c242e58"
     }
   ],
   "targetPolicy": {

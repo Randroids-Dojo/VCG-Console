@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-18",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-08-18T02:33:18.481Z",
+  "retrievedAtUtc": "2026-08-18T03:00:24.914Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "262bf52b79db98ef4bbaa2243bb96bb3df09ef306c1b74530c5677252da5998c"
+    "sha256": "64c0f6d5d83fa09e154269d410175083d548aca354591a2fe4950a3a25362c84"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -390,8 +390,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-B2ZrdDQ3.css": 9,
-      "/assets/main-CrfcOLhp.js": 9,
+      "/assets/main-DkW_2HAg.js": 9,
+      "/assets/main-yNlNXqLs.css": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
       "/assets/src-DJk9Nbrx.js": 9,
       "/assets/synthetic-BxnOr_Mh.js": 9,
@@ -433,13 +433,13 @@
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
     "launcherPathSha256": "f4b0f4da816a46c967c1642d9644abcbf40b8d14851f2c5d22d1c7dfa4dfbcd0",
     "settingsPath": "apps/console-lab/src/launcher/SettingsView.svelte",
-    "settingsPathSha256": "c4d600e70f358c0242585ab19b03da1ef4c8dddcbc70b159c723fa716c17ea8e",
+    "settingsPathSha256": "8ebfe1fe6c4b176757ac27d11bc195613496f2cff937f2f154f278b7fdf9a1da",
     "launchScreenPath": "apps/console-lab/src/launcher/LaunchScreen.svelte",
     "launchScreenPathSha256": "545115d64340b520af9b54462f3a5eaf589846b2f77526254b8b96605a87bc68",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e",
+    "stylePathSha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "248f291a75c3992a3ac3ad5a970284e6f8d9c7476a488d083f36c2fcb29bab2a",
+    "entryPathSha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -449,7 +449,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "9076579920215a9f8bec73ee9d4c290489782ce5d5dd294d14837d65df837a4c",
     "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "262bf52b79db98ef4bbaa2243bb96bb3df09ef306c1b74530c5677252da5998c",
+    "homeEvidencePathSha256": "64c0f6d5d83fa09e154269d410175083d548aca354591a2fe4950a3a25362c84",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "44f61020f066b1af6815dd811779e2f5707e590430e6a9088fee3ba800c048ca",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
@@ -472,8 +472,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 159,
-      "sha256": "c38e63652730adf0becd09bab6e7a7c285d3019b0599f40fa17f34e3658a33e0"
+      "fileCount": 161,
+      "sha256": "78f2be146f1b3d718ca0db99c0d09804d698d0b164aed99f6e1b1a62e3678640"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

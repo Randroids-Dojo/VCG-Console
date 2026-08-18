@@ -118,9 +118,6 @@ export class ActionEngine {
   readonly #lastTriggeredAt = new Map<MotionAction["name"], number>();
   readonly #latchedActions = new Set<MotionAction["name"]>();
   #baseline: Baseline | undefined;
-  #previousLeftWrist: Point | undefined;
-  #previousRightWrist: Point | undefined;
-  #previousRaised = false;
   #sweep: SweepObservation = {
     handRaised: false,
     zone: "rest",
@@ -128,7 +125,6 @@ export class ActionEngine {
     armed: false,
   };
   #handZone: HandZone = "rest";
-  #sweepPeakAtMs = 0;
   #previousAtMs = 0;
   #lastFrameSequence: number | undefined;
   #lastPublishedAtMs: number | undefined;
@@ -192,8 +188,6 @@ export class ActionEngine {
       state: this.#joined ? "joined" : "candidate",
       actions,
     };
-    this.#previousLeftWrist = point(player, "left_wrist");
-    this.#previousRightWrist = point(player, "right_wrist");
     this.#previousAtMs = now;
     return { ...enrichedFrame, players: [enrichedPlayer, ...enrichedFrame.players.slice(1)] };
   }
@@ -316,9 +310,6 @@ export class ActionEngine {
   }
 
   #resetSpatialContinuity(): void {
-    this.#previousLeftWrist = undefined;
-    this.#previousRightWrist = undefined;
-    this.#previousRaised = false;
     this.#handZone = "rest";
     this.#previousAtMs = 0;
     this.#latchedActions.clear();
@@ -553,7 +544,7 @@ export class ActionEngine {
       this.#updateDiscrete("menu_swipe_up", leftHome && zone === "up", now, 0.9, actions);
       this.#updateDiscrete("menu_swipe_down", leftHome && zone === "down", now, 0.9, actions);
       this.#sweep = {
-        handRaised: zone !== "rest",
+        handRaised: hand?.raised ?? false,
         zone,
         offset: hand?.offset ?? 0,
         armed: zone === "home",
@@ -584,7 +575,7 @@ export class ActionEngine {
   #activeHand(
     player: PlayerMotion,
     current: Measurements,
-  ): { zone: HandZone; offset: number } | undefined {
+  ): { zone: HandZone; offset: number; raised: boolean } | undefined {
     const leftShoulder = point(player, "left_shoulder");
     const rightShoulder = point(player, "right_shoulder");
     const shoulderWidth = current.shoulderWidth ?? this.#baseline?.shoulderWidth;
@@ -605,7 +596,7 @@ export class ActionEngine {
       leftWrist && rightWrist
       && distance(leftWrist, rightWrist) < shoulderWidth * HANDS_TOGETHER_SPAN
     ) {
-      return { zone: "home", offset: 0 };
+      return { zone: "home", offset: 0, raised: true };
     }
 
     const arms = (
@@ -626,7 +617,7 @@ export class ActionEngine {
     });
     // Both arms hanging is the home position, not an absence of input: it is
     // where every gesture starts and the place each one returns to.
-    if (arms.length === 0) return { zone: "home", offset: 0 };
+    if (arms.length === 0) return { zone: "home", offset: 0, raised: false };
 
     const out = held ? HAND_REACH_OUT - HAND_ZONE_SLACK : HAND_REACH_OUT;
 
@@ -634,23 +625,23 @@ export class ActionEngine {
     // direction: holding both arms wide would otherwise read as whichever
     // hand happened to reach further.
     if (arms.length === 2 && arms.every((arm) => arm.reach >= out)) {
-      return { zone: "both", offset: 1 };
+      return { zone: "both", offset: 1, raised: true };
     }
 
     const touching = arms.filter((arm) => arm.onHead);
     // One hand on the head is a direction. Two is nothing in particular, so it
     // is left alone rather than guessed at.
     if (touching.length === 1) {
-      return { zone: touching[0]!.side === "right" ? "left" : "down", offset: 1 };
+      return { zone: touching[0]!.side === "right" ? "left" : "down", offset: 1, raised: true };
     }
     if (touching.length === 0) {
       const reaching = arms.reduce((best, arm) => (arm.reach > best.reach ? arm : best));
       if (reaching.reach >= out) {
-        return { zone: reaching.side === "right" ? "right" : "up", offset: 1 };
+        return { zone: reaching.side === "right" ? "right" : "up", offset: 1, raised: true };
       }
-      return { zone: "home", offset: Math.max(0, reaching.reach / HAND_REACH_OUT) };
+      return { zone: "home", offset: Math.max(0, reaching.reach / HAND_REACH_OUT), raised: true };
     }
-    return { zone: "home", offset: 0 };
+    return { zone: "home", offset: 0, raised: true };
   }
 
   #advanceHold(

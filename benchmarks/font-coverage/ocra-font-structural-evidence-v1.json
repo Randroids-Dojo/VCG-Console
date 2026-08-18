@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 113,
-      "totalBytes": 1075601,
+      "fileCount": 115,
+      "totalBytes": 1079344,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -734,8 +734,8 @@
         },
         {
           "path": "apps/console-lab/src/action-engine.ts",
-          "bytes": 25780,
-          "sha256": "21ac6db0f58a0694eec38b9b0468f48592e90eeca4241ae1b5b0511c75b3846b"
+          "bytes": 25533,
+          "sha256": "0eedabe8caa0661a5c87d2354dcd0d56fa0a399b9450fff32a5a441e42e6935a"
         },
         {
           "path": "apps/console-lab/src/action-feedback.test.ts",
@@ -924,8 +924,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/SettingsView.svelte",
-          "bytes": 33204,
-          "sha256": "c4d600e70f358c0242585ab19b03da1ef4c8dddcbc70b159c723fa716c17ea8e"
+          "bytes": 33213,
+          "sha256": "8ebfe1fe6c4b176757ac27d11bc195613496f2cff937f2f154f278b7fdf9a1da"
         },
         {
           "path": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -1104,8 +1104,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 83850,
-          "sha256": "248f291a75c3992a3ac3ad5a970284e6f8d9c7476a488d083f36c2fcb29bab2a"
+          "bytes": 84794,
+          "sha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.test.ts",
@@ -1188,14 +1188,24 @@
           "sha256": "942eecdcfed610b97467e2a283592cf758ac4c642f25a53ce7fdcc71056f629c"
         },
         {
+          "path": "apps/console-lab/src/preference-storage.test.ts",
+          "bytes": 1482,
+          "sha256": "f88474e7a695512160cdbf7c7c0d1bfa2bc431bfb5eed157ea30cf8cae3c7504"
+        },
+        {
+          "path": "apps/console-lab/src/preference-storage.ts",
+          "bytes": 901,
+          "sha256": "bee8f056e8091036f8fa338bb5a91c552e28b4ecb9f804d851c6fbe72e1e35da"
+        },
+        {
           "path": "apps/console-lab/src/renderer.ts",
           "bytes": 4411,
           "sha256": "72279ad80fe76cee6478f8c1a80bf12661f9904f1f670d485e97376f4ae86fe3"
         },
         {
           "path": "apps/console-lab/src/skeleton-mini.test.ts",
-          "bytes": 1325,
-          "sha256": "4637d5249014153bd15c50a22a3cff5f94503021f2c1bc03d2c6d608df0e48f2"
+          "bytes": 1946,
+          "sha256": "39ac73e59d03a059537078fb0b30bbc5a879ed856246ba35d8f8b1d2588e94d6"
         },
         {
           "path": "apps/console-lab/src/skeleton-mini.ts",
@@ -1219,8 +1229,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 131140,
-          "sha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e"
+          "bytes": 131173,
+          "sha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1344,21 +1354,21 @@
             {
               "path": "apps/console-lab/src/launcher/SettingsView.svelte",
               "lines": [
-                373,
+                372,
+                374,
                 375,
-                376,
-                405,
-                413,
-                422,
-                515,
-                517,
+                404,
+                412,
+                421,
+                514,
+                516,
+                518,
                 519,
-                520,
-                549,
-                554,
-                603,
-                624,
-                625
+                548,
+                553,
+                602,
+                623,
+                624
               ]
             },
             {
@@ -1414,11 +1424,11 @@
             {
               "path": "apps/console-lab/src/main.ts",
               "lines": [
-                176,
-                286,
-                1107,
-                1607,
-                1611
+                177,
+                287,
+                1108,
+                1626,
+                1630
               ]
             },
             {
@@ -1449,7 +1459,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "efe09aa5586d41eae4b3be0451122fe0767c46e67fe0d4f67f6b510f0bb402fb",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "aa5ef93f15621cda4ff4ecf532ef82ddfa0502d708b7e19521671b56eaa3470e",
+    "stylePathSha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

@@ -20,12 +20,12 @@
     {
       "role": "workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "1c0b4cf264008c96bd746eb89d98f53a7a2d7ab45f5c5a1fafeb16b24def0401"
+      "sha256": "c8d317d935b807a8595824c4f6de483dbbe924a49d87afaa6558b78c7f5a83f8"
     },
     {
       "role": "enclosed-thermal-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "bfaadb6883259ccbd3111c1134dce393167cb2ea3edd3df2322a510707a9d0d3"
+      "sha256": "2ee57cd2fbb72d092ea0f3504f432837a443d17f575fbb9293e85da73c242e58"
     }
   ],
   "targetBoundary": {

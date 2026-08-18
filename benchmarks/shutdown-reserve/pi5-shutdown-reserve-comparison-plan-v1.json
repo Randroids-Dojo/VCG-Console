@@ -54,12 +54,12 @@
     {
       "role": "complete-system-value-and-lifecycle-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "8079aacd860331a5192d8123dfbf15ff0fb3270039712f8625c23777c8d579be"
+      "sha256": "fef8e206ab9dd714d063cff0574ea6a960b59fb29c2a4383bd05ea380f70dacd"
     },
     {
       "role": "pi5-complete-product-and-cost-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "1b123bbfaad307a3dd62e4b35e3f467e938ff23e9c44487dde470f874d2779df"
+      "sha256": "de630356168f38f99452604c01b804b109a9a4acf6d7b91c3c8298f30fdfaff0"
     },
     {
       "role": "current-reference-bom-and-no-purchase-boundary",

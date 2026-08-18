@@ -29,7 +29,7 @@
     {
       "role": "action-engine-boundary",
       "path": "apps/console-lab/src/action-engine.ts",
-      "sha256": "21ac6db0f58a0694eec38b9b0468f48592e90eeca4241ae1b5b0511c75b3846b"
+      "sha256": "0eedabe8caa0661a5c87d2354dcd0d56fa0a399b9450fff32a5a441e42e6935a"
     },
     {
       "role": "hosted-supervisor-boundary",

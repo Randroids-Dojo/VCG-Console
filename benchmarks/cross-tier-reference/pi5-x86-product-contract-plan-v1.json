@@ -32,7 +32,7 @@
     {
       "role": "standard-concurrent-workload-plan",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "1c0b4cf264008c96bd746eb89d98f53a7a2d7ab45f5c5a1fafeb16b24def0401"
+      "sha256": "c8d317d935b807a8595824c4f6de483dbbe924a49d87afaa6558b78c7f5a83f8"
     },
     {
       "role": "pi-image-boundary",
@@ -77,17 +77,17 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "8ffa9e9f5672bfd9d0672c62414551b41ac6c014c15b0e1a86eed11d2d482e31"
+      "sha256": "93abf2e19329473d85016fa5cb191edc7782b405fd87bf2e67934d58ce360f88"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "2de3146e12258e97fb07de84a0110bb77a6327d5c382bc94c683e74eaba83859"
+      "sha256": "640d90284578ab2a3043ec0174a186e3ad13f4e945cc58f9b2577223f282c2a5"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "bfaadb6883259ccbd3111c1134dce393167cb2ea3edd3df2322a510707a9d0d3"
+      "sha256": "2ee57cd2fbb72d092ea0f3504f432837a443d17f575fbb9293e85da73c242e58"
     },
     {
       "role": "accountless-offline-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "19a1ce4698e008808ee68d432a9bcd64890a441e5da26be6c620c9339d75a837"
+      "sha256": "01277e36127580b13504bff6e055bc51974b20bb422da3005edcdbf748d3754a"
     }
   ],
   "targetTiers": [
