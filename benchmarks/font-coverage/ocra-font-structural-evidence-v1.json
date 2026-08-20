@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 121,
-      "totalBytes": 1184843,
+      "totalBytes": 1185641,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1099,8 +1099,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/retro-library.ts",
-          "bytes": 21283,
-          "sha256": "d6755ab9f9b024d0555d623cc6588352067d67a198c3b6a0d681832d0b323cb5"
+          "bytes": 21843,
+          "sha256": "fde975de02873a10c0a83566dda97999854d837b4c4bb7237f1f51527adc8e4a"
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
@@ -1179,8 +1179,8 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
-          "bytes": 44276,
-          "sha256": "3d317fe6b580087ba191230102c549c552d7774021cc1fd07f79320e5040e60c"
+          "bytes": 44514,
+          "sha256": "5c9f230c818d946dd90d541e51daf112bd189cb2c718b0b1703d3ea630acf9dd"
         },
         {
           "path": "apps/console-lab/src/native-host-library-client.test.ts",
@@ -1469,11 +1469,11 @@
             {
               "path": "apps/console-lab/src/native-host-client.ts",
               "lines": [
-                312,
-                398,
-                499,
-                637,
-                644
+                313,
+                399,
+                500,
+                638,
+                645
               ]
             }
           ]
