@@ -136,6 +136,7 @@ type NativeHostFailure = {
     | "LIBRARY_CURSOR_INVALID"
     | "LIBRARY_ENTRY_NOT_FOUND"
     | "LIBRARY_ENTRY_INCOMPATIBLE"
+    | "LAUNCH_REQUEST_INVALID"
     | "PACKAGE_REJECTS_LIBRARY_CONTENT"
     | "BLUETOOTH_SERVICE_UNAVAILABLE"
     | "BLUETOOTH_OPERATION_FAILED";
@@ -968,6 +969,13 @@ function launchHttpFailure(status: number, body: unknown): NativeHostFailure {
       ok: false,
       code: "LAUNCH_REPLAY_UNAVAILABLE",
       detail: "Rust console host could not verify durable native launch replay state",
+    };
+  }
+  if (status === 400 && hostCode === "LAUNCH_REQUEST_INVALID") {
+    return {
+      ok: false,
+      code: "LAUNCH_REQUEST_INVALID",
+      detail: "Rust console host rejected the launch request",
     };
   }
   if (status === 404 && hostCode === "LIBRARY_UNAVAILABLE") {

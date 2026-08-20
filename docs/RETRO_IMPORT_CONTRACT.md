@@ -349,6 +349,16 @@ fields on it is rejected rather than ignored.
 terminal-intent vocabulary, which remains `usb` or `paired-lan`. A browser
 cannot name it, so it cannot claim provisioning authority.
 
+### Consuming the published schema
+
+The installed-library schema's title pattern uses Unicode code-point
+escapes, so it must be compiled by a Unicode-aware engine. JSON Schema
+specifies `pattern` against ECMA-262, and the repository validator compiles
+with that dialect; a consumer in another language must enable the
+equivalent mode rather than assuming a byte-oriented regex. A consumer that
+cannot do so should validate through the contract package instead of
+compiling the pattern itself.
+
 ## Closed policy
 
 The package contains no product system allowlist. Tests use a synthetic

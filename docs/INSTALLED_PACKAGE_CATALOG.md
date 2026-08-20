@@ -210,6 +210,17 @@ Rules:
 - A library content record requires `systemId` and `coreId` to use the bounded
   lowercase identifier grammar, and applies only to a `libretro` entry.
 
+### Upgrading an installed appliance
+
+Requiring `documentType` on a bound manifest is a breaking change for any
+package installed before it. The provisioning tool hashes the manifest an
+operator supplies rather than rewriting it, and there is no launch-time
+migration, so an appliance carrying an older manifest fails catalog load
+until its manifests are updated and its catalog re-signed. That is
+deliberate: the alternative is a host that cannot tell a public shelf
+document from an installed one, which is the defect the field exists to
+close. Re-provision with `vcg-retro-provision` after adding the field.
+
 ## Resolution and integrity
 
 `resolve(gameId, profileId)` validates both browser-safe IDs and finds exactly one signed package. Library content adds one optional host-selected entry to that intent; the browser contributes only the entry ID, and the system, core, digest, and path all come from the host's own library. Resolution then enforces the signed content mode before anything else happens:
