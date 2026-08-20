@@ -1281,7 +1281,7 @@ fn verify_sha256(
         source,
     })?;
     let mut digest = Sha256::new();
-    let mut buffer = [0_u8; 8 * 1_024];
+    let mut buffer = vec![0_u8; 64 * 1_024];
     loop {
         let read = file.read(&mut buffer).map_err(|source| CatalogError::Io {
             operation: "read file for integrity verification",

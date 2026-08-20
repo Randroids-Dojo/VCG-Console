@@ -27,7 +27,7 @@
     {
       "role": "steamos-shell-plan-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "23dc22c800ca2181f55a7154b1ba8d910c280418174d3bfe53bb983ffd46e014"
+      "sha256": "626f4962f96add1f0377ad587b06be15e8212acb7c2d2cb7328f75782021461e"
     }
   ],
   "officialPageSnapshots": [

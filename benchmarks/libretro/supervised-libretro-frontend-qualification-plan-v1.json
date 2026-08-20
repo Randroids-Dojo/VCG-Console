@@ -50,12 +50,12 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "34f4916d63f1f57b689965189a9e836c20d2b745ee57e59f73d98c6cef4c7ce3"
+      "sha256": "11cb58e148d7469997f2d76f02d1367e42c900c3cd1cc32c219a79687034bafc"
     },
     {
       "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "6bbda6a81563099d66855dd61c9d95c81197522bdb23e289add3392d50864217"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "native-trust-loading-containment-retry-and-return-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "9136d3e3e212a171d752c7869b0b9f8f5fe04249b38b9e5af39ad348789389df"
+      "sha256": "f161b5347a088e1fb43afa089c54c74665fa19a34f24915821397403c515d3c8"
     }
   ],
   "prerequisiteGate": {

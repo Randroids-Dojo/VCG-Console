@@ -62,12 +62,12 @@
     {
       "role": "steamos-package-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "8cb7e65ad904fa4cd37c7023e7b0507f89d50e075428c30631c3d4089deab097"
+      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
     },
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "12124d2e59f12c7d925eb533dc0e8705629e56528faa085547c94c6a71ec5744"
+      "sha256": "390cec75ec53a0e188866a0af7756ab510b08c3df1001490649f02bd81d87524"
     },
     {
       "role": "accountless-offline-boundary",

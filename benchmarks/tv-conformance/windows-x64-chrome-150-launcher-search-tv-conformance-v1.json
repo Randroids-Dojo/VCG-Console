@@ -3,10 +3,10 @@
   "evidenceDate": "2026-08-20",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-20T06:24:09.880Z",
+  "retrievedAtUtc": "2026-08-20T07:08:34.462Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "2fc59a59661fec4168849f5969dd0b87bf671a369dd796ffc3366d9faa529f04"
+    "sha256": "5b9c6461069ce92b0d641c2b15a70ac78c0073127c955c20d312d4e20befa410"
   },
   "environment": {
     "producerPlatform": "win32",
@@ -1978,7 +1978,7 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-0-8N2dlI.js": 24,
+      "/assets/main-CAo9rImS.js": 24,
       "/assets/main-D0_6oU1A.css": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
       "/assets/src-DJk9Nbrx.js": 24,
@@ -2053,7 +2053,7 @@
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "306e143c34cd72672ec51aeac253dca9daeda7f9830bd7843472cbb842ebfc5d",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "2fc59a59661fec4168849f5969dd0b87bf671a369dd796ffc3366d9faa529f04",
+    "representativeEvidencePathSha256": "5b9c6461069ce92b0d641c2b15a70ac78c0073127c955c20d312d4e20befa410",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
     "commonGeneratorPathSha256": "44f61020f066b1af6815dd811779e2f5707e590430e6a9088fee3ba800c048ca",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
@@ -2077,7 +2077,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 168,
-      "sha256": "140656dd72053128331c3d7f4897e45f6bde973dad316516bd8b9e26aeec0e29"
+      "sha256": "bb71dd2315a641064044e7447fbca33cac68efa23fa1f90ea7021a8c2809b5ce"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",

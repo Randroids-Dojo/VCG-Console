@@ -52,7 +52,7 @@
     {
       "role": "runtime-neutral-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "6bbda6a81563099d66855dd61c9d95c81197522bdb23e289add3392d50864217"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "shared-camera-boundary",
@@ -77,12 +77,12 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "d716c413503edebf4c01a29a25c09020a1f93a88da6fb39d65cf9f364acf5bec"
+      "sha256": "55c4ca89c3f19d4a7c333bee8c991e1d8566ae26572f1fdb340dd83f4808b4b2"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "03d9deebf0fd45a1bcfb395a021fc50ceb8d39f6a93a93f99d1fd6fe91661267"
+      "sha256": "fc5f4ac0f7f9bd1a49f315a3fc8b2171e703bd4331e5dfe30ef601e345d4f081"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "12124d2e59f12c7d925eb533dc0e8705629e56528faa085547c94c6a71ec5744"
+      "sha256": "390cec75ec53a0e188866a0af7756ab510b08c3df1001490649f02bd81d87524"
     }
   ],
   "targetTiers": [

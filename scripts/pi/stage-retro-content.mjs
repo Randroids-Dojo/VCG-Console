@@ -90,13 +90,26 @@ function parseArguments(argv) {
 }
 
 // Mirrors `validate_safe_id`: lowercase alphanumerics plus separators, never
-// leading, trailing, or doubled.
+// leading, trailing, or doubled. No package names these, so a dot is allowed.
 function assertSafeId(label, value, maximum = 64) {
   const safe =
     value.length > 0 &&
     value.length <= maximum &&
     /^[a-z0-9]([a-z0-9]|[.-](?![.-]))*[a-z0-9]$/.test(value);
   if (!safe) throw new Error(`${label} is not a safe identifier: ${value}`);
+  return value;
+}
+
+// Mirrors `validate_bindable_id`. A signed catalog names a library package's
+// system and core in a grammar that excludes ".", so an identifier carrying one
+// stages fine and is then refused by the host -- after the whole collection has
+// been hashed and transferred. Reject it here instead.
+function assertBindableId(label, value, maximum = 64) {
+  const safe =
+    value.length > 0 &&
+    value.length <= maximum &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+  if (!safe) throw new Error(`${label} is not a bindable identifier: ${value}`);
   return value;
 }
 
@@ -107,18 +120,35 @@ function canonicalExtension(raw) {
   return lowered;
 }
 
-// Mirrors `validate_visible_title` and `is_unsafe_display_character`.
+// Mirrors `is_unsafe_display_character`. A title this admits but the host
+// refuses fails the whole payload on the target, so the ranges must match:
+// controls and every non-space whitespace, the format and bidi characters, the
+// astral tag and musical controls, and lone surrogates.
 const UNSAFE_DISPLAY = new Set([
   0x00ad, 0x061c, 0x180e, 0x2060, 0x2061, 0x2062, 0x2063, 0x2064, 0xfeff,
 ]);
 
+const UNSAFE_DISPLAY_RANGES = [
+  [0x0000, 0x001f],
+  [0x007f, 0x00a0],
+  [0x1680, 0x1680],
+  [0x2000, 0x200f],
+  [0x2028, 0x202f],
+  [0x205f, 0x205f],
+  [0x2066, 0x206f],
+  [0x3000, 0x3000],
+  [0xd800, 0xdfff],
+  [0xfff9, 0xfffb],
+  [0x1bca0, 0x1bca3],
+  [0x1d173, 0x1d17a],
+  [0xe0001, 0xe0001],
+  [0xe0020, 0xe007f],
+];
+
 function isUnsafeDisplayCharacter(codePoint) {
-  if (codePoint < 0x20 || (codePoint >= 0x7f && codePoint <= 0x9f)) return true;
-  if (codePoint >= 0x200b && codePoint <= 0x200f) return true;
-  if (codePoint >= 0x202a && codePoint <= 0x202e) return true;
-  if (codePoint >= 0x2066 && codePoint <= 0x206f) return true;
-  if (codePoint >= 0xfff9 && codePoint <= 0xfffb) return true;
-  if (codePoint >= 0x1bca0 && codePoint <= 0x1bca3) return true;
+  for (const [low, high] of UNSAFE_DISPLAY_RANGES) {
+    if (codePoint >= low && codePoint <= high) return true;
+  }
   return UNSAFE_DISPLAY.has(codePoint);
 }
 
@@ -154,7 +184,7 @@ function listFiles(root) {
     }
   };
   walk(root);
-  return found.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return found.sort();
 }
 
 // GNU tar cannot read ZIP, and it is what a bare `tar` resolves to in both a
@@ -259,8 +289,8 @@ function readSingleArchivePayload(archivePath, allowedExtensions) {
 
 function main() {
   const options = parseArguments(process.argv.slice(2));
-  const system = assertSafeId("--system", options.system);
-  const coreId = assertSafeId("--core", options.core);
+  const system = assertBindableId("--system", options.system);
+  const coreId = assertBindableId("--core", options.core);
   const controllerProfile = assertSafeId(
     "--controller-profile",
     options.controllerProfile,

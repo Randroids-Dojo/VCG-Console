@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 121,
-      "totalBytes": 1184853,
+      "totalBytes": 1184843,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -1099,8 +1099,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/retro-library.ts",
-          "bytes": 21293,
-          "sha256": "7955687247b1938f7f247922c3b0b44f45410cad7d3551bf4479d39839d4b6af"
+          "bytes": 21283,
+          "sha256": "d6755ab9f9b024d0555d623cc6588352067d67a198c3b6a0d681832d0b323cb5"
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",

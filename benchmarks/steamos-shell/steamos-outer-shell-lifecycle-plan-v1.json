@@ -55,7 +55,7 @@
     {
       "role": "steam-input-campaign-plan",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "5cc7cdfc43db0f7e1c0ab62886f62f2d004d9f51b2c8a3fb9a08df0e6e7f3588"
+      "sha256": "b59b1c1c89febe9aea15a5b827a96843bd149b0ace5b7294b6aa39ade5d262d9"
     },
     {
       "role": "steamos-update-safe-content-campaign",
@@ -65,7 +65,7 @@
     {
       "role": "steamos-update-safe-content-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "8cb7e65ad904fa4cd37c7023e7b0507f89d50e075428c30631c3d4089deab097"
+      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
     },
     {
       "role": "hosted-browser-wrapper-boundary",

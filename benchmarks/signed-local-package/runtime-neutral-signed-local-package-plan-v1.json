@@ -37,7 +37,7 @@
     {
       "role": "signed-installed-catalog",
       "path": "native/vcg-host/src/installed_catalog.rs",
-      "sha256": "e43093d30074005982f509c5bc9a0132a0f06c74f1240ce1a33ff6f8a5c82a41"
+      "sha256": "ecd670ca633ba5d25071ad86c30483a86a75b0cb15813ddc445aab17b9252011"
     },
     {
       "role": "protected-package-generation-store",

@@ -622,6 +622,13 @@ pub mod linux {
         class_directory: PathBuf,
         device_directory: PathBuf,
         open: BTreeMap<String, OpenNode>,
+        /// Nodes examined and refused while they remain present.
+        ///
+        /// A node's key bitmap is fixed for the life of the node, so the
+        /// power button, the HDMI nodes, and a pad's motion-sensor node would
+        /// otherwise be re-read and re-parsed on every rescan for the whole
+        /// session. Pruned by the same present set that prunes `open`.
+        rejected: BTreeSet<String>,
     }
 
     impl fmt::Debug for EvdevReservedInputSource {
@@ -661,6 +668,7 @@ pub mod linux {
                 class_directory: class_directory.to_path_buf(),
                 device_directory: device_directory.to_path_buf(),
                 open: BTreeMap::new(),
+                rejected: BTreeSet::new(),
             };
             source.rescan()?;
             Ok(source)
@@ -681,18 +689,25 @@ pub mod linux {
             }
 
             self.open.retain(|node, _| present.contains(node));
+            self.rejected.retain(|node| present.contains(node));
             for node in present {
-                if self.open.contains_key(&node) || self.open.len() >= MAX_CONNECTED_CONTROLLERS {
+                if self.open.contains_key(&node)
+                    || self.rejected.contains(&node)
+                    || self.open.len() >= MAX_CONNECTED_CONTROLLERS
+                {
                     continue;
                 }
                 let capabilities = self.class_directory.join(&node).join(KEY_CAPABILITY_PATH);
                 let Ok(text) = read_bounded(&capabilities, MAX_CAPABILITY_BYTES) else {
+                    self.rejected.insert(node);
                     continue;
                 };
                 let Some(keys) = CapabilityBitmap::parse(&text) else {
+                    self.rejected.insert(node);
                     continue;
                 };
                 if !observable_reserved_controller(&keys) {
+                    self.rejected.insert(node);
                     continue;
                 }
                 let Ok(file) = open_event_node(&self.device_directory.join(&node)) else {

@@ -37,12 +37,12 @@
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "007d92af91f69806d91b37fe8aaff9b987502840c25ad4e90896ae840852a4ec"
+      "sha256": "194c75ba703c7e854a50370efd5f57613643eeb36e7dc1645555e2e251ef4e1d"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "2fc59a59661fec4168849f5969dd0b87bf671a369dd796ffc3366d9faa529f04"
+      "sha256": "5b9c6461069ce92b0d641c2b15a70ac78c0073127c955c20d312d4e20befa410"
     }
   ],
   "executionBoundary": {

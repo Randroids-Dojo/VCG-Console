@@ -301,7 +301,7 @@ export class RetroLibraryBrowse {
     const from = this.#entries.length;
     this.#generation = page.libraryGeneration;
     this.#entryCount = page.entryCount;
-    this.#entries = this.#entries.concat(page.entries);
+    this.#entries.push(...page.entries);
     this.#nextCursor = page.nextCursor;
     this.#complete = page.nextCursor === undefined;
     this.#group(from);
@@ -417,7 +417,7 @@ export class RetroLibraryBrowse {
       const entry = this.#entries[index];
       if (!entry) break;
       const base = retroLibraryBaseTitle(entry.title);
-      const key = `${entry.systemId} ${base}`;
+      const key = `${entry.systemId}\u0000${base}`;
       const ordinal = this.#groupByKey.get(key);
       const group = ordinal === undefined ? undefined : this.#groups[ordinal];
       if (group) {

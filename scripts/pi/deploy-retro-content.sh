@@ -115,11 +115,10 @@ echo
 echo "verifying every digest on the target"
 # `sha256sum -c` reads the same relative paths the staging tool wrote, so this
 # is the target recomputing the hashes, not a copy of the workstation's answer.
-verification="$(ssh "${target}" "cd '${remote_dir}' && sha256sum -c --quiet SHA256SUMS 2>&1; echo \"exit:\$?\"")"
-status="${verification##*exit:}"
-failures="$(printf '%s' "${verification}" | grep -v '^exit:' || true)"
-
-if [ "${status}" != "0" ]; then
+# ssh already exits with the remote status, so the failure text stays text.
+# Smuggling the code through stdout and recovering it by string surgery breaks
+# on any sha256sum output that happens to contain the marker.
+if ! failures="$(ssh "${target}" "cd '${remote_dir}' && sha256sum -c --quiet SHA256SUMS 2>&1")"; then
   echo "DIGEST VERIFICATION FAILED on ${target}:" >&2
   printf '%s\n' "${failures}" | head -20 >&2
   exit 1

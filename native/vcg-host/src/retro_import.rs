@@ -18,7 +18,7 @@
 //! listener, decode archives, select product system policy, implement a
 //! scanner, or launch `RetroArch`.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Seek, SeekFrom, Write};
@@ -1269,10 +1269,16 @@ impl RetroImportStore {
                 .then_with(|| left.title.cmp(&right.title))
                 .then_with(|| left.entry_id.cmp(&right.entry_id))
         });
+        let by_entry_id = entries
+            .iter()
+            .enumerate()
+            .map(|(index, entry)| (entry.entry_id.clone(), index))
+            .collect();
         Ok(RetroLibrarySnapshot {
             generation: library.generation,
             object_root: self.object_root.clone(),
             entries,
+            by_entry_id,
         })
     }
 
@@ -2370,6 +2376,12 @@ pub struct RetroLibrarySnapshot {
     generation: u64,
     object_root: PathBuf,
     entries: Vec<RetroLibraryEntry>,
+    /// Entry ID to its index in the sorted entry list.
+    ///
+    /// The snapshot is immutable and outlives every launch that reads it, so
+    /// this is built once rather than scanning up to `MAX_LIBRARY_ENTRIES` on
+    /// each admission.
+    by_entry_id: BTreeMap<String, usize>,
 }
 
 impl RetroLibrarySnapshot {
@@ -2386,7 +2398,9 @@ impl RetroLibrarySnapshot {
     /// Returns the entry one content ID names.
     #[must_use]
     pub fn entry(&self, entry_id: &str) -> Option<&RetroLibraryEntry> {
-        self.entries.iter().find(|entry| entry.entry_id == entry_id)
+        self.by_entry_id
+            .get(entry_id)
+            .and_then(|index| self.entries.get(*index))
     }
 
     /// Returns the console-managed root every library object lives beneath.
@@ -3281,7 +3295,7 @@ fn validate_entry(entry: &RetroInstalledEntry) -> Result<(), RetroImportError> {
     validate_content_id(&entry.entry_id)?;
     validate_bindable_id("installed system ID", &entry.system_id)?;
     validate_sha256("installed SHA-256", &entry.sha256)?;
-    if entry.entry_id != format!("content-{}", entry.sha256) {
+    if entry.entry_id != format!("{CONTENT_ENTRY_ID_PREFIX}{}", entry.sha256) {
         return Err(RetroImportError::InvalidLibrary(
             "entry ID must derive from the full content hash".to_owned(),
         ));
@@ -3468,6 +3482,26 @@ fn validate_audit(
     Ok(())
 }
 
+/// Reports whether a value is a library entry ID.
+///
+/// The grammar lives here because this module owns both the prefix and the
+/// object naming that derives from it. The launch and replay paths admit a
+/// browser-supplied string with it, so a second spelling elsewhere could admit
+/// a launch the store then refuses.
+#[must_use]
+pub fn is_library_entry_id(value: &str) -> bool {
+    value
+        .strip_prefix(CONTENT_ENTRY_ID_PREFIX)
+        .is_some_and(is_sha256_hex)
+}
+
+fn is_sha256_hex(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
 fn validate_content_id(value: &str) -> Result<(), RetroImportError> {
     let Some(digest) = value.strip_prefix("content-") else {
         return Err(RetroImportError::InvalidLibrary(
@@ -3478,11 +3512,7 @@ fn validate_content_id(value: &str) -> Result<(), RetroImportError> {
 }
 
 fn validate_sha256(label: &'static str, value: &str) -> Result<(), RetroImportError> {
-    if value.len() != 64
-        || !value
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-    {
+    if !is_sha256_hex(value) {
         return Err(RetroImportError::InvalidIdentifier {
             label,
             value: value.to_owned(),

@@ -248,23 +248,6 @@ impl HostStatusServer {
         )
     }
 
-    /// Starts the catalog API with privacy-preserving Bluetooth pairing.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when the listener, operating-system random source, or
-    /// worker thread cannot be created.
-    pub fn start_with_catalog_and_bluetooth(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        bluetooth_service: BluetoothPairingService,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_catalog(catalog).and_bluetooth(bluetooth_service),
-        )
-    }
-
     /// Starts the API with signature-verified package discovery and process
     /// launch for an explicit host-owned profile allowlist.
     ///
@@ -280,99 +263,6 @@ impl HostStatusServer {
         Self::start_with_capabilities(
             allowed_origin,
             HostCapabilities::with_launch_service(catalog, HostLaunchPolicy::new(profile_ids)),
-        )
-    }
-
-    /// Starts the launch API with a host-owned durable replay journal.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch configuration or replay state is invalid,
-    /// the journal is already locked, or server startup fails.
-    pub fn start_with_persistent_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        journal_root: &Path,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids).with_replay_journal(journal_root),
-            ),
-        )
-    }
-
-    /// Starts the API with fixed-intent launching and heartbeat supervision
-    /// for an explicit set of signature-verified installed games.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration, the listener,
-    /// operating-system randomness, or worker creation fails.
-    pub fn start_with_watchdog_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids)
-                    .with_watchdog_games(watchdog_game_ids, watchdog_policy),
-            ),
-        )
-    }
-
-    /// Starts the fixed-intent/watchdog API with durable replay state.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration or replay state is
-    /// invalid, the journal is already locked, or server startup fails.
-    pub fn start_with_persistent_watchdog_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-        journal_root: &Path,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids)
-                    .with_watchdog_games(watchdog_game_ids, watchdog_policy)
-                    .with_replay_journal(journal_root),
-            ),
-        )
-    }
-
-    /// Starts a persistent launch API with Bluetooth controller pairing.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch configuration, replay state, or server
-    /// startup fails.
-    pub fn start_with_persistent_launch_service_and_bluetooth(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        journal_root: &Path,
-        bluetooth_service: BluetoothPairingService,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids).with_replay_journal(journal_root),
-            )
-            .and_bluetooth(bluetooth_service),
         )
     }
 
@@ -395,57 +285,6 @@ impl HostStatusServer {
             allowed_origin,
             HostCapabilities::with_launch_service(catalog, HostLaunchPolicy::new(profile_ids))
                 .and_library(library),
-        )
-    }
-
-    /// Starts the durable-replay launch API with a read-only installed retro
-    /// library.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch configuration or replay state is invalid,
-    /// the journal is already locked, or server startup fails.
-    pub fn start_with_persistent_library_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        journal_root: &Path,
-        library: RetroLibrarySnapshot,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids).with_replay_journal(journal_root),
-            )
-            .and_library(library),
-        )
-    }
-
-    /// Starts a persistent watchdog launch API with Bluetooth pairing.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration, replay state, or
-    /// server startup fails.
-    pub fn start_with_persistent_watchdog_launch_service_and_bluetooth(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-        journal_root: &Path,
-        bluetooth_service: BluetoothPairingService,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_capabilities(
-            allowed_origin,
-            HostCapabilities::with_launch_service(
-                catalog,
-                HostLaunchPolicy::new(profile_ids)
-                    .with_watchdog_games(watchdog_game_ids, watchdog_policy)
-                    .with_replay_journal(journal_root),
-            )
-            .and_bluetooth(bluetooth_service),
         )
     }
 

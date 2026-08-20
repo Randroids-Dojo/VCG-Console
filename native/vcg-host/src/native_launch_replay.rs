@@ -15,7 +15,7 @@ use fs4::TryLockError;
 use serde::{Deserialize, Serialize};
 
 use crate::installed_catalog::validate_intent_id;
-use crate::retro_import::CONTENT_ENTRY_ID_PREFIX;
+use crate::retro_import::is_library_entry_id;
 
 const JOURNAL_SCHEMA_VERSION: u32 = 3;
 /// The one prior journal schema this host migrates from.
@@ -104,7 +104,7 @@ impl DurableLaunchRecord {
             )
         })?;
         if let Some(entry_id) = &self.entry_id
-            && !valid_library_entry_id(entry_id)
+            && !is_library_entry_id(entry_id)
         {
             return Err(LaunchReplayError::InvalidState(
                 "native launch replay contains an invalid library entry ID".to_owned(),
@@ -856,17 +856,6 @@ fn validate_request_id(value: &str) -> Result<(), LaunchReplayError> {
     } else {
         Err(invalid_entry("native launch replay request ID is invalid"))
     }
-}
-
-fn valid_library_entry_id(value: &str) -> bool {
-    value
-        .strip_prefix(CONTENT_ENTRY_ID_PREFIX)
-        .is_some_and(|digest| {
-            digest.len() == 64
-                && digest
-                    .bytes()
-                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-        })
 }
 
 fn detail_matches_state(state: &str, detail_code: &str) -> bool {

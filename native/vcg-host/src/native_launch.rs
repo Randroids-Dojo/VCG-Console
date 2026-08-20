@@ -21,7 +21,7 @@ use crate::process::{
 use crate::restart_cleanup::{
     RestartCleanupBarrierIdentity, RestartCleanupRequest, VerifiedRestartCleanup,
 };
-use crate::retro_import::{CONTENT_ENTRY_ID_PREFIX, RetroLibraryEntry, RetroLibrarySnapshot};
+use crate::retro_import::{RetroLibraryEntry, RetroLibrarySnapshot, is_library_entry_id};
 
 const MAX_LAUNCH_RECORDS: usize = 64;
 const MONITOR_INTERVAL: Duration = Duration::from_millis(50);
@@ -1324,15 +1324,7 @@ fn protected_catalog_generations(shared: &SharedLaunches) -> Result<Vec<u64>, Na
 }
 
 fn validate_library_entry_id(value: &str) -> Result<(), NativeLaunchError> {
-    let valid = value
-        .strip_prefix(CONTENT_ENTRY_ID_PREFIX)
-        .is_some_and(|digest| {
-            digest.len() == 64
-                && digest
-                    .bytes()
-                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-        });
-    if valid {
+    if is_library_entry_id(value) {
         Ok(())
     } else {
         Err(NativeLaunchError::InvalidLibraryEntry(value.to_owned()))
