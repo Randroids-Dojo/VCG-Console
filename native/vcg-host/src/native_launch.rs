@@ -9,7 +9,9 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
-use crate::installed_catalog::{CatalogError, TrustedPackageCatalog, validate_intent_id};
+use crate::installed_catalog::{
+    CatalogError, LibraryContentRequest, TrustedPackageCatalog, validate_intent_id,
+};
 use crate::native_launch_replay::{DurableLaunchRecord, LaunchReplayError, LaunchReplayJournal};
 use crate::package_launch::{PackageLaunchError, PackageLaunchPlan, plan as plan_package};
 use crate::process::{
@@ -19,6 +21,7 @@ use crate::process::{
 use crate::restart_cleanup::{
     RestartCleanupBarrierIdentity, RestartCleanupRequest, VerifiedRestartCleanup,
 };
+use crate::retro_import::{CONTENT_ENTRY_ID_PREFIX, RetroLibraryEntry, RetroLibrarySnapshot};
 
 const MAX_LAUNCH_RECORDS: usize = 64;
 const MONITOR_INTERVAL: Duration = Duration::from_millis(50);
@@ -87,6 +90,7 @@ struct LaunchRecord {
     request_id: String,
     game_id: String,
     profile_id: String,
+    entry_id: Option<String>,
     catalog_generation: u64,
     state: NativeLaunchState,
     sequence: u64,
@@ -112,6 +116,7 @@ impl LaunchRecord {
             &self.request_id,
             &self.game_id,
             &self.profile_id,
+            self.entry_id.as_deref(),
             self.catalog_generation,
             self.sequence,
             self.state.name(),
@@ -148,6 +153,7 @@ impl LaunchRecord {
             request_id: record.request_id,
             game_id: record.game_id,
             profile_id: record.profile_id,
+            entry_id: record.entry_id,
             catalog_generation: record.catalog_generation,
             state,
             sequence: record.sequence,
@@ -237,6 +243,7 @@ enum PreparedLaunch {
 #[derive(Debug)]
 pub struct NativeLaunchService {
     catalog: Arc<TrustedPackageCatalog>,
+    library: Option<Arc<RetroLibrarySnapshot>>,
     allowed_profiles: HashSet<String>,
     watchdog_games: HashSet<String>,
     watchdog_policy: WatchdogPolicy,
@@ -286,6 +293,7 @@ impl NativeLaunchService {
             watchdog_game_ids,
             watchdog_policy,
             None,
+            None,
         )
     }
 
@@ -294,6 +302,9 @@ impl NativeLaunchService {
     /// Every accepted state is synchronized beneath the host-owned journal
     /// root before execution. Reopening converts a nonterminal record into an
     /// indeterminate terminal failure and never re-executes it.
+    ///
+    /// A journal written at the one prior schema version is discarded, so it
+    /// opens with no records and the restart-cleanup barrier already set.
     ///
     /// # Errors
     ///
@@ -312,15 +323,27 @@ impl NativeLaunchService {
             watchdog_game_ids,
             watchdog_policy,
             Some(journal_root),
+            None,
         )
     }
 
-    fn with_optional_replay(
+    /// Creates a launch service with optional durable replay and an optional
+    /// installed retro library.
+    ///
+    /// Crate-private: the host API is the only caller that supplies a library,
+    /// and no browser-reachable path can select one.
+    ///
+    /// # Errors
+    ///
+    /// Rejects invalid launch/watchdog configuration and unsafe, corrupted,
+    /// locked, or unwritable journal state.
+    pub(crate) fn with_optional_replay(
         catalog: Arc<TrustedPackageCatalog>,
         profile_ids: impl IntoIterator<Item = String>,
         watchdog_game_ids: impl IntoIterator<Item = String>,
         watchdog_policy: WatchdogPolicy,
         journal_root: Option<&Path>,
+        library: Option<Arc<RetroLibrarySnapshot>>,
     ) -> Result<Self, NativeLaunchError> {
         let mut allowed_profiles = HashSet::new();
         for profile_id in profile_ids {
@@ -376,6 +399,7 @@ impl NativeLaunchService {
         };
         Ok(Self {
             catalog,
+            library,
             allowed_profiles,
             watchdog_games,
             watchdog_policy,
@@ -525,15 +549,45 @@ impl NativeLaunchService {
         game_id: &str,
         profile_id: &str,
     ) -> Result<NativeLaunchStart, NativeLaunchError> {
+        self.start_with_library_entry(request_id, game_id, profile_id, None)
+    }
+
+    /// Starts the same fixed intent with one installed library entry.
+    ///
+    /// `entry_id` names an entry the host itself published; the browser never
+    /// supplies a path, a core, or an argument. Omitting it is exactly the
+    /// [`Self::start`] path. A package whose signed record binds fixed content
+    /// rejects an entry before any request ID is reserved.
+    ///
+    /// # Errors
+    ///
+    /// Rejects everything [`Self::start`] rejects, plus a malformed or unknown
+    /// entry ID, an entry offered to a package that does not accept one, an
+    /// entry whose system or core disagrees with the package, and reuse of a
+    /// request ID for a different entry.
+    pub fn start_with_library_entry(
+        &self,
+        request_id: &str,
+        game_id: &str,
+        profile_id: &str,
+        entry_id: Option<&str>,
+    ) -> Result<NativeLaunchStart, NativeLaunchError> {
         self.validate_launch_intent(request_id, game_id, profile_id)?;
+        let entry = self.admit_library_entry(game_id, entry_id)?;
         self.reap_finished_workers()?;
 
         let cancel = Arc::new(AtomicBool::new(false));
-        if let Some(replay) = self.reserve(request_id, game_id, profile_id, Arc::clone(&cancel))? {
+        if let Some(replay) = self.reserve(
+            request_id,
+            game_id,
+            profile_id,
+            entry_id,
+            Arc::clone(&cancel),
+        )? {
             return Ok(replay);
         }
 
-        let plan = match self.prepare_plan(game_id, profile_id) {
+        let plan = match self.prepare_plan(game_id, profile_id, entry) {
             PreparedLaunch::Ready(plan) => plan,
             PreparedLaunch::Failed(code) => return self.failed_start(request_id, code),
         };
@@ -565,11 +619,46 @@ impl NativeLaunchService {
         }
     }
 
+    /// Admits at most one installed library entry for this exact package.
+    ///
+    /// An omitted entry ID returns before any library or package-mode check,
+    /// so every package that existed before library content still resolves,
+    /// fails, and records exactly as it did.
+    fn admit_library_entry(
+        &self,
+        game_id: &str,
+        entry_id: Option<&str>,
+    ) -> Result<Option<&RetroLibraryEntry>, NativeLaunchError> {
+        let Some(entry_id) = entry_id else {
+            return Ok(None);
+        };
+        validate_library_entry_id(entry_id)?;
+        let binding = self
+            .catalog
+            .package_library_binding(game_id)
+            .map_err(NativeLaunchError::Catalog)?
+            .ok_or_else(|| NativeLaunchError::LibraryContentRejected(game_id.to_owned()))?;
+        let library = self
+            .library
+            .as_deref()
+            .ok_or(NativeLaunchError::LibraryUnavailable)?;
+        let entry = library
+            .entry(entry_id)
+            .ok_or_else(|| NativeLaunchError::LibraryEntryNotFound(entry_id.to_owned()))?;
+        if entry.system_id() != binding.system_id || entry.core_id() != binding.core_id {
+            return Err(NativeLaunchError::LibraryEntryIncompatible(
+                entry_id.to_owned(),
+            ));
+        }
+        Ok(Some(entry))
+    }
+
     fn reserve(
         &self,
         request_id: &str,
         game_id: &str,
         profile_id: &str,
+        entry_id: Option<&str>,
         cancel: Arc<AtomicBool>,
     ) -> Result<Option<NativeLaunchStart>, NativeLaunchError> {
         let mut shared = lock(&self.shared)?;
@@ -581,7 +670,10 @@ impl NativeLaunchService {
             .iter()
             .find(|record| record.request_id == request_id)
         {
-            if existing.game_id != game_id || existing.profile_id != profile_id {
+            if existing.game_id != game_id
+                || existing.profile_id != profile_id
+                || existing.entry_id.as_deref() != entry_id
+            {
                 return Err(NativeLaunchError::RequestConflict(request_id.to_owned()));
             }
             return Ok(Some(NativeLaunchStart {
@@ -608,6 +700,7 @@ impl NativeLaunchService {
             request_id: request_id.to_owned(),
             game_id: game_id.to_owned(),
             profile_id: profile_id.to_owned(),
+            entry_id: entry_id.map(str::to_owned),
             catalog_generation: self.catalog.generation(),
             state: NativeLaunchState::Preparing,
             sequence: 1,
@@ -630,8 +723,29 @@ impl NativeLaunchService {
         Ok(None)
     }
 
-    fn prepare_plan(&self, game_id: &str, profile_id: &str) -> PreparedLaunch {
-        let Ok(resolved) = self.catalog.resolve(game_id, profile_id) else {
+    fn prepare_plan(
+        &self,
+        game_id: &str,
+        profile_id: &str,
+        entry: Option<&RetroLibraryEntry>,
+    ) -> PreparedLaunch {
+        let selected = self.library.as_deref().zip(entry);
+        let object_path = selected.map(|(library, entry)| library.object_path(entry));
+        let library_content =
+            selected
+                .zip(object_path.as_deref())
+                .map(|((library, entry), object_path)| LibraryContentRequest {
+                    entry_id: entry.entry_id(),
+                    system_id: entry.system_id(),
+                    core_id: entry.core_id(),
+                    sha256: entry.sha256(),
+                    object_root: library.object_root(),
+                    object_path,
+                });
+        let Ok(resolved) =
+            self.catalog
+                .resolve_with_library_content(game_id, profile_id, library_content)
+        else {
             return PreparedLaunch::Failed("PACKAGE_RESOLUTION_FAILED");
         };
         let Ok(plan) = plan_package(&resolved) else {
@@ -1147,6 +1261,7 @@ fn transition_record(
         &shared.records[index].request_id,
         &shared.records[index].game_id,
         &shared.records[index].profile_id,
+        shared.records[index].entry_id.as_deref(),
         shared.records[index].catalog_generation,
         sequence,
         state.name(),
@@ -1206,6 +1321,22 @@ fn protected_catalog_generations(shared: &SharedLaunches) -> Result<Vec<u64>, Na
         }
     }
     Ok(generations.into_iter().collect())
+}
+
+fn validate_library_entry_id(value: &str) -> Result<(), NativeLaunchError> {
+    let valid = value
+        .strip_prefix(CONTENT_ENTRY_ID_PREFIX)
+        .is_some_and(|digest| {
+            digest.len() == 64
+                && digest
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        });
+    if valid {
+        Ok(())
+    } else {
+        Err(NativeLaunchError::InvalidLibraryEntry(value.to_owned()))
+    }
 }
 
 fn validate_request_id(value: &str) -> Result<(), NativeLaunchError> {
@@ -1273,6 +1404,11 @@ pub enum NativeLaunchError {
     WatchdogRestartLimit(u32),
     ProfileNotFound(String),
     InvalidGame(String),
+    InvalidLibraryEntry(String),
+    LibraryUnavailable,
+    LibraryEntryNotFound(String),
+    LibraryEntryIncompatible(String),
+    LibraryContentRejected(String),
     InvalidRequestId(String),
     RequestConflict(String),
     RequestNotFound(String),
@@ -1316,6 +1452,24 @@ impl fmt::Display for NativeLaunchError {
             ),
             Self::ProfileNotFound(id) => write!(formatter, "profile is not configured: {id}"),
             Self::InvalidGame(id) => write!(formatter, "game ID is invalid: {id}"),
+            Self::InvalidLibraryEntry(id) => {
+                write!(formatter, "library entry ID is invalid: {id}")
+            }
+            Self::LibraryUnavailable => {
+                formatter.write_str("no installed retro library is configured")
+            }
+            Self::LibraryEntryNotFound(id) => {
+                write!(formatter, "library entry is not installed: {id}")
+            }
+            Self::LibraryEntryIncompatible(id) => {
+                write!(
+                    formatter,
+                    "library entry does not match the package system and core: {id}"
+                )
+            }
+            Self::LibraryContentRejected(id) => {
+                write!(formatter, "package does not accept library content: {id}")
+            }
             Self::InvalidRequestId(id) => write!(formatter, "launch request ID is invalid: {id}"),
             Self::RequestConflict(id) => {
                 write!(
@@ -1468,6 +1622,7 @@ mod tests {
                     request_id,
                     "retro-2048",
                     "local-player",
+                    None,
                     Arc::new(AtomicBool::new(false)),
                 )
                 .expect("accepted intent persists before execution");
@@ -1480,6 +1635,27 @@ mod tests {
             journal_root,
         )
         .expect("interrupted replay state recovers")
+    }
+
+    /// Rewrites every persisted event to `schema_version`, reproducing a
+    /// journal this host must migrate rather than read.
+    fn rewrite_journal_schema_version(journal_root: &Path, schema_version: u64) {
+        let active = journal_root.join("active");
+        for record in fs::read_dir(&active).expect("active replay directory reads") {
+            let record = record.expect("replay record reads");
+            for event in fs::read_dir(record.path()).expect("replay record reads") {
+                let path = event.expect("replay event reads").path();
+                let mut document: serde_json::Value =
+                    serde_json::from_slice(&fs::read(&path).expect("replay event reads"))
+                        .expect("replay event parses");
+                document["schemaVersion"] = serde_json::Value::from(schema_version);
+                fs::write(
+                    &path,
+                    serde_json::to_vec(&document).expect("replay event serializes"),
+                )
+                .expect("replay event rewrites");
+            }
+        }
     }
 
     #[test]
@@ -1558,7 +1734,8 @@ mod tests {
         )
         .expect("native launch service configures");
 
-        let PreparedLaunch::Ready(plan) = service.prepare_plan("retro-2048", "local-player") else {
+        let PreparedLaunch::Ready(plan) = service.prepare_plan("retro-2048", "local-player", None)
+        else {
             panic!("signed native package must prepare");
         };
         let PackageLaunchPlan::Native(native) = plan.as_ref() else {
@@ -1612,6 +1789,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(AtomicBool::new(false)),
             )
             .expect("launch reserves");
@@ -1675,6 +1853,7 @@ mod tests {
                 "10101010101010101010101010101010",
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(AtomicBool::new(false)),
             );
             result_tx.send(result).expect("reserve result sends");
@@ -1712,6 +1891,7 @@ mod tests {
                 "11111111111111111111111111111110",
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::clone(&cancel),
             )
             .expect("launch reservation succeeds");
@@ -1727,6 +1907,7 @@ mod tests {
                 "11111111111111111111111111111112",
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(AtomicBool::new(false))
             ),
             Err(NativeLaunchError::PowerTransitionActive)
@@ -1747,6 +1928,7 @@ mod tests {
                 "11111111111111111111111111111114",
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(AtomicBool::new(false))
             ),
             Err(NativeLaunchError::PowerTransitionActive)
@@ -1833,6 +2015,7 @@ mod tests {
                     interrupted_id,
                     "retro-2048",
                     "local-player",
+                    None,
                     Arc::new(AtomicBool::new(false)),
                 )
                 .expect("accepted intent persists before execution");
@@ -1911,6 +2094,77 @@ mod tests {
             NativeLaunchState::Failed { exit_code: None }
         );
         drop(reopened);
+        fs::remove_dir_all(&journal_root).expect("replay fixture removes");
+    }
+
+    #[test]
+    fn a_migrated_journal_drops_replay_and_holds_launches_until_cleanup_is_proven() {
+        let (_fixture, catalog) = signed_catalog();
+        let catalog = Arc::new(catalog);
+        let journal_root = replay_root();
+        let interrupted_id = "15151515151515151515151515151515";
+        {
+            let service = NativeLaunchService::with_persistent_replay(
+                Arc::clone(&catalog),
+                vec!["local-player".to_owned()],
+                Vec::new(),
+                fast_watchdog_policy(1),
+                &journal_root,
+            )
+            .expect("persistent launch service configures");
+            service
+                .reserve(
+                    interrupted_id,
+                    "retro-2048",
+                    "local-player",
+                    None,
+                    Arc::new(AtomicBool::new(false)),
+                )
+                .expect("accepted intent persists before execution");
+        }
+        rewrite_journal_schema_version(&journal_root, 2);
+
+        let migrated = NativeLaunchService::with_persistent_replay(
+            Arc::clone(&catalog),
+            vec!["local-player".to_owned()],
+            Vec::new(),
+            fast_watchdog_policy(1),
+            &journal_root,
+        )
+        .expect("a pre-migration journal migrates instead of failing every launch");
+        // The discarded record no longer replays and no longer pins the
+        // generation it resolved from; the cleanup barrier is what keeps its
+        // possible child from being ignored.
+        assert!(matches!(
+            migrated.start(interrupted_id, "retro-2048", "local-player"),
+            Err(NativeLaunchError::RestartCleanupRequired)
+        ));
+        assert!(
+            migrated
+                .protected_catalog_generations()
+                .expect("migrated generation protection reads")
+                .is_empty()
+        );
+
+        let request = migrated
+            .restart_cleanup_request()
+            .expect("cleanup request reads")
+            .expect("migration sets a cleanup barrier");
+        let mut cleanup_adapter = FixedCleanupAdapter::new(RestartCleanupInspection::Empty);
+        let proof = verify_restart_cleanup(request, &mut cleanup_adapter).expect("scope is empty");
+        migrated
+            .acknowledge_restart_cleanup(proof)
+            .expect("trusted process cleanup acknowledgement persists");
+
+        let fresh = migrated
+            .start(interrupted_id, "retro-2048", "local-player")
+            .expect("the discarded request is admitted as a fresh launch");
+        assert!(!fresh.replayed);
+        assert!(matches!(
+            migrated.start(interrupted_id, "not-installed", "local-player"),
+            Err(NativeLaunchError::RequestConflict(_))
+        ));
+        drop(migrated);
         fs::remove_dir_all(&journal_root).expect("replay fixture removes");
     }
 
@@ -2144,6 +2398,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::clone(&cancel),
             )
             .expect("accepted intent persists");
@@ -2280,6 +2535,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(std::sync::atomic::AtomicBool::new(false)),
             )
             .expect("launch reserves");
@@ -2311,6 +2567,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::clone(&cancel),
             )
             .expect("launch reserves");
@@ -2353,6 +2610,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 Arc::new(std::sync::atomic::AtomicBool::new(false)),
             )
             .expect("launch reserves");

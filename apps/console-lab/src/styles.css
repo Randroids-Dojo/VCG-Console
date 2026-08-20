@@ -1331,6 +1331,215 @@ a:focus-visible {
   margin-top: 20px;
 }
 
+/* Imported games: a windowed list over the operator's own library. Only the
+   rows in the window exist in the document, so the list has a fixed height
+   and never grows with the collection. */
+.retro-library-notice {
+  max-width: 68ch;
+  margin: 0 0 clamp(12px, 1.6vh, 22px);
+  padding: clamp(12px, 1.4vh, 20px) clamp(16px, 1.4vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--fault) 46%, transparent);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--fault) 12%, transparent);
+  color: var(--paper);
+  font-size: clamp(20px, 1.05vw, 42px);
+  font-weight: 520;
+  line-height: 1.45;
+}
+
+/* The view fills the safe content box and the list takes what is left, so
+   the list box height is the budget the mounted window is measured against. */
+.retro-library-view {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-library-view .view-header {
+  margin-bottom: clamp(12px, 2vh, 32px);
+}
+
+/* The letter jump. Only the letters the walk has actually reached are
+   rendered, so no target is a dead end, and the strip wraps instead of
+   scrolling so every letter stays inside the safe area at 1280 x 720. */
+.retro-library-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 0.6vw, 14px);
+  margin: 0 0 clamp(10px, 1.4vh, 20px);
+}
+
+.launcher .retro-library-letters button {
+  min-width: var(--vcg-control-min);
+  min-height: var(--vcg-control-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(6px, 0.5vw, 16px);
+  border: 1px solid var(--stroke-1);
+  border-bottom: 4px solid transparent;
+  border-radius: var(--radius-s);
+  background: var(--surface-1);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: var(--text-section);
+  font-weight: 620;
+  transition:
+    background var(--vcg-motion-feedback) ease,
+    border-color var(--vcg-motion-feedback) ease;
+}
+
+/* The letter the selected row sits under is marked by a filled surface and a
+   solid bottom edge as well as accent color, so it stays identifiable
+   without color. */
+.launcher .retro-library-letters button.selected {
+  border-color: var(--stroke-2);
+  border-bottom-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.launcher .retro-library-letters button:hover,
+.launcher .retro-library-letters button:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--stroke-2);
+}
+
+.launcher .retro-library-letters button.selected:hover,
+.launcher .retro-library-letters button.selected:focus-visible {
+  border-bottom-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.retro-library-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: clamp(10px, 1vw, 22px);
+}
+
+.retro-library-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: clamp(6px, 0.8vh, 12px);
+  overflow: hidden;
+}
+
+/* Specific enough to win over the `.launcher [data-tv-action]` 48 px floor
+   further down, which would otherwise leave these rows at the contract
+   minimum rather than a television row height. */
+.launcher .retro-library-list button {
+  width: 100%;
+  min-height: max(48px, clamp(56px, 6.2vh, 132px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(16px, 1.6vw, 30px);
+  padding: 8px clamp(18px, 1.8vw, 32px);
+  border: 1px solid var(--stroke-1);
+  border-left: 4px solid transparent;
+  border-radius: var(--radius-m);
+  background: var(--surface-1);
+  color: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--vcg-motion-feedback) ease,
+    border-color var(--vcg-motion-feedback) ease;
+}
+
+/* Selection is marked by a filled surface and a solid left edge as well as
+   accent color, so the focused row stays identifiable without color. */
+.launcher .retro-library-list button.selected {
+  border-color: var(--stroke-2);
+  border-left-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.launcher .retro-library-list button:hover,
+.launcher .retro-library-list button:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--stroke-2);
+}
+
+.launcher .retro-library-list button.selected:hover,
+.launcher .retro-library-list button.selected:focus-visible {
+  border-left-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.retro-library-list strong {
+  overflow: hidden;
+  font-size: var(--text-section);
+  font-weight: 620;
+  letter-spacing: -0.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.retro-library-list em {
+  color: var(--accent);
+  font-family: var(--font-brand);
+  font-size: var(--text-detail);
+  font-style: normal;
+  font-weight: 560;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.retro-library-list small {
+  justify-self: end;
+  min-width: 6ch;
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 460;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The versions of an open title are inset under the row that opened them, so
+   which rows belong to it is read from their shape and not from color. The
+   inset is horizontal only, so opening a title never changes how many rows
+   the measured window holds. */
+.launcher .retro-library-list button[data-library-version] {
+  width: auto;
+  margin-left: clamp(20px, 2vw, 52px);
+}
+
+/* A system boundary is drawn inside the row box, so marking one never
+   changes how many rows the measured window holds. */
+.launcher .retro-library-list button[data-system-start] {
+  box-shadow: inset 0 3px 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* A vertical rail beside the list, so showing where the selection sits in
+   the whole library costs no row of the window. */
+.retro-library-position {
+  width: 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.retro-library-position span {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 999px;
+  background: var(--accent);
+  transform-origin: center top;
+  transition: transform var(--vcg-motion-feedback) ease;
+}
+
+.retro-library-legend {
+  margin: clamp(10px, 1.4vh, 18px) 0 0;
+  color: var(--muted);
+  font-size: clamp(20px, 1.05vw, 42px);
+  font-weight: 500;
+}
+
 .profile-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

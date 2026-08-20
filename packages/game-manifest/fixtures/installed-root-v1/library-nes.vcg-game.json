@@ -1,0 +1,33 @@
+{
+  "documentType": "vcg-installed-game-manifest",
+  "schemaVersion": 1,
+  "id": "retro-library-nes",
+  "version": "1.0.0",
+  "runtime": "libretro",
+  "compatibilityStatus": "qualified",
+  "entrypoint": "libretro:mesen",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "libretro": {
+    "content": {
+      "mode": "library",
+      "systemId": "nes",
+      "coreId": "mesen"
+    },
+    "core": {
+      "id": "mesen",
+      "version": "qualification-pending",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "license": "GPL-3.0-only",
+      "source": "https://github.com/libretro/Mesen",
+      "architectures": ["aarch64", "x86_64"],
+      "supportsNoGame": false
+    },
+    "controllerProfile": "retropad-standard-v1",
+    "saveNamespace": "retro-library-nes"
+  }
+}

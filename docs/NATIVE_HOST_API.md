@@ -1,12 +1,12 @@
 # Native launcher-host API
 
-Last updated: 2026-08-10
+Last updated: 2026-08-18
 
 This document defines the first reversible transport between the local Svelte launcher and the privileged Rust host. It is a desk-prototype boundary, not a general local RPC service and not proof of target-Linux containment.
 
 ## Scope
 
-The implemented `0.1.0` surface answers status, installed-package, and privacy-safe Bluetooth-controller queries. It accepts two narrow privileged operation families: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog; and scan, pair/reconnect, or deliberately forget a gaming controller through host-configured `bluetoothctl`.
+The implemented `0.1.0` surface answers status, installed-package, retro-library, and privacy-safe Bluetooth-controller queries. It accepts two narrow privileged operation families: start, observe, or cancel a package that the Rust host resolves from its signature-verified catalog, optionally carrying one library entry that same host published; and scan, pair/reconnect, or deliberately forget a gaming controller through host-configured `bluetoothctl`.
 
 It never accepts a browser-provided manifest, executable, path, hash, command, environment, or writable root. It does not return logs, change settings, grant a game access to the host API, or prove a visible game window. Host-selected installed games may use the existing heartbeat watchdog, but process/runtime health is only observable; compositor readiness remains deliberately unproven.
 
@@ -65,7 +65,11 @@ Creation accepts exactly:
 }
 ```
 
-The 128-bit random request ID is a durable idempotency key. Before execution, the host synchronizes the immutable request/game/profile binding into an exclusively locked, bounded append-only replay journal. Repeating identical intent returns the existing record and cannot start a second child, including after host restart while the record is retained. Reusing the ID for different intent fails with `REQUEST_ID_CONFLICT`. The host permits one active native game, keeps at most 64 lifecycle records with at most 128 events each, and retires the oldest terminal records first.
+plus one optional `entryId` described under
+[the installed retro library](#installed-retro-library). Any other field is an
+error.
+
+The 128-bit random request ID is a durable idempotency key. Before execution, the host synchronizes the immutable request/game/profile/entry binding into an exclusively locked, bounded append-only replay journal. Repeating identical intent returns the existing record and cannot start a second child, including after host restart while the record is retained. Reusing the ID for different intent fails with `REQUEST_ID_CONFLICT`. The host permits one active native game, keeps at most 64 lifecycle records with at most 128 events each, and retires the oldest terminal records first.
 
 On restart, a nonterminal record is made terminal with
 `HOST_RESTARTED_INDETERMINATE` and is never re-executed. Fresh launches then
@@ -75,6 +79,16 @@ adapter consumes the exact in-process barrier request, reports the prior scope
 cannot request, construct, submit, or acknowledge cleanup. Unavailable or
 corrupt replay state fails with HTTP 503 `LAUNCH_REPLAY_UNAVAILABLE`. See
 `RESTART_CLEANUP_PROOF.md`.
+
+The journal is written at schema version 3. Version 2, the one prior version,
+is migrated on open by discarding it: the restart-cleanup barrier is set and
+the version it came from is recorded beside the journal before any record is
+removed. A discarded record is not replayed, so the first launch after the
+upgrade fails with `LAUNCH_RESTART_CLEANUP_REQUIRED` until cleanup is proven,
+and repeating a discarded request ID then starts a new launch instead of
+returning the old record. A discarded record also stops protecting the catalog
+generation it resolved from. Any other schema version fails with
+`LAUNCH_REPLAY_UNAVAILABLE`.
 
 The profile ID must be in the host's strict persistent
 `--profile-registry` allowlist. Repeated `--profile-id` remains only as an
@@ -116,13 +130,120 @@ radio behavior, controller-model compatibility, range, sleep/wake, reconnect,
 simultaneous devices, and controller-only first-pair recovery remain physical
 qualification gates.
 
+## Installed retro library
+
+When the launcher is configured with one fixed absolute
+`--retro-library-root`, naming the writable data root
+`vcg-host retro-provision` provisions, status adds the `retro-library`
+capability and two read routes exist:
+
+- `GET /v1/library`: the first page;
+- `GET /v1/library/<cursor>`: the page that cursor names.
+
+Both use the same per-launch bearer capability, exact launcher origin, bounded
+request handling, and no-store response as status. A page is:
+
+```json
+{
+  "protocolVersion": "0.1.0",
+  "libraryGeneration": 2,
+  "entryCount": 1635,
+  "entries": [
+    {
+      "entryId": "content-<64 lowercase hex>",
+      "title": "Balloon Fight",
+      "systemId": "nes",
+      "coreId": "mesen",
+      "sizeBytes": 40976
+    }
+  ],
+  "nextCursor": "<32 lowercase hex>"
+}
+```
+
+`nextCursor` is present only when another page follows. Entries are ordered by
+system, then title, then entry ID, so a client can render a browse list without
+holding the whole library. `entryCount` is the size of the whole library, which
+is what lets a paged client size its list.
+
+A page carries at most 256 entries and its serialized `entries` array at most
+64 KiB, whichever bound closes first. The host computes both bounds when it
+takes the snapshot, so no page can exceed either. The library itself holds at
+most 100,000 entries. A client must therefore allow 64 KiB plus the document
+envelope for this route, and must enforce both bounds itself.
+
+A cursor is a per-launch random 128-bit token, not an offset. It names one page
+of one snapshot, cannot be constructed or decoded by the browser, and does not
+survive a host restart. An unrecognized cursor returns `400
+LIBRARY_CURSOR_INVALID`. There is no random access to an arbitrary page; a
+client walks forward. A host with no configured library returns `404
+LIBRARY_UNAVAILABLE` and omits the capability.
+
+The snapshot is read once when the launcher process starts, so every page of a
+walk describes the same library generation and a cursor never straddles a
+change. A generation committed while the console is running appears after the
+next launcher start. A configured root that is missing, unreadable, malformed,
+or awaiting import recovery fails the launcher before Chromium starts, so this
+route never answers from a partial library. `--retro-library-root` combines
+with `--bluetoothctl` and `--watchdog-game-id`; one launcher process serves
+every capability the operator configured.
+
+An entry discloses only what selecting and presenting it requires. Filesystem
+paths, host roots, content digests, the digest-derived object name, the file
+extension, the controller profile, and import provenance never cross this
+boundary.
+
+### Launching one library entry
+
+`POST /v1/launches` accepts one optional additional field:
+
+```json
+{
+  "protocolVersion": "0.1.0",
+  "requestId": "32-lowercase-hex-characters",
+  "gameId": "nes-library",
+  "profileId": "profile-randy",
+  "entryId": "content-<64 lowercase hex>"
+}
+```
+
+`entryId` is an opaque identifier this API published; the browser still names
+no path, no core, and no argument. Omitting it is exactly the behavior every
+package had before this field existed.
+
+A package must opt in through its signed catalog record. Only a package whose
+signed libretro content mode is `library` accepts an entry, and only for the
+system and core that record names. See
+[the signed installed-package catalog contract](INSTALLED_PACKAGE_CATALOG.md).
+The host rejects, before it reserves the request ID:
+
+- `400 LAUNCH_REQUEST_INVALID` for an entry ID outside `content-<64 lowercase
+  hex>`;
+- `404 LIBRARY_UNAVAILABLE` when no library is configured;
+- `404 LIBRARY_ENTRY_NOT_FOUND` when the snapshot holds no such entry;
+- `409 PACKAGE_REJECTS_LIBRARY_CONTENT` when the package binds fixed content,
+  or none, or is a native package;
+- `409 LIBRARY_ENTRY_INCOMPATIBLE` when the entry's system or core disagrees
+  with the signed package.
+
+A package whose signed record accepts library content cannot start without an
+entry: the launch fails with `PACKAGE_RESOLUTION_FAILED` rather than starting
+the frontend with no content.
+
+The entry joins the immutable request binding. Reusing a request ID with a
+different entry ID fails with `REQUEST_ID_CONFLICT`, in memory and across a
+restart, exactly as a changed game or profile does. Before the child starts,
+the adapter canonicalizes the resolved object, requires it to stay beneath the
+console-managed object root, and re-verifies its SHA-256 — the same
+verification the fixed managed-content path performs.
+
 ## Security invariants
 
 - Keep the listener loopback-only, per launcher process, and closed when that process ends.
 - Keep authority per launch; do not store the bearer capability in profiles, local storage, logs, query strings, or catalog data.
 - Validate exact launcher origin in addition to the capability for browser requests.
 - Version every request and response and fail closed on incompatible protocol data.
-- Accept high-level operations such as a catalog game identifier and active profile identifier only.
+- Accept high-level operations such as a catalog game identifier, active profile identifier, and host-published library entry identifier only.
 - Resolve signed manifests, installed paths, expected hashes, permissions, and launch adapters inside the Rust host.
 - Never accept an arbitrary executable, command line, shell text, artifact hash, content path, environment map, or writable root from the browser as launch authority.
 - Bind launch attempts to host-owned supervision and cancellation now; readiness, reserved Home/Back, bounded watchdog recovery, and branded re-entry remain mandatory before qualification.
@@ -139,8 +260,13 @@ development-source mutual exclusion, fixed-intent launch, durable at-most-once
 replay/conflict, restart-indeterminate recovery, cleanup-barrier enforcement,
 journal corruption and contention, bounded lifecycle, privacy-safe Bluetooth
 parsing and session identifiers, fixed pairing/reconnect/forget commands,
-Bluetooth route preflight and stable path-free failures, direct process
-start/observation, and idempotent cancellation. TypeScript tests cover strict
+Bluetooth route preflight and stable path-free failures, bounded path-free
+library paging under both the entry-count and response-byte bounds, unknown
+cursor and unconfigured-library refusal, library-entry admission for exactly
+the signed system and core, entry refusal for fixed-content and native
+packages, unchanged behavior when the entry ID is omitted, durable entry
+binding across replay recovery, direct process start/observation, and
+idempotent cancellation. TypeScript tests cover strict
 bridge parsing, bounded bodies, canonical bounded package inventory, fixed
 package/profile/request IDs, lifecycle identity and sequence validation,
 bounded recovery failures, failure records, polling, and cancellation.

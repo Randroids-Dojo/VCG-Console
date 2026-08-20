@@ -32,7 +32,13 @@ RA_BYTES="13564476"
 # Discovered empirically by building this exact release, not copied from a wiki.
 # The build reached its link step and failed only on libx11-xcb-dev, so that
 # package is required and not optional.
-BUILD_DEPS="pkg-config libsdl2-dev libasound2-dev libx11-xcb-dev zlib1g-dev"
+#
+# The Wayland packages are required, not optional. configure only enables
+# Wayland when wayland-egl, wayland-cursor, wayland-protocols, and
+# wayland-scanner are all present, and it disables it silently otherwise. The
+# appliance session runs under Cage, so a frontend that fell back to the SDL
+# context path would present through a second, unintended stack.
+BUILD_DEPS="pkg-config libsdl2-dev libasound2-dev libx11-xcb-dev zlib1g-dev libwayland-dev wayland-protocols"
 
 # The GPU development headers differ by target and only one is needed. A
 # Raspberry Pi provides GLES; an x86-64 desktop provides desktop GL. Requiring
@@ -46,8 +52,9 @@ BUILD_DEPS_GPU_ANY_OF="libgl1-mesa-dev libgles2-mesa-dev"
 #
 # Wayland is deliberately NOT disabled. Raspberry Pi OS defaults to a Wayland
 # session, so forcing it off could leave the frontend unable to present in the
-# operator's actual session. configure detects it and disables it on its own when
-# the libraries are absent, which is what happens on a host without them.
+# operator's actual session. Its development packages are required above rather
+# than left to detection, because silent detection produced a build whose
+# Wayland support depended on which unrelated packages happened to be installed.
 CONFIGURE_FLAGS=(
   --disable-qt
   --disable-cg

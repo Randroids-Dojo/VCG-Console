@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { connectSyntheticController } from "./synthetic-controller";
 
 async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
   await page.goto(`/?skipBoot=1&input=controller${simulatorTest ? "&motionSimulatorTest=1" : ""}`);
@@ -336,7 +337,9 @@ test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.getByRole("button", { name: /RetroArch Retro library/ }).click();
   await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
   await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
-  const retroEmptyMark = page.locator(".empty-library .empty-glyph");
+  const retroEmptyMark = page.locator(
+    '[data-launcher-view="retro"] .empty-library .empty-glyph',
+  );
   await expect(retroEmptyMark).toHaveText("");
   await expect(retroEmptyMark).toHaveAttribute("aria-hidden", "true");
 
@@ -1746,6 +1749,7 @@ test("native launch authenticates to the Rust host before checking installed pac
 });
 
 test("retro launch submits only signed package and profile intent to the host", async ({ page }) => {
+  await connectSyntheticController(page);
   const token = "c".repeat(64);
   let installedVersion = "0.9.0";
   let packageVersion = "0.9.0";
@@ -2045,7 +2049,7 @@ test("universal search traps focus, scrolls, activates, and restores its opener"
   await trigger.click();
   await expect(input).toHaveValue("");
   const allResults = page.locator("#search-results button");
-  await expect(allResults).toHaveCount(22);
+  await expect(allResults).toHaveCount(26);
   const resultList = page.locator("#search-results");
   expect(
     await resultList.evaluate(
@@ -2086,7 +2090,7 @@ test("Search no-result recovery clears locally and opens stable category results
   await page.keyboard.press("Enter");
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect(page.locator("#search-results button")).toHaveCount(22);
+  await expect(page.locator("#search-results button")).toHaveCount(26);
 
   await input.fill("no-such-vcg-destination");
   await page.keyboard.press("ArrowDown");
@@ -2189,6 +2193,7 @@ test("Search remote-web launch contains denial and offline failure before restor
 test("Search unavailable package denial retains diagnostics and restores focus", async ({
   page,
 }) => {
+  await connectSyntheticController(page);
   await page.clock.install({
     time: new Date("2026-07-24T19:00:00-07:00"),
   });
@@ -2275,6 +2280,7 @@ test("Search destructive progress route defaults to denial and preserves the ent
 });
 
 test("retro candidate remains visibly uninstalled and guards the host handoff", async ({ page }) => {
+  await connectSyntheticController(page);
   await page.goto("/?skipBoot=1&input=controller");
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByText("Signed package catalog unavailable")).toBeVisible();
@@ -3169,4 +3175,206 @@ test("browser policy denies hostile cross-origin capabilities and escape", async
   expect(escapeRequests).toEqual([]);
   expect(popupCount).toBe(0);
   expect(downloadCount).toBe(0);
+});
+
+test("imported games browse one page at a time and refuse a controllerless launch", async ({
+  page,
+}) => {
+  const token = "d".repeat(64);
+  const cursor = "b".repeat(32);
+  const entry = (systemId: string, index: number) => ({
+    entryId: `content-${index.toString(16).padStart(64, "0")}`,
+    title: `${systemId} title ${String(index).padStart(4, "0")}`,
+    systemId,
+    coreId: "mesen",
+    sizeBytes: 40_976 + index,
+  });
+  const nes = Array.from({ length: 12 }, (_, index) => entry("nes", index + 1));
+  const snes = Array.from({ length: 8 }, (_, index) => entry("snes", index + 13));
+  const observed: Array<{ url: string; method: string; body?: unknown }> = [];
+
+  await page.route("http://127.0.0.1:43125/v1/**", async (route) => {
+    const request = route.request();
+    const headers = {
+      "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+      "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    };
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    observed.push({
+      url: request.url(),
+      method: request.method(),
+      ...(request.method() === "POST" ? { body: request.postDataJSON() } : {}),
+    });
+    const url = request.url();
+    let body: unknown = { code: "NOT_FOUND" };
+    let status = 404;
+    if (url.endsWith("/v1/status")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        hostVersion: "0.1.0",
+        target: "x86_64-windows",
+        capabilities: [
+          "launcher-shell",
+          "trusted-package-catalog",
+          "trusted-package-launch",
+          "retro-library",
+        ],
+      };
+    } else if (url.endsWith("/v1/packages")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        catalogGeneration: 7,
+        packages: [{ id: "nes-library", version: "1.0.0", runtime: "libretro" }],
+      };
+    } else if (url.endsWith("/v1/library")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        libraryGeneration: 2,
+        entryCount: nes.length + snes.length,
+        entries: nes,
+        nextCursor: cursor,
+      };
+    } else if (url.endsWith(`/v1/library/${cursor}`)) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        libraryGeneration: 2,
+        entryCount: nes.length + snes.length,
+        entries: snes,
+      };
+    }
+    await route.fulfill({ status, headers, body: JSON.stringify(body) });
+  });
+
+  await page.goto(`/?skipBoot=1&input=controller#vcg-host-port=43125&vcg-host-token=${token}`);
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await page.getByRole("button", { name: "Imported games", exact: true }).click();
+
+  const library = page.locator('[data-launcher-view="retro-library"]');
+  const rows = library.locator(".retro-library-list button");
+  await expect(rows.first()).toBeVisible();
+  // Every page of the walk is read, but only the rows that fit are mounted.
+  await expect
+    .poll(async () => observed.filter(({ url }) => url.includes("/v1/library")).length)
+    .toBe(2);
+  expect(await rows.count()).toBeLessThan(nes.length + snes.length);
+  await expect(library.locator('[data-library-index="0"]')).toBeFocused();
+
+  await page.keyboard.press("ArrowDown");
+  await expect(library.locator('[data-library-index="1"]')).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(library.locator('[data-library-index="12"]')).toBeFocused();
+  await expect(library.locator('[data-library-index="12"] em')).toHaveText("snes");
+  await page.keyboard.press("ArrowLeft");
+  await expect(library.locator('[data-library-index="0"]')).toBeFocused();
+
+  // No controller is connected, so the game is refused before the host is asked.
+  await expect(library.getByText(/Connect a controller to play/)).toBeVisible();
+  await page.keyboard.press("Enter");
+  const refused = page.getByRole("dialog", { name: "nes title 0001" });
+  await expect(refused).toHaveAttribute("data-launch-adapter", "retro");
+  await expect(refused.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(refused.getByText(/Connect a controller to play/)).toBeVisible();
+  expect(observed.some(({ method }) => method === "POST")).toBe(false);
+});
+
+test("an imported game names one host-published entry to the host", async ({ page }) => {
+  await connectSyntheticController(page);
+  const token = "e".repeat(64);
+  const entries = Array.from({ length: 3 }, (_, index) => ({
+    entryId: `content-${(index + 1).toString(16).padStart(64, "0")}`,
+    title: `nes title ${String(index + 1).padStart(4, "0")}`,
+    systemId: "nes",
+    coreId: "mesen",
+    sizeBytes: 40_976,
+  }));
+  const observed: Array<{ url: string; method: string; body?: unknown }> = [];
+
+  await page.route("http://127.0.0.1:43126/v1/**", async (route) => {
+    const request = route.request();
+    const headers = {
+      "Access-Control-Allow-Origin": "http://127.0.0.1:4173",
+      "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    };
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers });
+      return;
+    }
+    observed.push({
+      url: request.url(),
+      method: request.method(),
+      ...(request.method() === "POST" ? { body: request.postDataJSON() } : {}),
+    });
+    const url = request.url();
+    let status = 404;
+    let body: unknown = { code: "NOT_FOUND" };
+    if (url.endsWith("/v1/status")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        hostVersion: "0.1.0",
+        target: "x86_64-windows",
+        capabilities: [
+          "launcher-shell",
+          "trusted-package-catalog",
+          "trusted-package-launch",
+          "retro-library",
+        ],
+      };
+    } else if (url.endsWith("/v1/packages")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        catalogGeneration: 7,
+        packages: [{ id: "nes-library", version: "1.0.0", runtime: "libretro" }],
+      };
+    } else if (url.endsWith("/v1/library")) {
+      status = 200;
+      body = {
+        protocolVersion: "0.1.0",
+        libraryGeneration: 2,
+        entryCount: entries.length,
+        entries,
+      };
+    } else if (url.endsWith("/v1/launches")) {
+      status = 409;
+      body = { code: "LIBRARY_ENTRY_INCOMPATIBLE" };
+    }
+    await route.fulfill({ status, headers, body: JSON.stringify(body) });
+  });
+
+  await page.goto(`/?skipBoot=1&input=controller#vcg-host-port=43126&vcg-host-token=${token}`);
+  await page.getByRole("button", { name: "Retro", exact: true }).click();
+  await page.getByRole("button", { name: "Imported games", exact: true }).click();
+  const library = page.locator('[data-launcher-view="retro-library"]');
+  await expect(library.locator('[data-library-index="0"]')).toBeFocused();
+  await expect(library.getByText(/Connect a controller to play/)).toHaveCount(0);
+
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  const launch = page.getByRole("dialog", { name: "nes title 0002" });
+  await expect(launch.getByText("NOT AVAILABLE")).toBeVisible();
+  await expect(launch.getByText(/cannot run this game.s system/)).toBeVisible();
+
+  const posted = observed.find(({ method }) => method === "POST");
+  expect(posted?.body).toEqual({
+    protocolVersion: "0.1.0",
+    requestId: expect.stringMatching(/^[0-9a-f]{32}$/),
+    gameId: "nes-library",
+    profileId: "profile-randy",
+    entryId: entries[1]?.entryId,
+  });
+  expect(JSON.stringify(observed)).not.toMatch(/path|sha256|coreId|extension/i);
 });

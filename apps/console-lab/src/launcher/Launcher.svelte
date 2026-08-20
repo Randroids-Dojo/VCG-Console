@@ -9,7 +9,9 @@
     getNativeLaunch,
     listNativePackages,
     startNativeLaunch,
+    startNativeLibraryLaunch,
     type NativeLaunchSnapshot,
+    type NativeLibraryEntry,
     type NativePackageInventory,
   } from "../native-host-client";
   import BootScreen from "./BootScreen.svelte";
@@ -27,6 +29,12 @@
   } from "./calibration-rehearsal";
   import { launcherCatalog } from "./catalog.generated";
   import { isCircuitShiftEntry } from "./circuit-shift";
+  import {
+    ControllerPresence,
+    libretroLaunchGate,
+  } from "./controller-launch-gate";
+  import RetroLibraryView from "./RetroLibraryView.svelte";
+  import { libraryLaunchPackageId, RetroLibraryBrowse } from "./retro-library";
   import {
     HostedBrowserPreviewController,
     type HostedBrowserPreviewPlan,
@@ -76,6 +84,17 @@
   let circuitShiftGame = $state<CircuitShiftGame | undefined>();
   let sessionAdversarial: SessionAdversarialView;
   let unassigned: UnassignedProgressView;
+  let retroLibrary: RetroLibraryView;
+  const retroLibraryBrowse = new RetroLibraryBrowse();
+  let connectedControllers = $state(0);
+  // A libretro game is refused while this reads zero. The gate lives in the
+  // shell because the appliance session has no keyboard, so a player who
+  // reached a running core without a controller could neither play nor leave
+  // it. It is a usability gate, not a security boundary: the host has no
+  // backend that reads a physical device and cannot refuse the same launch.
+  const controllerPresence = new ControllerPresence((connected) => {
+    connectedControllers = connected;
+  });
   let visible = $state(true);
   let view = $state<LauncherView>("home");
   const acceptedPortraits = new AcceptedPortraitCollection();
@@ -215,6 +234,7 @@
     clockTimer = window.setInterval(paintClock, 15_000);
     void positionSignal();
     void refreshNativePackageInventory();
+    controllerPresence.start();
     window.addEventListener("focus", refreshNativePackageInventory);
     document.addEventListener("visibilitychange", refreshVisibleNativePackageInventory);
   });
@@ -408,6 +428,7 @@
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
     window.removeEventListener("focus", refreshNativePackageInventory);
     document.removeEventListener("visibilitychange", refreshVisibleNativePackageInventory);
+    controllerPresence.stop();
     discardHostedBrowserPreview();
     disposeLaunchSupervisor();
   });
@@ -485,6 +506,8 @@
       });
     } else if (next === "retro-game") {
       circuitShiftGame?.focus();
+    } else if (next === "retro-library") {
+      await retroLibrary.open();
     } else {
       launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
     }
@@ -521,6 +544,10 @@
     }
     else if (view === "session-adversarial") showView("motion");
     else if (view === "retro-game") showView("retro");
+    // The library owns two states of its own -- the letters and an open
+    // title -- and Back closes those before it leaves the view.
+    else if (view === "retro-library" && retroLibrary.handleBack()) return;
+    else if (view === "retro-library") showView("retro");
     else if (view === "unassigned" && unassigned.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
@@ -542,6 +569,13 @@
     }
     if (view === "retro-game") {
       circuitShiftGame?.handleInput(action);
+      return;
+    }
+    // The library window mounts eight of up to 100,000 rows, so directional
+    // motion has to move the selection through the model rather than between
+    // the controls that happen to exist in the document.
+    if (view === "retro-library" && !launchSession) {
+      retroLibrary.handleInput(action);
       return;
     }
 
@@ -810,14 +844,34 @@
     const title = requestedTitle ?? (adapter === "retro" ? "RetroArch" : "Native game");
     const context = adapter === "retro" ? "RETRO HUB / LOCAL" : "DEVELOPER PREVIEW / LOCAL";
     const { supervisor } = beginSupervisedLaunch(baseLaunch(adapter, title, context), LOCAL_LAUNCH_BUDGET);
-    launchRetryOperation = () => void runHostedAttempt(supervisor, expected);
-    void runHostedAttempt(supervisor, expected);
+    launchRetryOperation = () => void runHostedAttempt(supervisor, adapter, expected);
+    void runHostedAttempt(supervisor, adapter, expected);
+  }
+
+  /**
+   * Refuses a libretro launch while no controller is connected.
+   *
+   * Re-read at every attempt, including a retry, so plugging a controller in
+   * and pressing Retry is the recovery. This is a shell usability gate, not a
+   * security boundary: the Rust host has no backend that reads a physical
+   * input device, so it cannot refuse the same launch.
+   */
+  function refuseWithoutController(supervisor: LaunchSupervisor): boolean {
+    const gate = libretroLaunchGate(controllerPresence.refresh());
+    if (gate.allowed) return false;
+    supervisor.unavailable(gate.detail, "CONTROLLER_NOT_CONNECTED");
+    return true;
   }
 
   async function runHostedAttempt(
     supervisor: LaunchSupervisor,
+    adapter: "native" | "retro",
     expected?: CatalogLaunchExpectation,
   ): Promise<void> {
+    // Only a resolved catalog entry can reach the host's start endpoint; the
+    // bare adapter handoff reports an unavailable package and starts nothing,
+    // so gating it would refuse a launch that could never happen.
+    if (adapter === "retro" && expected && refuseWithoutController(supervisor)) return;
     supervisor.advance(1, "Requesting the Rust console host");
     if (expected) {
       const inventory = nativePackageInventory;
@@ -896,6 +950,64 @@
     }
     supervisor.advance(2, `Rust host ${hostResult.status.hostVersion} connected on ${hostResult.status.target}`);
     supervisor.unavailable("Rust host connected · no trusted installed package is available for this launch", "PACKAGE_NOT_INSTALLED");
+  }
+
+  function launchLibraryEntry(entry: NativeLibraryEntry): void {
+    const gameId = libraryLaunchPackageId(entry.systemId);
+    const { supervisor } = beginSupervisedLaunch(
+      baseLaunch("retro", entry.title, "IMPORTED GAMES / LOCAL"),
+      LOCAL_LAUNCH_BUDGET,
+    );
+    launchRetryOperation = () => void runLibraryAttempt(supervisor, gameId, entry);
+    void runLibraryAttempt(supervisor, gameId, entry);
+  }
+
+  async function runLibraryAttempt(
+    supervisor: LaunchSupervisor,
+    gameId: string,
+    entry: NativeLibraryEntry,
+  ): Promise<void> {
+    if (refuseWithoutController(supervisor)) return;
+    supervisor.advance(1, "Requesting the Rust console host");
+    await refreshNativePackageInventory();
+    if (launchSupervisor !== supervisor) return;
+    const installed =
+      nativePackageInventoryState === "available" &&
+      (nativePackageInventory?.packages.some(
+        (candidate) => candidate.id === gameId && candidate.runtime === "libretro",
+      ) ??
+        false);
+    if (!installed) {
+      supervisor.unavailable(
+        `No installed package plays ${entry.systemId} games`,
+        "PACKAGE_NOT_INSTALLED",
+      );
+      return;
+    }
+    if (activeNativeRequestId) {
+      const previousRequestId = activeNativeRequestId;
+      activeNativeRequestId = undefined;
+      await cancelNativeLaunch(previousRequestId);
+      if (launchSupervisor !== supervisor) return;
+    }
+    // The browser names the package, the profile, and one entry the host
+    // itself published; the system, core, path, and digest all stay with the
+    // host, which refuses an entry the signed package does not accept.
+    const launchResult = await startNativeLibraryLaunch(gameId, activeProfileId, entry.entryId);
+    if (launchSupervisor !== supervisor) {
+      if (launchResult.ok) void cancelNativeLaunch(launchResult.launch.requestId);
+      return;
+    }
+    if (!launchResult.ok) {
+      supervisor.unavailable(launchResult.detail, launchResult.code);
+      return;
+    }
+    activeNativeRequestId = launchResult.launch.requestId;
+    supervisor.advance(
+      2,
+      `Resolved for ${activeProfile} · host process lifecycle ${launchResult.launch.detailCode.toLowerCase().replaceAll("_", " ")}`,
+    );
+    await monitorNativeLaunch(supervisor, launchResult.launch);
   }
 
   async function monitorNativeLaunch(
@@ -1084,7 +1196,7 @@
   async function positionSignal(): Promise<void> {
     await tick();
     const navView =
-      view === "retro-game" ? "retro"
+      view === "retro-game" || view === "retro-library" ? "retro"
       : view === "session-adversarial" ? "motion"
       : ["profile-management", "calibration", "portrait", "unassigned"].includes(view) ? "profiles"
       : view;
@@ -1113,7 +1225,7 @@
     <nav class="launcher-nav" aria-label="Launcher">
       <div class="nav-signal" aria-hidden="true"><span style:transform={`translateX(${navSignalOffset}px)`} style:width={`${navSignalWidth}px`}></span></div>
       {#each ["home", "motion", "museum", "retro"] as target}
-        <button class:active={view === target || (target === "motion" && view === "session-adversarial") || (target === "retro" && view === "retro-game")} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
+        <button class:active={view === target || (target === "motion" && view === "session-adversarial") || (target === "retro" && (view === "retro-game" || view === "retro-library"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
       {/each}
       <span class="nav-spacer"></span>
       {#each ["profiles", "settings"] as target}
@@ -1217,8 +1329,20 @@
         </div>
         <div class="retro-actions">
           <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>
+          <button type="button" onclick={() => showView("retro-library")}>Imported games</button>
           <button type="button" onclick={openSearch}>Search library</button>
         </div>
+      </div>
+
+      <div class="launcher-view retro-library-view" data-launcher-view="retro-library" hidden={view !== "retro-library"}>
+        <RetroLibraryView
+          bind:this={retroLibrary}
+          browse={retroLibraryBrowse}
+          visible={view === "retro-library"}
+          controllerConnected={connectedControllers > 0}
+          onlaunch={launchLibraryEntry}
+          onback={() => showView("retro")}
+        />
       </div>
 
       <div class="launcher-view retro-game-view" data-launcher-view="retro-game" hidden={view !== "retro-game"}>

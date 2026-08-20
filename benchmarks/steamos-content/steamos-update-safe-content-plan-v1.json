@@ -27,7 +27,7 @@
     {
       "role": "runtime-neutral-signed-package-plan",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "6bbda6a81563099d66855dd61c9d95c81197522bdb23e289add3392d50864217"
     },
     {
       "role": "native-package-process-boundary",
@@ -57,7 +57,7 @@
     {
       "role": "controller-input-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
+      "sha256": "e7f2b1cef9001605f66a631b1239707d3921318841a9abc3261e5ef2255b5f31"
     },
     {
       "role": "television-compatibility-boundary",

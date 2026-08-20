@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "nes-metal-gear",
+  "version": "operator-content-1abb14a6-2026-08-19",
+  "title": "Metal Gear",
+  "publisher": "Konami",
+  "runtime": "libretro",
+  "entrypoint": "libretro:mesen",
+  "architectures": ["aarch64"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "GPL-3.0-only AND GPL-3.0-or-later AND NOASSERTION",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "unreviewed"
+  },
+  "libretro": {
+    "frontend": {
+      "id": "retroarch",
+      "version": "1.22.2",
+      "sha256": "dcba0282d627ac90538d789b9471bcd0cdd7de3d9b1dea4e2d5a2f8347b14f6a",
+      "license": "GPL-3.0-only",
+      "source": "https://github.com/libretro/RetroArch"
+    },
+    "core": {
+      "id": "mesen",
+      "version": "0102910c39ad1a62bc3f784466f3f67ca9eae335",
+      "sha256": "184ac03e62a01bf51f888c65daa7ce5bde253887a607681aef9a9a0a5c16449b",
+      "license": "GPL-3.0-or-later AND NOASSERTION",
+      "source": "https://github.com/libretro/Mesen",
+      "architectures": ["aarch64"],
+      "supportsNoGame": false
+    },
+    "content": {
+      "mode": "managed",
+      "format": "nes",
+      "sha256": "1abb14a68432056b40ff36471a8c067f4c89380c7c47efd2f54e7d8f70c68b62"
+    },
+    "controllerProfile": "retropad-standard-v1",
+    "saveNamespace": "nes-metal-gear",
+    "bios": []
+  },
+  "notes": [
+    "Managed-content package bound by SHA-256 to one operator-supplied NES cartridge dump held in the console-managed object store; this repository ships no ROM and no emulator binary.",
+    "No controller, audio, video, save, or timing evidence exists for this title on any target, so the compatibility status stays unverified even though the frontend and core artifact hashes are recorded.",
+    "Mesen is GPL-3.0-or-later and requires content: it does not declare RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME (D-190). Utilities/orfanidis_eq.h and Libretro/MesenDB.txt carry no stated terms and block any redistribution claim, which is why distribution is owner-authorized-local.",
+    "Mesen component attribution: hqx and nes_ntsc and blip_buf under LGPL-2.1-or-later, Scale2x under GPL-2.0-or-later, xBRZ under GPL-3.0, the RetroArch-derived 2xSaI and SuperEagle filters under GPL-3.0-or-later, and miniz, stb_vorbis, md5, sha1, and the bundled LZMA SDK as public-domain grants.",
+    "The frontend and core hashes record one native aarch64 build observation on a Raspberry Pi 5. Neither artifact was signed, scanned, or built from a pinned toolchain, so they are not reproducible-build evidence.",
+    "Metal Gear is a trademark of Konami; the North American NES release carried Konami's Ultra Games label. No licence covers the content; the operator supplies a dump of a cartridge they hold and the console never redistributes it."
+  ]
+}

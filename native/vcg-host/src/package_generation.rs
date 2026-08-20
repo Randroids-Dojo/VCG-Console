@@ -2607,7 +2607,9 @@ mod tests {
         STAGED_INTENT_FILE, STAGED_TRANSFER_RECEIPT_FILE, current_target, prepare_staged_marker,
         publish_intent, read_marker,
     };
-    use crate::installed_catalog::{CatalogError, PackageHealthCheck};
+    use crate::installed_catalog::{
+        CatalogError, INSTALLED_MANIFEST_DOCUMENT_TYPE, PackageHealthCheck,
+    };
     use crate::native_launch::NativeLaunchService;
     use crate::package_health::CandidateHealthChecker;
     use crate::package_intake::{PackageIntakeError, VerifiedPackageRelease};
@@ -2781,7 +2783,8 @@ mod tests {
             fs::write(
                 &manifest,
                 format!(
-                    "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"{version}\",\
+                    "{{\"documentType\":\"{INSTALLED_MANIFEST_DOCUMENT_TYPE}\",\
+                     \"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"{version}\",\
                      \"runtime\":\"libretro\",\"compatibilityStatus\":\"qualified\",\
                      \"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
                 ),
@@ -2847,7 +2850,8 @@ mod tests {
             fs::write(
                 &manifest,
                 format!(
-                    "{{\"schemaVersion\":1,\"id\":\"native-game\",\"version\":\"{version}\",\
+                    "{{\"documentType\":\"{INSTALLED_MANIFEST_DOCUMENT_TYPE}\",\
+                     \"schemaVersion\":1,\"id\":\"native-game\",\"version\":\"{version}\",\
                      \"runtime\":\"native\",\"compatibilityStatus\":\"qualified\",\
                      \"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
                 ),

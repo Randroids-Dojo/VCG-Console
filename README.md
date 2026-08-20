@@ -72,6 +72,7 @@ This project runs as an open research trail: every architectural claim traces to
 - [Canonical game manifest v1 contract](docs/GAME_MANIFEST_CONTRACT.md)
 - [Deny-by-default game permission model](docs/GAME_PERMISSION_MODEL.md)
 - [RetroArch integration contract](docs/RETROARCH_INTEGRATION.md)
+- [Retro core and content deployment](docs/RETRO_CONTENT_DEPLOYMENT.md)
 - [Repository security threat model](docs/SECURITY_THREAT_MODEL.md)
 - [Release compliance and CycloneDX SBOM](docs/RELEASE_COMPLIANCE.md)
 - [Source ledger](docs/SOURCES.md)

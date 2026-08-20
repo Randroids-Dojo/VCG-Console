@@ -57,6 +57,42 @@
       "statusLabel": "Built in"
     },
     {
+      "id": "nes-super-mario-bros-duck-hunt",
+      "surface": "retro",
+      "displayIndex": "R2",
+      "searchDetail": "NES game",
+      "searchTerms": ["super mario bros", "duck hunt", "mario", "nes", "nintendo", "mesen"],
+      "summary": "Needs your own NES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "nes-metal-gear",
+      "surface": "retro",
+      "displayIndex": "R3",
+      "searchDetail": "NES game",
+      "searchTerms": ["metal gear", "nes", "nintendo", "konami", "mesen"],
+      "summary": "Needs your own NES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "snes-yoshis-island",
+      "surface": "retro",
+      "displayIndex": "R4",
+      "searchDetail": "SNES game",
+      "searchTerms": ["yoshis island", "yoshi", "super mario world 2", "snes", "nintendo", "snes9x"],
+      "summary": "Needs your own SNES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "snes-donkey-kong-country-2",
+      "surface": "retro",
+      "displayIndex": "R5",
+      "searchDetail": "SNES game",
+      "searchTerms": ["donkey kong country 2", "donkey kong", "diddy kong", "snes", "nintendo", "snes9x"],
+      "summary": "Needs your own SNES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
       "id": "retro-2048",
       "surface": "retro",
       "displayIndex": "Q1",

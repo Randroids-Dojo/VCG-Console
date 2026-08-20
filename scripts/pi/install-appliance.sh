@@ -17,6 +17,15 @@ host_path=""
 node_path=""
 bluetoothctl_path=""
 cursor_nudge_path=""
+retro_requested=0
+retro_root=""
+retro_install_root=""
+retro_library_root=""
+retro_content_root=""
+retro_channel=""
+retro_profile_registry=""
+trusted_time_launcher=""
+launcher_url="http://127.0.0.1:4173/"
 
 usage() {
   cat <<'EOF'
@@ -36,6 +45,22 @@ Options:
   --no-enable          install units without changing the default boot target
   --dry-run            render units without changing the operating system
   --output-dir PATH    keep rendered dry-run units in PATH
+
+Retro options. Without any of them the session starts exactly as before, with
+no catalog and no library. Supplying any one of them requires --retro-channel
+and every named path to exist already.
+  --retro-channel NAME       update channel the accepted update root authorizes
+  --retro-root PATH          provisioned catalog and trust root
+                             (default: HOME/.local/share/vcg)
+  --retro-install-root PATH  installed package root
+                             (default: RETRO-ROOT/packages)
+  --retro-library-root PATH  provisioned retro library root
+                             (default: RETRO-ROOT)
+  --retro-content-root PATH  content root for packages carrying managed content
+  --retro-profile-registry PATH
+                             launch profile registry; without it the console
+                             browses the catalog and library but launches
+                             nothing
 EOF
 }
 
@@ -48,7 +73,9 @@ require_value() {
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--bluetoothctl|--cursor-nudge|--output-dir)
+    --user|--group|--home|--repo-root|--browser|--cage|--host|--node|--bluetoothctl|--cursor-nudge|--output-dir|\
+    --retro-root|--retro-install-root|--retro-library-root|--retro-content-root|--retro-channel|\
+    --retro-profile-registry)
       require_value "$@"
       option="$1"
       value="$2"
@@ -65,6 +92,12 @@ while [ "$#" -gt 0 ]; do
         --bluetoothctl) bluetoothctl_path="${value}" ;;
         --cursor-nudge) cursor_nudge_path="${value}" ;;
         --output-dir) output_dir="${value}" ;;
+        --retro-root) retro_root="${value}"; retro_requested=1 ;;
+        --retro-install-root) retro_install_root="${value}"; retro_requested=1 ;;
+        --retro-library-root) retro_library_root="${value}"; retro_requested=1 ;;
+        --retro-content-root) retro_content_root="${value}"; retro_requested=1 ;;
+        --retro-channel) retro_channel="${value}"; retro_requested=1 ;;
+        --retro-profile-registry) retro_profile_registry="${value}"; retro_requested=1 ;;
       esac
       ;;
     --no-enable) enable_boot=0; shift ;;
@@ -220,6 +253,105 @@ validate_absolute_path "Node.js directory" "${node_bin_dir}"
 validate_absolute_path "bluetoothctl" "${bluetoothctl_path}"
 validate_absolute_path "cursor-nudge" "${cursor_nudge_path}"
 
+# The launcher invocation is composed here rather than templated argument by
+# argument, because the catalog, update trust, and retro library are optional
+# and because the trusted-time snapshot has to be resolved at start. With no
+# --retro- option this is byte for byte the metadata-only command this
+# installer has always rendered.
+launcher_command="${host_path} launcher --browser ${browser_path}"
+launcher_command="${launcher_command} --bluetoothctl ${bluetoothctl_path}"
+launcher_command="${launcher_command} --cursor-nudge ${cursor_nudge_path}"
+launcher_command="${launcher_command} --profile-dir /var/lib/vcg-console/browser-profile"
+launcher_command="${launcher_command} --url ${launcher_url}"
+
+require_retro_directory() {
+  retro_path_name="$1"
+  retro_path_value="$2"
+  validate_absolute_path "retro ${retro_path_name}" "${retro_path_value}"
+  if [ ! -d "${retro_path_value}" ]; then
+    echo "Retro ${retro_path_name} is not a directory: ${retro_path_value}" >&2
+    echo "Provision it with vcg-retro-provision, or install without the --retro- options." >&2
+    exit 1
+  fi
+}
+
+require_retro_file() {
+  retro_path_name="$1"
+  retro_path_value="$2"
+  validate_absolute_path "retro ${retro_path_name}" "${retro_path_value}"
+  if [ ! -f "${retro_path_value}" ]; then
+    echo "Retro ${retro_path_name} is not a file: ${retro_path_value}" >&2
+    echo "Provision it with vcg-retro-provision, or install without the --retro- options." >&2
+    exit 1
+  fi
+}
+
+if [ "${retro_requested}" -eq 1 ]; then
+  if [ -z "${retro_channel}" ]; then
+    echo "Retro configuration requires --retro-channel." >&2
+    exit 1
+  fi
+  case "${retro_channel}" in
+    *[!a-zA-Z0-9_.-]*)
+      echo "Retro channel contains characters that are unsafe in a systemd unit: ${retro_channel}" >&2
+      exit 1
+      ;;
+  esac
+
+  retro_root="${retro_root:-${console_home}/.local/share/vcg}"
+  retro_install_root="${retro_install_root:-${retro_root}/packages}"
+  retro_library_root="${retro_library_root:-${retro_root}}"
+  trusted_time_launcher="${repo_root}/scripts/pi/start-launcher-with-trusted-time.sh"
+
+  # Saves, states, and the replay journal go inside the unit's own
+  # RuntimeDirectory and StateDirectory, which ProtectSystem=strict already
+  # leaves writable, so configuring retro adds no writable path to the sandbox
+  # and the provisioned root stays read-only to the running session.
+  retro_runtime_root="/run/vcg-console/retro"
+  retro_data_root="/var/lib/vcg-console/data/retro"
+  retro_replay_root="/var/lib/vcg-console/data/launch-replay"
+
+  require_retro_directory "root" "${retro_root}"
+  require_retro_file "catalog" "${retro_root}/installed-catalog.json"
+  require_retro_file "catalog signature" "${retro_root}/installed-catalog.sig"
+  require_retro_directory "install root" "${retro_install_root}"
+  require_retro_directory "accepted root store" "${retro_root}/trust/accepted-roots"
+  require_retro_file "root anchor set" "${retro_root}/trust/anchors.json"
+  require_retro_file "protected state" "${retro_root}/trust/protected-state.json"
+  require_retro_directory "library root" "${retro_library_root}"
+  require_retro_directory "library generation store" "${retro_library_root}/retro/libraries"
+  require_retro_file "library import lock" \
+    "${retro_library_root}/staging/retro-imports/retro-import.lock"
+
+  launcher_command="${trusted_time_launcher} ${launcher_command}"
+  launcher_command="${launcher_command} --catalog ${retro_root}/installed-catalog.json"
+  launcher_command="${launcher_command} --catalog-signature ${retro_root}/installed-catalog.sig"
+  launcher_command="${launcher_command} --install-root ${retro_install_root}"
+  launcher_command="${launcher_command} --update-root-store ${retro_root}/trust/accepted-roots"
+  launcher_command="${launcher_command} --update-root-anchors ${retro_root}/trust/anchors.json"
+  launcher_command="${launcher_command} --update-root-protected-state ${retro_root}/trust/protected-state.json"
+  launcher_command="${launcher_command} --update-channel ${retro_channel}"
+  launcher_command="${launcher_command} --runtime-root ${retro_runtime_root}"
+  launcher_command="${launcher_command} --data-root ${retro_data_root}"
+  if [ -n "${retro_content_root}" ]; then
+    require_retro_directory "content root" "${retro_content_root}"
+    launcher_command="${launcher_command} --content-root ${retro_content_root}"
+  fi
+  # A launch profile source is what makes the catalog and the library
+  # launchable; the launcher then requires the durable replay journal too.
+  if [ -n "${retro_profile_registry}" ]; then
+    validate_absolute_path "retro profile registry" "${retro_profile_registry}"
+    if [ ! -f "${retro_profile_registry}" ]; then
+      echo "Retro profile registry is not a file: ${retro_profile_registry}" >&2
+      echo "Write the registry documented in docs/PROFILE_REGISTRY.md, or install without --retro-profile-registry." >&2
+      exit 1
+    fi
+    launcher_command="${launcher_command} --profile-registry ${retro_profile_registry}"
+    launcher_command="${launcher_command} --launch-replay-root ${retro_replay_root}"
+  fi
+  launcher_command="${launcher_command} --retro-library-root ${retro_library_root}"
+fi
+
 if [ "${dry_run}" -eq 0 ]; then
   if ! systemctl cat bluetooth.service >/dev/null 2>&1; then
     echo "The bluetooth.service systemd unit is missing. Install the Raspberry Pi OS bluez package first." >&2
@@ -235,6 +367,10 @@ if [ "${dry_run}" -eq 0 ]; then
       exit 1
     fi
   done
+  if [ "${retro_requested}" -eq 1 ] && [ ! -x "${trusted_time_launcher}" ]; then
+    echo "Required executable is missing: ${trusted_time_launcher}" >&2
+    exit 1
+  fi
   node_major="$("${node_path}" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
   case "${node_major}" in
     ""|*[!0-9]*)
@@ -286,12 +422,9 @@ render_unit() {
   content="${content//@CONSOLE_HOME@/${console_home}}"
   content="${content//@CONSOLE_UID@/${console_uid}}"
   content="${content//@REPO_ROOT@/${repo_root}}"
-  content="${content//@BROWSER_PATH@/${browser_path}}"
   content="${content//@CAGE_PATH@/${cage_path}}"
-  content="${content//@HOST_PATH@/${host_path}}"
   content="${content//@NODE_BIN_DIR@/${node_bin_dir}}"
-  content="${content//@BLUETOOTHCTL_PATH@/${bluetoothctl_path}}"
-  content="${content//@CURSOR_NUDGE_PATH@/${cursor_nudge_path}}"
+  content="${content//@LAUNCHER_COMMAND@/${launcher_command}}"
   printf '%s\n' "${content}" >"${destination}"
 }
 
@@ -303,6 +436,11 @@ done
 if grep -R -n '@[A-Z_]*@' "${render_dir}"; then
   echo "A systemd template placeholder was not resolved." >&2
   exit 1
+fi
+
+if [ "${retro_requested}" -eq 1 ]; then
+  echo "Catalog and trust root: ${retro_root}"
+  echo "Retro library root: ${retro_library_root}"
 fi
 
 if [ "${dry_run}" -eq 1 ]; then

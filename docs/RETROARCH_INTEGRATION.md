@@ -2,9 +2,9 @@
 
 Status: implemented software foundation; artifacts and target behavior unqualified
 
-Last updated: 2026-07-23
+Last updated: 2026-08-19
 
-VCG launches RetroArch as a supervised local application. RetroArch does not become a second operating system, own the console launcher, scan removable media, or select arbitrary cores. The VCG shell retains branded loading/return, package policy, profile identity, storage boundaries, and eventually compositor-reserved Home/Back.
+VCG launches RetroArch as a supervised local application. RetroArch does not become a second operating system, own the console launcher, scan removable media, or select arbitrary cores. The VCG shell retains branded loading/return, package policy, profile identity, storage boundaries, and the reserved gesture that exits a running game.
 
 ## Manifest boundary
 
@@ -90,12 +90,18 @@ Persistent local state:
   remaps/
   screenshots/
   system/
-  config/retroarch-core-options.cfg
+  config/
+    retroarch-core-options.cfg
+    <core>/<core>.opt
 ```
 
 The host creates private directories and atomically replaces the generated append config. On Unix, directories are mode `0700` and the configuration is `0600`. Content, cores, saves, states, remaps, BIOS/system files, and runtime cache remain distinct.
 
-The generated configuration disables configuration persistence, history, command interfaces, achievements, online/core updaters, load-core/load-content entries, general configuration/information entries, and enables kiosk/fullscreen behavior. It redirects every mutable directory used by this slice into the paths above. OS/compositor sandboxing remains required because configuration is defense in depth, not a security boundary.
+The generated configuration disables configuration persistence, history, command interfaces, achievements, online/core updaters, load-core/load-content entries, general configuration/information entries, and enables kiosk/fullscreen behavior. It redirects the save, save-state, remap, screenshot, system, cache, playlist, and log directories, the global core-options file, the content-history file, and RetroArch's own configuration directory into the paths above.
+
+The configuration directory is redirected by `rgui_config_directory`, pointed at the same per-game `config` directory that holds `retroarch-core-options.cfg`. That key is not redundant with `core_options_path`, which names only the global options file: RetroArch writes per-core option files beneath its configuration directory instead. Measured on the Pi 5 target on 2026-08-19, with the rest of this key set generated, `config_save_on_exit` disabled, and the base configuration supplied, a run wrote `~/.config/retroarch/config/Mesen/Mesen.opt` — outside every console-managed root. With `rgui_config_directory` added, the same run left nothing under `~/.config/retroarch` and wrote that file beneath the managed per-game path. Per-core options are shared by every title a core runs; per-title options would be the separate RetroArch `game_specific_options` feature and are not enabled.
+
+OS/compositor sandboxing remains required because configuration is defense in depth, not a security boundary.
 
 The append configuration also establishes the I-132 no-enhancement baseline:
 shaders, run-ahead, preemptive frames, rewind, frame delay/automatic frame
@@ -106,17 +112,43 @@ non-baseline profile must follow
 and bind exact target/frontend/core/content/display evidence; raw family-mode
 RetroArch tuning remains unavailable.
 
+## Reserved input
+
+The host owns the exit from a running game. Before it starts a child, `vcg-host` opens every connected controller's own Linux event device read-only and watches for the reserved gesture itself, above the frontend. When the gesture completes, the host terminates the child and returns to the shell.
+
+The reserved gesture is **Select and Start held together for one second**. On a pad that reports a dedicated Home button (`BTN_MODE`), holding that button for one second does the same thing. The dedicated button is an addition, never a replacement: not every pad has one, and the Select-plus-Start form is producible on every RetroPad layout.
+
+The one-second hold is the debounce policy. Both buttons going down inside one frame is ordinary play — a player mashing produces it, and some titles bind the pair themselves — so a momentary chord is not enough. The gesture fires once and re-arms only after the buttons are released, so holding longer cannot repeat it. No other button, axis, or event type is inspected.
+
+The host reads button transitions, not initial state. A button already held when the router opens the device produces no event, so a gesture held from before the launch must be released and pressed again.
+
+Discovery reads sysfs capability data, not device names. A node is a controller when its key bitmap declares at least one code in the kernel's joystick and gamepad button blocks, which excludes the appliance's power button, its HDMI nodes, and a controller's separate motion-sensor node. A controller is observable when it also reports Select and Start or a Home button. The set is rescanned every 500 ms, so a controller connected or disconnected while the console runs is picked up or dropped without restarting the host. A vanished controller's held reserved action is released so a replacement can produce a fresh gesture.
+
+The router **fails closed**. If it cannot start, or no connected controller can produce the reserved gesture, the launch is refused rather than started with no exit. On a platform with no Linux event devices the launch is refused for the same reason.
+
+The reader is read-only. It never issues `EVIOCGRAB`, never writes to a device, and never consumes or modifies an event. With no exclusive grab held, the kernel delivers each event to every reader, which is why the host can observe a controller while RetroArch reads the same device. It is also why **the game still observes the same button presses**: this router owns the reserved gesture, it does not withhold it. The "never receives Home" clause of [the reserved Home invariant](RESERVED_HOME_ACTION_CAMPAIGN_2026-07-26.md) stays open and needs an exclusive grab plus re-emission through a virtual device — ioctl work that would live in a separate crate the way `native/vcg-cursor-nudge` does, outside `vcg-host`'s `unsafe_code = "forbid"` boundary.
+
+Because the host owns the gesture, `scripts/pi/vcg-base.cfg` sets no `input_menu_toggle_gamepad_combo`, and the generated session configuration pins that key to `"0"` so a base-configuration edit cannot give the frontend a combination of its own.
+
+Only the `vcg-host retroarch` launch path starts the router today. The launcher-driven native launch path does not.
+
 ## Lifecycle boundary
 
 Current stable lines:
 
 ```text
 retroarch:prepared game=<id> profile=<id> config=<path>
+retroarch:reserved-input controllers=<count> hold-ms=<milliseconds>
 retroarch:started pid=<pid>
+retroarch:reserved-exit
 retroarch:completed exit_code=<code|signal>
 ```
 
-The direct child is always reaped, and dropping its managed handle terminates it. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. Host configuration may select the installed game for connected watchdog recovery only when its signed frontend is a qualified wrapper or platform producer. A trusted compositor/window adapter must separately prove visible readiness and continued responsiveness.
+`retroarch:reserved-input` is printed before the child starts; a launch that cannot print it is refused. `retroarch:reserved-exit` appears only when the reserved gesture ended the session, and that session returns command success even though the child was terminated.
+
+The direct child is always reaped, and dropping its managed handle terminates it. A reserved exit uses the same `ManagedChild` termination the watchdog uses for a cancelled child rather than a separate kill path. A non-zero exit returns command failure. This slice intentionally does not fabricate readiness or heartbeats: RetroArch does not implement the VCG heartbeat file contract. Host configuration may select the installed game for connected watchdog recovery only when its signed frontend is a qualified wrapper or platform producer. A trusted compositor/window adapter must separately prove visible readiness and continued responsiveness.
+
+A controller that disappears mid-session is dropped from the observed set and the session continues. The host does not terminate a running game when the observed count reaches zero, because a pad that powers itself off during a cutscene would then end the session; the consequence is that the escape is unavailable until a controller reconnects.
 
 ## 2048 smoke candidate
 
@@ -140,7 +172,17 @@ Native tests cover:
 - path traversal and relative host-root rejection;
 - missing content authority;
 - private directory/config preparation;
-- generated network/menu/storage policy.
+- generated network/menu/storage policy, including the redirected
+  configuration directory that contains per-core option files and the pinned
+  empty frontend menu combination.
+
+Reserved-input tests run on any host, from a byte stream and a synthetic
+controller source, and cover event-record decoding across a split read, sysfs
+capability parsing, controller admission against power-button, HDMI, and
+motion-sensor nodes, a controller that reports no reserved buttons, the
+recognized reserved gesture, gameplay input that must not be mistaken for it, a
+partial combination released before the hold, single-fire and re-arm, hotplug
+add and remove, and refusal when no controller is observable.
 
 Manifest tests cover runtime/entrypoint identity, architecture parity, qualification hashes, contentless support, offline/origin/permission constraints, and runtime exclusivity.
 
@@ -151,7 +193,13 @@ Still required:
 - persistent host profile identity, compositor/readiness event mapping, and a qualified wrapper or platform heartbeat producer before assigning a RetroArch game to the connected API watchdog;
 - compositor/window ready and hang detection;
 - process-group/cgroup containment for descendants;
-- SDL3 mapping, player assignment, and compositor-reserved Home/Back;
+- SDL3 mapping and player assignment;
+- withholding the reserved gesture from the game, which needs an exclusive
+  grab plus re-emission through a virtual device;
+- starting the reserved-input router from the launcher-driven native launch
+  path, not only from `vcg-host retroarch`;
+- physical multi-controller evidence on both reference targets, including a
+  hung core, a pad with no Home button, and simultaneous controllers;
 - save/load UI and allowed per-game override UX;
 - target audio/video/latency/shader/suspend testing;
 - package update, rollback, uninstall, and no-leftovers proof;

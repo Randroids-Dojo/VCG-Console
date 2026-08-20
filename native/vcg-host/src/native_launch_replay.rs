@@ -1,4 +1,9 @@
 //! Crash-safe, bounded replay state for authenticated native launch intents.
+//!
+//! The journal is written at [`JOURNAL_SCHEMA_VERSION`]. Version 2, the only
+//! prior version, is migrated by discarding its records behind the
+//! restart-cleanup barrier; see [`migrate_pre_current_schema`]. Every other
+//! version fails closed.
 
 use std::collections::HashSet;
 use std::fmt;
@@ -10,12 +15,16 @@ use fs4::TryLockError;
 use serde::{Deserialize, Serialize};
 
 use crate::installed_catalog::validate_intent_id;
+use crate::retro_import::CONTENT_ENTRY_ID_PREFIX;
 
-const JOURNAL_SCHEMA_VERSION: u32 = 2;
+const JOURNAL_SCHEMA_VERSION: u32 = 3;
+/// The one prior journal schema this host migrates from.
+const MIGRATED_JOURNAL_SCHEMA_VERSION: u32 = 2;
 const MAX_EVENT_BYTES: u64 = 2_048;
 const MAX_EVENTS_PER_RECORD: usize = 128;
 const REQUEST_ID_BYTES: usize = 16;
 const CLEANUP_REQUIRED_FILE: &str = "cleanup-required";
+const SCHEMA_MIGRATION_FILE: &str = "schema-migration";
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -25,6 +34,12 @@ pub(crate) struct DurableLaunchRecord {
     pub request_id: String,
     pub game_id: String,
     pub profile_id: String,
+    /// The installed library entry this launch binds, when it binds one.
+    ///
+    /// Absent for every launch that names no library content, which is what
+    /// keeps a record written before library content valid and unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub entry_id: Option<String>,
     pub catalog_generation: u64,
     pub sequence: u64,
     pub state: String,
@@ -42,6 +57,7 @@ impl DurableLaunchRecord {
         request_id: &str,
         game_id: &str,
         profile_id: &str,
+        entry_id: Option<&str>,
         catalog_generation: u64,
         sequence: u64,
         state: &str,
@@ -54,6 +70,7 @@ impl DurableLaunchRecord {
             request_id: request_id.to_owned(),
             game_id: game_id.to_owned(),
             profile_id: profile_id.to_owned(),
+            entry_id: entry_id.map(str::to_owned),
             catalog_generation,
             sequence,
             state: state.to_owned(),
@@ -86,6 +103,13 @@ impl DurableLaunchRecord {
                 "native launch replay contains an invalid profile ID".to_owned(),
             )
         })?;
+        if let Some(entry_id) = &self.entry_id
+            && !valid_library_entry_id(entry_id)
+        {
+            return Err(LaunchReplayError::InvalidState(
+                "native launch replay contains an invalid library entry ID".to_owned(),
+            ));
+        }
         if !matches!(
             self.state.as_str(),
             "preparing" | "running" | "stopping" | "completed" | "failed" | "cancelled"
@@ -167,6 +191,7 @@ impl LaunchReplayJournal {
         }
 
         clean_retired(&retired, max_records)?;
+        migrate_pre_current_schema(&root, &active, max_records)?;
         let mut records = load_active(&active, max_records)?;
         records.sort_by_key(|record| record.accepted_ordinal);
         let mut ordinals = HashSet::new();
@@ -200,7 +225,7 @@ impl LaunchReplayJournal {
         let recovered_nonterminal = records.iter().any(DurableLaunchRecord::active);
         let cleanup_required = journal.cleanup_required()? || recovered_nonterminal;
         if recovered_nonterminal {
-            journal.ensure_cleanup_required()?;
+            ensure_cleanup_required(&journal.root)?;
         }
         for record in &mut records {
             if record.active() {
@@ -279,6 +304,7 @@ impl LaunchReplayJournal {
             || prior.request_id != record.request_id
             || prior.game_id != record.game_id
             || prior.profile_id != record.profile_id
+            || prior.entry_id != record.entry_id
             || prior.catalog_generation != record.catalog_generation
             || prior.sequence != prior_sequence
             || !valid_state_transition(&prior.state, &record.state)
@@ -340,25 +366,6 @@ impl LaunchReplayJournal {
         }
         require_regular_file(&path, "native launch replay cleanup barrier")?;
         Ok(true)
-    }
-
-    fn ensure_cleanup_required(&mut self) -> Result<(), LaunchReplayError> {
-        let path = self.root.join(CLEANUP_REQUIRED_FILE);
-        if path_exists(&path)? {
-            require_regular_file(&path, "native launch replay cleanup barrier")?;
-            return Ok(());
-        }
-        OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&path)
-            .and_then(|file| file.sync_all())
-            .map_err(|source| LaunchReplayError::Io {
-                operation: "persist native launch replay cleanup barrier",
-                path,
-                source,
-            })?;
-        sync_directory(&self.root)
     }
 
     fn record_directory(&self, record: &DurableLaunchRecord) -> PathBuf {
@@ -435,6 +442,166 @@ fn clean_retired(retired: &Path, max_records: usize) -> Result<(), LaunchReplayE
     sync_directory(retired)
 }
 
+fn ensure_cleanup_required(root: &Path) -> Result<(), LaunchReplayError> {
+    let path = root.join(CLEANUP_REQUIRED_FILE);
+    if path_exists(&path)? {
+        require_regular_file(&path, "native launch replay cleanup barrier")?;
+        return Ok(());
+    }
+    OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&path)
+        .and_then(|file| file.sync_all())
+        .map_err(|source| LaunchReplayError::Io {
+            operation: "persist native launch replay cleanup barrier",
+            path,
+            source,
+        })?;
+    sync_directory(root)
+}
+
+/// The schema version of one on-disk event, read without trusting any other
+/// field in it.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JournalEventSchema {
+    schema_version: u32,
+}
+
+/// The durable reason a pre-migration journal was discarded.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct JournalSchemaMigration {
+    schema_version: u32,
+    migrated_from_schema_version: u32,
+    discarded_records: usize,
+}
+
+/// Migrates a journal written at [`MIGRATED_JOURNAL_SCHEMA_VERSION`] by
+/// discarding its records.
+///
+/// A version-2 record is never read forward, so no journal is silently treated
+/// as if it were the current version. What a discarded record carried was one
+/// request ID's at-most-once binding; losing it means an interrupted launch can
+/// be requested again once, which is the accepted cost of the version bump.
+/// What it must not lose is that the launch may still own a live process, so
+/// the migration sets the restart-cleanup barrier before it removes anything:
+/// no fresh launch is admitted until a privileged adapter proves the prior
+/// process scope empty.
+///
+/// Any other version, and any journal mixing versions, is left untouched and
+/// fails closed when its records load.
+fn migrate_pre_current_schema(
+    root: &Path,
+    active: &Path,
+    max_records: usize,
+) -> Result<(), LaunchReplayError> {
+    let Some(directories) = pre_current_schema_records(active, max_records)? else {
+        return Ok(());
+    };
+    record_schema_migration(root, directories.len())?;
+    ensure_cleanup_required(root)?;
+    for directory in directories {
+        fs::remove_dir_all(&directory).map_err(|source| LaunchReplayError::Io {
+            operation: "discard pre-migration native launch replay record",
+            path: directory,
+            source,
+        })?;
+    }
+    sync_directory(active)
+}
+
+/// Returns the active record directories only when every event under all of
+/// them is at [`MIGRATED_JOURNAL_SCHEMA_VERSION`].
+///
+/// Anything this cannot read, bound, or version conclusively returns `None` so
+/// the ordinary load path decides it and every existing rejection is preserved.
+fn pre_current_schema_records(
+    active: &Path,
+    max_records: usize,
+) -> Result<Option<Vec<PathBuf>>, LaunchReplayError> {
+    let Some(bound) = max_records.checked_add(1) else {
+        return Ok(None);
+    };
+    let entries = read_directory_bounded(active, bound)?;
+    if entries.is_empty() || entries.len() > max_records {
+        return Ok(None);
+    }
+    let mut directories = Vec::with_capacity(entries.len());
+    let mut migrated_events = 0_usize;
+    for entry in entries {
+        if !entry.file_type().is_ok_and(|kind| kind.is_dir()) {
+            return Ok(None);
+        }
+        let directory = entry.path();
+        let Ok(events) = read_directory_bounded(&directory, MAX_EVENTS_PER_RECORD + 1) else {
+            return Ok(None);
+        };
+        if events.len() > MAX_EVENTS_PER_RECORD {
+            return Ok(None);
+        }
+        for event in events {
+            if event_schema_version(&event.path()) != Some(MIGRATED_JOURNAL_SCHEMA_VERSION) {
+                return Ok(None);
+            }
+            migrated_events += 1;
+        }
+        directories.push(directory);
+    }
+    if migrated_events == 0 {
+        return Ok(None);
+    }
+    Ok(Some(directories))
+}
+
+fn event_schema_version(path: &Path) -> Option<u32> {
+    if !fs::symlink_metadata(path).ok()?.file_type().is_file() {
+        return None;
+    }
+    let file = File::open(path).ok()?;
+    let mut bytes = Vec::new();
+    file.take(MAX_EVENT_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .ok()?;
+    if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_EVENT_BYTES {
+        return None;
+    }
+    let event: JournalEventSchema = serde_json::from_slice(&bytes).ok()?;
+    Some(event.schema_version)
+}
+
+fn record_schema_migration(root: &Path, discarded_records: usize) -> Result<(), LaunchReplayError> {
+    let path = root.join(SCHEMA_MIGRATION_FILE);
+    if path_exists(&path)? {
+        require_regular_file(&path, "native launch replay schema migration record")?;
+    }
+    let bytes = serde_json::to_vec(&JournalSchemaMigration {
+        schema_version: JOURNAL_SCHEMA_VERSION,
+        migrated_from_schema_version: MIGRATED_JOURNAL_SCHEMA_VERSION,
+        discarded_records,
+    })
+    .map_err(|error| LaunchReplayError::InvalidState(error.to_string()))?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(&path)
+        .map_err(|source| LaunchReplayError::Io {
+            operation: "create native launch replay schema migration record",
+            path: path.clone(),
+            source,
+        })?;
+    file.write_all(&bytes)
+        .and_then(|()| file.sync_all())
+        .map_err(|source| LaunchReplayError::Io {
+            operation: "persist native launch replay schema migration record",
+            path,
+            source,
+        })?;
+    sync_directory(root)
+}
+
 fn load_active(
     active: &Path,
     max_records: usize,
@@ -503,6 +670,7 @@ fn load_active(
             if let Some(previous) = &latest {
                 if record.game_id != previous.game_id
                     || record.profile_id != previous.profile_id
+                    || record.entry_id != previous.entry_id
                     || record.catalog_generation != previous.catalog_generation
                     || record.accepted_ordinal != previous.accepted_ordinal
                     || record.request_id != previous.request_id
@@ -690,6 +858,17 @@ fn validate_request_id(value: &str) -> Result<(), LaunchReplayError> {
     }
 }
 
+fn valid_library_entry_id(value: &str) -> bool {
+    value
+        .strip_prefix(CONTENT_ENTRY_ID_PREFIX)
+        .is_some_and(|digest| {
+            digest.len() == 64
+                && digest
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        })
+}
+
 fn detail_matches_state(state: &str, detail_code: &str) -> bool {
     match state {
         "preparing" => matches!(detail_code, "PACKAGE_RESOLVING" | "WATCHDOG_STARTING"),
@@ -873,12 +1052,12 @@ impl std::error::Error for LaunchReplayError {
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use super::{
-        DurableLaunchRecord, LaunchReplayError, LaunchReplayJournal, record_directory_name,
-        write_event,
+        DurableLaunchRecord, JOURNAL_SCHEMA_VERSION, LaunchReplayError, LaunchReplayJournal,
+        MIGRATED_JOURNAL_SCHEMA_VERSION, SCHEMA_MIGRATION_FILE, record_directory_name, write_event,
     };
 
     static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
@@ -911,6 +1090,7 @@ mod tests {
                 request_id,
                 "retro-2048",
                 "local-player",
+                None,
                 7,
                 sequence,
                 state,
@@ -924,6 +1104,209 @@ mod tests {
         fn drop(&mut self) {
             let _ = fs::remove_dir_all(&self.root);
         }
+    }
+
+    /// Writes one record whose events all carry `schema_version`, bypassing the
+    /// writer so a journal from another schema can be reproduced on disk.
+    fn seed_record_at_schema(
+        root: &Path,
+        ordinal: u64,
+        request_id: &str,
+        schema_version: u32,
+        events: &[(u64, &str, &str)],
+    ) -> PathBuf {
+        let directory = root
+            .join("active")
+            .join(record_directory_name(ordinal, request_id));
+        fs::create_dir(&directory).expect("record directory creates");
+        for (sequence, state, detail_code) in events {
+            let mut record = Fixture::record(ordinal, request_id, *sequence, state, detail_code);
+            record.schema_version = schema_version;
+            write_event(&directory, &record).expect("seeded event writes");
+        }
+        directory
+    }
+
+    fn read_json(path: &Path) -> serde_json::Value {
+        serde_json::from_slice(&fs::read(path).expect("file reads")).expect("file parses")
+    }
+
+    #[test]
+    fn writes_and_recovers_the_current_journal_schema_version() {
+        let fixture = Fixture::new();
+        let (mut journal, _, _) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+        let accepted = Fixture::record(1, REQUEST_ONE, 1, "preparing", "PACKAGE_RESOLVING");
+        assert_eq!(accepted.schema_version, JOURNAL_SCHEMA_VERSION);
+        journal.accept(&accepted).expect("acceptance persists");
+        let failed = Fixture::record(1, REQUEST_ONE, 2, "failed", "PROCESS_START_FAILED");
+        journal.append(&failed).expect("failure persists");
+        drop(journal);
+
+        let directory = fixture
+            .root
+            .join("active")
+            .join(record_directory_name(1, REQUEST_ONE));
+        for sequence in ["00000000000000000001.json", "00000000000000000002.json"] {
+            assert_eq!(
+                read_json(&directory.join(sequence))["schemaVersion"],
+                JOURNAL_SCHEMA_VERSION
+            );
+        }
+
+        let (_journal, recovered, cleanup_required) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("journal reopens");
+        assert!(!cleanup_required);
+        assert_eq!(recovered, vec![failed]);
+        assert!(!fixture.root.join(SCHEMA_MIGRATION_FILE).exists());
+    }
+
+    #[test]
+    fn migrates_a_pre_migration_journal_by_discarding_it_behind_the_cleanup_barrier() {
+        let fixture = Fixture::new();
+        let (journal, _, _) = LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+        drop(journal);
+        let interrupted = seed_record_at_schema(
+            &fixture.root,
+            1,
+            REQUEST_ONE,
+            MIGRATED_JOURNAL_SCHEMA_VERSION,
+            &[
+                (1, "preparing", "PACKAGE_RESOLVING"),
+                (2, "running", "PROCESS_STARTED"),
+            ],
+        );
+        let terminal = seed_record_at_schema(
+            &fixture.root,
+            2,
+            REQUEST_TWO,
+            MIGRATED_JOURNAL_SCHEMA_VERSION,
+            &[
+                (1, "preparing", "PACKAGE_RESOLVING"),
+                (2, "completed", "PROCESS_COMPLETED"),
+            ],
+        );
+
+        let (mut journal, records, cleanup_required) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("pre-migration journal migrates");
+        assert!(records.is_empty());
+        assert!(cleanup_required);
+        assert!(!interrupted.exists());
+        assert!(!terminal.exists());
+        assert_eq!(
+            read_json(&fixture.root.join(SCHEMA_MIGRATION_FILE)),
+            serde_json::json!({
+                "schemaVersion": JOURNAL_SCHEMA_VERSION,
+                "migratedFromSchemaVersion": MIGRATED_JOURNAL_SCHEMA_VERSION,
+                "discardedRecords": 2,
+            })
+        );
+
+        assert_eq!(journal.next_ordinal(), 1);
+        let accepted = Fixture::record(1, REQUEST_ONE, 1, "preparing", "PACKAGE_RESOLVING");
+        journal
+            .accept(&accepted)
+            .expect("a discarded request is accepted as a fresh launch");
+        drop(journal);
+
+        let (_journal, recovered, cleanup_required) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("migrated journal reopens");
+        assert!(cleanup_required);
+        assert_eq!(recovered.len(), 1);
+        assert_eq!(recovered[0].schema_version, JOURNAL_SCHEMA_VERSION);
+        assert_eq!(recovered[0].detail_code, "HOST_RESTARTED_INDETERMINATE");
+    }
+
+    #[test]
+    fn fails_closed_on_journal_schema_versions_it_cannot_migrate() {
+        for schema_version in [0, 1, JOURNAL_SCHEMA_VERSION + 1, u32::MAX] {
+            let fixture = Fixture::new();
+            let (journal, _, _) =
+                LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+            drop(journal);
+            let directory = seed_record_at_schema(
+                &fixture.root,
+                1,
+                REQUEST_ONE,
+                schema_version,
+                &[(1, "preparing", "PACKAGE_RESOLVING")],
+            );
+            assert!(matches!(
+                LaunchReplayJournal::open(&fixture.root, 4),
+                Err(LaunchReplayError::InvalidState(_))
+            ));
+            assert!(directory.exists());
+            assert!(!fixture.root.join(SCHEMA_MIGRATION_FILE).exists());
+        }
+    }
+
+    #[test]
+    fn fails_closed_on_a_journal_that_mixes_schema_versions() {
+        let fixture = Fixture::new();
+        let (journal, _, _) = LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+        drop(journal);
+        let pre_migration = seed_record_at_schema(
+            &fixture.root,
+            1,
+            REQUEST_ONE,
+            MIGRATED_JOURNAL_SCHEMA_VERSION,
+            &[(1, "preparing", "PACKAGE_RESOLVING")],
+        );
+        let current = seed_record_at_schema(
+            &fixture.root,
+            2,
+            REQUEST_TWO,
+            JOURNAL_SCHEMA_VERSION,
+            &[(1, "preparing", "PACKAGE_RESOLVING")],
+        );
+        assert!(matches!(
+            LaunchReplayJournal::open(&fixture.root, 4),
+            Err(LaunchReplayError::InvalidState(_))
+        ));
+        assert!(pre_migration.exists());
+        assert!(current.exists());
+        assert!(!fixture.root.join(SCHEMA_MIGRATION_FILE).exists());
+    }
+
+    #[test]
+    fn library_entry_binding_is_immutable_and_survives_recovery() {
+        let fixture = Fixture::new();
+        let (mut journal, _records, _cleanup_required) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("journal opens");
+        let bound = Some(format!("content-{}", "a".repeat(64)));
+        let mut accepted = Fixture::record(1, REQUEST_ONE, 1, "preparing", "PACKAGE_RESOLVING");
+        accepted.entry_id.clone_from(&bound);
+        journal
+            .accept(&accepted)
+            .expect("bound acceptance persists");
+
+        for replacement in [Some(format!("content-{}", "b".repeat(64))), None] {
+            let mut changed = Fixture::record(1, REQUEST_ONE, 2, "running", "PROCESS_STARTED");
+            changed.entry_id = replacement;
+            assert!(matches!(
+                journal.append(&changed),
+                Err(LaunchReplayError::InvalidState(_))
+            ));
+        }
+
+        let mut malformed = Fixture::record(2, REQUEST_TWO, 1, "preparing", "PACKAGE_RESOLVING");
+        malformed.entry_id = Some("content-not-hexadecimal".to_owned());
+        assert!(matches!(
+            journal.accept(&malformed),
+            Err(LaunchReplayError::InvalidState(_))
+        ));
+
+        let mut running = Fixture::record(1, REQUEST_ONE, 2, "running", "PROCESS_STARTED");
+        running.entry_id.clone_from(&bound);
+        journal
+            .append(&running)
+            .expect("unchanged entry binding persists");
+        drop(journal);
+
+        let (_journal, recovered, _cleanup_required) =
+            LaunchReplayJournal::open(&fixture.root, 4).expect("journal recovers");
+        assert_eq!(recovered.len(), 1);
+        assert_eq!(recovered[0].entry_id, bound);
     }
 
     #[test]

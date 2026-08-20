@@ -40,17 +40,17 @@
     {
       "role": "steamos-package-plan-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "9a5eaa764e5a30e3f7e33ddad73b7d3450fa579327ee42c3bc22aa6f50cf6429"
+      "sha256": "8cb7e65ad904fa4cd37c7023e7b0507f89d50e075428c30631c3d4089deab097"
     },
     {
       "role": "steamos-input-plan-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "a6242f96dbbd3a572404341673539776b25b2efef966d650267c1cd2e6ab5661"
+      "sha256": "5cc7cdfc43db0f7e1c0ab62886f62f2d004d9f51b2c8a3fb9a08df0e6e7f3588"
     },
     {
       "role": "steamos-shell-plan-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "b327536ed29cba25272634ca8640fb47cb326202e6016705b0b4b993c3f96d02"
+      "sha256": "23dc22c800ca2181f55a7154b1ba8d910c280418174d3bfe53bb983ffd46e014"
     },
     {
       "role": "boot-resume-timing-boundary",
@@ -60,7 +60,7 @@
     {
       "role": "signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "6bbda6a81563099d66855dd61c9d95c81197522bdb23e289add3392d50864217"
     }
   ],
   "officialReferenceRecords": [

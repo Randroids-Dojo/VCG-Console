@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "snes-yoshis-island",
+  "version": "operator-content-bd763c1a-2026-08-19",
+  "title": "Yoshi's Island",
+  "publisher": "Nintendo",
+  "runtime": "libretro",
+  "entrypoint": "libretro:snes9x",
+  "architectures": ["aarch64"],
+  "permissions": ["gamepad", "persistent-storage"],
+  "inputProfiles": ["gamepad"],
+  "minimumConsoleVersion": "0.1.0",
+  "network": "offline",
+  "allowedOrigins": [],
+  "compatibilityStatus": "unverified",
+  "launch": {
+    "timeoutMs": 15000,
+    "healthCheck": {
+      "type": "process"
+    }
+  },
+  "rights": {
+    "distribution": "owner-authorized-local",
+    "codeLicense": "GPL-3.0-only AND LicenseRef-Snes9x-Noncommercial",
+    "contentLicense": "NOASSERTION",
+    "reviewStatus": "unreviewed"
+  },
+  "libretro": {
+    "frontend": {
+      "id": "retroarch",
+      "version": "1.22.2",
+      "sha256": "dcba0282d627ac90538d789b9471bcd0cdd7de3d9b1dea4e2d5a2f8347b14f6a",
+      "license": "GPL-3.0-only",
+      "source": "https://github.com/libretro/RetroArch"
+    },
+    "core": {
+      "id": "snes9x",
+      "version": "21a66f3975388e15d5495d52422415f52c040f86",
+      "sha256": "1341d712c577a4d8c16fe869b33412392fac91a1c7fe8752b6ba04f881ccc0d7",
+      "license": "LicenseRef-Snes9x-Noncommercial",
+      "source": "https://github.com/libretro/snes9x",
+      "architectures": ["aarch64"],
+      "supportsNoGame": false
+    },
+    "content": {
+      "mode": "managed",
+      "format": "sfc",
+      "sha256": "bd763c1a56365c244be92e6cffefd318780a2a19eda7d5baf1c6d5bd6c1b3e06"
+    },
+    "controllerProfile": "retropad-standard-v1",
+    "saveNamespace": "snes-yoshis-island",
+    "bios": []
+  },
+  "notes": [
+    "Managed-content package bound by SHA-256 to one operator-supplied SNES cartridge dump held in the console-managed object store; this repository ships no ROM and no emulator binary.",
+    "No controller, audio, video, save, or timing evidence exists for this title on any target, so the compatibility status stays unverified even though the frontend and core artifact hashes are recorded.",
+    "LicenseRef-Snes9x-Noncommercial: Snes9x grants use, copy, modification, and distribution in source and binary form for non-commercial purposes only, is freeware for personal use only, and the libretro port states commercial rights will never be given (D-186). This package may therefore never declare rights.distribution as redistributable.",
+    "Snes9x component attribution: JMA under GPL and LGPL, snes_ntsc under LGPL, and xBRZ under GPL-3.0. Super Nintendo Entertainment System, Yoshi, and Super Mario World are trademarks of Nintendo, which does not endorse this project.",
+    "The frontend and core hashes record one native aarch64 build observation on a Raspberry Pi 5. Neither artifact was signed, scanned, or built from a pinned toolchain, so they are not reproducible-build evidence.",
+    "No licence covers the content; the operator supplies a dump of a cartridge they hold and the console never redistributes it."
+  ]
+}

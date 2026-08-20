@@ -22,7 +22,7 @@
     {
       "role": "steamos-package-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "9a5eaa764e5a30e3f7e33ddad73b7d3450fa579327ee42c3bc22aa6f50cf6429"
+      "sha256": "8cb7e65ad904fa4cd37c7023e7b0507f89d50e075428c30631c3d4089deab097"
     },
     {
       "role": "steamos-camera-campaign",
@@ -32,7 +32,7 @@
     {
       "role": "steamos-camera-plan",
       "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
-      "sha256": "693e8b84529ab6fe912b9f055959d7d54eb09d25a59a1b148599348b10e93cf9"
+      "sha256": "773529dff81cf668be3cfcf0cc72d3e340104e9b1a5a6a418a210908be3228ff"
     },
     {
       "role": "standard-concurrent-workload-campaign",

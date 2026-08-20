@@ -12,7 +12,7 @@
     {
       "role": "visual-accessibility-and-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "visual-token-contract",
@@ -32,17 +32,17 @@
     {
       "role": "shell-style-implementation",
       "path": "apps/console-lab/src/styles.css",
-      "sha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73"
+      "sha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a"
     },
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "9e9cd4592284e7b1a208d71dcdef019f67d2879b7c8f7b8c47cd676dd857b662"
+      "sha256": "007d92af91f69806d91b37fe8aaff9b987502840c25ad4e90896ae840852a4ec"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "9b8d2ee61300b4a20c0abd69f2ded3633b7585eeb8a9647de9295c6a74e29fbc"
+      "sha256": "2fc59a59661fec4168849f5969dd0b87bf671a369dd796ffc3366d9faa529f04"
     }
   ],
   "executionBoundary": {

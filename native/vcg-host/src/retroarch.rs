@@ -17,6 +17,11 @@ pub struct ExpectedSha256([u8; 32]);
 
 impl ExpectedSha256 {
     #[must_use]
+    pub(crate) const fn from_bytes(bytes: [u8; 32]) -> Self {
+        Self(bytes)
+    }
+
+    #[must_use]
     pub(crate) fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }
@@ -181,6 +186,7 @@ pub struct RetroArchStorage {
     pub remaps: PathBuf,
     pub screenshots: PathBuf,
     pub system: PathBuf,
+    pub core_config: PathBuf,
     pub core_options: PathBuf,
 }
 
@@ -307,10 +313,6 @@ impl RetroArchPlan {
     /// Returns an I/O error when a directory or configuration cannot be
     /// created safely.
     pub fn prepare(&self) -> Result<(), RetroArchError> {
-        let core_options_parent =
-            self.storage.core_options.parent().ok_or_else(|| {
-                RetroArchError::UnsafeConfigPath(self.storage.core_options.clone())
-            })?;
         for directory in [
             &self.storage.session,
             &self.storage.cache,
@@ -321,7 +323,7 @@ impl RetroArchPlan {
             &self.storage.remaps,
             &self.storage.screenshots,
             &self.storage.system,
-            core_options_parent,
+            &self.storage.core_config,
         ] {
             create_private_directory(directory)?;
         }
@@ -539,6 +541,7 @@ fn build_storage(request: &RetroArchRequest, session: &Path) -> RetroArchStorage
         .join(&request.profile_id)
         .join("games")
         .join(&request.game_id);
+    let core_config = persistent.join("config");
     RetroArchStorage {
         config: session.join("vcg-session.cfg"),
         cache: session.join("cache"),
@@ -550,7 +553,8 @@ fn build_storage(request: &RetroArchRequest, session: &Path) -> RetroArchStorage
         remaps: persistent.join("remaps"),
         screenshots: persistent.join("screenshots"),
         system: persistent.join("system"),
-        core_options: persistent.join("config").join("retroarch-core-options.cfg"),
+        core_options: core_config.join("retroarch-core-options.cfg"),
+        core_config,
     }
 }
 
@@ -643,10 +647,6 @@ fn sandbox_plan(
     if let Some(content) = content {
         read_only.push(content.to_owned());
     }
-    let core_options_parent = storage
-        .core_options
-        .parent()
-        .ok_or_else(|| RetroArchError::UnsafeConfigPath(storage.core_options.clone()))?;
     let read_write = vec![
         storage.session.clone(),
         storage.saves.clone(),
@@ -654,7 +654,7 @@ fn sandbox_plan(
         storage.remaps.clone(),
         storage.screenshots.clone(),
         storage.system.clone(),
-        core_options_parent.to_owned(),
+        storage.core_config.clone(),
     ];
     for artifact in &read_only {
         for writable in &read_write {
@@ -851,7 +851,7 @@ fn digest_file(path: &Path) -> Result<ExpectedSha256, RetroArchError> {
     Ok(ExpectedSha256(digest.finalize().into()))
 }
 
-fn storage_paths(storage: &RetroArchStorage) -> [&Path; 11] {
+fn storage_paths(storage: &RetroArchStorage) -> [&Path; 12] {
     [
         &storage.session,
         &storage.config,
@@ -863,6 +863,7 @@ fn storage_paths(storage: &RetroArchStorage) -> [&Path; 11] {
         &storage.remaps,
         &storage.screenshots,
         &storage.system,
+        &storage.core_config,
         &storage.core_options,
     ]
 }
@@ -900,6 +901,11 @@ fn render_config(storage: &RetroArchStorage) -> String {
         ("video_shader_enable", "false".to_owned()),
         ("video_threaded", "false".to_owned()),
         ("load_dummy_on_core_shutdown", "false".to_owned()),
+        // The host observes the reserved gesture itself, above the frontend,
+        // so the frontend must not bind a controller combination of its own.
+        // 0 is RetroArch's "no combo" value; setting it here means a base
+        // configuration cannot reintroduce one.
+        ("input_menu_toggle_gamepad_combo", "0".to_owned()),
         ("savefile_directory", path_value(&storage.saves)),
         ("savestate_directory", path_value(&storage.states)),
         ("input_remapping_directory", path_value(&storage.remaps)),
@@ -909,6 +915,11 @@ fn render_config(storage: &RetroArchStorage) -> String {
         ("playlist_directory", path_value(&storage.playlists)),
         ("log_dir", path_value(&storage.logs)),
         ("core_options_path", path_value(&storage.core_options)),
+        // `core_options_path` names only the global options file. RetroArch
+        // writes per-core option files beneath its own configuration
+        // directory, which escaped every console-managed root until this key
+        // moved that directory into the per-game config directory.
+        ("rgui_config_directory", path_value(&storage.core_config)),
         (
             "content_history_path",
             path_value(&storage.session.join("content_history.lpl")),
@@ -1122,7 +1133,8 @@ mod tests {
 
     use super::{
         ContentlessStart, ExpectedSha256, RetroArchAuxiliaryArtifact, RetroArchError,
-        RetroArchRequest, RetroSandboxAccess, RetroSandboxCapability, digest_file, plan,
+        RetroArchRequest, RetroSandboxAccess, RetroSandboxCapability, digest_file, path_value,
+        plan,
     };
 
     struct Fixture {
@@ -1257,6 +1269,45 @@ mod tests {
                 "missing conservative experience default: {conservative_default}"
             );
         }
+    }
+
+    #[test]
+    fn generated_config_leaves_the_reserved_gesture_to_the_host() {
+        let fixture = Fixture::new();
+        let plan = plan(&fixture.request()).expect("valid plan");
+        assert!(
+            plan.generated_config()
+                .contains("input_menu_toggle_gamepad_combo = \"0\"\n"),
+            "generated configuration denies the frontend its own menu combination"
+        );
+    }
+
+    #[test]
+    fn generated_config_contains_per_core_options_inside_managed_storage() {
+        let fixture = Fixture::new();
+        let plan = plan(&fixture.request()).expect("valid plan");
+        let core_config = plan.storage().core_config.clone();
+        assert!(
+            core_config.ends_with("profiles/player-one/games/test-game/config"),
+            "{} is the managed per-game config directory",
+            core_config.display()
+        );
+        assert_eq!(
+            plan.storage()
+                .core_options
+                .parent()
+                .expect("core options parent"),
+            core_config.as_path()
+        );
+        assert!(
+            plan.generated_config().contains(&format!(
+                "rgui_config_directory = \"{}\"\n",
+                path_value(&core_config)
+            )),
+            "generated configuration redirects the RetroArch configuration directory"
+        );
+        plan.prepare().expect("prepare plan");
+        assert!(core_config.is_dir());
     }
 
     #[test]

@@ -8,11 +8,15 @@
 # and collects the resulting cores plus their licence text.
 #
 # Licences are not uniform and are recorded in the decision register:
+#   mesen            D-190  GPL-3.0-or-later                     commercial use permitted
 #   fceumm           D-188  GPL-2.0, NTSC filter LGPL-2.1        commercial use permitted
 #   snes9x           D-186  non-commercial, personal use only    commercial use forbidden
 #   genesis-plus-gx  D-189  may not be sold or used commercially  commercial use forbidden
-# Two of the three forbid commercial use. Read docs/DECISIONS.md before
+# Two of the four forbid commercial use. Read docs/DECISIONS.md before
 # redistributing anything this script produces.
+#
+# D-190 selects Mesen as the NES core and supersedes D-188. The fceumm recipe
+# is retained and still builds, but it is no longer the selected NES core.
 #
 # What this does NOT do: qualify a core. A built core is not evidence of
 # playable emulation, audio correctness, controller behaviour, save durability,
@@ -46,6 +50,7 @@ out_dir="${out_dir:-$PWD/build/retro-cores}"
 
 # id|repository|revision|archiveSha256|archiveBytes|buildSubdir|makefile|artifact|licenceFile|systemDeps
 CORES=(
+  "mesen|https://github.com/libretro/Mesen|0102910c39ad1a62bc3f784466f3f67ca9eae335|360f97e907ada9b8e28a95652aa1d07656340e1d84ff868312745a566b250e01|886080|Libretro|Makefile|mesen_libretro.so|LICENSE|"
   "fceumm|https://github.com/libretro/libretro-fceumm|b5e3566515c27dc66c9c20572171673126532e06|1ef34c9ed324f91856d6eca7d923e4f0d33ce85acb4b6a9b62d4a56c46e5ddc1|1111786|.|Makefile.libretro|fceumm_libretro.so|Copying|"
   "snes9x|https://github.com/libretro/snes9x|21a66f3975388e15d5495d52422415f52c040f86|5146b4fbdb7062a3d93d5ced27c72d7c811f7278228353786619c0d591b73634|632260|libretro|Makefile|snes9x_libretro.so|LICENSE|zlib1g-dev"
   "genesis-plus-gx|https://github.com/libretro/Genesis-Plus-GX|ca93fec870378f3bff65931bcd828d5e756cce75|9b00f9b29abb4e9fbe7be01b54e45bb8910935b62810c1d2f4a2b2138237650b|16980812|.|Makefile.libretro|genesis_plus_gx_libretro.so|LICENSE.txt|"
@@ -200,5 +205,5 @@ echo "third-party licence text: ${notices}"
 echo
 echo "No core here is qualified. A built core is not evidence of playable"
 echo "emulation, audio, controller behaviour, save durability, frame pacing, or"
-echo "thermal headroom. Two of the three forbid commercial use; see D-186 and"
+echo "thermal headroom. Two of the four forbid commercial use; see D-186 and"
 echo "D-189 in docs/DECISIONS.md before redistributing anything."

@@ -7,6 +7,8 @@ export * from "./arcade-sets";
 export const RETRO_IMPORT_SCHEMA_VERSION = 1 as const;
 export const RETRO_IMPORT_ENTITLEMENT_STATEMENT =
   "vcg-user-entitled-content-v1" as const;
+export const RETRO_OPERATOR_PROVISIONED_TRANSPORT =
+  "operator-provisioned" as const;
 
 const SAFE_ID = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 const SHA256 = /^[a-f0-9]{64}$/;
@@ -44,7 +46,12 @@ const RESERVED_PORTABLE_NAMES = new Set([
   "prn",
 ]);
 
+/** Transport a session, candidate, plan, and terminal intent may name. */
 export type RetroImportTransport = "paired-lan" | "usb";
+/** Transport an installed entry may record, including operator staging. */
+export type RetroInstalledTransport =
+  | RetroImportTransport
+  | typeof RETRO_OPERATOR_PROVISIONED_TRANSPORT;
 export type RetroArchiveFormat = "zip";
 export type RetroScanStatus = "blocked" | "clean" | "error";
 export type RetroImportPlanStatus = "conflict" | "duplicate" | "ready";
@@ -137,12 +144,27 @@ export interface RetroImportCandidate {
   scan: RetroContentScan;
 }
 
-export interface RetroInstalledProvenance {
+/** Evidence one live USB or paired-LAN import session produced. */
+export interface RetroSessionProvenance {
   transport: RetroImportTransport;
   importSessionId: string;
   entitlementStatementVersion: typeof RETRO_IMPORT_ENTITLEMENT_STATEMENT;
   importedAtMs: number;
 }
+
+/**
+ * Provenance of content an operator staged onto the console themselves.
+ *
+ * It carries no session, no entitlement acknowledgement, and no import time,
+ * because provisioning produces none of them.
+ */
+export interface RetroOperatorProvisionedProvenance {
+  transport: typeof RETRO_OPERATOR_PROVISIONED_TRANSPORT;
+}
+
+export type RetroInstalledProvenance =
+  | RetroOperatorProvisionedProvenance
+  | RetroSessionProvenance;
 
 export interface RetroInstalledEntry {
   entryId: string;
@@ -154,6 +176,11 @@ export interface RetroInstalledEntry {
   coreId: string;
   controllerProfile: string;
   provenance: RetroInstalledProvenance;
+}
+
+/** Installed entry a terminal intent may name: session-bound provenance only. */
+export interface RetroSessionInstalledEntry extends RetroInstalledEntry {
+  provenance: RetroSessionProvenance;
 }
 
 export interface RetroInstalledLibrary {
@@ -190,7 +217,7 @@ export interface RetroImportPlan {
   status: RetroImportPlanStatus;
   expiresAtMs: number;
   peakStagingBytes: number;
-  entry: RetroInstalledEntry;
+  entry: RetroSessionInstalledEntry;
   existingEntryIds: string[];
   replaceableEntryIds: string[];
   allowedDecisions: RetroImportDecisionAction[];
@@ -229,7 +256,7 @@ export interface RetroImportCommitIntent {
     | "reuse-existing";
   sourceHandle: string;
   sourceSha256: string;
-  installEntry: RetroInstalledEntry | null;
+  installEntry: RetroSessionInstalledEntry | null;
   existingEntryId: string | null;
   cleanupStagingAfterTerminal: true;
   audit: RetroImportAuditEvent;
@@ -399,7 +426,7 @@ export class RetroImportCoordinator {
         && comparisonTitle(entry.title) === normalizedTitle,
     );
 
-    const entry: RetroInstalledEntry = {
+    const entry: RetroSessionInstalledEntry = {
       entryId: `content-${payload.sha256}`,
       systemId: system.id,
       sha256: payload.sha256,
@@ -560,7 +587,7 @@ export class RetroImportCoordinator {
     }
 
     let action: RetroImportCommitIntent["action"];
-    let installEntry: RetroInstalledEntry | null = null;
+    let installEntry: RetroSessionInstalledEntry | null = null;
     let existingEntryId: string | null = null;
     switch (decision.action) {
       case "cancel":
@@ -721,10 +748,10 @@ function validatePolicy(value: unknown): asserts value is RetroImportPolicy {
       ],
       "system policy",
     );
-    const id = requireSafeId(system.id, 64, "system ID");
+    const id = requireBindableId(system.id, 64, "system ID");
     if (ids.has(id)) fail("INVALID_POLICY", "system IDs must be unique");
     ids.add(id);
-    requireSafeId(system.defaultCoreId, 64, "default core ID");
+    requireBindableId(system.defaultCoreId, 64, "default core ID");
     requireSafeId(system.controllerProfile, 64, "controller profile");
     const extensions = requireStringArray(
       system.plainExtensions,
@@ -870,7 +897,7 @@ function validateCandidate(
     "received bytes",
   );
   requireSha256(candidate.receivedSha256, "received SHA-256");
-  requireSafeId(candidate.requestedSystemId, 64, "requested system ID");
+  requireBindableId(candidate.requestedSystemId, 64, "requested system ID");
   requirePattern(
     candidate.inspectionId,
     INSPECTION_ID,
@@ -1019,7 +1046,7 @@ function validateLibrary(
       fail("INVALID_LIBRARY", "installed entry IDs must be unique");
     }
     ids.add(entryId);
-    const systemId = requireSafeId(entry.systemId, 64, "installed system ID");
+    const systemId = requireBindableId(entry.systemId, 64, "installed system ID");
     const sha256 = requireSha256(entry.sha256, "installed SHA-256");
     if (entryId !== `content-${sha256}`) {
       fail(
@@ -1040,49 +1067,61 @@ function validateLibrary(
     );
     requirePattern(entry.extension, EXTENSION, 9, "installed extension");
     requireVisibleTitle(entry.title, "installed title");
-    requireSafeId(entry.coreId, 64, "installed core ID");
+    requireBindableId(entry.coreId, 64, "installed core ID");
     requireSafeId(
       entry.controllerProfile,
       64,
       "installed controller profile",
     );
-    const provenance = requireRecord(
-      entry.provenance,
-      "installed provenance",
-    );
-    requireFields(
-      provenance,
-      [
-        "entitlementStatementVersion",
-        "importedAtMs",
-        "importSessionId",
-        "transport",
-      ],
-      "installed provenance",
-    );
-    requireEnum(
-      provenance.transport,
-      ["paired-lan", "usb"],
-      "installed transport",
-    );
-    requirePattern(
-      provenance.importSessionId,
-      SESSION_ID,
-      36,
-      "installed session ID",
-    );
-    requireLiteral(
-      provenance.entitlementStatementVersion,
-      RETRO_IMPORT_ENTITLEMENT_STATEMENT,
-      "installed entitlement statement",
-    );
-    requireInteger(
-      provenance.importedAtMs,
-      0,
-      Number.MAX_SAFE_INTEGER,
-      "installed time",
-    );
+    validateInstalledProvenance(entry.provenance);
   }
+}
+
+/**
+ * Validates the closed union the native host records, tagged on `transport`.
+ *
+ * An operator-provisioned entry carries the tag alone: a session ID,
+ * entitlement acknowledgement, or import time on it is rejected rather than
+ * ignored, because provisioning produces no such evidence.
+ */
+function validateInstalledProvenance(value: unknown): void {
+  const provenance = requireRecord(value, "installed provenance");
+  const transport: RetroInstalledTransport = requireEnum(
+    provenance.transport,
+    [RETRO_OPERATOR_PROVISIONED_TRANSPORT, "paired-lan", "usb"],
+    "installed transport",
+  );
+  if (transport === RETRO_OPERATOR_PROVISIONED_TRANSPORT) {
+    requireFields(provenance, ["transport"], "installed provenance");
+    return;
+  }
+  requireFields(
+    provenance,
+    [
+      "entitlementStatementVersion",
+      "importedAtMs",
+      "importSessionId",
+      "transport",
+    ],
+    "installed provenance",
+  );
+  requirePattern(
+    provenance.importSessionId,
+    SESSION_ID,
+    36,
+    "installed session ID",
+  );
+  requireLiteral(
+    provenance.entitlementStatementVersion,
+    RETRO_IMPORT_ENTITLEMENT_STATEMENT,
+    "installed entitlement statement",
+  );
+  requireInteger(
+    provenance.importedAtMs,
+    0,
+    Number.MAX_SAFE_INTEGER,
+    "installed time",
+  );
 }
 
 function validateCapacity(value: unknown): asserts value is RetroImportCapacity {
@@ -1430,6 +1469,22 @@ function requireBoundedString(
     fail("INVALID_STRING", `${label} must be a bounded string`);
   }
   return value;
+}
+
+/**
+ * Validates an identifier a signed catalog can name.
+ *
+ * The catalog binds a library package by system and core using a grammar that
+ * excludes ".", so an identifier the library accepted but no package could bind
+ * would be unreachable content. Delegates first, so every rejection
+ * {@link requireSafeId} already performs still fires.
+ */
+function requireBindableId(value: unknown, maximum: number, label: string): string {
+  const id = requireSafeId(value, maximum, label);
+  if (id.includes(".")) {
+    fail("INVALID_ID", `${label} is invalid`);
+  }
+  return id;
 }
 
 function requireSafeId(value: unknown, maximum: number, label: string): string {

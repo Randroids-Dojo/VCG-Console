@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { connectSyntheticController } from "./synthetic-controller";
 
 const RESOLUTIONS = [
   { id: "720p", width: 1280, height: 720 },
@@ -459,7 +460,7 @@ for (const resolution of RESOLUTIONS) {
     await page.keyboard.press("Enter");
     await expect(input).toHaveValue("");
     await expect(input).toBeFocused();
-    await expect(page.locator("#search-results button")).toHaveCount(22);
+    await expect(page.locator("#search-results button")).toHaveCount(26);
 
     await input.fill("no-such-vcg-destination");
     await page.keyboard.press("ArrowDown");
@@ -492,13 +493,13 @@ for (const resolution of RESOLUTIONS) {
     const input = page.locator("#universal-search");
     await expect(input).toBeFocused();
     const results = page.locator("#search-results button");
-    await expect(results).toHaveCount(22);
+    await expect(results).toHaveCount(26);
     await expect(
       page.locator(".search-overlay [data-tv-critical-text]:visible"),
-    ).toHaveCount(25);
+    ).toHaveCount(29);
     await expect(
       page.locator(".search-overlay [data-tv-action]:visible"),
-    ).toHaveCount(23);
+    ).toHaveCount(27);
     const scroller = page.locator("#search-results");
     const initialScroll = await scroller.evaluate((element) => ({
       clientHeight: element.clientHeight,
@@ -506,13 +507,12 @@ for (const resolution of RESOLUTIONS) {
       scrollTop: element.scrollTop,
     }));
     expect(initialScroll.scrollTop).toBe(0);
-    if (resolution.id === "4k") {
-      expect(initialScroll.scrollHeight).toBe(initialScroll.clientHeight);
-    } else {
-      expect(initialScroll.scrollHeight).toBeGreaterThan(
-        initialScroll.clientHeight,
-      );
-    }
+    // The 26-destination empty query no longer fits one 4K screen either, so
+    // every resolution scrolls. Before the operator-selected titles joined the
+    // shelf, 4K held all 22 without overflow.
+    expect(initialScroll.scrollHeight).toBeGreaterThan(
+      initialScroll.clientHeight,
+    );
 
     await results.last().focus();
     await expect(results.last()).toBeFocused();
@@ -520,11 +520,9 @@ for (const resolution of RESOLUTIONS) {
       scrollTop: element.scrollTop,
       maximumScrollTop: element.scrollHeight - element.clientHeight,
     }));
-    if (resolution.id === "4k") {
-      expect(scrolled.scrollTop).toBe(0);
-    } else {
-      expect(scrolled.scrollTop).toBeGreaterThan(0);
-    }
+    // Focusing the last result scrolls at every resolution now that the empty
+    // query carries 26 destinations; 4K previously held them all without moving.
+    expect(scrolled.scrollTop).toBeGreaterThan(0);
     expect(scrolled.scrollTop).toBeLessThanOrEqual(scrolled.maximumScrollTop);
     const lastResultInsideScroller = await page.evaluate(() => {
       const resultsElement = document.querySelector("#search-results");
@@ -555,7 +553,7 @@ for (const resolution of RESOLUTIONS) {
       resolution,
       ".search-overlay",
       measuredCriticalText.length,
-      23,
+      27,
       "#search-results",
     );
 
@@ -691,6 +689,7 @@ for (const resolution of RESOLUTIONS) {
   test(`launcher Search exposes unavailable package denial and recovers at ${resolution.id}`, async ({
     page,
   }) => {
+    await connectSyntheticController(page);
     await page.setViewportSize(resolution);
     await page.clock.install({
       time: new Date("2026-07-24T19:00:00-07:00"),

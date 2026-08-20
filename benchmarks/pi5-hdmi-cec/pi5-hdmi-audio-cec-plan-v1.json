@@ -23,7 +23,7 @@
     {
       "role": "browser-tv-geometry-boundary",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "9b8d2ee61300b4a20c0abd69f2ded3633b7585eeb8a9647de9295c6a74e29fbc"
+      "sha256": "2fc59a59661fec4168849f5969dd0b87bf671a369dd796ffc3366d9faa529f04"
     },
     {
       "role": "sustained-load-boundary",

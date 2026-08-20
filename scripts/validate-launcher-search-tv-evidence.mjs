@@ -67,7 +67,7 @@ const EXPECTED_STATES = Object.freeze([
     recoveryExpectation: {
       clearActionLabel: "Clear search",
       clearQuery: "",
-      clearResultCount: 22,
+      clearResultCount: 26,
       categoryActionLabel: "Motion",
       categoryQuery: "motion",
       categoryResultCount: 5,
@@ -87,11 +87,11 @@ const EXPECTED_STATES = Object.freeze([
   {
     id: "empty-query-scroll-activation",
     query: "",
-    resultCount: 22,
-    criticalTextCount: 25,
-    actionTargetCount: 23,
+    resultCount: 26,
+    criticalTextCount: 29,
+    actionTargetCount: 27,
     measurementMode: "fully-visible-marked",
-    scrollingExpectedResolutionIds: ["720p", "1080p"],
+    scrollingExpectedResolutionIds: ["720p", "1080p", "4k"],
     activation: {
       resultTitle: "Profiles",
       method: "keyboard-enter",
@@ -310,8 +310,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-    bytes: 142085,
-    sha256: "4b3a8b67d2073211c4ee7a439b072bf3b46714415d84d85edaa7dc84932f80af",
+    bytes: 142086,
+    sha256: "90bbfb82e8a31c8142bcbf02db233aed9e42d59cf0effe502388a49dedaedb38",
   },
   "offline-package-activation/720p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
@@ -350,8 +350,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-    bytes: 286513,
-    sha256: "15dac1dd4ffe39c7855ab4cb09a3fa9e91a37b27e6ed4fe939643254d8a1d37c",
+    bytes: 286546,
+    sha256: "2b8067296f2805d0031837a9dab564bddce8ca2b448abdffc833e396eb386a38",
   },
   "offline-package-activation/1080p": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
@@ -390,8 +390,8 @@ const EXPECTED_SCREENSHOTS = Object.freeze({
   },
   "empty-query-scroll-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-    bytes: 791891,
-    sha256: "72f83a3e333d7149aaa955f18a4489bab1da3d361631b62a9b05eddb05aaa4c6",
+    bytes: 813590,
+    sha256: "5d7abf2a8b272f45b7ba0e7395a1727da716ffe655fe2fc00199d4ab1a7966c0",
   },
   "offline-package-activation/4k": {
     path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
@@ -455,10 +455,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 420,
-      scrollHeightCssPx: 1224,
+      scrollHeightCssPx: 1448,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 804,
-      maximumScrollTopCssPx: 804,
+      finalScrollTopCssPx: 1028,
+      maximumScrollTopCssPx: 1028,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -567,10 +567,10 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     minimumActionTargetHeightCssPx: 48,
     resultsScroll: {
       clientHeightCssPx: 726,
-      scrollHeightCssPx: 1234,
+      scrollHeightCssPx: 1458,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 508,
-      maximumScrollTopCssPx: 508,
+      finalScrollTopCssPx: 732,
+      maximumScrollTopCssPx: 732,
       lastResultInsideViewportAfterFocus: true,
     },
   },
@@ -673,16 +673,16 @@ const EXPECTED_MEASUREMENTS = Object.freeze({
     },
   },
   "empty-query-scroll-activation/4k": {
-    measuredCriticalTextCount: 25,
+    measuredCriticalTextCount: 26,
     minimumCriticalTextCssPx: 48,
     minimumActionTargetWidthCssPx: 1548.656,
     minimumActionTargetHeightCssPx: 62,
     resultsScroll: {
-      clientHeightCssPx: 1564,
-      scrollHeightCssPx: 1564,
+      clientHeightCssPx: 1644,
+      scrollHeightCssPx: 1844,
       initialScrollTopCssPx: 0,
-      finalScrollTopCssPx: 0,
-      maximumScrollTopCssPx: 0,
+      finalScrollTopCssPx: 200,
+      maximumScrollTopCssPx: 200,
       lastResultInsideViewportAfterFocus: true,
     },
   },

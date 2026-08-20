@@ -5,21 +5,26 @@ import {
   parseRetroImportPolicy,
   parseRetroInstalledLibrary,
   RETRO_INSTALLED_LIBRARY_SCHEMA_ID,
+  RETRO_OPERATOR_PROVISIONED_TRANSPORT,
   RetroImportCoordinator,
   RetroImportError,
   retroInstalledLibraryJsonSchema,
   type RetroImportCandidate,
   type RetroImportPolicy,
   type RetroImportRequest,
-  type RetroInstalledEntry,
   type RetroInstalledLibrary,
 } from "../src";
 import checkedInInstalledLibrarySchema from "../../../schemas/retro-installed-library.schema.json";
 import plainInstallFixture from "../fixtures/plain-install-v1.json";
+import {
+  HASH_A,
+  HASH_B,
+  HASH_C,
+  installedEntry,
+  libraryOf,
+  operatorProvisionedEntry,
+} from "./installed-library-fixtures";
 
-const HASH_A = "a".repeat(64);
-const HASH_B = "b".repeat(64);
-const HASH_C = "c".repeat(64);
 const SESSION_ID = `ris-${"1".repeat(32)}`;
 const SOURCE_HANDLE = `rih-${"2".repeat(32)}`;
 const INSPECTION_ID = `rii-${"3".repeat(32)}`;
@@ -124,29 +129,6 @@ function expectCode(action: () => unknown, code: string): void {
   }
 }
 
-function installedEntry(
-  hash: string,
-  overrides: Partial<RetroInstalledEntry> = {},
-): RetroInstalledEntry {
-  return {
-    entryId: `content-${hash}`,
-    systemId: "game-boy",
-    sha256: hash,
-    sizeBytes: 2_048,
-    extension: ".gb",
-    title: "Tetris",
-    coreId: "gambatte",
-    controllerProfile: "retropad-standard-v1",
-    provenance: {
-      transport: "usb",
-      importSessionId: `ris-${"9".repeat(32)}`,
-      entitlementStatementVersion: "vcg-user-entitled-content-v1",
-      importedAtMs: 900_000,
-    },
-    ...overrides,
-  };
-}
-
 describe("closed import contracts", () => {
   it("keeps the checked-in closed installed-library schema current", () => {
     expect(retroInstalledLibraryJsonSchema.$id).toBe(
@@ -156,12 +138,40 @@ describe("closed import contracts", () => {
     expect(
       retroInstalledLibraryJsonSchema.$defs.entry.additionalProperties,
     ).toBe(false);
-    expect(
-      retroInstalledLibraryJsonSchema.$defs.provenance.additionalProperties,
-    ).toBe(false);
     expect(checkedInInstalledLibrarySchema).toEqual(
       retroInstalledLibraryJsonSchema,
     );
+  });
+
+  it("closes both provenance variants of the transport-tagged union", () => {
+    const { provenance, operatorProvisionedProvenance, sessionProvenance } =
+      retroInstalledLibraryJsonSchema.$defs;
+
+    expect(provenance.oneOf.map((branch) => branch.$ref)).toEqual([
+      "#/$defs/operatorProvisionedProvenance",
+      "#/$defs/sessionProvenance",
+    ]);
+
+    expect(operatorProvisionedProvenance.additionalProperties).toBe(false);
+    expect(operatorProvisionedProvenance.required).toEqual(["transport"]);
+    expect(
+      Object.keys(operatorProvisionedProvenance.properties),
+    ).toEqual(["transport"]);
+    expect(operatorProvisionedProvenance.properties.transport.const).toBe(
+      RETRO_OPERATOR_PROVISIONED_TRANSPORT,
+    );
+
+    expect(sessionProvenance.additionalProperties).toBe(false);
+    expect([...sessionProvenance.required].sort()).toEqual([
+      "entitlementStatementVersion",
+      "importSessionId",
+      "importedAtMs",
+      "transport",
+    ]);
+    expect(sessionProvenance.properties.transport.enum).toEqual([
+      "paired-lan",
+      "usb",
+    ]);
   });
 
   it("clones and deeply freezes the accepted policy", () => {
@@ -241,6 +251,84 @@ describe("closed import contracts", () => {
       () => parseRetroInstalledLibrary(withPath),
       "UNKNOWN_OR_MISSING_FIELD",
     );
+  });
+
+  it("accepts every transport variant the native host records", () => {
+    const library = libraryOf(
+      installedEntry(HASH_A),
+      installedEntry(HASH_B, {
+        provenance: {
+          transport: "paired-lan",
+          importSessionId: `ris-${"8".repeat(32)}`,
+          entitlementStatementVersion: "vcg-user-entitled-content-v1",
+          importedAtMs: 800_000,
+        },
+      }),
+      operatorProvisionedEntry(HASH_C),
+    );
+
+    expect(parseRetroInstalledLibrary(clone(library))).toEqual(library);
+  });
+
+  it("rejects operator-provisioned entries carrying session evidence", () => {
+    const extras: Array<Record<string, unknown>> = [
+      { importSessionId: `ris-${"9".repeat(32)}` },
+      { entitlementStatementVersion: "vcg-user-entitled-content-v1" },
+      { importedAtMs: 900_000 },
+      { sourcePath: "E:\\Tetris.gb" },
+    ];
+
+    for (const extra of extras) {
+      const library = libraryOf(operatorProvisionedEntry(HASH_A)) as unknown as {
+        entries: Array<{ provenance: Record<string, unknown> }>;
+      };
+      Object.assign(library.entries[0]!.provenance, extra);
+      expectCode(
+        () => parseRetroInstalledLibrary(library),
+        "UNKNOWN_OR_MISSING_FIELD",
+      );
+    }
+  });
+
+  it("rejects session-bound entries missing their session evidence", () => {
+    for (const dropped of [
+      "importSessionId",
+      "entitlementStatementVersion",
+      "importedAtMs",
+    ]) {
+      const library = libraryOf(installedEntry(HASH_A)) as unknown as {
+        entries: Array<{ provenance: Record<string, unknown> }>;
+      };
+      delete library.entries[0]!.provenance[dropped];
+      expectCode(
+        () => parseRetroInstalledLibrary(library),
+        "UNKNOWN_OR_MISSING_FIELD",
+      );
+    }
+
+    const bare = libraryOf(installedEntry(HASH_A)) as unknown as {
+      entries: Array<{ provenance: Record<string, unknown> }>;
+    };
+    bare.entries[0]!.provenance = { transport: "usb" };
+    expectCode(
+      () => parseRetroInstalledLibrary(bare),
+      "UNKNOWN_OR_MISSING_FIELD",
+    );
+  });
+
+  it("rejects transports outside the closed installed-entry union", () => {
+    for (const transport of [
+      "operator",
+      "operator_provisioned",
+      "Operator-Provisioned",
+      "",
+    ]) {
+      const library = libraryOf(operatorProvisionedEntry(HASH_A)) as unknown as {
+        entries: Array<{ provenance: Record<string, unknown> }>;
+      };
+      library.entries[0]!.provenance.transport = transport;
+      expectCode(() => parseRetroInstalledLibrary(library), "INVALID_VALUE");
+    }
   });
 
   it("rejects invisible, directional, and non-portable Unicode in names, paths, and titles", () => {
@@ -443,6 +531,35 @@ describe("shared USB and paired-LAN planning", () => {
     expectCode(
       () => new RetroImportCoordinator(basePolicy).plan(crossTransport),
       "CANDIDATE_SESSION_MISMATCH",
+    );
+  });
+
+  it("keeps operator provisioning out of session, candidate, and intent", () => {
+    for (const field of ["session", "candidate"] as const) {
+      const claimed = clone(baseRequest) as unknown as Record<
+        string,
+        { transport: string }
+      >;
+      claimed[field]!.transport = RETRO_OPERATOR_PROVISIONED_TRANSPORT;
+      expectCode(
+        () => new RetroImportCoordinator(basePolicy).plan(claimed),
+        "INVALID_VALUE",
+      );
+    }
+
+    const request = clone(baseRequest);
+    request.library.entries = [
+      operatorProvisionedEntry(HASH_B, { title: "Dr Mario" }),
+    ];
+    const coordinator = new RetroImportCoordinator(basePolicy);
+    const plan = coordinator.plan(request);
+    const intent = coordinator.authorize(plan, { action: "install" }, NOW + 1);
+
+    expect(plan.transport).toBe("usb");
+    expect(plan.entry.provenance.transport).toBe("usb");
+    expect(intent.audit.transport).toBe("usb");
+    expect(JSON.stringify(intent)).not.toContain(
+      RETRO_OPERATOR_PROVISIONED_TRANSPORT,
     );
   });
 

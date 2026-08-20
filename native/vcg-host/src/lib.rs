@@ -21,6 +21,7 @@ pub mod power;
 pub mod process;
 pub mod profile_registry;
 pub mod recovery_image;
+pub mod reserved_input;
 pub mod restart_cleanup;
 pub mod retro_import;
 pub mod retroarch;

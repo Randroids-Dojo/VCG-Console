@@ -73,6 +73,83 @@ At the next boot:
    authenticated loopback host API for the browser lifetime.
 5. systemd restarts either process after an unexpected exit.
 
+## Enable the catalog and the retro library
+
+By default the session starts with no catalog and no library, and the launcher
+serves metadata only. The signed catalog, its update trust material, and the
+retro library are opt-in installer options, so an existing console keeps
+booting unchanged until an operator asks for them.
+
+Provision the material first, on the target, as the console account:
+`vcg-retro-provision` writes the trust material and the signed catalog, and
+`vcg-host retro-provision` commits library generations. The installer expects
+the layout those tools produce under one root:
+
+```text
+<retro-root>/
+├── installed-catalog.json              signed catalog
+├── installed-catalog.sig               detached signature bundle
+├── packages/                           install root
+├── trust/
+│   ├── anchors.json
+│   ├── accepted-roots/
+│   └── protected-state.json
+├── retro/{objects,libraries,audit}     library generations
+└── staging/retro-imports/retro-import.lock
+```
+
+Then reinstall with the retro options:
+
+```sh
+sudo scripts/pi/install-appliance.sh --user <console-account> \
+  --retro-channel <channel> \
+  --retro-profile-registry <absolute-registry-path>
+```
+
+`--retro-root` defaults to `<home>/.local/share/vcg`, `--retro-install-root`
+to `<retro-root>/packages`, and `--retro-library-root` to `<retro-root>`. Each
+can be named explicitly, and `--retro-content-root` is needed only for packages
+carrying managed content. `--retro-channel` has no default: the accepted update
+root authorizes exactly one channel.
+
+Without `--retro-profile-registry` the console browses the catalog and library
+but launches nothing. The registry format is in
+[the profile registry contract](PROFILE_REGISTRY.md). Launching a library entry
+also requires a connected controller, which the same session's Bluetooth
+pairing provides.
+
+The installer refuses to render a unit naming a catalog, signature, install
+root, trust file, or library root that is not already there, so a wrong path
+fails at install time instead of at the next boot. Adding
+`--dry-run --output-dir <path>` still renders for inspection without changing
+the operating system.
+
+Saves, states, and the launch replay journal are written under
+`/var/lib/vcg-console`, which the session already owns. The provisioned root
+stays read-only to the running session.
+
+The launcher requires a trusted-time snapshot, which a systemd `ExecStart=`
+line cannot compute, so the session runs
+`scripts/pi/start-launcher-with-trusted-time.sh`. It reads the system clock
+once and then becomes the launcher. That value is not a protected time source.
+
+The session unit restarts always and has no start limit, so a retro failure
+that repeats at every start would loop the television at three-second
+intervals. The wrapper prevents that by verifying the material first. With
+retro options configured it runs `vcg-host launcher --dry-run` with the same
+flags and the same clock reading, which verifies the signed catalog, every
+installed package artifact, the update trust material, and the retro library
+without changing any of them. On success it starts the launcher with the full
+flag set, so a healthy boot verifies twice.
+
+If the pre-flight fails, the wrapper starts the launcher with the retro
+options removed. The console reaches the shell, the browser, controller
+pairing, and the loopback host API are unaffected, and the catalog view shows
+"Signed package catalog unavailable". The retro lane stays disabled until the
+next start.
+
+To return to a metadata-only console, reinstall with no `--retro-` option.
+
 ## Diagnose and recover
 
 SSH remains the preferred service path. Inspect this boot with:
@@ -81,6 +158,18 @@ SSH remains the preferred service path. Inspect this boot with:
 systemctl status vcg-console.target vcg-console-server.service vcg-console-session.service
 journalctl -b -u vcg-console-server.service -u vcg-console-session.service
 ```
+
+A console that reaches the shell with no retro lane took the pre-flight
+fallback. Read why in the same journal:
+
+```sh
+journalctl -b -u vcg-console-session.service | grep -A 20 "Retro pre-flight failed"
+```
+
+That heading is followed by the launcher's own refusal and then by the line
+naming the repair. Correct the material with `vcg-retro-provision`, or correct
+the clock, and reboot; the next start verifies again and keeps the retro lane
+if it passes.
 
 To return tty1 to a local login prompt without deleting anything:
 

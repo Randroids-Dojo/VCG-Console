@@ -33,6 +33,12 @@
       "maxLength": 64,
       "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
     },
+    "bindableId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
     "sha256": {
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
@@ -57,7 +63,7 @@
           "pattern": "^content-[a-f0-9]{64}$"
         },
         "systemId": {
-          "$ref": "#/$defs/safeId"
+          "$ref": "#/$defs/bindableId"
         },
         "sha256": {
           "$ref": "#/$defs/sha256"
@@ -75,10 +81,10 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 80,
-          "pattern": "^[^\\u0000-\\u001f\\u007f/\\\\]+$"
+          "pattern": "^[^ \\u0000-\\u001f\\u007f-\\u00a0\\u00ad\\u061c\\u1680\\u180e\\u2000-\\u200f\\u2028-\\u202f\\u205f\\u2060-\\u2064\\u2066-\\u206f\\u3000\\ufeff\\ufff9-\\ufffb\\ud800-\\udfff\\u{1bca0}-\\u{1bca3}\\u{1d173}-\\u{1d17a}\\u{e0001}\\u{e0020}-\\u{e007f}/\\\\](?:[^\\u0000-\\u001f\\u007f-\\u00a0\\u00ad\\u061c\\u1680\\u180e\\u2000-\\u200f\\u2028-\\u202f\\u205f\\u2060-\\u2064\\u2066-\\u206f\\u3000\\ufeff\\ufff9-\\ufffb\\ud800-\\udfff\\u{1bca0}-\\u{1bca3}\\u{1d173}-\\u{1d17a}\\u{e0001}\\u{e0020}-\\u{e007f}/\\\\]*[^ \\u0000-\\u001f\\u007f-\\u00a0\\u00ad\\u061c\\u1680\\u180e\\u2000-\\u200f\\u2028-\\u202f\\u205f\\u2060-\\u2064\\u2066-\\u206f\\u3000\\ufeff\\ufff9-\\ufffb\\ud800-\\udfff\\u{1bca0}-\\u{1bca3}\\u{1d173}-\\u{1d17a}\\u{e0001}\\u{e0020}-\\u{e007f}/\\\\])?$"
         },
         "coreId": {
-          "$ref": "#/$defs/safeId"
+          "$ref": "#/$defs/bindableId"
         },
         "controllerProfile": {
           "$ref": "#/$defs/safeId"
@@ -89,6 +95,28 @@
       }
     },
     "provenance": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/operatorProvisionedProvenance"
+        },
+        {
+          "$ref": "#/$defs/sessionProvenance"
+        }
+      ]
+    },
+    "operatorProvisionedProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport"
+      ],
+      "properties": {
+        "transport": {
+          "const": "operator-provisioned"
+        }
+      }
+    },
+    "sessionProvenance": {
       "type": "object",
       "additionalProperties": false,
       "required": [
