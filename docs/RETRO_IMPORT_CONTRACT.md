@@ -19,9 +19,21 @@ file validation, entitlement, hashing, scan evidence, system mapping,
 duplicate/conflict handling, capacity arithmetic, or installed-library
 format.
 
-A third transport, `operator-provisioned`, exists only in the native store.
-It has no session, no browser surface, and no terminal intent, and the
-TypeScript package neither emits nor accepts it. Its rules are in
+A third transport, `operator-provisioned`, is written only by the native store.
+Two boundaries have to be kept apart here, because they answer differently.
+
+**Authority.** It has no session, no browser surface, and no terminal intent.
+The TypeScript session, candidate, plan, and commit-intent types cannot name
+it: `RetroImportTransport` stays `usb | paired-lan`, so a browser cannot claim
+provisioning authority at compile time or at run time.
+
+**Representation.** A library generation containing such entries must still be
+readable, so the installed-entry vocabulary is wider than the session one.
+`RetroInstalledTransport` adds `operator-provisioned`, and both the parser and
+the published schema accept it on an installed entry while rejecting the
+session fields it never carries.
+
+Its rules are in
 [Operator-provisioned entries](#operator-provisioned-entries) below.
 
 The package performs no filesystem or network I/O. It does not enumerate USB

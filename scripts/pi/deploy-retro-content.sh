@@ -82,9 +82,24 @@ if [ "${object_count}" != "${digest_count}" ]; then
   exit 1
 fi
 
-# The remote root is expanded by the target's shell, so `$HOME` works without
-# this script needing to know the remote account's home directory.
+# The remote root reaches the target's shell unquoted so that `$HOME` expands
+# there. That also means `$(...)`, a backtick, or a command separator would run
+# on the target, so the value is restricted to path characters plus `$` first.
+case "${remote_root}" in
+  *[!A-Za-z0-9_./\$-]*)
+    echo "--remote-root may contain only letters, digits, and _ . / - \$: ${remote_root}" >&2
+    exit 2
+    ;;
+esac
+
+# The resolved path is then interpolated inside single quotes in every later
+# remote command, so a quote, backslash, or newline in it would end that
+# quoting and turn the remainder into remote shell syntax.
 remote_base="$(ssh "${target}" "printf '%s' \"${remote_root}\"")"
+if [[ "${remote_base}" == *["'"\\]* || "${remote_base}" == *$'\n'* ]]; then
+  echo "resolved remote root is not safely quotable: ${remote_base}" >&2
+  exit 1
+fi
 remote_dir="${remote_base}/${system}"
 
 echo "system:    ${system}"

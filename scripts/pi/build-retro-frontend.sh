@@ -159,6 +159,17 @@ echo "  configuring the console profile"
     exit 1
   }
 
+# configure disables Wayland silently when a dependency is missing, and the
+# appliance session runs under Cage. Requiring the packages above is not
+# sufficient on its own: check what configure actually decided, so a frontend
+# that would fall back to another context driver fails here instead of at boot.
+if ! grep -q '^HAVE_WAYLAND = 1$' "${source_root}/config.mk"; then
+  echo "  CONFIGURE DISABLED WAYLAND." >&2
+  echo "  The appliance session presents through Cage, so this build is wrong." >&2
+  echo "  Install ${BUILD_DEPS} and rerun." >&2
+  exit 1
+fi
+
 echo "  building with ${jobs} job(s)"
 ( cd "${source_root}" && make -j"${jobs}" ) > "${scratch}/make.log" 2>&1 || {
     echo "  BUILD FAILED; last 20 lines:" >&2

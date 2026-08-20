@@ -36,11 +36,24 @@ export const INSTALLED_HEALTH_CHECK_VALUES = ["process", "explicit-ready"] as co
 
 const PackageIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/, "SHA-256 values must be 64 lowercase hexadecimal characters");
-const HttpsUrlSchema = z.url().refine((value) => value.startsWith("https://"), "artifact sources must use HTTPS");
+// The refinement alone does not survive `z.toJSONSchema()`, which emits only
+// `format: "uri"` -- so a published schema would accept an http:// source the
+// parser rejects. The pattern is exported, so both agree.
+const HttpsUrlSchema = z
+  .url()
+  .regex(/^https:\/\//, "artifact sources must use HTTPS");
 const NativeArchitectureSchema = z.enum(["aarch64", "x86_64"]);
 
 /** Bounded lowercase identifier grammar the host applies to installed IDs. */
 const InstalledIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80);
+
+// A library binding names a system and core that must match an installed
+// library entry, and that grammar caps at 64. A longer binding would pass
+// package validation and then match nothing.
+const BindableIdSchema = z
+  .string()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  .max(64);
 const InstalledVersionSchema = z
   .string()
   .min(1)
@@ -74,8 +87,8 @@ const InstalledLibretroContentSchema = z.discriminatedUnion("mode", [
   z
     .object({
       mode: z.literal("library"),
-      systemId: InstalledIdSchema,
-      coreId: InstalledIdSchema,
+      systemId: BindableIdSchema,
+      coreId: BindableIdSchema,
     })
     .passthrough(),
 ]);

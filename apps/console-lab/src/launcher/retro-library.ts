@@ -126,6 +126,16 @@ export interface RetroLibraryMove {
  */
 export class RetroLibraryBrowse {
   #entries: NativeLibraryEntry[] = [];
+
+  /**
+   * Entry IDs already held.
+   *
+   * The boundary comparison only proves a page sorts after the last entry
+   * held; a later page can still repeat an ID under a different title and
+   * sort correctly. Two rows would then carry the same key, which the keyed
+   * list refuses at runtime.
+   */
+  #seenEntryIds = new Set<string>();
   #groups: RetroLibraryGroup[] = [];
   #groupByKey = new Map<string, number>();
   /** The one group whose versions are open, if any. */
@@ -298,6 +308,11 @@ export class RetroLibraryBrowse {
     }
     if (page.nextCursor === undefined && total !== page.entryCount) return false;
 
+    for (const entry of page.entries) {
+      if (this.#seenEntryIds.has(entry.entryId)) return false;
+    }
+    for (const entry of page.entries) this.#seenEntryIds.add(entry.entryId);
+
     const from = this.#entries.length;
     this.#generation = page.libraryGeneration;
     this.#entryCount = page.entryCount;
@@ -392,6 +407,7 @@ export class RetroLibraryBrowse {
   /** Discards the walk so the next fetch starts from the first page. */
   reset(): void {
     this.#entries = [];
+    this.#seenEntryIds.clear();
     this.#groups = [];
     this.#groupByKey = new Map();
     this.#openGroup = undefined;

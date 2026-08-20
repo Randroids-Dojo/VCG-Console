@@ -97,11 +97,30 @@ Question: when should the privileged input router be built? It needs an evdev
 backend behind `vcg_host::input::ShellAction`, and it must survive a frontend
 taking an exclusive `EVIOCGRAB` on the event device.
 
-Decided 2026-08-19: build the privileged input router. The host will own Home
-and Back above the frontend, terminate the child, and return to the shell, and
-the frontend menu combo is removed once it does. This implements the I-091
-mechanism; it does not qualify it, which still needs physical multi-controller
-testing on both reference targets.
+Decided 2026-08-19: build the privileged input router.
+
+Implemented: the host reads the controller's own event device, recognises a
+Select+Start hold, and terminates the child. The generated session
+configuration pins `input_menu_toggle_gamepad_combo` to `"0"` and the base
+configuration no longer sets a combo, so the frontend menu binding described
+above is gone.
+
+Not implemented, and not to be read into the decision:
+
+- Only Home is produced. Back remains a launcher-surface action, because
+  during a game both would mean the same thing and no second combo is safe
+  from gameplay collision.
+- The router is started by `vcg-host retroarch`. The launcher-driven path in
+  `native_launch.rs`, which is what `POST /v1/launches` uses, does not start
+  it, so the shipping lane has neither the controller requirement nor the
+  host-owned exit.
+- The router observes rather than intercepts, so the game still receives the
+  same button events.
+
+The invariant in [the reserved Home campaign](RESERVED_HOME_ACTION_CAMPAIGN_2026-07-26.md)
+therefore remains open on both the third point and the second, and I-091 is
+unqualified regardless: it needs physical multi-controller evidence on both
+reference targets.
 
 ## RL-005: duplicate and regional titles in the library
 
@@ -224,8 +243,15 @@ launch journal, or should a version bump plus an explicit migration be required
 even when it costs a one-time journal reset?
 
 Decided 2026-08-20: bump the journal to schema 3 with an explicit migration,
-so a format change is stated rather than absorbed. The accepted cost is a
-one-time reset, which means an interrupted launch may replay once.
+so a format change is stated rather than absorbed.
+
+The accepted cost is a one-time reset, and the distinction matters for the
+idempotency contract: version-2 records are discarded, never replayed, and the
+migration sets the restart-cleanup barrier, so no launch is admitted until a
+privileged adapter proves the prior process scope empty. Submitting the same
+request ID afterwards starts a **new** launch rather than replaying the old
+one. Nothing is executed twice from one record; what is lost is the record that
+would have made a repeat submission a no-op.
 
 ## RL-011: JSON Schema is asserted, not executed
 

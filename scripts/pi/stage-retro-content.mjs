@@ -77,16 +77,27 @@ function parseArguments(argv) {
     if (!key) throw new Error(`unknown option: ${argv[index]}`);
     const value = argv[index + 1];
     if (value === undefined) throw new Error(`${argv[index]} needs a value`);
-    options[key] = key === "limit" ? Number.parseInt(value, 10) : value;
+    options[key] = key === "limit" ? parseLimit(value) : value;
     index += 1;
   }
   if (!options.source) throw new Error("--source is required");
   if (!options.system) throw new Error("--system is required");
   if (!options.core) throw new Error("--core is required");
-  if (options.limit && !Number.isSafeInteger(options.limit)) {
-    throw new Error("--limit must be an integer");
-  }
   return options;
+}
+
+// `Number.parseInt` accepts a numeric prefix and yields NaN for junk, which a
+// truthy check then treats as "no limit". A negative value stops the staging
+// loop before the first entry, which reads as an empty collection.
+function parseLimit(value) {
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`--limit must be a non-negative integer: ${value}`);
+  }
+  const limit = Number(value);
+  if (!Number.isSafeInteger(limit)) {
+    throw new Error(`--limit exceeds the safe integer range: ${value}`);
+  }
+  return limit;
 }
 
 // Mirrors `validate_safe_id`: lowercase alphanumerics plus separators, never
@@ -241,15 +252,18 @@ function listArchive(reader, archivePath) {
 // `[!]`, `[b1]`, and `(U)` markers that a pattern match then fails to find.
 // The caller has already proven the container holds exactly one file, so
 // "everything" and "that entry" are the same bytes.
-function extractArchiveContents(reader, archivePath) {
+function extractArchiveContents(reader, archivePath, maxBytes) {
   const argv =
     reader.kind === "bsdtar" ? ["-xOf", archivePath] : ["-p", archivePath];
-  return execFileSync(reader.command, argv, { maxBuffer: 256 * 1024 * 1024 });
+  // Bounded by the caller's ceiling rather than a fixed 256 MiB: past that
+  // limit execFileSync throws ENOBUFS, which would abort the whole run instead
+  // of skipping the one container that is too large.
+  return execFileSync(reader.command, argv, { maxBuffer: maxBytes + 1 });
 }
 
 // Listing first keeps a multi-file or wrong-payload container from being
 // silently accepted.
-function readSingleArchivePayload(archivePath, allowedExtensions) {
+function readSingleArchivePayload(archivePath, allowedExtensions, maxBytes) {
   const reader = resolveArchiveReader();
   const listing = listArchive(reader, archivePath)
     .split("\n")
@@ -283,7 +297,13 @@ function readSingleArchivePayload(archivePath, allowedExtensions) {
     return { error: `archive payload extension is not supported: ${rawExtension}` };
   }
 
-  const bytes = extractArchiveContents(reader, archivePath);
+  let bytes;
+  try {
+    bytes = extractArchiveContents(reader, archivePath, maxBytes);
+  } catch (error) {
+    const reason = error && error.code === "ENOBUFS" ? `payload exceeds the ${maxBytes}-byte ceiling` : "archive could not be extracted";
+    return { error: reason };
+  }
   return { bytes, extension, innerName: basename(inner) };
 }
 
@@ -340,7 +360,7 @@ function main() {
     let container = "plain";
 
     if (outerExtension === ARCHIVE_EXTENSION) {
-      const payload = readSingleArchivePayload(path, allowedExtensions);
+      const payload = readSingleArchivePayload(path, allowedExtensions, maxBytes);
       if (payload.error) {
         skipped.push({ sourceName, reason: payload.error });
         continue;

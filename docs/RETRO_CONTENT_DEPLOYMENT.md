@@ -1,9 +1,9 @@
 # Retro core and content deployment
 
-Status: recipes and an operator staging lane exist; no signed package, no
-installed-library generation, and no qualified launch
+Status: recipes, staging, signed packages, and library provisioning are
+implemented and exercised on a Raspberry Pi 5; no qualified launch
 
-Last updated: 2026-08-18
+Last updated: 2026-08-20
 
 How to get libretro cores and your own ROM collection onto a Raspberry Pi 5
 target. Nothing here is a qualification record: none of it proves a core loads a
@@ -67,10 +67,18 @@ than at launch.
 
 ## Where this stops
 
-You now have verified content and built cores on the target. The launcher will
-not show these titles yet: there is no signed installed-package catalog and no
-per-title game manifest binding them. Those are the next gates, along with the
-qualification work in
+Verified content and built cores on the target are not yet a playable console.
+Two further steps are implemented and documented below: signing a catalog and
+a system policy with `vcg-retro-provision`, and committing a payload into the
+library with `vcg-host retro-provision`. A console reaches them at boot only
+when the installer is run with its opt-in retro options; see
+[the appliance boot guide](PI_APPLIANCE_BOOT.md).
+
+Nothing above is qualification. No controller, audio, video, save, timing, or
+recovery evidence exists on any target, and the reserved-input router is
+started by the diagnostic `vcg-host retroarch` path rather than by the
+launcher, so a launcher-driven session has neither the controller requirement
+nor a host-owned exit. The gates remain the ones in
 [the supervised frontend campaign](SUPERVISED_LIBRETRO_FRONTEND_QUALIFICATION_CAMPAIGN_2026-07-26.md).
 
 ## FAQ
@@ -187,6 +195,7 @@ entries under an `operator-provisioned` transport that records no session, no
 entitlement acknowledgement, and no scan result, because none of those exist
 here. Add `--dry-run` to verify a payload without committing it.
 [The import contract](RETRO_IMPORT_CONTRACT.md) states exactly what such an
-entry does and does not carry. A committed generation still does not make a
-title appear in the launcher: that needs the read endpoint and launch intent
-that [the library play plan](RETRO_LIBRARY_PLAY_PLAN_2026-08-18.md) defers.
+entry does and does not carry. A committed generation reaches the shell through
+the host's paged library endpoint, which the launcher serves when it is started
+with `--retro-library-root`; the installer passes that only when its opt-in
+retro options are supplied.

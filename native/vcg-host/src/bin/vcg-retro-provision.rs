@@ -261,6 +261,17 @@ impl StatePaths {
         let trust = state_root.join("trust");
         let private = trust.join("private");
         let store = trust.join("accepted-roots");
+        // The directory holding signing keys is owner-only for the same
+        // reason the keys themselves are.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            fs::DirBuilder::new()
+                .recursive(true)
+                .mode(0o700)
+                .create(&private)?;
+        }
+        #[cfg(not(unix))]
         fs::create_dir_all(&private)?;
         fs::create_dir_all(store.join("generations"))?;
         create_regular_file(&store.join(".vcg-update-root-store.lock"))?;
@@ -564,7 +575,16 @@ fn load_or_create_key(path: &Path) -> Result<SigningKey, Box<dyn Error>> {
     }
     let mut seed = [0_u8; 32];
     getrandom::fill(&mut seed)?;
-    let mut file = OpenOptions::new().write(true).create_new(true).open(path)?;
+    let mut options = OpenOptions::new();
+    options.write(true).create_new(true);
+    // A signing key written at the default mode is readable by every local
+    // account under a typical umask.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let mut file = options.open(path)?;
     file.write_all(&seed)?;
     file.sync_all()?;
     Ok(SigningKey::from_bytes(&seed))
