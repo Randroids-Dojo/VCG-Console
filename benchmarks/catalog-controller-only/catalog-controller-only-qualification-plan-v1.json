@@ -32,7 +32,7 @@
     {
       "role": "controller-routing-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
+      "sha256": "e7f2b1cef9001605f66a631b1239707d3921318841a9abc3261e5ef2255b5f31"
     },
     {
       "role": "controller-mapping-boundary",

@@ -10,12 +10,12 @@
     {
       "role": "signed-package-libretro-rights-controller-and-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "implemented-supervised-retroarch-boundary-and-remaining-gates",
       "path": "docs/RETROARCH_INTEGRATION.md",
-      "sha256": "ee88856cef6f7ccc2d6126b611c1cbd38c3dc16910d4690ab319f7874ebd56dd"
+      "sha256": "96f5e742b7fd45c505fa50811055e8ec2b10c1ce7171791815682c17e2e78efd"
     },
     {
       "role": "starter-title-rights-and-artifact-candidate-screen",
@@ -50,12 +50,12 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "61597642bb7a4498689d885b09eef760c73cf8a4f568f685fcbf8f08e48eee31"
+      "sha256": "11cb58e148d7469997f2d76f02d1367e42c900c3cd1cc32c219a79687034bafc"
     },
     {
       "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "native-trust-loading-containment-retry-and-return-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "4fe5f87540a27f74503784d7f97d74016294a16e54aadaa61b6077e06e0742dd"
+      "sha256": "696fa3c9d459025638e3f44316c457b360cb2bd48dab7b5cf1b269996381be40"
     }
   ],
   "prerequisiteGate": {

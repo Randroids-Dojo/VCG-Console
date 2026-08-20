@@ -125,6 +125,7 @@
     "@vcg/game-manifest": "workspace:*",
     "@vcg/launcher-catalog": "workspace:*",
     "@vcg/motion-contract": "workspace:*",
+    "@vcg/retro-import-contract": "workspace:*",
     "@vcg/motion-web-bridge": "workspace:*",
     "tsx": "4.23.1",
     "typescript": "5.9.3",

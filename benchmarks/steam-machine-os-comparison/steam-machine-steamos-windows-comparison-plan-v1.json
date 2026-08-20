@@ -15,7 +15,7 @@
     {
       "role": "supported-dual-boot-zero-result-boundary",
       "path": "benchmarks/steam-machine-dual-boot/steam-machine-windows-dual-boot-status-v1.json",
-      "sha256": "469386f7677a4e1ecd6a485e0428bd55e041c28f69669b2bd962e5376290bf51"
+      "sha256": "fb4bb5cd80bc6d2d3b286064979e9de971ae8630f96c4acebe97652e5bbe7df9"
     },
     {
       "role": "windows-development-workstation-evidence-and-platform-limit",
@@ -25,32 +25,32 @@
     {
       "role": "steamos-update-safe-package-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "9a5eaa764e5a30e3f7e33ddad73b7d3450fa579327ee42c3bc22aa6f50cf6429"
+      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
     },
     {
       "role": "steamos-uvc-permission-and-live-camera-boundary",
       "path": "benchmarks/steamos-camera/steamos-uvc-permission-plan-v1.json",
-      "sha256": "693e8b84529ab6fe912b9f055959d7d54eb09d25a59a1b148599348b10e93cf9"
+      "sha256": "9dc470138897e3842a8f902b2eb19fb8ffb3b6b84baf45364e2403668650f4c6"
     },
     {
       "role": "steamos-pose-concurrent-game-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "01277e36127580b13504bff6e055bc51974b20bb422da3005edcdbf748d3754a"
+      "sha256": "390cec75ec53a0e188866a0af7756ab510b08c3df1001490649f02bd81d87524"
     },
     {
       "role": "steamos-input-action-and-accountless-base-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "a6242f96dbbd3a572404341673539776b25b2efef966d650267c1cd2e6ab5661"
+      "sha256": "b59b1c1c89febe9aea15a5b827a96843bd149b0ace5b7294b6aa39ade5d262d9"
     },
     {
       "role": "steam-machine-accountless-core-boundary",
       "path": "benchmarks/steam-machine-accountless/steam-machine-accountless-core-plan-v1.json",
-      "sha256": "8511bdcaab59d2543e9425ef9de0f4c78a70479869fcade6eeffd9aaea77a2f2"
+      "sha256": "2d25a280ed4235bb30d09947fbddeb3abbbb97552f716b1b583d9f894d33928b"
     },
     {
       "role": "steamos-outer-shell-lifecycle-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "b327536ed29cba25272634ca8640fb47cb326202e6016705b0b4b993c3f96d02"
+      "sha256": "626f4962f96add1f0377ad587b06be15e8212acb7c2d2cb7328f75782021461e"
     },
     {
       "role": "cross-tier-boot-resume-launch-timing-boundary",
@@ -60,12 +60,12 @@
     {
       "role": "complete-system-economics-and-maintenance-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "fef8e206ab9dd714d063cff0574ea6a960b59fb29c2a4383bd05ea380f70dacd"
+      "sha256": "0e5fac8df3e3e60f14cf246829f28975edb06662e64af0b8849b3072ec8cf6bb"
     },
     {
       "role": "controller-only-cold-start-and-recovery-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "4fe5f87540a27f74503784d7f97d74016294a16e54aadaa61b6077e06e0742dd"
+      "sha256": "696fa3c9d459025638e3f44316c457b360cb2bd48dab7b5cf1b269996381be40"
     },
     {
       "role": "fixed-product-success-and-latency-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "required-pi-and-ordinary-linux-tier-boundary",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "de630356168f38f99452604c01b804b109a9a4acf6d7b91c3c8298f30fdfaff0"
+      "sha256": "75c47714fb5d0b3542cdada75b3afc0440084d608755002596bc9b90db015aa8"
     }
   ],
   "prerequisiteGate": {

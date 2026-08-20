@@ -114,6 +114,97 @@ export const launcherCatalog = {
       "statusLabel": "Built in"
     },
     {
+      "id": "nes-super-mario-bros-duck-hunt",
+      "version": "operator-content-23ec3f6b-2026-08-19",
+      "title": "Super Mario Bros. + Duck Hunt",
+      "publisher": "Nintendo",
+      "runtime": "libretro",
+      "entrypoint": "libretro:mesen",
+      "network": "offline",
+      "compatibilityStatus": "unverified",
+      "surface": "retro",
+      "displayIndex": "R2",
+      "searchDetail": "NES game",
+      "searchTerms": [
+        "super mario bros",
+        "duck hunt",
+        "mario",
+        "nes",
+        "nintendo",
+        "mesen"
+      ],
+      "summary": "Needs your own NES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "nes-metal-gear",
+      "version": "operator-content-1abb14a6-2026-08-19",
+      "title": "Metal Gear",
+      "publisher": "Konami",
+      "runtime": "libretro",
+      "entrypoint": "libretro:mesen",
+      "network": "offline",
+      "compatibilityStatus": "unverified",
+      "surface": "retro",
+      "displayIndex": "R3",
+      "searchDetail": "NES game",
+      "searchTerms": [
+        "metal gear",
+        "nes",
+        "nintendo",
+        "konami",
+        "mesen"
+      ],
+      "summary": "Needs your own NES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "snes-yoshis-island",
+      "version": "operator-content-bd763c1a-2026-08-19",
+      "title": "Yoshi's Island",
+      "publisher": "Nintendo",
+      "runtime": "libretro",
+      "entrypoint": "libretro:snes9x",
+      "network": "offline",
+      "compatibilityStatus": "unverified",
+      "surface": "retro",
+      "displayIndex": "R4",
+      "searchDetail": "SNES game",
+      "searchTerms": [
+        "yoshis island",
+        "yoshi",
+        "super mario world 2",
+        "snes",
+        "nintendo",
+        "snes9x"
+      ],
+      "summary": "Needs your own SNES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
+      "id": "snes-donkey-kong-country-2",
+      "version": "operator-content-b79c2bb8-2026-08-19",
+      "title": "Donkey Kong Country 2",
+      "publisher": "Nintendo",
+      "runtime": "libretro",
+      "entrypoint": "libretro:snes9x",
+      "network": "offline",
+      "compatibilityStatus": "unverified",
+      "surface": "retro",
+      "displayIndex": "R5",
+      "searchDetail": "SNES game",
+      "searchTerms": [
+        "donkey kong country 2",
+        "donkey kong",
+        "diddy kong",
+        "snes",
+        "nintendo",
+        "snes9x"
+      ],
+      "summary": "Needs your own SNES ROM · controller qualification pending",
+      "statusLabel": "Unverified"
+    },
+    {
       "id": "retro-2048",
       "version": "qualification-candidate-2026-07-23",
       "title": "2048",

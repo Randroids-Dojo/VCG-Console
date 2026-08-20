@@ -1,9 +1,9 @@
 {
   "format": "vcg-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-18",
+  "evidenceDate": "2026-08-20",
   "evidenceClass": "windows-x64-headless-chrome-tv-authoring-conformance",
   "qualification": "candidate-authoring-surface-only-not-tv-or-game-qualification",
-  "retrievedAtUtc": "2026-08-18T01:55:53.045Z",
+  "retrievedAtUtc": "2026-08-20T20:55:35.883Z",
   "environment": {
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
@@ -153,8 +153,8 @@
         "animation": {
           "sampleCount": 120,
           "p50DeltaMs": 16.7,
-          "p95DeltaMs": 16.7,
-          "worstDeltaMs": 83.4,
+          "p95DeltaMs": 16.8,
+          "worstDeltaMs": 100,
           "negativeDeltaCount": 0
         },
         "screenshot": {
@@ -203,7 +203,7 @@
     "scriptPath": "examples/tv-conformance/app.js",
     "scriptPathSha256": "2febab45004fb5c37a75186325ac10dfe43c40b9da845a8426b9eb5a57248d20",
     "generatorPath": "scripts/generate-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "cc26b227b5d806a1a50c7e622bb77eb611f97f9a59cd90f7ad9366cf678ac160",
+    "generatorPathSha256": "9dacdd9faf2e76e618167c563a4df6c114c393c4524402226c5a7aca50af92de",
     "validatorPath": "scripts/validate-tv-conformance-evidence.mjs",
     "validatorPathSha256": "5fa20a9a7b2ed2ac1c6ff2ddc25e718316a1068e10bbfcf6bd6c7e49ebde2e88"
   },

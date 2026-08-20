@@ -1,6 +1,6 @@
 # Controller input prototype contract
 
-Last updated: 2026-08-10
+Last updated: 2026-08-19
 
 The console lab's Browser Gamepad adapter is a reversible desk prototype for canonical shell actions and connection lifecycle. It is not the native input authority and cannot prove that Home or Back remains available when a page, native game, compositor, or operating system owns focus.
 
@@ -161,8 +161,9 @@ declared observation bounds.
 
 This is the standard shell mapping, native lifecycle, and routing policy state
 machine, not an SDL3 adapter, complete gameplay-device projection, mapping
-database, or privileged compositor route. It is not yet connected to the host
-launch/runtime loop. Product qualification still requires:
+database, or privileged compositor route. One physical producer now feeds it
+during a supervised libretro launch — see the next section — but no other
+runtime does. Product qualification still requires:
 
 - SDL3 discovery, mapping-database behavior, hot-plug, reconnect, sleep/wake, and simultaneous-device tests on ARM64 and x86-64 Linux;
 - explicit player assignment and controller-accessible recovery for ambiguous mappings;
@@ -172,6 +173,25 @@ launch/runtime loop. Product qualification still requires:
 - battery, transport, and controller-specific limitations reported without narrowing the standards-conformant compatibility promise.
 
 Until those gates pass, browser Home/Back and Rust registry/router events are contract evidence only, not proof of unstealable system controls.
+
+## Host-observed reserved gesture
+
+`vcg_host::reserved_input` is the first physical producer for that policy. On Linux it opens every connected controller's own event device read-only and feeds one canonical Home edge into `ReservedInputRouter` in `InputContext::Game`. The `vcg-host retroarch` launch path starts it before the child and terminates the child when the edge arrives, so the exit works even when the core has stopped processing input. The launcher-driven native launch path does not start it yet.
+
+| Physical gesture | Canonical shell action |
+|---|---|
+| Select and Start held together for one second | Home |
+| A dedicated Home button (`BTN_MODE`) held for one second | Home |
+
+The dedicated button is an addition, not a replacement: not every pad reports one, so the Select-plus-Start form is the universally producible gesture. The one-second hold is the debounce policy — a momentary chord is ordinary play, and some titles bind Select plus Start themselves. The gesture fires once and re-arms only after release. No other button, axis, or event type is inspected.
+
+Devices are admitted from sysfs capability data rather than device names: a node is a controller when its key bitmap declares a code in the kernel's joystick or gamepad button blocks, and it is observable when it also reports Select and Start or a Home button. The appliance's power button, HDMI nodes, and a controller's separate motion-sensor node are therefore never treated as controllers. The set is rescanned every 500 ms, so connecting or disconnecting a controller mid-session is picked up or dropped without restarting the host, and a vanished controller's held reserved action is released so a replacement can produce a fresh gesture. A session whose last controller disappears keeps running with no reachable exit until one reconnects.
+
+The router fails closed: a libretro launch is refused when no connected controller can produce the gesture, and on a platform with no Linux event devices.
+
+This is an observing router, not an interception. It never takes an exclusive `EVIOCGRAB` and never consumes an event, so the running game observes the same button presses. It establishes that the host owns the escape; it does not establish that the game never receives Home. That clause of the reserved Home invariant stays open, and closing it needs an exclusive grab plus re-emission through a virtual device.
+
+Fourteen deterministic cases drive the byte-stream and synthetic-source seams on any host: record decoding across a split read, capability-bitmap parsing, controller admission against power-button, HDMI, and motion-sensor nodes, a controller with no reserved buttons, the recognized gesture, gameplay input that is not it, a partial combination released before the hold, single-fire and re-arm, hotplug add and remove, and the refusal paths. No physical controller has exercised the Linux backend.
 
 The full physical matrix, evidence fields, zero-tolerance failures, privacy
 boundary, and abort/claim rules are pre-registered in

@@ -12,7 +12,7 @@
     {
       "role": "camera-and-packaging-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "active-play-cable-safety-boundary",
@@ -32,7 +32,7 @@
     {
       "role": "camera-geometry-and-mount-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "9fa56d1826639652f002d322ec88e36a0083514a893037c2a61f33842a17a521"
+      "sha256": "9e4b77f0fc4b3d9164b723ab523e7e93a2685a3b95cc6ce5100362ed971459c0"
     },
     {
       "role": "pi-radio-coexistence-boundary",

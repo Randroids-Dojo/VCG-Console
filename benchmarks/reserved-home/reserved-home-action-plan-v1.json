@@ -32,7 +32,7 @@
     {
       "role": "retro-supervision-boundary",
       "path": "docs/RETROARCH_INTEGRATION.md",
-      "sha256": "ee88856cef6f7ccc2d6126b611c1cbd38c3dc16910d4690ab319f7874ebd56dd"
+      "sha256": "96f5e742b7fd45c505fa50811055e8ec2b10c1ce7171791815682c17e2e78efd"
     },
     {
       "role": "controller-qualification-boundary",
@@ -42,17 +42,17 @@
     {
       "role": "steam-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "a6242f96dbbd3a572404341673539776b25b2efef966d650267c1cd2e6ab5661"
+      "sha256": "b59b1c1c89febe9aea15a5b827a96843bd149b0ace5b7294b6aa39ade5d262d9"
     },
     {
       "role": "signed-native-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "b327536ed29cba25272634ca8640fb47cb326202e6016705b0b4b993c3f96d02"
+      "sha256": "626f4962f96add1f0377ad587b06be15e8212acb7c2d2cb7328f75782021461e"
     },
     {
       "role": "hosted-supervisor-implementation-boundary",

@@ -3,7 +3,7 @@
 use std::fmt;
 use std::io::{self, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -16,9 +16,13 @@ use crate::native_launch::{
     NativeLaunchError, NativeLaunchService, NativeLaunchSnapshot, NativeLaunchState,
 };
 use crate::process::WatchdogPolicy;
+use crate::retro_import::{RetroLibraryEntry, RetroLibrarySnapshot};
 
 const MAX_REQUEST_BYTES: usize = 8_192;
 const MAX_LAUNCH_BODY_BYTES: usize = 1_024;
+const MAX_LIBRARY_PAGE_ENTRIES: usize = 256;
+const MAX_LIBRARY_PAGE_BYTES: usize = 65_536;
+const LIBRARY_CURSOR_BYTES: usize = 16;
 const READ_TIMEOUT: Duration = Duration::from_millis(500);
 const ACCEPT_POLL_INTERVAL: Duration = Duration::from_millis(10);
 const TOKEN_BYTES: usize = 32;
@@ -35,7 +39,159 @@ pub struct HostStatusServer {
     worker: Option<JoinHandle<()>>,
 }
 
+/// The host-owned launch policy for one launcher process: which profiles may
+/// launch, which installed games the watchdog supervises, and where durable
+/// replay state is kept.
+pub struct HostLaunchPolicy {
+    profile_ids: Vec<String>,
+    watchdog_game_ids: Vec<String>,
+    watchdog_policy: WatchdogPolicy,
+    journal_root: Option<PathBuf>,
+}
+
+impl HostLaunchPolicy {
+    /// Launches installed packages for an explicit host-owned profile
+    /// allowlist, with no watchdog games and in-memory replay only.
+    #[must_use]
+    pub fn new(profile_ids: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            profile_ids: profile_ids.into_iter().collect(),
+            watchdog_game_ids: Vec::new(),
+            watchdog_policy: WatchdogPolicy::local_game_defaults(),
+            journal_root: None,
+        }
+    }
+
+    /// Supervises the named installed games with heartbeat watchdog policy.
+    #[must_use]
+    pub fn with_watchdog_games(
+        mut self,
+        watchdog_game_ids: impl IntoIterator<Item = String>,
+        watchdog_policy: WatchdogPolicy,
+    ) -> Self {
+        self.watchdog_game_ids = watchdog_game_ids.into_iter().collect();
+        self.watchdog_policy = watchdog_policy;
+        self
+    }
+
+    /// Keeps launch replay state in a host-owned durable journal.
+    #[must_use]
+    pub fn with_replay_journal(mut self, journal_root: &Path) -> Self {
+        self.journal_root = Some(journal_root.to_path_buf());
+        self
+    }
+}
+
+/// The signature-verified installed catalog, and the launch policy when this
+/// process also launches from it.
+struct CatalogCapability {
+    catalog: TrustedPackageCatalog,
+    launch: Option<HostLaunchPolicy>,
+}
+
+/// Every optional capability one launcher process serves. The status endpoint
+/// requires none of them; each one configured here is served and advertised,
+/// and the combination is free.
+#[derive(Default)]
+pub struct HostCapabilities {
+    catalog: Option<CatalogCapability>,
+    bluetooth_service: Option<BluetoothPairingService>,
+    library: Option<RetroLibrarySnapshot>,
+}
+
+impl HostCapabilities {
+    /// Discloses a signature-verified installed catalog, read-only.
+    #[must_use]
+    pub fn with_catalog(catalog: TrustedPackageCatalog) -> Self {
+        Self {
+            catalog: Some(CatalogCapability {
+                catalog,
+                launch: None,
+            }),
+            bluetooth_service: None,
+            library: None,
+        }
+    }
+
+    /// Discloses the catalog and launches from it under one host-owned launch
+    /// policy.
+    #[must_use]
+    pub fn with_launch_service(catalog: TrustedPackageCatalog, launch: HostLaunchPolicy) -> Self {
+        Self {
+            catalog: Some(CatalogCapability {
+                catalog,
+                launch: Some(launch),
+            }),
+            bluetooth_service: None,
+            library: None,
+        }
+    }
+
+    /// Adds privacy-preserving Bluetooth controller pairing.
+    #[must_use]
+    pub fn and_bluetooth(mut self, bluetooth_service: BluetoothPairingService) -> Self {
+        self.bluetooth_service = Some(bluetooth_service);
+        self
+    }
+
+    /// Adds the read-only installed retro library. A package whose signed
+    /// catalog record accepts library content can then be launched with one
+    /// library entry the host itself published.
+    #[must_use]
+    pub fn and_library(mut self, library: RetroLibrarySnapshot) -> Self {
+        self.library = Some(library);
+        self
+    }
+}
+
 impl HostStatusServer {
+    /// Starts the status API serving exactly the capabilities configured.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when launch/watchdog configuration or replay state is
+    /// invalid, the journal is already locked, or the listener,
+    /// operating-system random source, or worker thread cannot be created.
+    pub fn start_with_capabilities(
+        allowed_origin: impl Into<String>,
+        capabilities: HostCapabilities,
+    ) -> Result<Self, HostApiError> {
+        let HostCapabilities {
+            catalog,
+            bluetooth_service,
+            library,
+        } = capabilities;
+        let library = library.map(Arc::new);
+        let mut catalog_service = None;
+        let mut launch_service = None;
+        if let Some(configured) = catalog {
+            let catalog = Arc::new(configured.catalog);
+            launch_service = configured
+                .launch
+                .map(|launch| {
+                    NativeLaunchService::with_optional_replay(
+                        Arc::clone(&catalog),
+                        launch.profile_ids,
+                        launch.watchdog_game_ids,
+                        launch.watchdog_policy,
+                        launch.journal_root.as_deref(),
+                        library.clone(),
+                    )
+                    .map(Arc::new)
+                    .map_err(HostApiError::LaunchConfiguration)
+                })
+                .transpose()?;
+            catalog_service = Some(catalog);
+        }
+        Self::start_internal(
+            allowed_origin.into(),
+            catalog_service,
+            launch_service,
+            bluetooth_service.map(Arc::new),
+            library,
+        )
+    }
+
     /// Starts the status API for one launcher process.
     ///
     /// # Errors
@@ -43,7 +199,7 @@ impl HostStatusServer {
     /// Returns an error when the listener, operating-system random source, or
     /// worker thread cannot be created.
     pub fn start(allowed_origin: impl Into<String>) -> Result<Self, HostApiError> {
-        Self::start_internal(allowed_origin.into(), None, None, None)
+        Self::start_with_capabilities(allowed_origin, HostCapabilities::default())
     }
 
     /// Starts the status API with a signature-verified installed catalog.
@@ -56,7 +212,7 @@ impl HostStatusServer {
         allowed_origin: impl Into<String>,
         catalog: TrustedPackageCatalog,
     ) -> Result<Self, HostApiError> {
-        Self::start_internal(allowed_origin.into(), Some(Arc::new(catalog)), None, None)
+        Self::start_with_capabilities(allowed_origin, HostCapabilities::with_catalog(catalog))
     }
 
     /// Starts the API with privacy-preserving Bluetooth controller pairing.
@@ -69,30 +225,26 @@ impl HostStatusServer {
         allowed_origin: impl Into<String>,
         bluetooth_service: BluetoothPairingService,
     ) -> Result<Self, HostApiError> {
-        Self::start_internal(
-            allowed_origin.into(),
-            None,
-            None,
-            Some(Arc::new(bluetooth_service)),
+        Self::start_with_capabilities(
+            allowed_origin,
+            HostCapabilities::default().and_bluetooth(bluetooth_service),
         )
     }
 
-    /// Starts the catalog API with privacy-preserving Bluetooth pairing.
+    /// Starts the catalog API with a read-only installed retro library.
     ///
     /// # Errors
     ///
     /// Returns an error when the listener, operating-system random source, or
     /// worker thread cannot be created.
-    pub fn start_with_catalog_and_bluetooth(
+    pub fn start_with_catalog_and_library(
         allowed_origin: impl Into<String>,
         catalog: TrustedPackageCatalog,
-        bluetooth_service: BluetoothPairingService,
+        library: RetroLibrarySnapshot,
     ) -> Result<Self, HostApiError> {
-        Self::start_internal(
-            allowed_origin.into(),
-            Some(Arc::new(catalog)),
-            None,
-            Some(Arc::new(bluetooth_service)),
+        Self::start_with_capabilities(
+            allowed_origin,
+            HostCapabilities::with_catalog(catalog).and_library(library),
         )
     }
 
@@ -108,170 +260,31 @@ impl HostStatusServer {
         catalog: TrustedPackageCatalog,
         profile_ids: impl IntoIterator<Item = String>,
     ) -> Result<Self, HostApiError> {
-        Self::start_with_watchdog_launch_service(
+        Self::start_with_capabilities(
             allowed_origin,
-            catalog,
-            profile_ids,
-            Vec::new(),
-            WatchdogPolicy::local_game_defaults(),
+            HostCapabilities::with_launch_service(catalog, HostLaunchPolicy::new(profile_ids)),
         )
     }
 
-    /// Starts the launch API with a host-owned durable replay journal.
+    /// Starts the launch API with a read-only installed retro library.
+    ///
+    /// A package whose signed catalog record accepts library content can then
+    /// be launched with one library entry the host itself published.
     ///
     /// # Errors
     ///
-    /// Returns an error when launch configuration or replay state is invalid,
-    /// the journal is already locked, or server startup fails.
-    pub fn start_with_persistent_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        journal_root: &Path,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_persistent_watchdog_launch_service(
-            allowed_origin,
-            catalog,
-            profile_ids,
-            Vec::new(),
-            WatchdogPolicy::local_game_defaults(),
-            journal_root,
-        )
-    }
-
-    /// Starts the API with fixed-intent launching and heartbeat supervision
-    /// for an explicit set of signature-verified installed games.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration, the listener,
+    /// Returns an error when launch configuration, the listener,
     /// operating-system randomness, or worker creation fails.
-    pub fn start_with_watchdog_launch_service(
+    pub fn start_with_library_launch_service(
         allowed_origin: impl Into<String>,
         catalog: TrustedPackageCatalog,
         profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
+        library: RetroLibrarySnapshot,
     ) -> Result<Self, HostApiError> {
-        Self::start_with_optional_replay(
+        Self::start_with_capabilities(
             allowed_origin,
-            catalog,
-            profile_ids,
-            watchdog_game_ids,
-            watchdog_policy,
-            None,
-            None,
-        )
-    }
-
-    /// Starts the fixed-intent/watchdog API with durable replay state.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration or replay state is
-    /// invalid, the journal is already locked, or server startup fails.
-    pub fn start_with_persistent_watchdog_launch_service(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-        journal_root: &Path,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_optional_replay(
-            allowed_origin,
-            catalog,
-            profile_ids,
-            watchdog_game_ids,
-            watchdog_policy,
-            Some(journal_root),
-            None,
-        )
-    }
-
-    /// Starts a persistent launch API with Bluetooth controller pairing.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch configuration, replay state, or server
-    /// startup fails.
-    pub fn start_with_persistent_launch_service_and_bluetooth(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        journal_root: &Path,
-        bluetooth_service: BluetoothPairingService,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_optional_replay(
-            allowed_origin,
-            catalog,
-            profile_ids,
-            Vec::new(),
-            WatchdogPolicy::local_game_defaults(),
-            Some(journal_root),
-            Some(bluetooth_service),
-        )
-    }
-
-    /// Starts a persistent watchdog launch API with Bluetooth pairing.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when launch/watchdog configuration, replay state, or
-    /// server startup fails.
-    pub fn start_with_persistent_watchdog_launch_service_and_bluetooth(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-        journal_root: &Path,
-        bluetooth_service: BluetoothPairingService,
-    ) -> Result<Self, HostApiError> {
-        Self::start_with_optional_replay(
-            allowed_origin,
-            catalog,
-            profile_ids,
-            watchdog_game_ids,
-            watchdog_policy,
-            Some(journal_root),
-            Some(bluetooth_service),
-        )
-    }
-
-    fn start_with_optional_replay(
-        allowed_origin: impl Into<String>,
-        catalog: TrustedPackageCatalog,
-        profile_ids: impl IntoIterator<Item = String>,
-        watchdog_game_ids: impl IntoIterator<Item = String>,
-        watchdog_policy: WatchdogPolicy,
-        journal_root: Option<&Path>,
-        bluetooth_service: Option<BluetoothPairingService>,
-    ) -> Result<Self, HostApiError> {
-        let catalog = Arc::new(catalog);
-        let launch_service = Arc::new(
-            match journal_root {
-                Some(journal_root) => NativeLaunchService::with_persistent_replay(
-                    Arc::clone(&catalog),
-                    profile_ids,
-                    watchdog_game_ids,
-                    watchdog_policy,
-                    journal_root,
-                ),
-                None => NativeLaunchService::with_watchdog_games(
-                    Arc::clone(&catalog),
-                    profile_ids,
-                    watchdog_game_ids,
-                    watchdog_policy,
-                ),
-            }
-            .map_err(HostApiError::LaunchConfiguration)?,
-        );
-        Self::start_internal(
-            allowed_origin.into(),
-            Some(catalog),
-            Some(launch_service),
-            bluetooth_service.map(Arc::new),
+            HostCapabilities::with_launch_service(catalog, HostLaunchPolicy::new(profile_ids))
+                .and_library(library),
         )
     }
 
@@ -280,6 +293,7 @@ impl HostStatusServer {
         catalog: Option<Arc<TrustedPackageCatalog>>,
         launch_service: Option<Arc<NativeLaunchService>>,
         bluetooth_service: Option<Arc<BluetoothPairingService>>,
+        library: Option<Arc<RetroLibrarySnapshot>>,
     ) -> Result<Self, HostApiError> {
         let valid_origin = crate::launcher::loopback_origin(&allowed_origin)
             .is_ok_and(|origin| origin == allowed_origin);
@@ -296,6 +310,7 @@ impl HostStatusServer {
         let worker_token = token.clone();
         let worker_launch_service = launch_service.clone();
         let worker_bluetooth_service = bluetooth_service.clone();
+        let worker_library = library.map(HostLibrary::new).transpose()?;
         let worker = thread::Builder::new()
             .name("vcg-host-status".to_owned())
             .spawn(move || {
@@ -303,9 +318,12 @@ impl HostStatusServer {
                     &listener,
                     &worker_origin,
                     &worker_token,
-                    catalog.as_deref(),
-                    worker_launch_service.as_deref(),
-                    worker_bluetooth_service.as_deref(),
+                    &HostServices {
+                        catalog: catalog.as_deref(),
+                        launch_service: worker_launch_service.as_deref(),
+                        bluetooth_service: worker_bluetooth_service.as_deref(),
+                        library: worker_library.as_ref(),
+                    },
                     &worker_stop,
                 );
             })
@@ -365,34 +383,37 @@ impl Drop for HostStatusServer {
 fn generate_token() -> Result<String, HostApiError> {
     let mut bytes = [0_u8; TOKEN_BYTES];
     getrandom::fill(&mut bytes).map_err(HostApiError::Random)?;
-    let mut output = String::with_capacity(TOKEN_BYTES * 2);
+    Ok(encode_hex(&bytes))
+}
+
+fn encode_hex(bytes: &[u8]) -> String {
+    let mut output = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
         use fmt::Write as _;
         write!(output, "{byte:02x}").expect("writing to a String cannot fail");
     }
-    Ok(output)
+    output
+}
+
+/// Every optional host capability one launcher process exposes.
+struct HostServices<'a> {
+    catalog: Option<&'a TrustedPackageCatalog>,
+    launch_service: Option<&'a NativeLaunchService>,
+    bluetooth_service: Option<&'a BluetoothPairingService>,
+    library: Option<&'a HostLibrary>,
 }
 
 fn serve(
     listener: &TcpListener,
     allowed_origin: &str,
     token: &str,
-    catalog: Option<&TrustedPackageCatalog>,
-    launch_service: Option<&NativeLaunchService>,
-    bluetooth_service: Option<&BluetoothPairingService>,
+    services: &HostServices<'_>,
     stop: &AtomicBool,
 ) {
     while !stop.load(Ordering::Acquire) {
         match listener.accept() {
             Ok((mut stream, _)) => {
-                let _ = handle_connection(
-                    &mut stream,
-                    allowed_origin,
-                    token,
-                    catalog,
-                    launch_service,
-                    bluetooth_service,
-                );
+                let _ = handle_connection(&mut stream, allowed_origin, token, services);
             }
             Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
                 thread::sleep(ACCEPT_POLL_INTERVAL);
@@ -406,10 +427,13 @@ fn handle_connection(
     stream: &mut TcpStream,
     allowed_origin: &str,
     token: &str,
-    catalog: Option<&TrustedPackageCatalog>,
-    launch_service: Option<&NativeLaunchService>,
-    bluetooth_service: Option<&BluetoothPairingService>,
+    services: &HostServices<'_>,
 ) -> io::Result<()> {
+    let HostServices {
+        launch_service,
+        bluetooth_service,
+        ..
+    } = *services;
     stream.set_read_timeout(Some(READ_TIMEOUT))?;
     stream.set_write_timeout(Some(READ_TIMEOUT))?;
     let request = match read_request(stream) {
@@ -441,37 +465,7 @@ fn handle_connection(
             if !authorized(&request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
-            if request.path == "/v1/status" {
-                return write_response(
-                    stream,
-                    200,
-                    "OK",
-                    allowed_origin,
-                    &status_body(catalog, launch_service, bluetooth_service),
-                );
-            }
-            if request.path == "/v1/bluetooth" {
-                return write_bluetooth_snapshot_response(
-                    stream,
-                    allowed_origin,
-                    bluetooth_service,
-                );
-            }
-            if request.path == "/v1/packages" {
-                return write_package_inventory_response(stream, allowed_origin, catalog);
-            }
-            if let Some(game_id) = request.path.strip_prefix("/v1/packages/") {
-                return write_package_response(stream, allowed_origin, catalog, game_id);
-            }
-            if let Some(request_id) = request.path.strip_prefix("/v1/launches/") {
-                return write_launch_status_response(
-                    stream,
-                    allowed_origin,
-                    launch_service,
-                    request_id,
-                );
-            }
-            write_response(stream, 404, "Not Found", allowed_origin, "")
+            handle_read(stream, allowed_origin, services, &request.path)
         }
         "POST" if request.path == "/v1/launches" => {
             if !authorized(&request, token) {
@@ -509,6 +503,42 @@ fn handle_connection(
     }
 }
 
+fn handle_read(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    services: &HostServices<'_>,
+    path: &str,
+) -> io::Result<()> {
+    let HostServices {
+        catalog,
+        launch_service,
+        bluetooth_service,
+        library,
+    } = *services;
+    if path == "/v1/status" {
+        return write_response(stream, 200, "OK", allowed_origin, &status_body(services));
+    }
+    if path == "/v1/library" {
+        return write_library_response(stream, allowed_origin, library, None);
+    }
+    if let Some(cursor) = path.strip_prefix("/v1/library/") {
+        return write_library_response(stream, allowed_origin, library, Some(cursor));
+    }
+    if path == "/v1/bluetooth" {
+        return write_bluetooth_snapshot_response(stream, allowed_origin, bluetooth_service);
+    }
+    if path == "/v1/packages" {
+        return write_package_inventory_response(stream, allowed_origin, catalog);
+    }
+    if let Some(game_id) = path.strip_prefix("/v1/packages/") {
+        return write_package_response(stream, allowed_origin, catalog, game_id);
+    }
+    if let Some(request_id) = path.strip_prefix("/v1/launches/") {
+        return write_launch_status_response(stream, allowed_origin, launch_service, request_id);
+    }
+    write_response(stream, 404, "Not Found", allowed_origin, "")
+}
+
 fn authorized(request: &Request, token: &str) -> bool {
     request
         .authorization
@@ -527,6 +557,8 @@ fn valid_preflight(request: &Request) -> bool {
                 || request.path == "/v1/packages"
                 || request.path.starts_with("/v1/packages/")
                 || request.path.starts_with("/v1/launches/")
+                || request.path == "/v1/library"
+                || request.path.starts_with("/v1/library/")
                 || request.path == "/v1/bluetooth"
         }
         "POST" => {
@@ -562,24 +594,23 @@ fn valid_preflight(request: &Request) -> bool {
                 .any(|header| header.eq_ignore_ascii_case("content-type")))
 }
 
-fn status_body(
-    catalog: Option<&TrustedPackageCatalog>,
-    launch_service: Option<&NativeLaunchService>,
-    bluetooth_service: Option<&BluetoothPairingService>,
-) -> String {
+fn status_body(services: &HostServices<'_>) -> String {
     let mut capabilities = vec![
         "launcher-shell",
         "process-supervision",
         "game-watchdog",
         "retroarch-plan",
     ];
-    if catalog.is_some() {
+    if services.catalog.is_some() {
         capabilities.push("trusted-package-catalog");
     }
-    if launch_service.is_some() {
+    if services.launch_service.is_some() {
         capabilities.push("trusted-package-launch");
     }
-    if bluetooth_service.is_some() {
+    if services.library.is_some() {
+        capabilities.push("retro-library");
+    }
+    if services.bluetooth_service.is_some() {
         capabilities.push("bluetooth-controller-pairing");
     }
     serde_json::json!({
@@ -589,6 +620,143 @@ fn status_body(
         "capabilities": capabilities,
     })
     .to_string()
+}
+
+/// One bounded page of the installed retro library.
+///
+/// The cursor is a per-launch random token, not an offset: it names a page of
+/// this exact snapshot and cannot be constructed, decoded, or reused by the
+/// browser. The first page has none.
+struct LibraryPage {
+    cursor: Option<String>,
+    start: usize,
+    end: usize,
+}
+
+/// The installed retro library this launcher process discloses, already split
+/// into pages that satisfy both the entry-count and response-byte bounds.
+struct HostLibrary {
+    snapshot: Arc<RetroLibrarySnapshot>,
+    pages: Vec<LibraryPage>,
+}
+
+impl HostLibrary {
+    fn new(snapshot: Arc<RetroLibrarySnapshot>) -> Result<Self, HostApiError> {
+        let entries = snapshot.entries();
+        let mut boundaries = Vec::new();
+        let mut start = 0;
+        while start < entries.len() {
+            let mut end = start;
+            // The two brackets of the serialized entries array, so this
+            // accumulator is exactly the length the response will write.
+            let mut bytes = 2;
+            while end < entries.len() && end - start < MAX_LIBRARY_PAGE_ENTRIES {
+                let entry_bytes =
+                    library_entry_bytes(&entries[end]).saturating_add(usize::from(end > start));
+                if end > start && bytes + entry_bytes > MAX_LIBRARY_PAGE_BYTES {
+                    break;
+                }
+                bytes += entry_bytes;
+                end += 1;
+            }
+            boundaries.push((start, end));
+            start = end;
+        }
+        if boundaries.is_empty() {
+            boundaries.push((0, 0));
+        }
+        let mut cursor_bytes =
+            vec![0_u8; boundaries.len().saturating_sub(1) * LIBRARY_CURSOR_BYTES];
+        getrandom::fill(&mut cursor_bytes).map_err(HostApiError::Random)?;
+        let pages = boundaries
+            .into_iter()
+            .enumerate()
+            .map(|(index, (start, end))| LibraryPage {
+                cursor: index.checked_sub(1).map(|prior| {
+                    encode_hex(
+                        &cursor_bytes[prior * LIBRARY_CURSOR_BYTES..][..LIBRARY_CURSOR_BYTES],
+                    )
+                }),
+                start,
+                end,
+            })
+            .collect();
+        Ok(Self { snapshot, pages })
+    }
+
+    fn page(&self, cursor: Option<&str>) -> Option<&LibraryPage> {
+        match cursor {
+            None => self.pages.first(),
+            Some(cursor) => self
+                .pages
+                .iter()
+                .find(|page| page.cursor.as_deref() == Some(cursor)),
+        }
+    }
+
+    fn next_cursor(&self, page: &LibraryPage) -> Option<&str> {
+        self.pages
+            .iter()
+            .find(|candidate| candidate.start == page.end && candidate.end > page.end)
+            .and_then(|candidate| candidate.cursor.as_deref())
+    }
+}
+
+fn library_entry_document(entry: &RetroLibraryEntry) -> serde_json::Value {
+    serde_json::json!({
+        "entryId": entry.entry_id(),
+        "title": entry.title(),
+        "systemId": entry.system_id(),
+        "coreId": entry.core_id(),
+        "sizeBytes": entry.size_bytes(),
+    })
+}
+
+fn library_entry_bytes(entry: &RetroLibraryEntry) -> usize {
+    // Measuring the exact document the response writes is what makes the page
+    // byte bound real rather than an estimate.
+    serde_json::to_string(&library_entry_document(entry))
+        .map_or(MAX_LIBRARY_PAGE_BYTES, |text| text.len())
+}
+
+fn write_library_response(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    library: Option<&HostLibrary>,
+    cursor: Option<&str>,
+) -> io::Result<()> {
+    let Some(library) = library else {
+        return write_json_error(
+            stream,
+            404,
+            "Not Found",
+            allowed_origin,
+            "LIBRARY_UNAVAILABLE",
+        );
+    };
+    let Some(page) = library.page(cursor) else {
+        return write_json_error(
+            stream,
+            400,
+            "Bad Request",
+            allowed_origin,
+            "LIBRARY_CURSOR_INVALID",
+        );
+    };
+    let entries = library.snapshot.entries()[page.start..page.end]
+        .iter()
+        .map(library_entry_document)
+        .collect::<Vec<_>>();
+    let mut body = serde_json::json!({
+        "protocolVersion": HOST_API_PROTOCOL_VERSION,
+        "libraryGeneration": library.snapshot.generation(),
+        "entryCount": library.snapshot.entries().len(),
+        "entries": entries,
+    });
+    if let Some(next) = library.next_cursor(page) {
+        body["nextCursor"] = serde_json::Value::String(next.to_owned());
+    }
+    write_response(stream, 200, "OK", allowed_origin, &body.to_string())
 }
 
 #[derive(serde::Deserialize)]
@@ -825,6 +993,12 @@ struct LaunchRequestDocument {
     request_id: String,
     game_id: String,
     profile_id: String,
+    /// One installed library entry the host itself published.
+    ///
+    /// Absent for every package that binds fixed content, which is every
+    /// package this field predates.
+    #[serde(default)]
+    entry_id: Option<String>,
 }
 
 fn write_launch_response(
@@ -881,10 +1055,11 @@ fn write_launch_response(
             "HOST_PROTOCOL_MISMATCH",
         );
     }
-    match launch_service.start(
+    match launch_service.start_with_library_entry(
         &document.request_id,
         &document.game_id,
         &document.profile_id,
+        document.entry_id.as_deref(),
     ) {
         Ok(start) => {
             let body = launch_snapshot_body(&start.snapshot, start.replayed);
@@ -985,7 +1160,18 @@ fn write_launch_error(
     let (status, reason, code) = match error {
         NativeLaunchError::InvalidRequestId(_)
         | NativeLaunchError::InvalidGame(_)
-        | NativeLaunchError::InvalidProfile(_) => (400, "Bad Request", "LAUNCH_REQUEST_INVALID"),
+        | NativeLaunchError::InvalidProfile(_)
+        | NativeLaunchError::InvalidLibraryEntry(_) => {
+            (400, "Bad Request", "LAUNCH_REQUEST_INVALID")
+        }
+        NativeLaunchError::LibraryUnavailable => (404, "Not Found", "LIBRARY_UNAVAILABLE"),
+        NativeLaunchError::LibraryEntryNotFound(_) => (404, "Not Found", "LIBRARY_ENTRY_NOT_FOUND"),
+        NativeLaunchError::LibraryEntryIncompatible(_) => {
+            (409, "Conflict", "LIBRARY_ENTRY_INCOMPATIBLE")
+        }
+        NativeLaunchError::LibraryContentRejected(_) => {
+            (409, "Conflict", "PACKAGE_REJECTS_LIBRARY_CONTENT")
+        }
         NativeLaunchError::ProfileNotFound(_) => (404, "Not Found", "PROFILE_NOT_AVAILABLE"),
         NativeLaunchError::RequestNotFound(_) => (404, "Not Found", "LAUNCH_NOT_FOUND"),
         NativeLaunchError::Catalog(CatalogError::PackageNotFound(_)) => {
@@ -1258,13 +1444,170 @@ impl std::error::Error for HostApiError {
 
 #[cfg(test)]
 mod tests {
-    use super::{HOST_API_PROTOCOL_VERSION, HostStatusServer};
+    use super::{
+        HOST_API_PROTOCOL_VERSION, HostCapabilities, HostLaunchPolicy, HostStatusServer,
+        MAX_LIBRARY_PAGE_BYTES, MAX_LIBRARY_PAGE_ENTRIES,
+    };
     use crate::bluetooth::BluetoothPairingService;
-    use crate::installed_catalog::tests::signed_catalog;
+    use crate::installed_catalog::tests::{signed_catalog, signed_library_catalog};
+    use crate::process::WatchdogPolicy;
+    use crate::retro_import::{
+        RETRO_CONTENT_OBJECTS_DIRECTORY, RETRO_LIBRARY_DIRECTORY, RetroImportStore,
+        RetroImportStoreConfig, RetroLibrarySnapshot,
+    };
+    use sha2::{Digest, Sha256};
+    use std::fs;
     use std::io::{Read, Write};
     use std::net::TcpStream;
+    use std::path::PathBuf;
+    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     const ORIGIN: &str = "http://127.0.0.1:5173";
+    const LIBRARY_RESERVE_BYTES: u64 = 1_048_576;
+    static LIBRARY_FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+    /// One provisioned retro store holding exactly the named entries.
+    struct LibraryFixture {
+        root: PathBuf,
+        staging_root: PathBuf,
+        content_root: PathBuf,
+    }
+
+    impl LibraryFixture {
+        /// Each entry is `(system id, core id, title, content bytes)`.
+        fn new(entries: &[(&str, &str, String, Vec<u8>)]) -> Self {
+            let sequence = LIBRARY_FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+            let unique = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("clock after epoch")
+                .as_nanos();
+            let root = std::env::temp_dir().join(format!(
+                "vcg-host-api-library-{}-{unique}-{sequence}",
+                std::process::id()
+            ));
+            let fixture = Self {
+                staging_root: root.join("staging"),
+                content_root: root.join("retro"),
+                root,
+            };
+            RetroImportStore::provision_roots(&fixture.config()).expect("retro roots provision");
+            let objects = fixture.content_root.join(RETRO_CONTENT_OBJECTS_DIRECTORY);
+            let documents = entries
+                .iter()
+                .map(|(system_id, core_id, title, bytes)| {
+                    let sha256 = digest(bytes);
+                    fs::write(
+                        objects.join(format!("{system_id}-content-{sha256}.nes")),
+                        bytes,
+                    )
+                    .expect("library object writes");
+                    serde_json::json!({
+                        "entryId": format!("content-{sha256}"),
+                        "systemId": system_id,
+                        "sha256": sha256,
+                        "sizeBytes": bytes.len(),
+                        "extension": ".nes",
+                        "title": title,
+                        "coreId": core_id,
+                        "controllerProfile": "retro-standard",
+                        "provenance": { "transport": "operator-provisioned" },
+                    })
+                })
+                .collect::<Vec<_>>();
+            fs::write(
+                fixture
+                    .content_root
+                    .join(RETRO_LIBRARY_DIRECTORY)
+                    .join("generation-00000000000000000002.json"),
+                serde_json::to_vec(&serde_json::json!({
+                    "schemaVersion": 1,
+                    "generation": 2,
+                    "entries": documents,
+                }))
+                .expect("library generation serializes"),
+            )
+            .expect("library generation writes");
+            fixture
+        }
+
+        fn config(&self) -> RetroImportStoreConfig {
+            RetroImportStoreConfig {
+                staging_root: self.staging_root.clone(),
+                content_root: self.content_root.clone(),
+                reserve_bytes: LIBRARY_RESERVE_BYTES,
+            }
+        }
+
+        fn snapshot(&self) -> RetroLibrarySnapshot {
+            RetroImportStore::open(&self.config())
+                .expect("retro import store opens")
+                .library_snapshot()
+                .expect("library snapshot reads")
+        }
+
+        fn object(&self, system_id: &str, bytes: &[u8]) -> PathBuf {
+            self.content_root
+                .join(RETRO_CONTENT_OBJECTS_DIRECTORY)
+                .join(format!("{system_id}-content-{}.nes", digest(bytes)))
+        }
+    }
+
+    impl Drop for LibraryFixture {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.root);
+        }
+    }
+
+    fn digest(bytes: &[u8]) -> String {
+        let mut output = String::with_capacity(64);
+        for byte in Sha256::digest(bytes) {
+            use std::fmt::Write as _;
+            write!(output, "{byte:02x}").expect("writing hex to a String cannot fail");
+        }
+        output
+    }
+
+    fn entry_id(bytes: &[u8]) -> String {
+        format!("content-{}", digest(bytes))
+    }
+
+    fn library_entries(
+        count: usize,
+        title: &str,
+    ) -> Vec<(&'static str, &'static str, String, Vec<u8>)> {
+        (0..count)
+            .map(|index| {
+                (
+                    "nes",
+                    "mesen",
+                    format!("{title}{index:04}"),
+                    format!("library object {index}").into_bytes(),
+                )
+            })
+            .collect()
+    }
+
+    fn library_page(server: &HostStatusServer, token: &str, cursor: Option<&str>) -> String {
+        let path = cursor.map_or_else(
+            || "/v1/library".to_owned(),
+            |cursor| format!("/v1/library/{cursor}"),
+        );
+        request(
+            server,
+            &format!(
+                "GET {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        )
+    }
+
+    fn page_document(response: &str) -> serde_json::Value {
+        let body = response
+            .split_once("\r\n\r\n")
+            .expect("response has a body")
+            .1;
+        serde_json::from_str(body).expect("library page is JSON")
+    }
 
     fn request(server: &HostStatusServer, request: &str) -> String {
         let mut stream = TcpStream::connect(server.address()).expect("status server accepts");
@@ -1684,5 +2027,551 @@ mod tests {
         );
         assert!(rejected.starts_with("HTTP/1.1 400 Bad Request\r\n"));
         assert!(rejected.contains("LAUNCH_REQUEST_INVALID"));
+    }
+
+    #[test]
+    fn library_pages_are_bounded_by_entry_count_and_disclose_no_paths() {
+        let entries = library_entries(300, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_catalog();
+        let server =
+            HostStatusServer::start_with_catalog_and_library(ORIGIN, catalog, fixture.snapshot())
+                .expect("library host starts");
+        let token = token_from(&server);
+        let status = library_status(&server, &token);
+        assert!(status.contains("\"retro-library\""));
+
+        let mut cursor = None;
+        let mut seen = Vec::new();
+        let mut pages = 0;
+        loop {
+            let response = library_page(&server, &token, cursor.as_deref());
+            assert!(response.starts_with("HTTP/1.1 200 OK\r\n"));
+            assert!(response.contains("Cache-Control: no-store\r\n"));
+            for disclosure in [
+                "sha256",
+                "extension",
+                "controllerProfile",
+                "provenance",
+                "objects",
+                "generation-0000",
+                &fixture.content_root.to_string_lossy(),
+            ] {
+                assert!(
+                    !response.contains(disclosure),
+                    "library page disclosed {disclosure}"
+                );
+            }
+            let document = page_document(&response);
+            assert_eq!(document["protocolVersion"], HOST_API_PROTOCOL_VERSION);
+            assert_eq!(document["libraryGeneration"], 2);
+            assert_eq!(document["entryCount"], 300);
+            let page = document["entries"]
+                .as_array()
+                .expect("entries is an array")
+                .clone();
+            assert!(page.len() <= MAX_LIBRARY_PAGE_ENTRIES);
+            assert!(
+                serde_json::to_string(&document["entries"])
+                    .expect("entries serialize")
+                    .len()
+                    <= MAX_LIBRARY_PAGE_BYTES
+            );
+            for entry in &page {
+                let object = entry.as_object().expect("entry is an object");
+                assert_eq!(
+                    object.keys().map(String::as_str).collect::<Vec<_>>(),
+                    ["coreId", "entryId", "sizeBytes", "systemId", "title"]
+                );
+                seen.push(
+                    object["entryId"]
+                        .as_str()
+                        .expect("entry ID is text")
+                        .to_owned(),
+                );
+            }
+            pages += 1;
+            match document.get("nextCursor") {
+                Some(next) => {
+                    cursor = Some(next.as_str().expect("cursor is text").to_owned());
+                }
+                None => break,
+            }
+        }
+
+        assert_eq!(pages, 2);
+        assert_eq!(seen.len(), 300);
+        let mut unique = seen.clone();
+        unique.sort_unstable();
+        unique.dedup();
+        assert_eq!(unique.len(), 300);
+        assert_eq!(
+            seen.first(),
+            Some(&entry_id(&entries[0].3)),
+            "the first page must start at the first entry in browse order"
+        );
+    }
+
+    #[test]
+    fn library_pages_are_bounded_by_response_bytes() {
+        let title = "\u{3042}".repeat(74);
+        let entries = library_entries(200, &title);
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_catalog();
+        let server =
+            HostStatusServer::start_with_catalog_and_library(ORIGIN, catalog, fixture.snapshot())
+                .expect("library host starts");
+        let token = token_from(&server);
+
+        let document = page_document(&library_page(&server, &token, None));
+        let page = document["entries"].as_array().expect("entries is an array");
+        assert!(
+            page.len() < MAX_LIBRARY_PAGE_ENTRIES,
+            "long titles must close a page before the entry-count bound"
+        );
+        assert!(
+            serde_json::to_string(&document["entries"])
+                .expect("entries serialize")
+                .len()
+                <= MAX_LIBRARY_PAGE_BYTES
+        );
+        assert!(document.get("nextCursor").is_some());
+    }
+
+    #[test]
+    fn library_reads_require_configuration_authority_and_a_known_cursor() {
+        let entries = library_entries(2, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_catalog();
+        let (_absent_fixture, absent_catalog) = signed_catalog();
+        let absent = HostStatusServer::start_with_catalog(ORIGIN, absent_catalog)
+            .expect("catalog host starts");
+        let absent_token = token_from(&absent);
+        let unavailable = library_page(&absent, &absent_token, None);
+        assert!(unavailable.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(unavailable.contains("LIBRARY_UNAVAILABLE"));
+        assert!(!library_status(&absent, &absent_token).contains("\"retro-library\""));
+
+        let server =
+            HostStatusServer::start_with_catalog_and_library(ORIGIN, catalog, fixture.snapshot())
+                .expect("library host starts");
+        let token = token_from(&server);
+        let unauthorized = library_page(&server, &"0".repeat(64), None);
+        assert!(unauthorized.starts_with("HTTP/1.1 401 Unauthorized\r\n"));
+        assert!(!unauthorized.contains("entries"));
+
+        let unknown_cursor = library_page(&server, &token, Some(&"0".repeat(32)));
+        assert!(unknown_cursor.starts_with("HTTP/1.1 400 Bad Request\r\n"));
+        assert!(unknown_cursor.contains("LIBRARY_CURSOR_INVALID"));
+
+        let single_page = page_document(&library_page(&server, &token, None));
+        assert_eq!(single_page["entryCount"], 2);
+        assert!(single_page.get("nextCursor").is_none());
+
+        let empty_fixture = LibraryFixture::new(&[]);
+        let (_empty_catalog_fixture, empty_catalog) = signed_catalog();
+        let empty_server = HostStatusServer::start_with_catalog_and_library(
+            ORIGIN,
+            empty_catalog,
+            empty_fixture.snapshot(),
+        )
+        .expect("empty library host starts");
+        let empty_token = token_from(&empty_server);
+        let empty = page_document(&library_page(&empty_server, &empty_token, None));
+        assert_eq!(empty["entryCount"], 0);
+        assert_eq!(
+            empty["entries"]
+                .as_array()
+                .expect("entries is an array")
+                .len(),
+            0
+        );
+        assert!(empty.get("nextCursor").is_none());
+
+        for path in [
+            "/v1/library",
+            "/v1/library/00000000000000000000000000000000",
+        ] {
+            let preflight = request(
+                &server,
+                &format!(
+                    "OPTIONS {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAccess-Control-Request-Method: GET\r\nAccess-Control-Request-Headers: authorization\r\n\r\n"
+                ),
+            );
+            assert!(
+                preflight.starts_with("HTTP/1.1 204 No Content\r\n"),
+                "{path}"
+            );
+        }
+    }
+
+    #[test]
+    fn library_launch_resolves_one_host_published_entry() {
+        let entries = library_entries(2, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_library_catalog("nes", "mesen");
+        let server = HostStatusServer::start_with_library_launch_service(
+            ORIGIN,
+            catalog,
+            vec!["local-player".to_owned()],
+            fixture.snapshot(),
+        )
+        .expect("library launch host starts");
+        let token = token_from(&server);
+        let selected = entry_id(&entries[0].3);
+
+        let launched = launch(
+            &server,
+            &token,
+            "11111111111111111111111111111111",
+            &format!(",\"entryId\":\"{selected}\""),
+        );
+        assert!(launched.starts_with("HTTP/1.1 422 Unprocessable Content\r\n"));
+        assert!(
+            launched.contains("\"detailCode\":\"PROCESS_START_FAILED\""),
+            "library content must resolve, verify, and plan before process start: {launched}"
+        );
+        for disclosure in ["sha256", "objects", &fixture.content_root.to_string_lossy()] {
+            assert!(
+                !launched.contains(disclosure),
+                "launch disclosed {disclosure}"
+            );
+        }
+
+        let replayed = launch(
+            &server,
+            &token,
+            "11111111111111111111111111111111",
+            &format!(",\"entryId\":\"{selected}\""),
+        );
+        assert!(replayed.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert!(replayed.contains("\"replayed\":true"));
+
+        let other = entry_id(&entries[1].3);
+        let conflict = launch(
+            &server,
+            &token,
+            "11111111111111111111111111111111",
+            &format!(",\"entryId\":\"{other}\""),
+        );
+        assert!(conflict.starts_with("HTTP/1.1 409 Conflict\r\n"));
+        assert!(conflict.contains("REQUEST_ID_CONFLICT"));
+
+        let without_entry = launch(&server, &token, "22222222222222222222222222222222", "");
+        assert!(without_entry.starts_with("HTTP/1.1 422 Unprocessable Content\r\n"));
+        assert!(
+            without_entry.contains("\"detailCode\":\"PACKAGE_RESOLUTION_FAILED\""),
+            "a library package must not start without an entry: {without_entry}"
+        );
+
+        fs::write(
+            fixture.object("nes", &entries[0].3),
+            b"changed library object",
+        )
+        .expect("library object tamper writes");
+        let tampered = launch(
+            &server,
+            &token,
+            "33333333333333333333333333333333",
+            &format!(",\"entryId\":\"{selected}\""),
+        );
+        assert!(tampered.starts_with("HTTP/1.1 422 Unprocessable Content\r\n"));
+        assert!(
+            tampered.contains("\"detailCode\":\"PACKAGE_PLAN_FAILED\""),
+            "library content must be re-verified immediately before launch: {tampered}"
+        );
+    }
+
+    #[test]
+    fn library_launch_rejects_entries_the_package_does_not_accept() {
+        let entries = [
+            ("nes", "mesen", "Accepted".to_owned(), b"accepted".to_vec()),
+            (
+                "gb",
+                "mesen",
+                "Other System".to_owned(),
+                b"other system".to_vec(),
+            ),
+            (
+                "nes",
+                "snes9x",
+                "Other Core".to_owned(),
+                b"other core".to_vec(),
+            ),
+        ];
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_library_catalog("nes", "mesen");
+        let server = HostStatusServer::start_with_library_launch_service(
+            ORIGIN,
+            catalog,
+            vec!["local-player".to_owned()],
+            fixture.snapshot(),
+        )
+        .expect("library launch host starts");
+        let token = token_from(&server);
+
+        for (index, bytes) in [&entries[1].3, &entries[2].3].into_iter().enumerate() {
+            let response = launch(
+                &server,
+                &token,
+                &("3".repeat(31) + &index.to_string()),
+                &format!(",\"entryId\":\"{}\"", entry_id(bytes)),
+            );
+            assert!(
+                response.starts_with("HTTP/1.1 409 Conflict\r\n"),
+                "{response}"
+            );
+            assert!(response.contains("LIBRARY_ENTRY_INCOMPATIBLE"));
+        }
+
+        let unknown = launch(
+            &server,
+            &token,
+            "44444444444444444444444444444444",
+            &format!(",\"entryId\":\"content-{}\"", "0".repeat(64)),
+        );
+        assert!(unknown.starts_with("HTTP/1.1 404 Not Found\r\n"));
+        assert!(unknown.contains("LIBRARY_ENTRY_NOT_FOUND"));
+
+        let malformed = launch(
+            &server,
+            &token,
+            "55555555555555555555555555555555",
+            ",\"entryId\":\"../escape\"",
+        );
+        assert!(malformed.starts_with("HTTP/1.1 400 Bad Request\r\n"));
+        assert!(malformed.contains("LAUNCH_REQUEST_INVALID"));
+    }
+
+    #[test]
+    fn a_fixed_content_package_rejects_an_entry_and_is_unchanged_without_one() {
+        let entries = library_entries(1, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_catalog();
+        let server = HostStatusServer::start_with_library_launch_service(
+            ORIGIN,
+            catalog,
+            vec!["local-player".to_owned()],
+            fixture.snapshot(),
+        )
+        .expect("library launch host starts");
+        let token = token_from(&server);
+
+        let rejected = launch(
+            &server,
+            &token,
+            "66666666666666666666666666666666",
+            &format!(",\"entryId\":\"{}\"", entry_id(&entries[0].3)),
+        );
+        assert!(rejected.starts_with("HTTP/1.1 409 Conflict\r\n"));
+        assert!(rejected.contains("PACKAGE_REJECTS_LIBRARY_CONTENT"));
+
+        let unchanged = launch(&server, &token, "77777777777777777777777777777777", "");
+        assert!(unchanged.starts_with("HTTP/1.1 422 Unprocessable Content\r\n"));
+        assert!(unchanged.contains("\"detailCode\":\"PROCESS_START_FAILED\""));
+        assert!(!unchanged.contains("entryId"));
+
+        let unknown_field = launch(
+            &server,
+            &token,
+            "88888888888888888888888888888888",
+            ",\"contentPath\":\"escape\"",
+        );
+        assert!(unknown_field.starts_with("HTTP/1.1 400 Bad Request\r\n"));
+        assert!(unknown_field.contains("LAUNCH_REQUEST_INVALID"));
+    }
+
+    fn library_status(server: &HostStatusServer, token: &str) -> String {
+        request(
+            server,
+            &format!(
+                "GET /v1/status HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        )
+    }
+
+    fn launch(server: &HostStatusServer, token: &str, request_id: &str, extra: &str) -> String {
+        let body = format!(
+            r#"{{"protocolVersion":"{HOST_API_PROTOCOL_VERSION}","requestId":"{request_id}","gameId":"retro-2048","profileId":"local-player"{extra}}}"#
+        );
+        request(
+            server,
+            &format!(
+                "POST /v1/launches HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
+                body.len()
+            ),
+        )
+    }
+
+    /// A pairing service whose executable is absent: pairing is configured and
+    /// advertised, and every pairing call fails the same stable way.
+    fn pairing_service() -> BluetoothPairingService {
+        let missing = std::env::current_dir()
+            .expect("current directory exists")
+            .join("missing-bluetoothctl");
+        BluetoothPairingService::new(&missing).expect("absolute path is accepted")
+    }
+
+    /// One durable replay journal root, discarded with the test.
+    struct JournalFixture {
+        root: PathBuf,
+    }
+
+    impl JournalFixture {
+        fn new() -> Self {
+            let sequence = LIBRARY_FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+            let unique = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("clock after epoch")
+                .as_nanos();
+            Self {
+                root: std::env::temp_dir().join(format!(
+                    "vcg-host-api-journal-{}-{unique}-{sequence}",
+                    std::process::id()
+                )),
+            }
+        }
+    }
+
+    impl Drop for JournalFixture {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.root);
+        }
+    }
+
+    fn bluetooth_snapshot(server: &HostStatusServer, token: &str) -> String {
+        request(
+            server,
+            &format!(
+                "GET /v1/bluetooth HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        )
+    }
+
+    /// The appliance always configures controller pairing, and a retro game
+    /// cannot be played without a controller.
+    #[test]
+    fn a_library_and_controller_pairing_are_served_together() {
+        let entries = library_entries(2, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_catalog();
+        let server = HostStatusServer::start_with_capabilities(
+            ORIGIN,
+            HostCapabilities::with_catalog(catalog)
+                .and_library(fixture.snapshot())
+                .and_bluetooth(pairing_service()),
+        )
+        .expect("library and pairing host starts");
+        let token = token_from(&server);
+
+        let status = library_status(&server, &token);
+        assert!(status.contains("\"trusted-package-catalog\""));
+        assert!(status.contains("\"retro-library\""));
+        assert!(status.contains("\"bluetooth-controller-pairing\""));
+
+        let page = library_page(&server, &token, None);
+        assert!(page.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert_eq!(
+            page_document(&page)["entries"]
+                .as_array()
+                .expect("entries is an array")
+                .len(),
+            entries.len()
+        );
+
+        let snapshot = bluetooth_snapshot(&server, &token);
+        assert!(snapshot.starts_with("HTTP/1.1 503 Service Unavailable\r\n"));
+        assert!(snapshot.contains("BLUETOOTH_SERVICE_UNAVAILABLE"));
+    }
+
+    #[test]
+    fn a_library_and_watchdog_games_are_served_together() {
+        let entries = library_entries(1, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let (_catalog_fixture, catalog) = signed_library_catalog("nes", "mesen");
+        let server = HostStatusServer::start_with_capabilities(
+            ORIGIN,
+            HostCapabilities::with_launch_service(
+                catalog,
+                HostLaunchPolicy::new(vec!["local-player".to_owned()]).with_watchdog_games(
+                    vec!["retro-2048".to_owned()],
+                    WatchdogPolicy::local_game_defaults(),
+                ),
+            )
+            .and_library(fixture.snapshot()),
+        )
+        .expect("library and watchdog host starts");
+        let token = token_from(&server);
+
+        let status = library_status(&server, &token);
+        assert!(status.contains("\"trusted-package-launch\""));
+        assert!(status.contains("\"retro-library\""));
+        assert!(!status.contains("bluetooth-controller-pairing"));
+
+        let page = library_page(&server, &token, None);
+        assert!(page.starts_with("HTTP/1.1 200 OK\r\n"));
+        assert_eq!(
+            page_document(&page)["entries"]
+                .as_array()
+                .expect("entries is an array")
+                .len(),
+            entries.len()
+        );
+    }
+
+    /// The appliance configuration: a library, controller pairing, launch
+    /// profiles, watchdog games, and durable replay in one process.
+    #[test]
+    fn every_capability_is_served_by_one_launcher_process() {
+        let entries = library_entries(1, "Library Title ");
+        let fixture = LibraryFixture::new(&entries);
+        let journal = JournalFixture::new();
+        let (_catalog_fixture, catalog) = signed_library_catalog("nes", "mesen");
+        let server = HostStatusServer::start_with_capabilities(
+            ORIGIN,
+            HostCapabilities::with_launch_service(
+                catalog,
+                HostLaunchPolicy::new(vec!["local-player".to_owned()])
+                    .with_watchdog_games(
+                        vec!["retro-2048".to_owned()],
+                        WatchdogPolicy::local_game_defaults(),
+                    )
+                    .with_replay_journal(&journal.root),
+            )
+            .and_library(fixture.snapshot())
+            .and_bluetooth(pairing_service()),
+        )
+        .expect("every capability starts in one process");
+        let token = token_from(&server);
+
+        let status = library_status(&server, &token);
+        for capability in [
+            "trusted-package-catalog",
+            "trusted-package-launch",
+            "retro-library",
+            "bluetooth-controller-pairing",
+        ] {
+            assert!(
+                status.contains(&format!("\"{capability}\"")),
+                "{capability}"
+            );
+        }
+
+        let page = library_page(&server, &token, None);
+        assert!(page.starts_with("HTTP/1.1 200 OK\r\n"));
+        let snapshot = bluetooth_snapshot(&server, &token);
+        assert!(snapshot.starts_with("HTTP/1.1 503 Service Unavailable\r\n"));
+
+        let launched = launch(
+            &server,
+            &token,
+            "12121212121212121212121212121212",
+            &format!(",\"entryId\":\"{}\"", entry_id(&entries[0].3)),
+        );
+        assert!(launched.starts_with("HTTP/1.1 202 Accepted\r\n"));
+        assert!(launched.contains("\"state\":\"preparing\""));
+        drop(server);
+
+        assert!(journal.root.join("journal.lock").exists());
     }
 }

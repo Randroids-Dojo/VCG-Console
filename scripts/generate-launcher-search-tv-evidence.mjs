@@ -31,9 +31,9 @@ import {
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 22-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 22-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at 720p/1080p and exact no-overflow density at 4K. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
-  "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 22-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 22-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
+  "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 26-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 26-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
   "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
   "Keyboard input, ArrowDown, Tab wrapping, Escape, opener restoration, programmatic last-result focus, and keyboard Enter were exercised. No physical controller, hot-plug, reserved Home action, pointer lock, fullscreen, compositor focus change, or native recovery authority was tested.",
@@ -100,7 +100,7 @@ const SEARCH_STATES = Object.freeze([
     recoveryExpectation: {
       clearActionLabel: "Clear search",
       clearQuery: "",
-      clearResultCount: 22,
+      clearResultCount: 26,
       categoryActionLabel: "Motion",
       categoryQuery: "motion",
       categoryResultCount: 5,
@@ -120,11 +120,11 @@ const SEARCH_STATES = Object.freeze([
   {
     id: "empty-query-scroll-activation",
     query: "",
-    resultCount: 22,
-    criticalTextCount: 25,
-    actionTargetCount: 23,
+    resultCount: 26,
+    criticalTextCount: 29,
+    actionTargetCount: 27,
     measurementMode: "fully-visible-marked",
-    scrollingExpectedResolutionIds: ["720p", "1080p"],
+    scrollingExpectedResolutionIds: ["720p", "1080p", "4k"],
     activation: {
       resultTitle: "Profiles",
       method: "keyboard-enter",
@@ -1101,6 +1101,33 @@ async function exercise(chromePath) {
         if (state.id === "remote-web-ready-denial") {
           await page.addInitScript(() => {
             window.open = () => null;
+          });
+        }
+        if (state.id === "unavailable-package-denial") {
+          // The shell refuses a libretro launch while no controller is
+          // connected, and refuses before it asks the host. Reaching the
+          // package denial this state records therefore needs a device present
+          // from the first observation rather than after a connection event.
+          await page.addInitScript(() => {
+            const gamepad = {
+              axes: [0, 0],
+              buttons: Array.from({ length: 17 }, () => ({
+                pressed: false,
+                touched: false,
+                value: 0,
+              })),
+              connected: true,
+              hapticActuators: [],
+              id: "Evidence launch controller",
+              index: 0,
+              mapping: "standard",
+              timestamp: 0,
+              vibrationActuator: null,
+            };
+            Object.defineProperty(navigator, "getGamepads", {
+              configurable: true,
+              value: () => [gamepad],
+            });
           });
         }
         await installFrozenLauncherClock(page);

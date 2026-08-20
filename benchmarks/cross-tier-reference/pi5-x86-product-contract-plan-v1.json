@@ -42,7 +42,7 @@
     {
       "role": "hailo-package-model-recovery-boundary",
       "path": "benchmarks/hailo-recovery/hailo-package-model-recovery-plan-v1.json",
-      "sha256": "cfbf9198dab6c6c19733b50d3280417a9d098a17084ece307d1c6addf767bfdd"
+      "sha256": "783a025ed70888a2e86d7b62ea75c09641f678b06e1f658d4e2e3fcaa1604e50"
     },
     {
       "role": "hailo-26-accelerator-boundary",
@@ -52,7 +52,7 @@
     {
       "role": "runtime-neutral-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "shared-camera-boundary",
@@ -77,12 +77,12 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "93abf2e19329473d85016fa5cb191edc7782b405fd87bf2e67934d58ce360f88"
+      "sha256": "74ec10d1f9043df26a7481306e045c8f9e5ac1bfa92cafcb655debe49c7a847e"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "640d90284578ab2a3043ec0174a186e3ad13f4e945cc58f9b2577223f282c2a5"
+      "sha256": "62595e49b94bfcf06bc99c101806b6aed9a35c2d6bc0324b70062e6ab1a39990"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "01277e36127580b13504bff6e055bc51974b20bb422da3005edcdbf748d3754a"
+      "sha256": "390cec75ec53a0e188866a0af7756ab510b08c3df1001490649f02bd81d87524"
     }
   ],
   "targetTiers": [

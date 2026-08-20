@@ -7,6 +7,7 @@ export type LauncherView =
   | "museum"
   | "retro"
   | "retro-game"
+  | "retro-library"
   | "profiles"
   | "profile-management"
   | "calibration"

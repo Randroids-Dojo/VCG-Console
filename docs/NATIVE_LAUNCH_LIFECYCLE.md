@@ -52,6 +52,13 @@ Before execution, the host durably accepts the immutable request/game/profile in
 An identical terminal request replays after host restart without execution. Any
 recovered `preparing`, `running`, or `stopping` record becomes terminal
 `failed` with `HOST_RESTARTED_INDETERMINATE`; it is never executed again.
+
+The journal declares a schema version and a host reads only its own. A journal
+written by the previous version is migrated by discarding its records behind the
+restart-cleanup barrier, so nothing replays across that boundary and the first
+launch afterwards waits until a privileged adapter proves the prior process
+scope empty. Mixed or unrecognised versions fail closed rather than migrating.
+See [the host API contract](NATIVE_HOST_API.md) for the migration record.
 Recovery also persists a cleanup barrier that rejects every fresh launch with
 `LAUNCH_RESTART_CLEANUP_REQUIRED`. The service issues an opaque in-memory
 request tied to that exact barrier. Only a privileged adapter result of

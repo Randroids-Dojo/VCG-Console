@@ -17,8 +17,11 @@ const SYSTEM_IMAGE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-SYSTEM-IMAGE-MANIFEST-V1
 const RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-RECOVERY-IMAGE-MANIFEST-V1\0";
 const INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-INSTALLED-CATALOG-V1\0";
 const PACKAGE_RELEASE_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-PACKAGE-RELEASE-V1\0";
+const RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX: &[u8] = b"VCG-RETRO-SYSTEM-POLICY-V1\0";
 /// Maximum accepted root-metadata payload before signature verification.
 pub const MAX_UPDATE_ROOT_METADATA_BYTES: usize = 64 * 1_024;
+/// Maximum accepted signed retro system-policy payload.
+pub const MAX_RETRO_SYSTEM_POLICY_BYTES: usize = 64 * 1_024;
 /// Maximum accepted serialized detached-signature bundle.
 pub const MAX_UPDATE_SIGNATURE_BUNDLE_BYTES: usize = 32 * 1_024;
 /// Maximum accepted serialized out-of-band root-anchor set.
@@ -35,6 +38,7 @@ pub enum UpdateArtifactKind {
     RecoveryImage,
     InstalledCatalog,
     PackageRelease,
+    RetroSystemPolicy,
 }
 
 impl UpdateArtifactKind {
@@ -44,12 +48,14 @@ impl UpdateArtifactKind {
             Self::RecoveryImage => RECOVERY_IMAGE_SIGNED_MESSAGE_PREFIX,
             Self::InstalledCatalog => INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX,
             Self::PackageRelease => PACKAGE_RELEASE_SIGNED_MESSAGE_PREFIX,
+            Self::RetroSystemPolicy => RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX,
         }
     }
 
     const fn maximum_payload_bytes(self) -> usize {
         match self {
             Self::SystemImage | Self::RecoveryImage | Self::PackageRelease => 64 * 1_024,
+            Self::RetroSystemPolicy => MAX_RETRO_SYSTEM_POLICY_BYTES,
             Self::InstalledCatalog => 1_048_576,
         }
     }
@@ -825,6 +831,7 @@ enum ArtifactDocument {
     RecoveryImage,
     InstalledCatalog,
     PackageRelease,
+    RetroSystemPolicy,
 }
 
 impl From<ArtifactDocument> for UpdateArtifactKind {
@@ -834,6 +841,7 @@ impl From<ArtifactDocument> for UpdateArtifactKind {
             ArtifactDocument::RecoveryImage => Self::RecoveryImage,
             ArtifactDocument::InstalledCatalog => Self::InstalledCatalog,
             ArtifactDocument::PackageRelease => Self::PackageRelease,
+            ArtifactDocument::RetroSystemPolicy => Self::RetroSystemPolicy,
         }
     }
 }
@@ -1612,6 +1620,166 @@ mod tests {
                 artifact,
                 &wrong_domain,
                 NOW
+            ),
+            Err(UpdateTrustError::RoleNotFound { .. })
+        ));
+    }
+
+    /// One root that delegates the installed catalog and the retro system
+    /// policy to two distinct keys, returned as `(root, catalog, policy)`.
+    fn retro_policy_root_fixture() -> (TrustedUpdateRoot, SigningKey, SigningKey) {
+        let root_key = signing_key(1);
+        let catalog_key = signing_key(2);
+        let policy_key = signing_key(3);
+        let document = root_document(
+            1,
+            NOW + 100,
+            1,
+            &[("root-a", &root_key)],
+            &[
+                role_document(
+                    "stable",
+                    "installed-catalog",
+                    TARGET,
+                    1,
+                    &[("catalog-a", &catalog_key)],
+                ),
+                role_document(
+                    "stable",
+                    "retro-system-policy",
+                    TARGET,
+                    1,
+                    &[("retro-policy-a", &policy_key)],
+                ),
+            ],
+        );
+        let root = TrustedUpdateRoot::bootstrap(
+            &document,
+            &signatures(vec![sign(
+                "root-a",
+                &root_key,
+                ROOT_SIGNED_MESSAGE_PREFIX,
+                &document,
+            )]),
+            &anchors(1, &[("root-a", &root_key)]),
+            1,
+            NOW,
+        )
+        .expect("root");
+        (root, catalog_key, policy_key)
+    }
+
+    #[test]
+    fn retro_system_policy_role_authorizes_its_own_artifact() {
+        let (root, _catalog_key, policy_key) = retro_policy_root_fixture();
+        let artifact = b"{signed retro system policy}";
+        let authority = root
+            .verify_role(
+                "stable",
+                UpdateArtifactKind::RetroSystemPolicy,
+                TARGET,
+                artifact,
+                &signatures(vec![sign(
+                    "retro-policy-a",
+                    &policy_key,
+                    RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
+            )
+            .expect("retro system policy authority");
+        assert_eq!(authority.artifact(), UpdateArtifactKind::RetroSystemPolicy);
+        assert_eq!(authority.signing_key_ids(), ["retro-policy-a"]);
+        assert!(matches!(
+            root.verify_role(
+                "stable",
+                UpdateArtifactKind::RetroSystemPolicy,
+                TARGET,
+                &vec![b'-'; MAX_RETRO_SYSTEM_POLICY_BYTES + 1],
+                &signatures(vec![sign(
+                    "retro-policy-a",
+                    &policy_key,
+                    RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
+            ),
+            Err(UpdateTrustError::ArtifactPayloadSize {
+                artifact: UpdateArtifactKind::RetroSystemPolicy,
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn retro_system_policy_signatures_are_role_and_domain_separated() {
+        let (root, catalog_key, policy_key) = retro_policy_root_fixture();
+        let artifact = b"{signed retro system policy}";
+
+        // The catalog role key is trusted for catalogs and nothing else.
+        assert!(matches!(
+            root.verify_role(
+                "stable",
+                UpdateArtifactKind::RetroSystemPolicy,
+                TARGET,
+                artifact,
+                &signatures(vec![sign(
+                    "catalog-a",
+                    &catalog_key,
+                    RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
+            ),
+            Err(UpdateTrustError::RoleThresholdNotMet { valid: 0, .. })
+        ));
+        // A policy signature made in the catalog domain does not verify here,
+        // and the policy key cannot authorize a catalog.
+        assert!(matches!(
+            root.verify_role(
+                "stable",
+                UpdateArtifactKind::RetroSystemPolicy,
+                TARGET,
+                artifact,
+                &signatures(vec![sign(
+                    "retro-policy-a",
+                    &policy_key,
+                    INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
+            ),
+            Err(UpdateTrustError::RoleThresholdNotMet { valid: 0, .. })
+        ));
+        assert!(matches!(
+            root.verify_role(
+                "stable",
+                UpdateArtifactKind::InstalledCatalog,
+                TARGET,
+                artifact,
+                &signatures(vec![sign(
+                    "retro-policy-a",
+                    &policy_key,
+                    INSTALLED_CATALOG_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
+            ),
+            Err(UpdateTrustError::RoleThresholdNotMet { valid: 0, .. })
+        ));
+        assert!(matches!(
+            root.verify_role(
+                "stable",
+                UpdateArtifactKind::RetroSystemPolicy,
+                "other-target",
+                artifact,
+                &signatures(vec![sign(
+                    "retro-policy-a",
+                    &policy_key,
+                    RETRO_SYSTEM_POLICY_SIGNED_MESSAGE_PREFIX,
+                    artifact,
+                )]),
+                NOW,
             ),
             Err(UpdateTrustError::RoleNotFound { .. })
         ));

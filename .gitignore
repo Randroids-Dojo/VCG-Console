@@ -11,3 +11,4 @@ artifacts/
 apps/console-lab/public/models/
 apps/console-lab/public/wasm/
 apps/console-lab/public/fonts/
+build/

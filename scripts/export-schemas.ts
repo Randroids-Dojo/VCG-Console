@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { gameManifestJsonSchema } from "@vcg/game-manifest";
+import { installedGameManifestJsonSchema } from "@vcg/game-manifest/installed";
+import { retroInstalledLibraryJsonSchema } from "@vcg/retro-import-contract";
 import {
   bodyProfileConfirmedSelectionJsonSchema,
   bodyProfilePredictionJsonSchema,
@@ -46,6 +48,8 @@ async function main(): Promise<void> {
     ["motion-benchmark-plan.schema.json", motionBenchmarkPlanJsonSchema],
     ["motion-benchmark-result.schema.json", motionBenchmarkResultJsonSchema],
     ["game-manifest.schema.json", gameManifestJsonSchema],
+    ["installed-game-manifest.schema.json", installedGameManifestJsonSchema],
+    ["retro-installed-library.schema.json", retroInstalledLibraryJsonSchema],
     ["motion-bridge-client.schema.json", bridgeClientMessageJsonSchema],
     ["motion-bridge-server.schema.json", bridgeServerMessageJsonSchema],
   ] as const;

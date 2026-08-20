@@ -35,27 +35,27 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "61597642bb7a4498689d885b09eef760c73cf8a4f568f685fcbf8f08e48eee31"
+      "sha256": "11cb58e148d7469997f2d76f02d1367e42c900c3cd1cc32c219a79687034bafc"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "93abf2e19329473d85016fa5cb191edc7782b405fd87bf2e67934d58ce360f88"
+      "sha256": "74ec10d1f9043df26a7481306e045c8f9e5ac1bfa92cafcb655debe49c7a847e"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "6a3129bac747b647c58260a2d75cc8b08602a51b2a64abacebddbb9cfdc29d4a"
+      "sha256": "c43c47d11318d75021a56670b862621ede1637124619f4bbca76ca12f504be24"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "04bb1e8b74926c17808f1adbea1308a647f9b596aa6b831a86c93e2005bd13b2"
+      "sha256": "8cacba91fe8396a3e7f1f1166dfc7f9ebf194c8e4fd48255b07f91b5bd40c838"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "supervised-hosted-browser-containment-and-exit-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "current-launcher-navigation-runtime-adapter-and-power-surface",
       "path": "apps/console-lab/src/launcher/Launcher.svelte",
-      "sha256": "f4b0f4da816a46c967c1642d9644abcbf40b8d14851f2c5d22d1c7dfa4dfbcd0"
+      "sha256": "e8355fe0f1787b3600716ef7ac2be6a121ae63d0110e76395dee024c1529cd2d"
     },
     {
       "role": "shutdown-restart-power-loss-and-safe-return-boundary",

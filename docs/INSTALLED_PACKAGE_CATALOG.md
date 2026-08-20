@@ -1,6 +1,6 @@
 # Signed installed-package catalog
 
-Last updated: 2026-07-24
+Last updated: 2026-08-19
 
 This document defines the host-owned trust bridge from an approved installed package to the local launcher and native launch coordinator. The companion [signed package generation store](PACKAGE_GENERATION_STORE.md) supplies signed staging, candidate health gating, monotonic activation, interruption recovery, and the preferred launcher startup source; downloader, uninstall, and target qualification remain separate.
 
@@ -10,9 +10,14 @@ The implemented slice can:
   channel/installed-catalog/target threshold in a bootstrapped update root;
 - reject the document before JSON parsing when its signature fails;
 - validate target, generation, qualification, identifiers, hashes, and relative paths;
-- bind one installed game manifest to the signed package identity, version, runtime, and qualification;
-- resolve a fixed `{gameId, profileId}` intent into a trusted Libretro or
-  native runtime request;
+- hash every artifact the signed catalog binds — manifest, frontend, core,
+  frontend auxiliary files, base configuration, managed content, and native
+  executable — at launcher catalog load, in normal startup and `--dry-run`
+  alike;
+- bind one installed-root game manifest to the signed package identity, version, runtime, and qualification, rejecting any manifest that does not declare itself the installed-root document;
+- resolve a fixed `{gameId, profileId}` intent, optionally carrying one
+  host-published retro-library entry, into a trusted Libretro or native runtime
+  request;
 - disclose only bounded id, version, runtime, and catalog-generation inventory to the authenticated trusted launcher;
 - start the resolved child only when the profile ID is in the host-owned
   allowlist and store-backed activation exactly matches externally protected
@@ -38,6 +43,8 @@ The launcher CLI cannot yet download, update, revoke, roll back, or uninstall; i
 [--content-root <absolute-managed-retro-content-root>]
 [--profile-registry <absolute-host-profile-registry> |
  --profile-id <development-profile-id>...]
+[--launch-replay-root <absolute-replay-journal-root>]
+[--retro-library-root <absolute-writable-data-root>]
 [--watchdog-game-id <installed-game-id>]...
 ```
 
@@ -52,7 +59,30 @@ state; pending commit, rollback/deletion, substitution, or scope mismatch
 prevents browser startup. See the
 [generation-store contract](PACKAGE_GENERATION_STORE.md).
 
-The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles and watchdog games.
+The paths come from service/image configuration, never from Svelte, a game, a public manifest, or a hosted origin. A partial catalog configuration fails before Chromium starts. Dry-run mode verifies the catalog and prints generation, target, and only the counts of configured profiles, watchdog games, and installed library entries.
+
+Both modes verify the same artifacts. After the signed catalog is loaded — from
+a loose catalog or from the generation store — the launcher streams every
+artifact that catalog binds through SHA-256 before it serves anything or starts
+Chromium. A changed artifact fails the whole load with the artifact role, its
+path, the expected digest, and the actual digest, so `--dry-run` is an
+integrity check rather than a configuration check and a tampered core cannot
+wait until the first launch that resolves it to be caught. Measured on the Pi 5
+target: the frontend and four cores total roughly 30 MB, against 1.5 GB hashed
+in about a second. A `library` package binds no content file, so its
+per-launch entry is verified at resolution instead.
+
+`--retro-library-root` is optional: the console starts and serves its catalog
+with no library configured, and then omits the `retro-library` capability.
+Supplying it joins the same all-or-nothing group, so the rest of the catalog
+configuration becomes mandatory. It names the writable data root that
+`vcg-host retro-provision --writable-root` provisions, and the launcher opens
+that store read-only and takes one snapshot at startup. A missing, unreadable,
+malformed, or recovery-pending library fails before Chromium starts rather than
+starting without it. The library combines with `--bluetoothctl` and
+`--watchdog-game-id`: controller pairing is required to play a library entry,
+and one launcher process serves every configured capability. See the
+[retro import contract](RETRO_IMPORT_CONTRACT.md).
 
 Normal launch authority comes from the strict bounded
 `--profile-registry`. Repeated `--profile-id` is a mutually exclusive
@@ -140,6 +170,25 @@ Managed content uses:
 }
 ```
 
+Library content uses:
+
+```json
+{
+  "mode": "library",
+  "systemId": "nes",
+  "coreId": "mesen"
+}
+```
+
+`library` is how a package opts in to the operator's installed retro library.
+It names no file: the record states only which library system and core the
+package can run, and the host selects one entry per launch from the library it
+published itself. This is the opt-in that makes `entryId` admissible, and it is
+signed, so a package that binds one fixed managed file — or none — can never be
+handed a library entry. The mode is libretro-only. Unlike `managed`, it does
+not require a managed content root, because library objects live in the
+console-managed retro object store rather than beneath that root.
+
 Rules:
 
 - `schemaVersion` is exactly `1`.
@@ -158,22 +207,65 @@ Rules:
 - Every catalog path is a non-empty relative normal path with no root, prefix, `.` or `..` component.
 - Hashes are canonical lowercase SHA-256.
 - A managed content record requires a configured managed content root.
+- A library content record requires `systemId` and `coreId` to use the bounded
+  lowercase identifier grammar, and applies only to a `libretro` entry.
+
+### Upgrading an installed appliance
+
+Requiring `documentType` on a bound manifest is a breaking change for any
+package installed before it. The provisioning tool hashes the manifest an
+operator supplies rather than rewriting it, and there is no launch-time
+migration, so an appliance carrying an older manifest fails catalog load
+until its manifests are updated and its catalog re-signed. That is
+deliberate: the alternative is a host that cannot tell a public shelf
+document from an installed one, which is the defect the field exists to
+close. Re-provision with `vcg-retro-provision` after adding the field.
 
 ## Resolution and integrity
 
-`resolve(gameId, profileId)` validates both browser-safe IDs and finds exactly one signed package. It then:
+`resolve(gameId, profileId)` validates both browser-safe IDs and finds exactly one signed package. Library content adds one optional host-selected entry to that intent; the browser contributes only the entry ID, and the system, core, digest, and path all come from the host's own library. Resolution then enforces the signed content mode before anything else happens:
+
+| Signed content mode | No entry | One entry |
+| --- | --- | --- |
+| `none` | resolves | rejected |
+| `managed` | resolves | rejected |
+| `library` | rejected | resolves when the entry's system and core match |
+
+A `native` package rejects an entry outright. A rejected entry is never partially applied: no storage is prepared and no child is started. Resolution then continues:
 
 1. resolves the bound manifest beneath the canonical install root;
 2. verifies the full manifest SHA-256;
-3. requires manifest schema `1` and exact signed id, version, selected runtime,
-   and `qualified` status;
+3. requires `"documentType": "vcg-installed-game-manifest"`, then manifest
+   schema `1` and exact signed id, version, selected runtime, and `qualified`
+   status;
 4. resolves runtime-specific signed records;
 5. creates a `RetroArchRequest` or `NativePackageRequest` from host-owned roots
    and signed relative paths;
 6. lets the selected adapter canonicalize and verify every executable/runtime
    artifact immediately before it creates runtime state.
 
+For a library launch, step 5 supplies the console-managed object root and the
+host-resolved object path, so step 6 canonicalizes that object, requires it to
+stay beneath that root, and re-verifies its SHA-256 — the same treatment a
+fixed managed file receives. A library object is not part of the signed
+catalog, so promotion-time `verify_all_artifacts` has nothing to check for a
+`library` package; its content is verified per launch instead.
+
 The base-configuration digest is now required by the direct `vcg-host retroarch` CLI as well as by catalog resolution.
+
+### Bound manifest
+
+A bound manifest is the installed-root game manifest, not the public
+curated-shelf manifest; both are written to the filename `vcg-game.json`. The
+host reads seven fields: `documentType`, `schemaVersion`, `id`, `version`,
+`runtime`, `compatibilityStatus`, and `launch`. It does not reject the authored
+fields it has no use for, so an installed manifest may carry more.
+
+`documentType` must be exactly `vcg-installed-game-manifest`. A manifest that
+omits it, or that declares the public document `vcg-game-manifest`, is rejected
+naming the package and the required type, so a shelf manifest cannot be bound
+into an installed package. See the
+[game manifest contract](GAME_MANIFEST_CONTRACT.md) for both documents.
 
 The native authority also re-hashes the bound manifest before interpreting its
 1,000–120,000 ms launch timeout and local `process` or `explicit-ready` health
@@ -181,7 +273,7 @@ kind. It rejects HTTP/unknown health for both installed runtime lanes. These
 signed fields drive candidate promotion health; they remain distinct from
 watchdog heartbeat and compositor/window readiness.
 
-Path canonicalization and repeated hashes narrow substitution risk, but target qualification still requires immutable package/content mounts or file-descriptor-bound execution and handoff. A compromised account able to rewrite artifacts between verification and process use can otherwise race path-based verification.
+Load-time verification is defence in depth, not a replacement for any of this. Resolution and adapter use still hash every artifact they touch, exactly as before, and a package can be tampered with after a clean load. Path canonicalization and repeated hashes narrow substitution risk, but target qualification still requires immutable package/content mounts or file-descriptor-bound execution and handoff. A compromised account able to rewrite artifacts between verification and process use can otherwise race path-based verification.
 
 ## Launcher API
 
@@ -207,12 +299,18 @@ These metadata lookups prove only that a valid signed catalog contains each entr
 ## Evidence and remaining boundary
 
 Native tests cover delegated authority before parsing and retained role
-evidence, valid signed Libretro/native resolution, runtime-record confusion,
+evidence, valid signed Libretro/native resolution, library-mode admission for
+exactly the signed system and core plus refusal for fixed-content and native
+packages, per-launch library content re-verification, runtime-record confusion,
 changed/cross-role signature denial, wrong target, unknown fields, duplicates,
 unsafe paths, malformed trust material, oversized catalogs, invalid launcher
 IDs, missing packages, canonical summaries, manifest tamper and runtime
-misbinding, executable/base-config tamper at adapter use, shared plan dispatch,
-profile allowlisting, candidate-health isolation, and lifecycle preparation.
+misbinding, refusal of a bound manifest that omits the installed-root
+`documentType` or declares the public one, executable/base-config tamper at
+adapter use,
+core/frontend/manifest tamper at launcher catalog load under both dry-run and
+normal startup, shared plan dispatch, profile allowlisting, candidate-health
+isolation, and lifecycle preparation.
 Host-API tests verify conditional capabilities and metadata-only inventory
 disclosure. TypeScript tests reject duplicate, unsorted, excessive,
 version-mismatched, unknown-field, and otherwise malformed inventories.

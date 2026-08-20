@@ -1,4 +1,5 @@
 import { parseJsonWithUniqueObjectFields } from "./strict-json";
+import { hasUnsafeVisibleTextCharacter, unicodeScalarLength } from "./visible-text";
 
 const HOST_API_PROTOCOL_VERSION = "0.1.0";
 const HOST_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
@@ -19,6 +20,21 @@ const HOST_TARGET_PATTERN = /^[a-z0-9_]+-[a-z0-9_]+$/;
 const HOST_CAPABILITY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VISIBLE_ASCII_PATTERN = /^[\x21-\x7e]+$/;
 const BLUETOOTH_DEVICE_ID_PATTERN = /^controller-([1-9][0-9]{0,8})$/;
+
+// Bounds the host itself enforces when it takes the library snapshot. The
+// browser re-enforces every one of them, because a page that exceeds any of
+// them is not a page this shell knows how to read.
+const MAX_HOST_LIBRARY_ENTRIES = 100_000;
+const MAX_HOST_LIBRARY_PAGE_ENTRIES = 256;
+const MAX_HOST_LIBRARY_PAGE_ENTRY_BYTES = 65_536;
+// The 64 KiB entry budget plus room for the surrounding document, which is a
+// fixed protocol version, generation, entry count, and cursor.
+const MAX_HOST_LIBRARY_PAGE_BYTES = MAX_HOST_LIBRARY_PAGE_ENTRY_BYTES + 512;
+const MAX_LIBRARY_TITLE_CHARACTERS = 80;
+const MAX_LIBRARY_IDENTIFIER_CHARACTERS = 64;
+const LIBRARY_ENTRY_ID_PATTERN = /^content-[0-9a-f]{64}$/;
+const LIBRARY_CURSOR_PATTERN = /^[0-9a-f]{32}$/;
+const LIBRARY_IDENTIFIER_PATTERN = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 
 export interface NativeHostStatus {
   protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
@@ -63,6 +79,34 @@ export interface NativeLaunchSnapshot {
   exitCode?: number | null;
 }
 
+/**
+ * One entry of the operator's installed retro library.
+ *
+ * The host discloses only what selecting and presenting an entry requires;
+ * there is no path, digest, extension, or provenance on this boundary.
+ */
+export interface NativeLibraryEntry {
+  entryId: string;
+  title: string;
+  systemId: string;
+  coreId: string;
+  sizeBytes: number;
+}
+
+/**
+ * One bounded page of the installed retro library.
+ *
+ * `nextCursor` is an opaque forward-only token; it is absent on the last page.
+ * There is no random access, so a reader walks pages in order.
+ */
+export interface NativeLibraryPage {
+  protocolVersion: typeof HOST_API_PROTOCOL_VERSION;
+  libraryGeneration: number;
+  entryCount: number;
+  entries: NativeLibraryEntry[];
+  nextCursor?: string;
+}
+
 export interface NativeBluetoothController {
   id: string;
   paired: boolean;
@@ -88,6 +132,12 @@ type NativeHostFailure = {
     | "LAUNCH_REPLAY_UNAVAILABLE"
     | "LAUNCH_RESTART_CLEANUP_REQUIRED"
     | "LAUNCH_NOT_FOUND"
+    | "LIBRARY_UNAVAILABLE"
+    | "LIBRARY_CURSOR_INVALID"
+    | "LIBRARY_ENTRY_NOT_FOUND"
+    | "LIBRARY_ENTRY_INCOMPATIBLE"
+    | "LAUNCH_REQUEST_INVALID"
+    | "PACKAGE_REJECTS_LIBRARY_CONTENT"
     | "BLUETOOTH_SERVICE_UNAVAILABLE"
     | "BLUETOOTH_OPERATION_FAILED";
   detail: string;
@@ -108,6 +158,9 @@ export type NativeLaunchSnapshotResult =
   | NativeHostFailure;
 export type NativeBluetoothResult =
   | { ok: true; status: NativeHostStatus; snapshot: NativeBluetoothSnapshot }
+  | NativeHostFailure;
+export type NativeLibraryPageResult =
+  | { ok: true; status: NativeHostStatus; page: NativeLibraryPage }
   | NativeHostFailure;
 
 interface HostBridge {
@@ -418,6 +471,105 @@ export async function listNativePackages(
   }
 }
 
+/**
+ * Reads one page of the installed retro library.
+ *
+ * Pass no cursor for the first page and the `nextCursor` of the previous page
+ * for every page after it. Cursors are opaque, forward-only, and do not
+ * survive a host restart, so a stale cursor is reported rather than retried.
+ */
+export async function fetchNativeLibraryPage(
+  cursor?: string,
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_REQUEST_TIMEOUT_MS,
+): Promise<NativeLibraryPageResult> {
+  if (cursor !== undefined && !LIBRARY_CURSOR_PATTERN.test(cursor)) {
+    return {
+      ok: false,
+      code: "LIBRARY_CURSOR_INVALID",
+      detail: "The game library position is no longer valid; open the library again",
+    };
+  }
+  const host = await checkNativeHost(href, fetcher, timeoutMs);
+  if (!host.ok) return host;
+  if (!host.status.capabilities.includes("retro-library")) {
+    return {
+      ok: false,
+      code: "LIBRARY_UNAVAILABLE",
+      detail: "Rust host connected · no installed game library is configured",
+    };
+  }
+  const parsed = parseNativeHostBridge(href);
+  if (parsed.kind !== "configured") {
+    return {
+      ok: false,
+      code: "HOST_CONFIG_INVALID",
+      detail: "Rust console host launch capability is invalid",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const path = cursor === undefined ? "/v1/library" : `/v1/library/${cursor}`;
+    let response: Response;
+    try {
+      response = await fetcher(`${parsed.bridge.endpoint}${path}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${parsed.bridge.token}` },
+        cache: "no-store",
+        credentials: "omit",
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        signal: controller.signal,
+      });
+    } catch {
+      return unreachableHost();
+    }
+    if (response.status === 401 || response.status === 403) {
+      return {
+        ok: false,
+        code: "HOST_REJECTED",
+        detail: "Rust console host rejected this launcher session",
+      };
+    }
+    if (response.status === 404) {
+      return {
+        ok: false,
+        code: "LIBRARY_UNAVAILABLE",
+        detail: "Rust console host has no installed game library",
+      };
+    }
+    if (response.status === 400) {
+      return {
+        ok: false,
+        code: "LIBRARY_CURSOR_INVALID",
+        detail: "The game library position is no longer valid; open the library again",
+      };
+    }
+    if (!response.ok) {
+      return {
+        ok: false,
+        code: "HOST_UNREACHABLE",
+        detail: `Rust console host returned status ${response.status}`,
+      };
+    }
+
+    let body: unknown;
+    try {
+      body = await readBoundedJson(response, MAX_HOST_LIBRARY_PAGE_BYTES);
+    } catch {
+      if (controller.signal.aborted) return unreachableHost();
+      return invalidLibraryPage();
+    }
+    if (!isNativeLibraryPage(body)) return invalidLibraryPage();
+    return { ok: true, status: host.status, page: body };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export function createNativeLaunchRequestId(): string {
   const bytes = new Uint8Array(16);
   globalThis.crypto.getRandomValues(bytes);
@@ -431,6 +583,44 @@ export async function startNativeLaunch(
   href = window.location.href,
   fetcher: typeof fetch = window.fetch.bind(window),
   timeoutMs = HOST_LAUNCH_TIMEOUT_MS,
+): Promise<NativeLaunchStartResult> {
+  return postNativeLaunch(gameId, profileId, undefined, requestId, href, fetcher, timeoutMs);
+}
+
+/**
+ * Starts one installed package carrying one library entry the host published.
+ *
+ * The browser names the entry and nothing else: the system, core, path, and
+ * digest all come from the host's own library, and the signed package record
+ * decides whether an entry is admissible at all.
+ */
+export async function startNativeLibraryLaunch(
+  gameId: string,
+  profileId: string,
+  entryId: string,
+  requestId = createNativeLaunchRequestId(),
+  href = window.location.href,
+  fetcher: typeof fetch = window.fetch.bind(window),
+  timeoutMs = HOST_LAUNCH_TIMEOUT_MS,
+): Promise<NativeLaunchStartResult> {
+  if (!LIBRARY_ENTRY_ID_PATTERN.test(entryId)) {
+    return {
+      ok: false,
+      code: "LIBRARY_ENTRY_NOT_FOUND",
+      detail: "The selected game is not in the current installed library",
+    };
+  }
+  return postNativeLaunch(gameId, profileId, entryId, requestId, href, fetcher, timeoutMs);
+}
+
+async function postNativeLaunch(
+  gameId: string,
+  profileId: string,
+  entryId: string | undefined,
+  requestId: string,
+  href: string,
+  fetcher: typeof fetch,
+  timeoutMs: number,
 ): Promise<NativeLaunchStartResult> {
   if (!isIntentId(gameId) || !isIntentId(profileId) || !isRequestId(requestId)) {
     return {
@@ -448,6 +638,13 @@ export async function startNativeLaunch(
       detail: "Rust host connected · trusted package execution is not configured",
     };
   }
+  if (entryId !== undefined && !host.status.capabilities.includes("retro-library")) {
+    return {
+      ok: false,
+      code: "LIBRARY_UNAVAILABLE",
+      detail: "Rust host connected · no installed game library is configured",
+    };
+  }
   const parsed = parseNativeHostBridge(href);
   if (parsed.kind !== "configured") {
     return {
@@ -463,11 +660,15 @@ export async function startNativeLaunch(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      // The field is omitted, never sent as null, for a package that binds
+      // fixed content: that is exactly the request every package sent before
+      // the library existed.
       body: JSON.stringify({
         protocolVersion: HOST_API_PROTOCOL_VERSION,
         requestId,
         gameId,
         profileId,
+        ...(entryId === undefined ? {} : { entryId }),
       }),
     },
     fetcher,
@@ -770,6 +971,41 @@ function launchHttpFailure(status: number, body: unknown): NativeHostFailure {
       detail: "Rust console host could not verify durable native launch replay state",
     };
   }
+  if (status === 400 && hostCode === "LAUNCH_REQUEST_INVALID") {
+    return {
+      ok: false,
+      code: "LAUNCH_REQUEST_INVALID",
+      detail: "Rust console host rejected the launch request",
+    };
+  }
+  if (status === 404 && hostCode === "LIBRARY_UNAVAILABLE") {
+    return {
+      ok: false,
+      code: "LIBRARY_UNAVAILABLE",
+      detail: "Rust console host has no installed game library",
+    };
+  }
+  if (status === 404 && hostCode === "LIBRARY_ENTRY_NOT_FOUND") {
+    return {
+      ok: false,
+      code: "LIBRARY_ENTRY_NOT_FOUND",
+      detail: "The selected game is not in the current installed library",
+    };
+  }
+  if (status === 409 && hostCode === "PACKAGE_REJECTS_LIBRARY_CONTENT") {
+    return {
+      ok: false,
+      code: "PACKAGE_REJECTS_LIBRARY_CONTENT",
+      detail: "The installed package does not accept library games",
+    };
+  }
+  if (status === 409 && hostCode === "LIBRARY_ENTRY_INCOMPATIBLE") {
+    return {
+      ok: false,
+      code: "LIBRARY_ENTRY_INCOMPATIBLE",
+      detail: "The installed package cannot run this game's system",
+    };
+  }
   if (status === 404) {
     return {
       ok: false,
@@ -792,6 +1028,14 @@ function invalidLaunchDocument(): NativeHostFailure {
     ok: false,
     code: "HOST_PROTOCOL_INVALID",
     detail: "Rust console host returned an invalid launch document",
+  };
+}
+
+function invalidLibraryPage(): NativeHostFailure {
+  return {
+    ok: false,
+    code: "HOST_PROTOCOL_INVALID",
+    detail: "Rust console host returned an invalid game library page",
   };
 }
 
@@ -922,6 +1166,123 @@ function bluetoothDeviceNumber(id: string): number | undefined {
   const match = BLUETOOTH_DEVICE_ID_PATTERN.exec(id);
   if (match?.[1] === undefined) return undefined;
   return Number(match[1]);
+}
+
+function isNativeLibraryPage(value: unknown): value is NativeLibraryPage {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  const declared = ["protocolVersion", "libraryGeneration", "entryCount", "entries"];
+  const keys = Object.keys(candidate);
+  if (
+    !declared.every((key) => keys.includes(key)) ||
+    !keys.every((key) => declared.includes(key) || key === "nextCursor") ||
+    candidate.protocolVersion !== HOST_API_PROTOCOL_VERSION ||
+    !Number.isSafeInteger(candidate.libraryGeneration) ||
+    (candidate.libraryGeneration as number) <= 0 ||
+    !Number.isSafeInteger(candidate.entryCount) ||
+    (candidate.entryCount as number) < 0 ||
+    (candidate.entryCount as number) > MAX_HOST_LIBRARY_ENTRIES ||
+    !Array.isArray(candidate.entries) ||
+    candidate.entries.length > MAX_HOST_LIBRARY_PAGE_ENTRIES ||
+    candidate.entries.length > (candidate.entryCount as number)
+  ) {
+    return false;
+  }
+  // The host bounds the serialized entries array at 64 KiB when it takes the
+  // snapshot; a page that exceeds it is not a page this protocol produces.
+  if (
+    new TextEncoder().encode(JSON.stringify(candidate.entries)).byteLength >
+    MAX_HOST_LIBRARY_PAGE_ENTRY_BYTES
+  ) {
+    return false;
+  }
+  let previous: NativeLibraryEntry | undefined;
+  for (const entryValue of candidate.entries) {
+    if (!isNativeLibraryEntry(entryValue)) return false;
+    // Host order is system, then title, then entry ID, and it is strict, so a
+    // repeated or out-of-order entry is a protocol fault rather than a
+    // rendering decision this shell has to make.
+    if (previous !== undefined && compareNativeLibraryEntries(previous, entryValue) >= 0) {
+      return false;
+    }
+    previous = entryValue;
+  }
+  if (Object.hasOwn(candidate, "nextCursor")) {
+    if (
+      typeof candidate.nextCursor !== "string" ||
+      !LIBRARY_CURSOR_PATTERN.test(candidate.nextCursor) ||
+      candidate.entries.length === 0
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isNativeLibraryEntry(value: unknown): value is NativeLibraryEntry {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    hasExactKeys(candidate, ["entryId", "title", "systemId", "coreId", "sizeBytes"]) &&
+    typeof candidate.entryId === "string" &&
+    LIBRARY_ENTRY_ID_PATTERN.test(candidate.entryId) &&
+    isLibraryIdentifier(candidate.systemId) &&
+    isLibraryIdentifier(candidate.coreId) &&
+    isLibraryTitle(candidate.title) &&
+    Number.isSafeInteger(candidate.sizeBytes) &&
+    (candidate.sizeBytes as number) > 0
+  );
+}
+
+function isLibraryIdentifier(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length <= MAX_LIBRARY_IDENTIFIER_CHARACTERS &&
+    LIBRARY_IDENTIFIER_PATTERN.test(value)
+  );
+}
+
+function isLibraryTitle(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const scalars = unicodeScalarLength(value);
+  return (
+    scalars >= 1 &&
+    scalars <= MAX_LIBRARY_TITLE_CHARACTERS &&
+    value.trim() === value &&
+    value.normalize("NFC") === value &&
+    !hasUnsafeVisibleTextCharacter(value) &&
+    !value.includes("/") &&
+    !value.includes("\\")
+  );
+}
+
+/**
+ * Orders two entries the way the host orders them: system, then title, then
+ * entry ID, compared by Unicode scalar so the result matches the host's
+ * byte-wise ordering rather than UTF-16 code-unit ordering.
+ */
+export function compareNativeLibraryEntries(
+  left: NativeLibraryEntry,
+  right: NativeLibraryEntry,
+): number {
+  return (
+    compareScalars(left.systemId, right.systemId) ||
+    compareScalars(left.title, right.title) ||
+    compareScalars(left.entryId, right.entryId)
+  );
+}
+
+function compareScalars(left: string, right: string): number {
+  const leftScalars = [...left];
+  const rightScalars = [...right];
+  const shared = Math.min(leftScalars.length, rightScalars.length);
+  for (let index = 0; index < shared; index += 1) {
+    const leftPoint = leftScalars[index]?.codePointAt(0) ?? 0;
+    const rightPoint = rightScalars[index]?.codePointAt(0) ?? 0;
+    if (leftPoint !== rightPoint) return leftPoint < rightPoint ? -1 : 1;
+  }
+  if (leftScalars.length === rightScalars.length) return 0;
+  return leftScalars.length < rightScalars.length ? -1 : 1;
 }
 
 function isNativeInstalledPackage(value: unknown): value is NativeInstalledPackage {

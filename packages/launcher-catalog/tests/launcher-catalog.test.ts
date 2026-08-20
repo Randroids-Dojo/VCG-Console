@@ -3,7 +3,11 @@ import circuitShift from "../../../catalog/circuit-shift.vcg-game.json";
 import determined from "../../../catalog/determined.vcg-game.json";
 import policy from "../../../catalog/launcher-policy.json";
 import miCasa from "../../../catalog/mi-casa-es-su-casa.vcg-game.json";
+import nesMetalGear from "../../../catalog/nes-metal-gear.vcg-game.json";
+import nesSuperMarioBrosDuckHunt from "../../../catalog/nes-super-mario-bros-duck-hunt.vcg-game.json";
 import retro2048 from "../../../catalog/retro-2048.vcg-game.json";
+import snesDonkeyKongCountry2 from "../../../catalog/snes-donkey-kong-country-2.vcg-game.json";
+import snesYoshisIsland from "../../../catalog/snes-yoshis-island.vcg-game.json";
 import vibeBots from "../../../catalog/vibebots.vcg-game.json";
 import {
   LauncherCatalogError,
@@ -11,7 +15,17 @@ import {
   serializeLauncherCatalogModule,
 } from "../src/index";
 
-const manifests: readonly unknown[] = [circuitShift, determined, miCasa, retro2048, vibeBots];
+const manifests: readonly unknown[] = [
+  circuitShift,
+  determined,
+  miCasa,
+  nesMetalGear,
+  nesSuperMarioBrosDuckHunt,
+  retro2048,
+  snesDonkeyKongCountry2,
+  snesYoshisIsland,
+  vibeBots,
+];
 
 describe("canonical launcher catalog", () => {
   it("resolves every policy entry from validated game-manifest authority", () => {
@@ -22,6 +36,10 @@ describe("canonical launcher catalog", () => {
       "mi-casa-es-su-casa",
       "determined",
       "circuit-shift",
+      "nes-super-mario-bros-duck-hunt",
+      "nes-metal-gear",
+      "snes-yoshis-island",
+      "snes-donkey-kong-country-2",
       "retro-2048",
     ]);
     expect(catalog.entries[0]).toMatchObject({
@@ -38,6 +56,13 @@ describe("canonical launcher catalog", () => {
       surface: "retro",
     });
     expect(catalog.entries[4]).toMatchObject({
+      title: "Super Mario Bros. + Duck Hunt",
+      runtime: "libretro",
+      network: "offline",
+      compatibilityStatus: "unverified",
+      surface: "retro",
+    });
+    expect(catalog.entries[8]).toMatchObject({
       title: "2048",
       runtime: "libretro",
       network: "offline",

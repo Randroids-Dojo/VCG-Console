@@ -20,6 +20,15 @@ use crate::update_trust::{
 };
 
 const CATALOG_SCHEMA_VERSION: u32 = 1;
+
+/// `documentType` every bound installed-root game manifest must declare.
+///
+/// Two different v1 documents are written to the filename `vcg-game.json`: the
+/// public curated-shelf manifest and the installed-root manifest a signed
+/// package binds by SHA-256. The host reads only the installed-root document,
+/// so it requires that document to say so from its own bytes.
+pub const INSTALLED_MANIFEST_DOCUMENT_TYPE: &str = "vcg-installed-game-manifest";
+
 const MAX_CATALOG_BYTES: u64 = 1_048_576;
 const MAX_PACKAGES: usize = 1_024;
 const MAX_LIBRETRO_AUXILIARY_FILES: usize = 256;
@@ -273,15 +282,21 @@ impl TrustedPackageCatalog {
                         )?;
                         verify_sha256("frontend auxiliary artifact", &path, &file.file.sha256)?;
                     }
-                    if let Some(content) = &libretro.content {
-                        let root = self.roots.content_root.as_ref().ok_or_else(|| {
-                            CatalogError::InvalidRecord(format!(
-                                "package {} requires a content root",
-                                package.id
-                            ))
-                        })?;
-                        let path = resolve_managed_file("content", root, &content.path)?;
-                        verify_sha256("content", &path, &content.sha256)?;
+                    match &libretro.content {
+                        LibretroContent::Managed(content) => {
+                            let root = self.roots.content_root.as_ref().ok_or_else(|| {
+                                CatalogError::InvalidRecord(format!(
+                                    "package {} requires a content root",
+                                    package.id
+                                ))
+                            })?;
+                            let path = resolve_managed_file("content", root, &content.path)?;
+                            verify_sha256("content", &path, &content.sha256)?;
+                        }
+                        // A library package binds no content file, so promotion
+                        // has nothing to verify. Its per-launch entry is
+                        // verified when that launch resolves.
+                        LibretroContent::None | LibretroContent::Library(_) => {}
                     }
                 }
                 InstalledRuntime::Native(native) => {
@@ -397,18 +412,70 @@ impl TrustedPackageCatalog {
         summaries
     }
 
+    /// Returns the library system and core one signed package accepts.
+    ///
+    /// A package that binds fixed content, or none, returns `None`. That is
+    /// what makes a library entry inadmissible for it.
+    ///
+    /// # Errors
+    ///
+    /// Rejects malformed or unknown game identifiers.
+    pub fn package_library_binding(
+        &self,
+        game_id: &str,
+    ) -> Result<Option<PackageLibraryBinding<'_>>, CatalogError> {
+        validate_intent_id("game", game_id)?;
+        let package = self
+            .packages
+            .iter()
+            .find(|package| package.id == game_id)
+            .ok_or_else(|| CatalogError::PackageNotFound(game_id.to_owned()))?;
+        Ok(match &package.runtime {
+            InstalledRuntime::Libretro(libretro) => match &libretro.content {
+                LibretroContent::Library(binding) => Some(PackageLibraryBinding {
+                    system_id: &binding.system_id,
+                    core_id: &binding.core_id,
+                }),
+                LibretroContent::None | LibretroContent::Managed(_) => None,
+            },
+            InstalledRuntime::Native(_) => None,
+        })
+    }
+
     /// Resolves a browser-safe `{game_id, profile_id}` intent into trusted
     /// native adapter inputs.
     ///
     /// # Errors
     ///
     /// Rejects invalid IDs, unknown packages, changed bound manifests or base
-    /// configurations, and manifest identities that do not match the signed
-    /// catalog.
+    /// configurations, manifest identities that do not match the signed
+    /// catalog, and a package that requires a library entry.
     pub fn resolve(
         &self,
         game_id: &str,
         profile_id: &str,
+    ) -> Result<ResolvedPackage, CatalogError> {
+        self.resolve_with_library_content(game_id, profile_id, None)
+    }
+
+    /// Resolves the same intent with one host-selected library entry.
+    ///
+    /// The entry comes from the host's own installed library; the browser
+    /// contributes only the entry ID that selected it. A package that binds
+    /// fixed content, or none, rejects an entry outright, and a package that
+    /// accepts library content rejects an entry from another system or core.
+    ///
+    /// # Errors
+    ///
+    /// Rejects everything [`Self::resolve`] rejects, plus a library entry
+    /// offered to a package that does not accept one, a missing entry for a
+    /// package that requires one, and an entry whose system or core disagrees
+    /// with the signed package.
+    pub fn resolve_with_library_content(
+        &self,
+        game_id: &str,
+        profile_id: &str,
+        library: Option<LibraryContentRequest<'_>>,
     ) -> Result<ResolvedPackage, CatalogError> {
         validate_intent_id("game", game_id)?;
         validate_intent_id("profile", profile_id)?;
@@ -445,28 +512,19 @@ impl TrustedPackageCatalog {
                         runtime_name: file.runtime_name.clone(),
                     })
                     .collect();
-                let (content, content_sha256) = if let Some(content) = &libretro.content {
-                    let root = self.roots.content_root.as_ref().ok_or_else(|| {
-                        CatalogError::InvalidRecord(format!(
-                            "package {} requires a content root",
-                            package.id
-                        ))
-                    })?;
-                    (Some(root.join(&content.path)), Some(content.sha256))
-                } else {
-                    (None, None)
-                };
+                let content =
+                    self.resolve_libretro_content(&package.id, &libretro.content, library)?;
                 Ok(ResolvedPackage::Libretro(Box::new(RetroArchRequest {
                     install_root: self.roots.install_root.clone(),
-                    content_root: self.roots.content_root.clone(),
+                    content_root: content.root,
                     runtime_root: self.roots.runtime_root.clone(),
                     data_root: self.roots.data_root.clone(),
                     frontend,
                     frontend_sha256: libretro.frontend.sha256,
                     core,
                     core_sha256: libretro.core.sha256,
-                    content,
-                    content_sha256,
+                    content: content.path,
+                    content_sha256: content.sha256,
                     base_config,
                     base_config_sha256: libretro.base_config.sha256,
                     auxiliary,
@@ -476,6 +534,9 @@ impl TrustedPackageCatalog {
                     // start policy; the menu handoff stays a CLI-only diagnostic.
                     contentless_start: None,
                 })))
+            }
+            InstalledRuntime::Native(_) if library.is_some() => {
+                Err(CatalogError::LibraryContentRejected(package.id.clone()))
             }
             InstalledRuntime::Native(native) => Ok(ResolvedPackage::Native(NativePackageRequest {
                 install_root: self.roots.install_root.clone(),
@@ -488,6 +549,64 @@ impl TrustedPackageCatalog {
             })),
         }
     }
+
+    /// Resolves which content file, if any, one libretro launch carries.
+    ///
+    /// The returned root is what the adapter requires the content to stay
+    /// beneath: the managed content root for a fixed file, and the
+    /// console-managed object root for one library entry.
+    fn resolve_libretro_content(
+        &self,
+        package_id: &str,
+        content: &LibretroContent,
+        library: Option<LibraryContentRequest<'_>>,
+    ) -> Result<ResolvedContent, CatalogError> {
+        match (content, library) {
+            (LibretroContent::None, None) => Ok(ResolvedContent {
+                root: self.roots.content_root.clone(),
+                path: None,
+                sha256: None,
+            }),
+            (LibretroContent::Managed(content), None) => {
+                let root = self.roots.content_root.as_ref().ok_or_else(|| {
+                    CatalogError::InvalidRecord(format!(
+                        "package {package_id} requires a content root"
+                    ))
+                })?;
+                Ok(ResolvedContent {
+                    root: Some(root.clone()),
+                    path: Some(root.join(&content.path)),
+                    sha256: Some(content.sha256),
+                })
+            }
+            (LibretroContent::Library(binding), Some(entry)) => {
+                if entry.system_id != binding.system_id || entry.core_id != binding.core_id {
+                    return Err(CatalogError::LibraryEntryIncompatible {
+                        game_id: package_id.to_owned(),
+                        entry_id: entry.entry_id.to_owned(),
+                    });
+                }
+                Ok(ResolvedContent {
+                    root: Some(entry.object_root.to_owned()),
+                    path: Some(entry.object_path.to_owned()),
+                    sha256: Some(parse_hash("library content", entry.sha256)?),
+                })
+            }
+            (LibretroContent::Library(_), None) => {
+                Err(CatalogError::LibraryContentRequired(package_id.to_owned()))
+            }
+            (LibretroContent::None | LibretroContent::Managed(_), Some(_)) => {
+                Err(CatalogError::LibraryContentRejected(package_id.to_owned()))
+            }
+        }
+    }
+}
+
+/// The content file, if any, one resolved libretro launch carries.
+struct ResolvedContent {
+    root: Option<PathBuf>,
+    path: Option<PathBuf>,
+    sha256: Option<ExpectedSha256>,
 }
 
 /// Trusted native adapter request derived from an installed package.
@@ -495,6 +614,28 @@ impl TrustedPackageCatalog {
 pub enum ResolvedPackage {
     Libretro(Box<RetroArchRequest>),
     Native(NativePackageRequest),
+}
+
+/// One host-selected library entry offered to a library-content package.
+///
+/// Every field is host state read from the console-managed retro library. The
+/// browser contributes only the entry ID that selected it, never a path, a
+/// digest, a core, or an argument.
+#[derive(Clone, Copy, Debug)]
+pub struct LibraryContentRequest<'a> {
+    pub entry_id: &'a str,
+    pub system_id: &'a str,
+    pub core_id: &'a str,
+    pub sha256: &'a str,
+    pub object_root: &'a Path,
+    pub object_path: &'a Path,
+}
+
+/// The library system and core one signed package accepts.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PackageLibraryBinding<'a> {
+    pub system_id: &'a str,
+    pub core_id: &'a str,
 }
 
 /// Signed package metadata safe to disclose to the trusted launcher.
@@ -554,7 +695,26 @@ struct LibretroPackage {
     core: InstalledFile,
     base_config: InstalledFile,
     auxiliary: Vec<InstalledAuxiliary>,
-    content: Option<ManagedContent>,
+    content: LibretroContent,
+}
+
+/// What content, if any, one signed libretro package may load.
+#[derive(Clone, Debug)]
+enum LibretroContent {
+    /// The package starts its core with no content file.
+    None,
+    /// The package binds exactly one content file by signed path and digest.
+    Managed(ManagedContent),
+    /// The package accepts one entry of the host's installed retro library,
+    /// selected per launch, restricted to the signed system and core.
+    Library(LibraryBinding),
+}
+
+/// The exact library system and core one signed package accepts.
+#[derive(Clone, Debug)]
+struct LibraryBinding {
+    system_id: String,
+    core_id: String,
 }
 
 #[derive(Clone, Debug)]
@@ -658,7 +818,16 @@ struct NativeDocument {
 #[serde(tag = "mode", rename_all = "kebab-case", deny_unknown_fields)]
 enum ContentDocument {
     None,
-    Managed { path: PathBuf, sha256: String },
+    Managed {
+        path: PathBuf,
+        sha256: String,
+    },
+    Library {
+        #[serde(rename = "systemId")]
+        system_id: String,
+        #[serde(rename = "coreId")]
+        core_id: String,
+    },
 }
 
 fn parse_installed_runtime(
@@ -786,9 +955,9 @@ fn parse_libretro_content(
     package_id: &str,
     content: ContentDocument,
     has_content_root: bool,
-) -> Result<Option<ManagedContent>, CatalogError> {
+) -> Result<LibretroContent, CatalogError> {
     match content {
-        ContentDocument::None => Ok(None),
+        ContentDocument::None => Ok(LibretroContent::None),
         ContentDocument::Managed { path, sha256 } => {
             if !has_content_root {
                 return Err(CatalogError::InvalidRecord(format!(
@@ -796,9 +965,21 @@ fn parse_libretro_content(
                 )));
             }
             validate_relative_file("content", &path)?;
-            Ok(Some(ManagedContent {
+            Ok(LibretroContent::Managed(ManagedContent {
                 path,
                 sha256: parse_hash("content", &sha256)?,
+            }))
+        }
+        // Library content lives in the console-managed retro object store, not
+        // beneath the catalog's managed content root, so this mode does not
+        // require that root. It names no file: the host selects one library
+        // entry per launch and rejects any entry outside this system and core.
+        ContentDocument::Library { system_id, core_id } => {
+            validate_intent_id("library system", &system_id)?;
+            validate_intent_id("library core", &core_id)?;
+            Ok(LibretroContent::Library(LibraryBinding {
+                system_id,
+                core_id,
             }))
         }
     }
@@ -849,6 +1030,10 @@ fn validate_runtime_name(package_id: &str, name: &str) -> Result<(), CatalogErro
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct BoundManifest {
+    /// Absent on the public curated-shelf document, which is never a bound
+    /// installed manifest. `Option` keeps the rejection diagnostic host-owned
+    /// instead of a serde missing-field string that cannot name the package.
+    document_type: Option<String>,
     schema_version: u32,
     id: String,
     version: String,
@@ -881,6 +1066,12 @@ fn verify_bound_manifest(
     let bytes = read_bounded(path, MAX_CATALOG_BYTES, "bound game manifest")?;
     let manifest: BoundManifest = serde_json::from_slice(&bytes)
         .map_err(|error| CatalogError::InvalidBoundManifest(error.to_string()))?;
+    if manifest.document_type.as_deref() != Some(INSTALLED_MANIFEST_DOCUMENT_TYPE) {
+        return Err(CatalogError::InvalidBoundManifest(format!(
+            "installed package {} must bind a manifest declaring documentType {INSTALLED_MANIFEST_DOCUMENT_TYPE}",
+            package.id
+        )));
+    }
     let expected_runtime = match package.runtime {
         InstalledRuntime::Libretro(_) => "libretro",
         InstalledRuntime::Native(_) => "native",
@@ -1090,7 +1281,7 @@ fn verify_sha256(
         source,
     })?;
     let mut digest = Sha256::new();
-    let mut buffer = [0_u8; 8 * 1_024];
+    let mut buffer = vec![0_u8; 64 * 1_024];
     loop {
         let read = file.read(&mut buffer).map_err(|source| CatalogError::Io {
             operation: "read file for integrity verification",
@@ -1109,6 +1300,8 @@ fn verify_sha256(
         Err(CatalogError::IntegrityMismatch {
             kind,
             path: path.to_owned(),
+            expected: *expected,
+            actual: ExpectedSha256::from_bytes(actual),
         })
     }
 }
@@ -1203,8 +1396,16 @@ pub enum CatalogError {
     IntegrityMismatch {
         kind: &'static str,
         path: PathBuf,
+        expected: ExpectedSha256,
+        actual: ExpectedSha256,
     },
     InvalidBoundManifest(String),
+    LibraryContentRejected(String),
+    LibraryContentRequired(String),
+    LibraryEntryIncompatible {
+        game_id: String,
+        entry_id: String,
+    },
 }
 
 impl fmt::Display for CatalogError {
@@ -1259,15 +1460,38 @@ impl fmt::Display for CatalogError {
                 write!(formatter, "installed catalog record is invalid: {error}")
             }
             Self::PackageNotFound(id) => write!(formatter, "installed package not found: {id}"),
-            Self::IntegrityMismatch { kind, path } => {
+            Self::IntegrityMismatch {
+                kind,
+                path,
+                expected,
+                actual,
+            } => {
                 write!(
                     formatter,
-                    "{kind} integrity check failed: {}",
+                    "{kind} SHA-256 mismatch at {}: expected {expected}, got {actual}",
                     path.display()
                 )
             }
             Self::InvalidBoundManifest(error) => {
                 write!(formatter, "bound game manifest is invalid: {error}")
+            }
+            Self::LibraryContentRejected(id) => {
+                write!(
+                    formatter,
+                    "installed package {id} does not accept library content"
+                )
+            }
+            Self::LibraryContentRequired(id) => {
+                write!(
+                    formatter,
+                    "installed package {id} requires one library entry"
+                )
+            }
+            Self::LibraryEntryIncompatible { game_id, entry_id } => {
+                write!(
+                    formatter,
+                    "library entry {entry_id} does not match the system and core of installed package {game_id}"
+                )
             }
         }
     }
@@ -1294,7 +1518,8 @@ pub(crate) mod tests {
     use sha2::{Digest, Sha256};
 
     use super::{
-        CatalogError, CatalogRoots, MAX_CATALOG_BYTES, PackageHealthCheck, PackageHealthPolicy,
+        CatalogError, CatalogRoots, INSTALLED_MANIFEST_DOCUMENT_TYPE, LibraryContentRequest,
+        MAX_CATALOG_BYTES, PackageHealthCheck, PackageHealthPolicy, PackageLibraryBinding,
         PackageSummary, ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog,
         current_target,
     };
@@ -1352,7 +1577,7 @@ pub(crate) mod tests {
             let base_config = retroarch.join("vcg-base.cfg");
             fs::write(
                 &manifest,
-                br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
+                br#"{"documentType":"vcg-installed-game-manifest","schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
             )
             .expect("write manifest");
             fs::write(&frontend, b"frontend fixture").expect("write frontend");
@@ -1470,10 +1695,24 @@ pub(crate) mod tests {
         fn publish_native(&self) {
             fs::write(
                 &self.manifest,
-                br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"native","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
+                br#"{"documentType":"vcg-installed-game-manifest","schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"native","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
             )
             .expect("write native manifest");
             self.sign_catalog(&self.native_document());
+        }
+
+        fn publish_library(&self, system_id: &str, core_id: &str) {
+            let document = String::from_utf8(
+                self.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+            )
+            .expect("catalog document is UTF-8")
+            .replace(
+                "\"content\":{\"mode\":\"none\"}",
+                &format!(
+                    "\"content\":{{\"mode\":\"library\",\"systemId\":\"{system_id}\",\"coreId\":\"{core_id}\"}}"
+                ),
+            );
+            self.sign_catalog(document.as_bytes());
         }
 
         fn publish_development(&self) {
@@ -1484,7 +1723,7 @@ pub(crate) mod tests {
             fs::write(
                 &self.manifest,
                 format!(
-                    "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\"runtime\":\"libretro\",\"compatibilityStatus\":\"{compatibility_status}\",\"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
+                    "{{\"documentType\":\"{INSTALLED_MANIFEST_DOCUMENT_TYPE}\",\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\"runtime\":\"libretro\",\"compatibilityStatus\":\"{compatibility_status}\",\"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
                 ),
             )
             .expect("write development manifest");
@@ -1497,6 +1736,27 @@ pub(crate) mod tests {
                 "\"qualification\":\"development\"",
             );
             self.sign_catalog(document.as_bytes());
+        }
+
+        /// Republishes the bound manifest with the supplied `documentType`
+        /// declaration, or with none when `document_type` is `None`.
+        fn publish_manifest_document_type(&self, document_type: Option<&str>) {
+            let declaration = document_type
+                .map(|value| format!("\"documentType\":\"{value}\","))
+                .unwrap_or_default();
+            fs::write(
+                &self.manifest,
+                format!(
+                    "{{{declaration}\"schemaVersion\":1,\"id\":\"retro-2048\",\
+                     \"version\":\"1.0.0\",\"runtime\":\"libretro\",\
+                     \"compatibilityStatus\":\"qualified\",\
+                     \"launch\":{{\"timeoutMs\":15000,\"healthCheck\":{{\"type\":\"process\"}}}}}}"
+                ),
+            )
+            .expect("write manifest document type");
+            self.sign_catalog(
+                &self.document(&current_target(), "packages/retro-2048/vcg-game.json"),
+            );
         }
 
         fn sign_catalog(&self, bytes: &[u8]) {
@@ -1541,6 +1801,18 @@ pub(crate) mod tests {
         let catalog = fixture
             .load()
             .expect("launchable signed fixture catalog loads");
+        (fixture, catalog)
+    }
+
+    /// A signed catalog whose one package accepts library content for exactly
+    /// the named system and core.
+    pub(crate) fn signed_library_catalog(
+        system_id: &str,
+        core_id: &str,
+    ) -> (Fixture, TrustedPackageCatalog) {
+        let fixture = Fixture::new();
+        fixture.publish_library(system_id, core_id);
+        let catalog = fixture.load().expect("signed library catalog loads");
         (fixture, catalog)
     }
 
@@ -2000,7 +2272,7 @@ pub(crate) mod tests {
         let fixture = Fixture::new();
         fs::write(
             &fixture.manifest,
-            br#"{"schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":8000,"healthCheck":{"type":"explicit-ready"}}}"#,
+            br#"{"documentType":"vcg-installed-game-manifest","schemaVersion":1,"id":"retro-2048","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":8000,"healthCheck":{"type":"explicit-ready"}}}"#,
         )
         .expect("replace signed health policy");
         fixture.sign_catalog(
@@ -2025,7 +2297,8 @@ pub(crate) mod tests {
             fs::write(
                 &fixture.manifest,
                 format!(
-                    "{{\"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\
+                    "{{\"documentType\":\"{INSTALLED_MANIFEST_DOCUMENT_TYPE}\",\
+                     \"schemaVersion\":1,\"id\":\"retro-2048\",\"version\":\"1.0.0\",\
                      \"runtime\":\"libretro\",\"compatibilityStatus\":\"qualified\",\
                      \"launch\":{{{launch}}}}}"
                 ),
@@ -2068,7 +2341,7 @@ pub(crate) mod tests {
         let fixture = Fixture::new();
         fs::write(
             &fixture.manifest,
-            br#"{"schemaVersion":1,"id":"another-game","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
+            br#"{"documentType":"vcg-installed-game-manifest","schemaVersion":1,"id":"another-game","version":"1.0.0","runtime":"libretro","compatibilityStatus":"qualified","launch":{"timeoutMs":15000,"healthCheck":{"type":"process"}}}"#,
         )
         .expect("replace manifest identity");
         fixture.sign_catalog(
@@ -2078,6 +2351,139 @@ pub(crate) mod tests {
         assert!(matches!(
             catalog.resolve("retro-2048", "player-one"),
             Err(CatalogError::InvalidBoundManifest(_))
+        ));
+    }
+
+    #[test]
+    fn bound_manifests_must_declare_the_installed_document_type() {
+        let fixture = Fixture::new();
+        fixture.publish_manifest_document_type(Some(INSTALLED_MANIFEST_DOCUMENT_TYPE));
+        let catalog = fixture.load().expect("catalog loads");
+        assert_eq!(
+            catalog
+                .package_health_policy("retro-2048")
+                .expect("installed document type resolves"),
+            PackageHealthPolicy {
+                timeout: Duration::from_secs(15),
+                check: PackageHealthCheck::Process,
+            }
+        );
+        catalog
+            .verify_all_artifacts()
+            .expect("installed document type verifies");
+
+        for document_type in [None, Some("vcg-game-manifest")] {
+            let fixture = Fixture::new();
+            fixture.publish_manifest_document_type(document_type);
+            let catalog = fixture
+                .load()
+                .expect("catalog signature remains independently valid");
+            let Err(CatalogError::InvalidBoundManifest(message)) =
+                catalog.package_health_policy("retro-2048")
+            else {
+                panic!("{document_type:?} is not an installed-root manifest and must be rejected");
+            };
+            assert!(
+                message.contains("retro-2048")
+                    && message.contains(INSTALLED_MANIFEST_DOCUMENT_TYPE),
+                "rejection names the package and the required document type: {message}"
+            );
+            assert!(matches!(
+                catalog.verify_all_artifacts(),
+                Err(CatalogError::InvalidBoundManifest(_))
+            ));
+            assert!(matches!(
+                catalog.resolve("retro-2048", "player-one"),
+                Err(CatalogError::InvalidBoundManifest(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn library_packages_accept_only_their_signed_system_and_core() {
+        let (fixture, catalog) = signed_library_catalog("nes", "mesen");
+        assert_eq!(
+            catalog
+                .package_library_binding("retro-2048")
+                .expect("library binding reads"),
+            Some(PackageLibraryBinding {
+                system_id: "nes",
+                core_id: "mesen",
+            })
+        );
+
+        let object_root = fixture.root.join("objects");
+        fs::create_dir_all(&object_root).expect("object root creates");
+        let object = object_root.join("nes-library-object.nes");
+        fs::write(&object, b"library content fixture").expect("library object writes");
+        let sha256 = digest_path(&object);
+        let entry_id = format!("content-{sha256}");
+        let entry = LibraryContentRequest {
+            entry_id: &entry_id,
+            system_id: "nes",
+            core_id: "mesen",
+            sha256: &sha256,
+            object_root: &object_root,
+            object_path: &object,
+        };
+
+        let ResolvedPackage::Libretro(request) = catalog
+            .resolve_with_library_content("retro-2048", "player-one", Some(entry))
+            .expect("library entry resolves")
+        else {
+            panic!("library fixture must resolve as libretro");
+        };
+        assert_eq!(request.content, Some(object.clone()));
+        assert_eq!(request.content_root, Some(object_root.clone()));
+        assert!(request.content_sha256.is_some());
+        plan_retroarch(&request).expect("resolved library content passes the adapter");
+
+        fs::write(&object, b"changed library content").expect("library object tamper writes");
+        assert!(matches!(
+            plan_retroarch(&request),
+            Err(RetroArchError::HashMismatch {
+                kind: "content",
+                ..
+            })
+        ));
+
+        assert!(matches!(
+            catalog.resolve("retro-2048", "player-one"),
+            Err(CatalogError::LibraryContentRequired(_))
+        ));
+        let foreign = LibraryContentRequest {
+            system_id: "gb",
+            ..entry
+        };
+        assert!(matches!(
+            catalog.resolve_with_library_content("retro-2048", "player-one", Some(foreign)),
+            Err(CatalogError::LibraryEntryIncompatible { .. })
+        ));
+        let other_core = LibraryContentRequest {
+            core_id: "snes9x",
+            ..entry
+        };
+        assert!(matches!(
+            catalog.resolve_with_library_content("retro-2048", "player-one", Some(other_core)),
+            Err(CatalogError::LibraryEntryIncompatible { .. })
+        ));
+
+        let (_fixed, fixed) = signed_catalog();
+        assert_eq!(
+            fixed
+                .package_library_binding("retro-2048")
+                .expect("fixed binding reads"),
+            None
+        );
+        assert!(matches!(
+            fixed.resolve_with_library_content("retro-2048", "player-one", Some(entry)),
+            Err(CatalogError::LibraryContentRejected(_))
+        ));
+
+        let (_native_fixture, native) = signed_native_catalog();
+        assert!(matches!(
+            native.resolve_with_library_content("retro-2048", "player-one", Some(entry)),
+            Err(CatalogError::LibraryContentRejected(_))
         ));
     }
 
@@ -2113,8 +2519,8 @@ pub(crate) mod tests {
 #[cfg(test)]
 mod more_tests {
     use super::{
-        CatalogError, CatalogRoots, ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog,
-        current_target,
+        CatalogError, CatalogRoots, INSTALLED_MANIFEST_DOCUMENT_TYPE, LibraryContentRequest,
+        ResolvedPackage, SIGNED_MESSAGE_PREFIX, TrustedPackageCatalog, current_target,
     };
     use crate::retroarch::plan as plan_retroarch;
     use ed25519_dalek::{Signer, SigningKey};
@@ -2428,6 +2834,45 @@ mod more_tests {
     }
 
     #[test]
+    fn a_fixed_managed_content_package_rejects_every_library_entry() {
+        let fixture = Fixture::new();
+        let content_path = fixture.content_root.join("retro/2048.rom");
+        fs::create_dir_all(content_path.parent().expect("content has a parent"))
+            .expect("content directory creates");
+        fs::write(&content_path, b"managed content").expect("managed content writes");
+        let mut document = fixture.document();
+        document["packages"][0]["libretro"]["content"] = json!({
+            "mode": "managed",
+            "path": relative_text(&fixture.content_root, &content_path),
+            "sha256": file_hash(&content_path),
+        });
+        fixture.publish(&document);
+        let catalog = fixture.load().expect("managed-content catalog loads");
+
+        assert_eq!(
+            catalog
+                .package_library_binding("retro-2048")
+                .expect("managed binding reads"),
+            None
+        );
+        assert!(matches!(
+            catalog.resolve_with_library_content(
+                "retro-2048",
+                "player-one",
+                Some(LibraryContentRequest {
+                    entry_id: "content-0000000000000000000000000000000000000000000000000000000000000000",
+                    system_id: "nes",
+                    core_id: "mesen",
+                    sha256: "0000000000000000000000000000000000000000000000000000000000000000",
+                    object_root: &fixture.content_root,
+                    object_path: &content_path,
+                }),
+            ),
+            Err(CatalogError::LibraryContentRejected(_))
+        ));
+    }
+
+    #[test]
     fn rejects_unknown_packages_invalid_profiles_and_changed_base_config() {
         let fixture = Fixture::new();
         fixture.publish(&fixture.document());
@@ -2465,6 +2910,7 @@ mod more_tests {
 
     fn manifest_bytes(id: &str, version: &str, status: &str) -> Vec<u8> {
         serde_json::to_vec_pretty(&json!({
+            "documentType": INSTALLED_MANIFEST_DOCUMENT_TYPE,
             "schemaVersion": 1,
             "id": id,
             "version": version,

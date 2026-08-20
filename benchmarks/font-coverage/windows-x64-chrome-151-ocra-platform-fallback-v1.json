@@ -67,8 +67,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/?input=controller": 1,
-      "/assets/main-DkW_2HAg.js": 1,
-      "/assets/main-yNlNXqLs.css": 1,
+      "/assets/main-CLnxuYw1.js": 1,
+      "/assets/main-D0_6oU1A.css": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-DJk9Nbrx.js": 1,
       "/assets/synthetic-BxnOr_Mh.js": 1,
@@ -95,15 +95,15 @@
   },
   "provenance": {
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73",
+    "stylePathSha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "341a401f3eac612bbf1e4da17fb0cff28fce159d087f1fd377dae6c54907aa4d",
+    "baseEvidencePathSha256": "c14232db56b8551154a638574abd3017b5fc1cf7897671ed40dd749abe9dadea",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
     "generatorPathSha256": "036f771325af1a0a4ecef81742455161754c73f981345bf3ed552c119caf0965",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "1a6d8dbf6129674ac7dabcad6bb38241a1b58841d50329cc4333b5cdbe8fe32e",
-    "baseEvidenceBytes": 45231,
-    "baseEvidenceSha256": "341a401f3eac612bbf1e4da17fb0cff28fce159d087f1fd377dae6c54907aa4d",
+    "validatorPathSha256": "9fe8b2eae132d3efed8f1491743915849a94e36e5cf9dc5c2f79382a809388b5",
+    "baseEvidenceBytes": 46634,
+    "baseEvidenceSha256": "c14232db56b8551154a638574abd3017b5fc1cf7897671ed40dd749abe9dadea",
     "productionSourceTree": {
       "roots": [
         "package.json",
@@ -120,8 +120,8 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 161,
-      "sha256": "78f2be146f1b3d718ca0db99c0d09804d698d0b164aed99f6e1b1a62e3678640"
+      "fileCount": 168,
+      "sha256": "c7658d00c18ba8b94423e05e7d3fb38d2e9eb00c95bc9bb0708fa5c55b1fd4b7"
     }
   },
   "disposition": {

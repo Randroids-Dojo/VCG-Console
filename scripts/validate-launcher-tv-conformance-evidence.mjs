@@ -125,8 +125,8 @@ const observationExpectations = Object.freeze({
 });
 const expectedRequestCounts = Object.freeze({
   "/": 3,
-  "/assets/main-yNlNXqLs.css": 3,
-  "/assets/main-DkW_2HAg.js": 3,
+  "/assets/main-CLnxuYw1.js": 3,
+  "/assets/main-D0_6oU1A.css": 3,
   "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
   "/assets/src-DJk9Nbrx.js": 3,
   "/assets/synthetic-BxnOr_Mh.js": 3,

@@ -30,7 +30,7 @@
     {
       "role": "complete-two-player-prerequisite-boundary",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "509edd4aa6f8f578128f1bc071d8630c49724be9c98fd45647900a89cac8fcf0"
+      "sha256": "84c13b81f42b15afc13d01ca2dd3876043ad552d27a96cee78739bb5b6f2dcab"
     },
     {
       "role": "synthetic-accessibility-support-nonqualification-boundary",
@@ -40,7 +40,7 @@
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "4fe5f87540a27f74503784d7f97d74016294a16e54aadaa61b6077e06e0742dd"
+      "sha256": "696fa3c9d459025638e3f44316c457b360cb2bd48dab7b5cf1b269996381be40"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -55,7 +55,7 @@
     {
       "role": "canonical-controller-and-reserved-action-boundary",
       "path": "docs/CONTROLLER_INPUT.md",
-      "sha256": "1c50a5a24ea2734c1b259ff7d9ed986beffaf33d13f55b8a0ff512cd23a15d16"
+      "sha256": "e7f2b1cef9001605f66a631b1239707d3921318841a9abc3261e5ef2255b5f31"
     },
     {
       "role": "offline-and-hosted-service-separation-boundary",
@@ -70,7 +70,7 @@
     {
       "role": "runtime-neutral-signed-local-package-boundary",
       "path": "benchmarks/signed-local-package/runtime-neutral-signed-local-package-plan-v1.json",
-      "sha256": "9f7674cfc7797687fcb5dae0560de6157fa2ad095f2e433c3d5a3f40a0867edb"
+      "sha256": "8c498e95683d23671504cff484206ed83b4e83bc8bc72e57fbe4afcb282d2f0f"
     },
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",

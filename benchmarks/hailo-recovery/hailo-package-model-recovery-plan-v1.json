@@ -12,7 +12,7 @@
     {
       "role": "system-update-and-recovery-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "blocked-pi-hailo-image-plan",
@@ -37,7 +37,7 @@
     {
       "role": "delegated-update-trust",
       "path": "native/vcg-host/src/update_trust.rs",
-      "sha256": "5ca5bacf6f7f10df2063cdd1eb4b311b0370e82755ebe0ed828498d5b5c6d0db"
+      "sha256": "13a3160153c03b13fb746daeeabd2803d49c38c13d4781875d3a9d2cecaec7aa"
     },
     {
       "role": "signed-system-image-verification",

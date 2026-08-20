@@ -724,8 +724,8 @@
       }
     ],
     "productionSource": {
-      "fileCount": 115,
-      "totalBytes": 1079344,
+      "fileCount": 121,
+      "totalBytes": 1185641,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.test.ts",
@@ -894,8 +894,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 57515,
-          "sha256": "f4b0f4da816a46c967c1642d9644abcbf40b8d14851f2c5d22d1c7dfa4dfbcd0"
+          "bytes": 63064,
+          "sha256": "e8355fe0f1787b3600716ef7ac2be6a121ae63d0110e76395dee024c1529cd2d"
         },
         {
           "path": "apps/console-lab/src/launcher/PortraitCaptureView.svelte",
@@ -911,6 +911,11 @@
           "path": "apps/console-lab/src/launcher/ProfilesView.svelte",
           "bytes": 2714,
           "sha256": "dc4e8eebaa77cb34c05d0fffe5598bfa72b3f34abb14598458e8353da77696a4"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/RetroLibraryView.svelte",
+          "bytes": 12462,
+          "sha256": "943445e0027e651ac78efdac0a2371356a0d0516b11e94c94aba2486a034cd0d"
         },
         {
           "path": "apps/console-lab/src/launcher/SearchOverlay.svelte",
@@ -964,8 +969,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/catalog.generated.ts",
-          "bytes": 3882,
-          "sha256": "eb397879e05388d21b8d4e48266d5ced298fa6cfe26ce32630524c137d055422"
+          "bytes": 6541,
+          "sha256": "8be4af3eb0c17e7a3a2cddcf121346597d64af6765f20a772aa2433be0d2bf54"
         },
         {
           "path": "apps/console-lab/src/launcher/circuit-shift.test.ts",
@@ -976,6 +981,16 @@
           "path": "apps/console-lab/src/launcher/circuit-shift.ts",
           "bytes": 6597,
           "sha256": "5abf3bad3591d388fb8cb90b02aabea68ff586ecba6a5904538b79fb0fb9973f"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/controller-launch-gate.test.ts",
+          "bytes": 5051,
+          "sha256": "202ba3435d5fedbec4506b74dcf7332487f65ae819f6acc0ef1f7164ab94c0bc"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/controller-launch-gate.ts",
+          "bytes": 4580,
+          "sha256": "09f5ab8395c5bcfea671bd5ab55dd37207e8f5ff9d4f2d03092fcc22bc0a154e"
         },
         {
           "path": "apps/console-lab/src/launcher/hosted-browser-preview.test.ts",
@@ -1078,9 +1093,19 @@
           "sha256": "d8d210b2a28a934346a5c269fd55adb26c59a7653afbe30bdca1b216198409f2"
         },
         {
+          "path": "apps/console-lab/src/launcher/retro-library.test.ts",
+          "bytes": 20481,
+          "sha256": "9c9f9094c1c2c21dca3248c90140097f3c08ea2caac6b83d33eaa83d065ce5c1"
+        },
+        {
+          "path": "apps/console-lab/src/launcher/retro-library.ts",
+          "bytes": 21843,
+          "sha256": "fde975de02873a10c0a83566dda97999854d837b4c4bb7237f1f51527adc8e4a"
+        },
+        {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1718,
-          "sha256": "3a9289568e792235748909e18cb9a19060814aa0b86d29b6f71169fdf5f56db0"
+          "bytes": 1738,
+          "sha256": "bacb372596c64b237f4cd2d9a1318586b8ea81d10420efc1f91dcb49fbbbb63f"
         },
         {
           "path": "apps/console-lab/src/launcher/unassigned-progress.test.ts",
@@ -1154,8 +1179,13 @@
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
-          "bytes": 32075,
-          "sha256": "84911e493159eefff339f6cd7254572b46571f07f20ddbf752b80fa31430908a"
+          "bytes": 44514,
+          "sha256": "5c9f230c818d946dd90d541e51daf112bd189cb2c718b0b1703d3ea630acf9dd"
+        },
+        {
+          "path": "apps/console-lab/src/native-host-library-client.test.ts",
+          "bytes": 15063,
+          "sha256": "e7d78fb533a0c9b8e334a2b2a02e9715643df6f5525336f3d933f71081f26d42"
         },
         {
           "path": "apps/console-lab/src/obstacle-game.ts",
@@ -1229,8 +1259,8 @@
         },
         {
           "path": "apps/console-lab/src/styles.css",
-          "bytes": 131173,
-          "sha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73"
+          "bytes": 137323,
+          "sha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1318,13 +1348,14 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                801,
-                868,
-                885,
-                898,
-                982,
-                1162,
-                1180
+                835,
+                922,
+                939,
+                952,
+                1008,
+                1094,
+                1274,
+                1292
               ]
             },
             {
@@ -1386,7 +1417,11 @@
                 68,
                 89,
                 113,
-                136
+                136,
+                158,
+                181,
+                204,
+                227
               ]
             },
             {
@@ -1434,9 +1469,11 @@
             {
               "path": "apps/console-lab/src/native-host-client.ts",
               "lines": [
-                260,
-                346,
-                448
+                313,
+                399,
+                500,
+                638,
+                645
               ]
             }
           ]
@@ -1459,7 +1496,7 @@
     "preparationScriptPath": "scripts/prepare-assets.mjs",
     "preparationScriptPathSha256": "efe09aa5586d41eae4b3be0451122fe0767c46e67fe0d4f67f6b510f0bb402fb",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "7314738062d5e8e7edbe61378c165043dbe99458348315b662b85f427b61ac73",
+    "stylePathSha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a",
     "parserPath": "scripts/ttf-inventory.mjs",
     "parserPathSha256": "7c67b6878a1f83a1e8ed98ccc38399365a83020533b3651e5dbc7ab53cb0610c",
     "generatorPath": "scripts/generate-ocra-font-evidence.mjs",

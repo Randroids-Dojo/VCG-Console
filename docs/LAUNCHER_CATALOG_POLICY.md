@@ -42,7 +42,7 @@ The generated artifact selects only presentation and routing facts: ID, version,
 - Home and museum destination copy use the canonical museum title and origin.
 - Museum previews enumerate the three hosted compatibility manifests in policy order.
 - Universal search derives every visible game title, runtime, network class, compatibility state, and search terms from the generated artifact.
-- The retro list derives the 2048 candidate's title, ID, summary, position, and status from the same artifact.
+- The retro list derives every curated retro entry's title, ID, summary, position, and status from the same artifact. It holds the 2048 qualification candidate and the operator-selected managed-content titles. The operator's imported collection is not here: it reaches the shell through the host's own paged retro-library endpoint, so adding content changes no generated artifact and costs no browser evidence regeneration.
 - Local and remote loading supervisors consume the policy budgets instead of component-local constants.
 - The authenticated native host supplies a separately bounded signed-package inventory. The shell refreshes it at startup, on Retro entry, and when focus returns; concurrent triggers share one request. It shows `Installed` and increments the home total only for exact generated-catalog ID/version/runtime matches. Before launch submission, it requires the selected release to remain in the current inventory and the per-ID response to match that inventory generation plus the selected version/runtime. It reports catalog absence honestly and does not reveal unknown signed packages as public entries or counts.
 

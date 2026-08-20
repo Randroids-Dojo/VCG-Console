@@ -12,7 +12,7 @@
     {
       "role": "package-and-runtime-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "public-game-manifest-contract",
@@ -37,12 +37,12 @@
     {
       "role": "signed-installed-catalog",
       "path": "native/vcg-host/src/installed_catalog.rs",
-      "sha256": "db0656fd7844fa67a87dfe060a6abc68724d2bd22bfff7aa4a9a59918d9bfc28"
+      "sha256": "ecd670ca633ba5d25071ad86c30483a86a75b0cb15813ddc445aab17b9252011"
     },
     {
       "role": "protected-package-generation-store",
       "path": "native/vcg-host/src/package_generation.rs",
-      "sha256": "b10351b81e2b3b6d177e5fb4126040e62b6c111ac334f393938103211e912d9d"
+      "sha256": "9969632e95ecc9b06d5d7cbb4a3da878e89a7127ca1b98593a27b77b17e756b5"
     },
     {
       "role": "shared-package-launch-dispatch",

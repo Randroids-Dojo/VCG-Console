@@ -13,6 +13,7 @@ use ed25519_dalek::{Signer, SigningKey};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use tar::{Builder, EntryType, Header};
+use vcg_host::installed_catalog::INSTALLED_MANIFEST_DOCUMENT_TYPE;
 use vcg_host::package_generation::{
     PackageGenerationConfig, PackageGenerationStore, ProtectedPackageGenerationState,
 };
@@ -572,7 +573,7 @@ fn stage_release_tree(
 }
 
 impl StagedTree {
-    /// Writes the author-facing game manifest and returns it with the exact
+    /// Writes the installed-root game manifest and returns it with the exact
     /// frontend and core digests every later stage must reuse.
     fn write_package_manifest(
         &self,
@@ -581,6 +582,7 @@ impl StagedTree {
         let frontend_hash = digest_file(&self.frontend)?;
         let core_hash = digest_file(&self.core)?;
         let manifest_document = json!({
+        "documentType": INSTALLED_MANIFEST_DOCUMENT_TYPE,
         "schemaVersion": 1,
         "id": PACKAGE_ID,
         "version": PACKAGE_VERSION,

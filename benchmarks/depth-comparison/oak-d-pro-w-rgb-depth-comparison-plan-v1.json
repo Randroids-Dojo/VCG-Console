@@ -17,7 +17,7 @@
     {
       "role": "rgb-depth-product-decisions",
       "path": "docs/DECISIONS.md",
-      "sha256": "d62993fa92298302d6b7520d864ecacc358e33e55c0db8f7103a083725772eb0"
+      "sha256": "03d0972991d2c26990f33ca9bca559df03181cbee8abd21aff5943e8bc4631b0"
     },
     {
       "role": "active-play-safety-boundary",
@@ -37,12 +37,12 @@
     {
       "role": "lens-calibration-plan",
       "path": "benchmarks/lens-calibration/cross-tier-lens-distortion-rectification-plan-v1.json",
-      "sha256": "fa06814f42954728c932b4e720375cf13ed620ff9f12a55136a0a16c3e23b29a"
+      "sha256": "99698d7bb396e6d8ced5893464a16cd6d8cad53eea4f3f630b4348a66bf5935f"
     },
     {
       "role": "visual-robustness-plan",
       "path": "benchmarks/visual-robustness/cross-tier-visual-robustness-plan-v1.json",
-      "sha256": "56cd06247c186d4b138f106d836da8d8d83b74bf6dea5e92f9fcfa8df6d58aa9"
+      "sha256": "1469ff23908016ce462d43a9fb84fae455f2529b2f1948029ba94f570fc42fe7"
     },
     {
       "role": "rgb-depth-floor-contact-plan",
