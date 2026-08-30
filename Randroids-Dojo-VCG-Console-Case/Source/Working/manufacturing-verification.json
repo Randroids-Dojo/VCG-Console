@@ -1,0 +1,53 @@
+{
+  "stl": {
+    "VCG-Console-Case-Bottom.stl": {
+      "sha256": "AAB488FA02414DC57D4EFC83D3168A6DC15523327A5D7B89EB989B654160825A",
+      "bytes": 4922284,
+      "facets": 98444,
+      "points": 49124,
+      "is_solid": true
+    },
+    "VCG-Console-Case-Lid-Randroids-Dojo.stl": {
+      "sha256": "48F3B0FAA1F14FA793555ECB2B733677FF9B7F94CB7BC9BD4225E024A905D854",
+      "bytes": 1363984,
+      "facets": 27278,
+      "points": 13403,
+      "is_solid": true
+    },
+    "VCG-Console-Randroids-Dojo-Logo-Insert.stl": {
+      "sha256": "64DBF81B66F89967D5B674D2002EAA7AC64E4500F5F37382296AFA11E321ACD6",
+      "bytes": 340684,
+      "facets": 6812,
+      "points": 3388,
+      "is_solid": true
+    }
+  },
+  "3mf": {
+    "VCG-Console-Case-Bottom.3mf": {
+      "sha256": "BE47E77193DFE0DD51A1792341852F74AB91EFE5EF947B50DFD6BBE37447F7D4",
+      "bytes": 1168361,
+      "required_package_parts_present": true,
+      "vertices": 49124,
+      "triangles": 98444,
+      "build_items": 1
+    },
+    "VCG-Console-Case-Lid-Randroids-Dojo.3mf": {
+      "sha256": "0F8F5C8D96BB2C263BA5F7F156EE0A847D51B61EA6BD84D400F00108D3EDE974",
+      "bytes": 363556,
+      "required_package_parts_present": true,
+      "vertices": 13403,
+      "triangles": 27278,
+      "build_items": 1
+    },
+    "VCG-Console-Randroids-Dojo-Logo-Insert.3mf": {
+      "sha256": "4F0492B905F55C468A4D3977BB968AE98B3C561105579D2FC47F6FF4B6B4075D",
+      "bytes": 59332,
+      "required_package_parts_present": true,
+      "vertices": 3388,
+      "triangles": 6812,
+      "build_items": 1
+    }
+  },
+  "all_stl_solid": true,
+  "all_3mf_packages_valid": true
+}
