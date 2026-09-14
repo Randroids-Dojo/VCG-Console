@@ -508,11 +508,13 @@ pub(crate) mod tests {
         } else {
             ""
         };
-        write!(
-            stream,
+        // Build before writing so scheduling between formatting fragments cannot
+        // exhaust the server's bounded header-read timeout on a busy runner.
+        let request = format!(
             "{method} {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: http://127.0.0.1:5173\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
             body.len()
-        )?;
+        );
+        stream.write_all(request.as_bytes())?;
         Ok(stream)
     }
 
