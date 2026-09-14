@@ -1,17 +1,16 @@
 //! Retro import recovery.
 
+use super::filesystem::StagedPayloadFile;
 use super::{
     CommitAction, MAX_AUDIT_RECORD_BYTES, MAX_LIBRARY_DOCUMENT_BYTES, MAX_SCAN_RECEIPT_BYTES,
-    NativeAuditRecord, PENDING_INTENT_FILE, PendingInstall, ResumePending,
-    RetroContentScanner, RetroImportCommitIntent, RetroImportError, RetroImportStore,
-    RetroInstalledLibrary, RetroScanEvidence, RetroScanRequest, RetroScanStatus,
-    build_next_library, fs, io, outcome_from_pending, path_exists, publish_new_file_resumable,
-    read_audit, read_library, read_scan_receipt, remove_regular_file_if_present, replacement_entry,
-    require_direct_directory, require_regular_file, serialized_bounded,
-    sync_directory, validate_audit, validate_library, validate_pending, validate_scan_evidence,
-    write_new_synced_file,
+    NativeAuditRecord, PENDING_INTENT_FILE, PendingInstall, ResumePending, RetroContentScanner,
+    RetroImportCommitIntent, RetroImportError, RetroImportStore, RetroInstalledLibrary,
+    RetroScanEvidence, RetroScanRequest, RetroScanStatus, build_next_library, fs, io,
+    outcome_from_pending, path_exists, publish_new_file_resumable, read_audit, read_library,
+    read_scan_receipt, remove_regular_file_if_present, replacement_entry, require_direct_directory,
+    require_regular_file, serialized_bounded, sync_directory, validate_audit, validate_library,
+    validate_pending, validate_scan_evidence, write_new_synced_file,
 };
-use super::filesystem::StagedPayloadFile;
 
 impl RetroImportStore {
     pub(super) fn resume_pending(
@@ -64,7 +63,9 @@ impl RetroImportStore {
         let mut payload_file = StagedPayloadFile::open(&payload)?;
         match payload_file.verify(entry.size_bytes, &entry.sha256) {
             Ok(()) => {}
-            Err(RetroImportError::CommittedContentMismatch) => return Ok(ResumePending::Incomplete),
+            Err(RetroImportError::CommittedContentMismatch) => {
+                return Ok(ResumePending::Incomplete);
+            }
             Err(error) => return Err(error),
         }
 

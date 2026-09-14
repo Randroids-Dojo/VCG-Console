@@ -948,8 +948,8 @@ fn recovery_resumes_published_object_and_resumable_library_temp() {
         .copy_source_to_stage(&pending, &mut source)
         .expect("copy stage");
     let stage = fixture.store.stage_directory(&pending);
-    let mut payload = super::filesystem::StagedPayloadFile::open(&stage.join("payload"))
-        .expect("open stage");
+    let mut payload =
+        super::filesystem::StagedPayloadFile::open(&stage.join("payload")).expect("open stage");
     let scan = RetroImportStore::scan_staged(&pending, &mut payload, &mut FakeScanner::clean())
         .expect("scan stage");
     write_new_synced_file(
@@ -999,7 +999,9 @@ fn staged_publication_keeps_the_scanned_file_identity() {
     let path = fixture.store.stage_directory(&pending).join("payload");
     let mut payload = super::filesystem::StagedPayloadFile::open(&path).expect("open payload");
     let entry = pending.intent.install_entry_required().expect("entry");
-    payload.verify(entry.size_bytes, &entry.sha256).expect("verify");
+    payload
+        .verify(entry.size_bytes, &entry.sha256)
+        .expect("verify");
     let mut scanner = FakeScanner::clean();
     RetroImportStore::scan_staged(&pending, &mut payload, &mut scanner).expect("scan");
     assert_eq!(scanner.observed, bytes);
@@ -1013,10 +1015,18 @@ fn staged_publication_keeps_the_scanned_file_identity() {
         assert!(fs::rename(&path, fixture.root.join("held-original")).is_err());
         assert!(fs::write(&path, b"substituted content").is_err());
     }
-    payload.verify(entry.size_bytes, &entry.sha256).expect("verify held file");
+    payload
+        .verify(entry.size_bytes, &entry.sha256)
+        .expect("verify held file");
     payload.seal().expect("seal held file");
-    fixture.store.publish_content_object(&pending, &payload).expect("publish held file");
-    assert_eq!(fs::read(fixture.store.final_object_path(entry)).expect("published bytes"), bytes);
+    fixture
+        .store
+        .publish_content_object(&pending, &payload)
+        .expect("publish held file");
+    assert_eq!(
+        fs::read(fixture.store.final_object_path(entry)).expect("published bytes"),
+        bytes
+    );
 }
 
 #[test]
@@ -1336,8 +1346,8 @@ fn exact_cancel_and_operation_lock_fail_closed() {
         .copy_source_to_stage(&published, &mut source)
         .expect("stage published transaction");
     let stage = fixture.store.stage_directory(&published);
-    let mut payload = super::filesystem::StagedPayloadFile::open(&stage.join("payload"))
-        .expect("open stage");
+    let mut payload =
+        super::filesystem::StagedPayloadFile::open(&stage.join("payload")).expect("open stage");
     let scan = RetroImportStore::scan_staged(&published, &mut payload, &mut FakeScanner::clean())
         .expect("scan published transaction");
     write_new_synced_file(
@@ -2241,10 +2251,12 @@ fn provisioning_replay_requires_the_original_audit_bindings() {
         ));
     }
     fs::write(&audit_path, original).expect("restore audit");
-    assert!(fixture
-        .store
-        .provision_operator_content(&payload, &policy)
-        .is_ok());
+    assert!(
+        fixture
+            .store
+            .provision_operator_content(&payload, &policy)
+            .is_ok()
+    );
     assert_eq!(fixture.library().generation, 2);
 }
 
