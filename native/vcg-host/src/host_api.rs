@@ -1451,8 +1451,10 @@ fn write_response(
     } else {
         "application/json; charset=utf-8"
     };
-    write!(
-        stream,
+    // Serialize the bounded response before touching the socket. Formatting
+    // directly into TcpStream splits headers into small writes that can stall
+    // behind delayed acknowledgements within the write deadline on Windows.
+    let response = format!(
         concat!(
             "HTTP/1.1 {} {}\r\n",
             "Content-Length: {}\r\n",
@@ -1473,7 +1475,8 @@ fn write_response(
         content_type,
         allowed_origin,
         body
-    )?;
+    );
+    stream.write_all(response.as_bytes())?;
     stream.flush()
 }
 

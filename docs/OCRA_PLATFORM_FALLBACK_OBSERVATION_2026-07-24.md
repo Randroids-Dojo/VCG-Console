@@ -41,6 +41,8 @@ The reviewed capture is
 The dated narrative describes the original desk run. Linked artifacts and
 PNGs contain the current capture edition; their JSON records the actual capture
 date, installed browser version, Node version, and observed font selections.
+The current capture uses an optimized lab build and the shared console CSS font
+stack; it does not qualify the separate appliance build.
 The original environment was:
 
 - Windows x64 development host;

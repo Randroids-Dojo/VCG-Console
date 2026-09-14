@@ -9,7 +9,7 @@ use super::{
 };
 use std::io::{Seek, SeekFrom};
 
-/// Holds one staged inode through hashing, scanning, sealing, and publication.
+/// Holds one staged inode through hashing, scanning, and publication.
 pub(super) struct StagedPayloadFile {
     pub(super) file: File,
     path: PathBuf,
@@ -67,16 +67,18 @@ impl StagedPayloadFile {
         })
     }
 
-    // Windows is already sealed by the sharing mode of the held handle.
+    // The host's copy writer is closed before this handle is opened. Unix mode
+    // bits restrict new opens, not existing descriptors or the privileged owner.
+    // Windows already excludes writers through this handle's sharing mode.
     #[cfg_attr(not(unix), allow(clippy::unnecessary_wraps, clippy::unused_self))]
-    pub(super) fn seal(&self) -> Result<(), RetroImportError> {
+    pub(super) fn make_read_only(&self) -> Result<(), RetroImportError> {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             self.file
                 .set_permissions(fs::Permissions::from_mode(0o400))
                 .map_err(|source| RetroImportError::Io {
-                    operation: "seal staged retro content handle",
+                    operation: "set staged retro content read-only permissions",
                     path: self.path.clone(),
                     source,
                 })?;

@@ -372,6 +372,24 @@ impl RetroImportStore {
                 {
                     return Err(RetroImportError::AuditMismatch);
                 }
+                let recorded_library = self
+                    .read_library_generation(audit.library_generation)
+                    .map_err(|error| match error {
+                        RetroImportError::Io { source, .. }
+                            if source.kind() == io::ErrorKind::NotFound =>
+                        {
+                            RetroImportError::AuditMismatch
+                        }
+                        other => other,
+                    })?;
+                let recorded_bytes = serialized_bounded(
+                    &recorded_library,
+                    MAX_LIBRARY_DOCUMENT_BYTES,
+                    "retro installed library",
+                )?;
+                if encode_hex(&Sha256::digest(&recorded_bytes)) != audit.library_sha256 {
+                    return Err(RetroImportError::AuditMismatch);
+                }
                 audit.library_generation
             } else {
                 current.generation

@@ -1018,7 +1018,7 @@ fn staged_publication_keeps_the_scanned_file_identity() {
     payload
         .verify(entry.size_bytes, &entry.sha256)
         .expect("verify held file");
-    payload.seal().expect("seal held file");
+    payload.make_read_only().expect("set read-only permissions");
     fixture
         .store
         .publish_content_object(&pending, &payload)
@@ -2237,6 +2237,9 @@ fn provisioning_replay_requires_the_original_audit_bindings() {
         ("policyRevision", json!(8)),
         ("systemId", json!("gbc")),
         ("stagedManifestSha256", json!("f".repeat(64))),
+        ("libraryGeneration", json!(1)),
+        ("libraryGeneration", json!(9999)),
+        ("librarySha256", json!("f".repeat(64))),
     ] {
         let mut changed = audit.clone();
         changed[field] = replacement;

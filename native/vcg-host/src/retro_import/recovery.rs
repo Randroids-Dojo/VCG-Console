@@ -98,7 +98,7 @@ impl RetroImportStore {
             return Ok(ResumePending::Rejected(scan.status));
         }
         payload_file.verify(entry.size_bytes, &entry.sha256)?;
-        payload_file.seal()?;
+        payload_file.make_read_only()?;
         self.publish_content_object(pending, &payload_file)?;
         drop(payload_file);
         self.publish_library(&next, &pending.intent.plan_id)?;

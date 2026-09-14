@@ -47,7 +47,7 @@
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
-      "sha256": "4ace8c0dfc593cf78b14678c2c9aa72d8af5b4530642deb602fe92cf990f0da9"
+      "sha256": "de648253c06116f52764e73cb2e63fe9691e89b50254add7c018b518b11c8526"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
