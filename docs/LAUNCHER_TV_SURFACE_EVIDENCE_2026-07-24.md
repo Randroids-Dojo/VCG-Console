@@ -27,7 +27,7 @@ seating-distance comprehension, audio, or frame pacing.
 ## Frozen observations
 
 The strict artifact is
-[`windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json).
+[`windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json).
 It binds the exact production source tree, generator, validator, browser test,
 base launcher-home artifact, build resources, and all nine PNG files.
 
@@ -72,9 +72,9 @@ remain understandable and recoverable at the three CSS viewports.
 
 | State | 720p | 1080p | 4K |
 |---|---|---|---|
-| Motion catalog | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png) |
-| Wi-Fi offline | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png) |
-| Launch offline | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png) |
+| Motion catalog | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-4k.png) |
+| Wi-Fi offline | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-4k.png) |
+| Launch offline | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-4k.png) |
 
 The browser clock advances by an exact one second after each state is ready.
 This completes entrance animations and produces byte-stable launch elapsed
@@ -82,8 +82,10 @@ readouts without claiming secure time or frame-rate behavior.
 
 ## Reproduction and validation
 
-Generation is intentionally frozen to Windows x64, Node v24.18.0, installed
-Chrome 150.0.7871.182, and the evidence date:
+The dated narrative describes the original desk run. Linked artifacts and
+PNGs contain the current capture edition, with the actual date, full browser
+version, Node version, and geometry recorded in JSON. Generate on Windows x64
+with the installed Chrome:
 
 ```text
 node scripts/generate-launcher-tv-conformance-evidence.mjs

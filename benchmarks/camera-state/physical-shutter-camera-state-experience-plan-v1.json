@@ -38,7 +38,7 @@
     {
       "role": "motion-lab-camera-state-surface",
       "path": "apps/console-lab/src/motion-runtime.ts",
-      "sha256": "865a7a85870bf8fb5adb0d28a044daed758ad89a7d89b88b55484f7f0a921af6"
+      "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
     },
     {
       "role": "motion-lab-camera-state-markup",
@@ -58,12 +58,12 @@
     {
       "role": "motion-lab-camera-responsive-style",
       "path": "apps/console-lab/src/styles/responsive.css",
-      "sha256": "0ca0caf44c0a7a3b04ebf7dbf4e33523a8ac36a096e8ea4501773bff12e67bcd"
+      "sha256": "284bac5163b68ab71d781c507f1dea937214de2b67703e05c92bc64c108ed355"
     },
     {
       "role": "camera-state-browser-proof",
       "path": "apps/console-lab/tests/console-flow.spec.ts",
-      "sha256": "859cbf4af7db686c2d3f2e49bd3fb2c13fad0c9f5f14f2363dce140df3960809"
+      "sha256": "9e14a4866637b89e847e190dba8a6ab366915be0d35f15499f1c35c51e0e29fd"
     },
     {
       "role": "shared-camera-physical-check-boundary",
@@ -73,17 +73,17 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "8b3650e2c79eafabb4a01832f92e583bc6bd0b670651bd5eb963ea0ad74a132c"
+      "sha256": "39158f93596bbf6b67144a5c79d4fe25dbc21f0fceb7dfbd216594ac27c52758"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "4cb21dc49d82a1f3f35e52ea0ee264a2353515e1cd254a25708a4705fbcb5f11"
+      "sha256": "473bde4160dcc862bddfe27fef59b72ae7aeb73f7b9aade8a81590414efb7b80"
     },
     {
       "role": "idle-suspend-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "2ef59bc23b3216eb9ef1389b81ac6d85139bfd8c4e07f22ca78e3ed9119c094d"
+      "sha256": "9478293fbd437ec80f1d20de289251a0e39c3355c4d10807006b937602a3cc8a"
     },
     {
       "role": "active-play-safety-boundary",

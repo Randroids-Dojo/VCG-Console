@@ -227,7 +227,7 @@
   }
 
   .profile-list {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   .destination {
@@ -575,7 +575,10 @@
     grid-template-columns: 1fr;
   }
 
-  .profile-list,
+  .profile-list {
+    flex-direction: column;
+  }
+
   .settings-layout {
     grid-template-columns: 1fr;
   }

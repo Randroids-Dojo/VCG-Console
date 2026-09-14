@@ -392,6 +392,17 @@ describe the original baseline; the outcomes below describe the implemented work
 | R17 | Resolved | A concise documentation index identifies current development, architecture and capability contracts and distinguishes historical plans/observations. Development documents appliance/lab commands, verification and deliberate evidence refresh. Existing research, rights records and links are preserved; changed Markdown local-file links validate. |
 | R18 | Resolved | Removed the unconsumed 7,523-byte root scratch dump after checking references. No user data, benchmark records or useful fixtures were deleted. |
 
+PR review follow-up tightened staged-file identity across hash/scan/publication,
+bounded recovery-state reads, provisioning replay bindings, and process-unique
+test fixtures. It also covered missing host profiles, failed page teardown,
+tracking-loss timer cancellation, narrow profile layout, error-response headers,
+generator cleanup, and the remaining bespoke microphone source-binding loop.
+Current browser captures now use `installed-chrome` filenames with their exact
+observed version and date in JSON. Forty fresh screenshots matched the inspected
+pixels, all five independent browser-evidence validators passed, and archived
+measurement bytes were preserved. New regressions cover the recovery file swap
+on Linux, write/delete denial on Windows, appliance profile intent, and teardown.
+
 ### Verification and remaining limits
 
 - Frozen install, full strict typecheck, 2,203 JavaScript/TypeScript tests, 93 lab

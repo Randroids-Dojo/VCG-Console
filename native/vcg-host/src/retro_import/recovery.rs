@@ -1,16 +1,17 @@
 //! Retro import recovery.
 
 use super::{
-    CommitAction, File, MAX_AUDIT_RECORD_BYTES, MAX_LIBRARY_DOCUMENT_BYTES, MAX_SCAN_RECEIPT_BYTES,
-    NativeAuditRecord, PENDING_INTENT_FILE, Path, PendingInstall, ResumePending,
+    CommitAction, MAX_AUDIT_RECORD_BYTES, MAX_LIBRARY_DOCUMENT_BYTES, MAX_SCAN_RECEIPT_BYTES,
+    NativeAuditRecord, PENDING_INTENT_FILE, PendingInstall, ResumePending,
     RetroContentScanner, RetroImportCommitIntent, RetroImportError, RetroImportStore,
     RetroInstalledLibrary, RetroScanEvidence, RetroScanRequest, RetroScanStatus,
     build_next_library, fs, io, outcome_from_pending, path_exists, publish_new_file_resumable,
     read_audit, read_library, read_scan_receipt, remove_regular_file_if_present, replacement_entry,
-    require_direct_directory, require_regular_file, seal_payload_permissions, serialized_bounded,
+    require_direct_directory, require_regular_file, serialized_bounded,
     sync_directory, validate_audit, validate_library, validate_pending, validate_scan_evidence,
-    verify_file_hash, write_new_synced_file,
+    write_new_synced_file,
 };
+use super::filesystem::StagedPayloadFile;
 
 impl RetroImportStore {
     pub(super) fn resume_pending(
@@ -60,15 +61,18 @@ impl RetroImportStore {
             return Ok(ResumePending::Incomplete);
         }
         let entry = pending.intent.install_entry_required()?;
-        if verify_file_hash(&payload, entry.size_bytes, &entry.sha256).is_err() {
-            return Ok(ResumePending::Incomplete);
+        let mut payload_file = StagedPayloadFile::open(&payload)?;
+        match payload_file.verify(entry.size_bytes, &entry.sha256) {
+            Ok(()) => {}
+            Err(RetroImportError::CommittedContentMismatch) => return Ok(ResumePending::Incomplete),
+            Err(error) => return Err(error),
         }
 
         let receipt = stage.join("scan.json");
         let scan = if path_exists(&receipt)? {
             read_scan_receipt(&receipt, pending)?
         } else {
-            let evidence = self.scan_staged(pending, scanner)?;
+            let evidence = Self::scan_staged(pending, &mut payload_file, scanner)?;
             match evidence.status {
                 RetroScanStatus::Clean => {
                     let bytes = serialized_bounded(
@@ -80,6 +84,7 @@ impl RetroImportStore {
                     sync_directory(&stage)?;
                 }
                 status => {
+                    drop(payload_file);
                     self.abort_pending(pending)?;
                     return Ok(ResumePending::Rejected(status));
                 }
@@ -87,12 +92,14 @@ impl RetroImportStore {
             evidence
         };
         if scan.status != RetroScanStatus::Clean {
+            drop(payload_file);
             self.abort_pending(pending)?;
             return Ok(ResumePending::Rejected(scan.status));
         }
-        verify_file_hash(&payload, entry.size_bytes, &entry.sha256)?;
-        seal_payload_permissions(&payload)?;
-        self.publish_content_object(pending, &payload)?;
+        payload_file.verify(entry.size_bytes, &entry.sha256)?;
+        payload_file.seal()?;
+        self.publish_content_object(pending, &payload_file)?;
+        drop(payload_file);
         self.publish_library(&next, &pending.intent.plan_id)?;
         self.publish_or_verify_audit_with_scan(pending, &scan)?;
         self.cleanup_replaced_object(&base, &next, &pending.intent)?;
@@ -101,25 +108,19 @@ impl RetroImportStore {
     }
 
     pub(super) fn scan_staged(
-        &self,
         pending: &PendingInstall,
+        payload: &mut StagedPayloadFile,
         scanner: &mut impl RetroContentScanner,
     ) -> Result<RetroScanEvidence, RetroImportError> {
         let entry = pending.intent.install_entry_required()?;
-        let payload = self.stage_directory(pending).join("payload");
-        require_regular_file(&payload, "staged retro content")?;
-        let mut file = File::open(&payload).map_err(|source| RetroImportError::Io {
-            operation: "open staged retro content for scanning",
-            path: payload.clone(),
-            source,
-        })?;
+        payload.rewind()?;
         let request = RetroScanRequest {
             inspection_id: pending.inspection_id.clone(),
             subject_sha256: entry.sha256.clone(),
             subject_bytes: entry.size_bytes,
         };
         let evidence = scanner
-            .scan(&mut file, &request)
+            .scan(&mut payload.file, &request)
             .map_err(RetroImportError::ScannerUnavailable)?;
         validate_scan_evidence(&evidence, &request)?;
         Ok(evidence)
@@ -128,7 +129,7 @@ impl RetroImportStore {
     pub(super) fn publish_content_object(
         &self,
         pending: &PendingInstall,
-        payload: &Path,
+        payload: &StagedPayloadFile,
     ) -> Result<(), RetroImportError> {
         let entry = pending.intent.install_entry_required()?;
         let final_path = self.final_object_path(entry);
@@ -136,8 +137,7 @@ impl RetroImportStore {
             self.verify_object(entry)?;
             return Ok(());
         }
-        require_regular_file(payload, "staged retro content")?;
-        fs::hard_link(payload, &final_path).map_err(|source| {
+        payload.publish(&final_path).map_err(|source| {
             if source.kind() == io::ErrorKind::AlreadyExists {
                 RetroImportError::ContentAlreadyExists(entry.entry_id.clone())
             } else {

@@ -1,9 +1,9 @@
 {
   "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-09-13",
+  "evidenceDate": "2026-09-14",
   "evidenceClass": "windows-x64-headless-chrome-launcher-home-tv-conformance",
   "qualification": "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-09-13T20:31:20.631Z",
+  "retrievedAtUtc": "2026-09-14T01:57:16.635Z",
   "environment": {
     "buildMode": "lab",
     "producerPlatform": "win32",
@@ -15,7 +15,7 @@
   },
   "baseContract": {
     "format": "vcg-tv-conformance-evidence/v1",
-    "sha256": "60d74d10d0625dbc076df351d868e4b50593e27a5148f7df703bc439283c4ea2"
+    "sha256": "070b04b6aca00ac6674d5abcc9129401bb1cc08eb5495aa96f113474d695b5a7"
   },
   "contract": {
     "surface": "launcher-home",
@@ -76,7 +76,7 @@
         "searchVisibleAfterSelect": true,
         "searchHiddenAfterBack": true,
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-720p.png",
           "bytes": 488784,
           "sha256": "e5dd172bbefc88c0448176e7c07f76c74b243b0f42b0b0596004e3efacb1d96d"
         }
@@ -114,7 +114,7 @@
         "searchVisibleAfterSelect": true,
         "searchHiddenAfterBack": true,
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-1080p.png",
           "bytes": 874604,
           "sha256": "9fdc04ff6a8b25815a26489888f9419f3705fb274d644a7d179b6a951aa0a102"
         }
@@ -152,7 +152,7 @@
         "searchVisibleAfterSelect": true,
         "searchHiddenAfterBack": true,
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-4k.png",
           "bytes": 2937404,
           "sha256": "da7fd101e8ed56d045c65a19c984cfda6df357a7d09db8561dfdf58216496f2e"
         }
@@ -163,8 +163,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 3,
-      "/assets/main-deFNbEJb.js": 3,
-      "/assets/main-DOgcZELa.css": 3,
+      "/assets/main-0W4-Hwe9.css": 3,
+      "/assets/main-H2oTmfIj.js": 3,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
       "/assets/src-DJk9Nbrx.js": 3,
       "/assets/synthetic-BxnOr_Mh.js": 3,
@@ -203,13 +203,13 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "c5c49b6e29299557b6e4db9f79f77048aad2b2cce8caafaf7ba23bc70579104a",
+    "launcherPathSha256": "dc0f8a8361583e3537efb2abd64928bfa83b5135f9bedbc14ea468eaf0772563",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "26f8e2ac15de466cf184186095a3a2ad6f98da22877be29d6928e39f37dccc8b",
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "c750140bfcc9b5376d2f8f6e8f7c111631a38657d4011366448a5245a3002da4",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "343384ac1778e261a2e6eba9d477c16378df2008a2681dee965b124aa6038402",
+    "entryPathSha256": "31e0591c3403d551e045255a8573b57d1181cf8a75d2d021b7ac85ecfa7d4d08",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -218,12 +218,12 @@
     "catalogPathSha256": "8be4af3eb0c17e7a3a2cddcf121346597d64af6765f20a772aa2433be0d2bf54",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "bd7514c823a5f79ec5b21f78bf23555bf82172904b27288ec5253eefd1d8c57d",
-    "baseContractPath": "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
-    "baseContractPathSha256": "60d74d10d0625dbc076df351d868e4b50593e27a5148f7df703bc439283c4ea2",
+    "baseContractPath": "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
+    "baseContractPathSha256": "070b04b6aca00ac6674d5abcc9129401bb1cc08eb5495aa96f113474d695b5a7",
     "generatorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "generatorPathSha256": "6aa89dd0020d82dfc013d6568bf7caf38689ebda241101d7f6c917e1b0a8583e",
+    "generatorPathSha256": "ca72e12daead379dfd07d6819888159f81fc2f5d725e32cadd64f418cd950152",
     "validatorPath": "scripts/validate-launcher-tv-conformance-evidence.mjs",
-    "validatorPathSha256": "ad167e2b55b99d44fed7eea47e39be2633ce5c4f4d4a68aa8e7bc6a752233908",
+    "validatorPathSha256": "57780ad8bebe4cddc735028f1c0e8ecbe7678a2dd1d492be512a2bd8893507ca",
     "productionSourceTree": {
       "roots": [
         "scripts/console-server.mts",
@@ -244,7 +244,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 145,
-      "sha256": "95645bda3c2068877383dfcb504d34f27b804ec379f45c67e429fc687e85325f"
+      "sha256": "39dde80e50373dc9327c9557a7274d56233a933a284f543d417daaafcab43d86"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome optimized lab-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

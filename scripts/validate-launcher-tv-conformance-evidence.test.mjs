@@ -25,7 +25,7 @@ async function fixture() {
 async function baseContractSha256() {
   const bytes = await readFile(
     new URL(
-      "../benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+      "../benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
       import.meta.url,
     ),
   );

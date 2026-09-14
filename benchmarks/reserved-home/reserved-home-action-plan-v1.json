@@ -22,7 +22,7 @@
     {
       "role": "tv-controller-boundary",
       "path": "docs/TV_COMPATIBILITY_CONTRACT.md",
-      "sha256": "89d1e724bb2daff40243bc386c015ff8eb7a4b62149ae641fb545ab646dd31fe"
+      "sha256": "b9128ef1ac5cb0ed24d8d0b2f91f60673d9e08c7e76eaa0edf54b84f3c4b20ba"
     },
     {
       "role": "hosted-supervision-boundary",
@@ -42,7 +42,7 @@
     {
       "role": "steam-input-boundary",
       "path": "benchmarks/steam-input/steamos-steam-input-action-plan-v1.json",
-      "sha256": "744ddb8a6cc0cfe585f26421da0547c1f67586c255c6d79c936c16a41e7c0537"
+      "sha256": "09249033cac0e9e36f2dec7fed1a67f77ad35393eaa549b821d6f69cd8ae6a6e"
     },
     {
       "role": "signed-native-boundary",
@@ -52,7 +52,7 @@
     {
       "role": "steamos-shell-boundary",
       "path": "benchmarks/steamos-shell/steamos-outer-shell-lifecycle-plan-v1.json",
-      "sha256": "4451a7df3c20c87ee2249dabce2d079bf8604eb832a9496fea56d413e28e1b64"
+      "sha256": "c4119c9dad9ca3658a51c5ba60a511877551c47c82a3cd670af84e8326e187ed"
     },
     {
       "role": "hosted-supervisor-implementation-boundary",

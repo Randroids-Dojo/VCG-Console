@@ -77,12 +77,12 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "e17d5318e28e588c4e1497229dbd6b54e977692987df13bf231882dcecdf7553"
+      "sha256": "d14af751b5e84e21a303a9fe382f1438ea0abdd399ca6a98bac9ee1c157df6e0"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "2ef59bc23b3216eb9ef1389b81ac6d85139bfd8c4e07f22ca78e3ed9119c094d"
+      "sha256": "9478293fbd437ec80f1d20de289251a0e39c3355c4d10807006b937602a3cc8a"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "4ca5213ed08aea3860dcbc2377908e1f3a8ab649a6b8caacd651c7a1e0db39e7"
+      "sha256": "2ebcbcdbcee8f75cdaa100ffcb5b81a85814644bc2764219e06a060c9e2e3044"
     }
   ],
   "targetTiers": [

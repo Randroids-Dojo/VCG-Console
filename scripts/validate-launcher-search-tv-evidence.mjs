@@ -23,11 +23,11 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json",
 );
 const representativeEvidencePath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 80 * 1024;
 const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
@@ -50,7 +50,7 @@ const provenancePaths = Object.freeze({
   viteConfigPath: "apps/console-lab/vite.config.ts",
   browserTestPath: "apps/console-lab/tests/tv-conformance.spec.ts",
   representativeEvidencePath:
-    "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+    "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
   commonGeneratorPath:
     "scripts/generate-launcher-tv-conformance-evidence.mjs",
   generatorPath:

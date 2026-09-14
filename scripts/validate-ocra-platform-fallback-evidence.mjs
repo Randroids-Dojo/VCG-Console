@@ -22,7 +22,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
   root,
-  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
+  "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
 );
 const baseEvidencePath = resolve(
   root,

@@ -33,6 +33,7 @@ test("built files and errors preserve the independent browser boundary", async (
   assert.equal((await fetch(base, { method: "POST" })).status, 405);
   const foreignHostStatus = await new Promise<number | undefined>((accept, reject) => {
     const call = request(base, { headers: { host: "attacker.example" } }, (response) => {
+      assert.deepEqual(evaluateBoundaryHeaders("/", true, Object.entries(response.headers).map(([key, value]) => [key, String(value)])), []);
       response.resume();
       response.on("end", () => accept(response.statusCode));
     });
@@ -61,6 +62,8 @@ test("encoded traversal, dotfiles, malformed paths and external symlinks cannot 
   for (const path of ["/%2e%2e/private/secret.txt", "/..%5cprivate/secret.txt", "/.secret", "/%00", "/%zz", "/linked/secret.txt"]) {
     const result = await new Promise<{ status: number; body: string }>((accept, reject) => {
       const call = request({ hostname: "127.0.0.1", port: address.port, path }, (response) => {
+        const boundaryPath = response.statusCode === 400 ? "/" : path;
+        assert.deepEqual(evaluateBoundaryHeaders(boundaryPath, response.statusCode === 400, Object.entries(response.headers).map(([key, value]) => [key, String(value)])), []);
         let body = "";
         response.on("data", (chunk: Buffer) => { body += chunk.toString(); });
         response.on("end", () => accept({ status: response.statusCode!, body }));

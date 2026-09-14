@@ -130,7 +130,7 @@ const exampleRoot = resolve(root, "examples/tv-conformance");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const provenancePaths = Object.freeze({
   documentPath: "examples/tv-conformance/index.html",
@@ -338,22 +338,23 @@ async function exercise(chromePath) {
   );
   const { chromium } = requireFromConsoleLab("@playwright/test");
   const server = await startFixtureServer();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  let consoleErrorCount = 0;
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    let consoleErrorCount = 0;
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       const page = await browser.newPage({
         viewport: {
@@ -393,7 +394,7 @@ async function exercise(chromePath) {
 
       const screenshotPath = resolve(
         outputRoot,
-        `windows-x64-chrome-150-${resolution.id}.png`,
+        `windows-x64-installed-chrome-${resolution.id}.png`,
       );
       await mkdir(dirname(screenshotPath), { recursive: true });
       const screenshot = await deterministicScreenshot(page, screenshotPath);
@@ -421,7 +422,7 @@ async function exercise(chromePath) {
         animation: probe.animation,
         screenshot: {
           path:
-            `benchmarks/tv-conformance/windows-x64-chrome-150-${resolution.id}.png`,
+            `benchmarks/tv-conformance/windows-x64-installed-chrome-${resolution.id}.png`,
           bytes: screenshot.length,
           sha256: sha256(screenshot),
         },
@@ -445,8 +446,11 @@ async function exercise(chromePath) {
       requestCounts: Object.fromEntries(server.requestCounts),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 

@@ -19,11 +19,11 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json",
 );
 const baseContractPath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 96 * 1024;
 const MAX_SCREENSHOT_BYTES = 4 * 1024 * 1024;
@@ -41,7 +41,7 @@ const provenancePaths = Object.freeze({
   catalogPath: "apps/console-lab/src/launcher/catalog.generated.ts",
   browserTestPath: "apps/console-lab/tests/tv-conformance.spec.ts",
   baseContractPath:
-    "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+    "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
   generatorPath:
     "scripts/generate-launcher-tv-conformance-evidence.mjs",
   validatorPath:

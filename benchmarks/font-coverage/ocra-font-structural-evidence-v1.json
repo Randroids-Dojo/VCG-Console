@@ -1,6 +1,6 @@
 {
   "format": "vcg-ocra-font-structural-evidence/v1",
-  "evidenceDate": "2026-09-13",
+  "evidenceDate": "2026-09-14",
   "subject": {
     "path": "apps/console-lab/public/fonts/OCRA.ttf",
     "bytes": 24316,
@@ -725,7 +725,7 @@
     ],
     "productionSource": {
       "fileCount": 95,
-      "totalBytes": 902142,
+      "totalBytes": 903246,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.ts",
@@ -859,8 +859,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 62083,
-          "sha256": "c5c49b6e29299557b6e4db9f79f77048aad2b2cce8caafaf7ba23bc70579104a"
+          "bytes": 62499,
+          "sha256": "dc0f8a8361583e3537efb2abd64928bfa83b5135f9bedbc14ea468eaf0772563"
         },
         {
           "path": "apps/console-lab/src/launcher/LauncherTopbar.svelte",
@@ -1014,8 +1014,8 @@
         },
         {
           "path": "apps/console-lab/src/main.ts",
-          "bytes": 502,
-          "sha256": "343384ac1778e261a2e6eba9d477c16378df2008a2681dee965b124aa6038402"
+          "bytes": 765,
+          "sha256": "31e0591c3403d551e045255a8573b57d1181cf8a75d2d021b7ac85ecfa7d4d08"
         },
         {
           "path": "apps/console-lab/src/mediapipe-adapter.ts",
@@ -1039,8 +1039,8 @@
         },
         {
           "path": "apps/console-lab/src/motion-runtime.ts",
-          "bytes": 73871,
-          "sha256": "865a7a85870bf8fb5adb0d28a044daed758ad89a7d89b88b55484f7f0a921af6"
+          "bytes": 74266,
+          "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
         },
         {
           "path": "apps/console-lab/src/multi-player-action-engine.ts",
@@ -1134,8 +1134,8 @@
         },
         {
           "path": "apps/console-lab/src/styles/responsive.css",
-          "bytes": 12034,
-          "sha256": "0ca0caf44c0a7a3b04ebf7dbf4e33523a8ac36a096e8ea4501773bff12e67bcd"
+          "bytes": 12064,
+          "sha256": "284bac5163b68ab71d781c507f1dea937214de2b67703e05c92bc64c108ed355"
         },
         {
           "path": "apps/console-lab/src/styles/search.css",
@@ -1219,13 +1219,13 @@
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
                 855,
-                942,
-                959,
-                972,
-                1028,
-                1114,
-                1262,
-                1285
+                952,
+                969,
+                982,
+                1039,
+                1125,
+                1273,
+                1296
               ]
             },
             {
@@ -1327,9 +1327,9 @@
             {
               "path": "apps/console-lab/src/motion-runtime.ts",
               "lines": [
-                864,
-                1388,
-                1392
+                865,
+                1389,
+                1393
               ]
             },
             {

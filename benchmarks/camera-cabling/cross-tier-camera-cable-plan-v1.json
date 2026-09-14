@@ -32,7 +32,7 @@
     {
       "role": "camera-geometry-and-mount-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "8b3650e2c79eafabb4a01832f92e583bc6bd0b670651bd5eb963ea0ad74a132c"
+      "sha256": "39158f93596bbf6b67144a5c79d4fe25dbc21f0fceb7dfbd216594ac27c52758"
     },
     {
       "role": "pi-radio-coexistence-boundary",

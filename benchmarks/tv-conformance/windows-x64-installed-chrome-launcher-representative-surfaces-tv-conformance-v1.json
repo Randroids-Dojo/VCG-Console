@@ -1,12 +1,12 @@
 {
   "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-09-13",
+  "evidenceDate": "2026-09-14",
   "evidenceClass": "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
   "qualification": "candidate-three-launcher-states-only-not-tv-target-or-game-qualification",
-  "retrievedAtUtc": "2026-09-13T20:31:39.517Z",
+  "retrievedAtUtc": "2026-09-14T01:57:36.669Z",
   "baseLauncherHomeEvidence": {
     "format": "vcg-launcher-home-tv-conformance-evidence/v1",
-    "sha256": "fcf98daa270f9dc409e2ae2b4aad4efabcd11c60c4afb8f3800e07a817edd6b3"
+    "sha256": "022a7e9441ee804b2d00b81b0914a6733b64d6a99d8a75cc56fd73c12ddd8b8d"
   },
   "environment": {
     "buildMode": "lab",
@@ -102,7 +102,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-720p.png",
           "bytes": 316619,
           "sha256": "402064a2f9c5b8e86fda2bec9c5aa38c0c25a5d566fd8ab5a2888ea7c17f7c3d"
         }
@@ -136,7 +136,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-720p.png",
           "bytes": 295625,
           "sha256": "f9b7dc4a762af3f9c58aef947baf65cfe6bdb5ef1ec1a7ee87e0d47f6345a2ba"
         }
@@ -172,7 +172,7 @@
           "offline-preview"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-720p.png",
           "bytes": 298786,
           "sha256": "87fc760d87f906e55ab1d0fb799a1a56e098b08088f76b524b3f0fc37ed7819b"
         }
@@ -206,7 +206,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-1080p.png",
           "bytes": 521916,
           "sha256": "f2d368a7d7fec58327e7c24f2d0c180962d1a12ecd32e2261e31dc696fce8c61"
         }
@@ -240,7 +240,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-1080p.png",
           "bytes": 459977,
           "sha256": "67d6b4919c6af7d06210caef27e49f44e1ab08d6d97706f395817578796db39b"
         }
@@ -276,7 +276,7 @@
           "offline-preview"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-1080p.png",
           "bytes": 521327,
           "sha256": "63a1848979c55966ab983c2c43b91a26384086359e04d4a004b01bc0d2f93845"
         }
@@ -310,7 +310,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-4k.png",
           "bytes": 1559426,
           "sha256": "914b9546662b403c4dccf4a0a87965fd6e6fa4cf05fa29a2481d16a4a9f6fedb"
         }
@@ -344,7 +344,7 @@
           "launcher-home"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-4k.png",
           "bytes": 1388008,
           "sha256": "aad01fb4845d68bb0b3a99e182abcb53f69396782d2b99c37a74274740a33b87"
         }
@@ -380,7 +380,7 @@
           "offline-preview"
         ],
         "screenshot": {
-          "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
+          "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-4k.png",
           "bytes": 1750910,
           "sha256": "6fce4b7d71df996cdf7c1c20cb2b38ff4dac406b071d4bf4f0ec5703e9170e7f"
         }
@@ -391,8 +391,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 9,
-      "/assets/main-deFNbEJb.js": 9,
-      "/assets/main-DOgcZELa.css": 9,
+      "/assets/main-0W4-Hwe9.css": 9,
+      "/assets/main-H2oTmfIj.js": 9,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 9,
       "/assets/src-DJk9Nbrx.js": 9,
       "/assets/synthetic-BxnOr_Mh.js": 9,
@@ -432,7 +432,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "c5c49b6e29299557b6e4db9f79f77048aad2b2cce8caafaf7ba23bc70579104a",
+    "launcherPathSha256": "dc0f8a8361583e3537efb2abd64928bfa83b5135f9bedbc14ea468eaf0772563",
     "settingsPath": "apps/console-lab/src/launcher/SettingsView.svelte",
     "settingsPathSha256": "19475132f317a5343cc692278484010ae3b3b49d467e6c21dbd6b9e264afce18",
     "launchScreenPath": "apps/console-lab/src/launcher/LaunchScreen.svelte",
@@ -440,7 +440,7 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "c750140bfcc9b5376d2f8f6e8f7c111631a38657d4011366448a5245a3002da4",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "343384ac1778e261a2e6eba9d477c16378df2008a2681dee965b124aa6038402",
+    "entryPathSha256": "31e0591c3403d551e045255a8573b57d1181cf8a75d2d021b7ac85ecfa7d4d08",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
@@ -449,14 +449,14 @@
     "catalogPathSha256": "8be4af3eb0c17e7a3a2cddcf121346597d64af6765f20a772aa2433be0d2bf54",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
     "browserTestPathSha256": "bd7514c823a5f79ec5b21f78bf23555bf82172904b27288ec5253eefd1d8c57d",
-    "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
-    "homeEvidencePathSha256": "fcf98daa270f9dc409e2ae2b4aad4efabcd11c60c4afb8f3800e07a817edd6b3",
+    "homeEvidencePath": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json",
+    "homeEvidencePathSha256": "022a7e9441ee804b2d00b81b0914a6733b64d6a99d8a75cc56fd73c12ddd8b8d",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "6aa89dd0020d82dfc013d6568bf7caf38689ebda241101d7f6c917e1b0a8583e",
+    "commonGeneratorPathSha256": "ca72e12daead379dfd07d6819888159f81fc2f5d725e32cadd64f418cd950152",
     "generatorPath": "scripts/generate-launcher-tv-surface-evidence.mjs",
-    "generatorPathSha256": "8dff8d36fc773d3159e5df6938c6e4c45de0f1044aeff89e09c9851865c0cc05",
+    "generatorPathSha256": "ae7ca9d3cd7394c056ae4a1aee66171458b85ab5d753fe9f73c9fde993daede2",
     "validatorPath": "scripts/validate-launcher-tv-surface-evidence.mjs",
-    "validatorPathSha256": "45c4eea727373d7ab688847be7d8046f24acb496e271a35f2ff86d664c49b3d6",
+    "validatorPathSha256": "701db0fa49a4c610523f63224481785ce3c0bf3fc486bf0308746fc78935eacc",
     "productionSourceTree": {
       "roots": [
         "scripts/console-server.mts",
@@ -477,7 +477,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 145,
-      "sha256": "95645bda3c2068877383dfcb504d34f27b804ec379f45c67e429fc687e85325f"
+      "sha256": "39dde80e50373dc9327c9557a7274d56233a933a284f543d417daaafcab43d86"
     }
   },
   "claimBoundary": "One Windows x64 installed-Chrome optimized lab-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.",

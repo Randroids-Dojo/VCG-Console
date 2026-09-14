@@ -50,7 +50,7 @@
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "33a42b3f2503fd281b0dbc62c5900b23a462c740c9ef1fbb69b94823a35c1f65"
+      "sha256": "342ae82685e869fbba13e2421f2b5844e2bc35d62bf1d3aa79ef2f92986eac64"
     },
     {
       "role": "runtime-neutral-signed-local-package-lifecycle-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "cross-tier-cold-boot-controller-only-usability-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "f125ddec7b4e494ebddf8c76cb880980b8be7e3d781379d5a404323c85126404"
+      "sha256": "ca70f165c6a1bb30c7fa3e7d202a412c402e7749ce13ee5d0c36a1474fc1d719"
     }
   ],
   "prerequisiteGate": {

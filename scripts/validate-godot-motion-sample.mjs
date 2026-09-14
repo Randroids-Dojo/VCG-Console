@@ -9,7 +9,7 @@ const godot = findGodot();
 const checks = [
   ["editor import", ["--headless", "--editor", "--path", projectPath, "--import", "--quit"]],
   ["contract tests", ["--headless", "--path", projectPath, "--script", "tests/run_tests.gd"]],
-  ["main scene boot", ["--headless", "--path", projectPath, "--quit-after", "60"]],
+  ["main scene boot (60 main-loop iterations)", ["--headless", "--path", projectPath, "--quit-after", "60"]],
 ];
 
 for (const [label, arguments_] of checks) {

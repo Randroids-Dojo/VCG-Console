@@ -34,7 +34,7 @@
     {
       "role": "reserved-recovery-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "33a42b3f2503fd281b0dbc62c5900b23a462c740c9ef1fbb69b94823a35c1f65"
+      "sha256": "342ae82685e869fbba13e2421f2b5844e2bc35d62bf1d3aa79ef2f92986eac64"
     },
     {
       "role": "controller-qualification-boundary",
@@ -44,7 +44,7 @@
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "e17d5318e28e588c4e1497229dbd6b54e977692987df13bf231882dcecdf7553"
+      "sha256": "d14af751b5e84e21a303a9fe382f1438ea0abdd399ca6a98bac9ee1c157df6e0"
     },
     {
       "role": "boot-resume-launch-boundary",

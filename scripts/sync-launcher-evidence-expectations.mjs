@@ -9,11 +9,11 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const baselinePath = resolve(root, "benchmarks/tv-conformance/launcher-baselines-v1.json");
 const read = async (path) => JSON.parse(await readFile(resolve(root, path), "utf8"));
-const authoring = await read("benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json");
-const home = await read("benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json");
-const surfaces = await read("benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json");
-const search = await read("benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json");
-const font = await read("benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json");
+const authoring = await read("benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json");
+const home = await read("benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json");
+const surfaces = await read("benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json");
+const search = await read("benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json");
+const font = await read("benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json");
 
 const entries = (observations, key, value) => Object.fromEntries(observations.map((observation) => [key(observation), value(observation)]));
 const measurements = (observation) => ({

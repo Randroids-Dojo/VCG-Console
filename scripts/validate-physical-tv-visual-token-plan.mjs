@@ -86,11 +86,11 @@ const sourceDefinitions = [
   ["shell-responsive-implementation", "apps/console-lab/src/styles/responsive.css"],
   [
     "bounded-ocra-font-evidence",
-    "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
+    "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
   ],
   [
     "representative-headless-tv-regression-evidence",
-    "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+    "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
   ],
 ];
 const executionKeys = [

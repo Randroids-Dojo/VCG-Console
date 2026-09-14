@@ -363,7 +363,16 @@ impl RetroImportStore {
         let audit_path = self.audit_path(&payload.provisioning_id);
         if partition.additions.is_empty() {
             let generation = if path_exists(&audit_path)? {
-                read_provision_audit(&audit_path)?.library_generation
+                let audit = read_provision_audit(&audit_path)?;
+                if audit.provisioning_id != payload.provisioning_id
+                    || audit.policy_id != policy.policy_id
+                    || audit.policy_revision != policy.policy_revision
+                    || audit.system_id != payload.system_id
+                    || audit.staged_manifest_sha256 != payload.manifest_sha256
+                {
+                    return Err(RetroImportError::AuditMismatch);
+                }
+                audit.library_generation
             } else {
                 current.generation
             };

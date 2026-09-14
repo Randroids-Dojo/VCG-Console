@@ -42,17 +42,17 @@
     {
       "role": "shell-responsive-implementation",
       "path": "apps/console-lab/src/styles/responsive.css",
-      "sha256": "0ca0caf44c0a7a3b04ebf7dbf4e33523a8ac36a096e8ea4501773bff12e67bcd"
+      "sha256": "284bac5163b68ab71d781c507f1dea937214de2b67703e05c92bc64c108ed355"
     },
     {
       "role": "bounded-ocra-font-evidence",
-      "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "dd8d36e7a38a6e9b42cd003f57401ecb421fc4a4ca82afb440319c1683020efb"
+      "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
+      "sha256": "4ace8c0dfc593cf78b14678c2c9aa72d8af5b4530642deb602fe92cf990f0da9"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
-      "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "08bea263a47a83ca3ec7fcf1fc31b1abb8ca3c8ff76eb192cc9df4b1bf5673a1"
+      "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
+      "sha256": "612c59dbe2e2a161b6c7cd78759785c7ddf06d9b736f088ebba15c8f182f57c0"
     }
   ],
   "executionBoundary": {

@@ -15,7 +15,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 96 * 1024;
 const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;

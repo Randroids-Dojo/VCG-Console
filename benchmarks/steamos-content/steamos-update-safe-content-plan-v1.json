@@ -62,7 +62,7 @@
     {
       "role": "television-compatibility-boundary",
       "path": "docs/TV_COMPATIBILITY_CONTRACT.md",
-      "sha256": "89d1e724bb2daff40243bc386c015ff8eb7a4b62149ae641fb545ab646dd31fe"
+      "sha256": "b9128ef1ac5cb0ed24d8d0b2f91f60673d9e08c7e76eaa0edf54b84f3c4b20ba"
     },
     {
       "role": "prototype-gate-boundary",

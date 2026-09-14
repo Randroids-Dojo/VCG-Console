@@ -40,10 +40,10 @@ const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
 );
 const homeEvidenceRelativePath =
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json";
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json";
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
   settingsPath: "apps/console-lab/src/launcher/SettingsView.svelte",
@@ -209,23 +209,24 @@ async function exercise(chromePath) {
   const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
   const { chromium } = requireFromConsoleLab("@playwright/test");
   const server = await startBuiltConsole();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  const requestCounts = new Map();
-  const consoleErrors = [];
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    const requestCounts = new Map();
+    const consoleErrors = [];
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       for (const surface of SURFACES) {
         const page = await browser.newPage({
@@ -315,7 +316,7 @@ async function exercise(chromePath) {
 
         const screenshotPath = resolve(
           outputRoot,
-          `windows-x64-chrome-150-launcher-${surface.id}-${resolution.id}.png`,
+          `windows-x64-installed-chrome-launcher-${surface.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
         const screenshot = await deterministicScreenshot(
@@ -350,7 +351,7 @@ async function exercise(chromePath) {
           focusTrace,
           screenshot: {
             path:
-              `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-${surface.id}-${resolution.id}.png`,
+              `benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-${surface.id}-${resolution.id}.png`,
             bytes: screenshot.length,
             sha256: digestBytes(screenshot),
           },
@@ -374,8 +375,11 @@ async function exercise(chromePath) {
       ),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 

@@ -8,6 +8,21 @@ async function openMotionLab(page: Page, simulatorTest = false): Promise<void> {
   await page.getByRole("button", { name: /Motion Lab Skeleton/ }).click();
 }
 
+test("page teardown cancels tracking-loss recovery before restoring the console", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openMotionLab(page);
+  await page.locator('[data-mode="shell"]').click();
+  await page.locator("#tracking-loss-button").click();
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true })));
+  await expect(page.locator("#app")).toBeEmpty();
+  await page.waitForTimeout(2100);
+  expect(errors).toEqual([]);
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })));
+  await expect(page.locator('[data-launcher-view="home"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 async function pressSyntheticGamepadButton(
   page: Page,
   setterName: string,

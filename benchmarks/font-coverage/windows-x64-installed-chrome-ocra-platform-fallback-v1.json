@@ -1,6 +1,6 @@
 {
   "format": "vcg-ocra-platform-fallback-observation/v1",
-  "evidenceDate": "2026-09-13",
+  "evidenceDate": "2026-09-14",
   "environment": {
     "buildMode": "lab",
     "platform": "windows-x64",
@@ -68,8 +68,8 @@
     "consoleErrors": [],
     "requestCounts": {
       "/?input=controller": 1,
-      "/assets/main-deFNbEJb.js": 1,
-      "/assets/main-DOgcZELa.css": 1,
+      "/assets/main-0W4-Hwe9.css": 1,
+      "/assets/main-H2oTmfIj.js": 1,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
       "/assets/src-DJk9Nbrx.js": 1,
       "/assets/synthetic-BxnOr_Mh.js": 1,
@@ -79,7 +79,7 @@
     }
   },
   "screenshot": {
-    "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png",
+    "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-1080p.png",
     "bytes": 37017,
     "sha256": "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458"
   },
@@ -98,13 +98,13 @@
     "stylePath": "apps/console-lab/src/styles.css",
     "stylePathSha256": "c750140bfcc9b5376d2f8f6e8f7c111631a38657d4011366448a5245a3002da4",
     "baseEvidencePath": "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
-    "baseEvidencePathSha256": "fc044da17ed33813f76e7e96fbc8287caf2e168d223424dd95c964efa6eb8a3f",
+    "baseEvidencePathSha256": "75c45ec9949e470aae26c4970e91fdac89de2652ed544a9a6130fa222e564b64",
     "generatorPath": "scripts/generate-ocra-platform-fallback-evidence.mjs",
-    "generatorPathSha256": "1fc55e5d38a38d7775a6bd95996fc181e6cb43b6eaae5c2fc860ed56206dd4a2",
+    "generatorPathSha256": "99395d1567cc7fb1f34a01821c9b65773d9c14ed2b79510393e83dc9a1341e5f",
     "validatorPath": "scripts/validate-ocra-platform-fallback-evidence.mjs",
-    "validatorPathSha256": "bec0d388f26991ece049ef0d85659fa4280f70962c6da9d81008a6e69ed2f46f",
+    "validatorPathSha256": "8973cdd345256def9f90e32598458d359a46b4d351a5d71a1c8918c1c850114b",
     "baseEvidenceBytes": 41067,
-    "baseEvidenceSha256": "fc044da17ed33813f76e7e96fbc8287caf2e168d223424dd95c964efa6eb8a3f",
+    "baseEvidenceSha256": "75c45ec9949e470aae26c4970e91fdac89de2652ed544a9a6130fa222e564b64",
     "productionSourceTree": {
       "roots": [
         "scripts/console-server.mts",
@@ -125,7 +125,7 @@
         "packages/retro-import-contract/src"
       ],
       "fileCount": 145,
-      "sha256": "95645bda3c2068877383dfcb504d34f27b804ec379f45c67e429fc687e85325f"
+      "sha256": "39dde80e50373dc9327c9557a7274d56233a933a284f543d417daaafcab43d86"
     }
   },
   "disposition": {

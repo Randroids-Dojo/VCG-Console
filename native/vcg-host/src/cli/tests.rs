@@ -705,8 +705,7 @@ fn launcher_profile_registry_is_bounded_persistent_and_exclusive() {
 
 #[test]
 fn invalid_profile_registry_precedes_any_trust_or_package_recovery() {
-    let unique = NEXT_ROOT_FIXTURE.fetch_add(1, Ordering::Relaxed);
-    let fixture = std::env::temp_dir().join(format!("vcg-profile-registry-order-test-{unique}"));
+    let fixture = unique_fixture_root("profile-registry-order");
     fs::create_dir(&fixture).expect("create ordering fixture");
     let registry = fixture.join("profiles.json");
     fs::write(

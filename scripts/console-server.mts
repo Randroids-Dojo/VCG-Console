@@ -31,8 +31,10 @@ function contained(root: string, candidate: string): boolean {
 export async function createConsoleServer(directory: string): Promise<Server> {
   const root = await realpath(directory);
   const server = createServer({ maxHeaderSize: 16_384 }, async (request, response) => {
+    // Early malformed requests receive the default document boundary.
+    let boundaryHeaders = resolveBoundaryHeaders("/", true);
     const fail = (status: number): void => {
-      response.writeHead(status, { "Content-Type": "text/plain", "Cache-Control": "no-store" });
+      response.writeHead(status, { ...boundaryHeaders, "Content-Type": "text/plain", "Cache-Control": "no-store" });
       response.end();
     };
     try {
@@ -53,7 +55,8 @@ export async function createConsoleServer(directory: string): Promise<Server> {
         return;
       }
       const acceptsHtml = pathname.endsWith(".html") || pathname === "/" || request.headers.accept?.includes("text/html") === true;
-      for (const [name, value] of Object.entries(resolveBoundaryHeaders(pathname, acceptsHtml))) {
+      boundaryHeaders = resolveBoundaryHeaders(pathname, acceptsHtml);
+      for (const [name, value] of Object.entries(boundaryHeaders)) {
         response.setHeader(name, value);
       }
       if (request.method !== "GET" && request.method !== "HEAD") {

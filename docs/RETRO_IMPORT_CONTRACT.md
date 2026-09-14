@@ -97,10 +97,11 @@ On Linux, staging and content must have the same device ID. The transaction:
 3. durably publishes a path-free pending record before copying;
 4. streams from an already-opened regular source handle into a private staged
    file while enforcing exact length and SHA-256;
-5. invokes a pluggable scanner over a separately opened read-only staged
-   subject and accepts only exact inspection/hash-bound clean evidence;
-6. rehashes and seals the staged payload, then hard-links it into the
-   console-managed object store without replacement;
+5. holds one read-only staged file handle for hashing and scanning and accepts
+   only exact inspection/hash-bound clean evidence;
+6. rehashes and seals that same handle, then publishes without replacement:
+   Linux links through `/proc/self/fd` and Windows denies write/delete sharing
+   while linking, so a staging-path replacement cannot substitute another inode;
 7. publishes the next full installed-library generation through a synchronized
    no-replace hard link;
 8. persists a path-free terminal audit record containing the exact clean scan

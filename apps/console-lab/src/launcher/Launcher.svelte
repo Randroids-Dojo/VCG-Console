@@ -883,6 +883,15 @@
     return true;
   }
 
+  function refuseWithoutHostProfile(supervisor: LaunchSupervisor): boolean {
+    if (LAB_MODE || activeProfileId) return false;
+    supervisor.unavailable(
+      "Select a saved profile in Profiles before launching an installed game.",
+      "HOST_PROFILE_REQUIRED",
+    );
+    return true;
+  }
+
   async function runHostedAttempt(
     supervisor: LaunchSupervisor,
     adapter: "native" | "retro",
@@ -892,6 +901,7 @@
     // bare adapter handoff reports an unavailable package and starts nothing,
     // so gating it would refuse a launch that could never happen.
     if (adapter === "retro" && expected && refuseWithoutController(supervisor)) return;
+    if (expected && refuseWithoutHostProfile(supervisor)) return;
     supervisor.advance(1, "Requesting the Rust console host");
     if (expected) {
       const inventory = nativePackageInventory;
@@ -988,6 +998,7 @@
     entry: NativeLibraryEntry,
   ): Promise<void> {
     if (refuseWithoutController(supervisor)) return;
+    if (refuseWithoutHostProfile(supervisor)) return;
     supervisor.advance(1, "Requesting the Rust console host");
     await refreshNativePackageInventory();
     if (launchSupervisor !== supervisor) return;

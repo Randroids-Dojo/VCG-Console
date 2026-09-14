@@ -34,11 +34,11 @@ const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-launcher-home-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json",
 );
 const baseContractPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
@@ -50,7 +50,7 @@ const provenancePaths = Object.freeze({
   catalogPath: "apps/console-lab/src/launcher/catalog.generated.ts",
   browserTestPath: "apps/console-lab/tests/tv-conformance.spec.ts",
   baseContractPath:
-    "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+    "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
   generatorPath:
     "scripts/generate-launcher-tv-conformance-evidence.mjs",
   validatorPath:
@@ -233,24 +233,25 @@ async function exercise(chromePath) {
   );
   const { chromium } = requireFromConsoleLab("@playwright/test");
   const server = await startBuiltConsole();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  const requestCounts = new Map();
-  const consoleErrors = [];
-  let consoleErrorCount = 0;
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    const requestCounts = new Map();
+    const consoleErrors = [];
+    let consoleErrorCount = 0;
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       const page = await browser.newPage({
         viewport: {
@@ -386,7 +387,7 @@ async function exercise(chromePath) {
       await page.waitForTimeout(400);
       const screenshotPath = resolve(
         outputRoot,
-        `windows-x64-chrome-150-launcher-home-${resolution.id}.png`,
+        `windows-x64-installed-chrome-launcher-home-${resolution.id}.png`,
       );
       await mkdir(dirname(screenshotPath), { recursive: true });
       const screenshot = await deterministicScreenshot(
@@ -423,7 +424,7 @@ async function exercise(chromePath) {
         searchHiddenAfterBack,
         screenshot: {
           path:
-            `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-${resolution.id}.png`,
+            `benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-${resolution.id}.png`,
           bytes: screenshot.length,
           sha256: sha256(screenshot),
         },
@@ -446,8 +447,11 @@ async function exercise(chromePath) {
       ),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 

@@ -505,7 +505,7 @@ pub(super) fn is_sha256_hex(value: &str) -> bool {
 }
 
 pub(super) fn validate_content_id(value: &str) -> Result<(), RetroImportError> {
-    let Some(digest) = value.strip_prefix("content-") else {
+    let Some(digest) = value.strip_prefix(CONTENT_ENTRY_ID_PREFIX) else {
         return Err(RetroImportError::InvalidLibrary(
             "content entry ID has an invalid prefix".to_owned(),
         ));

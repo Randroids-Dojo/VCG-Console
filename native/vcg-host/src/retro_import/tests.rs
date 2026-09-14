@@ -859,6 +859,58 @@ fn incomplete_interruption_discards_only_the_bound_stage() {
 }
 
 #[test]
+fn recovery_preserves_an_unsafe_payload_for_diagnosis() {
+    let fixture = Fixture::new();
+    let pending = pending_for(&fixture, b"expected payload", 1, "unsafe-payload");
+    let stage = fixture.store.stage_directory(&pending);
+    fs::create_dir(&stage).expect("create stage");
+    fs::create_dir(stage.join("payload")).expect("create invalid payload directory");
+    assert!(matches!(
+        fixture.store.recover(&mut FakeScanner::clean()),
+        Err(RetroImportError::UnsafePathWithKind { .. })
+    ));
+    assert!(fixture.pending().is_some());
+    assert!(stage.join("payload").is_dir());
+}
+
+#[test]
+fn bounded_state_reads_reject_directories_and_oversized_resume_files() {
+    let fixture = Fixture::new();
+    assert!(matches!(
+        read_json_bounded::<Value>(&fixture.root, 32, "test state"),
+        Err(RetroImportError::UnsafePathWithKind { .. })
+    ));
+    let temporary = fixture.root.join("resume.tmp");
+    let final_path = fixture.root.join("published.json");
+    let file = File::create(&temporary).expect("create oversized temporary file");
+    file.set_len(1024 * 1024).expect("set sparse length");
+    drop(file);
+    assert!(matches!(
+        publish_new_file_resumable(&fixture.root, &temporary, &final_path, b"{}", "test state"),
+        Err(RetroImportError::StateTooLarge { maximum: 2, .. })
+    ));
+    assert!(!final_path.exists());
+    assert_eq!(
+        fs::metadata(temporary).expect("retained temporary").len(),
+        1024 * 1024
+    );
+}
+
+#[test]
+#[cfg(unix)]
+fn bounded_json_state_rejects_symlinks() {
+    let fixture = Fixture::new();
+    let source = fixture.root.join("source.json");
+    let linked = fixture.root.join("linked.json");
+    fs::write(&source, b"{}").expect("write source");
+    std::os::unix::fs::symlink(&source, &linked).expect("create symlink");
+    assert!(matches!(
+        read_json_bounded::<Value>(&linked, 32, "test state"),
+        Err(RetroImportError::UnsafePathWithKind { .. })
+    ));
+}
+
+#[test]
 fn complete_unscanned_stage_recovers_without_original_source() {
     let fixture = Fixture::new();
     let bytes = b"durable staged source";
@@ -895,11 +947,11 @@ fn recovery_resumes_published_object_and_resumable_library_temp() {
         .store
         .copy_source_to_stage(&pending, &mut source)
         .expect("copy stage");
-    let scan = fixture
-        .store
-        .scan_staged(&pending, &mut FakeScanner::clean())
-        .expect("scan stage");
     let stage = fixture.store.stage_directory(&pending);
+    let mut payload = super::filesystem::StagedPayloadFile::open(&stage.join("payload"))
+        .expect("open stage");
+    let scan = RetroImportStore::scan_staged(&pending, &mut payload, &mut FakeScanner::clean())
+        .expect("scan stage");
     write_new_synced_file(
         &stage.join("scan.json"),
         &serialized_bounded(&scan, MAX_SCAN_RECEIPT_BYTES, "scan").expect("scan bytes"),
@@ -908,8 +960,9 @@ fn recovery_resumes_published_object_and_resumable_library_temp() {
     .expect("persist scan");
     fixture
         .store
-        .publish_content_object(&pending, &stage.join("payload"))
+        .publish_content_object(&pending, &payload)
         .expect("publish content");
+    drop(payload);
 
     let base = fixture.library();
     let next =
@@ -931,6 +984,39 @@ fn recovery_resumes_published_object_and_resumable_library_temp() {
     assert_eq!(fixture.library(), next);
     assert!(!library_temp.exists());
     assert!(fixture.pending().is_none());
+}
+
+#[test]
+fn staged_publication_keeps_the_scanned_file_identity() {
+    let fixture = Fixture::new();
+    let bytes = b"authorized content";
+    let pending = pending_for(&fixture, bytes, 1, "pinned-file");
+    let mut source = fixture.source("pinned.gb", bytes);
+    fixture
+        .store
+        .copy_source_to_stage(&pending, &mut source)
+        .expect("stage source");
+    let path = fixture.store.stage_directory(&pending).join("payload");
+    let mut payload = super::filesystem::StagedPayloadFile::open(&path).expect("open payload");
+    let entry = pending.intent.install_entry_required().expect("entry");
+    payload.verify(entry.size_bytes, &entry.sha256).expect("verify");
+    let mut scanner = FakeScanner::clean();
+    RetroImportStore::scan_staged(&pending, &mut payload, &mut scanner).expect("scan");
+    assert_eq!(scanner.observed, bytes);
+    #[cfg(target_os = "linux")]
+    {
+        fs::rename(&path, fixture.root.join("held-original")).expect("move original inode");
+        fs::write(&path, b"substituted content").expect("replace staging path");
+    }
+    #[cfg(windows)]
+    {
+        assert!(fs::rename(&path, fixture.root.join("held-original")).is_err());
+        assert!(fs::write(&path, b"substituted content").is_err());
+    }
+    payload.verify(entry.size_bytes, &entry.sha256).expect("verify held file");
+    payload.seal().expect("seal held file");
+    fixture.store.publish_content_object(&pending, &payload).expect("publish held file");
+    assert_eq!(fs::read(fixture.store.final_object_path(entry)).expect("published bytes"), bytes);
 }
 
 #[test]
@@ -1250,9 +1336,9 @@ fn exact_cancel_and_operation_lock_fail_closed() {
         .copy_source_to_stage(&published, &mut source)
         .expect("stage published transaction");
     let stage = fixture.store.stage_directory(&published);
-    let scan = fixture
-        .store
-        .scan_staged(&published, &mut FakeScanner::clean())
+    let mut payload = super::filesystem::StagedPayloadFile::open(&stage.join("payload"))
+        .expect("open stage");
+    let scan = RetroImportStore::scan_staged(&published, &mut payload, &mut FakeScanner::clean())
         .expect("scan published transaction");
     write_new_synced_file(
         &stage.join("scan.json"),
@@ -1262,8 +1348,9 @@ fn exact_cancel_and_operation_lock_fail_closed() {
     .expect("persist scan");
     fixture
         .store
-        .publish_content_object(&published, &stage.join("payload"))
+        .publish_content_object(&published, &payload)
         .expect("publish content");
+    drop(payload);
     assert!(matches!(
         fixture.store.cancel_pending(&published.intent.plan_id),
         Err(RetroImportError::RecoveryRequired)
@@ -2120,6 +2207,45 @@ fn provisioning_resumes_published_objects_and_refuses_a_changed_audit() {
     ));
     assert_eq!(fixture.library().generation, 2);
     assert_eq!(fixture.audit_files().len(), 1);
+}
+
+#[test]
+fn provisioning_replay_requires_the_original_audit_bindings() {
+    let fixture = Fixture::new();
+    let files: Vec<(&str, &[u8], &str)> = vec![("Replay", b"replay bytes", ".gb")];
+    let payload = stage_payload(&fixture, "replay-payload", &files);
+    let policy = provision_policy();
+    fixture
+        .store
+        .provision_operator_content(&payload, &policy)
+        .expect("initial install");
+    let audit_path = fixture.audit_files()[0].clone();
+    let original = fs::read(&audit_path).expect("read audit");
+    let audit: Value = serde_json::from_slice(&original).expect("parse audit");
+    for (field, replacement) in [
+        ("policyId", json!("other-policy")),
+        ("policyRevision", json!(8)),
+        ("systemId", json!("gbc")),
+        ("stagedManifestSha256", json!("f".repeat(64))),
+    ] {
+        let mut changed = audit.clone();
+        changed[field] = replacement;
+        fs::write(
+            &audit_path,
+            serde_json::to_vec(&changed).expect("serialize audit"),
+        )
+        .expect("change audit");
+        assert!(matches!(
+            fixture.store.provision_operator_content(&payload, &policy),
+            Err(RetroImportError::AuditMismatch)
+        ));
+    }
+    fs::write(&audit_path, original).expect("restore audit");
+    assert!(fixture
+        .store
+        .provision_operator_content(&payload, &policy)
+        .is_ok());
+    assert_eq!(fixture.library().generation, 2);
 }
 
 #[test]

@@ -136,6 +136,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
   /** Long enough to read the guide once, short enough not to live on screen. */
   const MOTION_LEGEND_VISIBLE_MS = 10_000;
   let motionLegendTimer: number | undefined;
+  let trackingLossTimer: number | undefined;
   let motionLegendZone: HandZone = "home";
   const diagnosticsToggle = required<HTMLButtonElement>("#diagnostics-toggle");
   let diagnosticsOpen = true;
@@ -1523,7 +1524,11 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     if (currentMode === "obstacle") obstacleRunTrackingDropoutCount += 1;
     obstacle.setPaused(true);
     statusDetail.textContent = "Test loss confirmed. Waiting through the two-second reacquisition window.";
-    setTimeout(() => showOverlay("recovery"), 2_000);
+    if (trackingLossTimer !== undefined) clearTimeout(trackingLossTimer);
+    trackingLossTimer = window.setTimeout(() => {
+      trackingLossTimer = undefined;
+      if (!lifecycle.signal.aborted) showOverlay("recovery");
+    }, 2_000);
   }, { signal: lifecycle.signal });
 
   exportButton.addEventListener("click", () => {
@@ -1753,15 +1758,22 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     cancelAnimationFrame(replayFrame);
     clearInterval(clockInterval);
     if (motionLegendTimer !== undefined) clearTimeout(motionLegendTimer);
+    if (trackingLossTimer !== undefined) clearTimeout(trackingLossTimer);
     cursor.dispose();
     gamepads.stop();
     obstacle.stop();
-    await tracker.close();
-    await launcher.dispose();
-    delete window.__vcgSpatialFocus;
-    delete window.__vcgMotionSimulator;
-    delete window.__vcgObstacleJourney;
-    app.replaceChildren();
+    try {
+      await tracker.close();
+    } finally {
+      try {
+        await launcher.dispose();
+      } finally {
+        delete window.__vcgSpatialFocus;
+        delete window.__vcgMotionSimulator;
+        delete window.__vcgObstacleJourney;
+        app.replaceChildren();
+      }
+    }
   };
 
 }

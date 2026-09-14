@@ -4,6 +4,13 @@ Date: 2026-07-24
 
 Scope: I-098 and Q-056
 
+The dated narrative describes the original desk run. Linked artifacts and
+PNGs contain the current capture edition; their JSON is authoritative for
+the actual capture date, browser version, toolchain, and observations.
+Screenshots record the Search query before activation. The ready and offline
+Museum cases therefore share the same query pixels; their separate interaction
+traces verify readiness, offline failure, Retry, and focus recovery afterward.
+
 ## Outcome
 
 The production-built launcher Search overlay now applies the candidate
@@ -68,7 +75,7 @@ spelling, localization, or fuzzy-suggestion policy.
 ## Frozen observations
 
 The strict artifact is
-[`windows-x64-chrome-150-launcher-search-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json).
+[`windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json).
 It binds the exact production source tree, Search and launcher sources,
 Unassigned progress view/controller, generator, validator, browser test, base
 representative-state artifact, production resources, and twenty-four PNG
@@ -186,14 +193,14 @@ qualifies a game or package.
 
 | State | 720p | 1080p | 4K |
 |---|---|---|---|
-| Motion results | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png) |
-| No results | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png) |
-| Empty query after last-result focus | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png) |
-| Obstacle result before activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png) |
-| Museum result before ready / denial activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png) |
-| Museum result before offline activation | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png) |
-| 2048 result before unavailable denial | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png) |
-| Unassigned progress before destructive denial | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png) |
+| Motion results | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-4k.png) |
+| No results | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-4k.png) |
+| Empty query after last-result focus | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-4k.png) |
+| Obstacle result before activation | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-4k.png) |
+| Museum result before ready / denial activation | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-4k.png) |
+| Museum result before offline activation | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-4k.png) |
+| 2048 result before unavailable denial | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-4k.png) |
+| Unassigned progress before destructive denial | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-720p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-1080p.png) | [PNG](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-4k.png) |
 
 The frozen browser clock advances by exactly one second after the state is
 ready so entrance animation is complete before capture. This is deterministic

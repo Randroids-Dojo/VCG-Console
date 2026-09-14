@@ -57,17 +57,17 @@
     {
       "role": "controller-only-catalog-boundary",
       "path": "benchmarks/catalog-controller-only/catalog-controller-only-qualification-plan-v1.json",
-      "sha256": "fc03323247e2a0ff2bfa45e9e3ee06a9d090685086f3082bbbba4ff1ef678b06"
+      "sha256": "83804209c6b09cf140d9c661107497145bbdd7fe2270e38dbcc03d860b91cb5c"
     },
     {
       "role": "steamos-package-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
+      "sha256": "80d849fefc3809b3ccadeedd93975c4bdd1e282f48680f2a8ff5cfa24419e1ce"
     },
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "4ca5213ed08aea3860dcbc2377908e1f3a8ab649a6b8caacd651c7a1e0db39e7"
+      "sha256": "2ebcbcdbcee8f75cdaa100ffcb5b81a85814644bc2764219e06a060c9e2e3044"
     },
     {
       "role": "accountless-offline-boundary",
