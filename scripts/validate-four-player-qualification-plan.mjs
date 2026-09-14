@@ -1,3 +1,4 @@
+import { exactKeys, normalizedText } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -152,7 +153,8 @@ const sourceDefinitions = [
   ["synthetic-identity-evidence-boundary", "benchmarks/identity-tracking/windows-x64-synthetic-appearance-free-v1.json"],
   ["synthetic-session-interference-boundary", "benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json"],
   ["session-controller-implementation-boundary", "apps/console-lab/src/player-session.ts"],
-  ["one-player-lab-configuration-boundary", "apps/console-lab/src/main.ts"],
+  ["one-player-lab-configuration-boundary", "apps/console-lab/src/motion-runtime.ts"],
+  ["player-join-markup-boundary", "apps/console-lab/src/motion-markup.ts"],
 ];
 const openAcceptanceKeys = [
   "minimumParticipantQuartetsPerOrderedClass", "minimumPerPlayerPoseFpsMilliHz",
@@ -185,24 +187,6 @@ const fixedAcceptance = {
   minimumPerPlayerTriggerRecallPpm: 900000,
   maximumExposureToCorrectPlayerGameApiP95Us: 120000,
 };
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
-
-function normalizedText(bytes, label) {
-  assert.ok(!(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf), `${label} must not contain a BOM`);
-  let text;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
-  } catch (error) {
-    throw new Error(`${label} must be strict UTF-8`, { cause: error });
-  }
-  const normalized = text.replaceAll("\r\n", "\n");
-  assert.ok(!normalized.includes("\r"), `${label} must not contain a bare carriage return`);
-  return normalized;
-}
 
 function resolveRepositoryPath(repositoryRoot, path) {
   assert.equal(isAbsolute(path), false, "source path must be repository-relative");

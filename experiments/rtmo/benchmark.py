@@ -16,6 +16,7 @@ from typing import Any, Callable
 
 import numpy as np
 import psutil
+from check_environment import check_environment
 
 from model_spec import (
     MEDIAPIPE_MODEL_BYTES,
@@ -211,6 +212,7 @@ def git_metadata(root: Path) -> tuple[str, bool]:
 
 
 def benchmark(backend: str, output: Path, warmup_iterations: int, measured_iterations: int) -> None:
+    check_environment(backend)
     root = repository_root()
     suite = synthetic_suite()
     implementation = Path(__file__).resolve()

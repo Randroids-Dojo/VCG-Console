@@ -6,9 +6,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-import {
   countOverlaps,
   findChrome,
   insideSafeArea,
@@ -19,19 +16,17 @@ import {
   rounded,
   sha256,
   sourceTreeCommitment,
-  startProductionPreview,
+  startBuiltConsole,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
   deterministicScreenshot,
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
 
 export const LAUNCHER_TV_SURFACE_EVIDENCE_FORMAT =
   "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1";
 export const LAUNCHER_TV_SURFACE_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome optimized lab-build desk run proves that the explicitly marked Motion catalog, Wi-Fi offline settings state, and offline launch-recovery dialog satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overflow, and exact keyboard Back/focus-recovery checks at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify any other launcher state, a game, physical television, controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_TV_SURFACE_LIMITATIONS = Object.freeze([
   "Only three explicit states were measured: the Motion Hub catalog list, the Wi-Fi offline settings panel, and an injected local-web offline launch-recovery dialog. Museum, Retro, Profiles, calibration, portraits, unassigned progress, other settings, other launch states, Search, Motion Lab, and games remain outside this artifact.",
   "The three resolutions used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
@@ -45,10 +40,10 @@ const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
 );
 const homeEvidenceRelativePath =
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json";
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json";
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
   settingsPath: "apps/console-lab/src/launcher/SettingsView.svelte",
@@ -213,24 +208,25 @@ async function exerciseFocus(page, surfaceId) {
 async function exercise(chromePath) {
   const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
   const { chromium } = requireFromConsoleLab("@playwright/test");
-  const server = await startProductionPreview();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  const requestCounts = new Map();
-  const consoleErrors = [];
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  const server = await startBuiltConsole();
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    const requestCounts = new Map();
+    const consoleErrors = [];
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       for (const surface of SURFACES) {
         const page = await browser.newPage({
@@ -263,7 +259,7 @@ async function exercise(chromePath) {
           timeout: 30_000,
         });
         assert.equal(response?.status(), 200);
-        await page.getByRole("heading", { name: /Good evening/ }).waitFor();
+        await page.getByRole("heading", { name: /^Games$/ }).waitFor();
         await openSurface(page, surface.id);
         await page.evaluate(() => document.fonts.ready);
         await page.clock.runFor(1_000);
@@ -320,7 +316,7 @@ async function exercise(chromePath) {
 
         const screenshotPath = resolve(
           outputRoot,
-          `windows-x64-chrome-150-launcher-${surface.id}-${resolution.id}.png`,
+          `windows-x64-installed-chrome-launcher-${surface.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
         const screenshot = await deterministicScreenshot(
@@ -355,7 +351,7 @@ async function exercise(chromePath) {
           focusTrace,
           screenshot: {
             path:
-              `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-${surface.id}-${resolution.id}.png`,
+              `benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-${surface.id}-${resolution.id}.png`,
             bytes: screenshot.length,
             sha256: digestBytes(screenshot),
           },
@@ -379,28 +375,25 @@ async function exercise(chromePath) {
       ),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 
 export async function generateLauncherTvSurfaceEvidence() {
   assert.equal(process.platform, "win32");
   assert.equal(process.arch, "x64");
-  assert.equal(process.version, GODOT_EXPORT_NODE_VERSION);
   const retrievedAtUtc = new Date().toISOString();
-  assert.ok(
-    retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
-    `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
-  );
   const browser = await exercise(findChrome());
-  assert.equal(browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const homeEvidenceBytes = await readFile(
     resolve(root, homeEvidenceRelativePath),
   );
   return {
     format: LAUNCHER_TV_SURFACE_EVIDENCE_FORMAT,
-    evidenceDate: TV_CONFORMANCE_EVIDENCE_DATE,
+    evidenceDate: retrievedAtUtc.slice(0, 10),
     evidenceClass:
       "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
     qualification:
@@ -411,6 +404,7 @@ export async function generateLauncherTvSurfaceEvidence() {
       sha256: sha256(homeEvidenceBytes),
     },
     environment: {
+      buildMode: "lab",
       producerPlatform: process.platform,
       producerArchitecture: process.arch,
       nodeVersion: process.version,

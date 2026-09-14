@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -23,10 +24,6 @@ const topKeys = ["format", "status", "campaignId", "observedAt", "qualificationS
 const targetKeys = ["hostProduct", "receivedHostAndFirmwareSha256", "imageKernelCompositorDriverSha256", "primaryTvManufacturerModelRevisionSha256", "tvFirmwareVersion", "tvPortAndSettingsSha256", "hdmiCableIdentityAndCertificationSha256", "receiverOrSoundbarIdentitySha256", "captureAndTimingInstrumentSha256", "cecAdapterAndTraceToolSha256", "roomAndViewingGeometrySha256", "workloadBundleSha256"];
 const openGates = ["maximumOverscanCropPixels", "maximumMissedFrameRatio", "maximumFrameTimeP95Ms", "maximumAudioLatencyP95Ms", "maximumAudioVideoDriftMs", "maximumCecCommandP95Ms", "maximumCecWakeFailureRatio", "maximumHotPlugRecoveryMs", "minimumPoseFps", "minimumGameFps", "maximumSustainedSocTemperatureC", "maximumWallPowerW"];
 
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 function digest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   assert.ok(!/(^|[^\r])\r([^\n]|$)/u.test(text), `${label} has bare CR`);
@@ -36,7 +33,7 @@ async function validateSources(bindings, repositoryRoot) {
   const expected = [
     ["settings-rehearsal-boundary", "docs/DISPLAY_AUDIO_SETTINGS_REHEARSAL_2026-07-25.md"],
     ["boot-wake-timing-boundary", "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json"],
-    ["browser-tv-geometry-boundary", "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json"],
+    ["browser-tv-geometry-boundary", "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json"],
     ["sustained-load-boundary", "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json"],
   ];
   assert.equal(bindings.length, expected.length);

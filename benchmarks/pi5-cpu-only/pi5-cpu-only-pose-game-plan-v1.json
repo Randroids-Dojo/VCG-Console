@@ -14,7 +14,7 @@
     {
       "role": "concurrent-workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "c8d317d935b807a8595824c4f6de483dbbe924a49d87afaa6558b78c7f5a83f8"
+      "sha256": "52fead4e6999c976e6b36b3a8e0183403723b8b23948394690bdbaf2d9f7ce04"
     },
     {
       "role": "pose-provider-boundary",

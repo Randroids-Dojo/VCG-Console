@@ -7,7 +7,11 @@ import {
   applyVisualTokens,
 } from "./visual-tokens";
 
-const stylesheet = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+const styleEntry = new URL("./styles.css", import.meta.url);
+const stylesheet = readFileSync(styleEntry, "utf8").replace(
+  /@import "([^"\n]+)";/gu,
+  (_, path: string) => readFileSync(new URL(path, styleEntry), "utf8"),
+);
 
 function selectorBlock(selector: string): string {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");

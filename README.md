@@ -59,7 +59,7 @@ The first useful milestone is not a finished enclosure. It is a wired living-roo
 
 ## Get started
 
-Setup, dev commands, verification, and the retro build recipes live in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Start with the [documentation index](docs/README.md) for current guides and historical evidence. Setup, dev commands, verification, and the retro build recipes live in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## Documentation
 

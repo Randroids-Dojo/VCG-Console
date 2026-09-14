@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -47,11 +48,6 @@ const expectedGames = [
     catalogClass: "promoted-community",
   })),
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), label);
-  assert.deepEqual(Object.keys(value), expected, `${label} has unknown or missing fields`);
-}
 
 function integer(value, label, nullable = false) {
   if (nullable && value === null) return;

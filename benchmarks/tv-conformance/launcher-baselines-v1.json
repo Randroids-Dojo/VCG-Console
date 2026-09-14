@@ -1,0 +1,765 @@
+{
+  "format": "vcg-launcher-recorded-baselines/v1",
+  "home": {
+    "observation": {
+      "evidenceDate": "2026-09-14",
+      "environment": {
+        "buildMode": "lab",
+        "producerPlatform": "win32",
+        "producerArchitecture": "x64",
+        "nodeVersion": "v24.18.0",
+        "browserProduct": "Chrome/152.0.7977.83",
+        "devicePixelRatio": 1,
+        "browserClock": "2026-07-24T19:00:00-07:00"
+      }
+    },
+    "screenshots": {
+      "720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-720p.png",
+        "bytes": 488784,
+        "sha256": "e5dd172bbefc88c0448176e7c07f76c74b243b0f42b0b0596004e3efacb1d96d"
+      },
+      "1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-1080p.png",
+        "bytes": 874604,
+        "sha256": "9fdc04ff6a8b25815a26489888f9419f3705fb274d644a7d179b6a951aa0a102"
+      },
+      "4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-4k.png",
+        "bytes": 2937404,
+        "sha256": "da7fd101e8ed56d045c65a19c984cfda6df357a7d09db8561dfdf58216496f2e"
+      }
+    },
+    "measurements": {
+      "720p": {
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684
+        },
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 88.609,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "1080p": {
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026
+        },
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 102.672,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "4k": {
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052
+        },
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 161.906,
+        "minimumActionTargetHeightCssPx": 60
+      }
+    },
+    "requestCounts": {
+      "/": 3,
+      "/assets/main-0W4-Hwe9.css": 3,
+      "/assets/main-H2oTmfIj.js": 3,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
+      "/assets/src-DJk9Nbrx.js": 3,
+      "/assets/synthetic-BxnOr_Mh.js": 3,
+      "/assets/tracker-health-Di71DaQ3.js": 3,
+      "/fonts/InterVariable.woff2": 3,
+      "/fonts/OCRA.ttf": 3
+    }
+  },
+  "surfaces": {
+    "observation": {
+      "evidenceDate": "2026-09-14",
+      "environment": {
+        "buildMode": "lab",
+        "producerPlatform": "win32",
+        "producerArchitecture": "x64",
+        "nodeVersion": "v24.18.0",
+        "browserProduct": "Chrome/152.0.7977.83",
+        "devicePixelRatio": 1,
+        "browserClock": "2026-07-24T19:00:00-07:00"
+      }
+    },
+    "screenshots": {
+      "motion-catalog/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-720p.png",
+        "bytes": 316619,
+        "sha256": "402064a2f9c5b8e86fda2bec9c5aa38c0c25a5d566fd8ab5a2888ea7c17f7c3d"
+      },
+      "wifi-offline/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-720p.png",
+        "bytes": 295625,
+        "sha256": "f9b7dc4a762af3f9c58aef947baf65cfe6bdb5ef1ec1a7ee87e0d47f6345a2ba"
+      },
+      "launch-offline/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-720p.png",
+        "bytes": 298786,
+        "sha256": "87fc760d87f906e55ab1d0fb799a1a56e098b08088f76b524b3f0fc37ed7819b"
+      },
+      "motion-catalog/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-1080p.png",
+        "bytes": 521916,
+        "sha256": "f2d368a7d7fec58327e7c24f2d0c180962d1a12ecd32e2261e31dc696fce8c61"
+      },
+      "wifi-offline/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-1080p.png",
+        "bytes": 459977,
+        "sha256": "67d6b4919c6af7d06210caef27e49f44e1ab08d6d97706f395817578796db39b"
+      },
+      "launch-offline/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-1080p.png",
+        "bytes": 521327,
+        "sha256": "63a1848979c55966ab983c2c43b91a26384086359e04d4a004b01bc0d2f93845"
+      },
+      "motion-catalog/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-motion-catalog-4k.png",
+        "bytes": 1559426,
+        "sha256": "914b9546662b403c4dccf4a0a87965fd6e6fa4cf05fa29a2481d16a4a9f6fedb"
+      },
+      "wifi-offline/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-wifi-offline-4k.png",
+        "bytes": 1388008,
+        "sha256": "aad01fb4845d68bb0b3a99e182abcb53f69396782d2b99c37a74274740a33b87"
+      },
+      "launch-offline/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-launch-offline-4k.png",
+        "bytes": 1750910,
+        "sha256": "6fce4b7d71df996cdf7c1c20cb2b38ff4dac406b071d4bf4f0ec5703e9170e7f"
+      }
+    },
+    "measurements": {
+      "motion-catalog/720p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 88.609,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "wifi-offline/720p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 88.609,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "launch-offline/720p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 69.125,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "motion-catalog/1080p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 102.672,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "wifi-offline/1080p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 102.672,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "launch-offline/1080p": {
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 75.531,
+        "minimumActionTargetHeightCssPx": 48
+      },
+      "motion-catalog/4k": {
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 161.906,
+        "minimumActionTargetHeightCssPx": 60
+      },
+      "wifi-offline/4k": {
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 161.906,
+        "minimumActionTargetHeightCssPx": 60
+      },
+      "launch-offline/4k": {
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 115.359,
+        "minimumActionTargetHeightCssPx": 62
+      }
+    }
+  },
+  "search": {
+    "observation": {
+      "evidenceDate": "2026-09-14",
+      "environment": {
+        "buildMode": "lab",
+        "producerPlatform": "win32",
+        "producerArchitecture": "x64",
+        "nodeVersion": "v24.18.0",
+        "browserProduct": "Chrome/152.0.7977.83",
+        "devicePixelRatio": 1,
+        "browserClock": "2026-07-24T19:00:00-07:00"
+      }
+    },
+    "screenshots": {
+      "motion-results/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-720p.png",
+        "bytes": 129397,
+        "sha256": "2f32811d7bf164be74811e0d24386de36a0332c1d6a7de6003abe0daefdabc43"
+      },
+      "no-results/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-720p.png",
+        "bytes": 126356,
+        "sha256": "919f4c315e2ba8b3e5cb858a6e22e720fff0388defa9f1dc93f95e8ee1f96430"
+      },
+      "empty-query-scroll-activation/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-720p.png",
+        "bytes": 143478,
+        "sha256": "79fc584c68a95dbffcc6393431b72b74d223ccac87fb22e5fb49c91241ca6059"
+      },
+      "offline-package-activation/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-720p.png",
+        "bytes": 128133,
+        "sha256": "7c6b506c56c3d9f4d0e1d81d372bbda95f31a83842de891360badc5f035ae96e"
+      },
+      "remote-web-ready-denial/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-720p.png",
+        "bytes": 132130,
+        "sha256": "6155cdf7c8af90fe12c4d550d6547df6cb953e3dc86eb27d688251c6dd9cc104"
+      },
+      "remote-web-offline-failure/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-720p.png",
+        "bytes": 132130,
+        "sha256": "6155cdf7c8af90fe12c4d550d6547df6cb953e3dc86eb27d688251c6dd9cc104"
+      },
+      "unavailable-package-denial/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-720p.png",
+        "bytes": 127720,
+        "sha256": "c305c45b3acebd71a4d678470fcd866616563bc75bf1ea7c04d648d5bbea937d"
+      },
+      "destructive-settings-denial/720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-720p.png",
+        "bytes": 133792,
+        "sha256": "5e939687c906750d2d26bd38ea41efae88519c455b6fadbbd66cc177857a1de4"
+      },
+      "motion-results/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-1080p.png",
+        "bytes": 231282,
+        "sha256": "f6ad6224f683cd9494be7f4512cc5c2f5e63e7461e201843600b3e75dd7925c8"
+      },
+      "no-results/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-1080p.png",
+        "bytes": 217721,
+        "sha256": "5d87dae1255cd1247cc324938fd8a749998b37890d616d2b7b550ddebc3c3cb3"
+      },
+      "empty-query-scroll-activation/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-1080p.png",
+        "bytes": 280240,
+        "sha256": "90490dff2a866c700da0b028060a320d0b0e086560916766c2e73f379986c876"
+      },
+      "offline-package-activation/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-1080p.png",
+        "bytes": 208594,
+        "sha256": "24717e04e5f767bc15b85a583426d82736068ffcbe8cd0208d80a3f260d9ed85"
+      },
+      "remote-web-ready-denial/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-1080p.png",
+        "bytes": 212917,
+        "sha256": "97564d7f3547d26f4e6fdd50d24bc36042860efdb58c4e57b3a9ecdbf7452b05"
+      },
+      "remote-web-offline-failure/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-1080p.png",
+        "bytes": 212917,
+        "sha256": "97564d7f3547d26f4e6fdd50d24bc36042860efdb58c4e57b3a9ecdbf7452b05"
+      },
+      "unavailable-package-denial/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-1080p.png",
+        "bytes": 208598,
+        "sha256": "603c3412dfada3e56b71ace6354c71b65d7904f915c9f724585155c90d74698d"
+      },
+      "destructive-settings-denial/1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-1080p.png",
+        "bytes": 216594,
+        "sha256": "f3b1a1a6bd76f68ccc5d692e8735ca2447a00a22b6a788ad897c8878d166c946"
+      },
+      "motion-results/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-motion-results-4k.png",
+        "bytes": 619349,
+        "sha256": "6fef86b4644435c1d23c0b4dbbe69a41c445833efd828f15b497e36f14c90bc7"
+      },
+      "no-results/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-no-results-4k.png",
+        "bytes": 589580,
+        "sha256": "cfa541909fb64a0a06ea8cd6d707deee225423904dd37f351c197703ed98798a"
+      },
+      "empty-query-scroll-activation/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-empty-query-scroll-activation-4k.png",
+        "bytes": 797208,
+        "sha256": "5fe92f6c4e8269e9734ea70434a8c976c648e64dfc522fa8c051cef30a62f71e"
+      },
+      "offline-package-activation/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-offline-package-activation-4k.png",
+        "bytes": 563900,
+        "sha256": "efda2224883e58f994018222f2842b55bf1176eb6fc1f62e1cf38727582ebba3"
+      },
+      "remote-web-ready-denial/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-ready-denial-4k.png",
+        "bytes": 572846,
+        "sha256": "b9d3d2da0ff2fc7fab365be5fe16c39375a7e91530021ce6daa13c9b2c20ade2"
+      },
+      "remote-web-offline-failure/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-remote-web-offline-failure-4k.png",
+        "bytes": 572846,
+        "sha256": "b9d3d2da0ff2fc7fab365be5fe16c39375a7e91530021ce6daa13c9b2c20ade2"
+      },
+      "unavailable-package-denial/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-unavailable-package-denial-4k.png",
+        "bytes": 564662,
+        "sha256": "cf20f135a8a74fdd807ce39e5491dcece5fd11e9a74a9e4f4d6afb215f103cfa"
+      },
+      "destructive-settings-denial/4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-destructive-settings-denial-4k.png",
+        "bytes": 577927,
+        "sha256": "624c66befbcf512146f0f46f3b3a61b0ef1c13d9b81c8f56593e953dfeefcf1d"
+      }
+    },
+    "measurements": {
+      "motion-results/720p": {
+        "measuredCriticalTextCount": 8,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 272,
+          "scrollHeightCssPx": 272,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "no-results/720p": {
+        "measuredCriticalTextCount": 9,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 198.703,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "empty-query-scroll-activation/720p": {
+        "measuredCriticalTextCount": 10,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 420,
+          "scrollHeightCssPx": 1448,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 1028,
+          "maximumScrollTopCssPx": 1028,
+          "lastResultInsideViewportAfterFocus": true
+        }
+      },
+      "offline-package-activation/720p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-ready-denial/720p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-offline-failure/720p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "unavailable-package-denial/720p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "destructive-settings-denial/720p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 693.141,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "motion-results/1080p": {
+        "measuredCriticalTextCount": 8,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 276,
+          "scrollHeightCssPx": 276,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "no-results/1080p": {
+        "measuredCriticalTextCount": 9,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 194.891,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "empty-query-scroll-activation/1080p": {
+        "measuredCriticalTextCount": 16,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 726,
+          "scrollHeightCssPx": 1458,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 732,
+          "maximumScrollTopCssPx": 732,
+          "lastResultInsideViewportAfterFocus": true
+        }
+      },
+      "offline-package-activation/1080p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-ready-denial/1080p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-offline-failure/1080p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "unavailable-package-denial/1080p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 48,
+          "scrollHeightCssPx": 48,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "destructive-settings-denial/1080p": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 677.922,
+        "minimumActionTargetHeightCssPx": 48,
+        "resultsScroll": {
+          "clientHeightCssPx": 50,
+          "scrollHeightCssPx": 50,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "motion-results/4k": {
+        "measuredCriticalTextCount": 8,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 374,
+          "scrollHeightCssPx": 374,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "no-results/4k": {
+        "measuredCriticalTextCount": 9,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 425.297,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 0,
+          "scrollHeightCssPx": 0,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "empty-query-scroll-activation/4k": {
+        "measuredCriticalTextCount": 26,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 1644,
+          "scrollHeightCssPx": 1844,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 200,
+          "maximumScrollTopCssPx": 200,
+          "lastResultInsideViewportAfterFocus": true
+        }
+      },
+      "offline-package-activation/4k": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-ready-denial/4k": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "remote-web-offline-failure/4k": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "unavailable-package-denial/4k": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      },
+      "destructive-settings-denial/4k": {
+        "measuredCriticalTextCount": 4,
+        "minimumCriticalTextCssPx": 48,
+        "minimumActionTargetWidthCssPx": 1548.656,
+        "minimumActionTargetHeightCssPx": 62,
+        "resultsScroll": {
+          "clientHeightCssPx": 62,
+          "scrollHeightCssPx": 62,
+          "initialScrollTopCssPx": 0,
+          "finalScrollTopCssPx": 0,
+          "maximumScrollTopCssPx": 0,
+          "lastResultInsideViewportAfterFocus": null
+        }
+      }
+    }
+  },
+  "fontFallback": {
+    "observation": {
+      "evidenceDate": "2026-09-14",
+      "environment": {
+        "buildMode": "lab",
+        "platform": "windows-x64",
+        "browserProduct": "Chrome/152.0.7977.83",
+        "node": "v24.18.0",
+        "headless": true,
+        "devicePixelRatio": 1,
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        }
+      }
+    },
+    "screenshot": {
+      "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-1080p.png",
+      "bytes": 37017,
+      "sha256": "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458"
+    },
+    "requestCounts": {
+      "/?input=controller": 1,
+      "/assets/main-0W4-Hwe9.css": 1,
+      "/assets/main-H2oTmfIj.js": 1,
+      "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
+      "/assets/src-DJk9Nbrx.js": 1,
+      "/assets/synthetic-BxnOr_Mh.js": 1,
+      "/assets/tracker-health-Di71DaQ3.js": 1,
+      "/fonts/InterVariable.woff2": 1,
+      "/fonts/OCRA.ttf": 1
+    }
+  },
+  "authoring": {
+    "observation": {
+      "evidenceDate": "2026-09-14",
+      "environment": {
+        "producerPlatform": "win32",
+        "producerArchitecture": "x64",
+        "nodeVersion": "v24.18.0",
+        "browserProduct": "Chrome/152.0.7977.83",
+        "devicePixelRatio": 1
+      }
+    },
+    "screenshots": {
+      "720p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-720p.png",
+        "bytes": 141664,
+        "sha256": "0d623470a2de6c89a923da16a935359820d87d64393143207771d8f046214c06"
+      },
+      "1080p": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-1080p.png",
+        "bytes": 233307,
+        "sha256": "c98e2fe6c5a5b65e5afa01302852b5e8d3e72857d7fe81ba9e049d58c6264df6"
+      },
+      "4k": {
+        "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-4k.png",
+        "bytes": 578384,
+        "sha256": "219668213d47c48a7ba8d8d7d784939b1a3167b2dc395d2fb992a478cc43c25e"
+      }
+    },
+    "measurements": {
+      "720p": {
+        "safeArea": {
+          "left": 64,
+          "top": 36,
+          "right": 1216,
+          "bottom": 684,
+          "width": 1152,
+          "height": 648
+        },
+        "minimumCriticalTextCssPx": 24,
+        "minimumActionTargetWidthCssPx": 256.609,
+        "minimumActionTargetHeightCssPx": 64
+      },
+      "1080p": {
+        "safeArea": {
+          "left": 96,
+          "top": 54,
+          "right": 1824,
+          "bottom": 1026,
+          "width": 1728,
+          "height": 972
+        },
+        "minimumCriticalTextCssPx": 31.68,
+        "minimumActionTargetWidthCssPx": 385.391,
+        "minimumActionTargetHeightCssPx": 64
+      },
+      "4k": {
+        "safeArea": {
+          "left": 192,
+          "top": 108,
+          "right": 3648,
+          "bottom": 2052,
+          "width": 3456,
+          "height": 1944
+        },
+        "minimumCriticalTextCssPx": 38,
+        "minimumActionTargetWidthCssPx": 803,
+        "minimumActionTargetHeightCssPx": 70
+      }
+    }
+  }
+}

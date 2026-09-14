@@ -32,7 +32,7 @@
     {
       "role": "steamos-update-safe-content-plan",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
+      "sha256": "80d849fefc3809b3ccadeedd93975c4bdd1e282f48680f2a8ff5cfa24419e1ce"
     },
     {
       "role": "shared-camera-qualification-campaign",

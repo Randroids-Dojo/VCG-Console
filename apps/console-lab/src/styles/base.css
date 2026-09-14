@@ -1,0 +1,273 @@
+@font-face {
+  font-family: OCRA;
+  src: url("/fonts/OCRA.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: InterVariable;
+  src: url("/fonts/InterVariable.woff2") format("woff2-variations");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+:root {
+  color-scheme: dark;
+  --vcg-token-version: "1";
+  --vcg-font-shell: OCRA, ui-monospace, SFMono-Regular, monospace;
+  --vcg-grid-step: 32px;
+  --vcg-control-min: 48px;
+  --vcg-focus-width: 3px;
+  --vcg-focus-offset: 4px;
+  --vcg-motion-immediate: 80ms;
+  --vcg-motion-feedback: 120ms;
+  --vcg-motion-view: 180ms;
+  --vcg-motion-ambient: 1200ms;
+  --vcg-space-1: 8px;
+  --vcg-space-2: 16px;
+  --vcg-space-3: 24px;
+  --vcg-space-4: 32px;
+  --vcg-space-5: 48px;
+  --vcg-space-6: 64px;
+
+  --vcg-color-ink: #090b0c;
+  --vcg-color-panel: #10151a;
+  --vcg-color-rail: #151b21;
+  --vcg-color-line: #2b333a;
+  --vcg-color-paper: #eef0ea;
+  --vcg-color-muted: #8b959d;
+  --vcg-color-fault: #ff765f;
+  --vcg-accent-standard: #53dac3;
+  --vcg-accent-high: #7affe5;
+
+  --ink: var(--vcg-color-ink);
+  --panel: var(--vcg-color-panel);
+  --rail: var(--vcg-color-rail);
+  --line: var(--vcg-color-line);
+  --paper: var(--vcg-color-paper);
+  --muted: var(--vcg-color-muted);
+  --accent: var(--vcg-accent-standard);
+  --fault: var(--vcg-color-fault);
+
+  /* v2 additive tokens (see docs/UI_OVERHAUL_DESIGN.md). The v1 contract
+     block above is closed and byte-stable; everything below only adds. */
+  --vcg-font-ui: InterVariable, "Segoe UI", system-ui, sans-serif;
+  --font-ui: var(--vcg-font-ui);
+  --font-brand: var(--vcg-font-shell);
+  --vcg-motion-relax: 320ms;
+  --vcg-motion-stage: 520ms;
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 22px;
+  --safe-x: clamp(20px, 5vw, 220px);
+  --safe-y: clamp(14px, 5vh, 130px);
+
+  /* Type ramp: critical (marked) text floors at 24px per the TV contract.
+     Caps sit at ~2x the 1080p size so a 4K output renders the same
+     composition, not a desktop app marooned in a corner. */
+  --text-display: clamp(38px, 3vw, 118px);
+  --text-title: clamp(30px, 2.1vw, 82px);
+  --text-section: clamp(24px, 1.5vw, 60px);
+  --text-body: clamp(24px, 1.3vw, 52px);
+  --text-detail: clamp(16px, 1vw, 40px);
+  --text-micro: clamp(13px, 0.8vw, 32px);
+
+  /* Layered surfaces: translucent light over ink, not hairline boxes. */
+  --surface-1: color-mix(in srgb, var(--paper) 4%, transparent);
+  --surface-2: color-mix(in srgb, var(--paper) 7%, transparent);
+  --surface-3: color-mix(in srgb, var(--paper) 12%, transparent);
+  --stroke-1: color-mix(in srgb, var(--paper) 8%, transparent);
+  --stroke-2: color-mix(in srgb, var(--paper) 16%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent);
+  --shadow-tile: 0 18px 44px rgb(0 0 0 / 0.45);
+  --shadow-sheet: 0 24px 80px rgb(0 0 0 / 0.55);
+  --scrim-art: linear-gradient(
+    to top,
+    rgb(4 6 8 / 0.92) 0%,
+    rgb(4 6 8 / 0.55) 34%,
+    rgb(4 6 8 / 0.08) 62%,
+    transparent 100%
+  );
+
+  font-family: var(--vcg-font-ui);
+  background: var(--ink);
+  color: var(--paper);
+  font-synthesis: none;
+}
+
+:root[data-vcg-accent="cyan"] {
+  --vcg-accent-standard: #53dac3;
+  --vcg-accent-high: #7affe5;
+}
+
+:root[data-vcg-accent="amber"] {
+  --vcg-accent-standard: #f1c75b;
+  --vcg-accent-high: #ffe089;
+}
+
+:root[data-vcg-accent="violet"] {
+  --vcg-accent-standard: #b8a7ff;
+  --vcg-accent-high: #d9d0ff;
+}
+
+:root[data-vcg-text-scale="standard"] {
+  font-size: 100%;
+}
+
+.ui-icon {
+  position: relative;
+  box-sizing: border-box;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.ui-icon::before,
+.ui-icon::after {
+  position: absolute;
+  box-sizing: border-box;
+  content: "";
+}
+
+.ui-icon-arrow-right::before,
+.ui-icon-arrow-left::before {
+  width: 0.78em;
+  height: 0.1em;
+  top: 0.45em;
+  background: currentColor;
+}
+
+.ui-icon-arrow-right::before {
+  left: 0.08em;
+}
+
+.ui-icon-arrow-left::before {
+  right: 0.08em;
+}
+
+.ui-icon-arrow-right::after,
+.ui-icon-arrow-left::after,
+.ui-icon-arrow-up-right::after {
+  width: 0.42em;
+  height: 0.42em;
+  border-top: 0.1em solid currentColor;
+  border-right: 0.1em solid currentColor;
+}
+
+.ui-icon-arrow-right::after {
+  top: 0.29em;
+  right: 0.08em;
+  transform: rotate(45deg);
+}
+
+.ui-icon-arrow-left::after {
+  top: 0.29em;
+  left: 0.08em;
+  transform: rotate(-135deg);
+}
+
+.ui-icon-arrow-up-right::before {
+  width: 0.88em;
+  height: 0.1em;
+  left: 0.02em;
+  top: 0.47em;
+  background: currentColor;
+  transform: rotate(-45deg);
+}
+
+.ui-icon-arrow-up-right::after {
+  top: 0.06em;
+  right: 0.06em;
+}
+
+.ui-icon-retry {
+  border: 0.1em solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+
+.ui-icon-retry::after {
+  width: 0;
+  height: 0;
+  top: -0.13em;
+  left: 0.05em;
+  border-top: 0.18em solid transparent;
+  border-right: 0.32em solid currentColor;
+  border-bottom: 0.18em solid transparent;
+  transform: rotate(-24deg);
+}
+
+:root[data-vcg-text-scale="large"] {
+  font-size: 112.5%;
+}
+
+:root[data-vcg-contrast="high"] {
+  --vcg-color-ink: #000;
+  --vcg-color-panel: #070808;
+  --vcg-color-rail: #0d0f0f;
+  --vcg-color-line: #d8d8d0;
+  --vcg-color-paper: #fff;
+  --vcg-color-muted: #d5d5ce;
+  --vcg-color-fault: #ff9b84;
+  --vcg-focus-width: 4px;
+  --accent: var(--vcg-accent-high);
+  --stroke-1: color-mix(in srgb, var(--paper) 30%, transparent);
+  --stroke-2: color-mix(in srgb, var(--paper) 55%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    radial-gradient(120% 90% at 50% -10%, #131a21 0%, var(--ink) 58%),
+    var(--ink);
+  background-size: var(--vcg-grid-step) var(--vcg-grid-step), var(--vcg-grid-step) var(--vcg-grid-step), 100% 100%, 100% 100%;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+/* Controller- and body-camera-driven TV console, not a mouse-driven desktop
+   app. Hidden by default (see cursor-visibility.ts) and shown only while a
+   real pointer is actively moving, so it never appears on the appliance
+   boot path (no mouse) but still works normally at a desk. */
+body.vcg-cursor-hidden,
+body.vcg-cursor-hidden * {
+  cursor: none !important;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: var(--vcg-focus-width) solid var(--accent);
+  outline-offset: var(--vcg-focus-offset);
+}
+
+.boot-screen[hidden],
+.launcher[hidden],
+.console-shell[hidden],
+[hidden] {
+  display: none !important;
+}
+

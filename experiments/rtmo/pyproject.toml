@@ -4,14 +4,30 @@ version = "0.1.0"
 description = "Pinned, local-only RTMO and MediaPipe x86 comparison tooling"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-  "mediapipe==0.10.35",
   "numpy==2.5.1",
+  "psutil==7.2.2",
+]
+
+[project.optional-dependencies]
+rtmo = [
   "onnxruntime==1.27.0",
   "opencv-contrib-python==5.0.0.93",
-  "opencv-python==5.0.0.93",
-  "psutil==7.2.2",
   "rtmlib==0.0.15",
+]
+mediapipe = [
+  "mediapipe==0.10.35",
+  "opencv-contrib-python==5.0.0.93",
 ]
 
 [tool.uv]
 package = false
+conflicts = [[{ extra = "rtmo" }, { extra = "mediapipe" }]]
+
+# rtmlib 0.0.15 declares two distributions that overwrite the same cv2 module.
+# The contrib build includes the standard APIs used by RTMO. Correct only this
+# version's redundant requirement; keep its wheel and all other dependencies.
+# See RTMO_X86_SPIKE_2026-07-24.md for the upstream metadata and verification.
+[[tool.uv.dependency-metadata]]
+name = "rtmlib"
+version = "0.0.15"
+requires-dist = ["numpy", "onnxruntime", "opencv-contrib-python", "tqdm"]

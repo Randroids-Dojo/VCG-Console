@@ -212,7 +212,7 @@
     "controllerSha256": "0855bcbe196b6439b8173b4f2992213f88dfe51e3c977cfcf3553f526d34e500",
     "rehearsalSha256": "9c2f7dada63d94bd540e27ac30d4514796c85ef46a807cedf47e3ccda91ffae9",
     "generatorSha256": "a5c7b44845216d4881be306ff2ba79c3beead07e6d454ec4b16ecdce9c2d608a",
-    "validatorSha256": "1d7dc1ab884e71f902e8b4e29df732f4644fcef72822115e817134dceae2fa2f"
+    "validatorSha256": "8959444aaff2c188001291aea4c4d38de1d43bc91cdcd29b6b7358d20ea26e12"
   },
   "privacy": {
     "rawFramesRetained": false,

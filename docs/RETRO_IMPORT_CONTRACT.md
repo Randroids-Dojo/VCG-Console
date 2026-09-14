@@ -97,10 +97,11 @@ On Linux, staging and content must have the same device ID. The transaction:
 3. durably publishes a path-free pending record before copying;
 4. streams from an already-opened regular source handle into a private staged
    file while enforcing exact length and SHA-256;
-5. invokes a pluggable scanner over a separately opened read-only staged
-   subject and accepts only exact inspection/hash-bound clean evidence;
-6. rehashes and seals the staged payload, then hard-links it into the
-   console-managed object store without replacement;
+5. holds one read-only staged file handle for hashing and scanning and accepts
+   only exact inspection/hash-bound clean evidence;
+6. rehashes that same handle, restricts its write permissions, then publishes without replacement:
+   Linux links through `/proc/self/fd` and Windows denies write/delete sharing
+   while linking, so a staging-path replacement cannot substitute another inode;
 7. publishes the next full installed-library generation through a synchronized
    no-replace hard link;
 8. persists a path-free terminal audit record containing the exact clean scan
@@ -108,6 +109,18 @@ On Linux, staging and content must have the same device ID. The transaction:
 9. removes an exact replaced object only after the new generation and audit
    are durable; and
 10. cleans scan/staging/temporary/pending state last.
+
+Staging and the managed object store belong to the trusted host coordinator.
+The host creates the stage with mode `0700`, creates its payload with mode
+`0600`, and closes its sole copy writer before recovery opens the read-only
+hash/scan handle. The scanner receives only a `Read` interface. Transports
+provide the source handle and receive no staged-file handle or path.
+Unix mode `0400` restricts new writable opens; it does not revoke pre-existing
+descriptors or provide inode immutability against the owner/root. An
+uncooperative process sharing the coordinator's OS identity is outside this
+private-store boundary and could also alter committed objects or metadata.
+The held-descriptor publication check protects file identity, not that stronger
+privileged-writer threat model.
 
 An interruption before a complete staged hash discards only that bound stage.
 A complete unscanned stage can be scanned and committed without the original

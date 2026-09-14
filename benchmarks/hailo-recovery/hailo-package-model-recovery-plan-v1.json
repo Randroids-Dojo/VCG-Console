@@ -22,7 +22,7 @@
     {
       "role": "pi-hailo-image-plan-validator",
       "path": "scripts/validate-pi5-hailo-image-plan.mjs",
-      "sha256": "b7116a0003bc100ed136e93a0a20c45f4defbbc6c97b223a5804ba10e4f8c019"
+      "sha256": "f002639a52a614a0d21138259b081ed198129e305fc9058754cb688012f4ba25"
     },
     {
       "role": "pi-hailo-image-recipe-boundary",

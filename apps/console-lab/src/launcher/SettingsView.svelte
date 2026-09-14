@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { LAB_MODE } from "../build-mode";
   import { onDestroy, tick } from "svelte";
   import { InputDefaultController, type ConsoleInputDefault } from "./input-default";
   import { preferenceStorage } from "../preference-storage";
@@ -92,7 +93,7 @@
   let diagnosticReview = $state.raw<PreparedLocalDiagnosticExport | undefined>();
   let diagnosticExportArmed = $state(false);
   let observedProfileId: string | undefined;
-  let operatingModeElement: HTMLElement;
+  let operatingModeElement = $state<HTMLElement>();
   let scanTimer: number | undefined;
   let operatingModeTimer: number | undefined;
 
@@ -340,7 +341,7 @@
 </header>
 <div class="settings-layout">
   <nav class="settings-nav" data-focus-group="menu" aria-label="Settings sections">
-    {#each ["system", "accessibility", "display", "audio", "controllers", "network", "storage", "developer"] as target}
+    {#each ["system", "accessibility", ...(LAB_MODE ? ["display", "audio"] : []), "controllers", "network", "storage", ...(LAB_MODE ? ["developer"] : [])] as target}
       <button
         class:active={panel === target}
         type="button"
@@ -354,7 +355,7 @@
   <div class="settings-panels" data-focus-group>
     <section data-settings-panel="system" hidden={panel !== "system"}>
       <dl><div><dt>VCG Console</dt><dd>Prototype 0.0.1</dd></div><div><dt>Motion API</dt><dd>0.2.0</dd></div><div><dt>Update channel</dt><dd>Development</dd></div></dl>
-      <button type="button" onclick={() => ontoast("No console update service is connected in this prototype.")}>Check for updates</button>
+      <p data-tv-critical-text>Updates are managed with the native console tools.</p>
     </section>
     <section data-settings-panel="accessibility" hidden={panel !== "accessibility"}>
       <div class="accessibility-summary" aria-live="polite">
@@ -428,6 +429,7 @@
 
       <button class="accessibility-reset" type="button" onclick={onaccessibilityreset}>Reset accessibility settings</button>
     </section>
+    {#if LAB_MODE}
     <section data-settings-panel="display" hidden={panel !== "display"}>
       <div class="av-settings-summary">
         <span>SESSION-ONLY REHEARSAL</span>
@@ -453,6 +455,8 @@
       </div>
       <p class="av-settings-boundary">Preview only. Resolution, refresh rate, color, HDR, overscan, compositor focus, physical television behavior, and persistence remain unchanged and unverified.</p>
     </section>
+    {/if}
+    {#if LAB_MODE}
     <section data-settings-panel="audio" hidden={panel !== "audio"}>
       <div class="av-settings-summary">
         <span>LOCAL CUE REHEARSAL</span>
@@ -475,6 +479,7 @@
       </div>
       <p class="av-settings-boundary">No microphone request, speech service, network request, output selection, hardware volume change, or speaker/channel qualification occurs.</p>
     </section>
+    {/if}
     <section data-settings-panel="controllers" hidden={panel !== "controllers"}>
       <div class="accessibility-setting">
         <div><strong>Input at startup</strong><small>Motion opens the camera with the console so anyone can join from the home screen</small></div>
@@ -545,13 +550,22 @@
       <p class="controller-setup-boundary">Bluetooth connection is not a gameplay claim. The controller becomes usable only after Chromium reports fresh mapped input; Raspberry Pi, controller-model, range, wake, and two-player behavior still require physical qualification.</p>
     </section>
     <section data-settings-panel="network" hidden={panel !== "network"}>
+      {#if LAB_MODE}
       <div class="setting-callout"><span data-tv-critical-text>OFFLINE</span><strong data-tv-critical-text>Wi-Fi is not configured</strong><p data-tv-critical-text>Connect to use the museum and hosted games. Local motion and retro games remain available offline.</p><button type="button" id="scan-wifi" data-tv-action data-tv-critical-text aria-disabled={scanning} onclick={scanWifi}>{scanning ? "Scanning..." : scanComplete ? "No networks found · Scan again" : "Scan for networks"}</button></div>
+      {:else}
+      <p data-tv-critical-text>Network settings are managed by the operating system.</p>
+      {/if}
     </section>
     <section data-settings-panel="storage" hidden={panel !== "storage"}>
+      {#if LAB_MODE}
       <div class="storage-meter"><div><span style="width:15%"></span></div><p><strong>38 GB used</strong><span>218 GB available / 256 GB total</span></p></div>
       <dl><div><dt>System</dt><dd>12 GB</dd></div><div><dt>Games</dt><dd>0 GB</dd></div><div><dt>Reserved</dt><dd>26 GB</dd></div></dl>
       <small class="estimate-note">Development estimate · final hardware not yet qualified</small>
+      {:else}
+      <p data-tv-critical-text>Storage usage is unavailable. Check capacity with the native console tools.</p>
+      {/if}
     </section>
+    {#if LAB_MODE}
     <section data-settings-panel="developer" hidden={panel !== "developer"}>
       <div class="toggle-row"><div><strong>Diagnostic overlay</strong><small>Show performance and tracker health</small></div><button type="button" role="switch" aria-checked={diagnostics} onclick={() => (diagnostics = !diagnostics)}>{diagnostics ? "On" : "Off"}</button></div>
       <div
@@ -671,5 +685,6 @@
         </div>
       </div>
     </section>
+    {/if}
   </div>
 </div>

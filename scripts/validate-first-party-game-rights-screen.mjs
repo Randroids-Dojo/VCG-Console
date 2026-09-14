@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -18,11 +19,6 @@ const artifactPath = resolve(
   "compliance/first-party-game-rights/repository-rights-screen-v1.json",
 );
 export const FIRST_PARTY_RIGHTS_MAX_BYTES = 256 * 1024;
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), label);
-  assert.deepEqual(Object.keys(value), expected, `${label} has unknown or missing fields`);
-}
 
 function integer(value, label) {
   assert.ok(Number.isSafeInteger(value) && value >= 0, label);

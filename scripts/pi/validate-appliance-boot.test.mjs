@@ -94,29 +94,17 @@ const provisionedRetroRoot = async () => {
   return root;
 };
 
-test("the server is loopback-only and uses the production preview", async () => {
+test("the appliance server runs its built package with a read-only filesystem", async () => {
   const unit = await read("./systemd/vcg-console-server.service.in");
-
-  assert.match(
-    unit,
-    /apps\/console-lab\/node_modules\/\.bin\/vite preview --host 127\.0\.0\.1 --port 4173 --strictPort/,
-  );
-  assert.match(unit, /^WorkingDirectory=@REPO_ROOT@\/apps\/console-lab$/m);
+  assert.match(unit, /^ExecStart=@NODE_PATH@ @REPO_ROOT@\/build\/console-runtime\/console-server\.mjs --root @REPO_ROOT@\/apps\/console-lab\/dist --port 4173$/m);
+  assert.match(unit, /^WorkingDirectory=@REPO_ROOT@$/m);
   assert.match(unit, /^Environment=PATH=@NODE_BIN_DIR@:/m);
-  assert.doesNotMatch(unit, /--host 0\.0\.0\.0/);
   assert.match(unit, /^User=@CONSOLE_USER@$/m);
   assert.match(unit, /^PartOf=vcg-console\.target$/m);
   assert.match(unit, /^Restart=always$/m);
-  assert.match(unit, /^StartLimitIntervalSec=0$/m);
-  // `vite preview` bundles vite.config.ts into node_modules/.vite-temp on
-  // every startup, even for an already-built preview server. Confirmed live
-  // on a Pi 5: ProtectSystem=strict plus ProtectHome=read-only without this
-  // makes that write fail with EROFS, crash-looping the service forever.
   assert.match(unit, /^ProtectSystem=strict$/m);
-  assert.match(
-    unit,
-    /^ReadWritePaths=@REPO_ROOT@\/apps\/console-lab\/node_modules$/m,
-  );
+  assert.match(unit, /^ProtectHome=read-only$/m);
+  assert.doesNotMatch(unit, /ReadWritePaths|node_modules|vite|tsx|--host/);
 });
 
 test("the TV session replaces tty1 with Cage and the native fullscreen launcher", async () => {
@@ -177,8 +165,7 @@ test("the appliance target is a multi-user boot target", async () => {
   assert.match(installer, /systemctl enable vcg-console\.target/);
   assert.match(installer, /systemctl disable --now vcg-console\.target/);
   assert.match(installer, /The fullscreen browser must not run as root/);
-  assert.match(installer, /Node\.js 22 or newer is required/);
-  assert.match(installer, /""\|\*\[!0-9\]\*/);
+  assert.match(installer, /"\$\{node_path\}" "\$\{repo_root\}\/scripts\/check-node-version\.cjs"/);
 });
 
 test("the installer grants uinput access for the cursor nudge", async () => {
@@ -453,6 +440,7 @@ test(
         "@CONSOLE_USER@": "vcg",
         "@CONSOLE_GROUP@": "vcg",
         "@CONSOLE_HOME@": "/home/vcg",
+        "@NODE_BIN_DIR@": "/usr/bin",
         "@CONSOLE_UID@": "1000",
         "@REPO_ROOT@": repoRoot,
         "@CAGE_PATH@": "/usr/bin/cage",

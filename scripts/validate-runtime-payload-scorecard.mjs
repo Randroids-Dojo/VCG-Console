@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -23,18 +24,6 @@ const artifactPath = resolve(
 );
 export const RUNTIME_PAYLOAD_SCORECARD_MAX_BYTES = 256 * 1024;
 const expected = await generateRuntimePayloadScorecard();
-
-function exactKeys(value, expectedKeys, label) {
-  assert.ok(
-    value && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value),
-    expectedKeys,
-    `${label} has unknown or missing fields`,
-  );
-}
 
 export function parseCanonicalRuntimePayloadScorecard(bytes) {
   assert.ok(

@@ -1,25 +1,21 @@
+import { launcherBaselines } from "./launcher-evidence-baselines.mjs";
+import { exactKeySet as exactKeys, normalizedSha256, sha256 } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
   TV_CONFORMANCE_CLAIM_BOUNDARY,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_EVIDENCE_FORMAT,
   TV_CONFORMANCE_LIMITATIONS,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const artifactPath = resolve(
   root,
-  "benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 96 * 1024;
 const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
@@ -27,26 +23,7 @@ const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
 const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
-const frozenScreenshots = Object.freeze({
-  "720p": Object.freeze({
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-720p.png",
-    bytes: 141664,
-    sha256:
-      "0d623470a2de6c89a923da16a935359820d87d64393143207771d8f046214c06",
-  }),
-  "1080p": Object.freeze({
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-1080p.png",
-    bytes: 233307,
-    sha256:
-      "c98e2fe6c5a5b65e5afa01302852b5e8d3e72857d7fe81ba9e049d58c6264df6",
-  }),
-  "4k": Object.freeze({
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-4k.png",
-    bytes: 578384,
-    sha256:
-      "219668213d47c48a7ba8d8d7d784939b1a3167b2dc395d2fb992a478cc43c25e",
-  }),
-});
+const frozenScreenshots = launcherBaselines.authoring.screenshots;
 const provenancePaths = Object.freeze({
   documentPath: "examples/tv-conformance/index.html",
   stylePath: "examples/tv-conformance/styles.css",
@@ -54,69 +31,7 @@ const provenancePaths = Object.freeze({
   generatorPath: "scripts/generate-tv-conformance-evidence.mjs",
   validatorPath: "scripts/validate-tv-conformance-evidence.mjs",
 });
-const observationExpectations = Object.freeze({
-  "720p": Object.freeze({
-    safeArea: Object.freeze({
-      left: 64,
-      top: 36,
-      right: 1216,
-      bottom: 684,
-      width: 1152,
-      height: 648,
-    }),
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 256.609,
-    minimumActionTargetHeightCssPx: 64,
-  }),
-  "1080p": Object.freeze({
-    safeArea: Object.freeze({
-      left: 96,
-      top: 54,
-      right: 1824,
-      bottom: 1026,
-      width: 1728,
-      height: 972,
-    }),
-    minimumCriticalTextCssPx: 31.68,
-    minimumActionTargetWidthCssPx: 385.391,
-    minimumActionTargetHeightCssPx: 64,
-  }),
-  "4k": Object.freeze({
-    safeArea: Object.freeze({
-      left: 192,
-      top: 108,
-      right: 3648,
-      bottom: 2052,
-      width: 3456,
-      height: 1944,
-    }),
-    minimumCriticalTextCssPx: 38,
-    minimumActionTargetWidthCssPx: 803,
-    minimumActionTargetHeightCssPx: 70,
-  }),
-});
-
-function exactKeys(value, expected, path) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${path} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
-
-function normalizedSha256(bytes) {
-  return createHash("sha256")
-    .update(bytes.toString("utf8").replaceAll("\r\n", "\n"))
-    .digest("hex");
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
+const observationExpectations = launcherBaselines.authoring.measurements;
 
 export async function expectedTvConformanceProvenance() {
   const entries = await Promise.all(
@@ -299,7 +214,7 @@ export function validateTvConformanceEvidence(
     "artifact",
   );
   assert.equal(value.format, TV_CONFORMANCE_EVIDENCE_FORMAT);
-  assert.equal(value.evidenceDate, TV_CONFORMANCE_EVIDENCE_DATE);
+  assert.equal(value.evidenceDate, launcherBaselines.authoring.observation.evidenceDate);
   assert.equal(
     value.evidenceClass,
     "windows-x64-headless-chrome-tv-authoring-conformance",
@@ -310,7 +225,7 @@ export function validateTvConformanceEvidence(
   );
   assert.ok(Number.isFinite(Date.parse(value.retrievedAtUtc)));
   assert.ok(
-    value.retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
+    value.retrievedAtUtc.startsWith(`${launcherBaselines.authoring.observation.evidenceDate}T`),
   );
 
   exactKeys(
@@ -327,8 +242,8 @@ export function validateTvConformanceEvidence(
   assert.deepEqual(value.environment, {
     producerPlatform: "win32",
     producerArchitecture: "x64",
-    nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
+    nodeVersion: launcherBaselines.authoring.observation.environment.nodeVersion,
+    browserProduct: launcherBaselines.authoring.observation.environment.browserProduct,
     devicePixelRatio: 1,
   });
 
@@ -363,7 +278,7 @@ export function validateTvConformanceEvidence(
     ],
     "artifact.browser",
   );
-  assert.equal(value.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
+  assert.equal(value.browser.browserProduct, launcherBaselines.authoring.observation.environment.browserProduct);
   assert.ok(Array.isArray(value.browser.observations));
   assert.equal(
     value.browser.observations.length,

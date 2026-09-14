@@ -1,7 +1,7 @@
 // The browser boundary the console documents must be served with, expressed as
 // an independent expectation.
 //
-// `apps/console-lab/vite.config.ts` is the serving definition; this file is the
+// `scripts/console-response-headers.mts` is the serving definition; this file is the
 // check. They are deliberately not shared code: the console-lab config is bound
 // by SHA-256 in recorded evidence, and a tooling refactor must not invalidate an
 // observation. The two are bound at runtime instead —
@@ -181,9 +181,8 @@ function isOpaqueFixtureScript(pathname: string): boolean {
 }
 
 /**
- * The exact response headers the console serves for one request. The Vite
- * middleware applies this result verbatim; nothing else may add or reword a
- * boundary header.
+ * The exact response headers the console serves for one request. This independent oracle
+ * verifies both Vite development serving and the built appliance runtime.
  */
 export function resolveBoundaryHeaders(
   pathname: string,

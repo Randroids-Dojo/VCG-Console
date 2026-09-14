@@ -2,8 +2,10 @@
 
 This file records curated notices for third-party material that VCG Console
 prepares for its runtime. The generated package/crate inventory lives in
-`compliance/DEPENDENCY_NOTICES.md`, with the machine-readable CycloneDX 1.7
-inventory in `compliance/vcg-console.cdx.json`. A public release remains blocked
+`compliance/<platform>/DEPENDENCY_NOTICES.md`, with the machine-readable CycloneDX 1.7
+inventory beside it in `vcg-console.cdx.json`. The checked build platforms are
+`win32-x64` and `linux-x64-gnu`; each records its actual conditional packages.
+A public release remains blocked
 on the repository license and exact pose-model redistribution evidence.
 
 ## OCR-A font 1.0
@@ -40,6 +42,17 @@ pinned record.
 This notice records upstream provenance and the upstream license label. It is
 not legal advice and does not close the separate glyph-coverage, TV-legibility,
 accessibility, or complete release-compliance work.
+
+## Inter Variable font
+
+The launcher UI face is `inter-latin-standard-normal.woff2` from the pinned
+`@fontsource-variable/inter@5.3.0` package. The prepared copy is
+`apps/console-lab/public/fonts/InterVariable.woff2`: 72,920 bytes, SHA-256
+`2c295d99e26dcf357d4d01bcf270fd6924b600c9a13dd8c363ef114f4c6976fa`.
+The package credits The Inter Project Authors and includes the SIL Open Font
+License, Version 1.1. Preparation copies that license alongside the font as
+`InterVariable.LICENSE.txt` and records both the package identity and font pin
+in `ASSET_PROVENANCE.json`. Upstream: <https://github.com/rsms/inter>.
 
 ## MediaPipe pose model blocker
 

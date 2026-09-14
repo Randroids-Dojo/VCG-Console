@@ -473,7 +473,7 @@
     "generatorPath": "scripts/generate-play-support-matrix.mjs",
     "generatorSha256": "d108c2d16fe187f16584c30e4d20f50c24d436b709c182e838eb02e422fc4f28",
     "validatorPath": "scripts/validate-play-support-matrix.mjs",
-    "validatorSha256": "2b5a1c8cbe66235ff92e0802c0e4fe4376eb6ee2c603cee2dceb1d6fbe63a0b7"
+    "validatorSha256": "9609f7323158e0f69491f27e1283e41d1138639bfe66765558d07456858012ab"
   },
   "claimBoundary": "Camera-free deterministic contract evidence only. It proves bounded software disposition for authored landmark-loss, posture, controller, and visible-helper inputs; it does not prove tracking accuracy, comfort, safety, accessibility, controller assignment, action accuracy, gameplay outcomes, or support for any person.",
   "limitations": [

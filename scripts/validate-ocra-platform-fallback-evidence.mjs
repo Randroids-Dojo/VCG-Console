@@ -1,3 +1,5 @@
+import { launcherBaselines } from "./launcher-evidence-baselines.mjs";
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -5,7 +7,6 @@ import { fileURLToPath } from "node:url";
 
 import {
   OCRA_FALLBACK_CLAIM_BOUNDARY,
-  OCRA_FALLBACK_EVIDENCE_DATE,
   OCRA_FALLBACK_EVIDENCE_FORMAT,
   OCRA_FALLBACK_LIMITATIONS,
   OCRA_FALLBACK_PROBES,
@@ -16,16 +17,12 @@ import {
   sourceTreeCommitment,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
 } from "./generate-tv-conformance-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
   root,
-  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
+  "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
 );
 const baseEvidencePath = resolve(
   root,
@@ -36,22 +33,8 @@ const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
 const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
-const EXPECTED_SCREENSHOT = Object.freeze({
-  path: "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png",
-  bytes: 37017,
-  sha256: "c4aaeae3a37db2b670d45f9c8cccab4b5506d9586787965bb231ba776d64a458",
-});
-const EXPECTED_REQUEST_COUNTS = Object.freeze({
-  "/?input=controller": 1,
-  "/assets/main-D0_6oU1A.css": 1,
-  "/assets/main-CLnxuYw1.js": 1,
-  "/assets/modulepreload-polyfill-Dezn_h7o.js": 1,
-  "/assets/src-DJk9Nbrx.js": 1,
-  "/assets/synthetic-BxnOr_Mh.js": 1,
-  "/assets/tracker-health-Di71DaQ3.js": 1,
-  "/fonts/InterVariable.woff2": 1,
-  "/fonts/OCRA.ttf": 1,
-});
+const EXPECTED_SCREENSHOT = launcherBaselines.fontFallback.screenshot;
+const EXPECTED_REQUEST_COUNTS = launcherBaselines.fontFallback.requestCounts;
 const expectedFontByProbe = Object.freeze({
   "ascii-a": ["OCRA", "OCRA", true],
   "middle-dot": ["OCRA", "OCRA", true],
@@ -63,14 +46,6 @@ const provenancePaths = Object.freeze({
   generatorPath: "scripts/generate-ocra-platform-fallback-evidence.mjs",
   validatorPath: "scripts/validate-ocra-platform-fallback-evidence.mjs",
 });
-
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} keys changed`);
-}
 
 function expectedObservations() {
   return OCRA_FALLBACK_PROBES.map((probe) => {
@@ -144,11 +119,12 @@ export async function validateOcraPlatformFallbackEvidence(
     "artifact",
   );
   assert.equal(artifact.format, OCRA_FALLBACK_EVIDENCE_FORMAT);
-  assert.equal(artifact.evidenceDate, OCRA_FALLBACK_EVIDENCE_DATE);
+  assert.equal(artifact.evidenceDate, launcherBaselines.fontFallback.observation.evidenceDate);
   assert.deepEqual(artifact.environment, {
+    buildMode: "lab",
     platform: "windows-x64",
-    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
-    node: GODOT_EXPORT_NODE_VERSION,
+    browserProduct: launcherBaselines.fontFallback.observation.environment.browserProduct,
+    node: launcherBaselines.fontFallback.observation.environment.node,
     headless: true,
     devicePixelRatio: 1,
     viewport: { width: 1920, height: 1080 },

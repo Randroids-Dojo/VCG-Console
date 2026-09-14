@@ -6,20 +6,25 @@ Authority: D-104, Q-074, and I-137
 
 ## Generated artifacts
 
-`pnpm prepare:compliance` produces two tracked files:
+`pnpm prepare:compliance` produces two tracked files for the current build platform:
 
-- `compliance/vcg-console.cdx.json`: a CycloneDX 1.7 JSON SBOM; and
-- `compliance/DEPENDENCY_NOTICES.md`: a human-readable inventory of package,
+- `compliance/<platform>/vcg-console.cdx.json`: a CycloneDX 1.7 JSON SBOM; and
+- `compliance/<platform>/DEPENDENCY_NOTICES.md`: a human-readable inventory of package,
   crate, and pinned-asset license metadata.
 
 The generator inventories the installed frozen pnpm graph, the complete locked
-Cargo resolver graph, every first-party workspace component, and the two pinned
+Cargo resolver graph, every first-party workspace component, and the three pinned
 runtime assets in `ASSET_PROVENANCE.json`. Component references, ordering,
 serial number, scope, hashes, and output bytes are deterministic.
 
-The current evidence contains 132 components: the project root, six
-first-party subcomponents, 81 npm packages, 43 Cargo packages including the
-native host, and two pinned assets. npm dependencies present only for
+CI compares the `win32-x64` and `linux-x64-gnu` editions on their respective
+hosts. Linux platform names include the libc family (`gnu` or `musl`). A new
+build platform needs its own reviewed inventory; it cannot pass by comparing
+against another platform's conditional dependencies.
+
+Each current edition contains 148 components: the project root, eight
+pnpm workspace subcomponents, 89 npm packages, 47 Cargo packages including the
+native applications, and three pinned assets. npm dependencies present only for
 development are marked `excluded`; installed production dependencies and the
 locked Rust graph are `required`.
 
@@ -52,8 +57,8 @@ waived or relabeled as release-ready.
 ## Current release blockers
 
 1. The repository has no selected first-party code/documentation/hardware-file
-   license. The SBOM leaves the root, five TypeScript packages, console app, and
-   Rust host unresolved rather than inventing an SPDX expression.
+   license. The SBOM leaves all 11 first-party components unresolved rather than
+   inventing an SPDX expression.
 2. The exact redistribution/license terms for the pinned MediaPipe Pose
    Landmarker Lite `.task` artifact are not recorded. The Apache-2.0 package
    metadata for `@mediapipe/tasks-vision` is evidence for that npm package, not
@@ -89,9 +94,9 @@ distribution.
 
 ## Evidence boundary
 
-The current npm inventory reflects installed packages for this Windows
-workstation. It is reproducible and exposes platform scope honestly, but it
-does not substitute for ARM64/x86-64 release-job inventories. The generated
+The current npm inventories reflect installed packages for Windows x64 and
+Linux x64/glibc builds. They do not substitute for final target release-job
+inventories, including ARM64. The generated
 notices list upstream metadata; they do not yet embed every verbatim license
 and NOTICE file. Emulator cores, game content, firmware, operating-system
 images, browser binaries, native system libraries, and enclosure sources enter

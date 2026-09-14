@@ -1,0 +1,1067 @@
+.boot-screen {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  place-items: center;
+  padding: clamp(28px, 5vw, 72px);
+  overflow: hidden;
+  background: radial-gradient(90% 70% at 50% 30%, #0c1014 0%, #070909 70%);
+}
+
+.boot-mark {
+  align-self: center;
+  color: var(--paper);
+  font-family: var(--font-brand);
+  font-size: clamp(2.6rem, 7vw, 6.2rem);
+  letter-spacing: -0.05em;
+  text-shadow: 0 0 64px var(--accent-glow);
+  opacity: 0;
+  transform: translateY(10px) scale(0.985);
+  transition: opacity 420ms ease, transform 560ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.boot-mark span {
+  margin-left: 0.08em;
+  color: var(--accent);
+}
+
+.boot-readout {
+  align-self: end;
+  width: min(480px, 100%);
+  color: var(--muted);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 280ms ease 140ms;
+}
+
+.boot-readout p,
+.boot-readout small {
+  margin: 0;
+  font-family: var(--font-brand);
+}
+
+.boot-readout small {
+  display: block;
+  margin-top: 14px;
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-size: 12px;
+}
+
+.signal-line {
+  height: 2px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #1c2226;
+}
+
+.signal-line span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent));
+  box-shadow: 0 0 18px var(--accent-glow);
+  transform: translateX(-100%);
+}
+
+.boot-screen.running .boot-mark,
+.boot-screen.running .boot-readout {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.boot-screen.running .signal-line span {
+  animation: boot-signal 1s cubic-bezier(0.55, 0, 0.2, 1) 100ms forwards;
+}
+
+.boot-screen.ready:not(.held) {
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+@keyframes boot-signal {
+  to { transform: translateX(0); }
+}
+
+.launcher {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Ambient aurora behind every launcher surface: light, not lines. */
+.launcher::before {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 40% at 80% 0%, var(--accent-soft), transparent 72%),
+    radial-gradient(64% 54% at 8% 100%, rgb(64 86 112 / 0.14), transparent 66%);
+}
+
+.launcher-topbar {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: clamp(20px, 2.4vw, 44px);
+  padding: var(--safe-y) var(--safe-x) 0;
+}
+
+/* Controller focus is resolved from layout (see spatial-focus.ts), but tab
+   order still follows the document, so the top bar is authored in the same
+   left-to-right order it is drawn: brand label, tab strip, search, presence. */
+.launcher-topbar > .launcher-brand {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.launcher-topbar > .launcher-nav {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.launcher-topbar > .search-trigger {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.launcher-topbar > .launcher-presence {
+  grid-row: 1;
+  grid-column: 4;
+}
+
+.launcher-brand {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--font-brand);
+  font-size: clamp(15px, 0.95vw, 38px);
+  letter-spacing: 0.08em;
+}
+
+.launcher-brand span {
+  padding: 0 0.18em;
+  color: var(--accent);
+}
+
+.search-trigger {
+  min-height: var(--vcg-control-min);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px 0 22px;
+  border: 1px solid var(--stroke-1);
+  border-radius: 999px;
+  background: var(--surface-1);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: var(--text-body);
+  font-weight: 480;
+  text-align: left;
+  transition: border-color var(--vcg-motion-feedback) ease, color var(--vcg-motion-feedback) ease, background var(--vcg-motion-feedback) ease;
+}
+
+.search-trigger:hover,
+.search-trigger:focus-visible {
+  border-color: var(--stroke-2);
+  background: var(--surface-2);
+  color: var(--paper);
+}
+
+.search-trigger::before {
+  width: 0.62em;
+  height: 0.62em;
+  border: 0.09em solid currentColor;
+  border-radius: 50%;
+  box-shadow: 0.42em 0.42em 0 -0.28em currentColor;
+  content: "";
+}
+
+.launcher-presence {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.launcher-presence button {
+  min-height: var(--vcg-control-min);
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 4px 8px 4px 4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: var(--text-body);
+  font-weight: 540;
+  transition: background var(--vcg-motion-feedback) ease;
+}
+
+#active-profile-name {
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.launcher-presence button:hover {
+  background: var(--surface-2);
+}
+
+.profile-orbit {
+  width: clamp(42px, 3.9vh, 84px);
+  height: clamp(42px, 3.9vh, 84px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--accent) 36%, transparent), transparent 68%),
+    var(--surface-3);
+  border: 1px solid var(--stroke-2);
+  color: var(--paper);
+  font-size: 18px;
+  font-weight: 640;
+}
+
+.launcher-presence time {
+  color: var(--muted);
+  font-size: var(--text-body);
+  font-weight: 460;
+  font-variant-numeric: tabular-nums;
+}
+
+.launcher-frame {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.launcher-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 0.5vw, 10px);
+  min-width: 0;
+}
+
+.nav-signal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 3px;
+  pointer-events: none;
+}
+
+.nav-signal span {
+  display: block;
+  width: 64px;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 18px var(--accent-glow);
+  transition: transform 200ms cubic-bezier(0.3, 0.8, 0.3, 1), width 200ms cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+.launcher-nav button {
+  flex-shrink: 0;
+  min-height: var(--vcg-control-min);
+  padding: 0 clamp(12px, 1.1vw, 22px);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: var(--text-body);
+  font-weight: 540;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: nowrap;
+  transition:
+    color var(--vcg-motion-feedback) ease,
+    background var(--vcg-motion-feedback) ease;
+}
+
+.launcher-nav button:hover {
+  color: var(--paper);
+  background: var(--surface-1);
+}
+
+.launcher-nav button.active {
+  color: var(--paper);
+}
+
+.nav-spacer {
+  flex: 1;
+  min-width: clamp(8px, 2vw, 48px);
+}
+
+.launcher-content {
+  min-width: 0;
+  display: grid;
+  padding: clamp(18px, 3.2vh, 44px) var(--safe-x) calc(var(--safe-y) + 58px);
+}
+
+.launcher-view {
+  min-width: 0;
+  animation: view-enter var(--vcg-motion-view) ease both;
+}
+
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.view-kicker {
+  margin: 0 0 14px;
+  color: var(--accent);
+  font-family: var(--font-brand);
+  font-size: var(--text-micro);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Bottom controller legend: the Switch/PS5 convention. Decorative hints,
+   never focusable; sits inside the 5% safe area. */
+.launcher-legend {
+  position: fixed;
+  z-index: 4;
+  right: var(--safe-x);
+  bottom: clamp(12px, 2.4vh, 30px);
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 1.6vw, 30px);
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* What the camera makes of the room, kept in a corner so a player can check
+   their own tracking from any screen. Landmarks only: no camera image is
+   drawn here or anywhere else. */
+.skeleton-mini {
+  position: fixed;
+  z-index: 5;
+  right: var(--safe-x);
+  bottom: calc(var(--safe-y) + clamp(44px, 5vh, 74px));
+  width: clamp(150px, 15vw, 340px);
+  aspect-ratio: 4 / 3;
+  padding: 6px;
+  border: 1px solid var(--stroke-1);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--rail) 82%, transparent);
+  box-shadow: var(--shadow-tile);
+  pointer-events: none;
+}
+
+.skeleton-mini[hidden] {
+  display: none;
+}
+
+.skeleton-mini canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Live view of the zone the gesture recognizer is reading, so a hand that
+   felt held out can be told from one the recognizer placed elsewhere. */
+.sweep-readout {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--stroke-1);
+}
+
+.sweep-readout-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: var(--text-detail);
+  letter-spacing: 0.06em;
+}
+
+.sweep-readout-heading strong {
+  color: var(--muted);
+  font-weight: 640;
+}
+
+.sweep-readout[data-raised="true"] .sweep-readout-heading strong {
+  color: var(--accent);
+}
+
+.sweep-meter {
+  height: 8px;
+  margin: 8px 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.sweep-meter span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 90ms linear;
+}
+
+.sweep-readout p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-detail);
+}
+
+/* The gesture guide stays on screen while anyone is playing by motion,
+   opposite the controller legend so the two never collide. */
+.motion-legend {
+  position: fixed;
+  z-index: 5;
+  left: var(--safe-x);
+  bottom: var(--safe-y);
+  padding: clamp(10px, 1vh, 18px) clamp(14px, 1.2vw, 26px);
+  border: 1px solid var(--stroke-1);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--rail) 88%, transparent);
+  box-shadow: var(--shadow-tile);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.motion-legend[hidden] {
+  display: none;
+}
+
+/* The guide fades once it has been read, and comes back when both hands go
+   out. Reduced motion still gets the change, just without the crossfade. */
+.motion-legend[data-visible="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.motion-legend[data-visible] {
+  transition:
+    opacity var(--vcg-motion-ambient, 520ms) ease,
+    visibility 0s linear var(--vcg-motion-ambient, 520ms);
+}
+
+.motion-legend[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--vcg-motion-feedback, 160ms) ease,
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-legend,
+  .motion-legend[data-visible="true"] {
+    transition: none;
+  }
+}
+
+.motion-legend dl {
+  display: grid;
+  gap: clamp(4px, 0.6vh, 10px);
+  margin: 0;
+}
+
+.motion-legend div {
+  display: grid;
+  gap: 2px;
+  max-width: min(46ch, 34vw);
+}
+
+.motion-legend dt {
+  font-size: var(--text-detail);
+  font-weight: 500;
+}
+
+.motion-legend dd {
+  margin: 0;
+  color: var(--paper);
+  font-size: var(--text-detail);
+  font-weight: 620;
+}
+
+/* A running game consumes the focus gestures, so only the one that still
+   works during play is offered. */
+.motion-legend[data-context="game"] .motion-legend-shell {
+  display: none;
+}
+
+/* The Motion Lab carries a full-width section rail along the bottom, so the
+   legend sits above it rather than under it. */
+#motion-lab:not([hidden]) ~ .motion-legend {
+  bottom: calc(var(--safe-y) + clamp(88px, 9vh, 130px));
+}
+
+@media (min-width: 1000px) and (min-height: 600px) {
+  /* Same contract floor the launcher applies to its own marked text: this
+     legend lives outside .launcher, so it states the floor itself. */
+  .motion-legend [data-tv-critical-text] {
+    font-size: clamp(24px, 1.1vw, 44px);
+    line-height: 1.25;
+  }
+}
+
+.legend-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.glyph {
+  width: clamp(34px, 3.2vh, 66px);
+  height: clamp(34px, 3.2vh, 66px);
+  display: inline-grid;
+  place-items: center;
+  border: 1.5px solid var(--stroke-2);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: clamp(15px, 1.4vh, 30px);
+  font-weight: 640;
+}
+
+.glyph svg {
+  width: 62%;
+  height: 62%;
+  display: block;
+}
+
+.home-view {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: clamp(12px, 2.4vh, 32px);
+}
+
+/* Full-bleed ambient stage tinted by the focused destination. Layers are
+   stacked and crossfaded on opacity only, so the compositor does the work. */
+.home-stage {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stage-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--vcg-motion-stage) ease;
+}
+
+.stage-layer[data-stage-for="obstacle"] {
+  background:
+    radial-gradient(60% 52% at 74% 16%, rgb(83 218 195 / 0.17), transparent 66%),
+    radial-gradient(46% 42% at 16% 88%, rgb(34 118 128 / 0.22), transparent 70%),
+    linear-gradient(198deg, #0b1216 0%, #090b0c 62%);
+}
+
+.stage-layer[data-stage-for="museum"] {
+  background:
+    radial-gradient(58% 50% at 72% 14%, rgb(184 167 255 / 0.16), transparent 66%),
+    radial-gradient(48% 44% at 12% 90%, rgb(94 74 168 / 0.2), transparent 70%),
+    linear-gradient(198deg, #0e0d16 0%, #090b0c 62%);
+}
+
+.stage-layer[data-stage-for="retro"] {
+  background:
+    radial-gradient(58% 50% at 74% 16%, rgb(241 199 91 / 0.15), transparent 66%),
+    radial-gradient(48% 44% at 14% 90%, rgb(168 108 42 / 0.18), transparent 70%),
+    linear-gradient(198deg, #121009 0%, #090b0c 62%);
+}
+
+.home-view[data-stage="obstacle"] .stage-layer[data-stage-for="obstacle"],
+.home-view[data-stage="museum"] .stage-layer[data-stage-for="museum"],
+.home-view[data-stage="retro"] .stage-layer[data-stage-for="retro"] {
+  opacity: 1;
+}
+
+.home-heading {
+  position: relative;
+  z-index: 1;
+}
+
+.home-heading h1 {
+  margin: 0;
+  max-width: none;
+  font-size: var(--text-display);
+  font-weight: 420;
+  line-height: 1.06;
+  letter-spacing: -0.028em;
+  color: var(--muted);
+}
+
+.home-heading h1 span {
+  color: var(--paper);
+  font-weight: 680;
+}
+
+.home-destinations {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: clamp(18px, 1.7vw, 32px);
+  width: 100%;
+  padding: 18px 0;
+}
+
+.destination {
+  position: relative;
+  flex: 1 1 0;
+  aspect-ratio: 16 / 9;
+  max-width: clamp(340px, 31vw, 1240px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+  padding: clamp(16px, 1.6vw, 28px);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: var(--shadow-tile);
+  color: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform var(--vcg-motion-relax) cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow var(--vcg-motion-relax) ease,
+    border-color var(--vcg-motion-relax) ease;
+}
+
+.destination:hover,
+.destination:focus-visible {
+  transform: scale(1.045);
+  border-color: var(--stroke-2);
+  box-shadow:
+    0 26px 64px rgb(0 0 0 / 0.6),
+    0 0 52px var(--accent-glow);
+  transition-duration: var(--vcg-motion-feedback);
+  z-index: 2;
+}
+
+.destination-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.destination-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.destination::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--scrim-art);
+}
+
+.destination > :not(.destination-art, .destination-action) {
+  position: relative;
+  z-index: 2;
+}
+
+.destination-index {
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(5 8 10 / 0.55);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  color: color-mix(in srgb, var(--paper) 82%, transparent);
+  font-family: var(--font-brand);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+}
+
+.destination strong {
+  align-self: end;
+  margin-bottom: 2px;
+  font-size: var(--text-section);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 18px rgb(0 0 0 / 0.55);
+}
+
+.destination small {
+  align-self: start;
+  color: color-mix(in srgb, var(--paper) 74%, transparent);
+  font-size: var(--text-detail);
+  font-weight: 460;
+}
+
+.destination-action {
+  position: absolute;
+  z-index: 2;
+  right: clamp(16px, 1.6vw, 28px);
+  bottom: clamp(14px, 1.4vw, 24px);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--paper);
+  font-size: var(--text-body);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity var(--vcg-motion-feedback) ease, transform var(--vcg-motion-feedback) ease;
+}
+
+.destination:hover .destination-action,
+.destination:focus-visible .destination-action {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.destination-action b {
+  margin-left: 2px;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.view-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 420px);
+  gap: 48px;
+  align-items: end;
+  margin-bottom: clamp(24px, 4.5vh, 56px);
+}
+
+.view-header h1 {
+  margin: 0;
+  font-size: var(--text-title);
+  font-weight: 680;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.view-header > p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 460;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.library-list {
+  display: grid;
+  gap: clamp(10px, 1.3vh, 16px);
+}
+
+.library-list button {
+  width: 100%;
+  min-height: clamp(96px, 9.4vh, 200px);
+  display: grid;
+  grid-template-columns: clamp(104px, 8.5vw, 330px) minmax(180px, 1.1fr) minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 1.6vw, 30px);
+  padding: 10px clamp(18px, 1.8vw, 32px) 10px 10px;
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--radius-m);
+  background: var(--surface-1);
+  color: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--vcg-motion-feedback) ease,
+    border-color var(--vcg-motion-feedback) ease,
+    transform var(--vcg-motion-relax) cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.library-list button:hover,
+.library-list button:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--stroke-2);
+  transform: scale(1.012);
+  transition-duration: var(--vcg-motion-feedback);
+}
+
+.row-art {
+  align-self: stretch;
+  min-height: clamp(76px, 7.5vh, 160px);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--panel);
+}
+
+.row-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.library-list small {
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 460;
+}
+
+.library-list strong {
+  font-size: var(--text-section);
+  font-weight: 640;
+  letter-spacing: -0.015em;
+}
+
+.library-list b {
+  justify-self: end;
+  padding: clamp(8px, 0.7vh, 16px) clamp(18px, 1.1vw, 38px);
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-detail);
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+.museum-view {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  padding: clamp(24px, 3.4vh, 52px) clamp(24px, 3vw, 64px);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: var(--shadow-tile);
+}
+
+.museum-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.museum-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.museum-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgb(6 7 12 / 0.92) 0%, rgb(6 7 12 / 0.72) 44%, rgb(6 7 12 / 0.18) 100%),
+    linear-gradient(to top, rgb(6 7 12 / 0.85) 0%, transparent 46%);
+}
+
+.museum-view > :not(.museum-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.museum-title {
+  width: min(1000px, 100%);
+  display: flex;
+  align-items: end;
+  gap: 30px;
+}
+
+.museum-title h1 {
+  margin: 0;
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+}
+
+.primary-action {
+  margin-top: clamp(18px, 2.6vh, 32px);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #06231d;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: var(--text-body);
+  font-weight: 660;
+  transition: box-shadow var(--vcg-motion-feedback) ease, transform var(--vcg-motion-feedback) ease;
+}
+
+.primary-action:hover,
+.primary-action:focus-visible {
+  box-shadow: 0 0 44px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.primary-action span {
+  color: #06231d;
+}
+
+.boundary-note {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: var(--text-micro);
+  font-weight: 480;
+  letter-spacing: 0.04em;
+}
+
+:root[data-vcg-contrast="high"] button:focus-visible,
+:root[data-vcg-contrast="high"] a:focus-visible {
+  outline-width: 4px;
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.28em;
+}
+
+.museum-catalog {
+  width: min(clamp(860px, 45vw, 1760px), 100%);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1vw, 18px);
+  margin-top: clamp(20px, 3vh, 38px);
+}
+
+.museum-catalog > span {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: clamp(64px, 3.4vw, 132px) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--radius-m);
+  background: rgb(9 11 16 / 0.6);
+}
+
+.museum-thumb {
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  min-height: 58px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.museum-thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.museum-catalog small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--text-micro);
+  font-weight: 480;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.museum-catalog strong {
+  overflow: hidden;
+  font-size: var(--text-detail);
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty-library {
+  min-height: 150px;
+  display: grid;
+  grid-template-columns: 70px minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: clamp(14px, 2vh, 24px);
+  padding: 26px 32px;
+  border: 1px dashed var(--stroke-2);
+  border-radius: var(--radius-l);
+  background: var(--surface-1);
+}
+
+.empty-glyph {
+  width: 46px;
+  height: 46px;
+  display: inline-block;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.empty-library strong {
+  font-size: var(--text-section);
+  font-weight: 640;
+}
+
+.empty-library p {
+  max-width: 620px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 460;
+  line-height: 1.55;
+}
+
+.empty-library button,
+.retro-actions button,
+.settings-panels button {
+  min-height: var(--vcg-control-min);
+  padding: 0 24px;
+  border: 1px solid var(--stroke-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: var(--text-detail);
+  font-weight: 560;
+  transition: background var(--vcg-motion-feedback) ease, border-color var(--vcg-motion-feedback) ease;
+}
+
+.empty-library button:hover,
+.retro-actions button:hover,
+.settings-panels button:hover {
+  background: var(--surface-2);
+  border-color: var(--paper);
+}
+
+.retro-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}

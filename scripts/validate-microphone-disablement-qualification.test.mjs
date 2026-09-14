@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
 import test from "node:test";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,6 +37,25 @@ test("rejects source binding substitution", async () => {
     validateMicrophoneDisablementQualificationPlan(plan),
     /digest drifted/u,
   );
+});
+
+test("uses shared source checks for non-array bindings, empty files, and UTF-8 BOMs", async (t) => {
+  const malformed = clone();
+  malformed.sourceBindings = {};
+  await assert.rejects(validateMicrophoneDisablementQualificationPlan(malformed), /must be an array/u);
+  const temporaryRoot = await mkdtemp(resolve(tmpdir(), "vcg-microphone-bindings-"));
+  t.after(() => rm(temporaryRoot, { recursive: true, force: true }));
+  await mkdir(resolve(temporaryRoot, "docs"));
+  for (const binding of tracked.sourceBindings) {
+    await writeFile(resolve(temporaryRoot, binding.path), await readFile(resolve(root, binding.path)));
+  }
+  for (const text of ["", "\uFEFFsource with BOM"]) {
+    const plan = clone();
+    const first = plan.sourceBindings[0];
+    first.sha256 = createHash("sha256").update(text.replace(/^\uFEFF/u, "")).digest("hex");
+    await writeFile(resolve(temporaryRoot, first.path), text);
+    await assert.rejects(validateMicrophoneDisablementQualificationPlan(plan, temporaryRoot), /must not be empty|UTF-8 BOM/u);
+  }
 });
 
 test("rejects target, operating-system, architecture, or host substitution", async () => {

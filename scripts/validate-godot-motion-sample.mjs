@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -7,9 +7,9 @@ const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const projectPath = join(repositoryRoot, "examples", "godot-motion-game");
 const godot = findGodot();
 const checks = [
+  ["editor import", ["--headless", "--editor", "--path", projectPath, "--import", "--quit"]],
   ["contract tests", ["--headless", "--path", projectPath, "--script", "tests/run_tests.gd"]],
-  ["editor import", ["--headless", "--editor", "--path", projectPath, "--quit"]],
-  ["main scene boot", ["--headless", "--path", projectPath, "--quit-after", "1"]],
+  ["main scene boot (60 main-loop iterations)", ["--headless", "--path", projectPath, "--quit-after", "60"]],
 ];
 
 for (const [label, arguments_] of checks) {
@@ -17,6 +17,7 @@ for (const [label, arguments_] of checks) {
     cwd: repositoryRoot,
     encoding: "utf8",
     windowsHide: true,
+    timeout: 120_000,
   });
   const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
   if (output) process.stdout.write(output);
@@ -29,7 +30,7 @@ for (const [label, arguments_] of checks) {
 }
 
 function findGodot() {
-  const candidates = [process.env.GODOT_BIN, "godot", "godot4"];
+  const candidates = [process.env.GODOT_BIN, process.env.GODOT, process.env.GODOT4, "godot", "godot4"];
   if (process.platform === "win32" && process.env.LOCALAPPDATA) {
     const packagesRoot = join(process.env.LOCALAPPDATA, "Microsoft", "WinGet", "Packages");
     try {
@@ -51,16 +52,24 @@ function findGodot() {
       // The standard command candidates below still provide a useful failure.
     }
   }
-  for (const candidate of candidates) {
+  for (let candidate of candidates) {
     if (!candidate) continue;
+    if (process.platform === "win32" && existsSync(candidate)) {
+      // Resolve configured executable paths and prefer the console sibling so
+      // spawnSync can collect version, import and test output on Windows.
+      candidate = realpathSync(candidate);
+      const consoleExecutable = candidate.replace(/(?<!_console)\.exe$/iu, "_console.exe");
+      if (existsSync(consoleExecutable)) candidate = consoleExecutable;
+    }
     const version = spawnSync(candidate, ["--version"], {
       encoding: "utf8",
       windowsHide: true,
+      timeout: 10_000,
     });
-    if (!version.error && version.status === 0) {
+    if (!version.error && version.status === 0 && /^4\.7\.\d+\.stable\./u.test(String(version.stdout).trim())) {
       console.log(`Using Godot ${String(version.stdout).trim()} from ${candidate}`);
       return candidate;
     }
   }
-  throw new Error("Godot 4.7 was not found. Install Godot or set GODOT_BIN to its executable.");
+  throw new Error("Godot 4.7 stable was not found. Install it or set GODOT_BIN to its executable.");
 }

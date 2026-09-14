@@ -34,37 +34,37 @@
     {
       "role": "reserved-recovery-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "11cb58e148d7469997f2d76f02d1367e42c900c3cd1cc32c219a79687034bafc"
+      "sha256": "342ae82685e869fbba13e2421f2b5844e2bc35d62bf1d3aa79ef2f92986eac64"
     },
     {
       "role": "controller-qualification-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "db307a6a6e2c7647061d4f6426662b0d8e315a0aced55b5565819d63f69bb646"
+      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
     },
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "74ec10d1f9043df26a7481306e045c8f9e5ac1bfa92cafcb655debe49c7a847e"
+      "sha256": "d14af751b5e84e21a303a9fe382f1438ea0abdd399ca6a98bac9ee1c157df6e0"
     },
     {
       "role": "boot-resume-launch-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec44bfec2cb36e03271ec5b7e01f29599c091f755d9f1e18c39b0fdeb2fdd5c0"
+      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
     },
     {
       "role": "ordinary-x86-target-boundary",
       "path": "benchmarks/x86-linux/ordinary-x86-linux-qualification-plan-v1.json",
-      "sha256": "060aa0cf9f82ec633d9eab40608825cce236bf4e8b72c60dd8e43a9ece48894f"
+      "sha256": "9fd76bf53bc7878dc0b001d34d39510c183264afbe333906bba7abbb08bac7c3"
     },
     {
       "role": "pi-target-boundary",
       "path": "benchmarks/pi5-cpu-only/pi5-cpu-only-pose-game-plan-v1.json",
-      "sha256": "4595afc4c64dfc0171884b296a63745d423f91d9cd6f87dec5504757208e6e5b"
+      "sha256": "31c282bbfaa609cae1cbc90fc60d74ed54318e5e3b8b365d577695b058908cd4"
     },
     {
       "role": "desk-wrapper-implementation-boundary",
       "path": "scripts/hosted-browser-supervisor.ts",
-      "sha256": "cae7b755a65c3e8269c068290b5da40054abe3770d72a3f8ab10361c20ecf128"
+      "sha256": "d87a5c368488dc8b307f7a3514bffa0238ec99347271107902ada5689e490b3b"
     }
   ],
   "sourceScreen": {

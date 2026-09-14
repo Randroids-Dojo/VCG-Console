@@ -45,7 +45,7 @@
     {
       "role": "power-cut-plan-result-validator",
       "path": "scripts/validate-power-cut-campaign.mjs",
-      "sha256": "3299a88490e517848301e03fb08154e383c1c4846622e5b392f4326e47ad3527"
+      "sha256": "bb1e32a28c7e3226a31d02f2a1225c0554255f06027a29b77fd66db72a84e399"
     },
     {
       "role": "lower-cost-reference-bom-boundary",

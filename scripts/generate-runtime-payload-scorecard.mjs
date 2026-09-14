@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { historicalSourceBytes } from "./historical-source-snapshot.mjs";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -152,7 +153,7 @@ export function runtimePayloadScorecardObservationSha256(subjects) {
 async function measureTrackedSourceBundle(paths) {
   const files = [];
   for (const path of paths) {
-    const bytes = await readFile(resolve(root, path));
+    const bytes = historicalSourceBytes(path);
     files.push({
       path,
       bytes: bytes.length,

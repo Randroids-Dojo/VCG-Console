@@ -29,12 +29,12 @@
     {
       "role": "obstacle-workload-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "11c02d7d93f49f0ba97c60988aedd9b1fe6c74f77cb94b738ec99a67adac84c3"
+      "sha256": "8f7917a4894f6710efff87f6cab270f5beafd1828baf2763bdd3b1e8cf143479"
     },
     {
       "role": "hosted-supervisor-boundary",
       "path": "scripts/hosted-browser-supervisor.ts",
-      "sha256": "cae7b755a65c3e8269c068290b5da40054abe3770d72a3f8ab10361c20ecf128"
+      "sha256": "d87a5c368488dc8b307f7a3514bffa0238ec99347271107902ada5689e490b3b"
     },
     {
       "role": "vibebots-catalog-boundary",

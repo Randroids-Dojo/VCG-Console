@@ -21,11 +21,6 @@
       "sha256": "df6d1ec57f3a37decf0c83198c4d793893afe91b3047e2c1a1592c35efb52155"
     },
     {
-      "role": "depth-option-research-boundary",
-      "path": "docs/RESEARCH.md",
-      "sha256": "358f3e4dc3e19e749267822ba1ca9bf83aced8b8137b4bb3fcccfe3f8ecf9230"
-    },
-    {
       "role": "prototype-acceptance-boundary",
       "path": "docs/PROTOTYPE_SUCCESS_CRITERIA.md",
       "sha256": "b64ad00b5e4a0e13642492c156c3dd37db3e646c98709fb3b128058b5d5d8509"
@@ -38,7 +33,7 @@
     {
       "role": "camera-usb-cable-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "ac8deb10f12325e8a795abe84edc0bd6af2076454dfc31f4e4830761f430c3b6"
+      "sha256": "473bde4160dcc862bddfe27fef59b72ae7aeb73f7b9aade8a81590414efb7b80"
     },
     {
       "role": "exposure-to-action-proof-boundary",

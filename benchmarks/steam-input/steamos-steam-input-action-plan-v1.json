@@ -47,27 +47,27 @@
     {
       "role": "controller-lifecycle-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "db307a6a6e2c7647061d4f6426662b0d8e315a0aced55b5565819d63f69bb646"
+      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
     },
     {
       "role": "bluetooth-controller-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "260499d0a8577c1b5cf7b16b8667e52d163bf544f91e5f3832d0128d8c87b4e2"
+      "sha256": "a063a45b16699c95965cb767f213fe12581a3965b672c2f78ea98d8789afb318"
     },
     {
       "role": "controller-only-catalog-boundary",
       "path": "benchmarks/catalog-controller-only/catalog-controller-only-qualification-plan-v1.json",
-      "sha256": "144c7ed97b51e64ca6022a2c20d86bb872cc0adb96033fa48642157131cae26d"
+      "sha256": "83804209c6b09cf140d9c661107497145bbdd7fe2270e38dbcc03d860b91cb5c"
     },
     {
       "role": "steamos-package-boundary",
       "path": "benchmarks/steamos-content/steamos-update-safe-content-plan-v1.json",
-      "sha256": "f3ca4c5e09ccb87c5498db5354f95b57ded887e1333cb1bd3ef8ab6d2fc917c2"
+      "sha256": "80d849fefc3809b3ccadeedd93975c4bdd1e282f48680f2a8ff5cfa24419e1ce"
     },
     {
       "role": "steamos-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "390cec75ec53a0e188866a0af7756ab510b08c3df1001490649f02bd81d87524"
+      "sha256": "2ebcbcdbcee8f75cdaa100ffcb5b81a85814644bc2764219e06a060c9e2e3044"
     },
     {
       "role": "accountless-offline-boundary",

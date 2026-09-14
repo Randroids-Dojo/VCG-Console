@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "./evidence-primitives.mjs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -277,10 +277,6 @@ function assertExact(value, expected, label) {
   if (!isDeepStrictEqual(value, expected)) {
     fail(`${label} does not match the closed qualification plan`);
   }
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
 }
 
 export function parseCanonicalCaptureInferenceModePlan(bytes) {

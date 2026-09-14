@@ -1,3 +1,4 @@
+import { LAUNCHER_SEARCH_STATES as SEARCH_STATES } from "./launcher-tv-scenarios.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -5,9 +6,6 @@ import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
 import {
   countOverlaps,
   findChrome,
@@ -19,19 +17,17 @@ import {
   rounded,
   sha256,
   sourceTreeCommitment,
-  startProductionPreview,
+  startBuiltConsole,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
   deterministicScreenshot,
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
 
 export const LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT =
   "vcg-launcher-search-tv-conformance-evidence/v1";
 export const LAUNCHER_SEARCH_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome optimized lab-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_SEARCH_TV_LIMITATIONS = Object.freeze([
   "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 26-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 26-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
   "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",
@@ -45,10 +41,10 @@ const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-launcher-search-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json",
 );
 const representativeEvidenceRelativePath =
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json";
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json";
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
   searchPath: "apps/console-lab/src/launcher/SearchOverlay.svelte",
@@ -69,266 +65,6 @@ const provenancePaths = Object.freeze({
   validatorPath:
     "scripts/validate-launcher-search-tv-evidence.mjs",
 });
-
-const SEARCH_STATES = Object.freeze([
-  {
-    id: "motion-results",
-    query: "motion",
-    resultCount: 5,
-    criticalTextCount: 8,
-    actionTargetCount: 6,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: null,
-    interactionTrace: [
-      "universal-search",
-      "result-first",
-      "result-last",
-      "universal-search",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "no-results",
-    query: "no-such-vcg-destination",
-    resultCount: 0,
-    criticalTextCount: 9,
-    actionTargetCount: 5,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: null,
-    recoveryExpectation: {
-      clearActionLabel: "Clear search",
-      clearQuery: "",
-      clearResultCount: 26,
-      categoryActionLabel: "Motion",
-      categoryQuery: "motion",
-      categoryResultCount: 5,
-      categoryFirstResultTitle: "Obstacle",
-      backRecoveryFocus: "search-trigger",
-    },
-    interactionTrace: [
-      "universal-search",
-      "clear-search-action",
-      "empty-query-restored",
-      "universal-search",
-      "motion-category-action",
-      "motion-result-first",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "empty-query-scroll-activation",
-    query: "",
-    resultCount: 26,
-    criticalTextCount: 29,
-    actionTargetCount: 27,
-    measurementMode: "fully-visible-marked",
-    scrollingExpectedResolutionIds: ["720p", "1080p", "4k"],
-    activation: {
-      resultTitle: "Profiles",
-      method: "keyboard-enter",
-      outcomeKind: "launcher-view",
-      outcomeLabel: "Who is playing?",
-      expectedAdapter: null,
-      expectedNetworkOnline: true,
-      remoteWebExpectation: null,
-      unavailableExpectation: null,
-      destructiveExpectation: null,
-      backRecoveryFocus: "launcher-home-navigation",
-    },
-    interactionTrace: [
-      "universal-search",
-      "result-last",
-      "profiles-result",
-      "profiles-destination",
-      "launcher-home-navigation",
-    ],
-  },
-  {
-    id: "offline-package-activation",
-    query: "obstacle",
-    resultCount: 1,
-    criticalTextCount: 4,
-    actionTargetCount: 2,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: {
-      resultTitle: "Obstacle",
-      method: "keyboard-enter",
-      outcomeKind: "launch-dialog",
-      outcomeLabel: "Obstacle",
-      expectedAdapter: "local-web",
-      expectedNetworkOnline: true,
-      remoteWebExpectation: null,
-      unavailableExpectation: null,
-      destructiveExpectation: null,
-      backRecoveryFocus: "search-trigger",
-    },
-    interactionTrace: [
-      "universal-search",
-      "obstacle-result",
-      "obstacle-launch-dialog",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "remote-web-ready-denial",
-    query: "vibecoded.games",
-    resultCount: 1,
-    criticalTextCount: 4,
-    actionTargetCount: 2,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: {
-      resultTitle: "VibeCoded Museum",
-      method: "keyboard-enter",
-      outcomeKind: "launch-dialog",
-      outcomeLabel: "VibeCoded Museum",
-      expectedAdapter: "remote-web",
-      expectedNetworkOnline: true,
-      remoteWebExpectation: {
-        statusLabel: "READY",
-        originLabel: "VIBECODED.GAMES / ONLINE",
-        actionLabel: "Open unsupervised preview",
-        failureMessage: null,
-        retryAvailable: false,
-        denial: {
-          kind: "browser-popup-blocked",
-          message:
-            "The browser blocked the separate preview tab. Try again.",
-          launchRetained: true,
-        },
-      },
-      unavailableExpectation: null,
-      destructiveExpectation: null,
-      backRecoveryFocus: "search-trigger",
-    },
-    interactionTrace: [
-      "universal-search",
-      "museum-result",
-      "remote-web-ready-dialog",
-      "fixed-origin-disclosure",
-      "blocked-preview-denial",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "remote-web-offline-failure",
-    query: "vibecoded.games",
-    resultCount: 1,
-    criticalTextCount: 4,
-    actionTargetCount: 2,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: {
-      resultTitle: "VibeCoded Museum",
-      method: "keyboard-enter",
-      outcomeKind: "launch-dialog",
-      outcomeLabel: "VibeCoded Museum",
-      expectedAdapter: "remote-web",
-      expectedNetworkOnline: false,
-      remoteWebExpectation: {
-        statusLabel: "OFFLINE",
-        originLabel: "VIBECODED.GAMES / ONLINE",
-        actionLabel: "Open unsupervised preview",
-        failureMessage: "No network connection",
-        retryAvailable: true,
-        denial: null,
-      },
-      unavailableExpectation: null,
-      destructiveExpectation: null,
-      backRecoveryFocus: "search-trigger",
-    },
-    interactionTrace: [
-      "universal-search",
-      "museum-result",
-      "remote-web-offline-failure",
-      "retry-action-visible",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "unavailable-package-denial",
-    query: "2048",
-    resultCount: 1,
-    criticalTextCount: 4,
-    actionTargetCount: 2,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: {
-      resultTitle: "2048",
-      method: "keyboard-enter",
-      outcomeKind: "launch-dialog",
-      outcomeLabel: "2048",
-      expectedAdapter: "retro",
-      expectedNetworkOnline: true,
-      remoteWebExpectation: null,
-      unavailableExpectation: {
-        statusLabel: "NOT AVAILABLE",
-        detail:
-          "The selected release is not present in the current signed package inventory",
-        diagnosticCode: "PACKAGE_RELEASE_MISMATCH",
-        retryAvailable: true,
-      },
-      destructiveExpectation: null,
-      backRecoveryFocus: "search-trigger",
-    },
-    interactionTrace: [
-      "universal-search",
-      "retro-2048-result",
-      "unavailable-package-denial",
-      "package-release-mismatch-diagnostic",
-      "retry-action-visible",
-      "search-trigger",
-    ],
-  },
-  {
-    id: "destructive-settings-denial",
-    query: "delete local progress",
-    resultCount: 1,
-    criticalTextCount: 4,
-    actionTargetCount: 2,
-    measurementMode: "all-marked",
-    scrollingExpectedResolutionIds: [],
-    activation: {
-      resultTitle: "Unassigned progress",
-      method: "keyboard-enter",
-      outcomeKind: "launcher-view",
-      outcomeLabel: "Progress without a profile.",
-      expectedAdapter: null,
-      expectedNetworkOnline: true,
-      remoteWebExpectation: null,
-      unavailableExpectation: null,
-      destructiveExpectation: {
-        selectedEntryTitle: "Obstacle",
-        actionLabel: "Delete permanently",
-        dialogLabel: "Delete Obstacle · Checkpoint 12?",
-        warning:
-          "This permanently removes the selected console-managed save. There is no backup, export, cloud copy, migration, or undo.",
-        prototypeBoundary: "Prototype only · no filesystem mutation",
-        safeDefaultLabel: "Cancel",
-        safeDefaultInitiallyFocused: true,
-        denialKind: "controller-back-cancelled",
-        confirmationDismissed: true,
-        entryRetainedAfterDenial: true,
-        denialRecoveryFocus: "delete-unassigned-progress",
-      },
-      backRecoveryFocus: "profiles-navigation",
-    },
-    interactionTrace: [
-      "universal-search",
-      "unassigned-progress-result",
-      "unassigned-progress-view",
-      "obstacle-delete-action",
-      "safe-cancel-default",
-      "controller-back-denial",
-      "obstacle-entry-retained",
-      "delete-action-focus-restored",
-      "profiles-navigation",
-    ],
-  },
-]);
 
 async function provenance() {
   const entries = await Promise.all(
@@ -504,7 +240,7 @@ async function exerciseInteraction(page, state) {
     assert.equal(searchOverlayHidden, true);
     assert.equal(outcomeVisible, true);
     await page.keyboard.press("Escape");
-    const home = page.getByRole("heading", { name: /Good evening/u });
+    const home = page.getByRole("heading", { name: /^Games$/u });
     await home.waitFor();
     const homeNavigation = page.locator(
       '.launcher-nav [data-view-target="home"]',
@@ -1071,24 +807,25 @@ async function exerciseInteraction(page, state) {
 async function exercise(chromePath) {
   const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
   const { chromium } = requireFromConsoleLab("@playwright/test");
-  const server = await startProductionPreview();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  const requestCounts = new Map();
-  const consoleErrors = [];
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  const server = await startBuiltConsole();
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    const requestCounts = new Map();
+    const consoleErrors = [];
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       for (const state of SEARCH_STATES) {
         const page = await browser.newPage({
@@ -1153,7 +890,7 @@ async function exercise(chromePath) {
           timeout: 30_000,
         });
         assert.equal(response?.status(), 200);
-        await page.getByRole("heading", { name: /Good evening/ }).waitFor();
+        await page.getByRole("heading", { name: /^Games$/ }).waitFor();
         await page.locator("#search-trigger").focus();
         await page.locator("#search-trigger").click();
         const input = page.locator("#universal-search");
@@ -1223,7 +960,7 @@ async function exercise(chromePath) {
         // separates them is the recorded interaction trace, not the pixels.
         const screenshotPath = resolve(
           outputRoot,
-          `windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
+          `windows-x64-installed-chrome-launcher-search-${state.id}-${resolution.id}.png`,
         );
         await mkdir(dirname(screenshotPath), { recursive: true });
         const screenshot = await deterministicScreenshot(
@@ -1266,7 +1003,7 @@ async function exercise(chromePath) {
           recovery: interaction.recovery,
           screenshot: {
             path:
-              `benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-${state.id}-${resolution.id}.png`,
+              `benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-${state.id}-${resolution.id}.png`,
             bytes: screenshot.length,
             sha256: createHash("sha256").update(screenshot).digest("hex"),
           },
@@ -1290,28 +1027,25 @@ async function exercise(chromePath) {
       ),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 
 export async function generateLauncherSearchTvEvidence() {
   assert.equal(process.platform, "win32");
   assert.equal(process.arch, "x64");
-  assert.equal(process.version, GODOT_EXPORT_NODE_VERSION);
   const retrievedAtUtc = new Date().toISOString();
-  assert.ok(
-    retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
-    `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
-  );
   const browser = await exercise(findChrome());
-  assert.equal(browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const representativeEvidenceBytes = await readFile(
     resolve(root, representativeEvidenceRelativePath),
   );
   return {
     format: LAUNCHER_SEARCH_TV_EVIDENCE_FORMAT,
-    evidenceDate: TV_CONFORMANCE_EVIDENCE_DATE,
+    evidenceDate: retrievedAtUtc.slice(0, 10),
     evidenceClass:
       "windows-x64-headless-chrome-launcher-search-tv-conformance",
     qualification:
@@ -1323,6 +1057,7 @@ export async function generateLauncherSearchTvEvidence() {
       sha256: sha256(representativeEvidenceBytes),
     },
     environment: {
+      buildMode: "lab",
       producerPlatform: process.platform,
       producerArchitecture: process.arch,
       nodeVersion: process.version,

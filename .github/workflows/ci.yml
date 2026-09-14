@@ -49,10 +49,7 @@ jobs:
       # prepare:assets fetches the pinned pose model and typeface by exact
       # SHA-256, so a substituted upstream artifact fails here.
       - name: Prepare pinned assets and generated sources
-        run: |
-          pnpm prepare:assets
-          pnpm prepare:catalog
-          pnpm prepare:schemas
+        run: pnpm prepare:assets && pnpm prepare:catalog && pnpm prepare:schemas
 
       # The generators are expected to be deterministic. A dirty tree here
       # means generated output was committed stale, or differs by platform.
@@ -66,6 +63,9 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Dependency inventory and notices match the frozen graph
+        run: pnpm validate:compliance
 
       # Includes validate:source-bindings, which catches a pre-registration
       # plan whose bound documents changed after it was reviewed. Fourteen
@@ -85,6 +85,61 @@ jobs:
 
       - name: Validate game manifests
         run: pnpm validate:manifests
+
+  python:
+    name: Python / ${{ matrix.os }} / ${{ matrix.backend }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        backend: [rtmo, mediapipe]
+    env:
+      UV_PROJECT_ENVIRONMENT: ${{ github.workspace }}/artifacts/python-${{ matrix.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.29"
+          python-version: "3.13"
+      - name: Install the frozen backend environment
+        run: uv sync --project experiments/rtmo --frozen --extra ${{ matrix.backend }}
+      - name: Check OpenCV ownership and import the backend
+        run: uv run --project experiments/rtmo --frozen --extra ${{ matrix.backend }} experiments/rtmo/check_environment.py ${{ matrix.backend }}
+      - name: Test deterministic benchmark helpers
+        run: uv run --project experiments/rtmo --frozen --extra ${{ matrix.backend }} python -m unittest discover -s experiments/rtmo
+
+  godot:
+    name: Godot sample / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      GODOT_VERSION: "4.7.1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: false
+          # The action's Windows cache retains only the GUI executable and
+          # omits the console sibling needed to capture test output.
+          cache: ${{ matrix.os != 'windows-latest' }}
+      - name: Select the Windows console executable
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $godotConsole = Join-Path $env:USERPROFILE ("godot/Godot_v{0}-stable_win64_console.exe" -f $env:GODOT_VERSION)
+          if (!(Test-Path -LiteralPath $godotConsole -PathType Leaf)) { throw "Godot console executable is missing" }
+          "GODOT_BIN=$godotConsole" >> $env:GITHUB_ENV
+      - name: Import, contract tests, and scene boot
+        run: node scripts/validate-godot-motion-sample.mjs
 
   native:
     name: native / ${{ matrix.os }}
@@ -113,10 +168,10 @@ jobs:
       # against 24 on Linux, which pushes the variant gap past the 200-byte
       # threshold. A Linux-only lint job would not have seen it.
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
 
       - name: Test
-        run: cargo test --workspace
+        run: cargo test --locked --workspace
 
       # Guards the `default-run` manifest key. Without it, adding a second
       # binary to the crate makes every documented `cargo run -p vcg-host`
@@ -161,10 +216,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Prepare pinned assets and generated sources
-        run: |
-          pnpm prepare:assets
-          pnpm prepare:catalog
-          pnpm prepare:schemas
+        run: pnpm prepare:assets && pnpm prepare:catalog && pnpm prepare:schemas
 
       # playwright.config.ts pins `channel: "chrome"`, so the suite needs real
       # Google Chrome rather than the bundled Chromium.
@@ -211,14 +263,14 @@ jobs:
       # --all-targets compiles the test code for aarch64 too, so a target-only
       # compile error in a test is caught without running anything.
       - name: Clippy for aarch64
-        run: cargo clippy --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets --target aarch64-unknown-linux-gnu -- -D warnings
 
       # Linking is the part `cargo check` cannot prove, and a missing or
       # incompatible target library shows up only here. vcg-cursor-nudge
       # links against libc's raw ioctl/FFI symbols, so it needs this check
       # just as much as vcg-host does.
       - name: Link for aarch64
-        run: cargo build --target aarch64-unknown-linux-gnu -p vcg-host -p vcg-cursor-nudge
+        run: cargo build --locked --target aarch64-unknown-linux-gnu -p vcg-host -p vcg-cursor-nudge
 
       - name: Artifact really is aarch64
         run: |
@@ -264,7 +316,7 @@ jobs:
       # Runs the operator-facing script itself rather than reimplementing its
       # steps, so the script cannot rot while its individual commands pass. It
       # installs dependencies, prepares assets, builds, builds and runs the
-      # native host, then proves the real preview server serves the browser
+      # native host, then proves the built console server serves the browser
       # boundary the camera path depends on.
       #
       # The script warns that a non-aarch64 host is not Raspberry Pi evidence.

@@ -370,7 +370,7 @@
     "implementationSha256": "6be330b4eccb1b3b3e87cce4a4cde1b661019260f2b429a0b50b4d00cd37843b",
     "contractTestSha256": "c584f1969761965d61853ad96eb21ff2078b761fc8be2aff86d17551964df9f0",
     "generatorSha256": "8c0cae80f2e23ca3e0b2ea5c10c57640abb9a47d9e47ddbc91605b8abf50d917",
-    "validatorSha256": "f5978a998db985a6afcced22b6ea063ccd7c984afac3f5ab02b2a5cc2dd1a91e"
+    "validatorSha256": "5a77dd1057f1165b9eec3a04f9032420cfed1a7d390884efcf23bf5480c0dd39"
   },
   "claimBoundary": "Deterministic camera-free contract evidence only. It proves strict input/output shape, conservative abstention, exact one-shot confirmation, correction/New Player/opt-out routes, inactive-template exclusion, and rejection of authored portrait/face/name canaries. It does not prove identity, recognition accuracy, privacy, encryption, persistence, usability, accessibility, safety, legal compliance, or target behavior.",
   "limitations": [

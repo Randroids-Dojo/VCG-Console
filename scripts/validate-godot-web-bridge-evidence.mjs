@@ -1,5 +1,6 @@
+import { historicalSourceSha256 } from "./historical-source-snapshot.mjs";
+import { exactKeySet as exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -52,30 +53,12 @@ const expectedWebPackSha256 = expectedWebFiles.find((file) =>
   file.path.endsWith(".pck"),
 ).sha256;
 
-function exactKeys(value, expected, path) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${path} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
-
-function normalizedSha256(bytes) {
-  return createHash("sha256")
-    .update(bytes.toString("utf8").replaceAll("\r\n", "\n"))
-    .digest("hex");
-}
-
 export async function expectedGodotWebBridgeProvenance() {
   const entries = await Promise.all(
     Object.entries(provenancePaths).map(async ([key, path]) => [
       key,
       path,
-      normalizedSha256(await readFile(resolve(root, path))),
+      historicalSourceSha256(path),
     ]),
   );
   return Object.fromEntries(

@@ -4,12 +4,14 @@
   "assets": [
     {
       "name": "MediaPipe Pose Landmarker Lite float16 model",
+      "kind": "model",
       "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
       "bytes": 5777746,
       "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
     },
     {
       "name": "OCR-A 1.0 TrueType font",
+      "kind": "font",
       "url": "https://downloads.sourceforge.net/project/ocr-a-font/OCR-A/1.0/OCRA.ttf?download=1",
       "bytes": 24316,
       "sha256": "a0f58809705d54108fe41409bae70fbb8315a64e989aaf2afa04d5cfbb94f54e",
@@ -20,6 +22,20 @@
         "upstreamLicenseLabel": "Public Domain",
         "notice": "../../../THIRD_PARTY_NOTICES.md#ocr-a-font-10",
         "retrievedAt": "2026-07-19"
+      }
+    },
+    {
+      "name": "Inter Variable Latin font",
+      "kind": "font",
+      "url": "https://www.npmjs.com/package/@fontsource-variable/inter/v/5.3.0",
+      "bytes": 72920,
+      "sha256": "2c295d99e26dcf357d4d01bcf270fd6924b600c9a13dd8c363ef114f4c6976fa",
+      "provenance": {
+        "version": "5.3.0",
+        "upstreamProject": "https://github.com/rsms/inter",
+        "package": "@fontsource-variable/inter@5.3.0",
+        "upstreamLicenseLabel": "SIL Open Font License 1.1",
+        "notice": "../../../THIRD_PARTY_NOTICES.md#inter-variable-font"
       }
     }
   ]

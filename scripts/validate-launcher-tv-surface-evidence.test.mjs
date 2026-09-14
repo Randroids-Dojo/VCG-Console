@@ -9,7 +9,7 @@ import {
 } from "./validate-launcher-tv-surface-evidence.mjs";
 
 const artifactPath = resolve(
-  "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
+  "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
 );
 let baseline;
 let temporaryRoot;

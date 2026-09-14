@@ -41,7 +41,7 @@
     {
       "role": "complete-two-player-prerequisite-plan",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "84c13b81f42b15afc13d01ca2dd3876043ad552d27a96cee78739bb5b6f2dcab"
+      "sha256": "e1026531f1cf0653952e0b7d3eb4f3834d84d39246940ccc8c804875b398879d"
     },
     {
       "role": "motion-api-shape-boundary",
@@ -56,7 +56,7 @@
     {
       "role": "synthetic-session-interference-boundary",
       "path": "benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json",
-      "sha256": "372d56321290e58982929bc81a0a12edfea6265bd4dff43c9423a91e45142890"
+      "sha256": "c93a97316c0e7e5ce4b0bd916c6bee127fc8e6ef645f5a79d315302e4e528223"
     },
     {
       "role": "session-controller-implementation-boundary",
@@ -65,8 +65,13 @@
     },
     {
       "role": "one-player-lab-configuration-boundary",
-      "path": "apps/console-lab/src/main.ts",
-      "sha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a"
+      "path": "apps/console-lab/src/motion-runtime.ts",
+      "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
+    },
+    {
+      "role": "player-join-markup-boundary",
+      "path": "apps/console-lab/src/motion-markup.ts",
+      "sha256": "bca0857e98aec72a8a2a0fe6360068ebc20728217e831aee8a3ff37e327789f0"
     }
   ],
   "prerequisiteGate": {

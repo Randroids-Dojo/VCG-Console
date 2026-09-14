@@ -14,6 +14,10 @@
     type NativeLibraryEntry,
     type NativePackageInventory,
   } from "../native-host-client";
+  import { LAB_MODE } from "../build-mode";
+  import { loadHostProfiles } from "./host-profiles";
+  import HostProfilesView from "./HostProfilesView.svelte";
+  import LauncherTopbar from "./LauncherTopbar.svelte";
   import BootScreen from "./BootScreen.svelte";
   import {
     applyAccessibilityPreferences,
@@ -76,14 +80,15 @@
 
   let { accessibilityPreferences, openMotionLab }: LauncherOptions = $props();
   let launcher: HTMLElement;
+  let topbar: LauncherTopbar;
   let search: SearchOverlay;
   let settings: SettingsView;
-  let portraitCapture: PortraitCaptureView;
-  let profileManagement: ProfileManagementView;
-  let calibrationRehearsal: CalibrationRehearsalView;
+  let portraitCapture = $state<PortraitCaptureView>();
+  let profileManagement = $state<ProfileManagementView>();
+  let calibrationRehearsal = $state<CalibrationRehearsalView>();
   let circuitShiftGame = $state<CircuitShiftGame | undefined>();
-  let sessionAdversarial: SessionAdversarialView;
-  let unassigned: UnassignedProgressView;
+  let sessionAdversarial = $state<SessionAdversarialView>();
+  let unassigned = $state<UnassignedProgressView>();
   let retroLibrary: RetroLibraryView;
   const retroLibraryBrowse = new RetroLibraryBrowse();
   let connectedControllers = $state(0);
@@ -102,11 +107,11 @@
     new AcceptedCalibrationResultCollection();
   const qualifiedProgressUnlinks =
     new QualifiedProgressUnlinkCollection(
-      PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS,
+      LAB_MODE ? PROFILE_MANAGEMENT_DEMO_UNLINK_QUALIFICATIONS : [],
     );
   const profileManagementController = new ProfileManagementController(
-    PROFILE_MANAGEMENT_DEMO_PROFILES,
-    PROFILE_MANAGEMENT_DEMO_PROGRESS,
+    LAB_MODE ? PROFILE_MANAGEMENT_DEMO_PROFILES : [],
+    LAB_MODE ? PROFILE_MANAGEMENT_DEMO_PROGRESS : [],
     acceptedPortraits,
     acceptedCalibrationResults,
     qualifiedProgressUnlinks,
@@ -117,22 +122,19 @@
   let profiles = $state<LocalProfile[]>(
     localProfiles(profileManagementController.snapshot()),
   );
-  let activeProfile = $state("Randy");
-  let activeProfileId = $state("profile-randy");
+  let activeProfile = $state(LAB_MODE ? "Randy" : "Guest");
+  let activeProfileId = $state(LAB_MODE ? "profile-randy" : "");
+  let hostProfilesStatus = $state("Checking saved profiles...");
   let managementProfileId = $state<string | null>(null);
   let calibrationProfileId = $state<string | null>(null);
   let portraitProfileId = $state<string | null>(null);
   let portraitReturnView = $state<"profiles" | "profile-management">(
     "profiles",
   );
-  let clock = $state("");
   let toastMessage = $state("");
   let toastVisible = $state(false);
   let launchSession = $state<LaunchSession | undefined>();
-  let navSignalOffset = $state(0);
-  let navSignalWidth = $state(0);
   let focusedDestination = $state<"obstacle" | "museum" | "retro">("obstacle");
-  let clockTimer: number | undefined;
   let toastTimer: number | undefined;
   let launchRun = 0;
   let launchAttempt = 0;
@@ -160,8 +162,8 @@
     calibrationRehearsalController.snapshot(),
   );
   const unassignedProgressController = new UnassignedProgressController(
-    UNASSIGNED_PROGRESS_DEMO_ENTRIES,
-    [
+    LAB_MODE ? UNASSIGNED_PROGRESS_DEMO_ENTRIES : [],
+    LAB_MODE ? [
       {
         profileId: "profile-randy",
         gameId: "obstacle",
@@ -172,7 +174,7 @@
         gameId: "godot-motion-game",
         slotId: "campaign",
       },
-    ],
+    ] : [],
   );
   let unassignedProgressSnapshot = $state(unassignedProgressController.snapshot());
 
@@ -197,9 +199,9 @@
 
   const searchItems: SearchItem[] = [
     { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
-    { title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") },
-    { title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") },
-    { title: "Session authority rehearsal", detail: "Synthetic spectator and takeover abuse suite", group: "Motion", terms: "candidate join spectator pet mirror television passerby takeover recovery", action: () => showView("session-adversarial") },
+    ...(LAB_MODE ? [{ title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") }] : []),
+    ...(LAB_MODE ? [{ title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") }] : []),
+    ...(LAB_MODE ? [{ title: "Session authority rehearsal", detail: "Synthetic spectator and takeover abuse suite", group: "Motion", terms: "candidate join spectator pet mirror television passerby takeover recovery", action: () => showView("session-adversarial") }] : []),
     { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: launchMuseum },
     ...launcherCatalog.entries.map((entry): SearchItem => ({
       title: entry.title,
@@ -216,24 +218,26 @@
     })),
     { title: "RetroArch", detail: "Retro library", group: "Local", terms: "retro emulator arcade rom library", action: () => showView("retro") },
     { title: "Profiles", detail: "Players on this console", group: "System", terms: "profile player portrait calibration", action: () => showView("profiles") },
-    { title: "Calibration rehearsal", detail: "Synthetic player and play-zone check", group: "System", terms: "profile floor zone scale stance range calibration", action: () => openCalibrationRehearsal(activeProfileId) },
-    { title: "Portrait rehearsal", detail: "Synthetic device-only capture lifecycle", group: "System", terms: "profile portrait camera preview retake consent", action: () => openPortraitCapture(activeProfileId) },
-    { title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") },
+    ...(LAB_MODE ? [{ title: "Calibration rehearsal", detail: "Synthetic player and play-zone check", group: "System", terms: "profile floor zone scale stance range calibration", action: () => openCalibrationRehearsal(activeProfileId) }] : []),
+    ...(LAB_MODE ? [{ title: "Portrait rehearsal", detail: "Synthetic device-only capture lifecycle", group: "System", terms: "profile portrait camera preview retake consent", action: () => openPortraitCapture(activeProfileId) }] : []),
+    ...(LAB_MODE ? [{ title: "Unassigned progress", detail: "Device-only saves without a profile", group: "System", terms: "save claim delete local progress", action: () => showView("unassigned") }] : []),
     { title: "Accessibility", detail: "Text, contrast, motion, input, and cues", group: "Settings", terms: "large text contrast reduced motion seated remap audio cues", action: () => showSettings("accessibility") },
-    { title: "Display", detail: "Television layout preview", group: "Settings", terms: "tv hdmi resolution refresh hdr overscan safe area", action: () => showSettings("display") },
-    { title: "Audio", detail: "Local output cue rehearsal", group: "Settings", terms: "sound hdmi speakers receiver volume test cue", action: () => showSettings("audio") },
+    ...(LAB_MODE ? [{ title: "Display", detail: "Television layout preview", group: "Settings", terms: "tv hdmi resolution refresh hdr overscan safe area", action: () => showSettings("display") }] : []),
+    ...(LAB_MODE ? [{ title: "Audio", detail: "Local output cue rehearsal", group: "Settings", terms: "sound hdmi speakers receiver volume test cue", action: () => showSettings("audio") }] : []),
     { title: "Controllers", detail: "Bluetooth setup", group: "Settings", terms: "gamepad bluetooth pair connect forget controller", action: () => showSettings("controllers") },
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
-    { title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") },
+    ...(LAB_MODE ? [{ title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") }] : []),
   ];
+
+  let disposed = false;
+  let profileRefresh = 0;
 
   onMount(() => {
     localDiagnostics.record("launcher.ready", diagnosticUptimeMs());
-    paintClock();
-    clockTimer = window.setInterval(paintClock, 15_000);
-    void positionSignal();
+    void topbar?.positionSignal();
     void refreshNativePackageInventory();
+    if (!LAB_MODE) void refreshHostProfiles();
     controllerPresence.start();
     window.addEventListener("focus", refreshNativePackageInventory);
     document.addEventListener("visibilitychange", refreshVisibleNativePackageInventory);
@@ -277,6 +281,17 @@
     } catch {
       toast("Audio cue unavailable on this browser.");
     }
+  }
+
+  async function refreshHostProfiles(): Promise<void> {
+    const request = ++profileRefresh;
+    const result = await loadHostProfiles();
+    if (disposed || request !== profileRefresh) return;
+    profiles = result.ok ? result.profiles : [];
+    const selected = profiles.find((profile) => profile.id === activeProfileId) ?? profiles[0];
+    activeProfileId = selected?.id ?? "";
+    activeProfile = selected?.name ?? "Guest";
+    hostProfilesStatus = result.ok ? "No saved profiles are configured. Built-in games are available as Guest." : result.detail;
   }
 
   function selectProfile(profile: LocalProfile): void {
@@ -424,7 +439,8 @@
   }
 
   onDestroy(() => {
-    if (clockTimer !== undefined) window.clearInterval(clockTimer);
+    disposed = true;
+    closeLaunch(false);
     if (toastTimer !== undefined) window.clearTimeout(toastTimer);
     window.removeEventListener("focus", refreshNativePackageInventory);
     document.removeEventListener("visibilitychange", refreshVisibleNativePackageInventory);
@@ -446,37 +462,39 @@
   export function hide(): void {
     search.close();
     closeLaunch(false);
-    if (view === "portrait") portraitCapture.cancelPending();
-    if (view === "profile-management") profileManagement.cancelPending();
-    if (view === "calibration") calibrationRehearsal.cancelPending();
+    if (view === "portrait") portraitCapture?.cancelPending();
+    if (view === "profile-management") profileManagement?.cancelPending();
+    if (view === "calibration") calibrationRehearsal?.cancelPending();
     visible = false;
   }
 
   export async function showView(next: LauncherView): Promise<void> {
+    if (!LAB_MODE && ["profile-management", "calibration", "portrait", "unassigned", "session-adversarial"].includes(next)) return;
+    if (!LAB_MODE && next === "profiles") void refreshHostProfiles();
     if (
       view === "portrait"
       && next !== "portrait"
       && portraitCaptureSnapshot.phase !== "idle"
     ) {
-      portraitCapture.cancelPending();
+      portraitCapture?.cancelPending();
     }
     if (
       view === "profile-management"
       && next !== "profile-management"
     ) {
-      profileManagement.cancelPending();
+      profileManagement?.cancelPending();
     }
     if (
       view === "calibration"
       && next !== "calibration"
       && calibrationRehearsalSnapshot.phase !== "idle"
     ) {
-      calibrationRehearsal.cancelPending();
+      calibrationRehearsal?.cancelPending();
     }
     view = next;
     if (next === "retro") void refreshNativePackageInventory();
     await tick();
-    await positionSignal();
+    await topbar?.positionSignal();
     if (next === "portrait") {
       launcher.querySelector<HTMLButtonElement>(".portrait-primary")?.focus({
         preventScroll: true,
@@ -515,14 +533,14 @@
 
   export async function showSettings(panel: SettingsPanel): Promise<void> {
     if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
-      portraitCapture.cancelPending();
+      portraitCapture?.cancelPending();
     }
-    if (view === "profile-management") profileManagement.cancelPending();
-    if (view === "calibration") calibrationRehearsal.cancelPending();
+    if (view === "profile-management") profileManagement?.cancelPending();
+    if (view === "calibration") calibrationRehearsal?.cancelPending();
     view = "settings";
     await tick();
     settings.show(panel);
-    await positionSignal();
+    await topbar?.positionSignal();
   }
 
   export function back(): void {
@@ -530,16 +548,16 @@
     else if (search.isOpen()) search.close();
     else if (view === "settings" && settings.cancelPendingModeConfirmation()) return;
     else if (view === "portrait") {
-      portraitCapture.cancelPending();
+      portraitCapture?.cancelPending();
       showView(portraitReturnView);
     }
     else if (
       view === "profile-management"
-      && profileManagement.cancelPending()
+      && profileManagement?.cancelPending()
     ) return;
     else if (view === "profile-management") showView("profiles");
     else if (view === "calibration") {
-      calibrationRehearsal.cancelPending();
+      calibrationRehearsal?.cancelPending();
       showView("profile-management");
     }
     else if (view === "session-adversarial") showView("motion");
@@ -548,7 +566,7 @@
     // title -- and Back closes those before it leaves the view.
     else if (view === "retro-library" && retroLibrary.handleBack()) return;
     else if (view === "retro-library") showView("retro");
-    else if (view === "unassigned" && unassigned.cancelPending()) return;
+    else if (view === "unassigned" && unassigned?.cancelPending()) return;
     else if (view === "unassigned") showView("profiles");
     else if (view !== "home") showView("home");
   }
@@ -556,9 +574,9 @@
   export function handleInput(action: ConsoleInputAction): void {
     if (action === "home") {
       closeLaunch();
-      if (view === "portrait") portraitCapture.cancelPending();
-      if (view === "profile-management") profileManagement.cancelPending();
-      if (view === "calibration") calibrationRehearsal.cancelPending();
+      if (view === "portrait") portraitCapture?.cancelPending();
+      if (view === "profile-management") profileManagement?.cancelPending();
+      if (view === "calibration") calibrationRehearsal?.cancelPending();
       showView("home");
       return;
     }
@@ -605,21 +623,22 @@
   export function openSearch(): void {
     if (launchSession) return;
     if (view === "portrait" && portraitCaptureSnapshot.phase !== "idle") {
-      portraitCapture.cancelPending();
+      portraitCapture?.cancelPending();
       view = "home";
     }
     if (view === "profile-management") {
-      profileManagement.cancelPending();
+      profileManagement?.cancelPending();
       view = "home";
     }
     if (view === "calibration") {
-      calibrationRehearsal.cancelPending();
+      calibrationRehearsal?.cancelPending();
       view = "home";
     }
     void search.open();
   }
 
   function openLab(mode: LabMode): void {
+    if (!LAB_MODE && mode !== "obstacle") return;
     openMotionLab(mode);
   }
 
@@ -635,6 +654,7 @@
 
   async function loadNativePackageInventory(): Promise<void> {
     const result = await listNativePackages();
+    if (disposed) return;
     if (result.ok) {
       nativePackageInventory = result.inventory;
       setNativePackageInventoryState("available");
@@ -863,6 +883,15 @@
     return true;
   }
 
+  function refuseWithoutHostProfile(supervisor: LaunchSupervisor): boolean {
+    if (LAB_MODE || activeProfileId) return false;
+    supervisor.unavailable(
+      "Select a saved profile in Profiles before launching an installed game.",
+      "HOST_PROFILE_REQUIRED",
+    );
+    return true;
+  }
+
   async function runHostedAttempt(
     supervisor: LaunchSupervisor,
     adapter: "native" | "retro",
@@ -872,6 +901,7 @@
     // bare adapter handoff reports an unavailable package and starts nothing,
     // so gating it would refuse a launch that could never happen.
     if (adapter === "retro" && expected && refuseWithoutController(supervisor)) return;
+    if (expected && refuseWithoutHostProfile(supervisor)) return;
     supervisor.advance(1, "Requesting the Rust console host");
     if (expected) {
       const inventory = nativePackageInventory;
@@ -968,6 +998,7 @@
     entry: NativeLibraryEntry,
   ): Promise<void> {
     if (refuseWithoutController(supervisor)) return;
+    if (refuseWithoutHostProfile(supervisor)) return;
     supervisor.advance(1, "Requesting the Rust console host");
     await refreshNativePackageInventory();
     if (launchSupervisor !== supervisor) return;
@@ -1193,17 +1224,6 @@
     return new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
   }
 
-  async function positionSignal(): Promise<void> {
-    await tick();
-    const navView =
-      view === "retro-game" || view === "retro-library" ? "retro"
-      : view === "session-adversarial" ? "motion"
-      : ["profile-management", "calibration", "portrait", "unassigned"].includes(view) ? "profiles"
-      : view;
-    const active = launcher?.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${navView}"]`);
-    navSignalOffset = active ? active.offsetLeft : 0;
-    navSignalWidth = active ? active.offsetWidth : 0;
-  }
 
   function toast(message: string): void {
     toastMessage = message;
@@ -1212,34 +1232,13 @@
     toastTimer = window.setTimeout(() => (toastVisible = false), 3_000);
   }
 
-  function paintClock(): void {
-    clock = new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
-  }
+
 </script>
 
 <BootScreen />
 
 <main bind:this={launcher} class="launcher" id="launcher" hidden={!visible}>
-  <header class="launcher-topbar" data-focus-group="menu">
-    <span class="launcher-brand" data-tv-critical-text>VCG<span>/</span>CONSOLE</span>
-    <nav class="launcher-nav" aria-label="Launcher">
-      <div class="nav-signal" aria-hidden="true"><span style:transform={`translateX(${navSignalOffset}px)`} style:width={`${navSignalWidth}px`}></span></div>
-      {#each ["home", "motion", "museum", "retro"] as target}
-        <button class:active={view === target || (target === "motion" && view === "session-adversarial") || (target === "retro" && (view === "retro-game" || view === "retro-library"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
-      {/each}
-      <span class="nav-spacer"></span>
-      {#each ["profiles", "settings"] as target}
-        <button class:active={view === target || (target === "profiles" && (view === "profile-management" || view === "calibration" || view === "portrait" || view === "unassigned"))} type="button" data-view-target={target} data-tv-action data-tv-critical-text onclick={() => showView(target as LauncherView)}>{target[0]?.toUpperCase() + target.slice(1)}</button>
-      {/each}
-    </nav>
-    <button class="search-trigger" id="search-trigger" type="button" data-tv-action data-tv-critical-text aria-haspopup="dialog" aria-label="Search games, hubs, and settings" onclick={openSearch}>
-      <span>Search</span>
-    </button>
-    <div class="launcher-presence">
-      <button type="button" data-tv-action data-tv-critical-text onclick={() => showView("profiles")}><span class="profile-orbit" aria-hidden="true">{activeProfile.slice(0, 1).toUpperCase()}</span><span id="active-profile-name">{activeProfile}</span></button>
-      <time id="launcher-clock" aria-label="Local time">{clock}</time>
-    </div>
-  </header>
+  <LauncherTopbar bind:this={topbar} {view} {activeProfile} onview={showView} onsearch={openSearch} />
 
   <div class="launcher-frame">
     <section class="launcher-content">
@@ -1250,7 +1249,7 @@
           <span class="stage-layer" data-stage-for="retro"></span>
         </div>
         <div class="home-heading">
-          <h1 data-tv-critical-text>Good evening,<br /><span id="home-profile-name">{activeProfile}.</span></h1>
+          <h1 data-tv-critical-text>Games</h1>
         </div>
         <div class="home-destinations" data-focus-group aria-label="Game destinations">
           <button class="destination featured" type="button" data-tv-action onclick={() => void launchLocalWeb("obstacle", "Obstacle")} onfocus={() => (focusedDestination = "obstacle")} onmouseenter={() => (focusedDestination = "obstacle")}>
@@ -1272,18 +1271,23 @@
         <header class="view-header"><div><h1 data-tv-critical-text>Motion games</h1></div></header>
         <div class="library-list" data-focus-group>
           <button type="button" data-tv-action data-tv-focus="motion-first-entry" onclick={() => void launchLocalWeb("obstacle", "Obstacle")}><span class="row-art" aria-hidden="true"><KeyArt name="obstacle" /></span><strong data-tv-critical-text>Obstacle</strong><small>Dodge · Duck · Jump</small><b data-tv-critical-text>Ready</b></button>
+          {#if LAB_MODE}
           <button type="button" data-tv-action onclick={() => void launchLocalWeb("tracker", "Motion Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="tracker" /></span><strong data-tv-critical-text>Motion Lab</strong><small>Skeleton and signal diagnostics</small><b data-tv-critical-text>Ready</b></button>
           <button type="button" data-tv-action onclick={() => void launchLocalWeb("shell", "Shell Lab")}><span class="row-art" aria-hidden="true"><KeyArt name="shell" /></span><strong data-tv-critical-text>Shell Lab</strong><small>Gesture navigation and recovery</small><b data-tv-critical-text>Ready</b></button>
           <button type="button" data-tv-action onclick={() => showView("session-adversarial")}><span class="row-art" aria-hidden="true"><KeyArt name="session" /></span><strong data-tv-critical-text>Session authority</strong><small>Spectator, pet, mirror, and takeover rehearsal</small><b data-tv-critical-text>Synthetic</b></button>
+          {/if}
         </div>
       </div>
 
+      {#if LAB_MODE}
       <div class="launcher-view session-adversarial-view" data-launcher-view="session-adversarial" hidden={view !== "session-adversarial"}>
         <SessionAdversarialView
           bind:this={sessionAdversarial}
           onback={() => showView("motion")}
         />
       </div>
+
+      {/if}
 
       <div class="launcher-view museum-view" data-launcher-view="museum" hidden={view !== "museum"}>
         <span class="museum-art" aria-hidden="true"><KeyArt name="museum" /></span>
@@ -1308,13 +1312,13 @@
           <div class="empty-library">
             <span class="empty-glyph" aria-hidden="true"></span>
             <div><strong>Signed package catalog unavailable</strong><p>Built-in games remain ready. Connect the native host to verify imported packages.</p></div>
-            <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
+            <p>Manage imports with the native console tools.</p>
           </div>
         {:else if !hasInstalledRetroPackage()}
           <div class="empty-library">
             <span class="empty-glyph" aria-hidden="true"></span>
             <div><strong>No retro packages installed</strong><p>Import games you are legally entitled to use from USB or a paired computer.</p></div>
-            <button type="button" onclick={() => toast("The native importer will become available with the console host.")}>Import games</button>
+            <p>Manage imports with the native console tools.</p>
           </div>
         {/if}
         <div class="library-list" data-focus-group>
@@ -1352,6 +1356,7 @@
       </div>
 
       <div class="launcher-view profiles-view" data-launcher-view="profiles" hidden={view !== "profiles"}>
+        {#if LAB_MODE}
         <ProfilesView
           {profiles}
           activeId={activeProfileId}
@@ -1362,8 +1367,12 @@
           onportrait={openPortraitCapture}
           onunassigned={() => showView("unassigned")}
         />
+        {:else}
+          <HostProfilesView {profiles} activeId={activeProfileId} status={hostProfilesStatus} onselect={selectProfile} />
+        {/if}
       </div>
 
+      {#if LAB_MODE}
       <div class="launcher-view profile-management-view" data-launcher-view="profile-management" hidden={view !== "profile-management"}>
         <ProfileManagementView
           bind:this={profileManagement}
@@ -1423,6 +1432,8 @@
           ontoast={toast}
         />
       </div>
+
+      {/if}
 
       <div class="launcher-view settings-view" data-launcher-view="settings" hidden={view !== "settings"}>
         <SettingsView

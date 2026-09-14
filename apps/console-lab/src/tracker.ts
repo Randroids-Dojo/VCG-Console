@@ -56,6 +56,7 @@ export class MediaPipeTracker {
   #healthSequence = 0;
   #healthStatus: TrackerHealthStatus = "starting";
   #attemptedStart = false;
+  #startup: { controller: AbortController; promise: Promise<boolean> } | undefined;
 
   constructor(private readonly callbacks: TrackerCallbacks) {
     this.#video.muted = true;
@@ -71,72 +72,97 @@ export class MediaPipeTracker {
     return this.#frameGate.droppedFrames;
   }
 
-  /** Starts one camera session in the given capture mode. */
-  async start(captureProfile: CaptureProfile): Promise<void> {
-    if (this.#running) return;
+  /** Starts one camera session; false means Stop or Close cancelled this attempt. */
+  start(captureProfile: CaptureProfile): Promise<boolean> {
+    if (this.#running) return Promise.resolve(true);
+    if (this.#startup) return this.#startup.promise;
+    const controller = new AbortController();
+    const runId = ++this.#runId;
+    const promise = Promise.resolve()
+      .then(() => this.#start(captureProfile, runId, controller.signal))
+      .finally(() => {
+        if (this.#startup?.controller === controller) this.#startup = undefined;
+      });
+    this.#startup = { controller, promise };
+    return promise;
+  }
+
+  async #start(captureProfile: CaptureProfile, runId: number, signal: AbortSignal): Promise<boolean> {
+    if (signal.aborted) return false;
     this.#emitHealth(this.#attemptedStart ? "restarting" : "initializing");
     this.#attemptedStart = true;
     this.callbacks.onStatus("loading", "Loading the local pose model outside the console UI thread");
+    let failureReason: TrackerHealthReason = "backend-fault";
+    let stream: MediaStream | undefined;
     try {
-      await this.#ensureBackend();
-    } catch (error) {
-      this.#emitHealth("backend-fault");
-      throw error;
-    }
+      await this.#ensureBackend(signal);
+      if (signal.aborted) return false;
 
-    this.callbacks.onStatus(
-      "requesting-camera",
-      `Waiting for camera permission. ${captureModeLabel(captureProfile)} requested.`,
-    );
-    try {
-      this.#stream = await navigator.mediaDevices.getUserMedia({
+      this.callbacks.onStatus(
+        "requesting-camera",
+        `Waiting for camera permission. ${captureModeLabel(captureProfile)} requested.`,
+      );
+      failureReason = "camera-unavailable";
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         // Ideal-only: prefer the selected mode, but do not reject otherwise
         // usable cameras. Qualification uses the observed mode below.
         video: captureConstraints(captureProfile),
       });
-    } catch (error) {
-      this.#emitHealth("camera-unavailable");
-      throw error;
-    }
-    for (const track of this.#stream.getVideoTracks()) {
-      track.addEventListener("ended", this.#handleCameraEnded, { once: true });
-    }
-    const observedCaptureMode = readObservedCaptureMode(this.#stream);
-    this.#video.srcObject = this.#stream;
-    try {
+      if (signal.aborted) {
+        for (const track of stream.getTracks()) track.stop();
+        return false;
+      }
+      this.#stream = stream;
+      for (const track of stream.getVideoTracks()) {
+        track.addEventListener("ended", () => {
+          if (this.#runId === runId) this.#handleCameraEnded();
+        }, { once: true });
+      }
+      const observedCaptureMode = readObservedCaptureMode(stream);
+      this.#video.srcObject = stream;
+      failureReason = "backend-fault";
       await this.#video.play();
+      if (signal.aborted) return false;
+      this.#running = true;
+      this.#frameAdapter = new MediaPipeFrameAdapter();
+      this.#lastMediaTime = -1;
+      this.#frameGate.reset();
+      const isolation = this.#backend === "worker"
+        ? "Pose inference is isolated from the console UI thread."
+        : `Worker initialization failed; inference is using the main-thread fallback. ${this.#backendFallbackReason ?? "No worker error was reported."}`;
+      this.#emitHealth(this.#backend === "worker" ? "healthy" : "fallback-backend");
+      this.callbacks.onStatus(
+        "running",
+        `Camera frames stay local and are not displayed or recorded. ${isolation} ${describeCaptureMode(captureProfile, observedCaptureMode)}`,
+      );
+      this.#scheduleFrame();
+      return true;
     } catch (error) {
-      for (const track of this.#stream.getTracks()) track.stop();
-      this.#stream = undefined;
-      this.#video.srcObject = null;
-      this.#emitHealth("backend-fault");
+      // A rejected old permission/playback promise must not reset a newer run.
+      if (signal.aborted) return false;
+      if (stream && this.#stream === stream) this.#releaseStream();
+      this.#emitHealth(failureReason);
       throw error;
     }
-    this.#running = true;
-    this.#runId += 1;
-    this.#frameAdapter = new MediaPipeFrameAdapter();
-    this.#lastMediaTime = -1;
-    this.#frameGate.reset();
-    const isolation = this.#backend === "worker"
-      ? "Pose inference is isolated from the console UI thread."
-      : `Worker initialization failed; inference is using the main-thread fallback. ${this.#backendFallbackReason ?? "No worker error was reported."}`;
-    this.#emitHealth(this.#backend === "worker" ? "healthy" : "fallback-backend");
-    this.callbacks.onStatus(
-      "running",
-      `Camera frames stay local and are not displayed or recorded. ${isolation} ${describeCaptureMode(captureProfile, observedCaptureMode)}`,
-    );
-    this.#scheduleFrame();
   }
 
   stop(): void {
     this.#running = false;
     this.#runId += 1;
+    const startup = this.#startup;
+    this.#startup = undefined;
+    startup?.controller.abort();
+    if (startup && !this.#backend) this.#discardWorkerBackend();
     this.#frameGate.reset();
+    this.#releaseStream();
+    this.callbacks.onStatus("stopped", "Camera stopped");
+  }
+
+  #releaseStream(): void {
     for (const track of this.#stream?.getTracks() ?? []) track.stop();
     this.#stream = undefined;
     this.#video.srcObject = null;
-    this.callbacks.onStatus("stopped", "Camera stopped");
   }
 
   async close(): Promise<void> {
@@ -147,49 +173,74 @@ export class MediaPipeTracker {
     this.#backend = undefined;
   }
 
-  async #ensureBackend(): Promise<void> {
+  async #ensureBackend(signal: AbortSignal): Promise<void> {
+    signal.throwIfAborted();
     if (this.#backend) return;
     try {
-      const delegate = await this.#createWorkerBackend();
+      const delegate = await this.#createWorkerBackend(signal);
+      if (signal.aborted) return;
       this.#backend = "worker";
       this.#delegate = `worker / ${delegate}`;
     } catch (workerError) {
+      if (signal.aborted) return;
       this.#backendFallbackReason = workerError instanceof Error ? workerError.message : String(workerError);
       this.#discardWorkerBackend();
       this.callbacks.onStatus("loading", `Worker initialization failed; preparing the main-thread fallback (${String(workerError)})`);
-      this.#landmarker = await this.#createMainThreadLandmarker();
+      const { landmarker, delegate } = await this.#createMainThreadLandmarker(signal);
+      if (signal.aborted) {
+        landmarker.close();
+        return;
+      }
+      this.#landmarker = landmarker;
+      this.#delegate = delegate;
       this.#backend = "main-thread";
     }
   }
 
-  #createWorkerBackend(): Promise<string> {
+  #createWorkerBackend(signal: AbortSignal): Promise<string> {
     const worker = new Worker(new URL("./tracker-worker.ts", import.meta.url), { type: "module", name: "vcg-pose-tracker" });
     this.#worker = worker;
     worker.addEventListener("message", this.#handleWorkerMessage);
     worker.addEventListener("error", this.#handleWorkerRuntimeError);
 
     return new Promise((resolve, reject) => {
-      const timeout = window.setTimeout(() => reject(new Error("worker initialization timed out after 20 seconds")), 20_000);
-      const handleReady = (event: MessageEvent<TrackerWorkerResponse>) => {
-        if (event.data.type !== "ready" && event.data.type !== "fault") return;
+      const cleanup = () => {
         window.clearTimeout(timeout);
         worker.removeEventListener("message", handleReady);
         worker.removeEventListener("error", handleError);
+        signal.removeEventListener("abort", handleAbort);
+      };
+      const handleReady = (event: MessageEvent<TrackerWorkerResponse>) => {
+        if (event.data.type !== "ready" && event.data.type !== "fault") return;
+        cleanup();
         if (event.data.type === "ready") resolve(event.data.delegate);
         else reject(new Error(`${event.data.stage}: ${event.data.message}`));
       };
       const handleError = (event: ErrorEvent) => {
-        window.clearTimeout(timeout);
-        worker.removeEventListener("message", handleReady);
+        cleanup();
         reject(new Error(event.message || "worker failed to load"));
       };
+      const handleAbort = () => {
+        cleanup();
+        reject(signal.reason);
+      };
+      const timeout = window.setTimeout(() => {
+        cleanup();
+        reject(new Error("worker initialization timed out after 20 seconds"));
+      }, 20_000);
       worker.addEventListener("message", handleReady);
       worker.addEventListener("error", handleError, { once: true });
-      worker.postMessage({
-        type: "initialize",
-        wasmRoot: new URL("/wasm", window.location.origin).href,
-        modelAssetPath: new URL("/models/pose_landmarker_lite.task", window.location.origin).href,
-      });
+      signal.addEventListener("abort", handleAbort, { once: true });
+      try {
+        worker.postMessage({
+          type: "initialize",
+          wasmRoot: new URL("/wasm", window.location.origin).href,
+          modelAssetPath: new URL("/models/pose_landmarker_lite.task", window.location.origin).href,
+        });
+      } catch (error) {
+        cleanup();
+        reject(error);
+      }
     });
   }
 
@@ -226,8 +277,9 @@ export class MediaPipeTracker {
     this.#failRunningTracker("Camera stream ended unexpectedly", "camera-disconnected");
   };
 
-  async #createMainThreadLandmarker(): Promise<PoseLandmarker> {
+  async #createMainThreadLandmarker(signal: AbortSignal): Promise<{ landmarker: PoseLandmarker; delegate: string }> {
     const vision = await FilesetResolver.forVisionTasks("/wasm");
+    signal.throwIfAborted();
     const options = {
       baseOptions: {
         modelAssetPath: "/models/pose_landmarker_lite.task",
@@ -243,25 +295,28 @@ export class MediaPipeTracker {
 
     try {
       const landmarker = await PoseLandmarker.createFromOptions(vision, options);
-      this.#delegate = "main / WebGL GPU";
-      return landmarker;
+      return { landmarker, delegate: "main / WebGL GPU" };
     } catch (gpuError) {
+      signal.throwIfAborted();
       this.callbacks.onStatus("loading", `Main-thread GPU initialization failed; using WASM CPU (${String(gpuError)})`);
       const landmarker = await PoseLandmarker.createFromOptions(vision, {
         ...options,
         baseOptions: { modelAssetPath: options.baseOptions.modelAssetPath, delegate: "CPU" },
       });
-      this.#delegate = "main / WASM CPU";
-      return landmarker;
+      return { landmarker, delegate: "main / WASM CPU" };
     }
   }
 
   #scheduleFrame(): void {
     if (!this.#running) return;
+    const runId = this.#runId;
+    const processFrame = () => {
+      if (this.#runId === runId) void this.#processFrame();
+    };
     if ("requestVideoFrameCallback" in this.#video) {
-      this.#video.requestVideoFrameCallback(() => void this.#processFrame());
+      this.#video.requestVideoFrameCallback(processFrame);
     } else {
-      requestAnimationFrame(() => void this.#processFrame());
+      requestAnimationFrame(processFrame);
     }
   }
 
@@ -338,9 +393,7 @@ export class MediaPipeTracker {
     this.#running = false;
     this.#runId += 1;
     this.#frameGate.reset();
-    for (const track of this.#stream?.getTracks() ?? []) track.stop();
-    this.#stream = undefined;
-    this.#video.srcObject = null;
+    this.#releaseStream();
     this.#emitHealth(reason);
     this.callbacks.onStatus("fault", detail);
   }

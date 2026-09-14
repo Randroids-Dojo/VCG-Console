@@ -30,17 +30,17 @@
     {
       "role": "complete-two-player-prerequisite-boundary",
       "path": "benchmarks/two-player/two-player-qualification-plan-v1.json",
-      "sha256": "84c13b81f42b15afc13d01ca2dd3876043ad552d27a96cee78739bb5b6f2dcab"
+      "sha256": "e1026531f1cf0653952e0b7d3eb4f3834d84d39246940ccc8c804875b398879d"
     },
     {
       "role": "synthetic-accessibility-support-nonqualification-boundary",
       "path": "benchmarks/play-support/seated-partial-assisted-synthetic-matrix-v1.json",
-      "sha256": "5155cb6528e0dbb0ff800fef2f68e342925b2c6ea37e277f3290be6565ed4a92"
+      "sha256": "452ca59f813820b7d9b03654390a879db75ebae9606898690457dcfabf580c92"
     },
     {
       "role": "controller-only-shell-navigation-and-recovery-prerequisite-boundary",
       "path": "benchmarks/controller-only-usability/cross-tier-controller-only-usability-plan-v1.json",
-      "sha256": "696fa3c9d459025638e3f44316c457b360cb2bd48dab7b5cf1b269996381be40"
+      "sha256": "0cea20294db685ec76c25f5ce25a53627ca4ca3fa1b47914fbccbd4ec4552840"
     },
     {
       "role": "fixed-product-success-and-motion-latency-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "obstacle-sample-mechanic-and-current-implementation-boundary",
       "path": "apps/console-lab/src/obstacle-game.ts",
-      "sha256": "11c02d7d93f49f0ba97c60988aedd9b1fe6c74f77cb94b738ec99a67adac84c3"
+      "sha256": "8f7917a4894f6710efff87f6cab270f5beafd1828baf2763bdd3b1e8cf143479"
     },
     {
       "role": "two-player-obstacle-round-state-and-resolution-boundary",

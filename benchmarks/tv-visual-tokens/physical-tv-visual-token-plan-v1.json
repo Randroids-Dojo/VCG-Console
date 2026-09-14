@@ -17,7 +17,7 @@
     {
       "role": "visual-token-contract",
       "path": "docs/VISUAL_TOKEN_SYSTEM.md",
-      "sha256": "ca55d96eb9d9e24e7f15dd1da372ff3d7fbd7562249d209a13a07cf12440a7de"
+      "sha256": "ae5ba36855d7ab474847ad5cfee791ddf162116673b317b6939e604cb135f08d"
     },
     {
       "role": "blocking-persona-boundary",
@@ -31,18 +31,28 @@
     },
     {
       "role": "shell-style-implementation",
-      "path": "apps/console-lab/src/styles.css",
-      "sha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a"
+      "path": "apps/console-lab/src/styles/base.css",
+      "sha256": "c08af31c4de6d3bf014a934f9580227bf0aa41e696a0dbd2542be66e25b0fd89"
+    },
+    {
+      "role": "shell-layout-implementation",
+      "path": "apps/console-lab/src/styles/shell.css",
+      "sha256": "95e8150af31b9ec6f358916ccd91674cb005008f2b17b1ef40e36f74ef0e98e1"
+    },
+    {
+      "role": "shell-responsive-implementation",
+      "path": "apps/console-lab/src/styles/responsive.css",
+      "sha256": "284bac5163b68ab71d781c507f1dea937214de2b67703e05c92bc64c108ed355"
     },
     {
       "role": "bounded-ocra-font-evidence",
-      "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "90890c2e0e3cccc521fb3082f652e37e6711f57846e65f465a2b69ec096dba7b"
+      "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
+      "sha256": "de648253c06116f52764e73cb2e63fe9691e89b50254add7c018b518b11c8526"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
-      "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "4c49d711c4740f5cf6af97e8359bad70dfbe437dd6d60e543c276c9600ebc0fa"
+      "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
+      "sha256": "612c59dbe2e2a161b6c7cd78759785c7ddf06d9b736f088ebba15c8f182f57c0"
     }
   ],
   "executionBoundary": {

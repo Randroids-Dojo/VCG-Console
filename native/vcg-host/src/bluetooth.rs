@@ -460,8 +460,170 @@ impl std::error::Error for BluetoothError {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
+    use crate::host_api::HostStatusServer;
+    use std::io::Write;
+    use std::net::{SocketAddr, TcpStream};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::mpsc;
+
+    struct BlockingRunner {
+        operation: &'static str,
+        entered: mpsc::SyncSender<()>,
+        release: Mutex<mpsc::Receiver<()>>,
+        calls: Arc<AtomicUsize>,
+    }
+
+    impl BluetoothCommandRunner for BlockingRunner {
+        fn run(&self, arguments: &[&str]) -> Result<String, BluetoothError> {
+            if arguments.contains(&self.operation) && self.calls.fetch_add(1, Ordering::SeqCst) == 0
+            {
+                self.entered.send(()).expect("operation observed");
+                self.release
+                    .lock()
+                    .expect("release locks")
+                    .recv_timeout(Duration::from_secs(30))
+                    .expect("test releases the operation");
+            }
+            Ok(match arguments.first().copied() {
+                Some("devices") => "Device AA:BB:CC:DD:EE:FF Controller\n",
+                Some("info") => "Icon: input-gaming\nPaired: no\nConnected: no\n",
+                _ => "",
+            }
+            .to_owned())
+        }
+    }
+
+    pub(crate) fn api_stream(
+        address: SocketAddr,
+        token: &str,
+        method: &str,
+        path: &str,
+    ) -> io::Result<TcpStream> {
+        let mut stream = TcpStream::connect(address)?;
+        stream.set_read_timeout(Some(Duration::from_secs(2)))?;
+        let body = if method == "POST" {
+            r#"{"protocolVersion":"0.1.0"}"#
+        } else {
+            ""
+        };
+        // Build before writing so scheduling between formatting fragments cannot
+        // exhaust the server's bounded header-read timeout on a busy runner.
+        let request = format!(
+            "{method} {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: http://127.0.0.1:5173\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
+            body.len()
+        );
+        stream.write_all(request.as_bytes())?;
+        Ok(stream)
+    }
+
+    fn api_request(
+        address: SocketAddr,
+        token: &str,
+        method: &str,
+        path: &str,
+    ) -> io::Result<String> {
+        let mut stream = api_stream(address, token, method, path)?;
+        let mut response = String::new();
+        stream.read_to_string(&mut response)?;
+        Ok(response)
+    }
+
+    pub(crate) struct BlockedBluetooth {
+        pub service: BluetoothPairingService,
+        pub entered: mpsc::Receiver<()>,
+        pub release: mpsc::SyncSender<()>,
+        pub calls: Arc<AtomicUsize>,
+    }
+
+    pub(crate) fn blocking_service(operation: &'static str) -> BlockedBluetooth {
+        let (entered_tx, entered_rx) = mpsc::sync_channel(1);
+        let (release_tx, release_rx) = mpsc::sync_channel(1);
+        let calls = Arc::new(AtomicUsize::new(0));
+        let service = BluetoothPairingService {
+            runner: Arc::new(BlockingRunner {
+                operation,
+                entered: entered_tx,
+                release: Mutex::new(release_rx),
+                calls: Arc::clone(&calls),
+            }),
+            state: Mutex::new(PairingState::default()),
+        };
+        service.snapshot("0.1.0").expect("controller is discovered");
+        BlockedBluetooth {
+            service,
+            entered: entered_rx,
+            release: release_tx,
+            calls,
+        }
+    }
+
+    fn assert_host_responsive_during(operation: &'static str, path: &str) {
+        let BlockedBluetooth {
+            service,
+            entered,
+            release,
+            ..
+        } = blocking_service(operation);
+        let server = HostStatusServer::start_with_bluetooth("http://127.0.0.1:5173", service)
+            .expect("host starts");
+        let url = server
+            .launcher_url("http://127.0.0.1:5173")
+            .expect("launcher URL");
+        let (_, token) = url
+            .split_once("vcg-host-token=")
+            .expect("token in fragment");
+        thread::scope(|scope| {
+            let pending = scope.spawn(|| api_request(server.address(), token, "POST", path));
+            entered
+                .recv_timeout(Duration::from_secs(5))
+                .expect("Bluetooth command starts");
+            let status = api_request(server.address(), token, "GET", "/v1/status");
+            let cancellation = api_request(
+                server.address(),
+                token,
+                "DELETE",
+                "/v1/launches/11111111111111111111111111111111",
+            );
+            let mut queued = api_stream(server.address(), token, "GET", "/v1/bluetooth")
+                .expect("one Bluetooth request can wait");
+            let overflow = api_request(server.address(), token, "POST", path);
+            // Always release before asserting so failure cannot strand the server.
+            release.send(()).expect("operation released");
+            let _ = pending.join().expect("request worker joins");
+            let mut queued_response = String::new();
+            queued
+                .read_to_string(&mut queued_response)
+                .expect("queued operation finishes");
+            assert!(
+                status
+                    .expect("status responds during Bluetooth work")
+                    .starts_with("HTTP/1.1 200")
+            );
+            assert!(
+                cancellation
+                    .expect("cancellation responds during Bluetooth work")
+                    .contains("LAUNCH_NOT_FOUND")
+            );
+            assert!(
+                overflow
+                    .expect("queue overflow responds")
+                    .contains("BLUETOOTH_BUSY")
+            );
+            assert!(queued_response.starts_with("HTTP/1.1 200"));
+        });
+    }
+
+    #[test]
+    fn scan_does_not_starve_host_status_or_launch_cancellation() {
+        assert_host_responsive_during("scan", "/v1/bluetooth/scan");
+    }
+
+    #[test]
+    fn pair_does_not_starve_host_status_or_launch_cancellation() {
+        assert_host_responsive_during("pair", "/v1/bluetooth/devices/controller-1/pair");
+    }
 
     type FakeResponse = (Vec<String>, Result<String, BluetoothError>);
 

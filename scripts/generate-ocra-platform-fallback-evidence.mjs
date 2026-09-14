@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
@@ -10,22 +9,16 @@ import {
   normalizedSha256,
   sha256,
   sourceTreeCommitment,
-  startProductionPreview,
+  startBuiltConsole,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-} from "./generate-tv-conformance-evidence.mjs";
 
 export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
-export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-08-11";
+export const OCRA_FALLBACK_EVIDENCE_DATE = new Date().toISOString().slice(0, 10);
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
-  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
+  "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the shared console CSS font stack after an optimized lab build (Vite mode lab), injects a diagnostic-only grid, and does not prove appliance-build behavior, dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
-  "The diagnostic grid is injected after loading the production app and font stylesheet; it is not a user-facing production route or proof that every launcher state rendered.",
+  "startBuiltConsole builds with Vite mode lab. The diagnostic grid uses the shared console font stylesheet in that lab build; it is not an appliance-build run, a user-facing route, or proof that every launcher state rendered.",
   "Chrome reports the selected font resource and glyph count, not semantic correctness, visual similarity, clipping, reading accuracy, or seating-distance legibility.",
   "The observation covers one installed Chrome version and one Windows x64 font environment. OS updates, installed-font changes, browser engines, target Linux images, and compositor stacks may choose different fallback fonts.",
   "The zero-fallback result is limited to current static production-source characters; deterministic coverage for user-authored text and future localization remains an explicit owner/release decision.",
@@ -40,9 +33,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const appRoot = resolve(root, "apps/console-lab");
 const outputRoot = resolve(root, "benchmarks/font-coverage");
 const artifactRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json";
+  "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json";
 const screenshotRelativePath =
-  "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-1080p.png";
+  "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-1080p.png";
 const artifactPath = resolve(root, artifactRelativePath);
 const screenshotPath = resolve(root, screenshotRelativePath);
 const baseEvidenceRelativePath =
@@ -235,39 +228,40 @@ async function observePlatformFonts(page) {
 export async function generateOcraPlatformFallbackEvidence() {
   const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
   const { chromium } = requireFromConsoleLab("@playwright/test");
-  const server = await startProductionPreview();
-  const browser = await chromium.launch({
-    executablePath: findChrome(),
-    headless: true,
-    args: ["--disable-gpu"],
-  });
-  const browserProduct = `Chrome/${browser.version()}`;
-  assert.equal(browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
-  const page = await browser.newPage({
-    viewport: { width: 1920, height: 1080 },
-    deviceScaleFactor: 1,
-  });
-  const requestCounts = new Map();
-  const consoleErrors = [];
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
-  page.on("request", (request) => {
-    const path = requestPath(request.url());
-    requestCounts.set(path, (requestCounts.get(path) ?? 0) + 1);
-  });
-  page.on("console", (message) => {
-    if (message.type() === "error") consoleErrors.push(message.text());
-  });
-  page.on("pageerror", () => {
-    pageErrorCount += 1;
-  });
-  page.on("requestfailed", () => {
-    requestFailureCount += 1;
-  });
-
-  let observations;
-  let overflow;
+  const server = await startBuiltConsole();
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: findChrome(),
+      headless: true,
+      args: ["--disable-gpu"],
+    });
+    const browserProduct = `Chrome/${browser.version()}`;
+
+    const page = await browser.newPage({
+      viewport: { width: 1920, height: 1080 },
+      deviceScaleFactor: 1,
+    });
+    const requestCounts = new Map();
+    const consoleErrors = [];
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
+    page.on("request", (request) => {
+      const path = requestPath(request.url());
+      requestCounts.set(path, (requestCounts.get(path) ?? 0) + 1);
+    });
+    page.on("console", (message) => {
+      if (message.type() === "error") consoleErrors.push(message.text());
+    });
+    page.on("pageerror", () => {
+      pageErrorCount += 1;
+    });
+    page.on("requestfailed", () => {
+      requestFailureCount += 1;
+    });
+
+    let observations;
+    let overflow;
     // A font probe has no use for the camera, and the console opens it at
     // startup unless the session asks for controller input.
     const response = await page.goto(`${server.origin}/?input=controller`, {
@@ -299,103 +293,107 @@ export async function generateOcraPlatformFallbackEvidence() {
       type: "png",
       animations: "disabled",
     });
-  } finally {
-    await page.close();
-    await browser.close();
-    await server.close();
-  }
 
-  assert.equal(pageErrorCount, 0, "font probe produced a page error");
-  assert.equal(requestFailureCount, 0, "font probe had a failed request");
-  assert.deepEqual(consoleErrors, [], "font probe produced a console error");
 
-  const screenshotBytes = await readFile(screenshotPath);
-  const baseEvidence = JSON.parse(
-    await readFile(resolve(root, baseEvidenceRelativePath), "utf8"),
-  );
-  assert.deepEqual(
-    OCRA_FALLBACK_PROBES.slice(1).map(({ codePoint }) => codePoint),
-    baseEvidence.coverage.productionSource.nonAsciiCodePoints.map(
-      ({ codePoint }) => codePoint,
-    ),
-    "platform-font probes must exactly cover current non-ASCII production source",
-  );
-  const fallbackObservations = observations.filter(
-    (observation) => !observation.fonts.some((font) => font.customFont),
-  );
-  const evidence = {
-    format: OCRA_FALLBACK_EVIDENCE_FORMAT,
-    evidenceDate: OCRA_FALLBACK_EVIDENCE_DATE,
-    environment: {
-      platform: "windows-x64",
-      browserProduct,
-      node: GODOT_EXPORT_NODE_VERSION,
-      headless: true,
-      devicePixelRatio: 1,
-      viewport: { width: 1920, height: 1080 },
-    },
-    baseStructuralEvidence: {
-      path: baseEvidenceRelativePath,
-      format: baseEvidence.format,
-      fontPath: baseEvidence.subject.path,
-      fontBytes: baseEvidence.subject.bytes,
-      fontSha256: baseEvidence.subject.sha256,
-      productionSourceNonAsciiCodePointCount:
-        baseEvidence.coverage.summary.productionSourceNonAsciiCodePointCount,
-      productionSourceNonAsciiMissingCount:
-        baseEvidence.coverage.summary.productionSourceNonAsciiMissingCount,
-    },
-    probe: {
-      cssFontFamily: "OCRA, ui-monospace, SFMono-Regular, monospace",
-      cssFontSizePx: 88,
-      observationCount: observations.length,
-      observations,
-      overflowCssPx: overflow,
-    },
-    browser: {
-      documentReadyState: "complete",
-      pageErrorCount,
-      requestFailureCount,
-      consoleErrors,
-      requestCounts: Object.fromEntries(
-        [...requestCounts.entries()].sort(([left], [right]) => left.localeCompare(right)),
+    assert.equal(pageErrorCount, 0, "font probe produced a page error");
+    assert.equal(requestFailureCount, 0, "font probe had a failed request");
+    assert.deepEqual(consoleErrors, [], "font probe produced a console error");
+
+    const screenshotBytes = await readFile(screenshotPath);
+    const baseEvidence = JSON.parse(
+      await readFile(resolve(root, baseEvidenceRelativePath), "utf8"),
+    );
+    assert.deepEqual(
+      OCRA_FALLBACK_PROBES.slice(1).map(({ codePoint }) => codePoint),
+      baseEvidence.coverage.productionSource.nonAsciiCodePoints.map(
+        ({ codePoint }) => codePoint,
       ),
-    },
-    screenshot: {
-      path: screenshotRelativePath,
-      bytes: screenshotBytes.length,
-      sha256: sha256(screenshotBytes),
-    },
-    summary: {
-      probeCodePointCount: observations.length,
-      customFontObservationCount: observations.length - fallbackObservations.length,
-      platformFallbackObservationCount: fallbackObservations.length,
-      distinctFamilyNames: [
-        ...new Set(observations.flatMap((item) => item.fonts.map((font) => font.familyName))),
-      ].sort(),
-      distinctPostScriptNames: [
-        ...new Set(observations.flatMap((item) => item.fonts.map((font) => font.postScriptName))),
-      ].sort(),
-    },
-    provenance: await provenance(),
-    disposition: {
-      exactWindowsChromeObservationVerified: true,
-      productionCssStackUsed: true,
-      diagnosticGridOnly: true,
-      deterministicCrossPlatformFallbackVerified: false,
-      fallbackSelected: fallbackObservations.length > 0,
-      glyphShapesVerified: false,
-      tvLegibilityVerified: false,
-      localizationQualified: false,
-      accessibilityQualified: false,
-      redistributionApproved: false,
-      productionReady: false,
-    },
-    claimBoundary: OCRA_FALLBACK_CLAIM_BOUNDARY,
-    limitations: [...OCRA_FALLBACK_LIMITATIONS],
-  };
-  await writeFile(artifactPath, `${JSON.stringify(evidence, null, 2)}\n`);
-  return evidence;
+      "platform-font probes must exactly cover current non-ASCII production source",
+    );
+    const fallbackObservations = observations.filter(
+      (observation) => !observation.fonts.some((font) => font.customFont),
+    );
+    const evidence = {
+      format: OCRA_FALLBACK_EVIDENCE_FORMAT,
+      evidenceDate: OCRA_FALLBACK_EVIDENCE_DATE,
+      environment: {
+        buildMode: "lab",
+        platform: "windows-x64",
+        browserProduct,
+        node: process.version,
+        headless: true,
+        devicePixelRatio: 1,
+        viewport: { width: 1920, height: 1080 },
+      },
+      baseStructuralEvidence: {
+        path: baseEvidenceRelativePath,
+        format: baseEvidence.format,
+        fontPath: baseEvidence.subject.path,
+        fontBytes: baseEvidence.subject.bytes,
+        fontSha256: baseEvidence.subject.sha256,
+        productionSourceNonAsciiCodePointCount:
+          baseEvidence.coverage.summary.productionSourceNonAsciiCodePointCount,
+        productionSourceNonAsciiMissingCount:
+          baseEvidence.coverage.summary.productionSourceNonAsciiMissingCount,
+      },
+      probe: {
+        cssFontFamily: "OCRA, ui-monospace, SFMono-Regular, monospace",
+        cssFontSizePx: 88,
+        observationCount: observations.length,
+        observations,
+        overflowCssPx: overflow,
+      },
+      browser: {
+        documentReadyState: "complete",
+        pageErrorCount,
+        requestFailureCount,
+        consoleErrors,
+        requestCounts: Object.fromEntries(
+          [...requestCounts.entries()].sort(([left], [right]) => left.localeCompare(right)),
+        ),
+      },
+      screenshot: {
+        path: screenshotRelativePath,
+        bytes: screenshotBytes.length,
+        sha256: sha256(screenshotBytes),
+      },
+      summary: {
+        probeCodePointCount: observations.length,
+        customFontObservationCount: observations.length - fallbackObservations.length,
+        platformFallbackObservationCount: fallbackObservations.length,
+        distinctFamilyNames: [
+          ...new Set(observations.flatMap((item) => item.fonts.map((font) => font.familyName))),
+        ].sort(),
+        distinctPostScriptNames: [
+          ...new Set(observations.flatMap((item) => item.fonts.map((font) => font.postScriptName))),
+        ].sort(),
+      },
+      provenance: await provenance(),
+      disposition: {
+        exactWindowsChromeObservationVerified: true,
+        productionCssStackUsed: true,
+        diagnosticGridOnly: true,
+        deterministicCrossPlatformFallbackVerified: false,
+        fallbackSelected: fallbackObservations.length > 0,
+        glyphShapesVerified: false,
+        tvLegibilityVerified: false,
+        localizationQualified: false,
+        accessibilityQualified: false,
+        redistributionApproved: false,
+        productionReady: false,
+      },
+      claimBoundary: OCRA_FALLBACK_CLAIM_BOUNDARY,
+      limitations: [...OCRA_FALLBACK_LIMITATIONS],
+    };
+    await writeFile(artifactPath, `${JSON.stringify(evidence, null, 2)}\n`);
+    return evidence;
+  } finally {
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
+  }
 }
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : null;

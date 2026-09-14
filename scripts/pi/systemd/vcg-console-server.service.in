@@ -8,11 +8,11 @@ StartLimitIntervalSec=0
 Type=simple
 User=@CONSOLE_USER@
 Group=@CONSOLE_GROUP@
-WorkingDirectory=@REPO_ROOT@/apps/console-lab
+WorkingDirectory=@REPO_ROOT@
 Environment=HOME=@CONSOLE_HOME@
 Environment=NODE_ENV=production
 Environment=PATH=@NODE_BIN_DIR@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ExecStart=@REPO_ROOT@/apps/console-lab/node_modules/.bin/vite preview --host 127.0.0.1 --port 4173 --strictPort
+ExecStart=@NODE_PATH@ @REPO_ROOT@/build/console-runtime/console-server.mjs --root @REPO_ROOT@/apps/console-lab/dist --port 4173
 Restart=always
 RestartSec=3
 TimeoutStopSec=15
@@ -24,11 +24,6 @@ ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-# `vite preview` bundles vite.config.ts into a temporary file under
-# node_modules/.vite-temp on every startup, even for an already-built preview
-# server. ProtectSystem=strict plus ProtectHome=read-only otherwise makes that
-# write fail with EROFS on every launch, crash-looping the service.
-ReadWritePaths=@REPO_ROOT@/apps/console-lab/node_modules
 
 [Install]
 WantedBy=vcg-console.target

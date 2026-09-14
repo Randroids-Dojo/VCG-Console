@@ -39,7 +39,7 @@ Options:
   --browser PATH       Chromium executable (auto-detected)
   --cage PATH          Cage executable (auto-detected)
   --host PATH          release vcg-host executable (auto-detected)
-  --node PATH          Node.js 22+ executable (auto-detected)
+  --node PATH          Node.js executable meeting package.json engines (auto-detected)
   --bluetoothctl PATH  BlueZ control executable (auto-detected)
   --cursor-nudge PATH  release vcg-cursor-nudge executable (auto-detected)
   --no-enable          install units without changing the default boot target
@@ -359,8 +359,6 @@ if [ "${dry_run}" -eq 0 ]; then
   fi
   for executable in "${browser_path}" "${cage_path}" "${host_path}" "${node_path}" "${bluetoothctl_path}" \
     "${cursor_nudge_path}" \
-    "${repo_root}/apps/console-lab/node_modules/.bin/vite" \
-    "${repo_root}/node_modules/.bin/tsx" \
     "${repo_root}/scripts/pi/wait-for-console.sh"; do
     if [ ! -x "${executable}" ]; then
       echo "Required executable is missing: ${executable}" >&2
@@ -371,18 +369,10 @@ if [ "${dry_run}" -eq 0 ]; then
     echo "Required executable is missing: ${trusted_time_launcher}" >&2
     exit 1
   fi
-  node_major="$("${node_path}" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
-  case "${node_major}" in
-    ""|*[!0-9]*)
-      echo "Node.js 22 or newer is required; the selected executable returned an invalid version." >&2
-      exit 1
-      ;;
-  esac
-  if [ "${node_major}" -lt 22 ]; then
-    echo "Node.js 22 or newer is required; found $("${node_path}" --version)." >&2
-    exit 1
-  fi
-  if [ ! -f "${repo_root}/apps/console-lab/dist/index.html" ]; then
+  "${node_path}" "${repo_root}/scripts/check-node-version.cjs"
+  if [ ! -f "${repo_root}/apps/console-lab/dist/index.html" ] ||
+    [ ! -f "${repo_root}/build/console-runtime/console-server.mjs" ] ||
+    [ ! -f "${repo_root}/build/console-runtime/verify-console-headers.js" ]; then
     echo "The console is not built. Run scripts/pi/bootstrap.sh first." >&2
     exit 1
   fi
@@ -424,6 +414,7 @@ render_unit() {
   content="${content//@REPO_ROOT@/${repo_root}}"
   content="${content//@CAGE_PATH@/${cage_path}}"
   content="${content//@NODE_BIN_DIR@/${node_bin_dir}}"
+  content="${content//@NODE_PATH@/${node_path}}"
   content="${content//@LAUNCHER_COMMAND@/${launcher_command}}"
   printf '%s\n' "${content}" >"${destination}"
 }

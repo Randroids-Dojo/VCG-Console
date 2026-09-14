@@ -8,14 +8,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-
 export const TV_CONFORMANCE_EVIDENCE_FORMAT =
   "vcg-tv-conformance-evidence/v1";
-export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-20";
-export const TV_CONFORMANCE_BROWSER_PRODUCT = "Chrome/151.0.7922.138";
 export const TV_CONFORMANCE_RESOLUTIONS = Object.freeze([
   Object.freeze({ id: "720p", width: 1280, height: 720 }),
   Object.freeze({ id: "1080p", width: 1920, height: 1080 }),
@@ -136,7 +130,7 @@ const exampleRoot = resolve(root, "examples/tv-conformance");
 const outputRoot = resolve(root, "benchmarks/tv-conformance");
 const artifactPath = resolve(
   outputRoot,
-  "windows-x64-chrome-150-tv-conformance-v1.json",
+  "windows-x64-installed-chrome-tv-conformance-v1.json",
 );
 const provenancePaths = Object.freeze({
   documentPath: "examples/tv-conformance/index.html",
@@ -344,22 +338,23 @@ async function exercise(chromePath) {
   );
   const { chromium } = requireFromConsoleLab("@playwright/test");
   const server = await startFixtureServer();
-  const browser = await chromium.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-lcd-text",
-      "--disable-partial-raster",
-      "--disable-skia-runtime-opts",
-      "--force-color-profile=srgb",
-    ],
-  });
-  const observations = [];
-  let consoleErrorCount = 0;
-  let pageErrorCount = 0;
-  let requestFailureCount = 0;
+  let browser;
   try {
+    browser = await chromium.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: [
+        "--disable-gpu",
+        "--disable-lcd-text",
+        "--disable-partial-raster",
+        "--disable-skia-runtime-opts",
+        "--force-color-profile=srgb",
+      ],
+    });
+    const observations = [];
+    let consoleErrorCount = 0;
+    let pageErrorCount = 0;
+    let requestFailureCount = 0;
     for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {
       const page = await browser.newPage({
         viewport: {
@@ -399,7 +394,7 @@ async function exercise(chromePath) {
 
       const screenshotPath = resolve(
         outputRoot,
-        `windows-x64-chrome-150-${resolution.id}.png`,
+        `windows-x64-installed-chrome-${resolution.id}.png`,
       );
       await mkdir(dirname(screenshotPath), { recursive: true });
       const screenshot = await deterministicScreenshot(page, screenshotPath);
@@ -427,7 +422,7 @@ async function exercise(chromePath) {
         animation: probe.animation,
         screenshot: {
           path:
-            `benchmarks/tv-conformance/windows-x64-chrome-150-${resolution.id}.png`,
+            `benchmarks/tv-conformance/windows-x64-installed-chrome-${resolution.id}.png`,
           bytes: screenshot.length,
           sha256: sha256(screenshot),
         },
@@ -451,28 +446,22 @@ async function exercise(chromePath) {
       requestCounts: Object.fromEntries(server.requestCounts),
     };
   } finally {
-    await browser.close();
-    await server.close();
+    try {
+      await browser?.close();
+    } finally {
+      await server.close();
+    }
   }
 }
 
 export async function generateTvConformanceEvidence() {
   assert.equal(process.platform, "win32");
   assert.equal(process.arch, "x64");
-  assert.equal(process.version, GODOT_EXPORT_NODE_VERSION);
   const retrievedAtUtc = new Date().toISOString();
-  assert.ok(
-    retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
-    `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
-  );
   const exerciseResult = await exercise(findChrome());
-  assert.equal(
-    exerciseResult.browserProduct,
-    TV_CONFORMANCE_BROWSER_PRODUCT,
-  );
   return {
     format: TV_CONFORMANCE_EVIDENCE_FORMAT,
-    evidenceDate: TV_CONFORMANCE_EVIDENCE_DATE,
+    evidenceDate: retrievedAtUtc.slice(0, 10),
     evidenceClass:
       "windows-x64-headless-chrome-tv-authoring-conformance",
     qualification:

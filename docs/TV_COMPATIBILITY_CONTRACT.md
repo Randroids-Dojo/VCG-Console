@@ -59,9 +59,14 @@ node scripts/generate-tv-conformance-evidence.mjs
 pnpm validate:tv-conformance
 ```
 
-Generation is intentionally frozen to its evidence date, Windows x64,
-Node v24.18.0, and Chrome 150.0.7871.182. Ordinary verification is offline
-and re-hashes the source, validator, JSON, and exact PNG files.
+Generation uses Windows x64 and the installed Chrome. Current desk captures
+use `windows-x64-installed-chrome-*` paths; the artifact records the actual
+capture date, full browser version, and Node version. The `v1` suffix identifies
+the evidence schema. A refresh requires a new browser run, PNG inspection,
+and explicit baseline registration with `scripts/sync-launcher-evidence-expectations.mjs`.
+Git retains earlier editions. Archived measurements and their source snapshot
+under `benchmarks/provenance/` are separate and are not refreshed by this flow.
+Ordinary verification is offline and re-hashes source, JSON, and exact PNG files.
 
 ## Recorded desk result
 
@@ -75,11 +80,11 @@ console error, page error, request failure, or undeclared request.
 | 3840 x 2160 | `192,108` through `3648,2052` | 38 CSS px | 803 x 70 CSS px | focus `0,1,2,3`; 2 selections; 1 Back |
 
 The strict artifact is
-[`windows-x64-chrome-150-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-tv-conformance-v1.json).
+[`windows-x64-installed-chrome-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-installed-chrome-tv-conformance-v1.json).
 The corresponding captures are
-[`720p`](../benchmarks/tv-conformance/windows-x64-chrome-150-720p.png),
-[`1080p`](../benchmarks/tv-conformance/windows-x64-chrome-150-1080p.png), and
-[`4K`](../benchmarks/tv-conformance/windows-x64-chrome-150-4k.png).
+[`720p`](../benchmarks/tv-conformance/windows-x64-installed-chrome-720p.png),
+[`1080p`](../benchmarks/tv-conformance/windows-x64-installed-chrome-1080p.png), and
+[`4K`](../benchmarks/tv-conformance/windows-x64-installed-chrome-4k.png).
 
 The frame observations prove only that the page used ordered, nonnegative
 elapsed-time samples. They are not a 60 Hz claim, GPU frame-pacing result, or
@@ -96,7 +101,7 @@ Home-to-Search keyboard select/Back focus round trip.
 See
 [the dated launcher evidence](LAUNCHER_TV_CONFORMANCE_EVIDENCE_2026-07-24.md)
 and its
-[strict artifact](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json).
+[strict artifact](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json).
 This advances one shell surface only; the remaining launcher views and every
 game still require the checklist below.
 
@@ -111,7 +116,7 @@ focus recovery, zero major-section overlap, and zero measured-root overflow.
 See
 [the representative-state evidence](LAUNCHER_TV_SURFACE_EVIDENCE_2026-07-24.md),
 its
-[strict artifact](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json),
+[strict artifact](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json),
 and the
 [remaining owner questions](OWNER_QUESTIONS_LAUNCHER_TV_SURFACES_2026-07-24.md).
 The injected offline state is presentation evidence, not proof of real
@@ -133,7 +138,7 @@ Back, local no-result recovery, and exact focus restoration.
 See
 [the Search evidence](LAUNCHER_SEARCH_TV_EVIDENCE_2026-07-24.md),
 its
-[strict artifact](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-tv-conformance-v1.json),
+[strict artifact](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-search-tv-conformance-v1.json),
 and
 [STV-001 through STV-004](OWNER_QUESTIONS_LAUNCHER_SEARCH_TV_2026-07-24.md).
 The result records current empty-query density, scrolling, local-shell,

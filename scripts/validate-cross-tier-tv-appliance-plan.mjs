@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -43,11 +44,6 @@ const openGates = [
   "maximumHotPlugRecoveryP95Ms", "maximumUnexpectedAudioDropouts",
   "maximumUnexpectedVideoBlankingEvents", "maximumWallPowerW", "maximumSustainedTemperatureC",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function digest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

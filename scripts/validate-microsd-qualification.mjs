@@ -1,3 +1,4 @@
+import { exactKeySet as exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -92,18 +93,6 @@ const forbiddenDataKeys = [
   "playerDataAllowed",
   "freeTextAllowed",
 ];
-
-function exactKeys(value, expected, path) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${path} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
 
 function assertDigest(value, path) {
   assert.match(value, SHA256_PATTERN, `${path} must be lowercase SHA-256`);

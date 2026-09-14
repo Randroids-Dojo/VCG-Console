@@ -47,7 +47,7 @@
     {
       "role": "controller-qualification-plan",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "db307a6a6e2c7647061d4f6426662b0d8e315a0aced55b5565819d63f69bb646"
+      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
     },
     {
       "role": "prototype-success-boundary",
@@ -57,7 +57,7 @@
     {
       "role": "television-compatibility-boundary",
       "path": "docs/TV_COMPATIBILITY_CONTRACT.md",
-      "sha256": "89d1e724bb2daff40243bc386c015ff8eb7a4b62149ae641fb545ab646dd31fe"
+      "sha256": "b9128ef1ac5cb0ed24d8d0b2f91f60673d9e08c7e76eaa0edf54b84f3c4b20ba"
     },
     {
       "role": "online-offline-service-boundary",

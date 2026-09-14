@@ -1,3 +1,4 @@
+import { exactKeys, normalizedText } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -59,21 +60,6 @@ const collectionKeys = [
   "mechanicalPullAndBendTestingAuthorized", "enclosureOrFurnitureInstallationAuthorized",
   "purchaseAuthorized",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
-
-function normalizedText(bytes, label) {
-  assert.ok(bytes.length > 0, `${label} must not be empty`);
-  assert.ok(!(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf), `${label} must not contain a UTF-8 BOM`);
-  let text;
-  try { text = new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
-  catch (error) { throw new Error(`${label} is not valid UTF-8`, { cause: error }); }
-  assert.ok(!/(^|[^\r])\r([^\n]|$)/u.test(text), `${label} has bare CR`);
-  return text.replaceAll("\r\n", "\n");
-}
 
 function digest(bytes, label) {
   return createHash("sha256").update(normalizedText(bytes, label)).digest("hex");

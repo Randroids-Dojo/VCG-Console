@@ -42,19 +42,23 @@ independent invariants.
 | 3840 x 2160 | `192,108` through `3648,2052` | 48 CSS px | 211.609 x 60 CSS px | 24 / 12 |
 
 The strict artifact is
-[`windows-x64-chrome-150-launcher-home-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-tv-conformance-v1.json).
+[`windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-tv-conformance-v1.json).
 Pixel-bound screenshots are
-[`720p`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png),
-[`1080p`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png),
+[`720p`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-720p.png),
+[`1080p`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-1080p.png),
 and
-[`4K`](../benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png).
+[`4K`](../benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-home-4k.png).
 
 The browser clock is deliberately frozen to make those PNG identities
 reproducible. The evidence records that fixture input explicitly.
 
 ## Reproduction and validation
 
-Live reproduction requires the frozen evidence date and installed toolchain:
+The dated narrative describes the original desk run. Linked artifacts and
+PNGs contain the current capture edition; their JSON records the actual date,
+browser, toolchain, and geometry. The fixture clock remains fixed for stable
+screenshots, independently of the recorded capture date. Reproduce on Windows
+x64 with the installed Chrome:
 
 ```text
 node scripts/generate-launcher-tv-conformance-evidence.mjs
