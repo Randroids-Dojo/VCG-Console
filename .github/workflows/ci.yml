@@ -126,6 +126,9 @@ jobs:
           version: "4.7.1"
           use-dotnet: false
           include-templates: false
+          # The action's Windows cache retains only the GUI executable and
+          # omits the console sibling needed to capture test output.
+          cache: ${{ matrix.os != 'windows-latest' }}
       - name: Import, contract tests, and scene boot
         run: node scripts/validate-godot-motion-sample.mjs
 
