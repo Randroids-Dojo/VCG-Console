@@ -1,0 +1,273 @@
+{
+  "design": {
+    "recess_depth_mm": 1.0,
+    "insert_thickness_mm": 0.9,
+    "insert_top_recess_mm": 0.05,
+    "xy_clearance_per_side_mm": 0.25,
+    "verified_original_panel_thickness_mm": 2.5,
+    "remaining_wall_below_recess_mm": 1.5,
+    "logo_size_mm": [
+      41.05,
+      19.0
+    ],
+    "logo_center_mm": [
+      0.0,
+      -35.0
+    ],
+    "logo_carrier_bridges": [
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          122,
+          16
+        ],
+        "end_pixel": [
+          113,
+          25
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          472,
+          20
+        ],
+        "end_pixel": [
+          474,
+          16
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          559,
+          10
+        ],
+        "end_pixel": [
+          555,
+          7
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          692,
+          10
+        ],
+        "end_pixel": [
+          690,
+          8
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          708,
+          10
+        ],
+        "end_pixel": [
+          711,
+          8
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          31,
+          119
+        ],
+        "end_pixel": [
+          21,
+          119
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          800,
+          99
+        ],
+        "end_pixel": [
+          801,
+          97
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          799,
+          34
+        ],
+        "end_pixel": [
+          802,
+          36
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          800,
+          153
+        ],
+        "end_pixel": [
+          808,
+          153
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          342,
+          155
+        ],
+        "end_pixel": [
+          342,
+          183
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          530,
+          276
+        ],
+        "end_pixel": [
+          538,
+          276
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          664,
+          286
+        ],
+        "end_pixel": [
+          679,
+          286
+        ],
+        "width_mm": 0.8
+      },
+      {
+        "kind": "minimum-distance letter carrier",
+        "start_pixel": [
+          172,
+          280
+        ],
+        "end_pixel": [
+          157,
+          280
+        ],
+        "width_mm": 0.8
+      }
+    ]
+  },
+  "branded_lid_brep": {
+    "is_valid": true,
+    "is_closed": true,
+    "solids": 1,
+    "volume_mm3": 18334.65115747098,
+    "bounds_mm": {
+      "min": [
+        -31.250045776367188,
+        -47.5,
+        -14.130132675170904
+      ],
+      "max": [
+        31.250045776367188,
+        47.5,
+        14.130132675170898
+      ],
+      "size": [
+        62.500091552734375,
+        95.0,
+        28.260265350341804
+      ]
+    }
+  },
+  "logo_insert_brep": {
+    "is_valid": true,
+    "is_closed": true,
+    "solids": 1,
+    "volume_mm3": 381.7552499999998,
+    "bounds_mm": {
+      "min": [
+        -20.525,
+        -44.5,
+        -14.080133
+      ],
+      "max": [
+        20.525,
+        -25.5,
+        -13.180133
+      ],
+      "size": [
+        41.05,
+        19.0,
+        0.9000000000000004
+      ]
+    }
+  },
+  "branded_lid_mesh": {
+    "facets": 27278,
+    "points": 13403,
+    "is_solid": true,
+    "bounds_mm": {
+      "min": [
+        -31.250045776367188,
+        -47.5,
+        -14.130132675170898
+      ],
+      "max": [
+        31.250045776367188,
+        47.5,
+        14.130132675170898
+      ],
+      "size": [
+        62.500091552734375,
+        95.0,
+        28.260265350341797
+      ]
+    }
+  },
+  "logo_insert_mesh": {
+    "facets": 6812,
+    "points": 3388,
+    "is_solid": true,
+    "bounds_mm": {
+      "min": [
+        -20.524999618530273,
+        -44.5,
+        -14.080133438110352
+      ],
+      "max": [
+        20.524999618530273,
+        -25.5,
+        -13.180132865905762
+      ],
+      "size": [
+        41.04999923706055,
+        19.0,
+        0.9000005722045898
+      ]
+    }
+  },
+  "files": {
+    "editable_fcstd": "Source/Working/Randroids-Dojo-VCG-Console-Case.FCStd",
+    "lid_step": "Source/Working/VCG-Console-Case-Lid-Randroids-Dojo.step",
+    "insert_step": "Source/Working/VCG-Console-Randroids-Dojo-Logo-Insert.step",
+    "lid_stl": "Manufacturing/VCG-Console-Case-Lid-Randroids-Dojo.stl",
+    "insert_stl": "Manufacturing/VCG-Console-Randroids-Dojo-Logo-Insert.stl"
+  }
+}

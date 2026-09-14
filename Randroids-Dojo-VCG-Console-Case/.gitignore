@@ -1,0 +1,2 @@
+# FreeCAD creates timestamped recovery copies beside the editable source.
+*.FCBak

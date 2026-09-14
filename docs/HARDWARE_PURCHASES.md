@@ -4,6 +4,41 @@ This ledger records hardware orders separately from merchandise research and
 qualification results. A purchase does not establish compatibility,
 performance, reliability, or product selection.
 
+## 2026-08-30 X3D Studios enclosure order
+
+Status verified on 2026-08-30: payment completed and the X3D Studios order
+page reported `Order placed successfully!` The page said a confirmation email
+would follow and that shipping notification would be sent later. No merchant
+order/reference number, shipment date, or delivery date was displayed, so
+shipped, delivered, received, assembled, and hardware-fit status remain
+unconfirmed.
+
+The public repository omits the customer name, email, billing and delivery
+addresses, and payment details.
+
+| Quantity | Role | Exact item | Material and production settings | Color | Line price |
+|---:|---|---|---|---|---:|
+| 1 | Enclosure | `VCG-Console-Case-Bottom.stl` | PETG; standard 0.20 mm; 20% infill | Black | $3.00 |
+| 1 | Enclosure | `VCG-Console-Case-Lid-Randroids-Dojo.stl` | PETG; standard 0.20 mm; 20% infill | Black | $3.00 |
+| 1 | Branding insert | `VCG-Console-Randroids-Dojo-Logo-Insert.stl` | PETG; standard 0.20 mm; 20% infill | Red | $3.00 |
+
+| Cost component | Amount |
+|---|---:|
+| Printed parts | $9.00 |
+| Standard US shipping | $5.00 |
+| First-order discount | -$1.40 |
+| Separate tax line | None shown |
+| Order total | **$12.60** |
+
+Together with the 2026-07-26 PiShop order, verified submitted-order spending is
+$370.21, leaving $279.79 of the $650 delivered lower-cost reference-build
+ceiling in D-111. This is an accounting remainder, not evidence that the
+unfinished build will fit the cap.
+
+The ordered enclosure remains unqualified until it is received and physically
+checked for Raspberry Pi 5, official AI HAT+, cooling, port, fastener, snap-fit,
+ventilation, insert-fit, thermal, and television-appliance requirements.
+
 ## 2026-07-26 PiShop.us Raspberry Pi order
 
 Status captured on 2026-07-26: order submitted; PiShop confirmation page still
