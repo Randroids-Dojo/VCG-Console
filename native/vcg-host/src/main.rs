@@ -22,7 +22,9 @@ use vcg_host::package_generation::{
 };
 use vcg_host::process::{FileHealthProbe, LaunchSpec, ProcessSupervisor, WatchdogPolicy};
 use vcg_host::profile_registry::{HostProfileRegistry, MAX_PROFILE_REGISTRY_BYTES};
-use vcg_host::reserved_input::{RESERVED_GESTURE_HOLD_MILLIS, start as start_reserved_input_router};
+use vcg_host::reserved_input::{
+    RESERVED_GESTURE_HOLD_MILLIS, start as start_reserved_input_router,
+};
 use vcg_host::retro_import::{
     RETRO_OPERATOR_PROVISIONED_TRANSPORT, RetroImportStore, RetroImportStoreConfig,
     RetroLibrarySnapshot, RetroSignedSystemPolicy,

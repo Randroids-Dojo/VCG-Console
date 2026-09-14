@@ -16,7 +16,7 @@
   "sourceBindings": [
     {
       "path": "docs/RELEASE_COMPLIANCE.md",
-      "sha256": "53575e74994429b2946cd87b8c5f4429eedd3ba6cfe5f7c394cf6930cc2650c1",
+      "sha256": "aec211f2b6a4b58927ef7da282650f8a86888541cbc2078888b8bed4a020f8cd",
       "role": "software-license-sbom-and-release-blocker-input"
     },
     {
@@ -51,7 +51,7 @@
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "sha256": "78df2fdd18f0a51d385a623527803148ae69030f2e06fd572bfd418a4ddf2c0b",
+      "sha256": "656b72fdd99f8349c5a4c73ecf8f9b2abebcdfa567f88da93e73cf37477688bd",
       "role": "current-curated-notice-input"
     }
   ],

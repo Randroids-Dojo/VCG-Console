@@ -432,7 +432,11 @@ fn serve(
             match listener.accept() {
                 Ok((mut stream, _)) => {
                     let _ = handle_connection(
-                        &mut stream, allowed_origin, token, services, &bluetooth_tx,
+                        &mut stream,
+                        allowed_origin,
+                        token,
+                        services,
+                        &bluetooth_tx,
                     );
                 }
                 Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
@@ -475,8 +479,10 @@ fn handle_connection(
 
     let bluetooth_request = match request.method.as_str() {
         "GET" => request.path == "/v1/bluetooth",
-        "POST" => request.path == "/v1/bluetooth/scan"
-            || bluetooth_device_path(&request.path, "/pair").is_some(),
+        "POST" => {
+            request.path == "/v1/bluetooth/scan"
+                || bluetooth_device_path(&request.path, "/pair").is_some()
+        }
         "DELETE" => bluetooth_device_path(&request.path, "").is_some(),
         _ => false,
     };
@@ -2510,12 +2516,19 @@ mod tests {
         use std::thread;
         use std::time::Duration;
 
-        let BlockedBluetooth { service, entered, release, calls } = blocking_service("scan");
+        let BlockedBluetooth {
+            service,
+            entered,
+            release,
+            calls,
+        } = blocking_service("scan");
         let server = HostStatusServer::start_with_bluetooth(ORIGIN, service).expect("host starts");
         let token = token_from(&server);
         let _active = api_stream(server.address(), &token, "POST", "/v1/bluetooth/scan")
             .expect("scan requested");
-        entered.recv_timeout(Duration::from_secs(5)).expect("scan starts");
+        entered
+            .recv_timeout(Duration::from_secs(5))
+            .expect("scan starts");
         let _queued = api_stream(server.address(), &token, "POST", "/v1/bluetooth/scan")
             .expect("second scan queued");
         assert!(library_status(&server, &token).starts_with("HTTP/1.1 200"));
@@ -2527,11 +2540,20 @@ mod tests {
             drop(server);
             closed_tx.send(()).expect("shutdown observed");
         });
-        assert!(closed_rx.try_recv().is_err(), "active command must be joined");
+        assert!(
+            closed_rx.try_recv().is_err(),
+            "active command must be joined"
+        );
         release.send(()).expect("active command completes");
-        closed_rx.recv_timeout(Duration::from_secs(5)).expect("host shuts down");
+        closed_rx
+            .recv_timeout(Duration::from_secs(5))
+            .expect("host shuts down");
         closing.join().expect("shutdown thread joins");
-        assert_eq!(calls.load(Ordering::SeqCst), 1, "queued mutation must not run");
+        assert_eq!(
+            calls.load(Ordering::SeqCst),
+            1,
+            "queued mutation must not run"
+        );
     }
 
     /// One durable replay journal root, discarded with the test.

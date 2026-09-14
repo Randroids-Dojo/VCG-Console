@@ -9,7 +9,9 @@ use super::{
     Sha256, encode_hex, is_nfc, read_json_bounded, require_regular_file, serialized_bounded,
 };
 
-pub(super) fn parse_commit_intent(bytes: &[u8]) -> Result<RetroImportCommitIntent, RetroImportError> {
+pub(super) fn parse_commit_intent(
+    bytes: &[u8],
+) -> Result<RetroImportCommitIntent, RetroImportError> {
     if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > MAX_COMMIT_INTENT_BYTES {
         return Err(RetroImportError::IntentTooLarge {
             maximum: MAX_COMMIT_INTENT_BYTES,
@@ -143,7 +145,9 @@ pub(super) fn validate_pending_cancellation_binding(
     Ok(())
 }
 
-pub(super) fn canonical_intent_sha256(intent: &RetroImportCommitIntent) -> Result<String, RetroImportError> {
+pub(super) fn canonical_intent_sha256(
+    intent: &RetroImportCommitIntent,
+) -> Result<String, RetroImportError> {
     let bytes = serialized_bounded(
         intent,
         MAX_COMMIT_INTENT_BYTES,
@@ -152,7 +156,9 @@ pub(super) fn canonical_intent_sha256(intent: &RetroImportCommitIntent) -> Resul
     Ok(encode_hex(&Sha256::digest(bytes)))
 }
 
-pub(super) fn validate_commit_intent(intent: &RetroImportCommitIntent) -> Result<(), RetroImportError> {
+pub(super) fn validate_commit_intent(
+    intent: &RetroImportCommitIntent,
+) -> Result<(), RetroImportError> {
     if intent.schema_version != SCHEMA_VERSION {
         return Err(RetroImportError::UnsupportedSchema(intent.schema_version));
     }
@@ -399,7 +405,9 @@ pub(super) fn reuse_entry<'a>(
     Ok(entry)
 }
 
-pub(super) fn outcome_from_pending(pending: &PendingInstall) -> Result<RetroImportOutcome, RetroImportError> {
+pub(super) fn outcome_from_pending(
+    pending: &PendingInstall,
+) -> Result<RetroImportOutcome, RetroImportError> {
     let entry = pending.intent.install_entry_required()?;
     Ok(RetroImportOutcome {
         plan_id: pending.intent.plan_id.clone(),
@@ -553,7 +561,10 @@ pub(super) fn validate_prefixed_hex_id(
 ///
 /// Identifiers no package names — policy ID, controller profile, plan ID,
 /// scanner engine ID — keep the wider grammar; nothing binds them by name.
-pub(super) fn validate_bindable_id(label: &'static str, value: &str) -> Result<(), RetroImportError> {
+pub(super) fn validate_bindable_id(
+    label: &'static str,
+    value: &str,
+) -> Result<(), RetroImportError> {
     validate_safe_id(label, value, MAX_BINDABLE_ID_BYTES)?;
     if value.contains('.') {
         return Err(RetroImportError::InvalidIdentifier {

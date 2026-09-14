@@ -1,5 +1,5 @@
-use super::validation::validate_visible_title;
 use super::formats::RetroSessionTransport;
+use super::validation::validate_visible_title;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ed25519_dalek::{Signer, SigningKey};
@@ -471,12 +471,7 @@ fn cancel_intent(bytes: &[u8], generation: u64, suffix: &str) -> Vec<u8> {
     serde_json::to_vec(&value).expect("serialize cancel intent")
 }
 
-fn reuse_intent(
-    bytes: &[u8],
-    generation: u64,
-    suffix: &str,
-    existing_entry_id: &str,
-) -> Vec<u8> {
+fn reuse_intent(bytes: &[u8], generation: u64, suffix: &str, existing_entry_id: &str) -> Vec<u8> {
     let mut value = intent_value(bytes, generation, "usb", suffix, Some(existing_entry_id));
     value["action"] = json!("reuse-existing");
     value["installEntry"] = Value::Null;
@@ -484,12 +479,7 @@ fn reuse_intent(
     serde_json::to_vec(&value).expect("serialize reuse intent")
 }
 
-fn pending_for(
-    fixture: &Fixture,
-    bytes: &[u8],
-    generation: u64,
-    suffix: &str,
-) -> PendingInstall {
+fn pending_for(fixture: &Fixture, bytes: &[u8], generation: u64, suffix: &str) -> PendingInstall {
     let intent_json = intent_bytes(bytes, generation, "usb", suffix, None);
     let intent = parse_commit_intent(&intent_json).expect("parse intent");
     let pending = PendingInstall {
@@ -497,8 +487,7 @@ fn pending_for(
         inspection_id: INSPECTION_ID.to_owned(),
         plan_expires_at_ms: 10_000,
         policy: policy(),
-        intent_authority_sha256: canonical_intent_sha256(&intent)
-            .expect("hash authorized intent"),
+        intent_authority_sha256: canonical_intent_sha256(&intent).expect("hash authorized intent"),
         intent,
     };
     fixture
@@ -683,8 +672,7 @@ fn validates_intent_session_policy_and_generation_before_mutation() {
 
     let mut wrong_generation = valid.clone();
     wrong_generation["expectedLibraryGeneration"] = json!(2);
-    let wrong_generation_bytes =
-        serde_json::to_vec(&wrong_generation).expect("wrong generation");
+    let wrong_generation_bytes = serde_json::to_vec(&wrong_generation).expect("wrong generation");
     let mut wrong_source = fixture.source("wrong-generation.gb", bytes);
     assert!(matches!(
         fixture.store.install_plain(
@@ -924,8 +912,8 @@ fn recovery_resumes_published_object_and_resumable_library_temp() {
         .expect("publish content");
 
     let base = fixture.library();
-    let next = build_next_library(&base, &pending.intent, &pending.policy)
-        .expect("build next library");
+    let next =
+        build_next_library(&base, &pending.intent, &pending.policy).expect("build next library");
     let next_bytes =
         serialized_bounded(&next, MAX_LIBRARY_DOCUMENT_BYTES, "retro installed library")
             .expect("library bytes");
@@ -1018,14 +1006,9 @@ fn reuse_revalidates_existing_object_without_copy_or_generation_change() {
         32 * 1024 * 1024,
     )
     .expect("same-revision changed mapping");
-    let changed_mapping_authority = RetroPlainImportContext::authorize(
-        &reuse,
-        INSPECTION_ID,
-        10_000,
-        false,
-        changed_mapping,
-    )
-    .expect("authorize same-revision changed mapping");
+    let changed_mapping_authority =
+        RetroPlainImportContext::authorize(&reuse, INSPECTION_ID, 10_000, false, changed_mapping)
+            .expect("authorize same-revision changed mapping");
     assert!(matches!(
         fixture
             .store
@@ -1136,14 +1119,9 @@ fn cancellation_survives_expiry_and_revocation_and_cleans_only_matching_stage() 
     fs::create_dir(&stage).expect("create pending stage");
     fs::write(stage.join("payload"), b"partial").expect("write pending bytes");
     let matching_cancel = cancel_intent(bytes, 1, "staged-cancel");
-    let matching_authority = RetroPlainImportContext::authorize(
-        &matching_cancel,
-        INSPECTION_ID,
-        10_000,
-        true,
-        policy(),
-    )
-    .expect("authorize staged cancellation");
+    let matching_authority =
+        RetroPlainImportContext::authorize(&matching_cancel, INSPECTION_ID, 10_000, true, policy())
+            .expect("authorize staged cancellation");
     staged
         .store
         .commit_without_copy(&matching_cancel, &matching_authority, 20_000)
@@ -1468,8 +1446,7 @@ fn reported_free_space_refusal_precedes_import_mutation() {
     assert!(
         fs::read_dir(&fixture.staging)
             .expect("read staging root")
-            .all(|entry| entry.expect("read staging entry").file_name()
-                == RETRO_IMPORT_LOCK_FILE)
+            .all(|entry| entry.expect("read staging entry").file_name() == RETRO_IMPORT_LOCK_FILE)
     );
 }
 
@@ -1855,8 +1832,7 @@ fn terminal_intents_still_refuse_operator_provisioned_and_session_shaped_records
     dropped_session["installEntry"]["provenance"] =
         json!({ "transport": RETRO_OPERATOR_PROVISIONED_TRANSPORT });
     let mut unknown_provenance = base.clone();
-    unknown_provenance["installEntry"]["provenance"]["sourcePath"] =
-        json!("E:\\roms\\fixture.gb");
+    unknown_provenance["installEntry"]["provenance"]["sourcePath"] = json!("E:\\roms\\fixture.gb");
     let mut fabricated_session = base;
     fabricated_session["installEntry"]["provenance"]["importSessionId"] =
         json!("ris-44444444444444444444444444444444");
@@ -1871,14 +1847,8 @@ fn terminal_intents_still_refuse_operator_provisioned_and_session_shaped_records
         let intent = serde_json::to_vec(&value).expect("serialize refused intent");
         assert!(parse_commit_intent(&intent).is_err());
         assert!(
-            RetroPlainImportContext::authorize(
-                &intent,
-                INSPECTION_ID,
-                10_000,
-                false,
-                policy(),
-            )
-            .is_err()
+            RetroPlainImportContext::authorize(&intent, INSPECTION_ID, 10_000, false, policy(),)
+                .is_err()
         );
         let mut source = fixture.source(
             &format!(
@@ -2448,9 +2418,8 @@ fn signed_policies_fail_closed_before_any_mutation() {
 
     let mut other_target = document.clone();
     other_target["target"] = json!("other-target");
-    let mismatch =
-        load_signed_policy(&update_policy, &policy_key, "retro-policy-a", &other_target)
-            .expect_err("a policy signed for another target is refused");
+    let mismatch = load_signed_policy(&update_policy, &policy_key, "retro-policy-a", &other_target)
+        .expect_err("a policy signed for another target is refused");
     assert!(matches!(
         mismatch,
         RetroImportError::PolicyTargetMismatch { .. }
@@ -2576,9 +2545,8 @@ fn signed_policies_admit_only_the_closed_system_vocabulary() {
         )])),
         policy_document(&json!(oversized_systems)),
     ] {
-        let refusal =
-            load_signed_policy(&update_policy, &policy_key, "retro-policy-a", &invalid)
-                .expect_err("the closed policy vocabulary refused this document");
+        let refusal = load_signed_policy(&update_policy, &policy_key, "retro-policy-a", &invalid)
+            .expect_err("the closed policy vocabulary refused this document");
         assert!(
             !refusal.to_string().is_empty(),
             "every refusal must name what it refused"

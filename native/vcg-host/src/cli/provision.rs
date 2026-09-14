@@ -145,7 +145,9 @@ pub(super) fn retro_provision(arguments: &[OsString]) -> Result<ExitCode, String
     Ok(ExitCode::SUCCESS)
 }
 
-pub(super) fn retro_provision_request(arguments: &[OsString]) -> Result<RetroProvisionRequest, String> {
+pub(super) fn retro_provision_request(
+    arguments: &[OsString],
+) -> Result<RetroProvisionRequest, String> {
     let mut options = RetroProvisionOptions::default();
     let mut cursor = 0;
     while let Some(argument) = arguments.get(cursor) {

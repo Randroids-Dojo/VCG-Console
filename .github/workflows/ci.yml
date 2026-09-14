@@ -49,10 +49,7 @@ jobs:
       # prepare:assets fetches the pinned pose model and typeface by exact
       # SHA-256, so a substituted upstream artifact fails here.
       - name: Prepare pinned assets and generated sources
-        run: |
-          pnpm prepare:assets
-          pnpm prepare:catalog
-          pnpm prepare:schemas
+        run: pnpm prepare:assets && pnpm prepare:catalog && pnpm prepare:schemas
 
       # The generators are expected to be deterministic. A dirty tree here
       # means generated output was committed stale, or differs by platform.
@@ -207,10 +204,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Prepare pinned assets and generated sources
-        run: |
-          pnpm prepare:assets
-          pnpm prepare:catalog
-          pnpm prepare:schemas
+        run: pnpm prepare:assets && pnpm prepare:catalog && pnpm prepare:schemas
 
       # playwright.config.ts pins `channel: "chrome"`, so the suite needs real
       # Google Chrome rather than the bundled Chromium.

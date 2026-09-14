@@ -1,16 +1,16 @@
-use super::{
-    BluetoothPairingService, CatalogRoots, ContentlessStart, HostStatusServer,
-    ProtectedUpdateRootState, current_target, plan_launcher,
-};
 use super::launcher_command::{
     HostUpdateTrustOptions, LauncherCatalogOptions, LauncherCatalogSourceOptions,
     LauncherProfileSource, launcher_request, load_retro_library, retro_library_report,
     start_launcher_host_api,
 };
-use super::update_root_command::{UpdateRootOptions, parse_update_root_option};
+use super::process_command::{supervise, supervise_plan, watchdog_plan};
 use super::provision_command::{retro_provision, retro_provision_request};
 use super::retroarch_command::retroarch_request;
-use super::process_command::{supervise, supervise_plan, watchdog_plan};
+use super::update_root_command::{UpdateRootOptions, parse_update_root_option};
+use super::{
+    BluetoothPairingService, CatalogRoots, ContentlessStart, HostStatusServer,
+    ProtectedUpdateRootState, current_target, plan_launcher,
+};
 use ed25519_dalek::{Signer, SigningKey};
 use std::ffi::OsString;
 use std::fs::{self, File};
@@ -706,8 +706,7 @@ fn launcher_profile_registry_is_bounded_persistent_and_exclusive() {
 #[test]
 fn invalid_profile_registry_precedes_any_trust_or_package_recovery() {
     let unique = NEXT_ROOT_FIXTURE.fetch_add(1, Ordering::Relaxed);
-    let fixture =
-        std::env::temp_dir().join(format!("vcg-profile-registry-order-test-{unique}"));
+    let fixture = std::env::temp_dir().join(format!("vcg-profile-registry-order-test-{unique}"));
     fs::create_dir(&fixture).expect("create ordering fixture");
     let registry = fixture.join("profiles.json");
     fs::write(
@@ -975,8 +974,8 @@ fn parses_dry_run_separator_and_arguments() {
 
 #[test]
 fn preserves_child_arguments_that_begin_with_dashes() {
-    let (_, spec) = supervise_plan(&args(&["program", "--", "--child-option"]))
-        .expect("child arguments parse");
+    let (_, spec) =
+        supervise_plan(&args(&["program", "--", "--child-option"])).expect("child arguments parse");
     assert_eq!(
         spec.arguments().collect::<Vec<_>>(),
         vec![
@@ -1145,8 +1144,7 @@ fn retro_provision_parser_requires_signed_policy_inputs_and_derives_store_roots(
     let payload = std::env::temp_dir().join("vcg-retro-provision-parse-payload");
     let base = retro_provision_parse_arguments(&writable, &payload);
 
-    let request =
-        retro_provision_request(&os_args(&base)).expect("retro-provision options parse");
+    let request = retro_provision_request(&os_args(&base)).expect("retro-provision options parse");
     assert!(!request.dry_run);
     assert_eq!(request.payload, payload);
     assert_eq!(
@@ -1325,8 +1323,7 @@ fn retroarch_requires_all_trusted_roots_and_artifacts() {
 #[test]
 fn retroarch_parser_rejects_duplicate_and_unknown_options() {
     assert!(
-        retroarch_request(&args(&["--install-root", "/one", "--install-root", "/two"]))
-            .is_err()
+        retroarch_request(&args(&["--install-root", "/one", "--install-root", "/two"])).is_err()
     );
     assert!(retroarch_request(&args(&["--surprise"])).is_err());
     assert!(
@@ -1790,10 +1787,9 @@ fn launcher_serves_the_retro_library_with_controller_pairing() {
         .expect("catalog options exist")
         .load(false)
         .expect("catalog and library load");
-    let service = BluetoothPairingService::new(
-        bluetoothctl.expect("the pairing executable is configured"),
-    )
-    .expect("the pairing service configures");
+    let service =
+        BluetoothPairingService::new(bluetoothctl.expect("the pairing executable is configured"))
+            .expect("the pairing service configures");
     let server = start_launcher_host_api(
         LOOPBACK_ORIGIN.to_owned(),
         Some(configuration),
@@ -1917,8 +1913,8 @@ fn retro_library_root_joins_catalog_mode_and_every_other_capability() {
 
     let mut with_bluetooth = complete.clone();
     with_bluetooth.extend(["--bluetoothctl", "/usr/bin/bluetoothctl"]);
-    let (_, _, catalog, bluetoothctl, _) = launcher_request(&args(&with_bluetooth))
-        .expect("a library pairs with controller pairing");
+    let (_, _, catalog, bluetoothctl, _) =
+        launcher_request(&args(&with_bluetooth)).expect("a library pairs with controller pairing");
     assert_eq!(
         bluetoothctl.as_deref(),
         Some(std::path::Path::new("/usr/bin/bluetoothctl"))

@@ -99,7 +99,9 @@ pub(super) struct RetroArchOptions {
     pub(super) contentless_start: Option<ContentlessStart>,
 }
 
-pub(super) fn retroarch_request(arguments: &[OsString]) -> Result<(bool, RetroArchRequest), String> {
+pub(super) fn retroarch_request(
+    arguments: &[OsString],
+) -> Result<(bool, RetroArchRequest), String> {
     let mut options = RetroArchOptions::default();
     let mut cursor = 0;
     while let Some(argument) = arguments.get(cursor) {

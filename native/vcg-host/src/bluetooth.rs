@@ -465,8 +465,8 @@ pub(crate) mod tests {
     use crate::host_api::HostStatusServer;
     use std::io::Write;
     use std::net::{SocketAddr, TcpStream};
-    use std::sync::mpsc;
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::mpsc;
 
     struct BlockingRunner {
         operation: &'static str,
@@ -477,7 +477,8 @@ pub(crate) mod tests {
 
     impl BluetoothCommandRunner for BlockingRunner {
         fn run(&self, arguments: &[&str]) -> Result<String, BluetoothError> {
-            if arguments.contains(&self.operation) && self.calls.fetch_add(1, Ordering::SeqCst) == 0 {
+            if arguments.contains(&self.operation) && self.calls.fetch_add(1, Ordering::SeqCst) == 0
+            {
                 self.entered.send(()).expect("operation observed");
                 self.release
                     .lock()
@@ -494,7 +495,12 @@ pub(crate) mod tests {
         }
     }
 
-    pub(crate) fn api_stream(address: SocketAddr, token: &str, method: &str, path: &str) -> io::Result<TcpStream> {
+    pub(crate) fn api_stream(
+        address: SocketAddr,
+        token: &str,
+        method: &str,
+        path: &str,
+    ) -> io::Result<TcpStream> {
         let mut stream = TcpStream::connect(address)?;
         stream.set_read_timeout(Some(Duration::from_secs(2)))?;
         let body = if method == "POST" {
@@ -510,7 +516,12 @@ pub(crate) mod tests {
         Ok(stream)
     }
 
-    fn api_request(address: SocketAddr, token: &str, method: &str, path: &str) -> io::Result<String> {
+    fn api_request(
+        address: SocketAddr,
+        token: &str,
+        method: &str,
+        path: &str,
+    ) -> io::Result<String> {
         let mut stream = api_stream(address, token, method, path)?;
         let mut response = String::new();
         stream.read_to_string(&mut response)?;
@@ -538,21 +549,40 @@ pub(crate) mod tests {
             state: Mutex::new(PairingState::default()),
         };
         service.snapshot("0.1.0").expect("controller is discovered");
-        BlockedBluetooth { service, entered: entered_rx, release: release_tx, calls }
+        BlockedBluetooth {
+            service,
+            entered: entered_rx,
+            release: release_tx,
+            calls,
+        }
     }
 
     fn assert_host_responsive_during(operation: &'static str, path: &str) {
-        let BlockedBluetooth { service, entered, release, .. } = blocking_service(operation);
+        let BlockedBluetooth {
+            service,
+            entered,
+            release,
+            ..
+        } = blocking_service(operation);
         let server = HostStatusServer::start_with_bluetooth("http://127.0.0.1:5173", service)
             .expect("host starts");
-        let url = server.launcher_url("http://127.0.0.1:5173").expect("launcher URL");
-        let (_, token) = url.split_once("vcg-host-token=").expect("token in fragment");
+        let url = server
+            .launcher_url("http://127.0.0.1:5173")
+            .expect("launcher URL");
+        let (_, token) = url
+            .split_once("vcg-host-token=")
+            .expect("token in fragment");
         thread::scope(|scope| {
             let pending = scope.spawn(|| api_request(server.address(), token, "POST", path));
-            entered.recv_timeout(Duration::from_secs(5)).expect("Bluetooth command starts");
+            entered
+                .recv_timeout(Duration::from_secs(5))
+                .expect("Bluetooth command starts");
             let status = api_request(server.address(), token, "GET", "/v1/status");
             let cancellation = api_request(
-                server.address(), token, "DELETE", "/v1/launches/11111111111111111111111111111111",
+                server.address(),
+                token,
+                "DELETE",
+                "/v1/launches/11111111111111111111111111111111",
             );
             let mut queued = api_stream(server.address(), token, "GET", "/v1/bluetooth")
                 .expect("one Bluetooth request can wait");
@@ -561,10 +591,24 @@ pub(crate) mod tests {
             release.send(()).expect("operation released");
             let _ = pending.join().expect("request worker joins");
             let mut queued_response = String::new();
-            queued.read_to_string(&mut queued_response).expect("queued operation finishes");
-            assert!(status.expect("status responds during Bluetooth work").starts_with("HTTP/1.1 200"));
-            assert!(cancellation.expect("cancellation responds during Bluetooth work").contains("LAUNCH_NOT_FOUND"));
-            assert!(overflow.expect("queue overflow responds").contains("BLUETOOTH_BUSY"));
+            queued
+                .read_to_string(&mut queued_response)
+                .expect("queued operation finishes");
+            assert!(
+                status
+                    .expect("status responds during Bluetooth work")
+                    .starts_with("HTTP/1.1 200")
+            );
+            assert!(
+                cancellation
+                    .expect("cancellation responds during Bluetooth work")
+                    .contains("LAUNCH_NOT_FOUND")
+            );
+            assert!(
+                overflow
+                    .expect("queue overflow responds")
+                    .contains("BLUETOOTH_BUSY")
+            );
             assert!(queued_response.starts_with("HTTP/1.1 200"));
         });
     }

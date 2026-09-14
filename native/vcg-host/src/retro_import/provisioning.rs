@@ -18,7 +18,9 @@ use super::{
     verify_file_hash,
 };
 
-pub(super) fn staged_payload_roots(payload_root: &Path) -> Result<StagedPayloadRoots, RetroImportError> {
+pub(super) fn staged_payload_roots(
+    payload_root: &Path,
+) -> Result<StagedPayloadRoots, RetroImportError> {
     let root = canonical_directory("retro staged payload root", payload_root)?;
     let objects = canonical_direct_directory(
         "retro staged payload object root",
@@ -568,5 +570,4 @@ impl RetroImportStore {
         }
         Ok(())
     }
-
 }

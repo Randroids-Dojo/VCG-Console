@@ -32,6 +32,10 @@
         "value": "installed pnpm graph plus Cargo.lock and pinned runtime assets"
       },
       {
+        "name": "vcg:build-platform",
+        "value": "win32-x64"
+      },
+      {
         "name": "vcg:known-license-blockers",
         "value": "project-license,pose-model-license"
       }

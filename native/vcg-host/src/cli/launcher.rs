@@ -444,7 +444,10 @@ impl LauncherProfileSource {
 }
 
 impl HostUpdateTrustOptions {
-    pub(super) fn load(self, recover: bool) -> Result<(TrustedUpdatePolicy, Option<usize>), String> {
+    pub(super) fn load(
+        self,
+        recover: bool,
+    ) -> Result<(TrustedUpdatePolicy, Option<usize>), String> {
         let anchors = RootTrustAnchorSet::from_json_bytes(&read_bounded_host_file(
             &self.root_anchors,
             MAX_UPDATE_ROOT_ANCHOR_BYTES,

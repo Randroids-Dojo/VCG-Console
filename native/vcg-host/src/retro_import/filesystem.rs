@@ -120,7 +120,9 @@ pub(super) fn read_audit(path: &Path) -> Result<NativeAuditRecord, RetroImportEr
     Ok(audit)
 }
 
-pub(super) fn read_provision_audit(path: &Path) -> Result<NativeProvisionAuditRecord, RetroImportError> {
+pub(super) fn read_provision_audit(
+    path: &Path,
+) -> Result<NativeProvisionAuditRecord, RetroImportError> {
     require_regular_file(path, "retro import audit")?;
     let audit: NativeProvisionAuditRecord =
         read_json_bounded(path, MAX_AUDIT_RECORD_BYTES, "retro import audit")?;
@@ -287,7 +289,10 @@ pub(super) fn write_new_synced_file(
         })
 }
 
-pub(super) fn create_private_new_file(path: &Path, operation: &'static str) -> Result<File, RetroImportError> {
+pub(super) fn create_private_new_file(
+    path: &Path,
+    operation: &'static str,
+) -> Result<File, RetroImportError> {
     let mut options = OpenOptions::new();
     options.write(true).create_new(true);
     #[cfg(unix)]
@@ -365,7 +370,10 @@ pub(super) fn ensure_same_filesystem(left: &Path, right: &Path) -> Result<(), Re
     Ok(())
 }
 
-pub(super) fn canonical_directory(kind: &'static str, path: &Path) -> Result<PathBuf, RetroImportError> {
+pub(super) fn canonical_directory(
+    kind: &'static str,
+    path: &Path,
+) -> Result<PathBuf, RetroImportError> {
     if !path.is_absolute() {
         return Err(RetroImportError::UnsafeRoot {
             kind,
@@ -465,7 +473,10 @@ pub(super) fn require_direct_directory(
     Ok(())
 }
 
-pub(super) fn require_regular_file(path: &Path, kind: &'static str) -> Result<(), RetroImportError> {
+pub(super) fn require_regular_file(
+    path: &Path,
+    kind: &'static str,
+) -> Result<(), RetroImportError> {
     let metadata = fs::symlink_metadata(path).map_err(|source| RetroImportError::Io {
         operation: "inspect retro import file",
         path: path.to_owned(),

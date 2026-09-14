@@ -4,12 +4,12 @@ use super::{
     CommitAction, File, MAX_AUDIT_RECORD_BYTES, MAX_LIBRARY_DOCUMENT_BYTES, MAX_SCAN_RECEIPT_BYTES,
     NativeAuditRecord, PENDING_INTENT_FILE, Path, PendingInstall, ResumePending,
     RetroContentScanner, RetroImportCommitIntent, RetroImportError, RetroImportStore,
-    RetroInstalledLibrary, RetroScanEvidence, RetroScanRequest, RetroScanStatus, build_next_library,
-    fs, io, outcome_from_pending, path_exists, publish_new_file_resumable, read_audit, read_library,
-    read_scan_receipt, remove_regular_file_if_present, replacement_entry, require_direct_directory,
-    require_regular_file, seal_payload_permissions, serialized_bounded, sync_directory,
-    validate_audit, validate_library, validate_pending, validate_scan_evidence, verify_file_hash,
-    write_new_synced_file,
+    RetroInstalledLibrary, RetroScanEvidence, RetroScanRequest, RetroScanStatus,
+    build_next_library, fs, io, outcome_from_pending, path_exists, publish_new_file_resumable,
+    read_audit, read_library, read_scan_receipt, remove_regular_file_if_present, replacement_entry,
+    require_direct_directory, require_regular_file, seal_payload_permissions, serialized_bounded,
+    sync_directory, validate_audit, validate_library, validate_pending, validate_scan_evidence,
+    verify_file_hash, write_new_synced_file,
 };
 
 impl RetroImportStore {
@@ -181,7 +181,10 @@ impl RetroImportStore {
         )
     }
 
-    pub(super) fn publish_or_verify_audit(&self, pending: &PendingInstall) -> Result<(), RetroImportError> {
+    pub(super) fn publish_or_verify_audit(
+        &self,
+        pending: &PendingInstall,
+    ) -> Result<(), RetroImportError> {
         let stage_receipt = self.stage_directory(pending).join("scan.json");
         if path_exists(&stage_receipt)? {
             let scan = read_scan_receipt(&stage_receipt, pending)?;
@@ -325,7 +328,10 @@ impl RetroImportStore {
         Ok(())
     }
 
-    pub(super) fn remove_stage_if_present(&self, pending: &PendingInstall) -> Result<(), RetroImportError> {
+    pub(super) fn remove_stage_if_present(
+        &self,
+        pending: &PendingInstall,
+    ) -> Result<(), RetroImportError> {
         let stage = self.stage_directory(pending);
         if !path_exists(&stage)? {
             return Ok(());
@@ -359,5 +365,4 @@ impl RetroImportStore {
         })?;
         sync_directory(&self.staging_root)
     }
-
 }

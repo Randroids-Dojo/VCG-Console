@@ -2,8 +2,10 @@
 
 This file records curated notices for third-party material that VCG Console
 prepares for its runtime. The generated package/crate inventory lives in
-`compliance/DEPENDENCY_NOTICES.md`, with the machine-readable CycloneDX 1.7
-inventory in `compliance/vcg-console.cdx.json`. A public release remains blocked
+`compliance/<platform>/DEPENDENCY_NOTICES.md`, with the machine-readable CycloneDX 1.7
+inventory beside it in `vcg-console.cdx.json`. The checked build platforms are
+`win32-x64` and `linux-x64-gnu`; each records its actual conditional packages.
+A public release remains blocked
 on the repository license and exact pose-model redistribution evidence.
 
 ## OCR-A font 1.0
