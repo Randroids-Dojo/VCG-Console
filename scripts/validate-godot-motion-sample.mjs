@@ -55,9 +55,8 @@ function findGodot() {
   for (let candidate of candidates) {
     if (!candidate) continue;
     if (process.platform === "win32" && existsSync(candidate)) {
-      // setup-godot exposes an extensionless symlink to the GUI executable.
-      // Resolve it and prefer Godot's console sibling so spawnSync can collect
-      // version, import and test output on Windows.
+      // Resolve configured executable paths and prefer the console sibling so
+      // spawnSync can collect version, import and test output on Windows.
       candidate = realpathSync(candidate);
       const consoleExecutable = candidate.replace(/(?<!_console)\.exe$/iu, "_console.exe");
       if (existsSync(consoleExecutable)) candidate = consoleExecutable;

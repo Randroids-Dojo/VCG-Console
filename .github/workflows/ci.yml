@@ -112,6 +112,8 @@ jobs:
   godot:
     name: Godot sample / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      GODOT_VERSION: "4.7.1"
     strategy:
       fail-fast: false
       matrix:
@@ -123,12 +125,19 @@ jobs:
           node-version: 22
       - uses: chickensoft-games/setup-godot@v2
         with:
-          version: "4.7.1"
+          version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
           include-templates: false
           # The action's Windows cache retains only the GUI executable and
           # omits the console sibling needed to capture test output.
           cache: ${{ matrix.os != 'windows-latest' }}
+      - name: Select the Windows console executable
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $godotConsole = Join-Path $env:USERPROFILE ("godot/Godot_v{0}-stable_win64_console.exe" -f $env:GODOT_VERSION)
+          if (!(Test-Path -LiteralPath $godotConsole -PathType Leaf)) { throw "Godot console executable is missing" }
+          "GODOT_BIN=$godotConsole" >> $env:GITHUB_ENV
       - name: Import, contract tests, and scene boot
         run: node scripts/validate-godot-motion-sample.mjs
 
