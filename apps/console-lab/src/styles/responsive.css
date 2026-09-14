@@ -1,0 +1,684 @@
+@media (min-width: 1000px) and (min-height: 600px) {
+  .launcher {
+    height: 100vh;
+    min-height: 0;
+  }
+
+  .launcher-topbar {
+    min-height: 0;
+  }
+
+  .launcher-frame {
+    min-height: 0;
+  }
+
+  .launcher-content {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .launcher-view {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .home-view {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .destination {
+    padding:
+      clamp(16px, 1.8vh, 40px)
+      clamp(16px, 1.5vw, 44px);
+  }
+
+  .destination small {
+    font-size: clamp(18px, 0.9vw, 34px);
+    line-height: 1.4;
+  }
+
+  /* Contract floor: every marked critical label is at least 24 CSS px at
+     every supported viewport. Larger display styles override below. */
+  .launcher [data-tv-critical-text][data-tv-critical-text] {
+    font-size: clamp(24px, 1.25vw, 48px);
+    line-height: 1.25;
+  }
+
+  .launcher .home-heading h1[data-tv-critical-text] {
+    font-size: clamp(38px, 3vw, 118px);
+    line-height: 1.06;
+  }
+
+  .launcher .view-header h1[data-tv-critical-text],
+  .launcher .launch-identity h1[data-tv-critical-text] {
+    font-size: clamp(36px, 2.6vw, 100px);
+    line-height: 1.04;
+  }
+
+  .launcher .destination strong[data-tv-critical-text] {
+    font-size: clamp(26px, 1.75vw, 68px);
+    line-height: 1.15;
+  }
+
+  .launcher [data-tv-action] {
+    min-width: var(--vcg-control-min);
+    min-height: var(--vcg-control-min);
+  }
+
+    /* The Motion Lab locks to the viewport: the stage is the hero and the
+     diagnostics column scrolls inside its own drawer. */
+  .console-shell {
+    height: 100vh;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .lab-grid {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .stage-panel {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .stage-view:not([hidden]) {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .skeleton-stage,
+  .obstacle-stage,
+  .shell-lab-stage,
+  #skeleton,
+  #obstacle-canvas {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .telemetry-panel {
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  .launch-screen {
+    grid-template-rows:
+      clamp(72px, 8vh, 172px)
+      minmax(0, 1fr)
+      auto;
+    padding: 5vh 5vw;
+    overflow: hidden;
+  }
+
+  .launch-header,
+  .launch-body,
+  .launch-footer {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .launch-header,
+  .launch-footer {
+    padding-inline: 0;
+  }
+
+  .launch-footer {
+    gap: clamp(16px, 2vw, 64px);
+  }
+
+  .launch-metrics {
+    gap: clamp(12px, 1.5vw, 32px);
+  }
+
+  .launch-actions {
+    gap: clamp(6px, 0.8vw, 10px);
+  }
+
+  .launch-actions button,
+  .launch-actions a {
+    gap: clamp(12px, 1.5vw, 30px);
+    padding-inline: clamp(10px, 1vw, 16px);
+  }
+
+  .launch-body {
+    padding-inline: 0;
+  }
+
+  .search-overlay {
+    padding: 5vh 5vw;
+  }
+
+  .search-results {
+    /* 90vh safe band minus overlay inset and panel chrome: keeps the last
+       row inside the 5% inset at 720p while giving 4K room for the full
+       empty-query list without internal scrolling. */
+    max-height: calc(85vh - 192px);
+  }
+
+  .search-empty {
+    padding: 0;
+  }
+}
+
+/* Narrow TV widths (720p class): the 24px critical-text floor makes the
+   single-row chrome overflow, so the tab strip gets its own row. */
+@media (min-width: 1000px) and (max-width: 1540px) and (min-height: 600px) {
+  .launcher-topbar {
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    row-gap: 2px;
+    min-height: 0;
+    padding-bottom: 6px;
+  }
+
+  .launcher-topbar > .launcher-brand {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .launcher-topbar > .search-trigger {
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .launcher-topbar > .launcher-presence {
+    grid-row: 1;
+    grid-column: 3;
+  }
+
+  .launcher-topbar > .launcher-nav {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .launcher-topbar {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .launcher-topbar > .launcher-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-bottom: 10px;
+    overflow-x: auto;
+  }
+
+  .launcher-legend {
+    display: none;
+  }
+
+  .session-adversarial-summary,
+  .session-adversarial-results {
+    grid-template-columns: 1fr;
+  }
+
+  .home-destinations {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-list {
+    grid-template-columns: 1fr;
+  }
+
+  .destination {
+    aspect-ratio: auto;
+    min-height: 190px;
+    max-width: none;
+  }
+
+  .home-view {
+    grid-template-rows: auto auto auto;
+    gap: 40px;
+  }
+
+  .view-header,
+  .profile-layout,
+  .profile-management-layout,
+  .calibration-notice-layout,
+  .calibration-result-layout,
+  .portrait-capture-layout,
+  .unassigned-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-management-summary {
+    grid-row: auto;
+  }
+
+  .unassigned-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .launcher {
+    overflow: auto;
+  }
+
+  .launch-body {
+    grid-template-columns: 1fr minmax(280px, 0.7fr);
+    gap: 48px;
+  }
+
+  .launch-identity h1 {
+    font-size: clamp(3rem, 9vw, 5.4rem);
+  }
+
+  .launch-footer {
+    grid-template-columns: auto 1fr;
+  }
+
+  .launch-progress {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .launch-diagnostics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .system-state {
+    display: none;
+  }
+
+  .lab-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .telemetry-panel {
+    width: 100%;
+  }
+
+  .command {
+    min-width: 0;
+    flex: 1;
+    justify-content: center;
+    padding: 0 12px;
+  }
+
+  .command span,
+  .escape-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .session-adversarial-shell {
+    gap: 20px;
+    padding: 26px 18px;
+  }
+
+  .session-adversarial-header {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .session-adversarial-source {
+    min-width: 0;
+  }
+
+  .session-adversarial-notice {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .session-report-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .session-adversarial-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .session-adversarial-actions button,
+  .session-adversarial-actions .primary-action {
+    width: 100%;
+  }
+
+  .session-scenario-list button {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+
+  .launcher-topbar {
+    min-height: 64px;
+    padding: 0 18px;
+  }
+
+  .launcher-presence time,
+  .launcher-presence button > span:last-child {
+    display: none;
+  }
+
+  .search-trigger {
+    display: none;
+  }
+
+  .launcher-frame {
+    display: block;
+  }
+
+  .launcher-nav {
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 62px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+    background: #10141a;
+  }
+
+  .launcher-nav button {
+    min-height: 62px;
+    border-radius: 0;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .nav-signal,
+  .nav-spacer {
+    display: none;
+  }
+
+  .launcher-content {
+    padding: 34px 18px 90px;
+  }
+
+  .unassigned-demo-notice,
+  .profile-management-notice,
+  .calibration-synthetic-notice,
+  .portrait-synthetic-notice,
+  .unassigned-list {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-management-summary {
+    grid-template-columns: 64px minmax(0, 1fr);
+    padding: 22px 18px;
+  }
+
+  .managed-profile-orbit {
+    width: 60px;
+    height: 60px;
+  }
+
+  .profile-management-panel,
+  .profile-create-panel {
+    padding: 24px 20px;
+  }
+
+  .profile-management-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-management-dialog-backdrop {
+    padding: 16px;
+  }
+
+  .profile-management-dialog {
+    max-height: calc(100vh - 32px);
+    padding: 25px 20px;
+  }
+
+  .profile-management-dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .calibration-zone-art {
+    min-height: 300px;
+  }
+
+  .calibration-fixtures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calibration-phase-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .calibration-dimensions > div {
+    grid-template-columns: 16px minmax(92px, 0.8fr) minmax(110px, 1fr);
+  }
+
+  .unassigned-detail {
+    padding: 22px 18px;
+  }
+
+  .unassigned-detail dl div {
+    grid-template-columns: 92px 1fr;
+  }
+
+  .unassigned-actions,
+  .portrait-actions,
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .unassigned-empty {
+    grid-template-columns: 1fr;
+  }
+
+  .unassigned-dialog-scrim {
+    padding: 16px;
+  }
+
+  .unassigned-dialog {
+    max-height: calc(100vh - 32px);
+    padding: 25px 20px;
+  }
+
+  .launcher-view {
+    min-height: calc(100vh - 188px);
+  }
+
+  .launch-screen {
+    grid-template-rows: 64px auto auto;
+  }
+
+  .launch-header {
+    padding: 0 18px;
+  }
+
+  .launch-body {
+    grid-template-columns: 1fr;
+    gap: 42px;
+    align-self: start;
+    padding: 44px 22px 34px;
+  }
+
+  .launch-identity h1 {
+    font-size: clamp(2.9rem, 15vw, 4.8rem);
+  }
+
+  .launch-readout {
+    margin-top: 38px;
+  }
+
+  .launch-trace li {
+    min-height: 88px;
+  }
+
+  .launch-footer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .launch-progress {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .launch-diagnostics {
+    grid-column: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+
+  .launch-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .launch-actions button,
+  .launch-actions a,
+  .launch-actions .launch-primary {
+    width: 100%;
+  }
+
+  .home-heading h1,
+  .view-header h1,
+  .museum-title h1 {
+    font-size: clamp(2.35rem, 13vw, 4rem);
+  }
+
+    .museum-catalog {
+    grid-template-columns: 1fr;
+  }
+
+  .library-list button,
+  .search-results button {
+    grid-template-columns: 40px 1fr auto;
+  }
+
+  .search-recovery-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-list button small,
+  .search-results button small {
+    display: none;
+  }
+
+  .empty-library {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-list,
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .settings-nav button {
+    text-align: center;
+  }
+
+  .settings-nav button.active::after {
+    display: none;
+  }
+
+  .accessibility-setting {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px 0;
+  }
+
+  .accessibility-setting > div:last-child {
+    justify-content: start;
+  }
+
+  .av-settings-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .av-settings-choice {
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding: 14px 0;
+  }
+
+  .av-settings-choice > div:last-child {
+    justify-content: start;
+  }
+
+  .topbar {
+    min-height: 60px;
+    padding: 14px 18px;
+  }
+
+  .lab-grid {
+    padding: 24px 16px;
+  }
+
+  .stage-heading {
+    align-items: start;
+  }
+
+  .privacy-copy {
+    display: none;
+  }
+
+  .skeleton-stage,
+  .obstacle-stage,
+  .shell-lab-stage,
+  #skeleton {
+    min-height: 48vh;
+  }
+
+  #obstacle-canvas {
+    min-height: 48vh;
+  }
+
+  .shell-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-cards button {
+    min-height: 120px;
+  }
+
+  .shell-test-controls,
+  .overlay-options {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .command-rail {
+    min-height: 70px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+:root[data-vcg-motion="reduced"] *,
+:root[data-vcg-motion="reduced"] *::before,
+:root[data-vcg-motion="reduced"] *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}

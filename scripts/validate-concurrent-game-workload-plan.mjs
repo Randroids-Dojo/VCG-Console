@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -187,11 +188,6 @@ const expectedMetrics = [
   "fault injection, containment, recovery time, fresh-instance proof and state-integrity outcome",
   "exact hardware, image, runtime, model, game-session, configuration, schedule and evidence artifact digests",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function normalizedDigest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

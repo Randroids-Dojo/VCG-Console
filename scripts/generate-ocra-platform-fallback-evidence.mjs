@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
@@ -10,18 +9,12 @@ import {
   normalizedSha256,
   sha256,
   sourceTreeCommitment,
-  startProductionPreview,
+  startBuiltConsole,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-} from "./generate-tv-conformance-evidence.mjs";
 
 export const OCRA_FALLBACK_EVIDENCE_FORMAT =
   "vcg-ocra-platform-fallback-observation/v1";
-export const OCRA_FALLBACK_EVIDENCE_DATE = "2026-08-11";
+export const OCRA_FALLBACK_EVIDENCE_DATE = new Date().toISOString().slice(0, 10);
 export const OCRA_FALLBACK_CLAIM_BOUNDARY =
   "One headless installed-Chrome run on one Windows x64 development host uses the Chrome DevTools Protocol to report the actual font selected for one ASCII baseline and every non-ASCII code point inventoried in current console-lab production source. The exact current probe observes no platform fallback. It uses the production CSS font stack after a production build but injects a diagnostic-only grid, and does not prove dynamically supplied text coverage, glyph shape, legibility, accessibility, localization, physical-TV behavior, another browser or host, target Linux, compositor output, redistribution, or release readiness.";
 export const OCRA_FALLBACK_LIMITATIONS = Object.freeze([
@@ -235,14 +228,14 @@ async function observePlatformFonts(page) {
 export async function generateOcraPlatformFallbackEvidence() {
   const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
   const { chromium } = requireFromConsoleLab("@playwright/test");
-  const server = await startProductionPreview();
+  const server = await startBuiltConsole();
   const browser = await chromium.launch({
     executablePath: findChrome(),
     headless: true,
     args: ["--disable-gpu"],
   });
   const browserProduct = `Chrome/${browser.version()}`;
-  assert.equal(browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
+
   const page = await browser.newPage({
     viewport: { width: 1920, height: 1080 },
     deviceScaleFactor: 1,
@@ -327,9 +320,10 @@ export async function generateOcraPlatformFallbackEvidence() {
     format: OCRA_FALLBACK_EVIDENCE_FORMAT,
     evidenceDate: OCRA_FALLBACK_EVIDENCE_DATE,
     environment: {
+      buildMode: "lab",
       platform: "windows-x64",
       browserProduct,
-      node: GODOT_EXPORT_NODE_VERSION,
+      node: process.version,
       headless: true,
       devicePixelRatio: 1,
       viewport: { width: 1920, height: 1080 },

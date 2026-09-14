@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -23,10 +24,6 @@ const topKeys = ["format", "status", "campaignId", "observedAt", "qualificationS
 const targetKeys = ["hostProduct", "receivedHostAndFirmwareSha256", "imageKernelCompositorDriverSha256", "primaryTvManufacturerModelRevisionSha256", "tvFirmwareVersion", "tvPortAndSettingsSha256", "hdmiCableIdentityAndCertificationSha256", "receiverOrSoundbarIdentitySha256", "captureAndTimingInstrumentSha256", "cecAdapterAndTraceToolSha256", "roomAndViewingGeometrySha256", "workloadBundleSha256"];
 const openGates = ["maximumOverscanCropPixels", "maximumMissedFrameRatio", "maximumFrameTimeP95Ms", "maximumAudioLatencyP95Ms", "maximumAudioVideoDriftMs", "maximumCecCommandP95Ms", "maximumCecWakeFailureRatio", "maximumHotPlugRecoveryMs", "minimumPoseFps", "minimumGameFps", "maximumSustainedSocTemperatureC", "maximumWallPowerW"];
 
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 function digest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   assert.ok(!/(^|[^\r])\r([^\n]|$)/u.test(text), `${label} has bare CR`);

@@ -11,7 +11,7 @@ import {
 } from "./ttf-inventory.mjs";
 
 export const OCRA_EVIDENCE_FORMAT = "vcg-ocra-font-structural-evidence/v1";
-export const OCRA_EVIDENCE_DATE = "2026-08-11";
+export const OCRA_EVIDENCE_DATE = new Date().toISOString().slice(0, 10);
 export const OCRA_CLAIM_BOUNDARY =
   "A dependency-free bounded parser proves the exact prepared OCRA.ttf file identity, selected sfnt metadata, Unicode cmap membership, printable-ASCII coverage, and direct font coverage for non-ASCII code points present in the console-lab production source tree. This is structural inventory evidence only; it does not prove dynamically supplied text coverage, glyph shape, TV-distance legibility, language support, accessibility, browser/platform consistency, redistribution approval, or release readiness.";
 export const OCRA_LIMITATIONS = Object.freeze([
@@ -67,7 +67,7 @@ async function listProductionSourceFiles() {
       }
       if (entry.isDirectory()) {
         pending.push(absolute);
-      } else if (entry.isFile() && sourceExtensions.has(extension(entry.name))) {
+      } else if (entry.isFile() && sourceExtensions.has(extension(entry.name)) && !/\.test\.[cm]?[jt]s$/u.test(entry.name)) {
         files.push(absolute);
       }
     }
@@ -158,7 +158,7 @@ function serializeTable(table) {
   };
 }
 
-export async function buildOcraFontEvidence() {
+export async function buildOcraFontEvidence(evidenceDate = OCRA_EVIDENCE_DATE) {
   const fontBytes = await readFile(resolve(root, fontRelativePath));
   const parsed = parseTrueTypeFont(fontBytes);
   const cmap = parsed.cmap.best.mappings;
@@ -212,7 +212,7 @@ export async function buildOcraFontEvidence() {
 
   return {
     format: OCRA_EVIDENCE_FORMAT,
-    evidenceDate: OCRA_EVIDENCE_DATE,
+    evidenceDate,
     subject: {
       path: fontRelativePath,
       bytes: fontBytes.length,

@@ -47,7 +47,7 @@
     {
       "role": "synthetic-session-interference-boundary",
       "path": "benchmarks/player-session-interference/camera-free-authority-rehearsal-v1.json",
-      "sha256": "372d56321290e58982929bc81a0a12edfea6265bd4dff43c9423a91e45142890"
+      "sha256": "c93a97316c0e7e5ce4b0bd916c6bee127fc8e6ef645f5a79d315302e4e528223"
     },
     {
       "role": "session-controller-implementation",

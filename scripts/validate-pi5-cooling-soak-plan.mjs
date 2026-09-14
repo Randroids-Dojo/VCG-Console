@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -24,10 +25,6 @@ const topKeys = ["format", "status", "campaignId", "observedAt", "qualificationS
 const commonKeys = ["hostProduct", "acceleratorProduct", "cameraContract", "prototypeEnclosureDirection", "receivedHardwareManifestSha256", "operatingSystemImageSha256", "kernelRuntimeWorkloadSha256", "storageFilesystemSha256", "cameraRoomPlacementSha256", "enclosureGeometryAndVentSha256", "powerAndFanControlPolicySha256", "instrumentCalibrationSha256", "operatorSafetyProtocolSha256"];
 const openGates = ["maximumSustainedSocTemperatureC", "maximumSustainedAcceleratorTemperatureC", "maximumSustainedStorageTemperatureC", "maximumSustainedCameraTemperatureC", "maximumEnclosureSurfaceTemperatureC", "maximumThermalThrottleEvents", "minimumPoseFps", "minimumGameFps", "maximumGameFrameTimeP95Ms", "maximumCaptureDropRatio", "maximumPoseDropRatio", "maximumWallPowerW", "maximumIdleOneMeterAcousticsDba", "maximumAllowedTonalProminenceDb", "maximumAllowedRattleOrOscillationEvents", "maximumRecoveryMs", "minimumCoolingCostSavingsCents"];
 
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 function normalizedDigest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   assert.ok(!/(^|[^\r])\r([^\n]|$)/u.test(text), `${label} has bare CR`);

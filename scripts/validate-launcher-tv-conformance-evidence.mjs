@@ -1,20 +1,17 @@
+import { sourceTreeCommitment } from "./console-source-tree.mjs";
+import { launcherBaselines } from "./launcher-evidence-baselines.mjs";
+import { exactKeySet as exactKeys, normalizedSha256, sha256 } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
 import {
   LAUNCHER_TV_CLAIM_BOUNDARY,
   LAUNCHER_TV_EVIDENCE_FORMAT,
   LAUNCHER_TV_LIMITATIONS,
 } from "./generate-launcher-tv-conformance-evidence.mjs";
 import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_EVIDENCE_FORMAT,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
@@ -50,112 +47,9 @@ const provenancePaths = Object.freeze({
   validatorPath:
     "scripts/validate-launcher-tv-conformance-evidence.mjs",
 });
-const productionSourceTreeRoots = Object.freeze([
-  "package.json",
-  "pnpm-lock.yaml",
-  "pnpm-workspace.yaml",
-  "apps/console-lab/package.json",
-  "apps/console-lab/index.html",
-  "apps/console-lab/vite.config.ts",
-  "apps/console-lab/src",
-  "packages/game-manifest/src",
-  "packages/launcher-catalog/src",
-  "packages/motion-contract/src",
-  "packages/motion-web-bridge/src",
-  "packages/retro-firmware-contract/src",
-  "packages/retro-import-contract/src",
-]);
-const frozenScreenshots = Object.freeze({
-  "720p": Object.freeze({
-    path:
-      "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-720p.png",
-    bytes: 488422,
-    sha256:
-      "e78447b91324304e04480d7194eae73df6c046e4589fd61bcde7e90c6092621c",
-  }),
-  "1080p": Object.freeze({
-    path:
-      "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-1080p.png",
-    bytes: 895460,
-    sha256:
-      "ca48b95d2ea403341fa6d5895c19ee0e87883e83a0ba9da5d0e790d299edd79a",
-  }),
-  "4k": Object.freeze({
-    path:
-      "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-home-4k.png",
-    bytes: 2991866,
-    sha256:
-      "53d95aea67bbce7360fad479dc5012a577fcff25029bbdf38384ac66848d70d9",
-  }),
-});
-const observationExpectations = Object.freeze({
-  "720p": Object.freeze({
-    safeArea: Object.freeze({
-      left: 64,
-      top: 36,
-      right: 1216,
-      bottom: 684,
-    }),
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 51.688,
-    minimumActionTargetHeightCssPx: 48,
-  }),
-  "1080p": Object.freeze({
-    safeArea: Object.freeze({
-      left: 96,
-      top: 54,
-      right: 1824,
-      bottom: 1026,
-    }),
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 102.672,
-    minimumActionTargetHeightCssPx: 48,
-  }),
-  "4k": Object.freeze({
-    safeArea: Object.freeze({
-      left: 192,
-      top: 108,
-      right: 3648,
-      bottom: 2052,
-    }),
-    minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 161.906,
-    minimumActionTargetHeightCssPx: 60,
-  }),
-});
-const expectedRequestCounts = Object.freeze({
-  "/": 3,
-  "/assets/main-CLnxuYw1.js": 3,
-  "/assets/main-D0_6oU1A.css": 3,
-  "/assets/modulepreload-polyfill-Dezn_h7o.js": 3,
-  "/assets/src-DJk9Nbrx.js": 3,
-  "/assets/synthetic-BxnOr_Mh.js": 3,
-  "/assets/tracker-health-Di71DaQ3.js": 3,
-  "/fonts/InterVariable.woff2": 3,
-  "/fonts/OCRA.ttf": 3,
-});
-
-function exactKeys(value, expected, path) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${path} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
-
-function normalizedSha256(bytes) {
-  return createHash("sha256")
-    .update(bytes.toString("utf8").replaceAll("\r\n", "\n"))
-    .digest("hex");
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
+const frozenScreenshots = launcherBaselines.home.screenshots;
+const observationExpectations = launcherBaselines.home.measurements;
+const expectedRequestCounts = launcherBaselines.home.requestCounts;
 
 export async function expectedLauncherTvProvenance() {
   const entries = await Promise.all(
@@ -173,45 +67,6 @@ export async function expectedLauncherTvProvenance() {
     ]),
     ),
     productionSourceTree: await sourceTreeCommitment(),
-  };
-}
-
-async function collectSourceTreeFiles(path) {
-  const absolute = resolve(root, path);
-  const metadata = await stat(absolute);
-  if (metadata.isFile()) return [path.replaceAll("\\", "/")];
-  assert.equal(metadata.isDirectory(), true);
-  const entries = await readdir(absolute, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries
-      .sort((left, right) => left.name.localeCompare(right.name))
-      .map((entry) =>
-        collectSourceTreeFiles(
-          `${path.replaceAll("\\", "/")}/${entry.name}`,
-        )
-      ),
-  );
-  return nested.flat();
-}
-
-async function sourceTreeCommitment() {
-  const paths = (
-    await Promise.all(
-      productionSourceTreeRoots.map(collectSourceTreeFiles),
-    )
-  ).flat().sort();
-  const hash = createHash("sha256");
-  for (const path of paths) {
-    const bytes = await readFile(resolve(root, path));
-    hash.update(path);
-    hash.update("\0");
-    hash.update(bytes.toString("utf8").replaceAll("\r\n", "\n"));
-    hash.update("\0");
-  }
-  return {
-    roots: productionSourceTreeRoots,
-    fileCount: paths.length,
-    sha256: hash.digest("hex"),
   };
 }
 
@@ -369,7 +224,7 @@ export function validateLauncherTvConformanceEvidence(
     "artifact",
   );
   assert.equal(value.format, LAUNCHER_TV_EVIDENCE_FORMAT);
-  assert.equal(value.evidenceDate, TV_CONFORMANCE_EVIDENCE_DATE);
+  assert.equal(value.evidenceDate, launcherBaselines.home.observation.evidenceDate);
   assert.equal(
     value.evidenceClass,
     "windows-x64-headless-chrome-launcher-home-tv-conformance",
@@ -381,13 +236,14 @@ export function validateLauncherTvConformanceEvidence(
   assert.ok(Number.isFinite(Date.parse(value.retrievedAtUtc)));
   assert.ok(
     value.retrievedAtUtc.startsWith(
-      `${TV_CONFORMANCE_EVIDENCE_DATE}T`,
+      `${launcherBaselines.home.observation.evidenceDate}T`,
     ),
   );
 
   exactKeys(
     value.environment,
     [
+      "buildMode",
       "producerPlatform",
       "producerArchitecture",
       "nodeVersion",
@@ -398,10 +254,11 @@ export function validateLauncherTvConformanceEvidence(
     "artifact.environment",
   );
   assert.deepEqual(value.environment, {
+    buildMode: "lab",
     producerPlatform: "win32",
     producerArchitecture: "x64",
-    nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
+    nodeVersion: launcherBaselines.home.observation.environment.nodeVersion,
+    browserProduct: launcherBaselines.home.observation.environment.browserProduct,
     devicePixelRatio: 1,
     browserClock: "2026-07-24T19:00:00-07:00",
   });
@@ -446,7 +303,7 @@ export function validateLauncherTvConformanceEvidence(
     ],
     "artifact.browser",
   );
-  assert.equal(value.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
+  assert.equal(value.browser.browserProduct, launcherBaselines.home.observation.environment.browserProduct);
   assert.ok(Array.isArray(value.browser.observations));
   assert.equal(
     value.browser.observations.length,

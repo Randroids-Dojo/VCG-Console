@@ -1,5 +1,5 @@
+import { exactKeys, normalizedSha256, normalizedText } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -73,7 +73,6 @@ const sourceDefinitions = [
   ["oak-rgb-depth-candidate-boundary", "benchmarks/depth-comparison/oak-d-pro-w-rgb-depth-comparison-plan-v1.json"],
   ["orbbec-candidate-boundary", "benchmarks/orbbec/gemini-335l-linux-target-plan-v1.json"],
   ["realsense-candidate-boundary", "benchmarks/realsense/d455-linux-target-plan-v1.json"],
-  ["depth-option-research-boundary", "docs/RESEARCH.md"],
   ["prototype-acceptance-boundary", "docs/PROTOTYPE_SUCCESS_CRITERIA.md"],
   ["active-play-safety-boundary", "docs/ACTIVE_PLAY_SAFETY.md"],
   ["camera-capture-lighting-boundary", "benchmarks/camera-capture-policy/first-room-capture-policy-plan-v1.json"],
@@ -112,32 +111,6 @@ const requiredMeasurements = [
   "independent-fixture-depth-pose-action-and-participant-absent-ground-truth",
   "operator-stop-barrier-breach-discomfort-entry-damage-and-incident-ledger",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
-
-function normalizedText(bytes, label) {
-  let text;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
-  } catch (error) {
-    throw new Error(`${label} must be strict UTF-8`, { cause: error });
-  }
-  assert.ok(!text.startsWith("\uFEFF"), `${label} must not contain a UTF-8 BOM`);
-  assert.ok(!/\r(?!\n)/u.test(text), `${label} contains a bare carriage return`);
-  return text.replaceAll("\r\n", "\n");
-}
-
-function normalizedSha256(bytes, label) {
-  return createHash("sha256")
-    .update(Buffer.from(normalizedText(bytes, label), "utf8"))
-    .digest("hex");
-}
 
 async function validateSources(bindings, repositoryRoot) {
   assert.equal(bindings.length, sourceDefinitions.length, "source binding count drifted");

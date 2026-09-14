@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use std::str;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{self, SyncSender, TrySendError};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
@@ -25,6 +26,7 @@ const MAX_LIBRARY_PAGE_BYTES: usize = 65_536;
 const LIBRARY_CURSOR_BYTES: usize = 16;
 const READ_TIMEOUT: Duration = Duration::from_millis(500);
 const ACCEPT_POLL_INTERVAL: Duration = Duration::from_millis(10);
+const MAX_PENDING_BLUETOOTH_REQUESTS: usize = 1;
 const TOKEN_BYTES: usize = 32;
 pub const HOST_API_PROTOCOL_VERSION: &str = "0.1.0";
 
@@ -410,17 +412,38 @@ fn serve(
     services: &HostServices<'_>,
     stop: &AtomicBool,
 ) {
-    while !stop.load(Ordering::Acquire) {
-        match listener.accept() {
-            Ok((mut stream, _)) => {
-                let _ = handle_connection(&mut stream, allowed_origin, token, services);
+    thread::scope(|scope| {
+        // Bluetooth commands can take tens of seconds. One dedicated lane
+        // preserves their order without blocking launch cancellation or status.
+        // The bounded queue retains at most one waiting request and one active
+        // request. Shutdown finishes the bounded active command, drops queued
+        // work, and joins the worker before the service is released.
+        let (bluetooth_tx, bluetooth_rx) =
+            mpsc::sync_channel::<(TcpStream, Request)>(MAX_PENDING_BLUETOOTH_REQUESTS);
+        let bluetooth_worker = scope.spawn(move || {
+            while let Ok((mut stream, request)) = bluetooth_rx.recv() {
+                if stop.load(Ordering::Acquire) {
+                    break;
+                }
+                let _ = handle_request(&mut stream, allowed_origin, token, services, &request);
             }
-            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
-                thread::sleep(ACCEPT_POLL_INTERVAL);
+        });
+        while !stop.load(Ordering::Acquire) {
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    let _ = handle_connection(
+                        &mut stream, allowed_origin, token, services, &bluetooth_tx,
+                    );
+                }
+                Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                    thread::sleep(ACCEPT_POLL_INTERVAL);
+                }
+                Err(_) => break,
             }
-            Err(_) => break,
         }
-    }
+        drop(bluetooth_tx);
+        let _ = bluetooth_worker.join();
+    });
 }
 
 fn handle_connection(
@@ -428,12 +451,8 @@ fn handle_connection(
     allowed_origin: &str,
     token: &str,
     services: &HostServices<'_>,
+    bluetooth_tx: &SyncSender<(TcpStream, Request)>,
 ) -> io::Result<()> {
-    let HostServices {
-        launch_service,
-        bluetooth_service,
-        ..
-    } = *services;
     stream.set_read_timeout(Some(READ_TIMEOUT))?;
     stream.set_write_timeout(Some(READ_TIMEOUT))?;
     let request = match read_request(stream) {
@@ -454,36 +473,77 @@ fn handle_connection(
         return write_response(stream, 400, "Bad Request", allowed_origin, "");
     }
 
+    let bluetooth_request = match request.method.as_str() {
+        "GET" => request.path == "/v1/bluetooth",
+        "POST" => request.path == "/v1/bluetooth/scan"
+            || bluetooth_device_path(&request.path, "/pair").is_some(),
+        "DELETE" => bluetooth_device_path(&request.path, "").is_some(),
+        _ => false,
+    };
+    if bluetooth_request && services.bluetooth_service.is_some() {
+        if !authorized(&request, token) {
+            return write_response(stream, 401, "Unauthorized", allowed_origin, "");
+        }
+        return match bluetooth_tx.try_send((stream.try_clone()?, request)) {
+            Ok(()) => Ok(()),
+            Err(error) => write_json_error(
+                stream,
+                503,
+                "Service Unavailable",
+                allowed_origin,
+                if matches!(error, TrySendError::Full(_)) {
+                    "BLUETOOTH_BUSY"
+                } else {
+                    "BLUETOOTH_SERVICE_FAILED"
+                },
+            ),
+        };
+    }
+    handle_request(stream, allowed_origin, token, services, &request)
+}
+
+fn handle_request(
+    stream: &mut TcpStream,
+    allowed_origin: &str,
+    token: &str,
+    services: &HostServices<'_>,
+    request: &Request,
+) -> io::Result<()> {
+    let HostServices {
+        launch_service,
+        bluetooth_service,
+        ..
+    } = *services;
     match request.method.as_str() {
         "OPTIONS" => {
-            if request.origin.as_deref() != Some(allowed_origin) || !valid_preflight(&request) {
+            if request.origin.as_deref() != Some(allowed_origin) || !valid_preflight(request) {
                 return write_response(stream, 403, "Forbidden", allowed_origin, "");
             }
             write_response(stream, 204, "No Content", allowed_origin, "")
         }
         "GET" => {
-            if !authorized(&request, token) {
+            if !authorized(request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
             handle_read(stream, allowed_origin, services, &request.path)
         }
         "POST" if request.path == "/v1/launches" => {
-            if !authorized(&request, token) {
+            if !authorized(request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
-            write_launch_response(stream, allowed_origin, launch_service, &request)
+            write_launch_response(stream, allowed_origin, launch_service, request)
         }
         "POST"
             if request.path == "/v1/bluetooth/scan"
                 || bluetooth_device_path(&request.path, "/pair").is_some() =>
         {
-            if !authorized(&request, token) {
+            if !authorized(request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
-            write_bluetooth_post_response(stream, allowed_origin, bluetooth_service, &request)
+            write_bluetooth_post_response(stream, allowed_origin, bluetooth_service, request)
         }
         "DELETE" => {
-            if !authorized(&request, token) {
+            if !authorized(request, token) {
                 return write_response(stream, 401, "Unauthorized", allowed_origin, "");
             }
             if let Some(request_id) = request.path.strip_prefix("/v1/launches/") {
@@ -517,6 +577,17 @@ fn handle_read(
     } = *services;
     if path == "/v1/status" {
         return write_response(stream, 200, "OK", allowed_origin, &status_body(services));
+    }
+    if path == "/v1/profiles" {
+        let profile_ids = launch_service.map_or_else(Vec::new, NativeLaunchService::profile_ids);
+        if profile_ids.len() > crate::profile_registry::MAX_PROFILE_REGISTRY_ENTRIES {
+            return write_response(stream, 413, "Content Too Large", allowed_origin, "");
+        }
+        let body = serde_json::json!({
+            "protocolVersion": HOST_API_PROTOCOL_VERSION,
+            "profileIds": profile_ids,
+        });
+        return write_response(stream, 200, "OK", allowed_origin, &body.to_string());
     }
     if path == "/v1/library" {
         return write_library_response(stream, allowed_origin, library, None);
@@ -554,6 +625,7 @@ fn valid_preflight(request: &Request) -> bool {
     let valid_target = match method {
         "GET" => {
             request.path == "/v1/status"
+                || request.path == "/v1/profiles"
                 || request.path == "/v1/packages"
                 || request.path.starts_with("/v1/packages/")
                 || request.path.starts_with("/v1/launches/")
@@ -1978,6 +2050,25 @@ mod tests {
         );
         assert!(status.contains("\"trusted-package-launch\""));
 
+        let profiles = request(
+            &server,
+            &format!(
+                "GET /v1/profiles HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\n\r\n"
+            ),
+        );
+        assert!(profiles.starts_with("HTTP/1.1 200 OK\r\n"));
+        let profile_body = profiles.split_once("\r\n\r\n").expect("response body").1;
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(profile_body).expect("profile JSON"),
+            serde_json::json!({ "protocolVersion": "0.1.0", "profileIds": ["local-player"] })
+        );
+        let rejected_profiles = request(
+            &server,
+            &format!("GET /v1/profiles HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\n\r\n"),
+        );
+        assert!(rejected_profiles.starts_with("HTTP/1.1 401 Unauthorized\r\n"));
+        assert!(!rejected_profiles.contains("local-player"));
+
         let body = r#"{"protocolVersion":"0.1.0","requestId":"11111111111111111111111111111111","gameId":"retro-2048","profileId":"local-player"}"#;
         let launch_request = format!(
             "POST /v1/launches HTTP/1.1\r\nHost: 127.0.0.1\r\nOrigin: {ORIGIN}\r\nAuthorization: Bearer {token}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
@@ -2410,6 +2501,37 @@ mod tests {
             .expect("current directory exists")
             .join("missing-bluetoothctl");
         BluetoothPairingService::new(&missing).expect("absolute path is accepted")
+    }
+
+    #[test]
+    fn shutdown_joins_active_bluetooth_work_and_discards_queued_mutations() {
+        use crate::bluetooth::tests::{BlockedBluetooth, api_stream, blocking_service};
+        use std::sync::mpsc;
+        use std::thread;
+        use std::time::Duration;
+
+        let BlockedBluetooth { service, entered, release, calls } = blocking_service("scan");
+        let server = HostStatusServer::start_with_bluetooth(ORIGIN, service).expect("host starts");
+        let token = token_from(&server);
+        let _active = api_stream(server.address(), &token, "POST", "/v1/bluetooth/scan")
+            .expect("scan requested");
+        entered.recv_timeout(Duration::from_secs(5)).expect("scan starts");
+        let _queued = api_stream(server.address(), &token, "POST", "/v1/bluetooth/scan")
+            .expect("second scan queued");
+        assert!(library_status(&server, &token).starts_with("HTTP/1.1 200"));
+        // Set the same flag Drop uses before releasing the blocked command,
+        // avoiding a test that guesses when the shutdown thread was scheduled.
+        server.stop.store(true, Ordering::Release);
+        let (closed_tx, closed_rx) = mpsc::sync_channel(1);
+        let closing = thread::spawn(move || {
+            drop(server);
+            closed_tx.send(()).expect("shutdown observed");
+        });
+        assert!(closed_rx.try_recv().is_err(), "active command must be joined");
+        release.send(()).expect("active command completes");
+        closed_rx.recv_timeout(Duration::from_secs(5)).expect("host shuts down");
+        closing.join().expect("shutdown thread joins");
+        assert_eq!(calls.load(Ordering::SeqCst), 1, "queued mutation must not run");
     }
 
     /// One durable replay journal root, discarded with the test.

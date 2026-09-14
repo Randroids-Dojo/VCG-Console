@@ -7,9 +7,9 @@ const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const projectPath = join(repositoryRoot, "examples", "godot-motion-game");
 const godot = findGodot();
 const checks = [
+  ["editor import", ["--headless", "--editor", "--path", projectPath, "--import", "--quit"]],
   ["contract tests", ["--headless", "--path", projectPath, "--script", "tests/run_tests.gd"]],
-  ["editor import", ["--headless", "--editor", "--path", projectPath, "--quit"]],
-  ["main scene boot", ["--headless", "--path", projectPath, "--quit-after", "1"]],
+  ["main scene boot", ["--headless", "--path", projectPath, "--quit-after", "60"]],
 ];
 
 for (const [label, arguments_] of checks) {
@@ -17,6 +17,7 @@ for (const [label, arguments_] of checks) {
     cwd: repositoryRoot,
     encoding: "utf8",
     windowsHide: true,
+    timeout: 120_000,
   });
   const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
   if (output) process.stdout.write(output);
@@ -57,10 +58,10 @@ function findGodot() {
       encoding: "utf8",
       windowsHide: true,
     });
-    if (!version.error && version.status === 0) {
+    if (!version.error && version.status === 0 && /^4\.7\.\d+\.stable\./u.test(String(version.stdout).trim())) {
       console.log(`Using Godot ${String(version.stdout).trim()} from ${candidate}`);
       return candidate;
     }
   }
-  throw new Error("Godot 4.7 was not found. Install Godot or set GODOT_BIN to its executable.");
+  throw new Error("Godot 4.7 stable was not found. Install it or set GODOT_BIN to its executable.");
 }

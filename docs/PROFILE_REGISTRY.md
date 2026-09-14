@@ -1,5 +1,13 @@
 # Persistent Launch-Profile Registry
 
+The authenticated loopback API exposes `GET /v1/profiles` as a read-only
+`{ "protocolVersion": "0.1.0", "profileIds": [...] }` projection of the launch
+service's allowlist (at most 64 opaque IDs). Without a configured launch
+service it returns an empty list. It exposes no paths, credentials, portraits
+or inferred names. The appliance selects only those IDs; a browser profile
+rehearsal never grants native profile authority. Older hosts without this
+endpoint show profile selection as unavailable.
+
 Last updated: 2026-07-24
 
 Status: strict legacy v1 read-only launcher intake and a separate

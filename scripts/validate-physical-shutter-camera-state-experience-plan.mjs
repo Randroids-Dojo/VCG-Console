@@ -1,5 +1,5 @@
+import { exactKeys, normalizedSha256, normalizedText } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -133,8 +133,11 @@ const sourceDefinitions = [
   ["camera-state-status-audit", "docs/CAMERA_EXPOSURE_SHUTTER_STATUS_AUDIT_2026-07-25.md"],
   ["camera-state-implementation", "apps/console-lab/src/camera-state.ts"],
   ["camera-state-unit-proof", "apps/console-lab/src/camera-state.test.ts"],
-  ["motion-lab-camera-state-surface", "apps/console-lab/src/main.ts"],
-  ["motion-lab-camera-state-style", "apps/console-lab/src/styles.css"],
+  ["motion-lab-camera-state-surface", "apps/console-lab/src/motion-runtime.ts"],
+  ["motion-lab-camera-state-markup", "apps/console-lab/src/motion-markup.ts"],
+  ["motion-lab-camera-state-style", "apps/console-lab/src/styles/motion.css"],
+  ["motion-lab-camera-shared-tokens", "apps/console-lab/src/styles/base.css"],
+  ["motion-lab-camera-responsive-style", "apps/console-lab/src/styles/responsive.css"],
   ["camera-state-browser-proof", "apps/console-lab/tests/console-flow.spec.ts"],
   ["shared-camera-physical-check-boundary", "benchmarks/camera-qualification/shared-wide-angle-uvc-camera-plan-v1.json"],
   ["camera-geometry-reach-visibility-boundary", "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json"],
@@ -157,32 +160,6 @@ const requiredMeasurements = [
   "indicator-shutter-connector-service-and-recovery-reach-time-force-errors-assistance-and-discomfort",
   "participant-target-room-lighting-distance-angle-approach-operator-stop-and-incident-ledger",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
-
-function normalizedText(bytes, label) {
-  let text;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
-  } catch (error) {
-    throw new Error(`${label} must be strict UTF-8`, { cause: error });
-  }
-  assert.ok(!text.startsWith("\uFEFF"), `${label} must not contain a UTF-8 BOM`);
-  assert.ok(!/\r(?!\n)/u.test(text), `${label} contains a bare carriage return`);
-  return text.replaceAll("\r\n", "\n");
-}
-
-function normalizedSha256(bytes, label) {
-  return createHash("sha256")
-    .update(Buffer.from(normalizedText(bytes, label), "utf8"))
-    .digest("hex");
-}
 
 async function validateSources(bindings, repositoryRoot) {
   assert.equal(bindings.length, sourceDefinitions.length, "source binding count drifted");

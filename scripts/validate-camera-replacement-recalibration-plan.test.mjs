@@ -201,11 +201,11 @@ test("rejects unknown fields, duplicate keys, noncanonical JSON, BOM, invalid UT
 
     const invalid = resolve(directory, "invalid.json");
     await writeFile(invalid, Buffer.from([0xff]));
-    await assert.rejects(loadCameraReplacementRecalibrationPlan(invalid), /strict UTF-8/u);
+    await assert.rejects(loadCameraReplacementRecalibrationPlan(invalid), /not valid UTF-8/u);
 
     const bareCr = resolve(directory, "bare-cr.json");
     await writeFile(bareCr, sourceText.replace("\n", "\r"));
-    await assert.rejects(loadCameraReplacementRecalibrationPlan(bareCr), /bare carriage return/u);
+    await assert.rejects(loadCameraReplacementRecalibrationPlan(bareCr), /bare CR/u);
 
     const oversize = resolve(directory, "oversize.json");
     await writeFile(oversize, Buffer.alloc(192 * 1024 + 1, 0x20));

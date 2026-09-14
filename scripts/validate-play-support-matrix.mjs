@@ -1,3 +1,4 @@
+import { exactKeySet as exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -39,14 +40,6 @@ async function expectedProvenance() {
     generatorSha256: sha256(generator),
     validatorSha256: sha256(validator),
   };
-}
-
-function exactKeys(value, expected, path) {
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
 }
 
 export function validatePlaySupportMatrix(value, provenance) {

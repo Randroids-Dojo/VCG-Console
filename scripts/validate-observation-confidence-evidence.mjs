@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "./evidence-primitives.mjs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -49,10 +49,6 @@ const resultDigests = [
   "b023fa93825c998093d1c1a839960faa90f062b173ba89ce373f7c0339314a5c",
   "787b11070e149da306bf3b182a8f4b61634df5a141bc3f5154e6236d9d3b87e9",
 ];
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
 
 function canonicalTextSha256(bytes) {
   const text = bytes.toString("utf8").replace(/\r\n?/g, "\n");

@@ -49,17 +49,17 @@
     {
       "role": "usb3-ssd-first-storage-fallback-boundary",
       "path": "benchmarks/usb3-ssd-fallback/pi5-usb3-ssd-fallback-plan-v1.json",
-      "sha256": "1b6a56d3f618550ce831514c4df8582c72842e0ffef954332b4558ffcbe2da5d"
+      "sha256": "6a03072890b36db46d7992aeb1792b2ee8417b2a553750bfa1ff3f0f60c6e0a1"
     },
     {
       "role": "complete-system-value-and-lifecycle-boundary",
       "path": "benchmarks/system-economics/complete-system-economics-plan-v1.json",
-      "sha256": "0e5fac8df3e3e60f14cf246829f28975edb06662e64af0b8849b3072ec8cf6bb"
+      "sha256": "5438f6babe4fed0d24b67f9a57d3741ecd3c5f1369c56578671807593b8f1ad4"
     },
     {
       "role": "pi5-complete-product-and-cost-contract",
       "path": "benchmarks/cross-tier-reference/pi5-x86-product-contract-plan-v1.json",
-      "sha256": "75c47714fb5d0b3542cdada75b3afc0440084d608755002596bc9b90db015aa8"
+      "sha256": "1b037b411f81c98ef24dcfa873a335d192d7540a63c129f5e27fe46c9471dfc6"
     },
     {
       "role": "current-reference-bom-and-no-purchase-boundary",

@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -50,10 +51,6 @@ const expectedImmutableKeys = [
   "dataExclusionScanSha256",
 ];
 const forbiddenKeyPattern = /(password|secret|credential|privatekey|wifissid)/iu;
-
-function exactKeys(value, expected, label) {
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function rejectForbiddenKeys(value, path = "plan") {
   if (Array.isArray(value)) {

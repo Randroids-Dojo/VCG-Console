@@ -601,6 +601,13 @@ impl NativeLaunchService {
         }
     }
 
+    /// Stable opaque IDs accepted by this service, for authenticated selection.
+    pub(crate) fn profile_ids(&self) -> Vec<&str> {
+        let mut ids: Vec<_> = self.allowed_profiles.iter().map(String::as_str).collect();
+        ids.sort_unstable();
+        ids
+    }
+
     fn validate_launch_intent(
         &self,
         request_id: &str,

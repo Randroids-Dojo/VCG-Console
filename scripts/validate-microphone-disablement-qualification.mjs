@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -140,11 +141,6 @@ export const MICROPHONE_DISABLEMENT_PHASES = Object.freeze([
   "recovery-mode-and-return",
   "factory-reset-and-reprovision",
 ]);
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function normalizedDigest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

@@ -1,18 +1,19 @@
 {
   "format": "vcg-launcher-search-tv-conformance-evidence/v1",
-  "evidenceDate": "2026-08-20",
+  "evidenceDate": "2026-09-13",
   "evidenceClass": "windows-x64-headless-chrome-launcher-search-tv-conformance",
   "qualification": "candidate-eight-search-states-with-local-no-result-recovery-and-five-activation-classes-with-remote-unavailable-and-destructive-failure-denial-only-not-tv-target-or-catalog-qualification",
-  "retrievedAtUtc": "2026-08-20T20:59:12.906Z",
+  "retrievedAtUtc": "2026-09-13T20:32:18.321Z",
   "baseRepresentativeEvidence": {
     "format": "vcg-launcher-representative-surfaces-tv-conformance-evidence/v1",
-    "sha256": "4c49d711c4740f5cf6af97e8359bad70dfbe437dd6d60e543c276c9600ebc0fa"
+    "sha256": "08bea263a47a83ca3ec7fcf1fc31b1abb8ca3c8ff76eb192cc9df4b1bf5673a1"
   },
   "environment": {
+    "buildMode": "lab",
     "producerPlatform": "win32",
     "producerArchitecture": "x64",
     "nodeVersion": "v24.18.0",
-    "browserProduct": "Chrome/151.0.7922.138",
+    "browserProduct": "Chrome/152.0.7977.83",
     "devicePixelRatio": 1,
     "browserClock": "2026-07-24T19:00:00-07:00"
   },
@@ -299,7 +300,7 @@
     ]
   },
   "browser": {
-    "browserProduct": "Chrome/151.0.7922.138",
+    "browserProduct": "Chrome/152.0.7977.83",
     "observations": [
       {
         "state": "motion-results",
@@ -347,8 +348,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-720p.png",
-          "bytes": 127750,
-          "sha256": "9c891195ea6dd560a1f75c9a640e0bcfb19fbc41790f8c4fdc46525eaf5f2f69"
+          "bytes": 129397,
+          "sha256": "2f32811d7bf164be74811e0d24386de36a0332c1d6a7de6003abe0daefdabc43"
         }
       },
       {
@@ -413,8 +414,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-720p.png",
-          "bytes": 124115,
-          "sha256": "683522332ad52b8392efdaeec4a0f1acea33ccf0ae52580c904fb52d765f904f"
+          "bytes": 126356,
+          "sha256": "919f4c315e2ba8b3e5cb858a6e22e720fff0388defa9f1dc93f95e8ee1f96430"
         }
       },
       {
@@ -477,8 +478,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-720p.png",
-          "bytes": 142086,
-          "sha256": "90bbfb82e8a31c8142bcbf02db233aed9e42d59cf0effe502388a49dedaedb38"
+          "bytes": 143478,
+          "sha256": "79fc584c68a95dbffcc6393431b72b74d223ccac87fb22e5fb49c91241ca6059"
         }
       },
       {
@@ -540,8 +541,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-720p.png",
-          "bytes": 125607,
-          "sha256": "a53432a6be8a4caed7081912d521c59c45d9d57a126ebb88dda728888a79f0f1"
+          "bytes": 128133,
+          "sha256": "7c6b506c56c3d9f4d0e1d81d372bbda95f31a83842de891360badc5f035ae96e"
         }
       },
       {
@@ -619,8 +620,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-720p.png",
-          "bytes": 129530,
-          "sha256": "8032d2de8b6883b12bbc5357f5b22ffe1d34ac1e695af3c3c4aa01e79fede547"
+          "bytes": 132130,
+          "sha256": "6155cdf7c8af90fe12c4d550d6547df6cb953e3dc86eb27d688251c6dd9cc104"
         }
       },
       {
@@ -697,8 +698,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-720p.png",
-          "bytes": 129530,
-          "sha256": "8032d2de8b6883b12bbc5357f5b22ffe1d34ac1e695af3c3c4aa01e79fede547"
+          "bytes": 132130,
+          "sha256": "6155cdf7c8af90fe12c4d550d6547df6cb953e3dc86eb27d688251c6dd9cc104"
         }
       },
       {
@@ -770,8 +771,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-720p.png",
-          "bytes": 125181,
-          "sha256": "6285d84bb5cc5a8d32ea4a4f995c8f4be2a8d7870f0706e2bc269d9526457a8c"
+          "bytes": 127720,
+          "sha256": "c305c45b3acebd71a4d678470fcd866616563bc75bf1ea7c04d648d5bbea937d"
         }
       },
       {
@@ -854,8 +855,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-720p.png",
-          "bytes": 131224,
-          "sha256": "31307c84d6cf3c52aede09a3eb0834c40f42e84c8e23de7f513d81e4adbb32aa"
+          "bytes": 133792,
+          "sha256": "5e939687c906750d2d26bd38ea41efae88519c455b6fadbbd66cc177857a1de4"
         }
       },
       {
@@ -904,8 +905,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-1080p.png",
-          "bytes": 241537,
-          "sha256": "030b54cd6055a5f0c42d4f7d7c170e8c809cdfa183f2cde909fa09171c6ccc69"
+          "bytes": 231282,
+          "sha256": "f6ad6224f683cd9494be7f4512cc5c2f5e63e7461e201843600b3e75dd7925c8"
         }
       },
       {
@@ -970,8 +971,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-1080p.png",
-          "bytes": 227254,
-          "sha256": "a9e7d1056f6d972651df1250cd7dde78d5de077cbfe3bc91523c33dbae54be62"
+          "bytes": 217721,
+          "sha256": "5d87dae1255cd1247cc324938fd8a749998b37890d616d2b7b550ddebc3c3cb3"
         }
       },
       {
@@ -1034,8 +1035,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-1080p.png",
-          "bytes": 286546,
-          "sha256": "2b8067296f2805d0031837a9dab564bddce8ca2b448abdffc833e396eb386a38"
+          "bytes": 280240,
+          "sha256": "90490dff2a866c700da0b028060a320d0b0e086560916766c2e73f379986c876"
         }
       },
       {
@@ -1097,8 +1098,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-1080p.png",
-          "bytes": 215342,
-          "sha256": "1a6b01a7318f2205cdbf87d48bb458355a32cfa64ee3334a22d3cd5fc065133f"
+          "bytes": 208594,
+          "sha256": "24717e04e5f767bc15b85a583426d82736068ffcbe8cd0208d80a3f260d9ed85"
         }
       },
       {
@@ -1176,8 +1177,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-1080p.png",
-          "bytes": 220067,
-          "sha256": "a92c2a12646cab469614117497e39fd255dda59314a4d2bc503bd78d62da6321"
+          "bytes": 212917,
+          "sha256": "97564d7f3547d26f4e6fdd50d24bc36042860efdb58c4e57b3a9ecdbf7452b05"
         }
       },
       {
@@ -1254,8 +1255,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-1080p.png",
-          "bytes": 220067,
-          "sha256": "a92c2a12646cab469614117497e39fd255dda59314a4d2bc503bd78d62da6321"
+          "bytes": 212917,
+          "sha256": "97564d7f3547d26f4e6fdd50d24bc36042860efdb58c4e57b3a9ecdbf7452b05"
         }
       },
       {
@@ -1327,8 +1328,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-1080p.png",
-          "bytes": 215285,
-          "sha256": "61ef792b73aa5bb0a99cc76ac1af4535f5a5e9f016e2a6184e864bba8d9ff007"
+          "bytes": 208598,
+          "sha256": "603c3412dfada3e56b71ace6354c71b65d7904f915c9f724585155c90d74698d"
         }
       },
       {
@@ -1411,8 +1412,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-1080p.png",
-          "bytes": 222992,
-          "sha256": "c23a1fda47b41cf21af142acb745a51b507a9ec70f3dfe1948e09fb8bbb7ea66"
+          "bytes": 216594,
+          "sha256": "f3b1a1a6bd76f68ccc5d692e8735ca2447a00a22b6a788ad897c8878d166c946"
         }
       },
       {
@@ -1461,8 +1462,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-motion-results-4k.png",
-          "bytes": 635912,
-          "sha256": "433495974052bcfeb8dd1d58f27dc578934785d70a962fdb3ff4c54d4ef09156"
+          "bytes": 619349,
+          "sha256": "6fef86b4644435c1d23c0b4dbbe69a41c445833efd828f15b497e36f14c90bc7"
         }
       },
       {
@@ -1527,8 +1528,8 @@
         },
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-no-results-4k.png",
-          "bytes": 605336,
-          "sha256": "bcbca5db577e1e4a9164d05a99dc47e433f49677177e09dd7c4388707e448631"
+          "bytes": 589580,
+          "sha256": "cfa541909fb64a0a06ea8cd6d707deee225423904dd37f351c197703ed98798a"
         }
       },
       {
@@ -1591,8 +1592,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-empty-query-scroll-activation-4k.png",
-          "bytes": 813590,
-          "sha256": "5d7abf2a8b272f45b7ba0e7395a1727da716ffe655fe2fc00199d4ab1a7966c0"
+          "bytes": 797208,
+          "sha256": "5fe92f6c4e8269e9734ea70434a8c976c648e64dfc522fa8c051cef30a62f71e"
         }
       },
       {
@@ -1654,8 +1655,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-offline-package-activation-4k.png",
-          "bytes": 580286,
-          "sha256": "54ad3e12145d703bbd0280589097ffe1c297dcc4c50662ed3838dd346c21d60e"
+          "bytes": 563900,
+          "sha256": "efda2224883e58f994018222f2842b55bf1176eb6fc1f62e1cf38727582ebba3"
         }
       },
       {
@@ -1733,8 +1734,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-ready-denial-4k.png",
-          "bytes": 590183,
-          "sha256": "b5a079f446e464f0ec7dca3d31d4979c29e303d2d115a973e391dfdab4b37143"
+          "bytes": 572846,
+          "sha256": "b9d3d2da0ff2fc7fab365be5fe16c39375a7e91530021ce6daa13c9b2c20ade2"
         }
       },
       {
@@ -1811,8 +1812,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-remote-web-offline-failure-4k.png",
-          "bytes": 590183,
-          "sha256": "b5a079f446e464f0ec7dca3d31d4979c29e303d2d115a973e391dfdab4b37143"
+          "bytes": 572846,
+          "sha256": "b9d3d2da0ff2fc7fab365be5fe16c39375a7e91530021ce6daa13c9b2c20ade2"
         }
       },
       {
@@ -1884,8 +1885,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-unavailable-package-denial-4k.png",
-          "bytes": 581052,
-          "sha256": "160922738a7b6e6648cfac87d46b8455537a03df9bba9588d878637e31bb2d74"
+          "bytes": 564662,
+          "sha256": "cf20f135a8a74fdd807ce39e5491dcece5fd11e9a74a9e4f4d6afb215f103cfa"
         }
       },
       {
@@ -1968,8 +1969,8 @@
         "recovery": null,
         "screenshot": {
           "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-search-destructive-settings-denial-4k.png",
-          "bytes": 595289,
-          "sha256": "723f8794f3e9e21a69418a4292d6cf10aa27ded55622a9d92ccbb5d05f98b0d1"
+          "bytes": 577927,
+          "sha256": "624c66befbcf512146f0f46f3b3a61b0ef1c13d9b81c8f56593e953dfeefcf1d"
         }
       }
     ],
@@ -1978,8 +1979,8 @@
     "requestFailureCount": 0,
     "requestCounts": {
       "/": 24,
-      "/assets/main-CLnxuYw1.js": 24,
-      "/assets/main-D0_6oU1A.css": 24,
+      "/assets/main-deFNbEJb.js": 24,
+      "/assets/main-DOgcZELa.css": 24,
       "/assets/modulepreload-polyfill-Dezn_h7o.js": 24,
       "/assets/src-DJk9Nbrx.js": 24,
       "/assets/synthetic-BxnOr_Mh.js": 24,
@@ -2035,7 +2036,7 @@
   },
   "provenance": {
     "launcherPath": "apps/console-lab/src/launcher/Launcher.svelte",
-    "launcherPathSha256": "e8355fe0f1787b3600716ef7ac2be6a121ae63d0110e76395dee024c1529cd2d",
+    "launcherPathSha256": "c5c49b6e29299557b6e4db9f79f77048aad2b2cce8caafaf7ba23bc70579104a",
     "searchPath": "apps/console-lab/src/launcher/SearchOverlay.svelte",
     "searchPathSha256": "26f8e2ac15de466cf184186095a3a2ad6f98da22877be29d6928e39f37dccc8b",
     "unassignedViewPath": "apps/console-lab/src/launcher/UnassignedProgressView.svelte",
@@ -2043,25 +2044,28 @@
     "unassignedControllerPath": "apps/console-lab/src/launcher/unassigned-progress.ts",
     "unassignedControllerPathSha256": "92ddc58cacfad89293ba5931cc3040e7a9c1554a94ade975ea6ef60d905e59b7",
     "stylePath": "apps/console-lab/src/styles.css",
-    "stylePathSha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a",
+    "stylePathSha256": "c750140bfcc9b5376d2f8f6e8f7c111631a38657d4011366448a5245a3002da4",
     "entryPath": "apps/console-lab/src/main.ts",
-    "entryPathSha256": "ac1194d51d873bc055c89d766b38ad433544c9d55be85c3203848ff438656e1a",
+    "entryPathSha256": "343384ac1778e261a2e6eba9d477c16378df2008a2681dee965b124aa6038402",
     "documentPath": "apps/console-lab/index.html",
     "documentPathSha256": "89b0ef86dcec75257c7e38ef13599b4ab7c05c4aa00fad63c973f12ba9064d7d",
     "viteConfigPath": "apps/console-lab/vite.config.ts",
-    "viteConfigPathSha256": "be16fdb8394c951021934017f7701757af850fa95c98b0dc12eca23602c72e07",
+    "viteConfigPathSha256": "74ed88c51d8feaa11020e651fe39707621de25ac320f188d9c5fc0c8e75b5ef3",
     "browserTestPath": "apps/console-lab/tests/tv-conformance.spec.ts",
-    "browserTestPathSha256": "306e143c34cd72672ec51aeac253dca9daeda7f9830bd7843472cbb842ebfc5d",
+    "browserTestPathSha256": "bd7514c823a5f79ec5b21f78bf23555bf82172904b27288ec5253eefd1d8c57d",
     "representativeEvidencePath": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-    "representativeEvidencePathSha256": "4c49d711c4740f5cf6af97e8359bad70dfbe437dd6d60e543c276c9600ebc0fa",
+    "representativeEvidencePathSha256": "08bea263a47a83ca3ec7fcf1fc31b1abb8ca3c8ff76eb192cc9df4b1bf5673a1",
     "commonGeneratorPath": "scripts/generate-launcher-tv-conformance-evidence.mjs",
-    "commonGeneratorPathSha256": "44f61020f066b1af6815dd811779e2f5707e590430e6a9088fee3ba800c048ca",
+    "commonGeneratorPathSha256": "6aa89dd0020d82dfc013d6568bf7caf38689ebda241101d7f6c917e1b0a8583e",
     "generatorPath": "scripts/generate-launcher-search-tv-evidence.mjs",
-    "generatorPathSha256": "c3a1ad5d994a8a84d01122cb45b2fe020bd559845d9fb4ea7250a3c03c20409d",
+    "generatorPathSha256": "a4d982839b130d76c98ad341c67e68e32fc05dc6794654f7e6b38cd817e09446",
     "validatorPath": "scripts/validate-launcher-search-tv-evidence.mjs",
-    "validatorPathSha256": "4e5f1ab7f2c0943eece853d3d744f0a3982b1550f074655be90642a05de6bb3c",
+    "validatorPathSha256": "287c1df415fe7c8c603900b8ed74822e0311e1fe91af4180b581cd5e376c7f06",
     "productionSourceTree": {
       "roots": [
+        "scripts/console-server.mts",
+        "scripts/console-response-headers.mts",
+        "scripts/console-source-tree.mjs",
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
@@ -2076,11 +2080,11 @@
         "packages/retro-firmware-contract/src",
         "packages/retro-import-contract/src"
       ],
-      "fileCount": 168,
-      "sha256": "c7658d00c18ba8b94423e05e7d3fb38d2e9eb00c95bc9bb0708fa5c55b1fd4b7"
+      "fileCount": 145,
+      "sha256": "95645bda3c2068877383dfcb504d34f27b804ec379f45c67e429fc687e85325f"
     }
   },
-  "claimBoundary": "One Windows x64 installed-Chrome production-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
+  "claimBoundary": "One Windows x64 installed-Chrome optimized lab-build desk run proves that the explicitly marked five-result Motion query, fixed no-result query with local recovery actions, current 26-destination empty query, exact one-result Obstacle query, exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure states, exact one-result 2048 unavailable-package query, and exact one-result destructive Unassigned progress query satisfy the candidate five-percent CSS safe inset, 24 CSS-pixel visible critical-text floor, 48 CSS-pixel action floor, non-overlap, bounded overlay overflow, and exact interaction traces at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. The no-result state proves ArrowDown reaches explicit Clear search, clearing restores the current 26-result empty query with input focus, and the fixed Motion category shortcut produces five local results with the first result focused before Back restores the Search opener. The empty-query state measures internal overflow and scroll-to-last focus at all three resolutions; the 26-destination list no longer fits one 4K screen. At all three resolutions it keyboard-activates the local Profiles destination, offline local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and Unassigned progress route. The remote states prove the fixed origin disclosure, contained blocked-popup denial, offline failure, Retry availability, and Back focus recovery without opening or qualifying remote content. The unavailable state proves signed-inventory refusal, a closed diagnostic code, Retry visibility, and Back focus recovery without contacting a package runtime. The destructive state proves Cancel receives initial confirmation focus, controller Back denies the exact in-memory Obstacle deletion, retains the entry, restores the destructive action focus, and returns to focused Profiles navigation without a filesystem or native mutation. It does not select the final empty-query or no-result product policy, qualify arbitrary localization or query text, add fuzzy or network suggestions, execute or qualify destructive storage, completed gameplay, remote content, a signed package, every launcher state, a physical television or controller, reserved Home action, native host, target Linux compositor, output mode, overscan, seating-distance legibility, audio, animation smoothness, or frame pacing.",
   "limitations": [
     "Only eight exact Search states were measured: the five-result lowercase Motion query, one fixed no-result query with Clear/Motion recovery, the current 26-destination empty query, the lowercase one-result Obstacle query, the exact one-result VibeCoded Museum query in ready/blocked-preview and offline-failure modes, the exact one-result 2048 unavailable-package query, and the exact one-result destructive Unassigned progress query. Clear currently returns to the measured 26-result empty query, and the recovery categories are fixed local substring queries, not final density, taxonomy, ranking, spelling, or localization policy. Arbitrary text, localization, voice input, fuzzy/network suggestions, every other catalog revision, and every other overlay remain outside this artifact.",
     "The activated results were limited to the local Profiles shell destination, built-in local-web Obstacle launch surface, remote-web Museum supervisor, unavailable 2048 retro-package supervisor, and synthetic Unassigned progress route, using programmatic focus followed by keyboard Enter and bounded Back recovery. The remote states expose only the fixed origin, fail closed while offline, and deliberately force the separate browser preview to be blocked; no remote page opens and no remote title, gameplay, reachability, containment, controller behavior, or catalog compatibility is qualified. The unavailable state proves only launcher refusal of an absent signed release; no package or native host is qualified. The destructive state cancels one in-memory sample deletion and does not qualify a native save broker, filesystem mutation, persistence, power-loss behavior, or permanent-loss semantics.",

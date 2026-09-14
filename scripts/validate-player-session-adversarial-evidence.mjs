@@ -1,5 +1,5 @@
+import { exactKeySet as exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -99,15 +99,6 @@ const FORBIDDEN_REPORT_KEYS = new Set([
   "rawFrame",
   "rawFrames",
 ]);
-
-function exactKeys(value, expected, path) {
-  assertObject(value, path);
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
 
 function assertObject(value, path) {
   assert.ok(

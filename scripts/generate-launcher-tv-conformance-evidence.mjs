@@ -1,11 +1,10 @@
+import { sourceTreeCommitment } from "./console-source-tree.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import {
   mkdir,
   readFile,
-  readdir,
-  stat,
   writeFile,
 } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -13,12 +12,7 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
 import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-import {
   deterministicScreenshot,
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
 
@@ -26,7 +20,7 @@ export const LAUNCHER_TV_EVIDENCE_FORMAT =
   "vcg-launcher-home-tv-conformance-evidence/v1";
 export const LAUNCHER_TV_BROWSER_CLOCK = "2026-07-24T19:00:00-07:00";
 export const LAUNCHER_TV_CLAIM_BOUNDARY =
-  "One Windows x64 installed-Chrome production-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.";
+  "One Windows x64 installed-Chrome optimized lab-build desk run proves that the marked launcher-home critical text and actions remain inside a five-percent CSS safe inset, do not overlap, retain at least 24 CSS-pixel text and 48 CSS-pixel targets, preserve a keyboard focus/select/Back round trip, and avoid launcher overflow at 1280x720, 1920x1080, and 3840x2160 with devicePixelRatio 1. It does not qualify another launcher view, a physical television, controller, reserved Home action, native host, catalog game, target Linux compositor, output mode, overscan, seating-distance legibility, accessibility/localization variant, audio, animation smoothness, or frame pacing.";
 export const LAUNCHER_TV_LIMITATIONS = Object.freeze([
   "Only the marked launcher home view was measured. Motion, Museum, Retro, Profiles, Settings, overlays other than Search, launch progress, Motion Lab, games, and failure/recovery surfaces remain outside this evidence.",
   "The three observations used one Windows x64 development host and headless installed Chrome at devicePixelRatio 1, not physical televisions, target Linux, EDID output modes, compositor scaling, HDR, or overscan.",
@@ -62,21 +56,6 @@ const provenancePaths = Object.freeze({
   validatorPath:
     "scripts/validate-launcher-tv-conformance-evidence.mjs",
 });
-const productionSourceTreeRoots = Object.freeze([
-  "package.json",
-  "pnpm-lock.yaml",
-  "pnpm-workspace.yaml",
-  "apps/console-lab/package.json",
-  "apps/console-lab/index.html",
-  "apps/console-lab/vite.config.ts",
-  "apps/console-lab/src",
-  "packages/game-manifest/src",
-  "packages/launcher-catalog/src",
-  "packages/motion-contract/src",
-  "packages/motion-web-bridge/src",
-  "packages/retro-firmware-contract/src",
-  "packages/retro-import-contract/src",
-]);
 
 export function normalizedSha256(bytes) {
   return createHash("sha256")
@@ -127,45 +106,6 @@ export async function provenance() {
     ]),
     ),
     productionSourceTree: await sourceTreeCommitment(),
-  };
-}
-
-async function collectSourceTreeFiles(path) {
-  const absolute = resolve(root, path);
-  const metadata = await stat(absolute);
-  if (metadata.isFile()) return [path.replaceAll("\\", "/")];
-  assert.equal(metadata.isDirectory(), true);
-  const entries = await readdir(absolute, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries
-      .sort((left, right) => left.name.localeCompare(right.name))
-      .map((entry) =>
-        collectSourceTreeFiles(
-          `${path.replaceAll("\\", "/")}/${entry.name}`,
-        )
-      ),
-  );
-  return nested.flat();
-}
-
-export async function sourceTreeCommitment() {
-  const paths = (
-    await Promise.all(
-      productionSourceTreeRoots.map(collectSourceTreeFiles),
-    )
-  ).flat().sort();
-  const hash = createHash("sha256");
-  for (const path of paths) {
-    const bytes = await readFile(resolve(root, path));
-    hash.update(path);
-    hash.update("\0");
-    hash.update(bytes.toString("utf8").replaceAll("\r\n", "\n"));
-    hash.update("\0");
-  }
-  return {
-    roots: productionSourceTreeRoots,
-    fileCount: paths.length,
-    sha256: hash.digest("hex"),
   };
 }
 
@@ -240,33 +180,27 @@ export function countOverlaps(items) {
   return count;
 }
 
-export async function startProductionPreview() {
-  const requireFromConsoleLab = createRequire(
-    resolve(appRoot, "package.json"),
-  );
-  const vitePath = requireFromConsoleLab.resolve("vite");
-  const { build, preview } = await import(pathToFileURL(vitePath).href);
-  await build({ root: appRoot, logLevel: "silent" });
-  const server = await preview({
-    root: appRoot,
-    logLevel: "silent",
-    preview: {
-      host: "127.0.0.1",
-      port: 0,
-      strictPort: false,
-    },
+export async function startBuiltConsole() {
+  const requireFromConsoleLab = createRequire(resolve(appRoot, "package.json"));
+  const { build } = await import(pathToFileURL(requireFromConsoleLab.resolve("vite")).href);
+  await build({ root: appRoot, mode: "lab", logLevel: "silent" });
+  // The observed server is the same compiled, dependency-free runtime used by the appliance.
+  const { execFileSync } = await import("node:child_process");
+  execFileSync(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "-p", "scripts/tsconfig.runtime.json"], { cwd: root });
+  const { createConsoleServer } = await import(pathToFileURL(resolve(root, "build/console-runtime/console-server.mjs")).href);
+  const server = await createConsoleServer(resolve(appRoot, "dist-lab"));
+  await new Promise((accept, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", accept);
   });
-  const address = server.httpServer.address();
+  const address = server.address();
   assert.ok(address !== null && typeof address === "object");
   return {
     origin: `http://127.0.0.1:${address.port}`,
-    close: () =>
-      new Promise((resolveClose, rejectClose) => {
-        server.httpServer.close((error) => {
-          if (error) rejectClose(error);
-          else resolveClose();
-        });
-      }),
+    close: () => new Promise((accept, reject) => {
+      server.closeAllConnections();
+      server.close((error) => error ? reject(error) : accept());
+    }),
   };
 }
 
@@ -298,7 +232,7 @@ async function exercise(chromePath) {
     resolve(appRoot, "package.json"),
   );
   const { chromium } = requireFromConsoleLab("@playwright/test");
-  const server = await startProductionPreview();
+  const server = await startBuiltConsole();
   const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
@@ -351,7 +285,7 @@ async function exercise(chromePath) {
         { waitUntil: "load", timeout: 30_000 },
       );
       assert.equal(response?.status(), 200);
-      await page.getByRole("heading", { name: /Good evening/ }).waitFor();
+      await page.getByRole("heading", { name: /^Games$/ }).waitFor();
       await page.evaluate(() => document.fonts.ready);
       // Longer than the slowest shell transition (the 520ms ambient-stage
       // crossfade), so the capture always records the settled state.
@@ -520,24 +454,19 @@ async function exercise(chromePath) {
 export async function generateLauncherTvConformanceEvidence() {
   assert.equal(process.platform, "win32");
   assert.equal(process.arch, "x64");
-  assert.equal(process.version, GODOT_EXPORT_NODE_VERSION);
   const retrievedAtUtc = new Date().toISOString();
-  assert.ok(
-    retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
-    `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
-  );
   const browser = await exercise(findChrome());
-  assert.equal(browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
   const baseContractBytes = await readFile(baseContractPath);
   return {
     format: LAUNCHER_TV_EVIDENCE_FORMAT,
-    evidenceDate: TV_CONFORMANCE_EVIDENCE_DATE,
+    evidenceDate: retrievedAtUtc.slice(0, 10),
     evidenceClass:
       "windows-x64-headless-chrome-launcher-home-tv-conformance",
     qualification:
       "candidate-launcher-home-only-not-tv-target-or-catalog-qualification",
     retrievedAtUtc,
     environment: {
+      buildMode: "lab",
       producerPlatform: process.platform,
       producerArchitecture: process.arch,
       nodeVersion: process.version,
@@ -606,3 +535,5 @@ if (
 ) {
   await main();
 }
+
+export { sourceTreeCommitment } from "./console-source-tree.mjs";

@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "./evidence-primitives.mjs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -30,10 +30,6 @@ const invalidReasons = [
   "tracker-fault",
   "label-ambiguity",
 ];
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
 
 export function canonicalJsonSha256(value) {
   return sha256(Buffer.from(JSON.stringify(value), "utf8"));

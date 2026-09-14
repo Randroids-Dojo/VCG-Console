@@ -12,7 +12,7 @@ This is the practical guide to running the desk prototype, verifying a change, a
 ## Run the desk prototype
 
 ```sh
-pnpm install
+pnpm install --frozen-lockfile
 pnpm prepare:assets
 pnpm prepare:catalog
 pnpm prepare:schemas
@@ -26,9 +26,30 @@ The camera is asked for the low-power 640x480 at 30 FPS mode by default, because
 To serve a built console instead of the dev server, use `pnpm serve`. It applies the same cross-origin isolation, CSP, and camera permission policy as the dev server; a plain static file server returns the same bytes without them and silently breaks threaded inference and the camera. `pnpm serve` runs in the foreground like `pnpm dev`, so start it in its own terminal, then check it from another:
 
 ```sh
-pnpm serve                    # separate terminal, stays running
+pnpm build                    # appliance assets and standalone Node runtime
+pnpm serve                    # separate terminal, stays running on 127.0.0.1:4173
 pnpm verify:console-headers   # checks the server started above
 ```
+
+`pnpm build` produces the appliance in `apps/console-lab/dist` and its Node-only
+server and header probe in `build/console-runtime`. Startup reads those files;
+it does not invoke Vite, compile TypeScript, or write to `node_modules`. The Pi
+service keeps its filesystem read-only. `pnpm dev` explicitly uses lab mode;
+for a built lab use `pnpm build:lab` and `pnpm serve:lab` (`dist-lab`). Hostile
+bridge fixtures, synthetic profile/progress administration, launch-state
+previews and calibration rehearsals belong to this lab output. URL parameters
+cannot enable them in the appliance. Saved appliance profiles come from the
+authenticated host's read-only `/v1/profiles` endpoint; absent host profiles do
+not create browser-owned IDs. Built-in games remain usable as Guest.
+
+Python backend checks use isolated frozen environments: from `experiments/rtmo`,
+run `uv sync --frozen --extra rtmo` (or `--extra mediapipe`), then
+`uv run --frozen --extra rtmo python check_environment.py rtmo` and
+`uv run --frozen --extra rtmo python -m unittest`. Use matching extras for the
+MediaPipe environment. The exact RTMLib OpenCV metadata correction is explained
+in `pyproject.toml`. `pnpm validate:godot` runs the Godot 4.7 sample import,
+contract tests and scene smoke. CI covers both backends and Godot on Linux and
+Windows; engine executables must be available locally.
 
 ## Verification commands
 
@@ -50,7 +71,41 @@ cargo run -p vcg-host -- watchdog --dry-run --heartbeat-file /tmp/vcg-game.heart
 cargo run -p vcg-host -- help
 ```
 
-`pnpm test` runs the full JavaScript/TypeScript suite; `pnpm native:verify` runs `cargo fmt`, `cargo clippy -D warnings`, and `cargo test` across the Rust workspace. There are many more `pnpm validate:*` scripts than are listed above — see `package.json` for the complete set, one per evidence contract.
+`pnpm test` discovers the JavaScript/TypeScript script tests and runs the
+workspace suites. Pi shell tests run on Linux and are explicitly reported as
+Linux-owned on Windows. `pnpm typecheck` includes strict tool/test TypeScript.
+`pnpm test:e2e` covers the lab plus the appliance build; `pnpm native:verify`
+runs Rust formatting, Clippy and workspace tests. `pnpm validate:compliance`
+checks generated notices and the SBOM against frozen inputs. Named
+`pnpm validate:*` scripts in `package.json` support focused evidence checks.
+
+## Updating browser evidence
+
+After a UI or serving change, generate actual observations in this order:
+
+```sh
+node scripts/generate-tv-conformance-evidence.mjs
+node scripts/generate-ocra-font-evidence.mjs
+node scripts/generate-launcher-tv-conformance-evidence.mjs
+node scripts/generate-launcher-tv-surface-evidence.mjs
+node scripts/generate-launcher-search-tv-evidence.mjs
+node scripts/generate-ocra-platform-fallback-evidence.mjs
+```
+
+Inspect the resulting screenshots, then run
+`node scripts/sync-launcher-evidence-expectations.mjs`. Registration writes only
+the recorded data baseline and rolls it back if an independent validator fails.
+Geometry floors, state coverage, privacy and focus requirements stay in the
+validators. Capture metadata records the actual date, Node and Chrome versions;
+legacy filenames identify an evidence series. The lab clock is explicit fixture
+input. These desk captures do not qualify physical TVs or target hardware.
+
+`node scripts/validate-source-bindings.mjs` lists changed plan dependencies.
+Review those changes before using its `--write` option; plan registration is
+not measurement. Historical browser/process and Python results bind to archived
+source editions under `benchmarks/provenance/` and `benchmarks/pose-backends/`.
+Camera-free deterministic contract artifacts keep their authored scenario dates;
+reproduction verifies identical outcomes and updates only reviewed provenance.
 
 ## Building the retro path
 

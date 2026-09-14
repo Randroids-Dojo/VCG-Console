@@ -103,7 +103,7 @@ test("rejects a bare carriage return and a missing source", async () => {
 
     const { problems } = await findDrift(dir);
     assert.equal(problems.length, 2);
-    assert.match(problems[0], /bare carriage return/u);
+    assert.match(problems[0], /bare CR/u);
     assert.match(problems[1], /cannot digest docs\/ABSENT\.md/u);
   } finally {
     await rm(dir, { recursive: true, force: true });

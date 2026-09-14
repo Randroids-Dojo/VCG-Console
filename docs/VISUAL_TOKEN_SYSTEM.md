@@ -1,7 +1,10 @@
-# VCG visual token system v1
+# Visual token compatibility contract
 
-Status: bounded software contract and console-lab integration; not target-TV or
-release qualification.
+Status: current compatibility reference. The active visual design is
+[UI_OVERHAUL_DESIGN.md](UI_OVERHAUL_DESIGN.md), implemented by
+`src/styles/base.css` and its surface styles. The v1 token schema and attribute
+names remain stable for integrations; they do not require the original v1
+appearance. Physical-TV and release qualification remain separate.
 
 ## Purpose
 
@@ -14,7 +17,8 @@ The authoritative software sources are:
 
 - `apps/console-lab/src/visual-tokens.ts` for the closed TypeScript contract and
   allowed accent vocabulary;
-- `apps/console-lab/src/styles.css` for the production CSS values and aliases;
+- `apps/console-lab/src/styles/base.css` for production values and aliases;
+  `styles.css` orders the surface styles and responsive overrides;
 - `apps/console-lab/src/visual-tokens.test.ts` for exact cross-source,
   immutability, contrast, focus, target-size, grid, and reduced-motion checks.
 
@@ -26,7 +30,8 @@ before changing the active root state.
 
 | Area | v1 contract |
 |---|---|
-| Shell type | `OCRA, ui-monospace, SFMono-Regular, monospace` |
+| General UI type | Inter (`--font-ui`) |
+| Display/game type and legacy `--vcg-font-shell` alias | `OCRA, ui-monospace, SFMono-Regular, monospace` |
 | Grid | 32 CSS pixels |
 | Minimum declared control target | 48 CSS pixels |
 | Standard focus | 3 CSS-pixel solid accent outline with 4 CSS-pixel offset |
@@ -47,11 +52,11 @@ tokenized effects, not permission to animate every state.
 The standard shell uses:
 
 - ink `#090b0c`;
-- panel `#101315`;
-- rail `#171b1d`;
-- line `#303638`;
-- paper `#efeee6`;
-- muted text `#778084`;
+- panel `#10151a`;
+- rail `#151b21`;
+- line `#2b333a`;
+- paper `#eef0ea`;
+- muted text `#8b959d`;
 - fault `#ff765f`.
 
 High contrast replaces these with black/near-black surfaces, white paper,

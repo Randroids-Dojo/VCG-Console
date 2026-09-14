@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -74,10 +75,6 @@ const variantKeys = [
   "deliveredTotalUsd",
   "deliveredCapDisposition",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function moneyCents(value, label) {
   assert.equal(typeof value, "number", `${label} must be a number`);

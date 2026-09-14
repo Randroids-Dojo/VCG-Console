@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -191,14 +192,6 @@ const expectedMetrics = [
   "network state and sanitized hosted phase or failure observations without credentials or content bodies",
   "exact hardware, image, runtime, workload, harness, oracle, schedule and calibration digests",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function normalizedDigest(bytes, label) {
   const source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

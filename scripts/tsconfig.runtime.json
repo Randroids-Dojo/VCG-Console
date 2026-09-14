@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": false,
+    "rootDir": ".",
+    "outDir": "../build/console-runtime"
+  },
+  "include": [],
+  "files": ["console-server.mts", "verify-console-headers.ts"]
+}

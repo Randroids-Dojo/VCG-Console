@@ -277,12 +277,12 @@ test("rehearses display and audio settings without claiming hardware authority",
     fullPage: true,
   });
   await pressSyntheticGamepadButton(page, "__setAvSettingsGamepad", 1);
-  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
 });
 
 test("launcher exposes every hub and universal search", async ({ page }) => {
   await page.goto("/?skipBoot=1&input=controller");
-  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Enter the museum/ })).toHaveCount(0);
   await page.waitForTimeout(220);
   await page.screenshot({ path: "../../test-results/console-lab/launcher-home.png" });
@@ -680,7 +680,7 @@ test("synthetic portrait rehearsal requires preview acceptance and never opens t
     .click();
   await pressSyntheticGamepadButton(page, "__setPortraitGamepad", 16);
   await expect(
-    page.getByRole("heading", { name: /Good evening/ }),
+    page.getByRole("heading", { name: /^Games$/ }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Profiles", exact: true }).click();
   await expect(profileTile.locator(".synthetic-portrait")).toHaveAttribute(
@@ -1511,7 +1511,7 @@ test("accessibility preferences apply, persist, disclose gaps, and reset", async
     await page.evaluate(() => localStorage.getItem("vcg.accessibility.v1")),
   ).toBeNull();
   await pressSyntheticGamepadButton(page, "__setAccessibilityGamepad", 1);
-  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
 });
 
 test("one launch screen represents every adapter without inventing progress", async ({ page }) => {
@@ -2337,7 +2337,7 @@ test("built-in Circuit Shift launches offline, accepts controller input, and sav
 test("launcher remains usable on a narrow setup display", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?skipBoot=1&input=controller");
-  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
   await page.getByRole("button", { name: "Retro", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Retro library/ })).toBeVisible();
   await page.keyboard.press("/");
@@ -2394,7 +2394,7 @@ test("Escape returns an active game to the console", async ({ page }) => {
   await openMotionLab(page);
   await page.getByRole("button", { name: /02 OBSTACLE/ }).click();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
 });
 
 test("captures the reviewed tracker surface", async ({ page }) => {
@@ -2519,7 +2519,7 @@ test("completes the two-player body-game journey and returns to the console", as
   await expect(page.getByRole("heading", { name: /PLAYER [12] WINS|DRAW/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "BACK TO CONSOLE" })).toBeFocused();
   await pulseSyntheticPlayerGamepadButton(page, "__setObstacleJourneyGamepad", 0, 0);
-  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
 });
 
 test("keeps obstacle scores local, unverified, persistent, and deliberately resettable", async ({ page }) => {
@@ -2657,7 +2657,7 @@ test("drives the camera-free pose simulator through UI, keyboard, controller, an
       __setSimulatorGamepad(buttons: number[], axes?: number[]): void;
     }).__setSimulatorGamepad([16]);
   });
-  await expect(page.getByRole("heading", { name: /Good evening/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Games$/ })).toBeVisible();
 });
 
 test("exports a bounded pseudonymized v2 skeleton trace", async ({ page }) => {
@@ -3103,7 +3103,8 @@ test("browser policy denies hostile cross-origin capabilities and escape", async
   expect(launcherHeaders["origin-agent-cluster"]).toBe("?1");
   expect(launcherHeaders["cross-origin-resource-policy"]).toBe("same-origin");
 
-  const fallbackResponse = await page.goto("/launcher-history-fallback");
+  const fallbackResponse = await context.request.get("/launcher-history-fallback", { headers: { accept: "text/html" } });
+  expect(fallbackResponse.status()).toBe(404);
   expect(fallbackResponse?.headers()["content-security-policy"]).toContain(
     "frame-ancestors 'none'",
   );

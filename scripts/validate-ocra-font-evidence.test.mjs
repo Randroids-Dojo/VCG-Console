@@ -45,12 +45,15 @@ test("accepts the exact OCR-A structural evidence", async () => {
   assert.equal(artifact.disposition.allProductionSourceNonAsciiCoveredByOcra, true);
 });
 
-test("rejects format, date, subject, or parser-limit substitution", async () => {
+test("rejects format substitution, invalid dates, and subject or parser-limit substitution", async () => {
   await validateMutation((artifact) => {
     artifact.format = "vcg-ocra-font-structural-evidence/v2";
   });
   await validateMutation((artifact) => {
-    artifact.evidenceDate = "2026-07-25";
+    artifact.evidenceDate = "9999-01-01";
+  });
+  await validateMutation((artifact) => {
+    artifact.evidenceDate = "2026-02-31";
   });
   await validateMutation((artifact) => {
     artifact.subject.sha256 = "0".repeat(64);

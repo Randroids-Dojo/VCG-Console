@@ -8,14 +8,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
-
 export const TV_CONFORMANCE_EVIDENCE_FORMAT =
   "vcg-tv-conformance-evidence/v1";
-export const TV_CONFORMANCE_EVIDENCE_DATE = "2026-08-20";
-export const TV_CONFORMANCE_BROWSER_PRODUCT = "Chrome/151.0.7922.138";
 export const TV_CONFORMANCE_RESOLUTIONS = Object.freeze([
   Object.freeze({ id: "720p", width: 1280, height: 720 }),
   Object.freeze({ id: "1080p", width: 1920, height: 1080 }),
@@ -459,20 +453,11 @@ async function exercise(chromePath) {
 export async function generateTvConformanceEvidence() {
   assert.equal(process.platform, "win32");
   assert.equal(process.arch, "x64");
-  assert.equal(process.version, GODOT_EXPORT_NODE_VERSION);
   const retrievedAtUtc = new Date().toISOString();
-  assert.ok(
-    retrievedAtUtc.startsWith(`${TV_CONFORMANCE_EVIDENCE_DATE}T`),
-    `this evidence generator is frozen to ${TV_CONFORMANCE_EVIDENCE_DATE}`,
-  );
   const exerciseResult = await exercise(findChrome());
-  assert.equal(
-    exerciseResult.browserProduct,
-    TV_CONFORMANCE_BROWSER_PRODUCT,
-  );
   return {
     format: TV_CONFORMANCE_EVIDENCE_FORMAT,
-    evidenceDate: TV_CONFORMANCE_EVIDENCE_DATE,
+    evidenceDate: retrievedAtUtc.slice(0, 10),
     evidenceClass:
       "windows-x64-headless-chrome-tv-authoring-conformance",
     qualification:

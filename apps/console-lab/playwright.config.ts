@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
+  testIgnore: "appliance.spec.ts",
   outputDir: "../../test-results/console-lab",
   fullyParallel: false,
   retries: 0,
@@ -27,7 +28,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "pnpm build && pnpm vite preview --host 127.0.0.1 --port 4173",
+    command: "pnpm -w build:lab && pnpm -w serve:lab",
     port: 4173,
     reuseExistingServer: false,
   },

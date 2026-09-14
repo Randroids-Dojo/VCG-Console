@@ -57,12 +57,8 @@ require_command() {
   }
 }
 
-require_command node "Install Node.js 22 or newer, then rerun."
-node_major="$(node -p 'process.versions.node.split(".")[0]')"
-if [ "${node_major}" -lt 22 ]; then
-  echo "Node.js 22 or newer is required; found $(node --version)." >&2
-  exit 1
-fi
+require_command node "Install the Node.js version required by package.json, then rerun."
+node scripts/check-node-version.cjs
 
 expected_pnpm="$(node -p 'require("./package.json").packageManager.replace(/^pnpm@/, "")')"
 if command -v pnpm >/dev/null 2>&1 && [ "$(pnpm --version)" = "${expected_pnpm}" ]; then
@@ -103,8 +99,8 @@ if [ "${skip_native}" -eq 0 ]; then
   echo
   echo "== native host =="
   if command -v cargo >/dev/null 2>&1; then
-    cargo build --release -p vcg-host -p vcg-cursor-nudge
-    cargo run -q --release -p vcg-host -- doctor
+    cargo build --locked --release -p vcg-host -p vcg-cursor-nudge
+    cargo run --locked -q --release -p vcg-host -- doctor
   else
     echo "warning: cargo is absent; skipping the Rust host. Install the toolchain in rust-toolchain.toml to launch retro titles." >&2
   fi
@@ -116,15 +112,15 @@ echo "== browser boundary =="
 # boundary headers, which silently disables cross-origin isolation and the
 # camera permission policy. Prove the real server before trusting a session.
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/vcg-bringup.XXXXXX")"
-preview_log="${scratch}/preview.log"
+server_log="${scratch}/server.log"
 
-# `serve` is the same command the operator is told to run below, so this proves
-# the server they will actually use.
-pnpm_run serve >"${preview_log}" 2>&1 &
-preview_pid=$!
+# Start the same built entrypoint used by `serve` and systemd directly, so
+# cleanup owns the actual server process.
+node build/console-runtime/console-server.mjs --root apps/console-lab/dist --port "${port}" >"${server_log}" 2>&1 &
+server_pid=$!
 cleanup() {
-  kill "${preview_pid}" 2>/dev/null || true
-  wait "${preview_pid}" 2>/dev/null || true
+  kill "${server_pid}" 2>/dev/null || true
+  wait "${server_pid}" 2>/dev/null || true
   case "${scratch}" in
     "${TMPDIR:-/tmp}"/vcg-bringup.*) rm -rf "${scratch}" ;;
   esac
@@ -141,13 +137,13 @@ for _ in $(seq 1 60); do
   sleep 0.5
 done
 if [ "${listening}" -ne 1 ]; then
-  echo "The preview server never accepted a connection on port ${port}." >&2
-  cat "${preview_log}" >&2 || true
+  echo "The console server never accepted a connection on port ${port}." >&2
+  cat "${server_log}" >&2 || true
   exit 1
 fi
 
 # One run, so a real boundary failure is reported instead of retried.
-if ! pnpm_run verify:console-headers; then
+if ! node build/console-runtime/verify-console-headers.js; then
   echo "The console server did not serve the required browser boundary. Do not run a camera session against it." >&2
   exit 1
 fi

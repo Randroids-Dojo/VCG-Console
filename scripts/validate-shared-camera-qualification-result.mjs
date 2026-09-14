@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "./evidence-primitives.mjs";
 import { readFile } from "node:fs/promises";
 import { isDeepStrictEqual } from "node:util";
 
@@ -68,10 +68,6 @@ function assertBoundedNumber(value, minimum, maximum, label) {
   if (!Number.isFinite(value) || value < minimum || value > maximum) {
     fail(`${label} must be a finite number from ${minimum} through ${maximum}`);
   }
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
 }
 
 function clone(value) {

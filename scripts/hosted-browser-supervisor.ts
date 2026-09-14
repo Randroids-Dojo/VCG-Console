@@ -41,7 +41,7 @@ export interface HostedBrowserManifestInput {
     readonly timeoutMs: number;
     readonly healthCheck: {
       readonly type: string;
-      readonly path?: string;
+      readonly path?: string | undefined;
     };
   };
 }
@@ -454,7 +454,6 @@ export async function requireHealthyHostedEndpoint(
         );
       }
       const response = await fetchImpl(current, {
-        body: undefined,
         cache: "no-store",
         credentials: "omit",
         headers: {
@@ -1031,6 +1030,14 @@ export async function probeHostedBrowserLivenessContract(
   }
 }
 
+function requireNoProbeViolation(violation: HostedBrowserViolation | undefined): void {
+  if (violation !== undefined) {
+    throw new HostedBrowserPolicyError(
+      `top-level browser probe violated policy: ${violation.code}`,
+    );
+  }
+}
+
 /**
  * Loads one reviewed HTTPS entrypoint as the only top-level page through the
  * same blank-profile CDP guard used by the supervisor.
@@ -1107,11 +1114,7 @@ export async function probeHostedBrowserTopLevelLoad(
         `top-level browser probe exited before load: ${String(outcome.exit.code)}/${String(outcome.exit.signal)}`,
       );
     }
-    if (violation !== undefined) {
-      throw new HostedBrowserPolicyError(
-        `top-level browser probe violated policy: ${violation.code}`,
-      );
-    }
+    requireNoProbeViolation(violation);
     let state: Record<string, unknown> | undefined;
     let interactiveState: Record<string, unknown> | undefined;
     const documentStateDeadline = Date.now() + 2_000;
@@ -1159,11 +1162,7 @@ export async function probeHostedBrowserTopLevelLoad(
         "top-level browser probe document did not become ready",
       );
     }
-    if (violation !== undefined) {
-      throw new HostedBrowserPolicyError(
-        `top-level browser probe violated policy: ${violation.code}`,
-      );
-    }
+    requireNoProbeViolation(violation);
     const finalUrl = stringField(state, "finalUrl");
     const title = stringField(state, "title");
     const readyState = stringField(state, "readyState");
@@ -1315,13 +1314,13 @@ async function superviseCdpSession(
     if (target.type === "page") discoveredPages.set(target.targetId, target);
   }
   const pages = [...discoveredPages.values()];
-  if (pages.length !== 1 || !isStartupPage(pages[0].url)) {
+  const [mainTarget] = pages;
+  if (pages.length !== 1 || mainTarget === undefined || !isStartupPage(mainTarget.url)) {
     const startupLabels = pages.map((page) => startupUrlLabel(page.url));
     throw new HostedBrowserPolicyError(
       `hosted browser did not start with exactly one blank page (${pages.length}: ${startupLabels.join(", ")})`,
     );
   }
-  const mainTarget = pages[0];
   guard = new HostedBrowserNavigationGuard(policy);
   guard.arm(mainTarget.targetId);
 

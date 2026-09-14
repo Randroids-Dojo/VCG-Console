@@ -405,7 +405,7 @@
     "contractTestSha256": "65e9e46faa76f2eb2359459ad306afb25f3135b1819ddbe0c7fcb3b62c76b731",
     "contractSha256": "516d9f2eab1e506b71efd28fb260a0e42602d91532a212ee3a07335a81e63ba8",
     "generatorSha256": "f665a6a5abc349b923f82e3230296e1d46b537223e0f04286d5a53d04031870a",
-    "validatorSha256": "50afda8487192926ac90b3ae4887f848236ff71876c163b88cb17aef159d8d73"
+    "validatorSha256": "356d617e086daa8ae155e9614185c50b0db6aa964e5f67198fd2eeb7a7835927"
   },
   "claimBoundary": "This deterministic camera-free exercise proves only the current bounded calibration rehearsal state machine: exact ordered synthetic observations, visible dimension-specific guidance, fail-closed unsafe placement, explicit limited fallback, stale-attempt refusal, exact one-shot result authority, invalidation, expiry, and repeatable outcomes. It does not estimate or qualify a real floor, room, play zone, person, scale, stance, range, camera configuration, gameplay threshold, accessibility mode, or safety outcome.",
   "limitations": [

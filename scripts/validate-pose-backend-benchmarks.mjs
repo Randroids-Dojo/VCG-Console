@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256 } from "./evidence-primitives.mjs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -47,10 +47,6 @@ function requireSha256(value, name) {
   if (typeof value !== "string" || !/^[0-9a-f]{64}$/.test(value)) {
     throw new Error(`${name} must be lowercase SHA-256 text`);
   }
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
 }
 
 export function validatePoseBackendReport(report, expectedDigests) {
@@ -264,8 +260,10 @@ export function validatePoseBackendComparison(reports, expectedDigests) {
 }
 
 export async function validateTrackedPoseBackendReports(root = repositoryRoot) {
-  const implementation = await readFile(resolve(root, "experiments/rtmo/benchmark.py"));
-  const lock = await readFile(resolve(root, "experiments/rtmo/uv.lock"));
+  // These are July observations, not performance measurements of today's code.
+  // Exact source snapshots retain the original report digests after refactors.
+  const implementation = await readFile(resolve(root, "benchmarks/pose-backends/2026-07-24-source/benchmark.py"));
+  const lock = await readFile(resolve(root, "benchmarks/pose-backends/2026-07-24-source/uv.lock"));
   const expectedDigests = { implementation: sha256(implementation), lock: sha256(lock) };
   const reports = await Promise.all(
     expectedReports.map(async (repositoryPath) => JSON.parse(await readFile(resolve(root, repositoryPath), "utf8"))),
@@ -276,5 +274,5 @@ export async function validateTrackedPoseBackendReports(root = repositoryRoot) {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   await validateTrackedPoseBackendReports();
-  console.log("validated 2 pinned pose-backend benchmark reports");
+  console.log("validated 2 historical pose-backend reports against their recorded source snapshots");
 }

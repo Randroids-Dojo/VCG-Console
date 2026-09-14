@@ -317,7 +317,7 @@
     "implementationSha256": "892700658f9de7dfc3d5b9a52991c2e32bf622c410631ed0f5b8048e9bb2ab67",
     "contractTestSha256": "bf0fd4a1269a256eb9e80a7b3060273eef8792c8ee95ddb3aaf820189886107b",
     "generatorSha256": "1c4d49e51d675193fd1ee8c055a6939face2b2f080c09734a1bd2bb24699018f",
-    "validatorSha256": "a5b99f9e4747580bcc6d152db7b3102a1ac823ee59db8dd069be3df3cc37ba83"
+    "validatorSha256": "e4dce0ecc2830ced597673dbc081cd2b10b3fdeb8bb28f2a1787dad1e71b285f"
   },
   "claimBoundary": "Camera-free deterministic adapter evidence only. It proves authored mapping, pulse, replay, health, authority, and reserved-action behavior; it does not prove that any unmodified game receives a native virtual controller, is playable, meets latency gates, or is comfortable for a person.",
   "limitations": [

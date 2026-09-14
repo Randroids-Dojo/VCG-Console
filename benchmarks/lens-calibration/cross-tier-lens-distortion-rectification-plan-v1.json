@@ -27,7 +27,7 @@
     {
       "role": "camera-free-calibration-evidence",
       "path": "benchmarks/calibration/camera-free-calibration-rehearsal-v1.json",
-      "sha256": "0701b49565ddca2a158a8919f123ed72b9f06688b6580e60f9d26724886e3b9f"
+      "sha256": "7f048b804e087d3abcd0d0abdf7695086284d9623958ecc631391542a06ec674"
     },
     {
       "role": "shared-camera-plan",
@@ -37,7 +37,7 @@
     {
       "role": "cross-tier-camera-geometry-plan",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "9e4b77f0fc4b3d9164b723ab523e7e93a2685a3b95cc6ce5100362ed971459c0"
+      "sha256": "8b3650e2c79eafabb4a01832f92e583bc6bd0b670651bd5eb963ea0ad74a132c"
     },
     {
       "role": "pose-edge-plan",

@@ -1,4 +1,6 @@
-[
+// Reviewed search coverage and interaction requirements, shared by the exercise
+// and its validator. Recording measurements never modifies these scenarios.
+export const LAUNCHER_SEARCH_STATES = Object.freeze([
   {
     id: "motion-results",
     query: "motion",
@@ -256,4 +258,4 @@
       "profiles-navigation",
     ],
   },
-]
+]);

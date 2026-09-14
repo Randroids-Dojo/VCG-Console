@@ -1,4 +1,5 @@
 import type { MotionAction } from "@vcg/motion-contract";
+import { LAB_MODE } from "./build-mode";
 import type { PlayerSlot } from "./player-session";
 import {
   TwoPlayerObstacleRound,
@@ -11,6 +12,7 @@ export class ObstacleGame {
   readonly #round: TwoPlayerObstacleRound;
   #lastAt = 0;
   #lastPausedDrawKey: string | undefined;
+  #frame: number | undefined;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -19,13 +21,19 @@ export class ObstacleGame {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D is unavailable");
     this.#context = context;
-    this.#round = new TwoPlayerObstacleRound(roundOptionsFromSearch(window.location.search));
+    this.#round = new TwoPlayerObstacleRound(roundOptionsFromSearch(LAB_MODE ? window.location.search : ""));
   }
 
   start(): void {
+    if (this.#frame !== undefined) return;
     this.#lastAt = performance.now();
     this.onState(this.#round.snapshot());
-    requestAnimationFrame((now) => this.#loop(now));
+    this.#frame = requestAnimationFrame((now) => this.#loop(now));
+  }
+
+  stop(): void {
+    if (this.#frame !== undefined) cancelAnimationFrame(this.#frame);
+    this.#frame = undefined;
   }
 
   snapshot(): ObstacleRoundSnapshot {
@@ -67,7 +75,7 @@ export class ObstacleGame {
       this.#draw(snapshot);
     }
     this.#lastPausedDrawKey = pausedDrawKey;
-    requestAnimationFrame((next) => this.#loop(next));
+    this.#frame = requestAnimationFrame((next) => this.#loop(next));
   }
 
   #draw(snapshot: ObstacleRoundSnapshot): void {

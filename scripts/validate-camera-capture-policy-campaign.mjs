@@ -1,3 +1,4 @@
+import { exactKeySet as exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -92,18 +93,6 @@ const invalidTrialReasonCodes = new Set([
   "timestamp-fault",
   "protocol-deviation",
 ]);
-
-function exactKeys(value, expected, path) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${path} must be an object`,
-  );
-  assert.deepEqual(
-    Object.keys(value).sort(),
-    [...expected].sort(),
-    `${path} keys must be exactly ${expected.join(", ")}`,
-  );
-}
 
 function assertSafeInteger(value, minimum, maximum, path) {
   assert.ok(

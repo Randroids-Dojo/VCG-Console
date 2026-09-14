@@ -17,7 +17,7 @@
     {
       "role": "visual-token-contract",
       "path": "docs/VISUAL_TOKEN_SYSTEM.md",
-      "sha256": "ca55d96eb9d9e24e7f15dd1da372ff3d7fbd7562249d209a13a07cf12440a7de"
+      "sha256": "ae5ba36855d7ab474847ad5cfee791ddf162116673b317b6939e604cb135f08d"
     },
     {
       "role": "blocking-persona-boundary",
@@ -31,18 +31,28 @@
     },
     {
       "role": "shell-style-implementation",
-      "path": "apps/console-lab/src/styles.css",
-      "sha256": "05396ee9df10e340f7a0f4e8b02e978c5ea47e87d6d56939fc6ba3410151a51a"
+      "path": "apps/console-lab/src/styles/base.css",
+      "sha256": "c08af31c4de6d3bf014a934f9580227bf0aa41e696a0dbd2542be66e25b0fd89"
+    },
+    {
+      "role": "shell-layout-implementation",
+      "path": "apps/console-lab/src/styles/shell.css",
+      "sha256": "95e8150af31b9ec6f358916ccd91674cb005008f2b17b1ef40e36f74ef0e98e1"
+    },
+    {
+      "role": "shell-responsive-implementation",
+      "path": "apps/console-lab/src/styles/responsive.css",
+      "sha256": "0ca0caf44c0a7a3b04ebf7dbf4e33523a8ac36a096e8ea4501773bff12e67bcd"
     },
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
-      "sha256": "90890c2e0e3cccc521fb3082f652e37e6711f57846e65f465a2b69ec096dba7b"
+      "sha256": "dd8d36e7a38a6e9b42cd003f57401ecb421fc4a4ca82afb440319c1683020efb"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "4c49d711c4740f5cf6af97e8359bad70dfbe437dd6d60e543c276c9600ebc0fa"
+      "sha256": "08bea263a47a83ca3ec7fcf1fc31b1abb8ca3c8ff76eb192cc9df4b1bf5673a1"
     }
   ],
   "executionBoundary": {

@@ -1,3 +1,4 @@
+import { normalizedSha256 } from "./evidence-primitives.mjs";
 // Repository-wide source-binding integrity check.
 //
 // Pre-registration plans under `benchmarks/` and `compliance/` bind themselves
@@ -19,7 +20,6 @@
 // every drifted source has been reviewed and is intended to bind the plan. It
 // is never automatic, and CI runs the read-only form.
 
-import { createHash } from "node:crypto";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,29 +27,6 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SEARCH_ROOTS = ["benchmarks", "compliance"];
 const SHA256 = /^[a-f0-9]{64}$/u;
-
-/** Normalizes one source file exactly as the plan validators do. */
-function normalizedText(bytes, label) {
-  let text;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
-  } catch (error) {
-    throw new Error(`${label} must be strict UTF-8`, { cause: error });
-  }
-  if (text.startsWith("﻿")) {
-    throw new Error(`${label} must not contain a UTF-8 BOM`);
-  }
-  if (/\r(?!\n)/u.test(text)) {
-    throw new Error(`${label} contains a bare carriage return`);
-  }
-  return text.replaceAll("\r\n", "\n");
-}
-
-function normalizedSha256(bytes, label) {
-  return createHash("sha256")
-    .update(Buffer.from(normalizedText(bytes, label), "utf8"))
-    .digest("hex");
-}
 
 async function* walkJson(dir) {
   let entries;

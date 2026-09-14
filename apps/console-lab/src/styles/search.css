@@ -1,0 +1,241 @@
+.search-overlay {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  padding: max(72px, 9vh) 24px 24px;
+  background: rgb(3 5 6 / 0.9);
+}
+
+.search-panel {
+  width: min(clamp(920px, 48vw, 1880px), 100%);
+  padding: clamp(20px, 2.6vh, 34px) clamp(20px, 2vw, 34px);
+  border: 1px solid var(--stroke-2);
+  border-radius: var(--radius-l);
+  background: #10151b;
+  box-shadow: var(--shadow-sheet);
+}
+
+.search-panel > label {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--accent);
+  font-family: var(--font-brand);
+  font-size: var(--text-micro);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.search-input-row {
+  min-height: clamp(68px, 6.4vh, 140px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 0 22px;
+  border: 1px solid var(--stroke-2);
+  border-radius: var(--radius-m);
+  background: rgb(5 8 10 / 0.66);
+  transition: border-color var(--vcg-motion-feedback) ease;
+}
+
+.search-input-row:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.search-symbol {
+  position: relative;
+  box-sizing: border-box;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 0.13rem solid currentColor;
+  border-radius: 50%;
+  color: var(--accent);
+}
+
+.search-symbol::after {
+  position: absolute;
+  width: 0.55rem;
+  height: 0.13rem;
+  left: 0.78rem;
+  top: 0.8rem;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.search-input-row input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  font-size: var(--text-section);
+  font-weight: 520;
+}
+
+.search-input-row input::placeholder {
+  color: var(--muted);
+  font-weight: 440;
+}
+
+.search-keys {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.search-key-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.search-keys button {
+  min-width: var(--vcg-control-min);
+  min-height: var(--vcg-control-min);
+  padding: 0 12px;
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--radius-s);
+  background: var(--surface-1);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: var(--text-body);
+  font-weight: 560;
+  text-transform: uppercase;
+  transition: background var(--vcg-motion-feedback) ease, border-color var(--vcg-motion-feedback) ease;
+}
+
+.search-keys .search-key-wide {
+  padding: 0 30px;
+  text-transform: none;
+}
+
+.search-keys button:hover,
+.search-keys button:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--stroke-2);
+}
+
+/* With the keyboard open the results shrink so the whole panel stays inside
+   the 5% safe area at 720p. */
+.search-panel[data-keys="open"] .search-results {
+  max-height: 22vh;
+}
+
+.search-results {
+  max-height: 54vh;
+  margin-top: 14px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  /* Focus movement drives scrolling on a console; a fading scrollbar is
+     noise on a TV and made evidence captures nondeterministic. */
+  scrollbar-width: none;
+}
+
+.search-results button {
+  width: 100%;
+  min-height: clamp(72px, 6.8vh, 150px);
+  display: grid;
+  grid-template-columns: minmax(96px, auto) minmax(160px, 1.2fr) minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  background: var(--surface-1);
+  color: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--vcg-motion-feedback) ease, border-color var(--vcg-motion-feedback) ease;
+}
+
+.search-results button:hover,
+.search-results button:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--stroke-2);
+}
+
+.search-results span {
+  justify-self: start;
+  padding: 6px 14px;
+  border: 1px solid var(--stroke-1);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-brand);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.search-results small {
+  color: var(--muted);
+  font-size: var(--text-detail);
+  font-weight: 460;
+}
+
+.search-results strong {
+  font-size: var(--text-body);
+  font-weight: 620;
+}
+
+.search-results b {
+  color: var(--accent);
+}
+
+.search-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-body);
+  font-weight: 480;
+}
+
+.search-recovery {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 24px 20px;
+  border: 1px dashed var(--stroke-2);
+  border-radius: var(--radius-m);
+}
+
+.search-recovery-label {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-brand);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+}
+
+.search-recovery-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.search-recovery-actions button {
+  min-height: 56px;
+  border: 1px solid var(--stroke-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-detail);
+  font-weight: 560;
+  transition: background var(--vcg-motion-feedback) ease, border-color var(--vcg-motion-feedback) ease;
+}
+
+.search-recovery-actions button:hover,
+.search-recovery-actions button:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+

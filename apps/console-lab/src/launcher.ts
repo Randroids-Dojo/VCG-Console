@@ -1,4 +1,4 @@
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import type { ConsoleInputAction } from "./gamepad-router";
 import Launcher from "./launcher/Launcher.svelte";
 import type { LauncherOptions, LauncherView, SettingsPanel } from "./launcher/types";
@@ -55,5 +55,9 @@ export class LauncherController {
 
   openSearch(): void {
     this.#launcher.openSearch();
+  }
+
+  async dispose(): Promise<void> {
+    await unmount(this.#launcher);
   }
 }

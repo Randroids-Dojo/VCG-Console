@@ -1,0 +1,1767 @@
+import { LAB_MODE } from "./build-mode";
+import type {
+  PlayerControlAvailability,
+  PlayerControlGroup,
+  MotionAction,
+  MotionFrame,
+  TrackerHealthEvent,
+  TrackerHealthReason,
+} from "@vcg/motion-contract";
+import {
+  assessPlayerControlAvailability,
+  MOTION_SIMULATOR_POSES,
+  MotionPoseSimulator,
+  PLAYER_BODY_REGIONS,
+  PLAYER_CONTROL_GROUPS,
+  type MotionSimulatorPose,
+} from "@vcg/motion-contract";
+import { actionFeedback } from "./action-feedback";
+import { MultiPlayerActionEngine } from "./multi-player-action-engine";
+import {
+  applyBodyVisibilityFixture,
+  type BodyVisibilityFixture,
+} from "./body-visibility-fixture";
+import {
+  CAMERA_SHUTTER_DETAIL,
+  CAMERA_SHUTTER_STATE,
+  cameraStateForStartFailure,
+  cameraStateForTrackerStatus,
+  cameraStatePresentation,
+  type CameraSoftwareState,
+} from "./camera-state";
+import { captureProfileFromSearch } from "./capture-profile";
+import { ControllerPlayerAssignments } from "./controller-player-assignment";
+import { installAutoHidingCursor } from "./cursor-visibility";
+import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
+import type { HandZone } from "./action-engine";
+import {
+  focusControl,
+  nearestControl,
+  scrollBeyondFocus,
+  type FocusDirection,
+} from "./spatial-focus";
+import { InputDefaultController } from "./launcher/input-default";
+import { launcherInputForMotionAction } from "./launcher/motion-input";
+import { LauncherController, launcherMarkup } from "./launcher";
+import {
+  AccessibilityPreferenceController,
+  applyAccessibilityPreferences,
+} from "./launcher/accessibility-preferences";
+import {
+  LocalObstacleLeaderboard,
+  type LeaderboardInputMode,
+} from "./local-leaderboard";
+import { Metrics } from "./metrics";
+import { fastObstacleTestEnabled, ObstacleGame } from "./obstacle-game";
+import {
+  PlayerSessionController,
+  type PlayerSessionEvent,
+  type PlayerSlot,
+} from "./player-session";
+import { preferenceStorage } from "./preference-storage";
+import { SkeletonRenderer } from "./renderer";
+import { cornerSkeletonVisible } from "./skeleton-mini";
+import { motionMarkup } from "./motion-markup";
+import { syntheticFrame } from "./synthetic";
+import { TraceBuffer } from "./trace-buffer";
+import { MediaPipeTracker, type TrackerStatus } from "./tracker";
+import { trackerHealthFixture, trackerHealthPresentation } from "./tracker-health";
+import type { ObstacleRoundSnapshot } from "./two-player-obstacle-round";
+import { applyVisualTokens } from "./visual-tokens";
+
+type AppMode = "tracker" | "obstacle" | "shell";
+type OverlayKind = "manual" | "recovery";
+
+interface MotionSimulatorTestApi {
+  enable(enabled?: boolean): void;
+  setPlayerVisible(visible: boolean): void;
+  setPose(pose: MotionSimulatorPose): void;
+  snapshot(): Readonly<{
+    enabled: boolean;
+    playerVisible: boolean;
+    pose: MotionSimulatorPose;
+  }>;
+}
+
+interface ObstacleJourneyTestApi {
+  joinTwoPlayers(): void;
+  action(slot: PlayerSlot, name: "dodge_left" | "dodge_right" | "jump" | "duck"): void;
+  snapshot(): ObstacleRoundSnapshot;
+}
+
+declare global {
+  interface Window {
+    __vcgMotionSimulator?: MotionSimulatorTestApi;
+    __vcgObstacleJourney?: ObstacleJourneyTestApi;
+    __vcgSpatialFocus?: Readonly<{ nearestControl: typeof nearestControl }>;
+  }
+}
+
+const MODE_COPY: Record<AppMode, { eyebrow: string; title: string; note: string }> = {
+  tracker: { eyebrow: "DIAGNOSTICS", title: "MOTION TRACKER", note: "RAW VIDEO<br />NOT SHOWN<br />NOT RECORDED" },
+  obstacle: { eyebrow: "MOTION GAME", title: "OBSTACLE", note: "DODGE LEFT + RIGHT<br />DUCK / JUMP<br />BACK ALWAYS RETURNS" },
+  shell: { eyebrow: "NAVIGATION TEST", title: "GESTURE NAVIGATION", note: "BACK ALWAYS RETURNS" },
+};
+
+export function startConsole(app: HTMLDivElement): () => Promise<void> {
+  const lifecycle = new AbortController();
+  let replayFrame = 0;
+  applyVisualTokens(document.documentElement);
+  const accessibilityPreferences = new AccessibilityPreferenceController(preferenceStorage());
+  applyAccessibilityPreferences(
+    document.documentElement,
+    accessibilityPreferences.snapshot(),
+  );
+
+  app.innerHTML = launcherMarkup + motionMarkup;
+
+  function required<T extends Element>(selector: string): T {
+    const element = document.querySelector<T>(selector);
+    if (!element) throw new Error(`Missing element ${selector}`);
+    return element;
+  }
+
+  const renderer = new SkeletonRenderer(required<HTMLCanvasElement>("#skeleton"));
+  // The same view, kept in a corner so a player can see what the camera makes of
+  // them from any screen, not only the diagnostics one.
+  const miniRenderer = new SkeletonRenderer(
+    required<HTMLCanvasElement>("#skeleton-mini-canvas"),
+  );
+  const skeletonMini = required<HTMLElement>("#skeleton-mini");
+  const motionLab = required<HTMLElement>("#motion-lab");
+  const consoleShellRoot = motionLab;
+  const telemetryPanel = required<HTMLElement>("#telemetry-panel");
+  const motionLegend = required<HTMLElement>("#motion-legend");
+  const motionLegendBack = required<HTMLElement>("#motion-legend-back");
+  /** Long enough to read the guide once, short enough not to live on screen. */
+  const MOTION_LEGEND_VISIBLE_MS = 10_000;
+  let motionLegendTimer: number | undefined;
+  let motionLegendZone: HandZone = "home";
+  const diagnosticsToggle = required<HTMLButtonElement>("#diagnostics-toggle");
+  let diagnosticsOpen = true;
+  diagnosticsToggle.addEventListener("click", () => setDiagnostics(!diagnosticsOpen), { signal: lifecycle.signal });
+  const trace = new TraceBuffer();
+  const metrics = new Metrics();
+  const actionEngine = new MultiPlayerActionEngine();
+  const playerSession = new PlayerSessionController({ maxPlayers: 2 });
+  const cameraButton = required<HTMLButtonElement>("#camera-button");
+  const replayButton = required<HTMLButtonElement>("#replay-button");
+  const joinButton = required<HTMLButtonElement>("#join-button");
+  const joinPlayer2Button = required<HTMLButtonElement>("#join-player-2-button");
+  const joinButtons = [joinButton, joinPlayer2Button] as const;
+  const exportButton = required<HTMLButtonElement>("#export-button");
+  exportButton.disabled = true;
+  const statusDetail = required<HTMLElement>("#status-detail");
+  const gestureFeedback = required<HTMLElement>("#gesture-feedback");
+  const gestureAction = required<HTMLElement>("#gesture-action");
+  const gesturePhase = required<HTMLElement>("#gesture-phase");
+  const gestureProgress = required<HTMLElement>("#gesture-progress");
+  const gestureProgressFill = required<HTMLElement>("#gesture-progress-fill");
+  const gestureDetail = required<HTMLElement>("#gesture-detail");
+  const sweepReadout = required<HTMLElement>("#sweep-readout");
+  const sweepHand = required<HTMLElement>("#sweep-hand");
+  const sweepMeter = required<HTMLElement>("#sweep-meter");
+  const sweepMeterFill = required<HTMLElement>("#sweep-meter-fill");
+  const sweepDetail = required<HTMLElement>("#sweep-detail");
+  const systemState = required<HTMLElement>("#system-state");
+  const cameraStateCard = required<HTMLElement>("#camera-state-card");
+  const cameraStateBadge = required<HTMLElement>("#camera-state-badge");
+  const cameraStateTitle = required<HTMLElement>("#camera-state-title");
+  const cameraAccessState = required<HTMLElement>("#camera-access-state");
+  const cameraActivityState = required<HTMLElement>("#camera-activity-state");
+  const cameraShutterState = required<HTMLElement>("#camera-shutter-state");
+  const cameraStateDetail = required<HTMLElement>("#camera-state-detail");
+  const cameraShutterDetail = required<HTMLElement>("#camera-shutter-detail");
+  const healthBadge = required<HTMLElement>("#health-badge");
+  const trackerHealthCard = required<HTMLElement>("#tracker-health-card");
+  const trackerHealthTitle = required<HTMLElement>("#tracker-health-title");
+  const trackerHealthDetail = required<HTMLElement>("#tracker-health-detail");
+  const trackerControl = required<HTMLElement>("#tracker-control");
+  const healthFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-health-fixture]")];
+  const playerAvailabilityCard = required<HTMLElement>("#player-availability-card");
+  const playerControlState = required<HTMLElement>("#player-control-state");
+  const playerControlTitle = required<HTMLElement>("#player-control-title");
+  const playerControlDetail = required<HTMLElement>("#player-control-detail");
+  const playerUnavailableControls = required<HTMLElement>("#player-unavailable-controls");
+  const playerRegionIndicators = [
+    ...document.querySelectorAll<HTMLElement>("[data-player-region]"),
+  ];
+  const bodyFixtureButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-body-fixture]")];
+  const simulatorCard = required<HTMLElement>("#simulator-card");
+  const simulatorState = required<HTMLElement>("#simulator-state");
+  const simulatorToggle = required<HTMLButtonElement>("#simulator-toggle");
+  const simulatorPlayerToggle = required<HTMLButtonElement>("#simulator-player-toggle");
+  const simulatorPoseButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-simulator-pose]")];
+  const sourceBadge = required<HTMLElement>("#source-badge");
+  const overlay = required<HTMLElement>("#console-overlay");
+  const modeButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
+  const shellCards = [...document.querySelectorAll<HTMLButtonElement>("[data-shell-target]")];
+  const overlayButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-overlay-action]")];
+  const gameScoreBySlot = {
+    1: required<HTMLElement>("#game-score-p1"),
+    2: required<HTMLElement>("#game-score-p2"),
+  } as const;
+  const gameLivesBySlot = {
+    1: required<HTMLElement>("#game-lives-p1"),
+    2: required<HTMLElement>("#game-lives-p2"),
+  } as const;
+  const gameClock = required<HTMLElement>("#game-clock");
+  const gameStatus = required<HTMLElement>("#game-status");
+  const leaderboardCard = required<HTMLElement>(".leaderboard-card");
+  const roundResult = required<HTMLElement>("#round-result");
+  const roundResultTitle = required<HTMLElement>("#round-result-title");
+  const roundResultScore = required<HTMLElement>("#round-result-score");
+  const poseSimulator = new MotionPoseSimulator();
+  // `?input=controller` starts the console without opening the camera. Tests and
+  // evidence runs use it so an automated page never reaches for a camera, and it
+  // is the same choice the Controllers settings panel writes.
+  const inputDefault = new InputDefaultController(preferenceStorage());
+  const requestedInput = new URLSearchParams(window.location.search).get("input");
+  // Deliberately not stored: the parameter overrides this run only, so an
+  // automated page never leaves a preference behind on the device it ran on.
+  const startsCameraAtLaunch = requestedInput === "controller"
+    ? false
+    : requestedInput === "motion" || inputDefault.startsCamera;
+  const obstacleLeaderboard = new LocalObstacleLeaderboard(preferenceStorage());
+
+  let latestFrame: MotionFrame | undefined;
+  let replayRunning = LAB_MODE;
+  let replaySequence = 0;
+  let bodyVisibilityFixture: BodyVisibilityFixture = "full";
+  let simulatorEnabled = false;
+  let twoPlayerTestFixtureEnabled = false;
+  let simulatorLatchedPose: MotionSimulatorPose = "neutral";
+  let simulatorControllerPose: MotionSimulatorPose | undefined;
+  const simulatorKeyboardPoses = new Map<string, MotionSimulatorPose>();
+  let lastMetricsPaint = 0;
+  let currentMode: AppMode = "tracker";
+  let focusedModeIndex = 0;
+  let overlayKind: OverlayKind | undefined;
+  type OverlayAction = "resume" | "drop" | "exit";
+  let overlayFocus: OverlayAction = "resume";
+  /** The options the open overlay is actually offering, in reading order. */
+  let overlayChoices: OverlayAction[] = ["resume", "exit"];
+  /** The slots a "continue without" would keep. */
+  let overlayKeepSlots: PlayerSlot[] = [];
+  let healthSequence = 1;
+  let activeHealth = trackerHealthFixture("healthy", 0, 0);
+  trace.pushHealth(activeHealth);
+  let obstacleRunPauseCount = 0;
+  let obstacleRunTrackingDropoutCount = 0;
+  let obstacleRunRecorded = false;
+  let leaderboardResetArmed = false;
+  let obstacleRoundPhase: ObstacleRoundSnapshot["phase"] = "waiting-for-players";
+  let roundResultFocus: "again" | "console" = "console";
+
+  const launcher = new LauncherController({
+    accessibilityPreferences,
+    openMotionLab(mode = "tracker") {
+      if (!LAB_MODE && mode !== "obstacle") return;
+      launcher.hide();
+      motionLab.hidden = false;
+      setMode(mode);
+      modeButtons[focusedModeIndex]?.focus();
+    },
+  });
+
+  function showLauncher(): void {
+    if (overlayKind) {
+      if (overlayKind === "recovery") resetPlayerSession();
+      else closeOwnedPause("launcher");
+      closeOverlay(false);
+    }
+    motionLab.hidden = true;
+    obstacle.setPaused(true);
+    launcher.show();
+  }
+
+  const obstacle = new ObstacleGame(required<HTMLCanvasElement>("#obstacle-canvas"), (snapshot) => {
+    paintObstacleRound(snapshot);
+    if (snapshot.phase === "finished" && !obstacleRunRecorded) {
+      obstacleRunRecorded = true;
+      obstacleLeaderboard.record({
+        score: snapshot.totalScore,
+        inputMode: currentLeaderboardInputMode(),
+        pauseCount: obstacleRunPauseCount,
+        trackingDropoutCount: obstacleRunTrackingDropoutCount,
+      });
+      paintLeaderboard();
+    }
+  });
+  obstacle.start();
+  obstacle.setPaused(true);
+  paintLeaderboard();
+
+  /**
+   * Shows the body gestures while anyone is playing by motion.
+   *
+   * Crossed arms mean different things either side of a running game, so the
+   * legend follows the same boundary the action engine uses rather than naming
+   * one and hoping. During a run the focus gestures are inert, so they are not
+   * offered.
+   */
+  function paintMotionLegend(): void {
+    const motionPlayers = playerSession.snapshot().players.length;
+    const wasHidden = motionLegend.hidden;
+    motionLegend.hidden = motionPlayers === 0;
+    if (motionLegend.hidden) return;
+    const playing = obstacleIsUnderWay() && !overlayKind;
+    motionLegend.dataset.context = playing ? "game" : "shell";
+    motionLegendBack.textContent = playing ? "Pause" : "Back";
+    // Someone who has just joined has not read it yet.
+    if (wasHidden) revealMotionLegend();
+  }
+
+  /**
+   * Shows the gesture guide, then lets it fade.
+   *
+   * It is a reminder rather than part of the picture, so it leaves once it has
+   * been read. Holding both hands out brings it back, which is the one gesture
+   * that does not need the guide to discover: it is what a person does when they
+   * do not know what to do.
+   */
+  function revealMotionLegend(): void {
+    motionLegend.dataset.visible = "true";
+    if (motionLegendTimer !== undefined) window.clearTimeout(motionLegendTimer);
+    motionLegendTimer = window.setTimeout(() => {
+      motionLegend.dataset.visible = "false";
+      motionLegendTimer = undefined;
+    }, MOTION_LEGEND_VISIBLE_MS);
+  }
+
+  function watchMotionLegendGesture(): void {
+    const zone = actionEngine.sweep.zone;
+    if (zone === "both" && motionLegendZone !== "both") revealMotionLegend();
+    motionLegendZone = zone;
+  }
+
+  function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
+    const previousPhase = obstacleRoundPhase;
+    obstacleRoundPhase = snapshot.phase;
+    for (const slot of [1, 2] as const) {
+      const player = snapshot.players.find((candidate) => candidate.slot === slot);
+      gameScoreBySlot[slot].textContent = String(player?.score ?? 0).padStart(6, "0");
+      gameLivesBySlot[slot].textContent = String(player?.lives ?? 0);
+      // An empty slot has no score to read, so its readout is not shown at all.
+      gameScoreBySlot[slot].closest("span")?.toggleAttribute("hidden", player === undefined);
+    }
+    paintMotionLegend();
+    gameClock.textContent = formatRoundClock(snapshot.roundRemainingMs);
+    gameStatus.textContent = obstacleRoundStatus(snapshot);
+
+    roundResult.hidden = snapshot.phase !== "finished";
+    leaderboardCard.hidden =
+      snapshot.phase === "countdown" || snapshot.phase === "playing" || snapshot.phase === "paused";
+    if (snapshot.phase === "finished") {
+      const player1 = snapshot.players.find((player) => player.slot === 1);
+      const player2 = snapshot.players.find((player) => player.slot === 2);
+      // A solo round has nothing to win or draw, so it reports the run instead.
+      const solo = snapshot.joinedSlots.length < 2;
+      roundResultTitle.textContent = solo
+        ? "ROUND COMPLETE"
+        : snapshot.winnerSlot
+          ? `PLAYER ${snapshot.winnerSlot} WINS`
+          : "DRAW";
+      roundResultScore.textContent = solo
+        ? `P${snapshot.joinedSlots[0] ?? 1} ${String(player1?.score ?? player2?.score ?? 0).padStart(6, "0")}`
+        : `P1 ${String(player1?.score ?? 0).padStart(6, "0")} / P2 ${String(player2?.score ?? 0).padStart(6, "0")}`;
+      if (previousPhase !== "finished") {
+        roundResultFocus = "console";
+        paintRoundResultFocus();
+      }
+    }
+  }
+
+  function obstacleRoundStatus(snapshot: ObstacleRoundSnapshot): string {
+    if (snapshot.phase === "waiting-for-players") return "JOIN PLAYER 1";
+    if (snapshot.phase === "countdown") return `STARTING IN ${Math.max(1, Math.ceil(snapshot.countdownRemainingMs / 1_000))}`;
+    if (snapshot.phase === "playing") return "PLAY";
+    if (snapshot.phase === "paused") return "PAUSED";
+    return "ROUND ENDED";
+  }
+
+  function formatRoundClock(remainingMs: number): string {
+    const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1_000));
+    return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(totalSeconds % 60).padStart(2, "0")}`;
+  }
+
+  // `?capture=balanced|target` opts one session into a larger camera mode. The
+  // default stays the low-power mode so a constrained tier is the normal case.
+  const captureProfile = captureProfileFromSearch(window.location.search);
+  const controllerAssignments = new ControllerPlayerAssignments();
+
+  const tracker = new MediaPipeTracker({
+    onFrame(frame) {
+      replayRunning = false;
+      acceptFrame(frame);
+    },
+    onStatus(status, detail) {
+      updateStatus(status, detail);
+    },
+    onHealth(event) {
+      applyTrackerHealth(event);
+    },
+  });
+
+  const gamepads = new GamepadRouter(handleConsoleInput, (gamepad, connected) => {
+    if (connected) {
+      const assignment = controllerAssignments.connect(gamepad);
+      statusDetail.textContent = assignment.state === "assigned"
+        ? `Controller ready for Player ${assignment.slot}.`
+        : assignment.state === "claim-required"
+          ? "Controller ready. Press a gameplay button to claim the open player slot."
+        : assignment.state === "waiting"
+          ? "Controller ready. Both player slots are in use."
+          : "Controller connected, but its button layout is not supported.";
+    } else {
+      const assignment = controllerAssignments.disconnect(gamepad);
+      statusDetail.textContent = assignment?.slot === undefined
+        ? "Controller disconnected."
+        : `Player ${assignment.slot} controller disconnected. Motion and keyboard remain available.`;
+    }
+  }, undefined, handleSimulatorGamepadState, (fault) => {
+    statusDetail.textContent =
+      `Controller input paused (${fault}). Motion and keyboard recovery remain available while the next bounded observation is checked.`;
+  });
+  gamepads.start();
+
+  function acceptFrame(rawFrame: MotionFrame): void {
+    const fixtureFrame = replayRunning
+      ? applyBodyVisibilityFixture(rawFrame, bodyVisibilityFixture)
+      : rawFrame;
+    const governedHealth =
+      fixtureFrame.source === activeHealth.source ? activeHealth.status : fixtureFrame.health;
+    const governedFrame: MotionFrame = {
+      ...fixtureFrame,
+      health: governedHealth,
+      players:
+        governedHealth === "starting" || governedHealth === "fault"
+          ? []
+          : fixtureFrame.players.map((player) => ({
+              ...player,
+              actions: governedHealth === "ready" ? player.actions : [],
+            })),
+    };
+    const obstaclePhase = obstacle.snapshot().phase;
+    let frame = actionEngine.enrich(
+      governedFrame,
+      overlayKind
+        ? "overlay"
+        : currentMode === "obstacle" && obstaclePhase !== "finished" && obstaclePhase !== "waiting-for-players"
+          ? "game"
+          : "shell",
+    );
+    const chronologyFault = actionEngine.chronologyFault;
+    if (chronologyFault) {
+      if (activeHealth.reason !== "backend-fault") {
+        applyTrackerHealth(
+          trackerHealthFixture(
+            "backend-fault",
+            healthSequence++,
+            frame.publishedAtMs,
+            frame.source,
+          ),
+        );
+      }
+      frame = {
+        ...frame,
+        health: "fault",
+        players: [],
+      };
+      statusDetail.textContent =
+        `Motion actions are blocked after a frame chronology fault (${chronologyFault}). Restart camera or replay to create a fresh tracker epoch.`;
+    }
+    latestFrame = frame;
+    if (!chronologyFault && trace.push(frame)) exportButton.disabled = false;
+    metrics.push(frame);
+    renderer.render(frame);
+    skeletonMini.hidden = !cornerSkeletonVisible({
+      source: frame.source,
+      playerCount: frame.players.length,
+      // Redundant while the full-size stage is on screen.
+      stageShowsSkeleton: !launcher.visible && currentMode === "tracker",
+    });
+    if (!skeletonMini.hidden) miniRenderer.render(frame);
+    for (const event of playerSession.observe(
+      frame.publishedAtMs,
+      frame.players.map((player) => player.id),
+    )) {
+      handlePlayerSessionEvent(event);
+    }
+    synchronizeActionEngineAssignment();
+    const trackActions = frame.players.flatMap((player) =>
+      player.actions.map((action) => ({
+        action,
+        trackId: player.id,
+      })),
+    );
+    let manualPauseOpened = false;
+    if (
+      currentMode === "obstacle"
+      && !launcher.visible
+      && !overlayKind
+    ) {
+      const pauseEvent = playerSession.openPauseForTracks(
+        trackActions.flatMap(({ action, trackId }) =>
+          action.name === "pause" && action.phase === "triggered"
+            ? [{ trackId, completedAtMs: action.occurredAtMs }]
+            : [],
+        ),
+      );
+      if (pauseEvent?.type === "pause-opened") {
+        showOverlay("manual", pauseEvent.ownerSlot);
+        manualPauseOpened = true;
+      }
+    }
+    for (const { action, trackId } of trackActions) {
+      if (manualPauseOpened && action.name !== "pause") continue;
+      handleAction(action, trackId);
+    }
+
+    // Faster than the metrics tick: a sweep lasts a few frames, and a reading
+    // that lags it is no use for judging one.
+    paintSweepReadout();
+    watchMotionLegendGesture();
+
+    if (performance.now() - lastMetricsPaint > 250) {
+      lastMetricsPaint = performance.now();
+      paintMetrics(frame);
+    }
+  }
+
+  function handlePlayerSessionEvent(event: PlayerSessionEvent): void {
+    if (event.type === "freeze") {
+      if (currentMode === "obstacle" && event.reason === "tracking-loss") {
+        obstacleRunTrackingDropoutCount += 1;
+      }
+      obstacle.setPaused(true);
+      statusDetail.textContent =
+        event.reason === "tracking-loss"
+          ? `Tracking loss confirmed for player ${event.lostSlots.join(" and ")}. Gameplay is frozen without substituting a spectator.`
+          : "Tracker continuity failed. Gameplay is frozen pending deliberate recovery.";
+    } else if (event.type === "silent-recovery") {
+      if (!overlayKind && currentMode === "obstacle") obstacle.setPaused(false);
+      statusDetail.textContent = `Player ${event.recoveredSlots.join(" and ")} reacquired inside the two-second recovery window.`;
+    } else if (event.type === "show-recovery") {
+      showOverlay("recovery", undefined, event.lostSlots);
+    }
+  }
+
+  function handleAction(action: MotionAction, trackId: string): void {
+    required<HTMLElement>("#metric-action").textContent =
+      `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
+    paintActionFeedback(action);
+    if (action.phase !== "triggered") return;
+    if (action.name === "player_join") {
+      joinPlayer(trackId);
+      return;
+    }
+    // An overlay covers the launcher, so it answers motion first. Otherwise a
+    // player who lost tracking on the home screen would be moving launcher focus
+    // behind a dialog they could not answer.
+    if (launcher.visible && !overlayKind) {
+      if (playerSession.authorizeLauncherAction(trackId) === undefined) {
+        return;
+      }
+      const launcherInput = launcherInputForMotionAction(action);
+      if (launcherInput) launcher.handleInput(launcherInput);
+      return;
+    }
+    if (action.name === "pause") return;
+    if (currentMode === "obstacle" && obstacle.snapshot().phase === "finished") {
+      if (playerSession.authorizeGameplayAction(trackId) === undefined) return;
+      const resultInput = launcherInputForMotionAction(action);
+      if (resultInput === "left" || resultInput === "right") moveRoundResultFocus();
+      else if (resultInput === "select") chooseRoundResultAction(roundResultFocus);
+      else if (resultInput === "back") showLauncher();
+      return;
+    }
+    if (
+      ["dodge_left", "dodge_right", "jump", "duck"].includes(action.name)
+    ) {
+      const slot = playerSession.authorizeGameplayAction(trackId);
+      if (currentMode === "obstacle" && slot !== undefined) obstacle.handleAction(action.name, slot);
+      return;
+    }
+    const shellInput = launcherInputForMotionAction(action);
+    if (!shellInput) return;
+    const authorized =
+      overlayKind === "manual"
+        ? playerSession.authorizeOverlayAction(trackId) !== undefined
+        : overlayKind === "recovery"
+          ? playerSession.authorizeRecoveryAction(trackId)
+          : playerSession.authorizeLauncherAction(trackId) !== undefined;
+    if (!authorized) return;
+    if (shellInput === "back") {
+      if (overlayKind) chooseOverlayAction("exit", trackId);
+      else if (currentMode !== "tracker") setMode("tracker");
+      else showLauncher();
+    } else if (
+      shellInput === "left" || shellInput === "right"
+      || shellInput === "up" || shellInput === "down"
+    ) {
+      moveFocus(shellInput);
+    } else if (shellInput === "select") {
+      selectFocused(trackId);
+    }
+  }
+
+  function recoveryGameplaySlot(gamepad?: Pick<Gamepad, "index">): PlayerSlot | undefined {
+    const joinedSlots = obstacle.snapshot().joinedSlots;
+    let assignedSlot: PlayerSlot | undefined = gamepad === undefined
+      ? 1
+      : controllerAssignments.slotForIndex(gamepad.index);
+    if (gamepad !== undefined && assignedSlot === undefined) {
+      assignedSlot = controllerAssignments.claimAvailableSlot(gamepad.index, joinedSlots);
+      if (assignedSlot !== undefined) {
+        statusDetail.textContent = `Controller ready for Player ${assignedSlot}.`;
+      }
+    }
+    return assignedSlot !== undefined && joinedSlots.includes(assignedSlot)
+      ? assignedSlot
+      : undefined;
+  }
+
+  function handleRecoveryGameplayAction(
+    action: "dodge_left" | "dodge_right" | "jump" | "duck",
+    gamepad?: Pick<Gamepad, "index">,
+  ): void {
+    const slot = recoveryGameplaySlot(gamepad);
+    if (slot !== undefined && obstacle.snapshot().phase !== "finished") obstacle.handleAction(action, slot);
+  }
+
+  function handleConsoleInput(action: ConsoleInputAction, gamepad?: Gamepad): void {
+    // The overlay covers whatever is on screen, so it takes input first. It used
+    // to sit behind the launcher check, which left a player who lost tracking on
+    // the home screen looking at an overlay nothing could answer.
+    if (overlayKind && action !== "home") {
+      if (action === "left" || action === "right" || action === "up" || action === "down") {
+        moveFocus(action);
+      } else if (action === "select") {
+        chooseOverlayAction(overlayFocus);
+      } else if (action === "back") {
+        chooseOverlayAction("exit");
+      }
+      return;
+    }
+    if (launcher.visible) {
+      launcher.handleInput(action);
+      return;
+    }
+    if (action === "home") {
+      showLauncher();
+      return;
+    }
+    if (action === "back") {
+      goBack();
+      return;
+    }
+    if (currentMode === "obstacle" && obstacle.snapshot().phase === "finished") {
+      if (action === "left" || action === "right") moveRoundResultFocus();
+      else if (action === "select") chooseRoundResultAction(roundResultFocus);
+      return;
+    }
+    if (action === "pause" && currentMode === "obstacle") {
+      showOverlay("manual");
+      return;
+    }
+    // Directions steer the run only while a run is actually under way. Waiting
+    // for players is a shell phase, not gameplay, so the dock stays reachable.
+    const playing = obstacleIsUnderWay() && !overlayKind;
+    if (action === "left" || action === "right") {
+      if (playing) {
+        handleRecoveryGameplayAction(action === "left" ? "dodge_left" : "dodge_right", gamepad);
+      }
+      else moveFocus(action);
+      return;
+    }
+    if (action === "down") {
+      if (playing) handleRecoveryGameplayAction("duck", gamepad);
+      else moveFocus("down");
+      return;
+    }
+    if (action === "up") {
+      if (!playing) moveFocus("up");
+      return;
+    }
+    if (action === "select") {
+      if (playing) {
+        handleRecoveryGameplayAction("jump", gamepad);
+        return;
+      }
+      const focused = document.activeElement;
+      // Whatever is focused wins. Joining by pressing Select used to come first
+      // and swallowed the press whenever nobody had joined yet, so the first
+      // press on any control did nothing visible and it took two to work.
+      if (!overlayKind && focused instanceof HTMLElement && focused !== document.body && motionLab.contains(focused)) {
+        focused.click();
+        return;
+      }
+      if (playerSession.snapshot().players.length === 0) {
+        joinPlayer();
+        return;
+      }
+      selectFocused();
+    }
+  }
+
+  /**
+   * Whether an Obstacle run is actually in progress. This is the same phase
+   * boundary the action engine uses to tell a game frame from a shell frame:
+   * a finished round and a round waiting for players are both shell states.
+   */
+  function obstacleIsUnderWay(): boolean {
+    if (currentMode !== "obstacle") return false;
+    const phase = obstacle.snapshot().phase;
+    return phase !== "finished" && phase !== "waiting-for-players";
+  }
+
+  function joinPlayer(trackId?: string, requestedSlot?: 1 | 2): void {
+    const snapshot = playerSession.snapshot();
+    if (requestedSlot === 2 && !snapshot.players.some((player) => player.slot === 1)) {
+      statusDetail.textContent = "Join Player 1 before Player 2 so controller ownership stays deterministic.";
+      return;
+    }
+    const joinedTrackIds = new Set(snapshot.players.map((player) => player.trackId));
+    const candidate = trackId === undefined
+      ? latestFrame?.players.find((player) => !joinedTrackIds.has(player.id))
+      : latestFrame?.players.find((player) => player.id === trackId);
+    if (!candidate) {
+      statusDetail.textContent = "No visible candidate is available to join.";
+      if (trackId !== undefined) synchronizeActionEngineAssignment();
+      return;
+    }
+    try {
+      const event = playerSession.join(candidate.id);
+      if (event.type !== "player-joined") throw new Error("join did not produce a player assignment");
+      if (requestedSlot !== undefined && event.slot !== requestedSlot) {
+        playerSession.leave(event.slot);
+        throw new Error(`Player ${requestedSlot} is not the next available slot`);
+      }
+      actionEngine.join(event.trackId, event.slot);
+    } catch (error) {
+      if (trackId !== undefined) synchronizeActionEngineAssignment();
+      statusDetail.textContent = error instanceof Error ? error.message : String(error);
+      return;
+    }
+    updatePlayerAssignmentControls();
+    const joined = playerSession.snapshot().players.find((player) => player.trackId === candidate.id);
+    statusDetail.textContent = `Player ${joined?.slot ?? requestedSlot ?? 1} joined. Its gesture baseline is isolated from every other visible body.`;
+  }
+
+  function synchronizeActionEngineAssignment(): void {
+    actionEngine.synchronize(playerSession.snapshot().players);
+    updatePlayerAssignmentControls();
+  }
+
+  function leavePlayer(slot: 1 | 2): void {
+    const player = playerSession.snapshot().players.find((candidate) => candidate.slot === slot);
+    if (!player) {
+      statusDetail.textContent = "No joined player is available to leave.";
+      return;
+    }
+    try {
+      const event = playerSession.leave(player.slot);
+      if (event.type !== "player-left") throw new Error("leave did not remove the player assignment");
+      actionEngine.leave(event.trackId);
+    } catch (error) {
+      statusDetail.textContent =
+        error instanceof Error ? error.message : String(error);
+      return;
+    }
+    obstacle.setPaused(true);
+    updatePlayerAssignmentControls();
+    statusDetail.textContent =
+      `Player ${slot} left deliberately. Visible bodies remain candidates; release the join gesture before a fresh re-entry.`;
+  }
+
+  function togglePlayerAssignment(slot: 1 | 2): void {
+    if (playerSession.snapshot().players.some((player) => player.slot === slot)) leavePlayer(slot);
+    else joinPlayer(undefined, slot);
+  }
+
+  function updatePlayerAssignmentControls(): void {
+    const joinedSlots = new Set(playerSession.snapshot().players.map((player) => player.slot));
+    joinButton.textContent = joinedSlots.has(1) ? "LEAVE PLAYER 1" : "JOIN PLAYER 1";
+    joinPlayer2Button.textContent = joinedSlots.has(2) ? "LEAVE PLAYER 2" : "JOIN PLAYER 2";
+    joinButton.disabled = false;
+    joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
+    synchronizeObstacleRoster();
+    paintMotionLegend();
+  }
+
+  function paintMetrics(frame: MotionFrame): void {
+    const snapshot = metrics.snapshot();
+    const player = frame.players[0];
+    const formatMilliseconds = (value: number | null): string =>
+      value === null ? "-- MS" : `${value.toFixed(1)} MS`;
+    required<HTMLElement>("#metric-tracker").textContent =
+      frame.source === "mediapipe-web"
+        ? tracker.delegate.toUpperCase()
+        : simulatorEnabled
+          ? "SIMULATOR"
+          : "SYNTHETIC";
+    const joinedCount = frame.players.filter((candidate) => candidate.state === "joined").length;
+    const candidateCount = frame.players.length - joinedCount;
+    required<HTMLElement>("#metric-player").textContent = player
+      ? `${joinedCount} JOINED / ${candidateCount} CANDIDATE`
+      : "NOT FOUND";
+    required<HTMLElement>("#metric-confidence").textContent = player ? `${Math.round(player.confidence * 100)}%` : "--";
+    required<HTMLElement>("#metric-fps").textContent = snapshot.fps ? snapshot.fps.toFixed(1) : "--";
+    required<HTMLElement>("#metric-inference-p50").textContent =
+      formatMilliseconds(snapshot.inferenceP50);
+    required<HTMLElement>("#metric-inference-p95").textContent =
+      formatMilliseconds(snapshot.inferenceP95);
+    required<HTMLElement>("#metric-source-timing-label").textContent =
+      snapshot.sourceTiming.boundaryLabel;
+    required<HTMLElement>("#metric-source-timing-p95").textContent =
+      formatMilliseconds(snapshot.sourceTiming.p95);
+    required<HTMLElement>("#measurement-note").textContent =
+      snapshot.sourceTiming.disclosure;
+    required<HTMLElement>("#metric-dropped").textContent = String(tracker.droppedFrames);
+    required<HTMLElement>("#metric-trace").textContent = String(trace.size);
+    paintPlayerControlAvailability(
+      assessPlayerControlAvailability(frame.players[0], frame.health),
+    );
+  }
+
+  const CONTROL_LABELS = {
+    menuSelect: "SELECT",
+    menuBackPause: "BACK / PAUSE",
+    menuSwipe: "SWIPE",
+    gameDodge: "DODGE",
+    gameDuck: "DUCK",
+    gameJump: "JUMP",
+  } as const satisfies Readonly<Record<PlayerControlGroup, string>>;
+
+  function paintPlayerControlAvailability(availability: PlayerControlAvailability): void {
+    playerAvailabilityCard.dataset.state = availability.state;
+    playerControlState.textContent = availability.state.toUpperCase();
+    playerControlTitle.textContent =
+      availability.reason === "tracker-not-ready"
+        ? "Tracker health blocks motion control"
+        : availability.reason === "player-missing"
+          ? "No player body is available"
+          : availability.state === "full"
+            ? "All tracked regions observed"
+            : availability.state === "partial"
+              ? "Some controls remain available"
+              : "Required control landmarks are missing";
+    playerControlDetail.textContent =
+      availability.reason === "tracker-not-ready"
+        ? "Global tracker health remains authoritative. Use controller or keyboard until it recovers."
+        : availability.reason === "player-missing"
+          ? "Re-enter the tracking area or use controller or keyboard recovery."
+          : availability.state === "full"
+            ? "All six control groups have their required observed landmarks."
+            : `${availability.missingLandmarks.length} of 17 core landmarks are not observed. Unrelated controls remain active.`;
+    const unavailable = PLAYER_CONTROL_GROUPS.filter(
+      (control) => !availability.controls[control],
+    ).map((control) => CONTROL_LABELS[control]);
+    playerUnavailableControls.replaceChildren();
+    const label = document.createElement("strong");
+    label.textContent = "UNAVAILABLE";
+    playerUnavailableControls.append(label, ` ${unavailable.join(" · ") || "NONE"}`);
+    for (const indicator of playerRegionIndicators) {
+      const region = indicator.dataset.playerRegion as (typeof PLAYER_BODY_REGIONS)[number];
+      indicator.dataset.state = availability.regions[region];
+    }
+  }
+
+  function setBodyVisibilityFixture(fixture: BodyVisibilityFixture): void {
+    bodyVisibilityFixture = fixture;
+    for (const button of bodyFixtureButtons) {
+      const active = button.dataset.bodyFixture === fixture;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    }
+  }
+
+  function updateStatus(status: TrackerStatus, detail: string): void {
+    statusDetail.textContent = detail;
+    const cameraState = cameraStateForTrackerStatus(status);
+    if (cameraState) paintCameraState(cameraState);
+    cameraButton.disabled = status === "loading" || status === "requesting-camera";
+    cameraButton.textContent = status === "running" ? "STOP CAMERA" : "START CAMERA";
+    replayButton.disabled = replayRunning;
+    sourceBadge.textContent =
+      status === "running"
+        ? "MEDIAPIPE / LOCAL"
+        : simulatorEnabled
+          ? `POSE SIMULATOR / ${poseSimulator.snapshot.pose.replaceAll("-", " ").toUpperCase()}`
+          : "SYNTHETIC REPLAY";
+    for (const button of healthFixtureButtons) button.disabled = !replayRunning;
+    for (const button of bodyFixtureButtons) button.disabled = !replayRunning;
+  }
+
+  function paintCameraState(state: CameraSoftwareState): void {
+    const presentation = cameraStatePresentation(state);
+    cameraStateCard.dataset.state = state;
+    cameraStateBadge.textContent = presentation.badge;
+    cameraStateTitle.textContent = presentation.title;
+    cameraAccessState.textContent = presentation.access;
+    cameraActivityState.textContent = presentation.activity;
+    cameraStateDetail.textContent = presentation.detail;
+    cameraShutterState.textContent = CAMERA_SHUTTER_STATE;
+    cameraShutterDetail.textContent = CAMERA_SHUTTER_DETAIL;
+  }
+
+  function applyTrackerHealth(event: TrackerHealthEvent): void {
+    activeHealth = event;
+    trace.pushHealth(event);
+    const presentation = trackerHealthPresentation(event);
+    healthBadge.textContent = presentation.badge;
+    healthBadge.dataset.state = event.status;
+    trackerHealthCard.dataset.state = event.status;
+    trackerHealthTitle.textContent = presentation.title;
+    trackerHealthDetail.textContent = presentation.detail;
+    trackerControl.textContent =
+      event.controlAvailability === "full"
+        ? "FULL"
+        : event.controlAvailability === "landmarks-only"
+          ? "LANDMARKS ONLY"
+          : "CONTROLLER ONLY";
+    if (event.source === "mediapipe-web") {
+      if (event.reason === "camera-unavailable") paintCameraState("unavailable");
+      else if (event.reason === "camera-disconnected") paintCameraState("disconnected");
+      else if (event.reason === "backend-fault") paintCameraState("failed");
+    }
+    systemState.textContent =
+      event.status === "ready"
+        ? event.source === "mediapipe-web" ? "CAMERA ACTIVE" : "REPLAY READY"
+        : event.status === "degraded"
+          ? "TRACKER DEGRADED"
+          : event.status === "starting"
+            ? "TRACKER STARTING"
+            : "TRACKER FAULT";
+    if (event.status !== "ready") actionEngine.suspend();
+    if (event.controlAvailability === "blocked") {
+      obstacle.setPaused(true);
+      for (const sessionEvent of playerSession.observe(event.occurredAtMs, [], { hardFault: true })) {
+        handlePlayerSessionEvent(sessionEvent);
+      }
+    }
+  }
+
+  function handleSimulatorGamepadState(actions: ReadonlySet<ConsoleInputAction>): void {
+    // Deliberately inert. The pad drives focus, not poses: while it latched a
+    // pose per direction the player could never move focus to the toggle and
+    // switch the simulator back off. Poses are chosen by activating a pose
+    // button; the keyboard keys below still drive them live.
+    void actions;
+  }
+
+  function effectiveSimulatorPose(): MotionSimulatorPose {
+    const keyboard = [...simulatorKeyboardPoses.values()].at(-1);
+    return keyboard ?? simulatorControllerPose ?? simulatorLatchedPose;
+  }
+
+  function applyEffectiveSimulatorPose(): void {
+    poseSimulator.setPose(effectiveSimulatorPose());
+    paintSimulator();
+  }
+
+  function setSimulatorLatchedPose(pose: MotionSimulatorPose): void {
+    simulatorLatchedPose = pose;
+    applyEffectiveSimulatorPose();
+  }
+
+  function setSimulatorPlayerVisible(visible: boolean): void {
+    poseSimulator.setPlayerVisible(visible);
+    paintSimulator();
+  }
+
+  function setSimulatorEnabled(enabled: boolean, restartReplay = true): void {
+    if (simulatorEnabled === enabled && !restartReplay) return;
+    simulatorEnabled = enabled;
+    simulatorLatchedPose = "neutral";
+    simulatorControllerPose = undefined;
+    simulatorKeyboardPoses.clear();
+    poseSimulator.reset();
+    paintSimulator();
+    if (restartReplay) {
+      startReplay(
+        "idle",
+        enabled
+          ? "Camera-free pose simulator is active. Landmarks are deterministic; no camera is requested."
+          : "Synthetic input is running. Camera access is off.",
+      );
+    }
+  }
+
+  function paintSimulator(): void {
+    const snapshot = poseSimulator.snapshot;
+    simulatorCard.dataset.enabled = String(simulatorEnabled);
+    simulatorState.textContent = simulatorEnabled
+      ? `${snapshot.pose.replaceAll("-", " ").toUpperCase()} / ${snapshot.playerVisible ? "VISIBLE" : "HIDDEN"}`
+      : "OFF";
+    simulatorToggle.textContent = simulatorEnabled ? "DISABLE POSE SIMULATOR" : "ENABLE POSE SIMULATOR";
+    simulatorToggle.setAttribute("aria-pressed", String(simulatorEnabled));
+    simulatorPlayerToggle.textContent = snapshot.playerVisible ? "HIDE PLAYER" : "SHOW PLAYER";
+    simulatorPlayerToggle.setAttribute("aria-pressed", String(!snapshot.playerVisible));
+    simulatorPlayerToggle.disabled = !simulatorEnabled;
+    for (const button of simulatorPoseButtons) {
+      const pose = button.dataset.simulatorPose as MotionSimulatorPose;
+      button.disabled = !simulatorEnabled;
+      button.classList.toggle("active", simulatorEnabled && snapshot.pose === pose);
+    }
+    if (replayRunning) {
+      sourceBadge.textContent = simulatorEnabled
+        ? `POSE SIMULATOR / ${snapshot.pose.replaceAll("-", " ").toUpperCase()}`
+        : "SYNTHETIC REPLAY";
+    }
+  }
+
+  function setMode(mode: AppMode): void {
+    if (!LAB_MODE && mode !== "obstacle") return;
+    currentMode = mode;
+    focusedModeIndex = Math.max(0, modeButtons.findIndex((button) => button.dataset.mode === mode));
+    for (const view of document.querySelectorAll<HTMLElement>(".stage-view")) view.hidden = view.id !== `${mode}-view`;
+    for (const button of modeButtons) button.classList.toggle("active", button.dataset.mode === mode);
+    for (const card of shellCards) card.classList.toggle("focused", card.dataset.shellTarget === mode);
+    const copy = MODE_COPY[mode];
+    required<HTMLElement>("#stage-eyebrow").textContent = copy.eyebrow;
+    required<HTMLElement>("#lab-title").textContent = copy.title;
+    required<HTMLElement>("#stage-note").innerHTML = copy.note;
+    // Diagnostics belong to the tracker surface; games run full-bleed. The
+    // dock toggle can still open the drawer in any mode.
+    setDiagnostics(mode === "tracker");
+    if (mode === "obstacle") synchronizeObstacleRoster();
+    obstacle.setPaused(mode !== "obstacle" || Boolean(overlayKind));
+    if (mode !== "obstacle") disarmLeaderboardReset();
+  }
+
+  function setDiagnostics(open: boolean): void {
+    diagnosticsOpen = open;
+    telemetryPanel.hidden = !open;
+    consoleShellRoot.dataset.diagnostics = open ? "open" : "closed";
+    diagnosticsToggle.setAttribute("aria-pressed", String(open));
+    diagnosticsToggle.classList.toggle("active", open);
+  }
+
+  function labControls(): HTMLElement[] {
+    return [
+      ...motionLab.querySelectorAll<HTMLElement>("button:not([disabled])"),
+    ].filter((element) => element.offsetParent !== null);
+  }
+
+  function moveFocus(direction: FocusDirection): void {
+    if (overlayKind) {
+      const step = direction === "left" || direction === "up" ? -1 : 1;
+      const index = overlayChoices.indexOf(overlayFocus);
+      overlayFocus = overlayChoices[
+        (index + step + overlayChoices.length) % overlayChoices.length
+      ] ?? "resume";
+      paintOverlayFocus();
+      return;
+    }
+    // Directional movement across the dock, the stage, and the diagnostics
+    // sections, resolved by where controls sit rather than by authored order.
+    const controls = labControls();
+    if (controls.length === 0) return;
+    const active = controls[controls.indexOf(document.activeElement as HTMLElement)];
+    const next = active ? nearestControl(controls, active, direction) : controls[0];
+    if (!next) {
+      // The diagnostics drawer holds readable content past its last control, so
+      // pressing on at the edge reveals it rather than doing nothing.
+      if (active) scrollBeyondFocus(active, direction);
+      return;
+    }
+    focusControl(next);
+    const nextModeIndex = modeButtons.findIndex((button) => button === next);
+    if (nextModeIndex !== -1) focusedModeIndex = nextModeIndex;
+    for (const card of shellCards) {
+      card.classList.toggle(
+        "focused",
+        card === next || card.dataset.shellTarget === next?.dataset.mode,
+      );
+    }
+  }
+
+  function selectFocused(trackId?: string): void {
+    if (overlayKind) {
+      chooseOverlayAction(overlayFocus, trackId);
+      return;
+    }
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement
+      && active !== document.body
+      && motionLab.contains(active)
+    ) {
+      active.click();
+      return;
+    }
+    modeButtons[focusedModeIndex]?.click();
+  }
+
+  /** "Player 1", or "Players 1 and 2", so the overlay says who it is waiting for. */
+  function describeSlots(slots: readonly PlayerSlot[]): string {
+    if (slots.length === 1) return `Player ${slots[0]}`;
+    return `Players ${slots.join(" and ")}`;
+  }
+
+  function showOverlay(
+    kind: OverlayKind,
+    ownerSlot?: 1 | 2,
+    lostSlots: readonly PlayerSlot[] = [],
+  ): void {
+    if (overlayKind) return;
+    if (kind === "manual" && currentMode === "obstacle") obstacleRunPauseCount += 1;
+    overlayKind = kind;
+    overlay.hidden = false;
+    // With two players and only one missing, the round does not have to end: the
+    // player still in the room can carry on alone. Without this the only way out
+    // of a permanent loss was ending the run.
+    const roster = playerSession.snapshot().players;
+    overlayKeepSlots = kind === "recovery" && roster.length === 2 && lostSlots.length === 1
+      ? roster.map((player) => player.slot).filter((slot) => !lostSlots.includes(slot))
+      : [];
+    overlayChoices = overlayKeepSlots.length > 0
+      ? ["resume", "drop", "exit"]
+      : ["resume", "exit"];
+    const dropButton = overlayButtons.find((button) => button.dataset.overlayAction === "drop");
+    if (dropButton) {
+      dropButton.hidden = overlayKeepSlots.length === 0;
+      dropButton.textContent = `CONTINUE WITHOUT ${describeSlots(lostSlots).toUpperCase()}`;
+    }
+    obstacle.setPaused(true);
+    overlayFocus = "resume";
+    required<HTMLElement>("#overlay-eyebrow").textContent =
+      kind === "manual"
+        ? ownerSlot === undefined
+          ? "SYSTEM PAUSE / CONTROLLER"
+          : `SYSTEM PAUSE / PLAYER ${ownerSlot}`
+        : "TRACKING RECOVERY";
+    required<HTMLElement>("#overlay-title").textContent = kind === "manual" ? "GAME PAUSED" : "PLAYER LOST";
+    required<HTMLElement>("#overlay-copy").textContent =
+      kind === "manual"
+        ? ownerSlot === undefined
+          ? "The controller paused the round. Resume is ready."
+          : `Player ${ownerSlot} paused the round. Resume is ready.`
+        : lostSlots.length === 0
+          ? "Tracking did not recover in two seconds. Step back into view, then choose Resume."
+          : `Tracking was lost for ${describeSlots(lostSlots)}. Step back into view, then choose Resume.`;
+    paintOverlayFocus();
+    paintMotionLegend();
+  }
+
+  function paintOverlayFocus(): void {
+    for (const button of overlayButtons) {
+      const focused = button.dataset.overlayAction === overlayFocus;
+      button.classList.toggle("focused", focused);
+      if (focused) button.focus();
+    }
+  }
+
+  /**
+   * Which track answers for the console when the press named no player, as a
+   * controller or the keyboard does.
+   *
+   * A single player recovers by taking their slot back, so whoever is in view
+   * can answer for it. More than one has to be answered by a player the console
+   * is keeping and can currently see, because that is what resuming a
+   * multiplayer roster demands; picking the first body in the frame could hand
+   * the console to the player who was just lost, or to a passer-by.
+   */
+  function retainedRecoveryTrack(keepSlots: readonly PlayerSlot[]): string | undefined {
+    const visible = latestFrame?.players ?? [];
+    const roster = playerSession.snapshot().players;
+    if (roster.length <= 1) return visible[0]?.id;
+    const visibleIds = new Set(visible.map((player) => player.id));
+    return roster.find(
+      (player) => keepSlots.includes(player.slot) && visibleIds.has(player.trackId),
+    )?.trackId;
+  }
+
+  function chooseOverlayAction(
+    action: OverlayAction,
+    recoveryTrackId?: string,
+  ): void {
+    const kind = overlayKind;
+    if (action === "drop") {
+      // Carry on with whoever is still in the room, rather than ending the run
+      // because someone left it.
+      const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+      if (candidate === undefined) {
+        statusDetail.textContent = "Continuing needs the remaining player in view.";
+        return;
+      }
+      try {
+        playerSession.resumeRecovery(candidate, overlayKeepSlots);
+        synchronizeActionEngineAssignment();
+      } catch (error) {
+        statusDetail.textContent = error instanceof Error ? error.message : String(error);
+        return;
+      }
+      closeOverlay(true);
+      synchronizeObstacleRoster();
+      return;
+    }
+    if (action === "exit") {
+      if (kind === "recovery") resetPlayerSession();
+      else closeOwnedPause("launcher");
+      closeOverlay(false);
+      // Leaving a run hands focus to the section tabs rather than the launcher,
+      // so the rest of the screen stays reachable. Home still leaves entirely.
+      modeButtons[focusedModeIndex]?.focus();
+      return;
+    }
+    if (kind === "recovery") {
+      const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
+      if (candidate === undefined) {
+        statusDetail.textContent = "Resume requires a visible player candidate.";
+        return;
+      }
+      try {
+        playerSession.resumeRecovery(candidate);
+        synchronizeActionEngineAssignment();
+      } catch (error) {
+        statusDetail.textContent = error instanceof Error ? error.message : String(error);
+        return;
+      }
+    } else {
+      closeOwnedPause("game");
+    }
+    closeOverlay(true);
+  }
+
+  function closeOwnedPause(destination: "game" | "launcher"): void {
+    const snapshot = playerSession.snapshot();
+    if (
+      snapshot.phase === "paused"
+      && snapshot.overlayOwner !== undefined
+    ) {
+      playerSession.closePause(snapshot.overlayOwner, destination);
+    }
+  }
+
+  /**
+   * Shows where the recognizer thinks the hands are, because a gesture is a
+   * posture and so has no progress of its own.
+   *
+   * Reading the zone and how far a hand has travelled out of the home position
+   * is what tells a developer whether a hand that felt held out fell short of
+   * the distance a gesture needs, or was read as another zone entirely.
+   */
+  function paintSweepReadout(): void {
+    const sweep = actionEngine.sweep;
+    const percent = Math.min(100, Math.round(sweep.offset * 100));
+    sweepReadout.dataset.raised = String(sweep.handRaised);
+    sweepReadout.dataset.zone = sweep.zone;
+    sweepHand.textContent = sweep.zone === "rest"
+      ? "NO READING"
+      : sweep.zone === "home"
+        ? "READY"
+        : sweep.zone.toUpperCase();
+    sweepMeter.setAttribute("aria-valuenow", String(percent));
+    sweepMeterFill.style.width = `${percent}%`;
+    sweepDetail.textContent = sweep.zone === "rest"
+      ? "Join a player to read gestures."
+      : sweep.zone === "home"
+        ? "Ready. Hold a hand out away from your body, or touch your head."
+        : "Let your arms hang again before the next move.";
+  }
+
+  function paintActionFeedback(action: MotionAction): void {
+    const feedback = actionFeedback(action);
+    const percent = Math.round(feedback.progress * 100);
+    gestureFeedback.dataset.state = feedback.phase;
+    gestureAction.textContent = feedback.actionLabel.toUpperCase();
+    gesturePhase.textContent = feedback.phaseLabel.toUpperCase();
+    gestureProgress.setAttribute("aria-valuenow", String(percent));
+    gestureProgress.setAttribute("aria-valuetext", `${feedback.actionLabel}: ${feedback.phaseLabel}`);
+    gestureProgressFill.style.width = `${percent}%`;
+    gestureDetail.textContent = feedback.detail;
+  }
+
+  function resetPlayerSession(): void {
+    playerSession.reset();
+    actionEngine.reset();
+    updatePlayerAssignmentControls();
+  }
+
+  function closeOverlay(resume: boolean): void {
+    overlay.hidden = true;
+    overlayKind = undefined;
+    obstacle.setPaused(!resume || currentMode !== "obstacle");
+    statusDetail.textContent = resume ? "Game resumed deliberately." : "Console overlay closed.";
+    modeButtons[focusedModeIndex]?.focus();
+    paintMotionLegend();
+  }
+
+  function goBack(): void {
+    if (overlayKind) {
+      chooseOverlayAction("exit");
+      return;
+    }
+    if (currentMode === "obstacle") {
+      const phase = obstacle.snapshot().phase;
+      // Back never dumps a live round: it pauses first, so leaving is always
+      // one deliberate overlay choice away.
+      if (phase === "countdown" || phase === "playing") showOverlay("manual");
+      else showLauncher();
+      return;
+    }
+    if (currentMode !== "tracker") setMode("tracker");
+    else if (!replayRunning) startReplay();
+    else showLauncher();
+  }
+
+  function startReplay(status: TrackerStatus = "idle", detail = "Synthetic input is running. Camera access is off."): void {
+    tracker.stop();
+    if (!LAB_MODE) {
+      simulatorEnabled = true;
+      poseSimulator.reset();
+      detail = status === "fault" ? "Camera unavailable. Use the controller or keyboard to play." : "Controller input is active. Camera access is off.";
+    }
+    replayRunning = true;
+    metrics.reset();
+    trace.clear();
+    exportButton.disabled = true;
+    resetPlayerSession();
+    replayButton.disabled = true;
+    cameraButton.textContent = "START CAMERA";
+    paintSimulator();
+    applyTrackerHealth(trackerHealthFixture("healthy", healthSequence++, performance.now()));
+    updateStatus(status, detail);
+  }
+
+  function currentLeaderboardInputMode(): LeaderboardInputMode {
+    if (!replayRunning) return "camera";
+    return simulatorEnabled ? "simulator" : "replay";
+  }
+
+  function resetObstacleRun(): void {
+    obstacleRunPauseCount = 0;
+    obstacleRunTrackingDropoutCount = 0;
+    obstacleRunRecorded = false;
+    obstacle.reset();
+    synchronizeObstacleRoster();
+    obstacle.setPaused(currentMode !== "obstacle" || Boolean(overlayKind));
+    statusDetail.textContent = obstacle.snapshot().joinedSlots.length === 0
+      ? "Join Player 1 to start the round."
+      : "The round countdown has started. A second player can join at any time.";
+  }
+
+  function synchronizeObstacleRoster(): void {
+    obstacle.setRoster(
+      playerSession.snapshot().players.map((player) => player.slot),
+    );
+  }
+
+  function moveRoundResultFocus(): void {
+    roundResultFocus = roundResultFocus === "again" ? "console" : "again";
+    paintRoundResultFocus();
+  }
+
+  function paintRoundResultFocus(): void {
+    for (const button of document.querySelectorAll<HTMLButtonElement>("[data-result-action]")) {
+      const focused = button.dataset.resultAction === roundResultFocus;
+      button.classList.toggle("focused", focused);
+      if (focused && obstacleRoundPhase === "finished") button.focus();
+    }
+  }
+
+  function chooseRoundResultAction(action: "again" | "console"): void {
+    if (action === "again") resetObstacleRun();
+    else showLauncher();
+  }
+
+  function paintLeaderboard(): void {
+    const list = required<HTMLOListElement>("#leaderboard-list");
+    const storageStatus = required<HTMLElement>("#leaderboard-storage-status");
+    const snapshot = obstacleLeaderboard.snapshot();
+    list.replaceChildren();
+    if (snapshot.entries.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "leaderboard-empty";
+      empty.textContent = "NO COMPLETED RUNS";
+      list.append(empty);
+    } else {
+      for (const [index, entry] of snapshot.entries.slice(0, 5).entries()) {
+        const item = document.createElement("li");
+        const rank = document.createElement("span");
+        const score = document.createElement("strong");
+        const context = document.createElement("small");
+        rank.textContent = String(index + 1).padStart(2, "0");
+        score.textContent = `${String(entry.score).padStart(6, "0")} · ${
+          entry.player.kind === "local-profile" ? entry.player.label : "UNASSIGNED"
+        }`;
+        context.textContent =
+          `${entry.inputMode.toUpperCase()} · P${entry.pauseCount} · DROP ${entry.trackingDropoutCount}`;
+        item.append(rank, score, context);
+        list.append(item);
+      }
+    }
+    storageStatus.textContent = !snapshot.persistenceAvailable
+      ? "LOCAL STORAGE UNAVAILABLE - THIS SESSION'S SCORES WILL NOT SURVIVE RELOAD."
+      : snapshot.recoveredMalformedData
+        ? "MALFORMED LOCAL SCORE DATA WAS REMOVED. THE BOARD RECOVERED EMPTY."
+        : `${snapshot.entries.length} OF 20 LOCAL RUNS RETAINED.`;
+    storageStatus.dataset.state =
+      !snapshot.persistenceAvailable || snapshot.recoveredMalformedData ? "warning" : "ready";
+  }
+
+  function disarmLeaderboardReset(): void {
+    leaderboardResetArmed = false;
+    required<HTMLButtonElement>("#reset-board-button").textContent = "RESET LOCAL BOARD";
+  }
+
+  function replayLoop(now: number): void {
+    if (replayRunning) {
+      acceptFrame(
+        twoPlayerTestFixtureEnabled
+          ? twoPlayerSyntheticFrame(replaySequence++, now)
+          : simulatorEnabled
+          ? poseSimulator.frame(replaySequence++, now)
+          : syntheticFrame(replaySequence++, now),
+      );
+    }
+    replayFrame = requestAnimationFrame(replayLoop);
+  }
+
+  function twoPlayerSyntheticFrame(sequence: number, nowMs: number): MotionFrame {
+    const frame = syntheticFrame(sequence, nowMs);
+    const sourcePlayer = frame.players[0];
+    if (!sourcePlayer) return frame;
+    const player1 = {
+      ...sourcePlayer,
+      id: "test-player-1",
+      actions: [],
+      coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
+        ...landmark,
+        position: { ...landmark.position, x: Math.max(0, landmark.position.x - 0.2) },
+      })),
+      bounds: {
+        ...sourcePlayer.bounds,
+        left: Math.max(0, sourcePlayer.bounds.left - 0.2),
+        right: sourcePlayer.bounds.right - 0.2,
+      },
+    };
+    const player2 = {
+      ...sourcePlayer,
+      id: "test-player-2",
+      actions: [],
+      coreLandmarks: sourcePlayer.coreLandmarks.map((landmark) => ({
+        ...landmark,
+        position: { ...landmark.position, x: Math.min(1, landmark.position.x + 0.2) },
+      })),
+      bounds: {
+        ...sourcePlayer.bounds,
+        left: sourcePlayer.bounds.left + 0.2,
+        right: Math.min(1, sourcePlayer.bounds.right + 0.2),
+      },
+    };
+    return {
+      ...frame,
+      capabilities: { ...frame.capabilities, maxPlayers: 2 },
+      players: [player1, player2],
+    };
+  }
+
+  async function startCameraTracking(): Promise<void> {
+    setSimulatorEnabled(false, false);
+    setBodyVisibilityFixture("full");
+    replayRunning = false;
+    metrics.reset();
+    trace.clear();
+    exportButton.disabled = true;
+    resetPlayerSession();
+    try {
+      if (await tracker.start(captureProfile)) replayButton.disabled = false;
+    } catch (error) {
+      const cameraState = cameraStateForStartFailure(error);
+      const presentation = cameraStatePresentation(cameraState);
+      startReplay(
+        "fault",
+        `Camera start did not complete; synthetic fallback is active. ${presentation.detail}`,
+      );
+      paintCameraState(cameraState);
+    }
+  }
+
+  cameraButton.addEventListener("click", () => {
+    if (cameraButton.textContent === "STOP CAMERA") {
+      startReplay();
+      return;
+    }
+    void startCameraTracking();
+  }, { signal: lifecycle.signal });
+
+  joinButton.addEventListener("click", () => togglePlayerAssignment(1), { signal: lifecycle.signal });
+  joinPlayer2Button.addEventListener("click", () => togglePlayerAssignment(2), { signal: lifecycle.signal });
+  replayButton.addEventListener("click", () => startReplay(), { signal: lifecycle.signal });
+  simulatorToggle.addEventListener("click", () => setSimulatorEnabled(!simulatorEnabled), { signal: lifecycle.signal });
+  simulatorPlayerToggle.addEventListener("click", () => {
+    if (simulatorEnabled) setSimulatorPlayerVisible(!poseSimulator.snapshot.playerVisible);
+  }, { signal: lifecycle.signal });
+  for (const button of simulatorPoseButtons) {
+    button.addEventListener("click", () => {
+      if (simulatorEnabled) setSimulatorLatchedPose(button.dataset.simulatorPose as MotionSimulatorPose);
+    }, { signal: lifecycle.signal });
+  }
+  for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode as AppMode), { signal: lifecycle.signal });
+  for (const card of shellCards) card.addEventListener("click", () => setMode(card.dataset.shellTarget as AppMode), { signal: lifecycle.signal });
+  for (const button of overlayButtons) button.addEventListener("click", () => chooseOverlayAction(button.dataset.overlayAction as "resume" | "exit"), { signal: lifecycle.signal });
+  for (const button of healthFixtureButtons) {
+    button.addEventListener("click", () => {
+      if (!replayRunning) return;
+      const reason = button.dataset.healthFixture as TrackerHealthReason;
+      applyTrackerHealth(trackerHealthFixture(reason, healthSequence++, performance.now()));
+    }, { signal: lifecycle.signal });
+  }
+  for (const button of bodyFixtureButtons) {
+    button.addEventListener("click", () => {
+      if (replayRunning) {
+        setBodyVisibilityFixture(button.dataset.bodyFixture as BodyVisibilityFixture);
+      }
+    }, { signal: lifecycle.signal });
+  }
+  required<HTMLButtonElement>("#manual-pause-button").addEventListener("click", () => showOverlay("manual"), { signal: lifecycle.signal });
+  required<HTMLButtonElement>("#tracking-loss-button").addEventListener("click", () => {
+    if (currentMode === "obstacle") obstacleRunTrackingDropoutCount += 1;
+    obstacle.setPaused(true);
+    statusDetail.textContent = "Test loss confirmed. Waiting through the two-second reacquisition window.";
+    setTimeout(() => showOverlay("recovery"), 2_000);
+  }, { signal: lifecycle.signal });
+
+  exportButton.addEventListener("click", () => {
+    const blob = new Blob([`${JSON.stringify(trace.snapshot(), null, 2)}\n`], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `vcg-motion-trace-${new Date().toISOString().replaceAll(":", "-")}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    statusDetail.textContent = `Exported ${trace.size} skeleton-only frames. No camera images were included.`;
+  }, { signal: lifecycle.signal });
+
+  function paintClock(): void {
+    required<HTMLElement>("#clock").textContent = new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
+  }
+
+  const SIMULATOR_KEY_POSES = new Map<string, MotionSimulatorPose>([
+    ["KeyW", "jump"],
+    ["KeyA", "dodge-left"],
+    ["KeyD", "dodge-right"],
+    ["KeyS", "duck"],
+    ["KeyJ", "hands-together"],
+    ["KeyK", "crossed-arms"],
+    ["KeyQ", "swipe-left"],
+    ["KeyE", "swipe-right"],
+    ["KeyR", "swipe-up"],
+    ["KeyF", "swipe-down"],
+  ]);
+
+  function handleSimulatorKeyDown(event: KeyboardEvent): boolean {
+    if (
+      !simulatorEnabled
+      || motionLab.hidden
+      || event.metaKey
+      || event.ctrlKey
+      || event.altKey
+      || event.target instanceof HTMLInputElement
+      || event.target instanceof HTMLTextAreaElement
+    ) {
+      return false;
+    }
+    if (event.code === "KeyH") {
+      event.preventDefault();
+      if (!event.repeat) setSimulatorPlayerVisible(!poseSimulator.snapshot.playerVisible);
+      return true;
+    }
+    if (event.code === "KeyN") {
+      event.preventDefault();
+      if (!event.repeat) {
+        simulatorKeyboardPoses.clear();
+        setSimulatorLatchedPose("neutral");
+      }
+      return true;
+    }
+    const pose = SIMULATOR_KEY_POSES.get(event.code);
+    if (!pose) return false;
+    event.preventDefault();
+    simulatorKeyboardPoses.set(event.code, pose);
+    applyEffectiveSimulatorPose();
+    return true;
+  }
+
+  function handleSimulatorKeyUp(event: KeyboardEvent): void {
+    if (!simulatorKeyboardPoses.delete(event.code)) return;
+    event.preventDefault();
+    applyEffectiveSimulatorPose();
+  }
+
+
+  const cursor = installAutoHidingCursor(document.body);
+  required<HTMLButtonElement>("#new-run-button").addEventListener("click", resetObstacleRun, { signal: lifecycle.signal });
+  required<HTMLButtonElement>("#play-again-button").addEventListener("click", resetObstacleRun, { signal: lifecycle.signal });
+  required<HTMLButtonElement>("#return-console-button").addEventListener("click", showLauncher, { signal: lifecycle.signal });
+  required<HTMLButtonElement>("#reset-board-button").addEventListener("click", () => {
+    if (!leaderboardResetArmed) {
+      leaderboardResetArmed = true;
+      required<HTMLButtonElement>("#reset-board-button").textContent = "CONFIRM RESET";
+      statusDetail.textContent = "Press Confirm Reset to permanently clear this device's local obstacle board.";
+      return;
+    }
+    obstacleLeaderboard.reset();
+    paintLeaderboard();
+    disarmLeaderboardReset();
+    statusDetail.textContent = "The unverified local obstacle board was reset.";
+  }, { signal: lifecycle.signal });
+  window.addEventListener("keyup", handleSimulatorKeyUp, { signal: lifecycle.signal });
+  document.addEventListener("keydown", (event) => {
+    if (handleSimulatorKeyDown(event)) return;
+    if (event.key === "/" && launcher.visible && !event.metaKey && !event.ctrlKey && !(event.target instanceof HTMLInputElement)) {
+      event.preventDefault();
+      launcher.openSearch();
+      return;
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (launcher.visible) launcher.back();
+      else goBack();
+    }
+    if (!launcher.visible && overlayKind && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)) {
+      event.preventDefault();
+      moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
+    } else if (
+      !launcher.visible
+      && currentMode === "obstacle"
+      && !overlayKind
+      && obstacle.snapshot().phase === "finished"
+      && ["ArrowLeft", "ArrowRight"].includes(event.key)
+    ) {
+      event.preventDefault();
+      moveRoundResultFocus();
+    } else if (
+      !launcher.visible
+      && currentMode === "obstacle"
+      && !overlayKind
+      && obstacleIsUnderWay()
+      && ["ArrowLeft", "ArrowRight", "ArrowDown"].includes(event.key)
+    ) {
+      event.preventDefault();
+      handleRecoveryGameplayAction(
+        event.key === "ArrowLeft" ? "dodge_left" : event.key === "ArrowRight" ? "dodge_right" : "duck",
+      );
+    } else if (
+      !launcher.visible
+      && !overlayKind
+      && !obstacleIsUnderWay()
+      && ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(event.key)
+    ) {
+      event.preventDefault();
+      moveFocus(event.key.replace("Arrow", "").toLowerCase() as FocusDirection);
+    }
+    if (
+      !launcher.visible
+      && currentMode === "obstacle"
+      && !overlayKind
+      && obstacleIsUnderWay()
+      && event.key === " "
+    ) {
+      event.preventDefault();
+      handleRecoveryGameplayAction("jump");
+    }
+    if (event.key === "Enter" && overlayKind) chooseOverlayAction(overlayFocus);
+    else if (
+      event.key === "Enter"
+      && !launcher.visible
+      && currentMode === "obstacle"
+      && obstacle.snapshot().phase === "finished"
+    ) {
+      chooseRoundResultAction(roundResultFocus);
+    }
+  }, { signal: lifecycle.signal });
+
+  // Directional focus is resolved from live layout, so it can only be checked
+  // against a rendered page. This exposes the resolver for that, gated like the
+  // other rehearsal hooks so an ordinary session never carries it.
+  if (LAB_MODE && new URLSearchParams(window.location.search).get("spatialFocusTest") === "1") {
+    window.__vcgSpatialFocus = Object.freeze({ nearestControl });
+  }
+
+  if (LAB_MODE && new URLSearchParams(window.location.search).get("motionSimulatorTest") === "1") {
+    window.__vcgMotionSimulator = Object.freeze({
+      enable(enabled = true) {
+        setSimulatorEnabled(enabled);
+      },
+      setPlayerVisible(visible: boolean) {
+        if (!simulatorEnabled) setSimulatorEnabled(true);
+        setSimulatorPlayerVisible(visible);
+      },
+      setPose(pose: MotionSimulatorPose) {
+        if (!(MOTION_SIMULATOR_POSES as readonly string[]).includes(pose)) {
+          throw new Error(`Unknown simulator pose: ${String(pose)}`);
+        }
+        if (!simulatorEnabled) setSimulatorEnabled(true);
+        setSimulatorLatchedPose(pose);
+      },
+      snapshot() {
+        return { enabled: simulatorEnabled, ...poseSimulator.snapshot };
+      },
+    });
+  }
+
+  if (LAB_MODE && fastObstacleTestEnabled(window.location.search)) {
+    window.__vcgObstacleJourney = Object.freeze({
+      joinTwoPlayers() {
+        twoPlayerTestFixtureEnabled = true;
+        simulatorEnabled = false;
+        replayRunning = false;
+        const frame = twoPlayerSyntheticFrame(replaySequence++, performance.now());
+        acceptFrame(frame);
+        const joinedSlots = new Set(playerSession.snapshot().players.map((player) => player.slot));
+        if (!joinedSlots.has(1)) joinPlayer("test-player-1", 1);
+        if (!joinedSlots.has(2)) joinPlayer("test-player-2", 2);
+        requestAnimationFrame(() => {
+          replayRunning = true;
+        });
+      },
+      action(
+        slot: PlayerSlot,
+        name: "dodge_left" | "dodge_right" | "jump" | "duck",
+      ) {
+        const player = playerSession.snapshot().players.find((candidate) => candidate.slot === slot);
+        if (!player) throw new Error(`Player ${slot} is not joined`);
+        obstacle.handleAction(name, slot);
+      },
+      snapshot() {
+        return obstacle.snapshot();
+      },
+    });
+  }
+
+  setBodyVisibilityFixture("full");
+  paintSimulator();
+  paintClock();
+  const clockInterval = window.setInterval(paintClock, 15_000);
+  replayFrame = requestAnimationFrame(replayLoop);
+
+  // A household with no controller has to be able to join from the home screen,
+  // so the camera opens with the console unless it has been set to controller.
+  // Failure is already handled: the tracker falls back to synthetic replay and
+  // the camera card says why.
+  if (startsCameraAtLaunch) void startCameraTracking();
+  else if (!LAB_MODE) startReplay();
+
+  return async () => {
+    if (lifecycle.signal.aborted) return;
+    lifecycle.abort();
+    replayRunning = false;
+    cancelAnimationFrame(replayFrame);
+    clearInterval(clockInterval);
+    if (motionLegendTimer !== undefined) clearTimeout(motionLegendTimer);
+    cursor.dispose();
+    gamepads.stop();
+    obstacle.stop();
+    await tracker.close();
+    await launcher.dispose();
+    delete window.__vcgSpatialFocus;
+    delete window.__vcgMotionSimulator;
+    delete window.__vcgObstacleJourney;
+    app.replaceChildren();
+  };
+
+}

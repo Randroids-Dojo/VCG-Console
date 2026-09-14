@@ -25,32 +25,32 @@
     {
       "role": "controller-lifecycle-and-zero-keyboard-recovery-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "db307a6a6e2c7647061d4f6426662b0d8e315a0aced55b5565819d63f69bb646"
+      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
     },
     {
       "role": "cold-boot-launch-feedback-and-usable-input-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec44bfec2cb36e03271ec5b7e01f29599c091f755d9f1e18c39b0fdeb2fdd5c0"
+      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
     },
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "11cb58e148d7469997f2d76f02d1367e42c900c3cd1cc32c219a79687034bafc"
+      "sha256": "33a42b3f2503fd281b0dbc62c5900b23a462c740c9ef1fbb69b94823a35c1f65"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "74ec10d1f9043df26a7481306e045c8f9e5ac1bfa92cafcb655debe49c7a847e"
+      "sha256": "e17d5318e28e588c4e1497229dbd6b54e977692987df13bf231882dcecdf7553"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "c43c47d11318d75021a56670b862621ede1637124619f4bbca76ca12f504be24"
+      "sha256": "03bd179083657ab5c1e440d7559df1b9a2fb9ce27911c89085b448a4979a6f8d"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "8cacba91fe8396a3e7f1f1166dfc7f9ebf194c8e4fd48255b07f91b5bd40c838"
+      "sha256": "af9f972bad413fb7b747f70c7010d2207d1e47a8ff6973051b45620096f0ca21"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
@@ -75,7 +75,7 @@
     {
       "role": "current-launcher-navigation-runtime-adapter-and-power-surface",
       "path": "apps/console-lab/src/launcher/Launcher.svelte",
-      "sha256": "e8355fe0f1787b3600716ef7ac2be6a121ae63d0110e76395dee024c1529cd2d"
+      "sha256": "c5c49b6e29299557b6e4db9f79f77048aad2b2cce8caafaf7ba23bc70579104a"
     },
     {
       "role": "shutdown-restart-power-loss-and-safe-return-boundary",

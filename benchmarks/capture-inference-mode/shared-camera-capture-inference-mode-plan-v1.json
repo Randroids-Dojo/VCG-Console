@@ -11,7 +11,7 @@
     },
     {
       "path": "scripts/validate-camera-capture-policy-campaign.mjs",
-      "sha256": "6bda43396cb0c01582d9f9ce23bc90a557d31f78eab06a839c902a74bc7437d4"
+      "sha256": "37443b7434bc1b54d5c0330c3c390dc530e92e5fbf62f90b33e0f604b725a169"
     },
     {
       "path": "scripts/validate-camera-action-latency-campaign.mjs",
@@ -19,7 +19,7 @@
     },
     {
       "path": "apps/console-lab/src/tracker.ts",
-      "sha256": "46e0a312ce554398016d3e5ea7946d8d1f2c4ee49386493957b36ad1fe5d9919"
+      "sha256": "f3f50c1ed02a6df50cada75ae6989e16c9a8016f37da1d9f4f11b0c4aca8fdd0"
     },
     {
       "path": "apps/console-lab/src/tracker-worker.ts",

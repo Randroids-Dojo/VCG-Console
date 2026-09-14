@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -24,11 +25,6 @@ export const PI5_MEMORY_BLOCKERS = Object.freeze([
 const topKeys = ["format", "status", "campaignId", "observedAt", "claimBoundary", "sourceDigestContract", "sourceBindings", "commonTargetBoundary", "tiers", "workloadIds", "phases", "runProtocol", "requiredMetrics", "acceptance", "selectionPolicy", "dataPolicy", "executionGate", "result"];
 const commonKeys = ["boardFamily", "acceleratorProduct", "poseModel", "operatingSystemImageSha256", "kernelRelease", "eepromVersion", "runtimeManifestSha256", "workloadBundleSha256", "storageIdentitySha256", "filesystemAndMountPolicySha256", "swapAndZramPolicySha256", "memoryControllerPolicySha256", "oomEvidencePolicySha256", "coolingPowerEnclosureSha256", "cameraRoomClockSha256", "monitoringCalibrationSha256"];
 const openGateKeys = ["minimumAvailableMemoryHeadroomBytes", "maximumPressureStallRatio", "maximumMajorFaultsPerSecond", "maximumSwapBytes", "maximumZramBytes", "maximumPressureStorageWriteBytes", "minimumPoseFps", "minimumGameFps", "maximumGameFrameTimeP95Ms", "maximumCaptureDropRatio", "maximumPoseDropRatio", "maximumWallPowerW", "maximumSustainedSocTemperatureC", "maximumThermalThrottleEvents", "maximumRecoveryMs", "minimumDeliveredSavingsCentsForFourGb"];
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function digest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

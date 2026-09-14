@@ -155,10 +155,10 @@ test("rejects unknown fields, duplicate keys, noncanonical JSON, BOM, invalid UT
     await assert.rejects(loadCatalogControllerOnlyPlan(bom), /BOM/u);
     const invalid = resolve(directory, "invalid.json");
     await writeFile(invalid, Buffer.from([0xc3, 0x28]));
-    await assert.rejects(loadCatalogControllerOnlyPlan(invalid), /strict UTF-8/u);
+    await assert.rejects(loadCatalogControllerOnlyPlan(invalid), /not valid UTF-8/u);
     const bareCr = resolve(directory, "bare-cr.json");
     await writeFile(bareCr, sourceText.replace("\n", "\r"));
-    await assert.rejects(loadCatalogControllerOnlyPlan(bareCr), /bare carriage return/u);
+    await assert.rejects(loadCatalogControllerOnlyPlan(bareCr), /bare CR/u);
     const oversize = resolve(directory, "oversize.json");
     await writeFile(oversize, Buffer.alloc(192 * 1024 + 1, 0x20));
     await assert.rejects(loadCatalogControllerOnlyPlan(oversize), /1 through 196608 bytes/u);

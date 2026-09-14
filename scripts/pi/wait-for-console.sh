@@ -9,8 +9,8 @@ if [ "$#" -ne 1 ]; then
 fi
 
 repo_root="$1"
-verify="${repo_root}/node_modules/.bin/tsx"
-verify_script="${repo_root}/scripts/verify-console-headers.ts"
+verify="$(command -v node)"
+verify_script="${repo_root}/build/console-runtime/verify-console-headers.js"
 
 for _ in $(seq 1 60); do
   if "${verify}" "${verify_script}" >/dev/null 2>&1; then

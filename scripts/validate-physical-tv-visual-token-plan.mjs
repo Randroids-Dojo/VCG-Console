@@ -1,7 +1,8 @@
+import { exactKeys, normalizedText, validateSourceBindings } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -80,7 +81,9 @@ const sourceDefinitions = [
   ["visual-token-contract", "docs/VISUAL_TOKEN_SYSTEM.md"],
   ["blocking-persona-boundary", "docs/PLAYER_PERSONAS.md"],
   ["visual-token-implementation", "apps/console-lab/src/visual-tokens.ts"],
-  ["shell-style-implementation", "apps/console-lab/src/styles.css"],
+  ["shell-style-implementation", "apps/console-lab/src/styles/base.css"],
+  ["shell-layout-implementation", "apps/console-lab/src/styles/shell.css"],
+  ["shell-responsive-implementation", "apps/console-lab/src/styles/responsive.css"],
   [
     "bounded-ocra-font-evidence",
     "benchmarks/font-coverage/windows-x64-chrome-151-ocra-platform-fallback-v1.json",
@@ -111,55 +114,12 @@ const executionKeys = [
   "publicationAuthorized",
 ];
 
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
-
-function normalizedText(bytes, label) {
-  assert.ok(bytes.length > 0, `${label} must not be empty`);
-  assert.ok(
-    !(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf),
-    `${label} must not contain a UTF-8 BOM`,
-  );
-  let text;
-  try {
-    text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch (error) {
-    throw new Error(`${label} is not valid UTF-8`, { cause: error });
-  }
-  assert.ok(!/(^|[^\r])\r([^\n]|$)/u.test(text), `${label} has a bare CR`);
-  return text.replaceAll("\r\n", "\n");
-}
-
 function digest(bytes, label) {
   return createHash("sha256").update(normalizedText(bytes, label)).digest("hex");
 }
 
 async function validateSources(bindings, repositoryRoot) {
-  assert.ok(Array.isArray(bindings));
-  assert.equal(bindings.length, sourceDefinitions.length);
-  for (const [index, binding] of bindings.entries()) {
-    exactKeys(binding, ["role", "path", "sha256"], `sourceBindings[${index}]`);
-    assert.deepEqual([binding.role, binding.path], sourceDefinitions[index]);
-    assert.match(binding.sha256, SHA256);
-    const absolute = resolve(repositoryRoot, binding.path);
-    const relativePath = relative(repositoryRoot, absolute);
-    assert.ok(
-      relativePath.length > 0 &&
-        !relativePath.startsWith("..") &&
-        !isAbsolute(relativePath),
-      `sourceBindings[${index}] escapes repository`,
-    );
-    assert.equal(
-      digest(await readFile(absolute), binding.path),
-      binding.sha256,
-      `${binding.path} digest drifted`,
-    );
-  }
+  return validateSourceBindings(bindings, repositoryRoot, sourceDefinitions);
 }
 
 export async function validatePhysicalTvVisualTokenPlan(

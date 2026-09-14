@@ -1,3 +1,5 @@
+import { launcherBaselines } from "./launcher-evidence-baselines.mjs";
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -14,13 +16,8 @@ import {
   LAUNCHER_TV_SURFACE_LIMITATIONS,
 } from "./generate-launcher-tv-surface-evidence.mjs";
 import {
-  TV_CONFORMANCE_BROWSER_PRODUCT,
-  TV_CONFORMANCE_EVIDENCE_DATE,
   TV_CONFORMANCE_RESOLUTIONS,
 } from "./generate-tv-conformance-evidence.mjs";
-import {
-  GODOT_EXPORT_NODE_VERSION,
-} from "./generate-godot-export-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultArtifactPath = resolve(
@@ -63,100 +60,8 @@ const EXPECTED_SURFACES = Object.freeze([
   },
 ]);
 
-const EXPECTED_SCREENSHOTS = Object.freeze({
-  "motion-catalog/720p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-720p.png",
-    bytes: 311446,
-    sha256: "8dd36296f87838f937bf354694fc9d32fb27a771e65e761e12ca081cec0d52ba",
-  },
-  "wifi-offline/720p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-720p.png",
-    bytes: 286020,
-    sha256: "ed62463ecfd17ea1ad91d0c7f21ec1a82ad57d404ae38abe8fd6e85e400b9b1e",
-  },
-  "launch-offline/720p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-720p.png",
-    bytes: 298786,
-    sha256: "87fc760d87f906e55ab1d0fb799a1a56e098b08088f76b524b3f0fc37ed7819b",
-  },
-  "motion-catalog/1080p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-1080p.png",
-    bytes: 521922,
-    sha256: "41083a812d2dc9ada0cb5c4188444c8d51231db33daecc6fd91c29a72a51b950",
-  },
-  "wifi-offline/1080p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-1080p.png",
-    bytes: 459988,
-    sha256: "b5d76df461613c8ab97f50df311a058e3b0972283e77cb9fd8d2c54fae3856ab",
-  },
-  "launch-offline/1080p": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-1080p.png",
-    bytes: 521327,
-    sha256: "63a1848979c55966ab983c2c43b91a26384086359e04d4a004b01bc0d2f93845",
-  },
-  "motion-catalog/4k": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-motion-catalog-4k.png",
-    bytes: 1559426,
-    sha256: "914b9546662b403c4dccf4a0a87965fd6e6fa4cf05fa29a2481d16a4a9f6fedb",
-  },
-  "wifi-offline/4k": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-wifi-offline-4k.png",
-    bytes: 1388008,
-    sha256: "aad01fb4845d68bb0b3a99e182abcb53f69396782d2b99c37a74274740a33b87",
-  },
-  "launch-offline/4k": {
-    path: "benchmarks/tv-conformance/windows-x64-chrome-150-launcher-launch-offline-4k.png",
-    bytes: 1750910,
-    sha256: "6fce4b7d71df996cdf7c1c20cb2b38ff4dac406b071d4bf4f0ec5703e9170e7f",
-  },
-});
-const EXPECTED_MEASUREMENTS = Object.freeze({
-  "motion-catalog/720p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 51.688,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "wifi-offline/720p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 51.688,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "launch-offline/720p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 69.125,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "motion-catalog/1080p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 102.672,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "wifi-offline/1080p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 102.672,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "launch-offline/1080p": {
-    minimumCriticalTextCssPx: 24,
-    minimumActionTargetWidthCssPx: 75.531,
-    minimumActionTargetHeightCssPx: 48,
-  },
-  "motion-catalog/4k": {
-    minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 161.906,
-    minimumActionTargetHeightCssPx: 60,
-  },
-  "wifi-offline/4k": {
-    minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 161.906,
-    minimumActionTargetHeightCssPx: 60,
-  },
-  "launch-offline/4k": {
-    minimumCriticalTextCssPx: 48,
-    minimumActionTargetWidthCssPx: 115.359,
-    minimumActionTargetHeightCssPx: 62,
-  },
-});
+const EXPECTED_SCREENSHOTS = launcherBaselines.surfaces.screenshots;
+const EXPECTED_MEASUREMENTS = launcherBaselines.surfaces.measurements;
 
 const provenancePaths = Object.freeze({
   launcherPath: "apps/console-lab/src/launcher/Launcher.svelte",
@@ -177,11 +82,6 @@ const provenancePaths = Object.freeze({
   validatorPath:
     "scripts/validate-launcher-tv-surface-evidence.mjs",
 });
-
-function exactKeys(value, expected, label) {
-  assert.ok(value !== null && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} keys changed`);
-}
 
 function finite(value, label) {
   assert.equal(typeof value, "number", `${label} must be numeric`);
@@ -355,7 +255,7 @@ export async function validateLauncherTvSurfaceEvidence(
     "artifact",
   );
   assert.equal(artifact.format, LAUNCHER_TV_SURFACE_EVIDENCE_FORMAT);
-  assert.equal(artifact.evidenceDate, TV_CONFORMANCE_EVIDENCE_DATE);
+  assert.equal(artifact.evidenceDate, launcherBaselines.surfaces.observation.evidenceDate);
   assert.equal(
     artifact.evidenceClass,
     "windows-x64-headless-chrome-launcher-representative-surfaces-tv-conformance",
@@ -366,7 +266,7 @@ export async function validateLauncherTvSurfaceEvidence(
   );
   assert.match(
     artifact.retrievedAtUtc,
-    new RegExp(`^${TV_CONFORMANCE_EVIDENCE_DATE}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$`, "u"),
+    new RegExp(`^${launcherBaselines.surfaces.observation.evidenceDate}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$`, "u"),
   );
 
   exactKeys(
@@ -384,10 +284,11 @@ export async function validateLauncherTvSurfaceEvidence(
   );
 
   assert.deepEqual(artifact.environment, {
+    buildMode: "lab",
     producerPlatform: "win32",
     producerArchitecture: "x64",
-    nodeVersion: GODOT_EXPORT_NODE_VERSION,
-    browserProduct: TV_CONFORMANCE_BROWSER_PRODUCT,
+    nodeVersion: launcherBaselines.surfaces.observation.environment.nodeVersion,
+    browserProduct: launcherBaselines.surfaces.observation.environment.browserProduct,
     devicePixelRatio: 1,
     browserClock: "2026-07-24T19:00:00-07:00",
   });
@@ -411,7 +312,7 @@ export async function validateLauncherTvSurfaceEvidence(
     ],
     "browser",
   );
-  assert.equal(artifact.browser.browserProduct, TV_CONFORMANCE_BROWSER_PRODUCT);
+  assert.equal(artifact.browser.browserProduct, launcherBaselines.surfaces.observation.environment.browserProduct);
   assert.equal(artifact.browser.observations.length, 9);
   let observationIndex = 0;
   for (const resolution of TV_CONFORMANCE_RESOLUTIONS) {

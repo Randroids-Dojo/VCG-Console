@@ -1,7 +1,15 @@
 # VCG Console shell redesign (v2 visual system)
 
-Status: implemented decision record
+Status: current visual design and implemented decision record
 Date: 2026-08-12
+
+Implementation: `apps/console-lab/src/styles/base.css` owns shared fonts, colors,
+spacing and compatibility aliases. Surface styles are imported in order by
+`styles.css`; `visual-tokens.test.ts` checks the shared token contract.
+`VISUAL_TOKEN_SYSTEM.md` describes the retained v1 schema, not an alternative
+visual design. The TV contract applies at every supported viewport, including
+720p. Home names its destination (Games); time and profile appear once in the
+top bar. Appliance builds exclude synthetic lab administration and fixtures.
 
 ## Problem
 

@@ -11,7 +11,7 @@ if (-not (Test-Path "package.json")) {
 
 foreach ($commandName in @("git", "node", "rustup")) {
   if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
-    throw "Missing prerequisite: $commandName. Install Git, Node.js 22 or newer, and the rustup-managed toolchain declared by rust-toolchain.toml, then rerun."
+    throw "Missing prerequisite: $commandName. Install Git, the Node.js version required by package.json, and the rustup-managed toolchain declared by rust-toolchain.toml, then rerun."
   }
 }
 
@@ -31,10 +31,8 @@ function Invoke-PinnedPnpm {
   & "$PSScriptRoot\pnpm.ps1" @PnpmArguments
 }
 
-$nodeMajor = [int]((& node -p "process.versions.node.split('.')[0]").Trim())
-if ($nodeMajor -lt 22) {
-  throw "Node.js 22 or newer is required; found $(& node --version)."
-}
+& node "$PSScriptRoot\..\check-node-version.cjs"
+if ($LASTEXITCODE -ne 0) { throw "The Node.js prerequisite check failed." }
 
 $chromeCandidates = @(
   "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",

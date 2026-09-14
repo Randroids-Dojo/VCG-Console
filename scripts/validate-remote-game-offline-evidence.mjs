@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -18,11 +19,6 @@ const artifactPath = resolve(
   "compliance/hosted-game-offline/remote-game-offline-observation-v2.json",
 );
 export const REMOTE_GAME_OFFLINE_MAX_BYTES = 1024 * 1024;
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), label);
-  assert.deepEqual(Object.keys(value), expected, `${label} has unknown or missing fields`);
-}
 
 function integer(value, label, minimum = 0) {
   assert.ok(Number.isSafeInteger(value) && value >= minimum, label);

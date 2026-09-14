@@ -6,7 +6,6 @@ import test from "node:test";
 import {
   TWO_PLAYER_ACCESSIBLE_TASKS,
   TWO_PLAYER_ACTION_SCENARIOS,
-  TWO_PLAYER_BLOCKERS,
   TWO_PLAYER_IDENTITY_SCENARIOS,
   TWO_PLAYER_PERSONA_PAIRS,
   TWO_PLAYER_PLACEMENTS,
@@ -162,11 +161,11 @@ test("rejects unknown fields, duplicate keys, noncanonical JSON, BOM, invalid UT
 
     const invalid = resolve(directory, "invalid.json");
     await writeFile(invalid, Buffer.from([0xc3, 0x28]));
-    await assert.rejects(loadTwoPlayerQualificationPlan(invalid), /strict UTF-8/u);
+    await assert.rejects(loadTwoPlayerQualificationPlan(invalid), /not valid UTF-8/u);
 
     const bareCr = resolve(directory, "bare-cr.json");
     await writeFile(bareCr, sourceText.replace("\n", "\r"));
-    await assert.rejects(loadTwoPlayerQualificationPlan(bareCr), /bare carriage return/u);
+    await assert.rejects(loadTwoPlayerQualificationPlan(bareCr), /bare CR/u);
 
     const oversize = resolve(directory, "oversize.json");
     await writeFile(oversize, Buffer.alloc(192 * 1024 + 1, 0x20));

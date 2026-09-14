@@ -12,7 +12,7 @@ import {
 } from "./console-boundary-policy";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const viteConfigPath = resolve(root, "apps/console-lab/vite.config.ts");
+const servingPolicyPath = resolve(root, "scripts/console-response-headers.mts");
 
 test("the launcher document is cross-origin isolated and camera-capable", () => {
   const headers = resolveBoundaryHeaders("/", true);
@@ -83,17 +83,17 @@ test("the serving config still contains every expected header value", async () =
   // A static cross-check only. It cannot prove the middleware runs, which is
   // why `verify:console-headers` probes a live server; it does catch an edit
   // that changes one file and not the other.
-  const config = await readFile(viteConfigPath, "utf8");
+  const config = await readFile(servingPolicyPath, "utf8");
   for (const [name, value] of Object.entries(sharedResponseHeaders)) {
-    assert.ok(config.includes(name), `vite config no longer sets ${name}`);
+    assert.ok(config.includes(name), `serving policy no longer sets ${name}`);
     if (name !== "Permissions-Policy") {
-      assert.ok(config.includes(value), `vite config no longer sets ${name}: ${value}`);
+      assert.ok(config.includes(value), `serving policy no longer sets ${name}: ${value}`);
     }
   }
   for (const directive of launcherDocumentCsp.split("; ")) {
     assert.ok(
       config.includes(`"${directive}"`),
-      `vite config no longer declares the launcher CSP directive: ${directive}`,
+      `serving policy no longer declares the launcher CSP directive: ${directive}`,
     );
   }
 });

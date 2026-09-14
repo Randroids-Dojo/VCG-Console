@@ -12,7 +12,7 @@
     {
       "role": "cross-tier-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "ec44bfec2cb36e03271ec5b7e01f29599c091f755d9f1e18c39b0fdeb2fdd5c0"
+      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
     },
     {
       "role": "power-recovery-policy-boundary",
@@ -22,17 +22,17 @@
     {
       "role": "physical-tv-wake-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "74ec10d1f9043df26a7481306e045c8f9e5ac1bfa92cafcb655debe49c7a847e"
+      "sha256": "e17d5318e28e588c4e1497229dbd6b54e977692987df13bf231882dcecdf7553"
     },
     {
       "role": "physical-controller-wake-boundary",
       "path": "benchmarks/controller-pairing/cross-tier-bluetooth-controller-plan-v1.json",
-      "sha256": "260499d0a8577c1b5cf7b16b8667e52d163bf544f91e5f3832d0128d8c87b4e2"
+      "sha256": "a063a45b16699c95965cb767f213fe12581a3965b672c2f78ea98d8789afb318"
     },
     {
       "role": "pi-thermal-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "2ee57cd2fbb72d092ea0f3504f432837a443d17f575fbb9293e85da73c242e58"
+      "sha256": "e2f5bfb4c7e8ff42aabdf9b148771582af97029344b725aa4d2ccad320c7fca6"
     }
   ],
   "targetPolicy": {

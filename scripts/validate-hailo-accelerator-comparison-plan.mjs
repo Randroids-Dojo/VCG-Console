@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -70,10 +71,6 @@ const openAcceptanceKeys = [
   "maximumThermalThrottleEvents",
   "minimumDeliveredSavingsUsdToReconsider26Tops",
 ];
-
-function exactKeys(value, expected, label) {
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function normalizedDigest(bytes, label) {
   const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

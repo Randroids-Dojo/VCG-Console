@@ -9,7 +9,7 @@ to reproduce. The checked-in CycloneDX 1.7 companion is
 
 ## Release blockers
 
-- **project-license:** `pkg:npm/vcg-console@0.0.0`, `pkg:cargo/vcg-host@0.1.0`, `pkg:npm/%40vcg/console-lab@0.0.1`, `pkg:npm/%40vcg/game-manifest@0.0.1`, `pkg:npm/%40vcg/launcher-catalog@0.0.1`, `pkg:npm/%40vcg/motion-contract@0.0.1`, `pkg:npm/%40vcg/motion-web-bridge@0.0.1`, `pkg:npm/%40vcg/retro-firmware-contract@0.0.1`, `pkg:npm/%40vcg/retro-import-contract@0.0.1`, `pkg:npm/%40vcg/retro-performance-contract@0.0.1`
+- **project-license:** `pkg:npm/vcg-console@0.0.0`, `pkg:cargo/vcg-cursor-nudge@0.1.0`, `pkg:cargo/vcg-host@0.1.0`, `pkg:npm/%40vcg/console-lab@0.0.1`, `pkg:npm/%40vcg/game-manifest@0.0.1`, `pkg:npm/%40vcg/launcher-catalog@0.0.1`, `pkg:npm/%40vcg/motion-contract@0.0.1`, `pkg:npm/%40vcg/motion-web-bridge@0.0.1`, `pkg:npm/%40vcg/retro-firmware-contract@0.0.1`, `pkg:npm/%40vcg/retro-import-contract@0.0.1`, `pkg:npm/%40vcg/retro-performance-contract@0.0.1`
 - **pose-model-license:** `asset:mediapipe-pose-landmarker-lite-float16-model@1`
 
 The evidence gate accepts only these named blockers and fails on any new
@@ -21,17 +21,18 @@ fails while either blocker remains.
 | Class | Components |
 |---|---:|
 | Project root | 1 |
-| First-party subcomponents | 9 |
-| npm dependencies | 82 |
+| First-party subcomponents | 10 |
+| npm dependencies | 89 |
 | Cargo packages | 45 |
-| Pinned assets | 2 |
-| Total | 139 |
+| Pinned assets | 3 |
+| Total | 148 |
 
 ## npm dependencies
 
 | Package | Version | Scope | Reported license | Upstream |
 |---|---|---|---|---|
 | @esbuild/win32-x64 | 0.28.1 | development | MIT | <https://github.com/evanw/esbuild#readme> |
+| @fontsource-variable/inter | 5.3.0 | required | OFL-1.1 | <https://fontsource.org/fonts/inter> |
 | @jridgewell/gen-mapping | 0.3.13 | required | MIT | <https://github.com/jridgewell/sourcemaps/tree/main/packages/gen-mapping> |
 | @jridgewell/remapping | 2.3.5 | required | MIT | <https://github.com/jridgewell/sourcemaps/tree/main/packages/remapping> |
 | @jridgewell/resolve-uri | 3.1.2 | required | MIT | <https://github.com/jridgewell/resolve-uri#readme> |
@@ -51,6 +52,7 @@ fails while either blocker remains.
 | @types/estree | 1.0.9 | required | MIT | <https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/estree> |
 | @types/node | 22.15.3 | development | MIT | <https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node> |
 | @types/trusted-types | 2.0.7 | required | MIT | <https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/trusted-types> |
+| @types/ws | 8.18.1 | development | MIT | <https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/ws> |
 | @vitest/expect | 4.1.10 | development | MIT | <https://vitest.dev/api/expect> |
 | @vitest/mocker | 4.1.10 | development | MIT | <https://github.com/vitest-dev/vitest/tree/main/packages/mocker> |
 | @vitest/pretty-format | 4.1.10 | development | MIT | <https://github.com/vitest-dev/vitest/tree/main/packages/pretty-format> |
@@ -59,6 +61,7 @@ fails while either blocker remains.
 | @vitest/spy | 4.1.10 | development | MIT | <https://vitest.dev/api/mock> |
 | @vitest/utils | 4.1.10 | development | MIT | <https://github.com/vitest-dev/vitest/tree/main/packages/utils> |
 | acorn | 8.17.0 | required | MIT | <https://github.com/acornjs/acorn> |
+| ajv | 8.20.0 | development | MIT | <https://ajv.js.org> |
 | aria-query | 5.3.1 | required | Apache-2.0 | <https://github.com/A11yance/aria-query#readme> |
 | assertion-error | 2.0.1 | development | MIT | <https://github.com/chaijs/assertion-error#readme> |
 | axobject-query | 4.1.0 | required | Apache-2.0 | <https://github.com/A11yance/axobject-query#readme> |
@@ -75,8 +78,11 @@ fails while either blocker remains.
 | esrap | 2.3.0 | required | MIT | <https://github.com/sveltejs/esrap#readme> |
 | estree-walker | 3.0.3 | development | MIT | <https://github.com/Rich-Harris/estree-walker#readme> |
 | expect-type | 1.4.0 | development | Apache-2.0 | <https://github.com/mmkal/expect-type#readme> |
+| fast-deep-equal | 3.1.3 | development | MIT | <https://github.com/epoberezkin/fast-deep-equal#readme> |
+| fast-uri | 3.1.5 | development | BSD-3-Clause | <https://github.com/fastify/fast-uri> |
 | fdir | 6.5.0 | development | MIT | <https://github.com/thecodrr/fdir#readme> |
 | is-reference | 3.0.3 | required | MIT | <https://github.com/Rich-Harris/is-reference#readme> |
+| json-schema-traverse | 1.0.0 | development | MIT | <https://github.com/epoberezkin/json-schema-traverse#readme> |
 | lightningcss-win32-x64-msvc | 1.33.0 | development | MPL-2.0 | <https://github.com/parcel-bundler/lightningcss#readme> |
 | lightningcss | 1.33.0 | development | MPL-2.0 | <https://github.com/parcel-bundler/lightningcss#readme> |
 | locate-character | 3.0.0 | required | MIT | <https://gitlab.com/Rich-Harris/locate-character#README> |
@@ -91,6 +97,7 @@ fails while either blocker remains.
 | playwright | 1.61.1 | development | Apache-2.0 | <https://playwright.dev> |
 | postcss | 8.5.22 | development | MIT | <https://postcss.org/> |
 | readdirp | 4.1.2 | development | MIT | <https://github.com/paulmillr/readdirp> |
+| require-from-string | 2.0.2 | development | MIT | <https://github.com/floatdrop/require-from-string#readme> |
 | rolldown | 1.1.5 | development | MIT | <https://rolldown.rs/> |
 | sade | 1.8.1 | development | MIT | <https://github.com/lukeed/sade#readme> |
 | siginfo | 2.0.0 | development | ISC | <https://github.com/emilbayes/siginfo#readme> |
@@ -168,6 +175,7 @@ fails while either blocker remains.
 
 | Asset | Version | Scope | Reported license | Upstream |
 |---|---|---|---|---|
+| Inter Variable Latin font | 5.3.0 | required | SIL Open Font License 1.1 | <https://www.npmjs.com/package/@fontsource-variable/inter/v/5.3.0> |
 | MediaPipe Pose Landmarker Lite float16 model | 1 | required | UNRESOLVED | <https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task> |
 | OCR-A 1.0 TrueType font | 1.0 | required | Public Domain | <https://downloads.sourceforge.net/project/ocr-a-font/OCR-A/1.0/OCRA.ttf?download=1> |
 

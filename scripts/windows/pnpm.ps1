@@ -15,13 +15,11 @@ if (-not (Test-Path "package.json")) {
 }
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-  throw "Missing prerequisite: node. Install Node.js 22 or newer, open a new terminal, then rerun."
+  throw "Missing prerequisite: node. Install the Node.js version required by package.json, open a new terminal, then rerun."
 }
 
-$nodeMajor = [int]((& node -p "process.versions.node.split('.')[0]").Trim())
-if ($nodeMajor -lt 22) {
-  throw "Node.js 22 or newer is required; found $(& node --version)."
-}
+& node "$PSScriptRoot\..\check-node-version.cjs"
+if ($LASTEXITCODE -ne 0) { throw "The Node.js prerequisite check failed." }
 
 $packageManager = (Get-Content "package.json" -Raw | ConvertFrom-Json).packageManager
 if ($packageManager -notmatch '^pnpm@(.+)$') {

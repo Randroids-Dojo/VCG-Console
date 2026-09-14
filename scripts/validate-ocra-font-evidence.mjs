@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -16,14 +17,6 @@ const defaultArtifactPath = resolve(
   "benchmarks/font-coverage/ocra-font-structural-evidence-v1.json",
 );
 const MAX_ARTIFACT_BYTES = 256 * 1024;
-
-function exactKeys(value, expected, label) {
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value),
-    `${label} must be an object`,
-  );
-  assert.deepEqual(Object.keys(value), expected, `${label} keys changed`);
-}
 
 export async function validateOcraFontEvidence(path = defaultArtifactPath) {
   const absolutePath = resolve(path);
@@ -51,7 +44,10 @@ export async function validateOcraFontEvidence(path = defaultArtifactPath) {
   assert.equal(artifact.format, OCRA_EVIDENCE_FORMAT);
   assert.equal(artifact.claimBoundary, OCRA_CLAIM_BOUNDARY);
   assert.deepEqual(artifact.limitations, [...OCRA_LIMITATIONS]);
-  assert.deepEqual(artifact, await buildOcraFontEvidence());
+  assert.match(artifact.evidenceDate, /^\d{4}-\d{2}-\d{2}$/u);
+  const date = new Date(artifact.evidenceDate);
+  assert.ok(Number.isFinite(date.valueOf()) && date.toISOString().slice(0, 10) === artifact.evidenceDate && date.valueOf() <= Date.now());
+  assert.deepEqual(artifact, await buildOcraFontEvidence(artifact.evidenceDate));
   return artifact;
 }
 

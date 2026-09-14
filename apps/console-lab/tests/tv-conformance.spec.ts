@@ -7,6 +7,40 @@ const RESOLUTIONS = [
   { id: "4k", width: 3840, height: 2160 },
 ] as const;
 
+for (const viewport of [...RESOLUTIONS, { id: "setup", width: 800, height: 900 }]) {
+  test(`navigation text fits its controls at ${viewport.id}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/?skipBoot=1&input=controller");
+    await expect(page.locator(".launcher-nav")).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    const labels = await page.locator(".launcher-nav button:visible").evaluateAll((buttons) =>
+      buttons.map((button) => {
+        const control = button.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(button);
+        const text = range.getBoundingClientRect();
+        return {
+          label: button.textContent?.trim(),
+          control: { left: control.left, right: control.right, top: control.top, bottom: control.bottom },
+          text: { left: text.left, right: text.right, top: text.top, bottom: text.bottom },
+        };
+      }),
+    );
+    expect(labels.length).toBeGreaterThan(0);
+    for (const { label, control, text } of labels) {
+      expect(text.left, `${label} left`).toBeGreaterThanOrEqual(control.left - 0.5);
+      expect(text.right, `${label} right`).toBeLessThanOrEqual(control.right + 0.5);
+      expect(text.top, `${label} top`).toBeGreaterThanOrEqual(control.top - 0.5);
+      expect(text.bottom, `${label} bottom`).toBeLessThanOrEqual(control.bottom + 0.5);
+    }
+    for (let index = 1; index < labels.length; index += 1) {
+      const previous = labels[index - 1]!;
+      const current = labels[index]!;
+      expect(current.text.left, `${previous.label} / ${current.label}`).toBeGreaterThanOrEqual(previous.text.right);
+    }
+  });
+}
+
 interface ElementMeasurement {
   readonly label: string;
   readonly left: number;
@@ -163,7 +197,7 @@ for (const resolution of RESOLUTIONS) {
     await page.setViewportSize(resolution);
     await page.goto("/?skipBoot=1&input=controller");
     await expect(
-      page.getByRole("heading", { name: /Good evening/ }),
+      page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
@@ -311,7 +345,7 @@ for (const resolution of RESOLUTIONS) {
       page.getByRole("dialog", { name: "Search everything" }),
     ).toBeHidden();
     await expect(
-      page.getByRole("heading", { name: /Good evening/ }),
+      page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
   });
 
@@ -335,7 +369,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(firstEntry).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(
-      page.getByRole("heading", { name: /Good evening/ }),
+      page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
     await expect(page.locator('[data-view-target="home"]')).toBeFocused();
   });
@@ -358,7 +392,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(page.locator("#scan-wifi")).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(
-      page.getByRole("heading", { name: /Good evening/ }),
+      page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
     await expect(page.locator('[data-view-target="home"]')).toBeFocused();
   });
@@ -569,7 +603,7 @@ for (const resolution of RESOLUTIONS) {
     ).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(
-      page.getByRole("heading", { name: /Good evening/ }),
+      page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
     await expect(
       page.locator('.launcher-nav [data-view-target="home"]'),

@@ -106,10 +106,19 @@ function runPnpm(args) {
       maxBuffer: 32 * 1024 * 1024,
     });
   }
-  return runCandidates(
-    process.platform === "win32" ? ["pnpm.cmd", "pnpm"] : ["pnpm"],
-    args,
-  );
+  if (process.platform === "win32") {
+    // Windows command shims require cmd.exe. These are fixed internal tokens,
+    // never user-supplied shell text.
+    if (args.some((argument) => !/^[a-z0-9=-]+$/iu.test(argument))) {
+      throw new Error("unsupported pnpm argument");
+    }
+    return execFileSync(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", `pnpm ${args.join(" ")}`], {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+    });
+  }
+  return runCandidates(["pnpm"], args);
 }
 
 function runCargo(args) {
@@ -217,7 +226,8 @@ function workspaceComponent(workspace) {
 
 function assetComponents(assetProvenance) {
   return assetProvenance.assets.map((asset) => {
-    const isFont = asset.name.startsWith("OCR-A");
+    if (asset.kind !== "font" && asset.kind !== "model") throw new Error(`unknown pinned asset kind: ${asset.kind}`);
+    const isFont = asset.kind === "font";
     return {
       type: isFont ? "file" : "machine-learning-model",
       "bom-ref": `asset:${slug(asset.name)}@${asset.provenance?.version ?? "1"}`,

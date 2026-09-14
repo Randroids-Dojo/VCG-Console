@@ -1,3 +1,4 @@
+import { exactKeys } from "./evidence-primitives.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -46,11 +47,6 @@ export const MICROPHONE_DISABLEMENT_RESULT_FORMAT =
   "vcg-microphone-disablement-qualification-result/v1";
 export const MICROPHONE_DISABLEMENT_RESULT_CLAIM_BOUNDARY =
   "Microphone-disablement result envelope only. Disposition is derived from every ordered cell and cannot promote incomplete or rejected evidence. It claims no retained audio, transcription, voiceprint, participant identity, free text, or target qualification outside the exact ready plan.";
-
-function exactKeys(value, expected, label) {
-  assert.ok(value && typeof value === "object" && !Array.isArray(value), `${label} must be an object`);
-  assert.deepEqual(Object.keys(value), expected, `${label} fields drifted`);
-}
 
 function integer(value, minimum, maximum, label) {
   assert.ok(Number.isSafeInteger(value), `${label} must be a safe integer`);

@@ -6,9 +6,9 @@
 //
 // usage: tsx scripts/verify-console-headers.ts [--url http://127.0.0.1:4173]
 
-import { evaluateBoundaryHeaders, type BoundaryHeaderFailure } from "./console-boundary-policy";
+import { evaluateBoundaryHeaders, type BoundaryHeaderFailure } from "./console-boundary-policy.js";
 
-/** Matches the `preview` script in apps/console-lab/package.json. */
+/** Matches the built appliance server default. */
 const DEFAULT_CONSOLE_URL = "http://127.0.0.1:4173";
 
 interface Probe {
@@ -29,8 +29,9 @@ const probes: Probe[] = [
 
 function parseBaseUrl(argv: string[]): URL {
   const flag = argv.indexOf("--url");
-  if (flag !== -1 && !argv[flag + 1]) throw new Error("--url requires a value");
-  const url = new URL(flag === -1 ? DEFAULT_CONSOLE_URL : argv[flag + 1]);
+  const value = flag === -1 ? DEFAULT_CONSOLE_URL : argv[flag + 1];
+  if (!value) throw new Error("--url requires a value");
+  const url = new URL(value);
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error(`unsupported scheme: ${url.protocol}`);
   }
@@ -40,6 +41,7 @@ function parseBaseUrl(argv: string[]): URL {
 async function probe(base: URL, target: Probe): Promise<BoundaryHeaderFailure[]> {
   const url = new URL(target.pathname, base);
   const response = await fetch(url, {
+    signal: AbortSignal.timeout(5_000),
     headers: target.acceptsHtml ? { accept: "text/html" } : { accept: "*/*" },
   });
   if (!response.ok) {

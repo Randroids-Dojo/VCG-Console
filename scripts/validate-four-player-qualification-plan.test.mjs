@@ -35,7 +35,7 @@ async function rejectsMutation(mutator, pattern) {
 test("accepts the tracked blocked zero-result I-055 plan", async () => {
   assert.deepEqual(await validateTrackedFourPlayerQualificationPlan(), {
     status: "blocked",
-    sourceBindingCount: 11,
+    sourceBindingCount: 12,
     rosterClassCount: 16,
     identityTrialCount: 84480,
     actionTrialCount: 92160,
@@ -215,11 +215,11 @@ test("rejects noncanonical JSON duplicate keys BOM invalid UTF-8 bare CR and ove
 
     const invalid = resolve(directory, "invalid.json");
     await writeFile(invalid, Buffer.from([0xc3, 0x28]));
-    await assert.rejects(loadFourPlayerQualificationPlan(invalid), /strict UTF-8/u);
+    await assert.rejects(loadFourPlayerQualificationPlan(invalid), /not valid UTF-8/u);
 
     const bareCr = resolve(directory, "bare-cr.json");
     await writeFile(bareCr, sourceText.replace("\n", "\r"));
-    await assert.rejects(loadFourPlayerQualificationPlan(bareCr), /bare carriage return/u);
+    await assert.rejects(loadFourPlayerQualificationPlan(bareCr), /bare CR/u);
 
     const oversize = resolve(directory, "oversize.json");
     await writeFile(oversize, Buffer.alloc(256 * 1024 + 1, 0x20));
