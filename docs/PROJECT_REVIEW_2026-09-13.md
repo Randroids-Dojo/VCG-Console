@@ -368,8 +368,9 @@ models, fixtures, or historical evidence merely because they are large.
 
 ## Execution record
 
-Software cleanup completed on branch `cleanup/lean-project`. The findings above
-describe the original baseline; the outcomes below describe the implemented work.
+Software cleanup merged through [PR #39](https://github.com/Randroids-Dojo/VCG-Console/pull/39)
+at `d7290b27e939b7b9b897d0295869c70c02766257`. The findings above describe the
+original baseline; the outcomes below describe the implemented work.
 
 | Finding | Status | Outcome / verification |
 | --- | --- | --- |
@@ -377,14 +378,14 @@ describe the original baseline; the outcomes below describe the implemented work
 | R02 | Resolved | Corrected responsive specificity and tab shrinking. Rendered-text bounds now cover 720p, 1080p, 4K and narrow setup navigation. All 40 TV browser tests pass; inspected fresh 720p and 4K captures and registered current evidence. |
 | R03 | Resolved | One bounded, serial Bluetooth worker keeps status and cancellation responsive while preserving mutation order. Real loopback scan/pair and shutdown regressions pass on Windows and Linux; locked Clippy passes on both. |
 | R04 | Resolved | Refreshed the 148-component SBOM/notices and exact Inter font/license provenance. Deterministic compliance check is in CI and passes, including direct invocation on Windows. Project-license and pose-model redistribution blockers remain explicit. |
-| R05 | Resolved | Recursive test discovery runs 64 runtime and 1,308 evidence tests, plus 831 workspace tests: all 2,203 pass. The Linux-owned Pi suite passes all 16 tests. Added Linux/Windows Python and Godot CI jobs; fresh local Godot import, four contracts and scene boot, and both frozen Python environments' imports and three helper tests pass. |
+| R05 | Resolved | Recursive test discovery runs 68 runtime and 1,309 evidence tests, plus 833 workspace tests: all 2,210 pass. The Linux-owned Pi suite passes all 16 tests. Added Linux/Windows Python and Godot CI jobs; local Godot import, four contracts and scene boot, and both frozen Python environments' imports and three helper tests pass. |
 | R06 | Resolved | Strict scripts TypeScript includes the tools/tests with declared Node/WebSocket types; actual diagnostics were fixed. Full typecheck passes with zero errors or warnings. |
-| R07 | Resolved | Explicit lab build retains rehearsals and test hooks. The appliance omits synthetic administration, fake update/storage controls, developer navigation and fixture documents, selects authenticated host-owned profile IDs, and preserves Guest built-in games. Three appliance browser tests cover capability boundaries, long IDs at 720p and both game flows. |
+| R07 | Resolved | Explicit lab build retains rehearsals and test hooks. The appliance omits synthetic administration, fake update/storage controls, developer navigation and fixture documents, selects authenticated host-owned profile IDs, and preserves Guest built-in games. Five appliance browser tests cover capability boundaries, required profiles, long IDs at 720p and both game flows. |
 | R08 | Resolved | A bounded Node-core loopback server serves the built files with the required browser policy. Its compiled package needs no runtime TypeScript or writable dependencies. HTTP, containment and independent policy tests pass; Pi services use the built entrypoint, and Linux rendering/ShellCheck pass. |
 | R09 | Resolved | Consolidated 179 repeated primitives across 97 validators. Ordered keys, unordered key sets and the distinct DIY binding order remain explicit; malformed UTF-8, bare CR, unsafe paths and stale hashes remain rejected. The complete evidence suite passes. |
 | R10 | Resolved | Recorded measurements live in a data baseline; registration cannot rewrite acceptance rules and rolls back on failure. All five browser validators pass after actual captures. Frozen historical reports bind to verified archived source bytes; deterministic rehearsals reproduced identical authored outcomes. Removed three redundant umbrella-document bindings, reviewed changed dependencies and re-registered 555 current bindings across 59 plans. |
 | R11 | Resolved | The v2 UI design is the current authority, legacy token guidance is reconciled, and Home now says Games. Profile/time remain in the top bar. Fresh screenshots and all browser tests pass. |
-| R12 | Resolved | Separated application entry, run lifetime, motion markup, top-bar navigation/clock, host transport/protocol/endpoints and ten ordered style modules. Teardown releases listeners, timers, rendering, camera and launch ownership. Unit/type/browser checks pass. Appliance JavaScript output is 10.8% smaller than the original build; details below. |
+| R12 | Resolved | Separated application entry, run lifetime, motion markup, top-bar navigation/clock, host transport/protocol/endpoints and ten ordered style modules. Teardown releases listeners, timers, rendering, camera and launch ownership. Unit/type/browser checks pass. The initial appliance build emitted 10.8% less JavaScript than the original; the historical comparison is below. |
 | R13 | Resolved | CLI commands and native import formats, validation, filesystem publication, provisioning and recovery have distinct modules. Durable formats and public behavior are preserved. Locked Clippy and workspace tests pass on Windows and Linux. |
 | R14 | Resolved | Pi and Windows wrappers use one prerequisite checker reading package.json engines. Version-boundary tests, the Windows wrapper, Linux script rendering and ShellCheck pass. The TV session receives the configured Node directory in PATH. |
 | R15 | Resolved | Downloads retain cancellation through bounded streamed bodies and atomically publish only verified bytes. All six failure/cache/publication regressions and pinned-asset preparation pass. |
@@ -403,50 +404,58 @@ pixels, all five independent browser-evidence validators passed, and archived
 measurement bytes were preserved. New regressions cover the recovery file swap
 on Linux, write/delete denial on Windows, appliance profile intent, and teardown.
 
-### Verification and remaining limits
+### Validation after merge (2026-09-14)
 
-- Frozen install, full strict typecheck, 2,203 JavaScript/TypeScript tests, 93 lab
-  browser tests and three appliance browser tests pass.
-- Windows native tests: 447 library, 30 host CLI and 12 provisioner tests pass.
-  Linux/WSL: 456 library, 30 host CLI, 12 provisioner and one cursor test pass.
-  Both retain five intentionally ignored subprocess helper tests; child-helper
-  invocations are not double-counted. Locked Clippy passes on both platforms.
-- All 16 Linux appliance tests and ShellCheck at style severity pass. Windows
-  Bash syntax checks also pass. Git diff whitespace and changed Markdown local
-  links are clean. Remote CI and aarch64 linking were not run in this session.
-- Fresh authoring, launcher Home, representative surfaces, Search and font
-  captures pass the five independent validators. The recorded dates and tool
-  versions are actual observations. Screenshots at 720p, 1080p and 4K were
-  inspected, including the appliance's long opaque profile ID at 720p.
+The [post-merge CI run](https://github.com/Randroids-Dojo/VCG-Console/actions/runs/34799575378)
+passed all 13 jobs on `d7290b27e939b7b9b897d0295869c70c02766257`. A fresh Windows
+validation pass used Node 24.18.0, pnpm 10.30.3 and the pinned Rust 1.97.1.
+
+- Frozen install, asset/catalog/schema generation, full strict typecheck, all
+  2,210 JavaScript/TypeScript tests and the appliance build passed locally.
+  Generated files matched the committed tree.
+- Windows native tests: 451 library, 30 host CLI and 12 provisioner tests passed
+  locally and in CI. Linux CI passed 461 library, 30 host CLI, 12 provisioner and
+  one cursor test. Both retain five intentionally ignored subprocess helpers;
+  child-helper invocations are not double-counted. Rust formatting and locked
+  Clippy passed on both CI platforms; local locked Clippy and host doctor passed.
+- Linux CI passed 94 lab and five appliance browser tests, all 16 Linux
+  appliance tests, ShellCheck at style severity, appliance service rendering,
+  and aarch64 Clippy and linking. Both frozen Python backends and the Godot
+  import, contract and scene checks passed on Windows and Linux.
+- The 40 browser captures inspected during PR #39 remain registered against
+  the five independent validators. Their dates and tool versions are actual
+  observations, not the date of this validation pass. Inspection covered 720p,
+  1080p and 4K, including the appliance's long opaque profile ID at 720p.
 - Schemas, manifests, motion benchmarks, deterministic compliance and all 555
   plan-source bindings validate. Godot and Python results are software smoke
   evidence, not target-device, performance or physical-controller qualification.
-- Windows Application Control blocks `cargo fmt` (error 4551). No policy was
-  changed and no alternate execution path was used for the blocked formatter.
-  Formatting verification remains an explicit tool-policy limit.
+- Local Windows Application Control blocks `cargo fmt` (error 4551). No policy
+  was changed and no alternate execution path was used for the blocked
+  formatter; the successful Windows and Linux CI jobs verify formatting.
 - Physical TVs/cameras/controllers, Raspberry Pi/Hailo qualification and
   unresolved project/model redistribution decisions remain outside this cleanup.
 
-### Build comparison
+### Initial cleanup build comparison
 
+This comparison records the initial local cleanup before the PR review fixes.
 Both builds used the same installed Node/pnpm/Vite toolchain. The original
 revision was built in a clean detached worktree using its frozen offline lock;
 the temporary worktree was removed afterward. These are emitted minified asset
 bytes, not a performance or load-time claim.
 
-| Output | Original default | Current appliance | Current lab |
+| Output | Original default | Initial appliance | Initial lab |
 | --- | ---: | ---: | ---: |
 | JavaScript bytes | 931,687 | 831,484 | 933,882 |
 | JavaScript files | 15 | 2 | 15 |
 | CSS bytes | 112,043 | 112,374 | 112,374 |
 
-The appliance removes 100,203 JavaScript bytes and 13 fixture scripts. The
-largest appliance chunk remains 576,635 bytes; Vite's 500 kB advisory is still
-visible. CSS grows by 331 bytes for the verified layout/containment fixes.
+That appliance build removed 100,203 JavaScript bytes and 13 fixture scripts.
+Its largest chunk was 576,635 bytes; Vite's 500 kB advisory remained visible.
+CSS grew by 331 bytes for the verified layout/containment fixes.
 No artificial bundle threshold was raised to hide that advisory.
 
 The initial local closeout covered 256 tracked changes and 61 new files on
 `cleanup/lean-project`. Its path/status inventory, verification logs and fresh
 screenshots are under the ignored `artifacts/cleanup-review/` directory.
-Pull-request review and remote CI follow this local verification record. The reusable task prompt remains
-[CLEANUP_PROMPT.md](CLEANUP_PROMPT.md).
+Post-merge validation logs are under `artifacts/main-validation-2026-09-14/`.
+The reusable task prompt remains [CLEANUP_PROMPT.md](CLEANUP_PROMPT.md).
