@@ -139,6 +139,9 @@ export class ActionEngine {
   #joined = false;
   #joinRequiresRelease = false;
 
+  /** Multi-player sessions grant authority themselves after accepting the join. */
+  constructor(private readonly autoJoin = true) {}
+
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
     const enrichedFrame: MotionFrame = {
       ...frame,
@@ -404,7 +407,7 @@ export class ActionEngine {
       );
       this.#handsHold = update.state;
       actions.push(...update.actions);
-      if (update.triggered && name === "player_join") this.#joined = true;
+      if (update.triggered && name === "player_join" && this.autoJoin) this.#joined = true;
     } else {
       const update = this.#advanceHold(
         this.#handsHold,
@@ -566,8 +569,8 @@ export class ActionEngine {
    * Each arm has two easy positions either side of hanging at rest: the hand
    * held out away from the body, and the hand brought up to touch the head.
    * Nothing has to be held at a precise height, and the elbow can be bent or
-   * straight. Which arm carries the movement picks the axis: the right arm
-   * moves focus left and right, the left arm moves it up and down.
+   * straight. Reaching out moves focus toward that arm; touching the head
+   * with the right hand moves up, and with the left hand moves down.
    *
    * Direction is taken from the body rather than the image, so it does not
    * matter which way round the camera presents the player.
@@ -632,12 +635,12 @@ export class ActionEngine {
     // One hand on the head is a direction. Two is nothing in particular, so it
     // is left alone rather than guessed at.
     if (touching.length === 1) {
-      return { zone: touching[0]!.side === "right" ? "left" : "down", offset: 1, raised: true };
+      return { zone: touching[0]!.side === "right" ? "up" : "down", offset: 1, raised: true };
     }
     if (touching.length === 0) {
       const reaching = arms.reduce((best, arm) => (arm.reach > best.reach ? arm : best));
       if (reaching.reach >= out) {
-        return { zone: reaching.side === "right" ? "right" : "up", offset: 1, raised: true };
+        return { zone: reaching.side === "right" ? "right" : "left", offset: 1, raised: true };
       }
       return { zone: "home", offset: Math.max(0, reaching.reach / HAND_REACH_OUT), raised: true };
     }

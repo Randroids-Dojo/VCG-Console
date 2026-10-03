@@ -66,12 +66,12 @@
     {
       "role": "one-player-lab-configuration-boundary",
       "path": "apps/console-lab/src/motion-runtime.ts",
-      "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
+      "sha256": "1f94abaa92e2d44659d3382dbe20c266e86bdc4176bdaf83bf0b938b8d0b5987"
     },
     {
       "role": "player-join-markup-boundary",
       "path": "apps/console-lab/src/motion-markup.ts",
-      "sha256": "bca0857e98aec72a8a2a0fe6360068ebc20728217e831aee8a3ff37e327789f0"
+      "sha256": "26db0dd29258943cdd98bf966911138e19a92013c06493f8af2a4569fed7d52b"
     }
   ],
   "prerequisiteGate": {

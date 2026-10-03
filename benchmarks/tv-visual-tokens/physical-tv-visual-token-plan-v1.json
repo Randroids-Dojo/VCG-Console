@@ -37,7 +37,7 @@
     {
       "role": "shell-layout-implementation",
       "path": "apps/console-lab/src/styles/shell.css",
-      "sha256": "95e8150af31b9ec6f358916ccd91674cb005008f2b17b1ef40e36f74ef0e98e1"
+      "sha256": "7aa14f6cb978501fd4103bd71e5a8cbfd8bbac2d919450f10adcd25fb3c1ac42"
     },
     {
       "role": "shell-responsive-implementation",
@@ -47,12 +47,12 @@
     {
       "role": "bounded-ocra-font-evidence",
       "path": "benchmarks/font-coverage/windows-x64-installed-chrome-ocra-platform-fallback-v1.json",
-      "sha256": "de648253c06116f52764e73cb2e63fe9691e89b50254add7c018b518b11c8526"
+      "sha256": "9ac1b7d5e07f8f2707cb38b405ef6023ba899ed3a512d19d4ebc28f4236da1d0"
     },
     {
       "role": "representative-headless-tv-regression-evidence",
       "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "612c59dbe2e2a161b6c7cd78759785c7ddf06d9b736f088ebba15c8f182f57c0"
+      "sha256": "6cec3ec68fb47631810090679ea5dfc13eef019b9a461c0fd6b43c7c88f3b505"
     }
   ],
   "executionBoundary": {

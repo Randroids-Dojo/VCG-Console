@@ -303,11 +303,11 @@ if [ "${retro_requested}" -eq 1 ]; then
   retro_library_root="${retro_library_root:-${retro_root}}"
   trusted_time_launcher="${repo_root}/scripts/pi/start-launcher-with-trusted-time.sh"
 
-  # Saves, states, and the replay journal go inside the unit's own
-  # RuntimeDirectory and StateDirectory, which ProtectSystem=strict already
-  # leaves writable, so configuring retro adds no writable path to the sandbox
-  # and the provisioned root stays read-only to the running session.
-  retro_runtime_root="/run/vcg-console/retro"
+  # The runtime includes a verified copy of the frontend executable. /run is
+  # mounted noexec on Raspberry Pi OS, so keep it in the unit's StateDirectory
+  # alongside saves and the replay journal. ProtectSystem=strict already leaves
+  # this directory writable; the provisioned package root stays read-only.
+  retro_runtime_root="/var/lib/vcg-console/retro-runtime"
   retro_data_root="/var/lib/vcg-console/data/retro"
   retro_replay_root="/var/lib/vcg-console/data/launch-replay"
 

@@ -13,6 +13,30 @@ function calibratedEngine(context: "shell" | "game" = "shell") {
 }
 
 describe("camera-free pose simulator integration", () => {
+  it.each([false, true])("maps physical left reach and right head touch with mirrored=%s", (mirrored) => {
+    const { engine, simulator } = calibratedEngine();
+    engine.join();
+    const pose = (sequence: number, wrist?: "left_wrist" | "right_wrist"): MotionFrame => {
+      const frame = simulator.frame(sequence, 600 + sequence * 20);
+      for (const landmark of frame.players[0]!.coreLandmarks) {
+        if (landmark.name === wrist) {
+          landmark.position.x = wrist === "left_wrist" ? 0.13 : 0.56;
+          landmark.position.y = wrist === "left_wrist" ? 0.36 : 0.2;
+        }
+        if (mirrored) landmark.position.x = 1 - landmark.position.x;
+      }
+      return frame;
+    };
+    engine.enrich(pose(24));
+    expect(engine.enrich(pose(25, "left_wrist")).players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_left", phase: "triggered" }),
+    );
+    engine.enrich(pose(26));
+    expect(engine.enrich(pose(27, "right_wrist")).players[0]?.actions).toContainEqual(
+      expect.objectContaining({ name: "menu_swipe_up", phase: "triggered" }),
+    );
+  });
+
   it.each([
     ["dodge-left", "dodge_left"],
     ["dodge-right", "dodge_right"],
@@ -76,14 +100,14 @@ describe("camera-free pose simulator integration", () => {
       expect.objectContaining({ name: "menu_swipe_left", phase: "triggered" }),
     );
 
-    // Coming back to straight up is a return, never the opposite gesture.
+    // Returning to rest never triggers the opposite gesture.
     simulator.setPose("neutral");
     const back = engine.enrich(simulator.frame(27, 660));
     expect(back.players[0]?.actions).not.toContainEqual(
       expect.objectContaining({ name: "menu_swipe_right" }),
     );
 
-    // Away from the body with the same arm is the other direction.
+    // Reaching out with the other arm moves in the other direction.
     simulator.setPose("swipe-right");
     const right = engine.enrich(simulator.frame(28, 680));
     expect(right.players[0]?.actions).toContainEqual(
@@ -91,9 +115,7 @@ describe("camera-free pose simulator integration", () => {
     );
   });
 
-  it("moves focus up and down from the other arm", () => {
-    // Both axes are the same comfortable movement; the arm carrying it picks
-    // the axis, so nothing has to be held above a shoulder.
+  it("moves focus up with the right hand at the head and down with the left", () => {
     const { engine, simulator } = calibratedEngine();
     engine.join();
     simulator.setPose("neutral");
@@ -126,8 +148,7 @@ describe("camera-free pose simulator integration", () => {
   ] as const)(
     "maps %s to %s",
     (moved, action) => {
-      // The right arm carries left and right, the left arm carries up and
-      // down, and each is one step out of arms hanging at rest.
+      // Each direction is one step out of arms hanging at rest.
       const { engine, simulator } = calibratedEngine();
       engine.join();
       engine.enrich(simulator.frame(24, 600));
@@ -161,8 +182,7 @@ describe("camera-free pose simulator integration", () => {
   });
 
   it("treats both hands out as its own posture, not a direction", () => {
-    // Holding both arms wide is how a player asks what the gestures are. If it
-    // resolved to a direction, asking for help would move the focus instead.
+    // Both arms wide is ambiguous, so it must not move focus.
     const { engine, simulator } = calibratedEngine();
     engine.join();
     engine.enrich(simulator.frame(24, 600));

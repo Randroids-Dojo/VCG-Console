@@ -31,6 +31,10 @@ export class MultiPlayerActionEngine {
   readonly #joinedSlots = new Map<string, 1 | 2>();
 
   enrich(frame: MotionFrame, context: ActionContext = "shell"): MotionFrame {
+    const visible = new Set(frame.players.map((player) => player.id));
+    for (const [trackId, { engine }] of this.#engines) {
+      if (!visible.has(trackId)) engine.suspend();
+    }
     const players = frame.players.map((player) => this.#enrichPlayer(frame, player, context));
     this.#discardStaleCandidates(frame.sequence);
     return {
@@ -113,7 +117,7 @@ export class MultiPlayerActionEngine {
       const candidate = engine.sweep;
       const better = candidate.handRaised !== best.handRaised
         ? candidate.handRaised
-        : candidate.offset > best.offset;
+        : candidate.offset > best.offset || (best.zone === "rest" && candidate.zone !== "rest");
       if (better) best = candidate;
     }
     return best;
@@ -122,7 +126,7 @@ export class MultiPlayerActionEngine {
   #enrichPlayer(frame: MotionFrame, player: PlayerMotion, context: ActionContext): PlayerMotion {
     let playerEngine = this.#engines.get(player.id);
     if (!playerEngine) {
-      playerEngine = { engine: new ActionEngine(), lastSeenSequence: frame.sequence };
+      playerEngine = { engine: new ActionEngine(false), lastSeenSequence: frame.sequence };
       this.#engines.set(player.id, playerEngine);
       if (this.#joinedSlots.has(player.id)) playerEngine.engine.join();
     }

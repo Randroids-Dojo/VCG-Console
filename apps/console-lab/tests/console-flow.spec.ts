@@ -3296,11 +3296,16 @@ test("imported games browse one page at a time and refuse a controllerless launc
   // No controller is connected, so the game is refused before the host is asked.
   await expect(library.getByText(/Connect a controller to play/)).toBeVisible();
   await page.keyboard.press("Enter");
-  const refused = page.getByRole("dialog", { name: "nes title 0001" });
+  const refused = page.getByRole("dialog", { name: "Connect a controller" });
   await expect(refused).toHaveAttribute("data-launch-adapter", "retro");
-  await expect(refused.getByText("NOT AVAILABLE")).toBeVisible();
-  await expect(refused.getByText(/Connect a controller to play/)).toBeVisible();
+  await expect(refused.getByText("Plug it in, then press a button to continue.")).toBeVisible();
+  await expect(refused.getByText(/Cross your arms and hold to exit/)).toBeVisible();
+  await expect(refused.locator("button")).toHaveCount(1);
+  await expect(refused.locator(".launch-header, .launch-trace, .launch-metrics, .launch-diagnostics")).toHaveCount(0);
   expect(observed.some(({ method }) => method === "POST")).toBe(false);
+  await page.keyboard.press("Escape");
+  await expect(refused).toHaveCount(0);
+  await expect(library.locator('[data-library-index="0"]')).toBeFocused();
 });
 
 test("an imported game names one host-published entry to the host", async ({ page }) => {

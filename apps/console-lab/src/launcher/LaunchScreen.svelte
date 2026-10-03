@@ -14,7 +14,7 @@
     onretry: () => void;
   } = $props();
   let panel: HTMLElement;
-  let exitButton: HTMLButtonElement;
+  let exitButton = $state<HTMLButtonElement>();
   let elapsedMs = $state(0);
   let detailsVisible = $state(false);
   let timer: number | undefined;
@@ -22,6 +22,7 @@
     loading: "IN PROGRESS",
     slow: "TAKING LONGER",
     ready: "READY",
+    running: "GAME RUNNING",
     offline: "OFFLINE",
     hung: "NOT RESPONDING",
     crashed: "STOPPED",
@@ -32,13 +33,14 @@
   let statusLabel = $derived(STATUS_LABELS[session.status]);
   let elapsed = $derived(`${(elapsedMs / 1_000).toFixed(1)} S`);
   let fault = $derived(["offline", "hung", "crashed", "unavailable"].includes(session.status));
+  let needsController = $derived(session.diagnostics?.code === "CONTROLLER_NOT_CONNECTED");
 
   onMount(() => {
     elapsedMs = Math.max(0, Date.now() - session.startedAt);
     timer = window.setInterval(() => {
       elapsedMs = Math.max(0, Date.now() - session.startedAt);
     }, 100);
-    void tick().then(() => exitButton.focus({ preventScroll: true }));
+    void tick().then(() => exitButton?.focus({ preventScroll: true }));
   });
 
   onDestroy(() => {
@@ -72,6 +74,7 @@
 <div
   bind:this={panel}
   class="launch-screen"
+  class:launch-controller-prompt={needsController}
   class:launch-ready={["ready", "recovered"].includes(session.status)}
   class:launch-recovering={session.status === "recovering"}
   class:launch-slow={session.status === "slow"}
@@ -83,6 +86,16 @@
   aria-labelledby="launch-title"
   onkeydown={handleKeydown}
 >
+  {#if needsController}
+    <div class="controller-prompt-action">
+      <h1 id="launch-title" data-tv-critical-text>Connect a controller</h1>
+      <p data-tv-critical-text>Plug it in, then press a button to continue.</p>
+    </div>
+    <div class="controller-prompt-exit">
+      <button bind:this={exitButton} type="button" data-tv-action data-tv-critical-text onclick={onexit}>Exit</button>
+      <p data-tv-critical-text>Cross your arms and hold to exit.<br />Or press B / Esc.</p>
+    </div>
+  {:else}
   <header class="launch-header">
     <span data-tv-critical-text>VCG<span>/</span>TRANSFER</span>
     <span data-tv-critical-text>{session.adapterLabel}</span>
@@ -150,4 +163,5 @@
       <button bind:this={exitButton} type="button" data-tv-action data-tv-critical-text onclick={onexit}>{session.status === "loading" ? "Back" : "Exit"}</button>
     </div>
   </footer>
+  {/if}
 </div>

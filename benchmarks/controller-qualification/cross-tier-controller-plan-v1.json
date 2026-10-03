@@ -34,7 +34,7 @@
     {
       "role": "timing-campaign-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
+      "sha256": "12f37a21e66496cc0526df8d753e19d138456e0851098af1809d51db8df636aa"
     },
     {
       "role": "ordinary-x86-target-boundary",

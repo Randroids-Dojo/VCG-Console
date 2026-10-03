@@ -1,6 +1,6 @@
 {
   "format": "vcg-ocra-font-structural-evidence/v1",
-  "evidenceDate": "2026-09-14",
+  "evidenceDate": "2026-10-03",
   "subject": {
     "path": "apps/console-lab/public/fonts/OCRA.ttf",
     "bytes": 24316,
@@ -724,13 +724,13 @@
       }
     ],
     "productionSource": {
-      "fileCount": 95,
-      "totalBytes": 903246,
+      "fileCount": 96,
+      "totalBytes": 911236,
       "files": [
         {
           "path": "apps/console-lab/src/action-engine.ts",
-          "bytes": 25533,
-          "sha256": "0eedabe8caa0661a5c87d2354dcd0d56fa0a399b9450fff32a5a441e42e6935a"
+          "bytes": 25687,
+          "sha256": "bb2c8edf10e92b1315612d59b0c1fee5482be020a0bdd71a45da21bbf8172c10"
         },
         {
           "path": "apps/console-lab/src/action-feedback.ts",
@@ -813,6 +813,11 @@
           "sha256": "8e84ef0ef628762cfe2c028c478a5058e60798e4d9e9970190a4d15d17c2d6ab"
         },
         {
+          "path": "apps/console-lab/src/gesture-readout.ts",
+          "bytes": 2277,
+          "sha256": "46e5f5fd5b20f709c65fa1a76d276656924c4f5ee9190cd8a51298b0e6a120a7"
+        },
+        {
           "path": "apps/console-lab/src/godot-bridge-host-fixture.ts",
           "bytes": 2439,
           "sha256": "0ab0b28b0ac7a175063d9e668e47c63b28aedf4a03776c9532437e866d2807ee"
@@ -854,13 +859,13 @@
         },
         {
           "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-          "bytes": 6276,
-          "sha256": "545115d64340b520af9b54462f3a5eaf589846b2f77526254b8b96605a87bc68"
+          "bytes": 6975,
+          "sha256": "78898ae2e61efde9b2cb1a8a652107f160b90ae3df398acc56672f23898ec48c"
         },
         {
           "path": "apps/console-lab/src/launcher/Launcher.svelte",
-          "bytes": 62499,
-          "sha256": "dc0f8a8361583e3537efb2abd64928bfa83b5135f9bedbc14ea468eaf0772563"
+          "bytes": 63849,
+          "sha256": "dd7b99649b013d19f3414c306033db9e524d5929d16cbc764355f45f5d3459a7"
         },
         {
           "path": "apps/console-lab/src/launcher/LauncherTopbar.svelte",
@@ -954,8 +959,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
-          "bytes": 6776,
-          "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+          "bytes": 7329,
+          "sha256": "d1988b8d0398d42c2751345cbf44d6c9162184e926d940fb00e64182c833cef9"
         },
         {
           "path": "apps/console-lab/src/launcher/local-diagnostics.ts",
@@ -999,8 +1004,8 @@
         },
         {
           "path": "apps/console-lab/src/launcher/types.ts",
-          "bytes": 1738,
-          "sha256": "bacb372596c64b237f4cd2d9a1318586b8ea81d10420efc1f91dcb49fbbbb63f"
+          "bytes": 1750,
+          "sha256": "3b1125b9e5a9dca3c42a292195ee95a4045cb2874ffdfc5c1811cf19bfc040de"
         },
         {
           "path": "apps/console-lab/src/launcher/unassigned-progress.ts",
@@ -1034,18 +1039,18 @@
         },
         {
           "path": "apps/console-lab/src/motion-markup.ts",
-          "bytes": 16009,
-          "sha256": "bca0857e98aec72a8a2a0fe6360068ebc20728217e831aee8a3ff37e327789f0"
+          "bytes": 15428,
+          "sha256": "26db0dd29258943cdd98bf966911138e19a92013c06493f8af2a4569fed7d52b"
         },
         {
           "path": "apps/console-lab/src/motion-runtime.ts",
-          "bytes": 74266,
-          "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
+          "bytes": 77727,
+          "sha256": "1f94abaa92e2d44659d3382dbe20c266e86bdc4176bdaf83bf0b938b8d0b5987"
         },
         {
           "path": "apps/console-lab/src/multi-player-action-engine.ts",
-          "bytes": 4846,
-          "sha256": "3a8636d719869e6678d64159069e43bf6c4576721de2660a2774fc6d92d5802e"
+          "bytes": 5091,
+          "sha256": "b8221af7a4e18f0165a4d08e5a1a7341e9dbb8dd88ac4a5322b3d1bedef851cd"
         },
         {
           "path": "apps/console-lab/src/native-host-client.ts",
@@ -1114,8 +1119,8 @@
         },
         {
           "path": "apps/console-lab/src/styles/launch.css",
-          "bytes": 7258,
-          "sha256": "f88513dbc4e2861fc4c12cde6ca0098a1ba9dcf719bd2f93ac5a2b2f0dd8c4cc"
+          "bytes": 8246,
+          "sha256": "5df7bf2b23358a2ec2cee150a44858759109a89abfa4ad10512cd9f6d6e69438"
         },
         {
           "path": "apps/console-lab/src/styles/library.css",
@@ -1124,8 +1129,8 @@
         },
         {
           "path": "apps/console-lab/src/styles/motion.css",
-          "bytes": 26014,
-          "sha256": "85b5d1f2322cd23cd6e9f18b15b1f825a1f4fa9e290db491a277d76ec39d1c7f"
+          "bytes": 26373,
+          "sha256": "17435fe490f4bd5170b03959de326358cd3b13372afa333999167d0968c90bc2"
         },
         {
           "path": "apps/console-lab/src/styles/profiles.css",
@@ -1154,8 +1159,8 @@
         },
         {
           "path": "apps/console-lab/src/styles/shell.css",
-          "bytes": 23514,
-          "sha256": "95e8150af31b9ec6f358916ccd91674cb005008f2b17b1ef40e36f74ef0e98e1"
+          "bytes": 21987,
+          "sha256": "7aa14f6cb978501fd4103bd71e5a8cbfd8bbac2d919450f10adcd25fb3c1ac42"
         },
         {
           "path": "apps/console-lab/src/synthetic.ts",
@@ -1210,6 +1215,12 @@
           "fontCovered": true,
           "occurrences": [
             {
+              "path": "apps/console-lab/src/gesture-readout.ts",
+              "lines": [
+                40
+              ]
+            },
+            {
               "path": "apps/console-lab/src/launcher/CalibrationRehearsalView.svelte",
               "lines": [
                 303
@@ -1218,14 +1229,15 @@
             {
               "path": "apps/console-lab/src/launcher/Launcher.svelte",
               "lines": [
-                855,
-                952,
-                969,
-                982,
-                1039,
-                1125,
-                1273,
-                1296
+                869,
+                966,
+                983,
+                996,
+                1053,
+                1104,
+                1151,
+                1299,
+                1322
               ]
             },
             {
@@ -1297,7 +1309,7 @@
             {
               "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
               "lines": [
-                144
+                156
               ]
             },
             {
@@ -1327,9 +1339,9 @@
             {
               "path": "apps/console-lab/src/motion-runtime.ts",
               "lines": [
-                865,
-                1389,
-                1393
+                850,
+                1425,
+                1429
               ]
             },
             {

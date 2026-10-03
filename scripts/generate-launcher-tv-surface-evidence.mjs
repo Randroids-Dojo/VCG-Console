@@ -167,9 +167,9 @@ async function exerciseFocus(page, surfaceId) {
     await page.keyboard.press("Escape");
     assert.equal(
       await page.evaluate(
-        () => document.activeElement?.getAttribute("data-view-target"),
+        () => document.activeElement === document.querySelector(".home-destinations button"),
       ),
-      "home",
+      true,
     );
     return ["motion-first-entry", "launcher-home"];
   }
@@ -179,9 +179,9 @@ async function exerciseFocus(page, surfaceId) {
     await page.keyboard.press("Escape");
     assert.equal(
       await page.evaluate(
-        () => document.activeElement?.getAttribute("data-view-target"),
+        () => document.activeElement === document.querySelector(".home-destinations button"),
       ),
-      "home",
+      true,
     );
     return ["scan-wifi", "launcher-home"];
   }

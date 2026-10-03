@@ -25,32 +25,32 @@
     {
       "role": "controller-lifecycle-and-zero-keyboard-recovery-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
+      "sha256": "8f25d07d241e0eaad49ebad2b01e0c8e8e1e26954f3ab1a2286f5b309baa0e2a"
     },
     {
       "role": "cold-boot-launch-feedback-and-usable-input-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
+      "sha256": "12f37a21e66496cc0526df8d753e19d138456e0851098af1809d51db8df636aa"
     },
     {
       "role": "unstealable-home-back-focus-and-forced-exit-boundary",
       "path": "benchmarks/reserved-home/reserved-home-action-plan-v1.json",
-      "sha256": "342ae82685e869fbba13e2421f2b5844e2bc35d62bf1d3aa79ef2f92986eac64"
+      "sha256": "ff470e1627d1a55744445caecb2aeded9dd6900e0450921d47c5b9f569fe22e9"
     },
     {
       "role": "physical-tv-controller-audio-video-and-shutdown-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "d14af751b5e84e21a303a9fe382f1438ea0abdd399ca6a98bac9ee1c157df6e0"
+      "sha256": "5f5e75e16c640d886b4029d5ba99c9b834a0271b13e0d6b41c2e0baef1cbce91"
     },
     {
       "role": "kiosk-focus-fullscreen-desktop-escape-and-recovery-boundary",
       "path": "benchmarks/kiosk-compositor/cross-tier-kiosk-compositor-plan-v1.json",
-      "sha256": "ea50808c8af7e0d96a19d9e4c0454360b1b4c3c420420028c44ee8e29e6eceb8"
+      "sha256": "4636bf762c0c31e13abe12ac17b512c6c5ac0508680b0b6fe53f16abe7a0987c"
     },
     {
       "role": "physical-tv-visual-focus-comprehension-and-accessibility-boundary",
       "path": "benchmarks/tv-visual-tokens/physical-tv-visual-token-plan-v1.json",
-      "sha256": "a1c8080634a59e66b9e1e49d46068e91fb7fd63ee376765a21908cf9b22ff992"
+      "sha256": "1cd54fe3d4767af751fad7e2d04b03a0394f19f73cdf96df0210e738260a4592"
     },
     {
       "role": "runtime-neutral-local-package-controller-and-lifecycle-boundary",
@@ -65,17 +65,17 @@
     {
       "role": "shared-branded-loading-retry-details-and-exit-surface",
       "path": "apps/console-lab/src/launcher/LaunchScreen.svelte",
-      "sha256": "545115d64340b520af9b54462f3a5eaf589846b2f77526254b8b96605a87bc68"
+      "sha256": "78898ae2e61efde9b2cb1a8a652107f160b90ae3df398acc56672f23898ec48c"
     },
     {
       "role": "deterministic-loading-fault-retry-and-recovery-state-machine",
       "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
-      "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+      "sha256": "d1988b8d0398d42c2751345cbf44d6c9162184e926d940fb00e64182c833cef9"
     },
     {
       "role": "current-launcher-navigation-runtime-adapter-and-power-surface",
       "path": "apps/console-lab/src/launcher/Launcher.svelte",
-      "sha256": "dc0f8a8361583e3537efb2abd64928bfa83b5135f9bedbc14ea468eaf0772563"
+      "sha256": "dd7b99649b013d19f3414c306033db9e524d5929d16cbc764355f45f5d3459a7"
     },
     {
       "role": "shutdown-restart-power-loss-and-safe-return-boundary",

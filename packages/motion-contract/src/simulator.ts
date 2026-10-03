@@ -217,9 +217,9 @@ function posePoints(pose: MotionSimulatorPose): Record<CoreLandmarkName, Point> 
   // Menu poses are where a hand is held, read against the shoulders, hips and
   // head. Arms hanging at rest is the home position; each pose is one step out
   // of it, with the hand either held out past the shoulder or brought up to
-  // the head. Which arm carries it picks the axis.
+  // the head. The named pose follows the resulting focus direction.
   if (pose === "both-hands-out") {
-    // Both hands out at once, which asks for the gesture guide.
+    // Both hands out at once is neutral for navigation.
     points.right_elbow = [0.72, 0.4];
     points.right_wrist = [0.87, 0.36];
     points.left_elbow = [0.28, 0.4];
@@ -230,12 +230,12 @@ function posePoints(pose: MotionSimulatorPose): Record<CoreLandmarkName, Point> 
     points.right_elbow = [0.72, 0.4];
     points.right_wrist = [0.87, 0.36];
   }
-  if (pose === "swipe-left") {
+  if (pose === "swipe-up") {
     // Right hand up touching the head.
     points.right_elbow = [0.64, 0.36];
     points.right_wrist = [0.56, 0.2];
   }
-  if (pose === "swipe-up") {
+  if (pose === "swipe-left") {
     // Left hand held out away from the body.
     points.left_elbow = [0.28, 0.4];
     points.left_wrist = [0.13, 0.36];

@@ -12,6 +12,51 @@
   animation: launch-arrive var(--vcg-motion-view) ease both;
 }
 
+.launch-screen.launch-controller-prompt {
+  grid-template-rows: 1fr auto;
+  justify-items: center;
+  padding: var(--safe-y) var(--safe-x);
+  text-align: center;
+  background: var(--bg, #07090b);
+}
+
+.controller-prompt-action {
+  align-self: center;
+  max-width: 100%;
+}
+
+.launcher .controller-prompt-action h1[data-tv-critical-text] {
+  margin: 0 0 24px;
+  font-size: clamp(36px, 4vw, 80px);
+  line-height: 1.15;
+}
+
+.launcher .controller-prompt-action p[data-tv-critical-text],
+.launcher .controller-prompt-exit p[data-tv-critical-text] {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(24px, 1.6vw, 32px);
+  line-height: 1.5;
+}
+
+.controller-prompt-exit {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+.launcher .controller-prompt-exit button[data-tv-action] {
+  min-width: 180px;
+  min-height: 60px;
+  padding: 12px 32px;
+  border: 2px solid var(--stroke-2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  font-size: 28px;
+}
+
 .launch-header {
   display: flex;
   align-items: center;
@@ -373,4 +418,3 @@
   from { transform: translateX(-100%); }
   to { transform: translateX(460%); }
 }
-

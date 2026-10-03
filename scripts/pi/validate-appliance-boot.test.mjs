@@ -503,7 +503,7 @@ test(
           ` --update-root-anchors ${retroRoot}/trust/anchors.json` +
           ` --update-root-protected-state ${retroRoot}/trust/protected-state.json` +
           " --update-channel development" +
-          " --runtime-root /run/vcg-console/retro" +
+          " --runtime-root /var/lib/vcg-console/retro-runtime" +
           " --data-root /var/lib/vcg-console/data/retro" +
           ` --profile-registry ${retroRoot}/profile-registry.json` +
           " --launch-replay-root /var/lib/vcg-console/data/launch-replay" +
@@ -706,7 +706,7 @@ const RETRO_LAUNCHER_ARGUMENTS = [
   "--update-channel",
   "development",
   "--runtime-root",
-  "/run/vcg-console/retro",
+  "/var/lib/vcg-console/retro-runtime",
   "--data-root",
   "/var/lib/vcg-console/data/retro",
   "--profile-registry",

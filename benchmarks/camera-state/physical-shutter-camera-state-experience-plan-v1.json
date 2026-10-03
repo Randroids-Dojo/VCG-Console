@@ -38,17 +38,17 @@
     {
       "role": "motion-lab-camera-state-surface",
       "path": "apps/console-lab/src/motion-runtime.ts",
-      "sha256": "b1ee0f5437944c4e57dfc61b76bbf5d641183b4a1e9dd99f0dbd9181862064be"
+      "sha256": "1f94abaa92e2d44659d3382dbe20c266e86bdc4176bdaf83bf0b938b8d0b5987"
     },
     {
       "role": "motion-lab-camera-state-markup",
       "path": "apps/console-lab/src/motion-markup.ts",
-      "sha256": "bca0857e98aec72a8a2a0fe6360068ebc20728217e831aee8a3ff37e327789f0"
+      "sha256": "26db0dd29258943cdd98bf966911138e19a92013c06493f8af2a4569fed7d52b"
     },
     {
       "role": "motion-lab-camera-state-style",
       "path": "apps/console-lab/src/styles/motion.css",
-      "sha256": "85b5d1f2322cd23cd6e9f18b15b1f825a1f4fa9e290db491a277d76ec39d1c7f"
+      "sha256": "17435fe490f4bd5170b03959de326358cd3b13372afa333999167d0968c90bc2"
     },
     {
       "role": "motion-lab-camera-shared-tokens",
@@ -63,7 +63,7 @@
     {
       "role": "camera-state-browser-proof",
       "path": "apps/console-lab/tests/console-flow.spec.ts",
-      "sha256": "9e14a4866637b89e847e190dba8a6ab366915be0d35f15499f1c35c51e0e29fd"
+      "sha256": "7175250c95c192efae9b1d7d6cfb41b52b59c804832c73113e8640d77f227ddb"
     },
     {
       "role": "shared-camera-physical-check-boundary",
@@ -73,17 +73,17 @@
     {
       "role": "camera-geometry-reach-visibility-boundary",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "39158f93596bbf6b67144a5c79d4fe25dbc21f0fceb7dfbd216594ac27c52758"
+      "sha256": "5c68437de8673f6fadf1f8aedc760fc1a4cd8241842af9f716bf44f81261f138"
     },
     {
       "role": "camera-cable-service-boundary",
       "path": "benchmarks/camera-cabling/cross-tier-camera-cable-plan-v1.json",
-      "sha256": "473bde4160dcc862bddfe27fef59b72ae7aeb73f7b9aade8a81590414efb7b80"
+      "sha256": "1c95d64a0c87cf82426614f4d5578a72c22813bd3f430d4a9cb286630ade07bf"
     },
     {
       "role": "idle-suspend-power-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "9478293fbd437ec80f1d20de289251a0e39c3355c4d10807006b937602a3cc8a"
+      "sha256": "ca5da60206d821b127460e0f902707e2a5798c108acbbdd5191e32677b17df96"
     },
     {
       "role": "active-play-safety-boundary",

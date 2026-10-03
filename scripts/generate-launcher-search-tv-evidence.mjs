@@ -243,7 +243,7 @@ async function exerciseInteraction(page, state) {
     const home = page.getByRole("heading", { name: /^Games$/u });
     await home.waitFor();
     const homeNavigation = page.locator(
-      '.launcher-nav [data-view-target="home"]',
+      '.home-destinations button:first-child',
     );
     assert.equal(
       await homeNavigation.evaluate(

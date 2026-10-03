@@ -111,6 +111,15 @@ export class LaunchSupervisor {
     this.#stopMonitor();
   }
 
+  /** Process acceptance ends the startup budget, without claiming window readiness. */
+  running(detail = "Game process running"): void {
+    if (TERMINAL_STATES.has(this.#session.status)) return;
+    const now = this.#now();
+    this.#lastHealthAt = now;
+    this.#update({ status: "running", detail, canRetry: false,
+      diagnostics: this.#diagnostics("PROCESS_RUNNING", "process running", now) });
+  }
+
   offline(detail = "No network connection"): void {
     this.#fail("offline", "NETWORK_OFFLINE", detail);
   }
@@ -136,6 +145,9 @@ export class LaunchSupervisor {
     const silentFor = now - this.#lastHealthAt;
     if (silentFor >= this.#options.heartbeatTimeoutMs) {
       this.#fail("hung", "HEARTBEAT_TIMEOUT", `No launch signal for ${Math.round(silentFor)} ms`);
+    } else if (this.#session.status === "running") {
+      // The host lifecycle is still polled; only the startup deadline ends.
+      return;
     } else if (elapsed >= this.#options.timeoutMs) {
       this.#fail("hung", "LAUNCH_TIMEOUT", `Launch exceeded its ${this.#options.timeoutMs} ms budget`);
     } else if (elapsed >= this.#options.slowAfterMs && this.#session.status !== "slow") {

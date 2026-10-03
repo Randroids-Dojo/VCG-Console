@@ -24,7 +24,7 @@
     {
       "role": "launcher-timing-state-boundary",
       "path": "apps/console-lab/src/launcher/launch-supervisor.ts",
-      "sha256": "3fba121accfbf8324803974b7f48c98734f951b9628185f7aab1ad71066ff761"
+      "sha256": "d1988b8d0398d42c2751345cbf44d6c9162184e926d940fb00e64182c833cef9"
     },
     {
       "role": "idle-wake-state-boundary",

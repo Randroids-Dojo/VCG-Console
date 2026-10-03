@@ -37,7 +37,7 @@
     {
       "role": "cross-tier-camera-geometry-plan",
       "path": "benchmarks/camera-geometry/cross-tier-camera-placement-geometry-plan-v1.json",
-      "sha256": "39158f93596bbf6b67144a5c79d4fe25dbc21f0fceb7dfbd216594ac27c52758"
+      "sha256": "5c68437de8673f6fadf1f8aedc760fc1a4cd8241842af9f716bf44f81261f138"
     },
     {
       "role": "pose-edge-plan",
