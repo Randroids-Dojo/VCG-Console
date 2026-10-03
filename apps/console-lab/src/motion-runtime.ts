@@ -16,6 +16,7 @@ import {
   type MotionSimulatorPose,
 } from "@vcg/motion-contract";
 import { actionFeedback } from "./action-feedback";
+import { GestureReadout } from "./gesture-readout";
 import { MultiPlayerActionEngine } from "./multi-player-action-engine";
 import {
   applyBodyVisibilityFixture,
@@ -33,7 +34,6 @@ import { captureProfileFromSearch } from "./capture-profile";
 import { ControllerPlayerAssignments } from "./controller-player-assignment";
 import { installAutoHidingCursor } from "./cursor-visibility";
 import { GamepadRouter, type ConsoleInputAction } from "./gamepad-router";
-import type { HandZone } from "./action-engine";
 import {
   focusControl,
   nearestControl,
@@ -76,6 +76,8 @@ interface MotionSimulatorTestApi {
   enable(enabled?: boolean): void;
   setPlayerVisible(visible: boolean): void;
   setPose(pose: MotionSimulatorPose): void;
+  replacePlayer(): void;
+  session(): ReturnType<PlayerSessionController["snapshot"]>;
   snapshot(): Readonly<{
     enabled: boolean;
     playerVisible: boolean;
@@ -131,19 +133,18 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
   const motionLab = required<HTMLElement>("#motion-lab");
   const consoleShellRoot = motionLab;
   const telemetryPanel = required<HTMLElement>("#telemetry-panel");
-  const motionLegend = required<HTMLElement>("#motion-legend");
-  const motionLegendBack = required<HTMLElement>("#motion-legend-back");
-  /** Long enough to read the guide once, short enough not to live on screen. */
-  const MOTION_LEGEND_VISIBLE_MS = 10_000;
-  let motionLegendTimer: number | undefined;
   let trackingLossTimer: number | undefined;
-  let motionLegendZone: HandZone = "home";
   const diagnosticsToggle = required<HTMLButtonElement>("#diagnostics-toggle");
   let diagnosticsOpen = true;
   diagnosticsToggle.addEventListener("click", () => setDiagnostics(!diagnosticsOpen), { signal: lifecycle.signal });
   const trace = new TraceBuffer();
   const metrics = new Metrics();
   const actionEngine = new MultiPlayerActionEngine();
+  const gestureReadout = new GestureReadout();
+  const motionReadout = required<HTMLElement>("#motion-readout");
+  const motionReadoutCurrent = required<HTMLElement>("#motion-readout-current");
+  const motionReadoutHint = required<HTMLElement>("#motion-readout-hint");
+  const motionReadoutLast = required<HTMLElement>("#motion-readout-last");
   const playerSession = new PlayerSessionController({ maxPlayers: 2 });
   const cameraButton = required<HTMLButtonElement>("#camera-button");
   const replayButton = required<HTMLButtonElement>("#replay-button");
@@ -212,7 +213,8 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
   const roundResult = required<HTMLElement>("#round-result");
   const roundResultTitle = required<HTMLElement>("#round-result-title");
   const roundResultScore = required<HTMLElement>("#round-result-score");
-  const poseSimulator = new MotionPoseSimulator();
+  let poseSimulator = new MotionPoseSimulator();
+  let simulatorPlayerGeneration = 1;
   // `?input=controller` starts the console without opening the camera. Tests and
   // evidence runs use it so an automated page never reaches for a camera, and it
   // is the same choice the Controllers settings panel writes.
@@ -293,49 +295,6 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
   obstacle.setPaused(true);
   paintLeaderboard();
 
-  /**
-   * Shows the body gestures while anyone is playing by motion.
-   *
-   * Crossed arms mean different things either side of a running game, so the
-   * legend follows the same boundary the action engine uses rather than naming
-   * one and hoping. During a run the focus gestures are inert, so they are not
-   * offered.
-   */
-  function paintMotionLegend(): void {
-    const motionPlayers = playerSession.snapshot().players.length;
-    const wasHidden = motionLegend.hidden;
-    motionLegend.hidden = motionPlayers === 0;
-    if (motionLegend.hidden) return;
-    const playing = obstacleIsUnderWay() && !overlayKind;
-    motionLegend.dataset.context = playing ? "game" : "shell";
-    motionLegendBack.textContent = playing ? "Pause" : "Back";
-    // Someone who has just joined has not read it yet.
-    if (wasHidden) revealMotionLegend();
-  }
-
-  /**
-   * Shows the gesture guide, then lets it fade.
-   *
-   * It is a reminder rather than part of the picture, so it leaves once it has
-   * been read. Holding both hands out brings it back, which is the one gesture
-   * that does not need the guide to discover: it is what a person does when they
-   * do not know what to do.
-   */
-  function revealMotionLegend(): void {
-    motionLegend.dataset.visible = "true";
-    if (motionLegendTimer !== undefined) window.clearTimeout(motionLegendTimer);
-    motionLegendTimer = window.setTimeout(() => {
-      motionLegend.dataset.visible = "false";
-      motionLegendTimer = undefined;
-    }, MOTION_LEGEND_VISIBLE_MS);
-  }
-
-  function watchMotionLegendGesture(): void {
-    const zone = actionEngine.sweep.zone;
-    if (zone === "both" && motionLegendZone !== "both") revealMotionLegend();
-    motionLegendZone = zone;
-  }
-
   function paintObstacleRound(snapshot: ObstacleRoundSnapshot): void {
     const previousPhase = obstacleRoundPhase;
     obstacleRoundPhase = snapshot.phase;
@@ -346,7 +305,6 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       // An empty slot has no score to read, so its readout is not shown at all.
       gameScoreBySlot[slot].closest("span")?.toggleAttribute("hidden", player === undefined);
     }
-    paintMotionLegend();
     gameClock.textContent = formatRoundClock(snapshot.roundRemainingMs);
     gameStatus.textContent = obstacleRoundStatus(snapshot);
 
@@ -448,7 +406,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       governedFrame,
       overlayKind
         ? "overlay"
-        : currentMode === "obstacle" && obstaclePhase !== "finished" && obstaclePhase !== "waiting-for-players"
+        : !launcher.visible && currentMode === "obstacle" && obstaclePhase !== "finished" && obstaclePhase !== "waiting-for-players"
           ? "game"
           : "shell",
     );
@@ -522,7 +480,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     // Faster than the metrics tick: a sweep lasts a few frames, and a reading
     // that lags it is no use for judging one.
     paintSweepReadout();
-    watchMotionLegendGesture();
+    paintMotionReadout();
 
     if (performance.now() - lastMetricsPaint > 250) {
       lastMetricsPaint = performance.now();
@@ -552,9 +510,31 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     required<HTMLElement>("#metric-action").textContent =
       `${action.name.replaceAll("_", " ")} / ${action.phase}`.toUpperCase();
     paintActionFeedback(action);
+    const snapshot = playerSession.snapshot();
+    const recoveryAllowed = overlayKind === "recovery" && playerSession.authorizeRecoveryAction(trackId);
+    const allowed = overlayKind === "manual"
+      ? playerSession.authorizeOverlayAction(trackId) !== undefined
+      : overlayKind === "recovery"
+        ? recoveryAllowed
+        : launcher.visible
+          ? playerSession.authorizeLauncherAction(trackId) !== undefined
+          : playerSession.authorizeGameplayAction(trackId) !== undefined;
+    const intent = action.name === "player_join"
+      ? recoveryAllowed ? "Taking over the lost player" : "Pairing requested"
+      : allowed ? actionFeedback(action).actionLabel : "Seen, but this player does not have control";
+    gestureReadout.observe(action, trackId, intent, performance.now());
     if (action.phase !== "triggered") return;
     if (action.name === "player_join") {
-      joinPlayer(trackId);
+      if (overlayKind === "recovery") {
+        if (recoveryAllowed) chooseOverlayAction("resume", trackId);
+        else {
+          gestureReadout.result("Hands together seen. Use a paired player or choose Cancel & Reset.");
+          actionEngine.leave(trackId);
+        }
+      } else if (snapshot.phase === "frozen" || snapshot.phase === "paused") {
+        gestureReadout.result("Hands together seen. Release, then hold again when recovery is ready.");
+        actionEngine.leave(trackId);
+      } else joinPlayer(trackId);
       return;
     }
     // An overlay covers the launcher, so it answers motion first. Otherwise a
@@ -643,6 +623,10 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       } else if (action === "back") {
         chooseOverlayAction("exit");
       }
+      return;
+    }
+    if (overlayKind && action === "home") {
+      showLauncher();
       return;
     }
     if (launcher.visible) {
@@ -741,13 +725,15 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       }
       actionEngine.join(event.trackId, event.slot);
     } catch (error) {
-      if (trackId !== undefined) synchronizeActionEngineAssignment();
+      if (trackId !== undefined) actionEngine.leave(trackId);
       statusDetail.textContent = error instanceof Error ? error.message : String(error);
+      gestureReadout.result("Pairing unavailable. Release your hands and try an open player slot.");
       return;
     }
     updatePlayerAssignmentControls();
     const joined = playerSession.snapshot().players.find((player) => player.trackId === candidate.id);
     statusDetail.textContent = `Player ${joined?.slot ?? requestedSlot ?? 1} joined. Its gesture baseline is isolated from every other visible body.`;
+    gestureReadout.result(`${trackId === undefined ? "" : "Hands together — "}Player ${joined?.slot ?? requestedSlot ?? 1} paired. Release your hands.`);
   }
 
   function synchronizeActionEngineAssignment(): void {
@@ -788,7 +774,6 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     joinButton.disabled = false;
     joinPlayer2Button.disabled = !joinedSlots.has(1) && !joinedSlots.has(2);
     synchronizeObstacleRoster();
-    paintMotionLegend();
   }
 
   function paintMetrics(frame: MotionFrame): void {
@@ -942,6 +927,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
         handlePlayerSessionEvent(sessionEvent);
       }
     }
+    paintMotionReadout();
   }
 
   function handleSimulatorGamepadState(actions: ReadonlySet<ConsoleInputAction>): void {
@@ -1107,9 +1093,10 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     ownerSlot?: 1 | 2,
     lostSlots: readonly PlayerSlot[] = [],
   ): void {
-    if (overlayKind) return;
+    if (overlayKind && !(kind === "recovery" && overlayKind === "manual")) return;
     if (kind === "manual" && currentMode === "obstacle") obstacleRunPauseCount += 1;
     overlayKind = kind;
+    overlay.dataset.kind = kind;
     overlay.hidden = false;
     // With two players and only one missing, the round does not have to end: the
     // player still in the room can carry on alone. Without this the only way out
@@ -1126,6 +1113,8 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       dropButton.hidden = overlayKeepSlots.length === 0;
       dropButton.textContent = `CONTINUE WITHOUT ${describeSlots(lostSlots).toUpperCase()}`;
     }
+    const exitButton = overlayButtons.find((button) => button.dataset.overlayAction === "exit");
+    if (exitButton) exitButton.textContent = kind === "recovery" ? "CANCEL & RESET" : "END RUN";
     obstacle.setPaused(true);
     overlayFocus = "resume";
     required<HTMLElement>("#overlay-eyebrow").textContent =
@@ -1140,11 +1129,17 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
         ? ownerSlot === undefined
           ? "The controller paused the round. Resume is ready."
           : `Player ${ownerSlot} paused the round. Resume is ready.`
-        : lostSlots.length === 0
+        : roster.length === 1
+          ? "Another person can take over: step into view and hold hands together to continue."
+          : lostSlots.length === 0
           ? "Tracking did not recover in two seconds. Step back into view, then choose Resume."
           : `Tracking was lost for ${describeSlots(lostSlots)}. Step back into view, then choose Resume.`;
+    required<HTMLElement>("#overlay-help").textContent = kind === "recovery"
+      ? roster.length === 1
+        ? "Cancel and replace: cross your arms and hold, or press B / Esc. Then the new player holds hands together to pair."
+        : "Cancel and replace: press B / Esc or choose Cancel & Reset. Then new players hold hands together to pair."
+      : "HANDS TOGETHER TO SELECT / CONTROLLER A TO CONFIRM";
     paintOverlayFocus();
-    paintMotionLegend();
   }
 
   function paintOverlayFocus(): void {
@@ -1186,6 +1181,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
       if (candidate === undefined) {
         statusDetail.textContent = "Continuing needs the remaining player in view.";
+        required<HTMLElement>("#overlay-copy").textContent = statusDetail.textContent;
         return;
       }
       try {
@@ -1193,6 +1189,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
         synchronizeActionEngineAssignment();
       } catch (error) {
         statusDetail.textContent = error instanceof Error ? error.message : String(error);
+        required<HTMLElement>("#overlay-copy").textContent = "The remaining paired player must be in view to continue.";
         return;
       }
       closeOverlay(true);
@@ -1200,8 +1197,14 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       return;
     }
     if (action === "exit") {
-      if (kind === "recovery") resetPlayerSession();
-      else closeOwnedPause("launcher");
+      if (kind === "recovery") {
+        resetPlayerSession();
+        closeOverlay(false);
+        showLauncher();
+        gestureReadout.result("Pairing reset. Anyone can hold hands together to pair.");
+        return;
+      }
+      closeOwnedPause("launcher");
       closeOverlay(false);
       // Leaving a run hands focus to the section tabs rather than the launcher,
       // so the rest of the screen stays reachable. Home still leaves entirely.
@@ -1212,13 +1215,16 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       const candidate = recoveryTrackId ?? retainedRecoveryTrack(overlayKeepSlots);
       if (candidate === undefined) {
         statusDetail.textContent = "Resume requires a visible player candidate.";
+        required<HTMLElement>("#overlay-copy").textContent = "No player is in view. Another person can step in and hold hands together, or choose Cancel & Reset.";
         return;
       }
       try {
         playerSession.resumeRecovery(candidate);
         synchronizeActionEngineAssignment();
+        gestureReadout.result("Player recovered — release your hands before the next gesture.");
       } catch (error) {
         statusDetail.textContent = error instanceof Error ? error.message : String(error);
+        required<HTMLElement>("#overlay-copy").textContent = "Both paired players must be visible. Continue without the missing player, or choose Cancel & Reset.";
         return;
       }
     } else {
@@ -1279,7 +1285,38 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
   function resetPlayerSession(): void {
     playerSession.reset();
     actionEngine.reset();
+    gestureReadout.reset();
     updatePlayerAssignmentControls();
+  }
+
+  function paintMotionReadout(): void {
+    motionReadout.hidden = replayRunning && !(LAB_MODE && simulatorEnabled);
+    overlay.dataset.motionFeedback = String(!motionReadout.hidden);
+    if (motionReadout.hidden) return;
+    const session = playerSession.snapshot();
+    const reading = gestureReadout.snapshot(performance.now());
+    motionReadout.dataset.recovery = String(overlayKind !== undefined);
+    const visible = latestFrame?.players.length ?? 0;
+    const hint = activeHealth.status !== "ready"
+      ? "Tracking unavailable. Use the controller or restart the camera."
+      : session.phase === "frozen"
+        ? "Player lost. Waiting briefly for tracking to return…"
+        : session.phase === "recovery"
+          ? session.players.length === 1
+            ? "Hands together: take over. Arms crossed: cancel and reset."
+            : "Paired players can resume. B / Esc: cancel and reset."
+          : visible === 0
+            ? "Step into the camera view."
+            : session.players.length === 0
+              ? "Bring your hands together and hold to pair."
+              : !launcher.visible && obstacleIsUnderWay() && !overlayKind
+                ? "Jump, duck or dodge. Cross your arms and hold to pause."
+                : "Release between gestures. Hold hands together to select.";
+    motionReadoutCurrent.textContent = activeHealth.status !== "ready"
+      ? "Tracking unavailable"
+      : reading.current ?? (visible > 0 ? "Ready for a gesture" : "No player in view");
+    motionReadoutHint.textContent = hint;
+    if (motionReadoutLast.textContent !== reading.last) motionReadoutLast.textContent = reading.last;
   }
 
   function closeOverlay(resume: boolean): void {
@@ -1288,7 +1325,6 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     obstacle.setPaused(!resume || currentMode !== "obstacle");
     statusDetail.textContent = resume ? "Game resumed deliberately." : "Console overlay closed.";
     modeButtons[focusedModeIndex]?.focus();
-    paintMotionLegend();
   }
 
   function goBack(): void {
@@ -1703,6 +1739,13 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
         if (!simulatorEnabled) setSimulatorEnabled(true);
         setSimulatorLatchedPose(pose);
       },
+      replacePlayer() {
+        poseSimulator = new MotionPoseSimulator({ playerId: `simulator-player-${++simulatorPlayerGeneration}` });
+        setSimulatorLatchedPose("neutral");
+      },
+      session() {
+        return playerSession.snapshot();
+      },
       snapshot() {
         return { enabled: simulatorEnabled, ...poseSimulator.snapshot };
       },
@@ -1757,7 +1800,6 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     replayRunning = false;
     cancelAnimationFrame(replayFrame);
     clearInterval(clockInterval);
-    if (motionLegendTimer !== undefined) clearTimeout(motionLegendTimer);
     if (trackingLossTimer !== undefined) clearTimeout(trackingLossTimer);
     cursor.dispose();
     gamepads.stop();

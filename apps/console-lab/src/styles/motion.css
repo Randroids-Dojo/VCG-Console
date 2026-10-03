@@ -1198,6 +1198,11 @@ h1 {
   display: none;
 }
 
+.console-overlay[data-motion-feedback="true"] {
+  padding-top: calc(var(--safe-y) + 160px);
+  padding-bottom: var(--safe-y);
+}
+
 .overlay-card {
   width: min(720px, 100%);
   padding: clamp(30px, 5vw, 60px);
@@ -1210,6 +1215,15 @@ h1 {
 
 .overlay-card .eyebrow {
   text-align: center;
+}
+
+.console-overlay[data-kind="recovery"] .overlay-card {
+  width: min(960px, 100%);
+  padding: clamp(24px, 3vw, 40px);
+}
+
+.console-overlay[data-kind="recovery"] .overlay-help {
+  color: var(--paper);
 }
 
 .overlay-card h2 {
@@ -1258,9 +1272,10 @@ h1 {
 .overlay-help {
   margin: 26px 0 0;
   color: var(--muted);
-  font-family: var(--font-brand);
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  font-family: inherit;
+  font-size: clamp(24px, 1.1vw, 32px);
+  line-height: 1.25;
+  letter-spacing: normal;
   text-align: center;
 }
 
@@ -1274,4 +1289,3 @@ kbd {
   font: inherit;
   text-align: center;
 }
-

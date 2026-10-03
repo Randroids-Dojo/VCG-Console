@@ -383,6 +383,35 @@
   display: block;
 }
 
+.motion-readout {
+  position: fixed;
+  z-index: 21;
+  top: calc(var(--safe-y) + clamp(112px, 11vh, 150px));
+  right: var(--safe-x);
+  width: min(660px, 52vw);
+  padding: 14px 18px;
+  border: 1px solid var(--stroke-2);
+  border-radius: 14px;
+  background: var(--rail);
+  color: var(--paper);
+  pointer-events: none;
+  font-size: clamp(24px, 1.3vw, 36px);
+  line-height: 1.25;
+}
+
+.motion-readout[hidden] { display: none; }
+.motion-readout strong { display: block; font-weight: 650; }
+.motion-readout p { margin: 6px 0 0; font-size: inherit; }
+.motion-readout-last { color: var(--muted); }
+
+/* Keep the live reading clear of the recovery choices on smaller TVs. */
+.motion-readout[data-recovery="true"] {
+  top: var(--safe-y);
+  left: var(--safe-x);
+  right: var(--safe-x);
+  width: auto;
+}
+
 /* Live view of the zone the gesture recognizer is reading, so a hand that
    felt held out can be told from one the recognizer placed elsewhere. */
 .sweep-readout {
@@ -431,99 +460,6 @@
   margin: 0;
   color: var(--muted);
   font-size: var(--text-detail);
-}
-
-/* The gesture guide stays on screen while anyone is playing by motion,
-   opposite the controller legend so the two never collide. */
-.motion-legend {
-  position: fixed;
-  z-index: 5;
-  left: var(--safe-x);
-  bottom: var(--safe-y);
-  padding: clamp(10px, 1vh, 18px) clamp(14px, 1.2vw, 26px);
-  border: 1px solid var(--stroke-1);
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--rail) 88%, transparent);
-  box-shadow: var(--shadow-tile);
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.motion-legend[hidden] {
-  display: none;
-}
-
-/* The guide fades once it has been read, and comes back when both hands go
-   out. Reduced motion still gets the change, just without the crossfade. */
-.motion-legend[data-visible="false"] {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.motion-legend[data-visible] {
-  transition:
-    opacity var(--vcg-motion-ambient, 520ms) ease,
-    visibility 0s linear var(--vcg-motion-ambient, 520ms);
-}
-
-.motion-legend[data-visible="true"] {
-  opacity: 1;
-  visibility: visible;
-  transition:
-    opacity var(--vcg-motion-feedback, 160ms) ease,
-    visibility 0s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .motion-legend,
-  .motion-legend[data-visible="true"] {
-    transition: none;
-  }
-}
-
-.motion-legend dl {
-  display: grid;
-  gap: clamp(4px, 0.6vh, 10px);
-  margin: 0;
-}
-
-.motion-legend div {
-  display: grid;
-  gap: 2px;
-  max-width: min(46ch, 34vw);
-}
-
-.motion-legend dt {
-  font-size: var(--text-detail);
-  font-weight: 500;
-}
-
-.motion-legend dd {
-  margin: 0;
-  color: var(--paper);
-  font-size: var(--text-detail);
-  font-weight: 620;
-}
-
-/* A running game consumes the focus gestures, so only the one that still
-   works during play is offered. */
-.motion-legend[data-context="game"] .motion-legend-shell {
-  display: none;
-}
-
-/* The Motion Lab carries a full-width section rail along the bottom, so the
-   legend sits above it rather than under it. */
-#motion-lab:not([hidden]) ~ .motion-legend {
-  bottom: calc(var(--safe-y) + clamp(88px, 9vh, 130px));
-}
-
-@media (min-width: 1000px) and (min-height: 600px) {
-  /* Same contract floor the launcher applies to its own marked text: this
-     legend lives outside .launcher, so it states the floor itself. */
-  .motion-legend [data-tv-critical-text] {
-    font-size: clamp(24px, 1.1vw, 44px);
-    line-height: 1.25;
-  }
 }
 
 .legend-hint {

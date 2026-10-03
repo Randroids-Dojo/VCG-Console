@@ -100,6 +100,11 @@
   const controllerPresence = new ControllerPresence((connected) => {
     connectedControllers = connected;
   });
+  $effect(() => {
+    if (connectedControllers > 0 && launchSession?.diagnostics?.code === "CONTROLLER_NOT_CONNECTED") {
+      retryActiveLaunch();
+    }
+  });
   let visible = $state(true);
   let view = $state<LauncherView>("home");
   const acceptedPortraits = new AcceptedPortraitCollection();
@@ -196,14 +201,17 @@
   ]);
   const museumCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "museum");
   const retroCatalogEntries = launcherCatalog.entries.filter((entry) => entry.surface === "retro");
+  const availableRetroEntries = $derived(retroCatalogEntries.filter(
+    (entry) => LAB_MODE || isCatalogEntryInstalled(entry),
+  ));
 
-  const searchItems: SearchItem[] = [
+  const searchItems: SearchItem[] = $derived([
     { title: "Obstacle", detail: "Motion game", group: "Motion", terms: "dodge duck jump body", action: () => void launchLocalWeb("obstacle", "Obstacle") },
     ...(LAB_MODE ? [{ title: "Motion Lab", detail: "Skeleton diagnostics", group: "Motion", terms: "camera tracker debug signal", action: () => void launchLocalWeb("tracker", "Motion Lab") }] : []),
     ...(LAB_MODE ? [{ title: "Shell Lab", detail: "Gesture navigation", group: "Motion", terms: "swipe select back pause", action: () => void launchLocalWeb("shell", "Shell Lab") }] : []),
     ...(LAB_MODE ? [{ title: "Session authority rehearsal", detail: "Synthetic spectator and takeover abuse suite", group: "Motion", terms: "candidate join spectator pet mirror television passerby takeover recovery", action: () => showView("session-adversarial") }] : []),
     { title: museum.title, detail: museumHost, group: "Online", terms: museum.searchTerms.join(" "), action: launchMuseum },
-    ...launcherCatalog.entries.map((entry): SearchItem => ({
+    ...launcherCatalog.entries.filter((entry) => entry.surface !== "retro" || LAB_MODE || isCatalogEntryInstalled(entry)).map((entry): SearchItem => ({
       title: entry.title,
       detail: entry.searchDetail,
       group: entry.surface === "museum" ? "Game" : "Retro",
@@ -228,14 +236,14 @@
     { title: "Wi-Fi", detail: "Network setup", group: "Settings", terms: "wifi internet network connection", action: () => showSettings("network") },
     { title: "Storage", detail: "Capacity and usage", group: "Settings", terms: "disk space capacity games", action: () => showSettings("storage") },
     ...(LAB_MODE ? [{ title: "Developer options", detail: "Diagnostics and pairing", group: "Settings", terms: "debug diagnostic developer version", action: () => showSettings("developer") }] : []),
-  ];
+  ]);
 
   let disposed = false;
   let profileRefresh = 0;
 
   onMount(() => {
     localDiagnostics.record("launcher.ready", diagnosticUptimeMs());
-    void topbar?.positionSignal();
+    void showView("home");
     void refreshNativePackageInventory();
     if (!LAB_MODE) void refreshHostProfiles();
     controllerPresence.start();
@@ -524,8 +532,14 @@
       });
     } else if (next === "retro-game") {
       circuitShiftGame?.focus();
+    } else if (next === "home") {
+      const firstGame = launcher.querySelector<HTMLButtonElement>(".home-destinations button");
+      if (firstGame) focusControl(firstGame);
     } else if (next === "retro-library") {
       await retroLibrary.open();
+    } else if (next === "retro") {
+      const libraryButton = launcher.querySelector<HTMLButtonElement>(".imported-library-action");
+      if (libraryButton) focusControl(libraryButton);
     } else {
       launcher.querySelector<HTMLButtonElement>(`.launcher-nav [data-view-target="${next}"]`)?.focus({ preventScroll: true });
     }
@@ -872,7 +886,7 @@
    * Refuses a libretro launch while no controller is connected.
    *
    * Re-read at every attempt, including a retry, so plugging a controller in
-   * and pressing Retry is the recovery. This is a shell usability gate, not a
+   * pressing a button resumes the pending launch. This is a shell usability gate, not a
    * security boundary: the Rust host has no backend that reads a physical
    * input device, so it cannot refuse the same launch.
    */
@@ -1322,7 +1336,10 @@
           </div>
         {/if}
         <div class="library-list" data-focus-group>
-          {#each retroCatalogEntries as entry}
+          <button class="imported-library-action" type="button" aria-label="Imported games" onclick={() => showView("retro-library")}>
+            <strong>Imported games</strong><small>Browse your ROM library</small>
+          </button>
+          {#each availableRetroEntries as entry}
             <button
               type="button"
               onclick={() => launchCatalogEntry(entry)}
@@ -1331,11 +1348,12 @@
             </button>
           {/each}
         </div>
+        {#if LAB_MODE}
         <div class="retro-actions">
           <button type="button" onclick={() => launchHostedAdapter("retro")}>Open RetroArch</button>
-          <button type="button" onclick={() => showView("retro-library")}>Imported games</button>
           <button type="button" onclick={openSearch}>Search library</button>
         </div>
+        {/if}
       </div>
 
       <div class="launcher-view retro-library-view" data-launcher-view="retro-library" hidden={view !== "retro-library"}>

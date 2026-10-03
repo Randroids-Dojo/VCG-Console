@@ -227,7 +227,7 @@ export const motionMarkup = `
       <button type="button" data-overlay-action="drop" hidden>CONTINUE WITHOUT</button>
       <button type="button" data-overlay-action="exit">END RUN</button>
       </div>
-      <p class="overlay-help">SWIPE TO CHOOSE / HANDS TOGETHER TO SELECT</p>
+      <p class="overlay-help" id="overlay-help">HANDS TOGETHER TO SELECT / CONTROLLER A TO CONFIRM</p>
     </div>
     </div>
 
@@ -235,14 +235,10 @@ export const motionMarkup = `
     <canvas id="skeleton-mini-canvas"></canvas>
   </aside>
 
-  <aside class="motion-legend" id="motion-legend" hidden aria-label="Motion controls">
-    <dl>
-      <div class="motion-legend-shell"><dt data-tv-critical-text>Hold your right hand out, away from your body</dt><dd data-tv-critical-text>Move focus right</dd></div>
-      <div class="motion-legend-shell"><dt data-tv-critical-text>Touch your head with your right hand</dt><dd data-tv-critical-text>Move focus left</dd></div>
-      <div class="motion-legend-shell"><dt data-tv-critical-text>Hold your left hand out, away from your body</dt><dd data-tv-critical-text>Move focus up</dd></div>
-      <div class="motion-legend-shell"><dt data-tv-critical-text>Touch your head with your left hand</dt><dd data-tv-critical-text>Move focus down</dd></div>
-      <div class="motion-legend-shell"><dt data-tv-critical-text>Bring both hands together and hold</dt><dd data-tv-critical-text>Select</dd></div>
-      <div><dt data-tv-critical-text>Fold your arms across your chest and hold</dt><dd data-tv-critical-text id="motion-legend-back">Back</dd></div>
-    </dl>
+  <aside class="motion-readout" id="motion-readout" hidden aria-label="Motion feedback">
+    <strong id="motion-readout-current" data-tv-critical-text>Ready for a gesture</strong>
+    <p id="motion-readout-hint" data-tv-critical-text>Bring your hands together and hold to pair.</p>
+    <p class="motion-readout-last" data-tv-critical-text>Last: <span id="motion-readout-last" role="status" aria-live="polite">No gesture completed yet.</span></p>
   </aside>
+
 `;
