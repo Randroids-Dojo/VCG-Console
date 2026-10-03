@@ -10,6 +10,8 @@ console_uid=$(id -u "$console_user")
 console_home=$(getent passwd "$console_user" | cut -d: -f6)
 [[ $(uname -m) == aarch64 && -d "$console_home" ]] || exit 1
 id -nG "$console_user" | tr ' ' '\n' | grep -qx input
+# Refuse before installing files if this login has no usable user manager.
+runuser -u "$console_user" -- env XDG_RUNTIME_DIR="/run/user/$console_uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$console_uid/bus" systemctl --user show-environment >/dev/null
 cd "$stage"
 # These hashes bind this installer to the source and ARM64 build reviewed for this Pi.
 echo '839422660ece24d7f57b106ff918e5670991c7204d33d5828dc86e2a3d8f7a11  steam-puck-bridge' | sha256sum -c -
@@ -28,6 +30,8 @@ install -m644 steam-puck-bridge.c LICENSE THIRD-PARTY-NOTICES.md /usr/local/shar
 cat > "$rules" <<'RULES'
 # Valve Steam Controller 2026 only; existing console input group, no world access.
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="28de", ATTRS{idProduct}=="130[2345]", GROUP="input", MODE="0660"
+# Bluetooth Triton has no USB idVendor/idProduct attributes.
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", KERNELS=="0005:28DE:1303.*", GROUP="input", MODE="0660"
 KERNEL=="uinput", SUBSYSTEM=="misc", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"
 RULES
 install -d -o "$console_user" -g "$(id -gn "$console_user")" "$(dirname "$unit")"
@@ -59,5 +63,6 @@ udevadm trigger --action=change --subsystem-match=hidraw
 udevadm trigger --action=change --subsystem-match=misc --sysname-match=uinput
 udevadm settle
 runuser -u "$console_user" -- env XDG_RUNTIME_DIR="/run/user/$console_uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$console_uid/bus" systemctl --user daemon-reload
-runuser -u "$console_user" -- env XDG_RUNTIME_DIR="/run/user/$console_uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$console_uid/bus" systemctl --user enable --now vcg-steam-controller.service
+runuser -u "$console_user" -- env XDG_RUNTIME_DIR="/run/user/$console_uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$console_uid/bus" systemctl --user enable vcg-steam-controller.service
+runuser -u "$console_user" -- env XDG_RUNTIME_DIR="/run/user/$console_uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$console_uid/bus" systemctl --user restart vcg-steam-controller.service
 echo "Controller bridge installed. Previous files preserved at $backup"

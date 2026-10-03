@@ -47,7 +47,7 @@
     {
       "role": "controller-qualification-plan",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
+      "sha256": "8f25d07d241e0eaad49ebad2b01e0c8e8e1e26954f3ab1a2286f5b309baa0e2a"
     },
     {
       "role": "prototype-success-boundary",

@@ -22,6 +22,7 @@
     loading: "IN PROGRESS",
     slow: "TAKING LONGER",
     ready: "READY",
+    running: "GAME RUNNING",
     offline: "OFFLINE",
     hung: "NOT RESPONDING",
     crashed: "STOPPED",

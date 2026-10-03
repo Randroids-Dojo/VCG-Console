@@ -18,17 +18,17 @@
     {
       "role": "boot-wake-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
+      "sha256": "12f37a21e66496cc0526df8d753e19d138456e0851098af1809d51db8df636aa"
     },
     {
       "role": "browser-tv-geometry-boundary",
       "path": "benchmarks/tv-conformance/windows-x64-installed-chrome-launcher-representative-surfaces-tv-conformance-v1.json",
-      "sha256": "612c59dbe2e2a161b6c7cd78759785c7ddf06d9b736f088ebba15c8f182f57c0"
+      "sha256": "6cec3ec68fb47631810090679ea5dfc13eef019b9a461c0fd6b43c7c88f3b505"
     },
     {
       "role": "sustained-load-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "e2f5bfb4c7e8ff42aabdf9b148771582af97029344b725aa4d2ccad320c7fca6"
+      "sha256": "77c184b8766588ca02d6d7c519dbeacb630d61ddabcf0184c5e270384cfb3a62"
     }
   ],
   "targetBoundary": {

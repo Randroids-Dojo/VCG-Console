@@ -38,8 +38,8 @@ export class GestureReadout {
         ? "Released too soon"
         : actionFeedback(action).phaseLabel;
     this.#current = { key, text: `${gesture} · ${phase}`, until: nowMs + 1_500, triggered: action.phase === "triggered" };
-    if (action.phase === "triggered") this.#last = `${gesture} — ${intent}`;
-    if (action.phase === "cancelled") this.#last = `${gesture} — released before the hold finished.`;
+    if (action.phase === "triggered") this.#last = `${gesture} - ${intent}`;
+    if (action.phase === "cancelled") this.#last = `${gesture} - released before the hold finished.`;
   }
 
   result(message: string): void {

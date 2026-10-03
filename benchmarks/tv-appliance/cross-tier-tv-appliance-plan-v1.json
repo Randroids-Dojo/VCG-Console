@@ -12,7 +12,7 @@
     {
       "role": "pi-hdmi-audio-cec-boundary",
       "path": "benchmarks/pi5-hdmi-cec/pi5-hdmi-audio-cec-plan-v1.json",
-      "sha256": "fbacd6635402bad273d890406dd7539cab1d4a44f31c1992066029a691f9bb64"
+      "sha256": "42df0b1b9a5ffb78ab180a986cc3052c867c8c4e3b8bdc73f479f1584923fbd6"
     },
     {
       "role": "ordinary-x86-target-boundary",
@@ -22,7 +22,7 @@
     {
       "role": "cross-tier-timing-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
+      "sha256": "12f37a21e66496cc0526df8d753e19d138456e0851098af1809d51db8df636aa"
     },
     {
       "role": "display-audio-settings-boundary",

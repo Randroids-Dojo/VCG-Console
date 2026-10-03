@@ -32,7 +32,7 @@
     {
       "role": "standard-concurrent-workload-plan",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "52fead4e6999c976e6b36b3a8e0183403723b8b23948394690bdbaf2d9f7ce04"
+      "sha256": "c6f3d7a0247184304b8bfb8cd096a57ee9cb0552d8906e8a0de5a121965c7915"
     },
     {
       "role": "pi-image-boundary",
@@ -67,27 +67,27 @@
     {
       "role": "controller-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
+      "sha256": "8f25d07d241e0eaad49ebad2b01e0c8e8e1e26954f3ab1a2286f5b309baa0e2a"
     },
     {
       "role": "boot-resume-launch-boundary",
       "path": "benchmarks/boot-resume-launch-timing/cross-tier-timing-plan-v1.json",
-      "sha256": "6aa1a8746b3457f97d782f78d977f5110f0b455a3a1fc995e406c23f91f1629b"
+      "sha256": "12f37a21e66496cc0526df8d753e19d138456e0851098af1809d51db8df636aa"
     },
     {
       "role": "tv-appliance-boundary",
       "path": "benchmarks/tv-appliance/cross-tier-tv-appliance-plan-v1.json",
-      "sha256": "d14af751b5e84e21a303a9fe382f1438ea0abdd399ca6a98bac9ee1c157df6e0"
+      "sha256": "5f5e75e16c640d886b4029d5ba99c9b834a0271b13e0d6b41c2e0baef1cbce91"
     },
     {
       "role": "idle-energy-boundary",
       "path": "benchmarks/idle-energy/cross-tier-idle-energy-plan-v1.json",
-      "sha256": "9478293fbd437ec80f1d20de289251a0e39c3355c4d10807006b937602a3cc8a"
+      "sha256": "ca5da60206d821b127460e0f902707e2a5798c108acbbdd5191e32677b17df96"
     },
     {
       "role": "pi-thermal-acoustic-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "e2f5bfb4c7e8ff42aabdf9b148771582af97029344b725aa4d2ccad320c7fca6"
+      "sha256": "77c184b8766588ca02d6d7c519dbeacb630d61ddabcf0184c5e270384cfb3a62"
     },
     {
       "role": "accountless-offline-boundary",
@@ -107,7 +107,7 @@
     {
       "role": "optional-steam-workload-boundary",
       "path": "benchmarks/steamos-workload/steamos-pose-game-workload-plan-v1.json",
-      "sha256": "2ebcbcdbcee8f75cdaa100ffcb5b81a85814644bc2764219e06a060c9e2e3044"
+      "sha256": "f3144619dab4893bf6a77e3c22e00b89033f753568977fe985b6927013c1e560"
     }
   ],
   "targetTiers": [

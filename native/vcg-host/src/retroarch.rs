@@ -330,6 +330,30 @@ impl RetroArchPlan {
         for artifact in &self.materialized_artifacts {
             materialize_verified_artifact(artifact)?;
         }
+        let controllers = self.storage.session.join("autoconfig").join("udev");
+        create_private_directory(&controllers)?;
+        for (name, contents) in [
+            (
+                "xbox360.cfg",
+                include_str!("retro-controller-profiles/xbox360.cfg"),
+            ),
+            ("ps3.cfg", include_str!("retro-controller-profiles/ps3.cfg")),
+        ] {
+            let temporary = controllers.join(format!("{name}.tmp-{}", std::process::id()));
+            fs::write(&temporary, contents).map_err(|source| RetroArchError::Io {
+                operation: "write controller profile",
+                path: temporary.clone(),
+                source,
+            })?;
+            set_private_file_permissions(&temporary)?;
+            fs::rename(&temporary, controllers.join(name)).map_err(|source| {
+                RetroArchError::Io {
+                    operation: "publish controller profile",
+                    path: temporary,
+                    source,
+                }
+            })?;
+        }
 
         let temporary = self
             .storage
@@ -906,6 +930,20 @@ fn render_config(storage: &RetroArchStorage) -> String {
         // 0 is RetroArch's "no combo" value; setting it here means a base
         // configuration cannot reintroduce one.
         ("input_menu_toggle_gamepad_combo", "0".to_owned()),
+        ("input_autodetect_enable", "true".to_owned()),
+        (
+            "joypad_autoconfig_dir",
+            path_value(&storage.session.join("autoconfig")),
+        ),
+        // Prefer the Steam bridge when both it and the Pi's PS3 pad are present.
+        // Preferred (1), not reserved (2), allows another pad when it is absent.
+        (
+            "input_player1_reserved_device",
+            "Microsoft X-Box 360 pad".to_owned(),
+        ),
+        ("input_player1_device_reservation_type", "1".to_owned()),
+        ("input_player1_analog_dpad_mode", "1".to_owned()),
+        ("input_player2_analog_dpad_mode", "1".to_owned()),
         ("savefile_directory", path_value(&storage.saves)),
         ("savestate_directory", path_value(&storage.states)),
         ("input_remapping_directory", path_value(&storage.remaps)),
@@ -1452,6 +1490,28 @@ mod tests {
             plan(&request),
             Err(RetroArchError::UnsafeSandboxOverlap { .. })
         ));
+    }
+
+    #[test]
+    fn prepares_controller_profiles_and_prefers_the_steam_bridge() {
+        let fixture = Fixture::new();
+        let plan = plan(&fixture.request()).expect("valid plan");
+        plan.prepare().expect("prepare plan");
+        let profiles = plan.storage().session.join("autoconfig/udev");
+        let xbox = fs::read_to_string(profiles.join("xbox360.cfg")).expect("Xbox profile");
+        let ps3 = fs::read_to_string(profiles.join("ps3.cfg")).expect("PS3 profile");
+        assert!(xbox.contains("input_start_btn = \"7\""));
+        assert!(ps3.contains("input_start_btn = \"9\""));
+        assert!(!xbox.contains("input_menu_toggle"));
+        assert!(!ps3.contains("input_menu_toggle"));
+        assert!(
+            plan.generated_config()
+                .contains("input_player1_device_reservation_type = \"1\"")
+        );
+        assert!(
+            plan.generated_config()
+                .contains("input_player1_analog_dpad_mode = \"1\"")
+        );
     }
 
     #[test]

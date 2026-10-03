@@ -10,7 +10,7 @@
     {
       "role": "controller-boundary",
       "path": "benchmarks/controller-qualification/cross-tier-controller-plan-v1.json",
-      "sha256": "9579aa649f33cd0fa0b4745ca432198356526f904a3d5ab677b70ba8d1499b49"
+      "sha256": "8f25d07d241e0eaad49ebad2b01e0c8e8e1e26954f3ab1a2286f5b309baa0e2a"
     },
     {
       "role": "camera-boundary",
@@ -20,12 +20,12 @@
     {
       "role": "workload-boundary",
       "path": "benchmarks/concurrent-game-workload/pi5-hailo-concurrent-game-plan-v1.json",
-      "sha256": "52fead4e6999c976e6b36b3a8e0183403723b8b23948394690bdbaf2d9f7ce04"
+      "sha256": "c6f3d7a0247184304b8bfb8cd096a57ee9cb0552d8906e8a0de5a121965c7915"
     },
     {
       "role": "enclosed-thermal-boundary",
       "path": "benchmarks/pi5-thermal-acoustic/pi5-cooling-soak-plan-v1.json",
-      "sha256": "e2f5bfb4c7e8ff42aabdf9b148771582af97029344b725aa4d2ccad320c7fca6"
+      "sha256": "77c184b8766588ca02d6d7c519dbeacb630d61ddabcf0184c5e270384cfb3a62"
     }
   ],
   "targetBoundary": {

@@ -1074,6 +1074,10 @@
       }
       if (snapshot.state === "completed") {
         activeNativeRequestId = undefined;
+        if (supervisor.snapshot.status === "running") {
+          closeLaunch();
+          return;
+        }
         supervisor.crash(
           "The game process exited before window readiness was proven",
           snapshot.detailCode,
@@ -1082,6 +1086,10 @@
       }
       if (snapshot.state === "cancelled") {
         activeNativeRequestId = undefined;
+        if (supervisor.snapshot.status === "running") {
+          closeLaunch();
+          return;
+        }
         supervisor.unavailable("Native launch was cancelled", snapshot.detailCode);
         return;
       }
@@ -1092,7 +1100,11 @@
         return;
       }
 
-      supervisor.heartbeat(nativeLifecycleDetail(snapshot));
+      if (snapshot.state === "running" && supervisor.snapshot.adapter === "retro") {
+        supervisor.running("Game process running · hold Select + Start to exit");
+      } else {
+        supervisor.heartbeat(nativeLifecycleDetail(snapshot));
+      }
       await new Promise((resolve) => window.setTimeout(resolve, 200));
       if (
         launchSupervisor !== supervisor ||

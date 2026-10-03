@@ -26,7 +26,7 @@ export type SettingsPanel =
   | "developer";
 export type LaunchAdapter = "remote-web" | "local-web" | "native" | "retro";
 export type LaunchFaultPreview = "slow" | "offline" | "hung" | "crashed" | "recovered";
-export type LaunchStatus = "loading" | "slow" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";
+export type LaunchStatus = "loading" | "slow" | "running" | "ready" | "offline" | "hung" | "crashed" | "recovering" | "recovered" | "unavailable";
 
 export interface LaunchPhase {
   label: string;

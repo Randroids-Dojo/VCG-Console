@@ -371,7 +371,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(
       page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
-    await expect(page.locator('[data-view-target="home"]')).toBeFocused();
+    await expect(page.locator('.home-destinations button').first()).toBeFocused();
   });
 
   test(`launcher Wi-Fi offline state satisfies the candidate TV contract at ${resolution.id}`, async ({
@@ -394,7 +394,7 @@ for (const resolution of RESOLUTIONS) {
     await expect(
       page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
-    await expect(page.locator('[data-view-target="home"]')).toBeFocused();
+    await expect(page.locator('.home-destinations button').first()).toBeFocused();
   });
 
   test(`launcher offline recovery dialog satisfies the candidate TV contract at ${resolution.id}`, async ({
@@ -606,7 +606,7 @@ for (const resolution of RESOLUTIONS) {
       page.getByRole("heading", { name: /^Games$/ }),
     ).toBeVisible();
     await expect(
-      page.locator('.launcher-nav [data-view-target="home"]'),
+      page.locator('.home-destinations button').first(),
     ).toBeFocused();
   });
 

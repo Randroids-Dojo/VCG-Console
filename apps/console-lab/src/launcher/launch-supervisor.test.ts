@@ -34,6 +34,19 @@ function harness(overrides: Partial<LaunchSupervisorOptions> = {}) {
 }
 
 describe("LaunchSupervisor", () => {
+  it("keeps a running game beyond startup while detecting a lost host heartbeat", () => {
+    const { supervisor, setNow } = harness();
+    supervisor.start();
+    supervisor.running();
+    setNow(5_000);
+    supervisor.running();
+    supervisor.evaluate();
+    expect(supervisor.snapshot.status).toBe("running");
+    setNow(5_501);
+    supervisor.evaluate();
+    expect(supervisor.snapshot).toMatchObject({ status: "hung", diagnostics: { code: "HEARTBEAT_TIMEOUT" } });
+  });
+
   it("distinguishes slow work from a silent hang", () => {
     const { supervisor, setNow } = harness();
     supervisor.start();

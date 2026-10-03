@@ -733,7 +733,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     updatePlayerAssignmentControls();
     const joined = playerSession.snapshot().players.find((player) => player.trackId === candidate.id);
     statusDetail.textContent = `Player ${joined?.slot ?? requestedSlot ?? 1} joined. Its gesture baseline is isolated from every other visible body.`;
-    gestureReadout.result(`${trackId === undefined ? "" : "Hands together — "}Player ${joined?.slot ?? requestedSlot ?? 1} paired. Release your hands.`);
+    gestureReadout.result(`${trackId === undefined ? "" : "Hands together - "}Player ${joined?.slot ?? requestedSlot ?? 1} paired. Release your hands.`);
   }
 
   function synchronizeActionEngineAssignment(): void {
@@ -1221,7 +1221,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
       try {
         playerSession.resumeRecovery(candidate);
         synchronizeActionEngineAssignment();
-        gestureReadout.result("Player recovered — release your hands before the next gesture.");
+        gestureReadout.result("Player recovered - release your hands before the next gesture.");
       } catch (error) {
         statusDetail.textContent = error instanceof Error ? error.message : String(error);
         required<HTMLElement>("#overlay-copy").textContent = "Both paired players must be visible. Continue without the missing player, or choose Cancel & Reset.";
@@ -1300,7 +1300,7 @@ export function startConsole(app: HTMLDivElement): () => Promise<void> {
     const hint = activeHealth.status !== "ready"
       ? "Tracking unavailable. Use the controller or restart the camera."
       : session.phase === "frozen"
-        ? "Player lost. Waiting briefly for tracking to return…"
+        ? "Player lost. Waiting briefly for tracking to return..."
         : session.phase === "recovery"
           ? session.players.length === 1
             ? "Hands together: take over. Arms crossed: cancel and reset."
