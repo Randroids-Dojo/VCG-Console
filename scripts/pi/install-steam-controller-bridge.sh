@@ -34,8 +34,10 @@ SUBSYSTEM=="hidraw", ATTRS{idVendor}=="28de", ATTRS{idProduct}=="130[2345]", GRO
 KERNEL=="hidraw*", SUBSYSTEM=="hidraw", KERNELS=="0005:28DE:1303.*", GROUP="input", MODE="0660"
 KERNEL=="uinput", SUBSYSTEM=="misc", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"
 RULES
-install -d -o "$console_user" -g "$(id -gn "$console_user")" "$(dirname "$unit")"
-cat > "$unit" <<'UNIT'
+# All writes under the user's home run as that user. A redirected or replaced
+# home path must never turn this installer into a root file-write primitive.
+runuser -u "$console_user" -- mkdir -p "$(dirname "$unit")"
+runuser -u "$console_user" -- tee "$unit" >/dev/null <<'UNIT'
 [Unit]
 Description=VCG Steam Controller 2026 gamepad bridge
 Documentation=https://github.com/benashby/steam-puck-bridge/tree/fe319f2a53496ab729d8b09aa395c921e402e416
@@ -57,7 +59,6 @@ SystemCallErrorNumber=EPERM
 [Install]
 WantedBy=default.target
 UNIT
-chown "$console_user:$(id -gn "$console_user")" "$unit"
 udevadm control --reload-rules
 udevadm trigger --action=change --subsystem-match=hidraw
 udevadm trigger --action=change --subsystem-match=misc --sysname-match=uinput
